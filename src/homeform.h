@@ -169,6 +169,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
     Q_PROPERTY(
         bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
+    Q_PROPERTY(bool chartTreadmillMode READ chartTreadmillMode NOTIFY chartTreadmillModeChanged WRITE
+                   setChartTreadmillMode)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
@@ -190,16 +192,21 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    // a workout import (file or folder) is copying or adding to the history
+    Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
+    Q_PROPERTY(bool garminFtpPromptRequested READ garminFtpPromptRequested NOTIFY garminFtpPromptRequestedChanged WRITE setGarminFtpPromptRequested)
+    Q_PROPERTY(QString garminFtpPromptMessage READ garminFtpPromptMessage NOTIFY garminFtpPromptMessageChanged)
     Q_PROPERTY(bool clipboardWorkoutPromptRequested READ clipboardWorkoutPromptRequested NOTIFY clipboardWorkoutPromptRequestedChanged WRITE setClipboardWorkoutPromptRequested)
     Q_PROPERTY(QString clipboardWorkoutPromptName READ clipboardWorkoutPromptName NOTIFY clipboardWorkoutPromptNameChanged)
     Q_PROPERTY(bool clipboardWorkoutDeletePromptRequested READ clipboardWorkoutDeletePromptRequested NOTIFY clipboardWorkoutDeletePromptRequestedChanged WRITE setClipboardWorkoutDeletePromptRequested)
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
+    Q_PROPERTY(bool androidNotificationPromptRequested READ androidNotificationPromptRequested NOTIFY androidNotificationPromptRequestedChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -235,6 +242,11 @@ class homeform : public QObject {
     QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
+    // Status line of the search for the equipment on the home page, with the last device found;
+    // empty once it is connected
+    Q_INVOKABLE QString bluetoothSearchStatus();
+    // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
+    Q_INVOKABLE void bluetoothSearchNow();
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -335,33 +347,36 @@ class homeform : public QObject {
                     QLinearGradient plotAreaGradient;
                     plotAreaGradient.setStart(QPointF(0, 0));
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
+                    const double heartChartBottom = maxHeartRate * 0.5;
+                    const double heartChartTop = maxHeartRate;
+                    const double heartChartRange = heartChartTop - heartChartBottom;
+                    auto heartGradientStop = [&](double zonePercent) {
+                        double stop = (heartChartTop - ((maxHeartRate * zonePercent) / 100.0)) / heartChartRange;
+                        if (stop < 0.0)
+                            return 0.0;
+                        if (stop > 1.0)
+                            return 1.0;
+                        return stop;
+                    };
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                .toDouble()),
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                .toDouble()),
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                .toDouble()),
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                .toDouble()),
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
                     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
@@ -392,6 +407,10 @@ class homeform : public QObject {
         QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
         QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
+        QString freebeatSerialPort =
+            settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+        QString computrainerSerialPort =
+            settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
 
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -402,6 +421,7 @@ class homeform : public QObject {
         bool fakedevice_elliptical =
             settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
         bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
         bool fakedevice_treadmill =
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
@@ -409,8 +429,9 @@ class homeform : public QObject {
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
-                !fakedevice_rower && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() && 
-                proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty();
+                !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
+                proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
+                freebeatSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
 
 
@@ -430,7 +451,30 @@ class homeform : public QObject {
         return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
     }
 
+    Q_INVOKABLE bool rpeFeelPopupEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool();
+    }
+
+    // Called from QML once the post-workout RPE/feel popup is dismissed (Save or Skip, rpe/feel -1 if skipped).
+    // Stop() defers fit_save_clicked() until this is called when the popup is enabled.
+    Q_INVOKABLE void finalizeFitSave(int rpe, int feel) {
+        m_workoutRpe = rpe;
+        m_workoutFeel = feel;
+        fit_save_clicked();
+    }
+
     Q_INVOKABLE bool locationServices() {
+        return m_locationServices;
+    }
+
+    // Asks Android again: Bluetooth and Location may be switched on after the app started
+    Q_INVOKABLE bool refreshLocationServices() {
+#ifdef Q_OS_ANDROID
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/LocationHelper", "start", "(Landroid/content/Context;)Z",
+            QtAndroid::androidContext().object());
+#endif
         return m_locationServices;
     }
 
@@ -491,6 +535,8 @@ class homeform : public QObject {
     bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
     QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
+    bool garminFtpPromptRequested() { return m_garminFtpPromptRequested; }
+    QString garminFtpPromptMessage() { return m_garminFtpPromptMessage; }
     bool echelonBridgeSwitchPromptRequested() { return m_echelonBridgeSwitchPromptRequested; }
     bool echelonEnablePromptRequested() { return m_echelonEnablePromptRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
@@ -502,6 +548,7 @@ class homeform : public QObject {
     bool videoVisible() { return m_VideoVisible; }
     bool chartIconVisible();
     bool chartFooterVisible() { return m_ChartFooterVisible; }
+    bool chartTreadmillMode() { return m_ChartTreadmillMode; }
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -542,11 +589,17 @@ class homeform : public QObject {
         m_ChartFooterVisible = value;
         emit chartFooterVisibleChanged(m_ChartFooterVisible);
     }
+    void setChartTreadmillMode(bool value) {
+        m_ChartTreadmillMode = value;
+        emit chartTreadmillModeChanged(m_ChartTreadmillMode);
+    }
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
+    // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
+    void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -560,6 +613,13 @@ class homeform : public QObject {
         }
         m_garminWorkoutPromptRequested = value;
         emit garminWorkoutPromptRequestedChanged(value);
+    }
+    void setGarminFtpPromptRequested(bool value) {
+        if (m_garminFtpPromptRequested == value) {
+            return;
+        }
+        m_garminFtpPromptRequested = value;
+        emit garminFtpPromptRequestedChanged(value);
     }
     bool clipboardWorkoutPromptRequested() const { return m_clipboardWorkoutPromptRequested; }
     QString clipboardWorkoutPromptName() const { return m_clipboardWorkoutPromptName; }
@@ -592,11 +652,24 @@ class homeform : public QObject {
         m_echelonEnablePromptRequested = value;
         emit echelonEnablePromptRequestedChanged(value);
     }
+    bool androidNotificationPromptRequested() const { return m_androidNotificationPromptRequested; }
+    void setAndroidNotificationPromptRequested(bool value) {
+        if (m_androidNotificationPromptRequested == value) {
+            return;
+        }
+        m_androidNotificationPromptRequested = value;
+        emit androidNotificationPromptRequestedChanged(value);
+    }
+    // A virtual device lost its client because Android cut QZ's network in the background
+    // (DirCon NetworkError while QZ is not active): offer the Android notification on resume
+    void backgroundNetworkLost();
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
+    Q_INVOKABLE void garmin_accept_ftp_update();
+    Q_INVOKABLE void garmin_dismiss_ftp_update();
     Q_INVOKABLE QUrl clipboard_workout_url() const { return QUrl::fromLocalFile(m_clipboardWorkoutPromptFile); }
     Q_INVOKABLE void clipboard_accept_workout_prompt();
     Q_INVOKABLE void clipboard_dismiss_workout_prompt();
@@ -606,6 +679,11 @@ class homeform : public QObject {
     Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
     Q_INVOKABLE void echelon_enable_virtual_bridge();
     Q_INVOKABLE void echelon_dismiss_enable_prompt();
+    Q_INVOKABLE void android_notification_prompt_enable();
+    Q_INVOKABLE void android_notification_prompt_dismiss(bool dontAskAgain);
+    // Start or stop the Android notification (foreground service) at once, no restart: the
+    // android_notification_v2 switch in the settings and the prompt above. Doesn't write the setting.
+    Q_INVOKABLE void android_notification_apply(bool enabled);
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
@@ -624,6 +702,9 @@ class homeform : public QObject {
 
 private:
     void clearWebViewCache();
+    void handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreateTime,
+                               int runningFtp, const QString &runningCreateTime);
+    void markPendingGarminFtpSeen();
     void showNextGarminWorkoutPrompt();
 
 public:
@@ -637,9 +718,25 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
+    // Workout history import: one .fit file picked by the user (iOS and desktop; Android goes
+    // through openAndroidDocumentPicker("fit")), or every .fit file of the QZ folder.
+    Q_INVOKABLE void importFitFile(const QUrl &fileUrl);
+    Q_INVOKABLE void importFitFolder();
+    // the workout history page was shown: a pending offer to recover the workouts of a
+    // previous install is made there (historyRecoveryOfferRequested)
+    Q_INVOKABLE void historyPageOpened();
+    bool fitImportRunning() const { return m_fitImportRunning; }
+    Q_INVOKABLE void setFitImportRunning(bool running) {
+        if (m_fitImportRunning != running) {
+            m_fitImportRunning = running;
+            emit fitImportRunningChanged();
+        }
+    }
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -935,6 +1032,8 @@ public:
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
+    // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
+    QString lastFoundDevice;
     bool m_generalPopupVisible = false;
     bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;
@@ -943,6 +1042,7 @@ public:
     bool m_VideoVisible = false;
     bool m_ChartFooterVisible = false;
     bool m_ChartIconVisible = false;
+    bool m_ChartTreadmillMode = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
@@ -977,13 +1077,21 @@ public:
     bool m_stravaUploadRequested = false;
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
+    bool m_garminFtpPromptRequested = false;
     bool m_clipboardWorkoutPromptRequested = false;
     bool m_clipboardWorkoutDeletePromptRequested = false;
     bool m_echelonBridgeSwitchPromptRequested = false;
     bool m_echelonEnablePromptRequested = false;
+    bool m_androidNotificationPromptRequested = false;
+    bool m_androidNotificationPromptPending = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
+    QString m_garminFtpPromptMessage = QStringLiteral("");
+    int m_pendingGarminCyclingFtp = 0;
+    int m_pendingGarminRunningFtp = 0;
+    QString m_pendingGarminCyclingFtpCreateTime = QStringLiteral("");
+    QString m_pendingGarminRunningFtpCreateTime = QStringLiteral("");
     QString m_clipboardWorkoutPromptName = QStringLiteral("");
     QString m_clipboardWorkoutPromptFile = QStringLiteral("");
     QString m_activeClipboardWorkoutFile = QStringLiteral("");
@@ -992,6 +1100,24 @@ public:
     QStringList m_pendingGarminWorkoutPromptNames;
     QStringList m_pendingGarminWorkoutPromptDates;
     FitDatabaseProcessor *fitProcessor = nullptr;
+    // queues .fit files that already sit in the fit folder for the history database
+    void importFitFilesToHistory(const QStringList &files);
+    // path of a history database this install can open; sets m_historyDatabaseIsNew
+    QString historyDatabasePath();
+    // folder import through the Android folder grant; without a saved grant it opens the
+    // picker only when allowPicker is set, and returns false otherwise
+    bool startFitFolderImport(bool allowPicker);
+    void offerHistoryRecovery();
+    void maybeOfferHistoryRecovery();
+    int historyWorkoutCount();
+    QString m_historyDatabasePath;
+    bool m_historyDatabaseIsNew = false;
+    bool m_historyRecoveryChecked = false;
+    bool m_historyRecoveryPending = false;
+    bool m_historyPageOpened = false;
+    // automatic import after a new database: no toast when nothing new was found
+    bool m_fitImportQuiet = false;
+    bool m_fitImportRunning = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1010,7 +1136,13 @@ public:
     QString lastFitFileSaved = QLatin1String("");
     QString lastTrainProgramFileSaved = QLatin1String("");
 
+    // Perceived exertion (RPE, 0-10) and feel (0-100) entered in the post-workout popup; -1 means not set
+    int m_workoutRpe = -1;
+    int m_workoutFeel = -1;
+
     QList<QString> chartImagesFilenames;
+    bool mailSent = false;
+    void removeOldWorkoutImages();
 
     bool m_autoresistance = true;
     bool m_stopRequested = false;
@@ -1055,11 +1187,15 @@ public:
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
+    const float powerJog = 5.0;
+    const int32_t resistanceOffsetJog = 1;
 
     void update();
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
+    bool adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
+                                     const QString &reason);
     void backup();
     bool getDevice();
     bool getLap();
@@ -1111,6 +1247,7 @@ public:
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
     void handleOAuthCallbackUrl(const QString &callbackUrl);
+    void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
   private slots:
     void Start();
@@ -1175,6 +1312,8 @@ public:
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void externalControllerGearUp();
+    void externalControllerGearDown();
     void speedPlus();
     void speedMinus();
     void inclinationPlus();
@@ -1186,6 +1325,7 @@ public:
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
+    void onTrainingProgramIntervalTransition();
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
@@ -1205,6 +1345,11 @@ public:
 
     void changeOfdevice();
     void changeOflap();
+    void androidDocumentPicked(QString kind, QUrl localUrl);
+    // a new history database was started and the workouts of a previous install may be
+    // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
+    void historyRecoveryOfferRequested();
+    void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);
@@ -1220,16 +1365,20 @@ public:
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
+    void restartToApplyRequested(QString message);
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
     void garminWorkoutPromptRequestedChanged(bool value);
     void garminWorkoutPromptNameChanged(QString value);
     void garminWorkoutPromptDateChanged(QString value);
+    void garminFtpPromptRequestedChanged(bool value);
+    void garminFtpPromptMessageChanged(QString value);
     void clipboardWorkoutPromptRequestedChanged(bool value);
     void clipboardWorkoutPromptNameChanged(QString value);
     void clipboardWorkoutDeletePromptRequestedChanged(bool value);
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
+    void androidNotificationPromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
@@ -1240,6 +1389,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void chartTreadmillModeChanged(bool value);
     void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
@@ -1253,6 +1403,7 @@ public:
     void instructorNameChanged(QString name);
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
+    void trainingProgramIntervalSoundRequested();
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
@@ -1275,4 +1426,3 @@ public:
 };
 
 #endif // HOMEFORM_H
-

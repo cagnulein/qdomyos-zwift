@@ -12,6 +12,8 @@
 #include <QAndroidJniObject>
 #endif
 #include "fitdatabaseprocessor.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -191,19 +193,130 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
     return uploadActivityLabelFromSport(sport);
 }
 
+#ifdef Q_OS_ANDROID
+bool clearAndroidJniException(const char *context) {
+    QAndroidJniEnvironment env;
+    if (!env->ExceptionCheck()) {
+        return false;
+    }
+
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    qWarning() << "Android JNI exception cleared during" << context;
+    return true;
+}
+
+QString fallbackFileNameFromUri(const QString &uriString) {
+    QUrl url(uriString);
+    QString fileName = url.fileName();
+    if (!fileName.isEmpty()) {
+        return fileName;
+    }
+
+    const QString lastSegment = url.path().section('/', -1);
+    if (!lastSegment.isEmpty()) {
+        return lastSegment;
+    }
+
+    return QStringLiteral("imported_file");
+}
+
+constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
+constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
+constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
+constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr int AndroidDocumentPickerFitRequestCode = 4105;
+constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
+constexpr jint AndroidActivityResultOk = -1;
+#endif
+double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
+    const double z1 = std::max(1.0, zone1);
+    const double z2 = zone2 > z1 ? zone2 : z1 + 10.0;
+    const double z3 = zone3 > z2 ? zone3 : z2 + 10.0;
+    const double z4 = zone4 > z3 ? zone4 : z3 + 10.0;
+
+    if (percentHeartRate < z1)
+        return std::max(0.0, percentHeartRate / z1);
+    if (percentHeartRate < z2)
+        return 1.0 + ((percentHeartRate - z1) / (z2 - z1));
+    if (percentHeartRate < z3)
+        return 2.0 + ((percentHeartRate - z2) / (z3 - z2));
+    if (percentHeartRate < z4)
+        return 3.0 + ((percentHeartRate - z3) / (z4 - z3));
+
+    const double top = z4 < 100.0 ? 100.0 : z4 + 10.0;
+    return 4.0 + ((percentHeartRate - z4) / (top - z4));
+}
+
+quint32 crc32ForGzip(const QByteArray &data) {
+    quint32 crc = 0xffffffffU;
+    for (const char byte : data) {
+        crc ^= static_cast<quint8>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            crc = (crc >> 1) ^ (0xedb88320U & (0U - (crc & 1U)));
+        }
+    }
+    return crc ^ 0xffffffffU;
+}
+
+void appendLittleEndian32(QByteArray *data, quint32 value) {
+    data->append(static_cast<char>(value & 0xffU));
+    data->append(static_cast<char>((value >> 8) & 0xffU));
+    data->append(static_cast<char>((value >> 16) & 0xffU));
+    data->append(static_cast<char>((value >> 24) & 0xffU));
+}
+
+QByteArray gzipCompress(const QByteArray &data, bool *ok) {
+    if (ok) {
+        *ok = false;
+    }
+
+    const QByteArray qtCompressed = qCompress(data, 9);
+    if (qtCompressed.size() < 11) {
+        return QByteArray();
+    }
+
+    QByteArray gzip;
+    gzip.reserve(qtCompressed.size() + 18);
+    gzip.append('\x1f');
+    gzip.append('\x8b');
+    gzip.append('\x08');
+    gzip.append('\x00');
+    appendLittleEndian32(&gzip, 0);
+    gzip.append('\x02');
+    gzip.append('\xff');
+
+    gzip.append(qtCompressed.constData() + 6, qtCompressed.size() - 10);
+    appendLittleEndian32(&gzip, crc32ForGzip(data));
+    appendLittleEndian32(&gzip, static_cast<quint32>(data.size()));
+
+    if (ok) {
+        *ok = true;
+    }
+    return gzip;
+}
+
 class MailSenderThread : public QThread {
   public:
-    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
-        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
+                     const QList<QString> &temporaryFilesForMail, QObject *toastTarget)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
+          temporaryFilesForMail(temporaryFilesForMail), toastTarget(toastTarget) {}
 
   protected:
     void run() override {
+        auto showToast = [this](const QString &msg) {
+            QMetaObject::invokeMethod(toastTarget, "setToastRequested", Qt::QueuedConnection,
+                                     Q_ARG(QString, msg));
+        };
+
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
         SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
 #else
 #pragma message "stmp server is unset!"
+        qDebug() << QStringLiteral("SMTP server is unset, email not sent");
         SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         delete message;
         return;
@@ -217,6 +330,7 @@ class MailSenderThread : public QThread {
         smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
+        qDebug() << QStringLiteral("SMTP username is unset, email not sent");
         delete message;
         return;
 #endif
@@ -226,25 +340,44 @@ class MailSenderThread : public QThread {
         smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
+        qDebug() << QStringLiteral("SMTP password is unset, email not sent");
         delete message;
         return;
 #endif
+
+        // responseTimeout: time to wait for each SMTP command reply (including
+        // "250 OK" after DATA). 30s gives Brevo time to accept a large attachment
+        // without the client timing out and retrying (which would send a duplicate).
+        // sendMessageTimeout: time allowed for the raw socket write of the body; 120s
+        // covers a 10MB attachment even on a slow mobile connection.
+        smtp.setResponseTimeout(30000);
+        smtp.setSendMessageTimeout(120000);
+
+        showToast(QObject::tr("Sending workout email..."));
 
         bool r = false;
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            r = smtp.connectToHost() && smtp.login() && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
+            if (!r)
+                smtp.quit();
         }
         smtp.quit();
+
+        if (r)
+            showToast(QObject::tr("Workout email sent successfully"));
+        else
+            showToast(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
         for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        for (const QString &f : qAsConst(temporaryFilesForMail)) {
             QFile::remove(f);
         }
         delete message;
@@ -254,6 +387,8 @@ class MailSenderThread : public QThread {
     MimeMessage *message;
     QString filenameJPG;
     QList<QString> chartImagesFilenamesForMail;
+    QList<QString> temporaryFilesForMail;
+    QObject *toastTarget;
 };
 } // namespace
 
@@ -335,17 +470,31 @@ void DataObject::setVisible(bool visible) {
 
 homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     m_singleton = this;
+    // the Android notification prompt waits for the user to come back to QZ
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
+        connect(guiApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+            if (state == Qt::ApplicationActive && m_androidNotificationPromptPending) {
+                m_androidNotificationPromptPending = false;
+                setAndroidNotificationPromptRequested(true);
+            }
+        });
+    }
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-    QString unit = QStringLiteral("km");
-    QString meters = QStringLiteral("m");
-    QString weightLossUnit = QStringLiteral("Kg");
-    QString cm = QStringLiteral("cm");
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
+    // Units shown in the tile names; only displayed, never compared or saved
+    QString unit = tr("km");
+    QString meters = tr("m", "unit: meters");
+    QString weightLossUnit = tr("Kg");
+    QString cm = tr("cm");
     if (miles) {
-        unit = QStringLiteral("mi");
-        weightLossUnit = QStringLiteral("Oz");
-        meters = QStringLiteral("ft");
-        cm = QStringLiteral("in");
+        unit = tr("mi");
+        meters = tr("ft");
+        cm = tr("in", "unit: inches");
+    }
+    // Same condition as the value in update(): with "Use kg for weight" it stays in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = tr("Oz");
     }
 
 #ifdef Q_OS_ANDROID
@@ -452,12 +601,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         new DataObject(tr("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0.0"), true, QStringLiteral("target_inclination"), 48, labelFontSize);
 
-    watt = new DataObject(tr("Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    watt = new DataObject(tr("Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("watt"), 48, labelFontSize);
     weightLoss = new DataObject(tr("Weight Loss(%1)").arg(weightLossUnit),
                                 QStringLiteral("icons/icons/kcal.png"), QStringLiteral("0"), false,
                                 QStringLiteral("weight_loss"), 48, labelFontSize);
-    avgWatt = new DataObject(tr("AVG Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    avgWatt = new DataObject(tr("AVG Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                              false, QStringLiteral("avgWatt"), 48, labelFontSize);
     avgWattLap = new DataObject(tr("AVG Watt Lap"), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("avgWattLap"), 48, labelFontSize);
@@ -488,6 +637,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
     nextRows =
+        //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
         new DataObject(tr("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
                        false, QStringLiteral("nextrows"), valueElapsedFontSize, labelFontSize);
 
@@ -519,11 +669,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
     autoVirtualShiftingClimb = new DataObject(tr("Climb"), QStringLiteral("icons/icons/inclination.png"),
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
-    autoVirtualShiftingSprint = new DataObject(tr("Sprint"), QStringLiteral("icons/icons/watt.png"),
+    autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     powerAvg = new DataObject(tr("Power Avg"), QStringLiteral("icons/icons/watt.png"),
-                             QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
-    hrv = new DataObject(QStringLiteral("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
+                             QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, tr("Off"), QStringLiteral("grey"));
+    hrv = new DataObject(tr("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
                          QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
     pidHR = new DataObject(tr("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
@@ -747,6 +897,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
     connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
+    connect(bluetoothManager, &bluetooth::manualDeviceNotFound, this, [this](const QString &name) {
+        setToastRequested(
+            QObject::tr("QZ is looking for %1. Please wake it up or change this device under the Manual Device "
+                        "setting in Advanced Settings.")
+                .arg(name));
+    });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
@@ -923,6 +1079,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 
+    removeOldWorkoutImages();
+
     QDirIterator itFit(getWritableAppDir(), QStringList() << "*.fit", QDir::Files);
     qDebug() << itFit.path();
     QDir().mkdir(getWritableAppDir() + "fit");
@@ -942,7 +1100,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     QRegularExpression regex("^[A-Za-z0-9 ]+$");
     if(bluetoothName.length() > 9 || !regex.match(bluetoothName).hasMatch()) {
-        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters");
+        setToastRequested(QObject::tr("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters"));
     }
     
     // Android 14 restrics access to /Android/data folder
@@ -961,7 +1119,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
-    fitProcessor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    m_historyDatabasePath = historyDatabasePath();
+    fitProcessor = new FitDatabaseProcessor(m_historyDatabasePath);
     connect(fitProcessor, &FitDatabaseProcessor::fileProcessed,
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
@@ -974,7 +1133,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& error) {
                 qDebug() << "FitDatabaseProcessor Error:" << error;
             });
-    workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    workoutModel = new WorkoutModel(m_historyDatabasePath);
     engine->rootContext()->setContextProperty("workoutModel", workoutModel);
     
     connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
@@ -982,6 +1141,41 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
+                if (!m_historyRecoveryChecked) {
+                    m_historyRecoveryChecked = true;
+                    // asked on the history page, where the missing workouts are noticed: on a
+                    // spare database (ddb.sqlite of a previous install is there) that holds no
+                    // workout yet. "New file" alone is not enough: a spare left by an earlier
+                    // test install may still open with its old content.
+                    m_historyRecoveryPending =
+                        m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite") &&
+                        historyWorkoutCount() == 0;
+                    maybeOfferHistoryRecovery();
+                }
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::importFinished,
+            this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
+                qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
+                         << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportRunning(false);
+                const bool quiet = m_fitImportQuiet;
+                m_fitImportQuiet = false;
+                workoutModel->refresh();
+                if (!databaseOpen) {
+                    setToastRequested(tr("The workout history database could not be opened."));
+                    return;
+                }
+                if (quiet && added == 0) {
+                    return;
+                }
+                QString message = tr("Workouts imported: %1.").arg(added);
+                if (alreadyInHistory > 0) {
+                    message += QStringLiteral(" ") + tr("Already in the history: %1.").arg(alreadyInHistory);
+                }
+                if (unreadable > 0) {
+                    message += QStringLiteral(" ") + tr("Without workout data: %1.").arg(unreadable);
+                }
+                setToastRequested(message);
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
@@ -1027,7 +1221,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1067,7 +1266,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1185,6 +1389,50 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     }
 }
 
+// a workout import was picked: the copy is about to start, show it is running
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportStarted(JNIEnv *env, jclass clazz) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                  Q_ARG(bool, true));
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
+                                                                       jint resultCode, jstring localPathString) {
+    Q_UNUSED(clazz)
+    if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        // a cancelled picker ends a workout import that may already show as running
+        if (homeform::singleton() && (requestCode == AndroidDocumentPickerFitRequestCode ||
+                                      requestCode == AndroidDocumentPickerFitFolderRequestCode)) {
+            QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                      Q_ARG(bool, false));
+        }
+        return;
+    }
+
+    QString localPath;
+    if (localPathString) {
+        const char *pathChars = env->GetStringUTFChars(localPathString, nullptr);
+        localPath = QString::fromUtf8(pathChars ? pathChars : "");
+        if (pathChars) {
+            env->ReleaseStringUTFChars(localPathString, pathChars);
+        }
+    }
+
+    // a folder import without any workout still has to tell the user so
+    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
+        requestCode != AndroidDocumentPickerFitRequestCode) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
+                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
+}
+
 JNIEXPORT void JNICALL
   Java_org_cagnulen_qdomyoszwift_MediaButtonReceiver_nativeOnMediaButtonEvent(JNIEnv *env, jobject obj, jint prev, jint current, jint max) {
     qDebug() << "Media button event: current =" << current << "max =" << max << "prev =" << prev;
@@ -1226,6 +1474,70 @@ void homeform::chartSaved(QString fileName) {
         }
         chartImagesFilenames.clear();
     }
+}
+
+static bool isDigits(const QString &s) {
+    if (s.isEmpty())
+        return false;
+    for (const QChar &c : s) {
+        if (!c.isDigit())
+            return false;
+    }
+    return true;
+}
+
+// True for the image names QZ writes: "Tue Oct 14 10_23_45 2026.jpg" (QDateTime::toString() with ':' -> '_'),
+// the same with a "_<chart>" suffix before the extension, or a "<uuid>_mail.jpg" copy.
+static bool isQzWorkoutImageName(const QString &fileName) {
+    const QString name = fileName.toLower();
+    if (name.endsWith(QStringLiteral("_mail.jpg"))) {
+        const QString uuid = name.left(name.length() - 9);
+        if (uuid.length() != 36)
+            return false;
+        for (const QChar &c : uuid) {
+            if (!(c.isDigit() || (c >= QLatin1Char('a') && c <= QLatin1Char('f')) || c == QLatin1Char('-')))
+                return false;
+        }
+        return true;
+    }
+    if (!name.endsWith(QStringLiteral(".jpg")) && !name.endsWith(QStringLiteral(".png")))
+        return false;
+    // weekday, month, day, hh_mm_ss, yyyy[_chart]
+    const QStringList parts = name.left(name.length() - 4).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+    if (parts.length() != 5)
+        return false;
+    if (parts[2].length() > 2 || !isDigits(parts[2]))
+        return false;
+    const QStringList time = parts[3].split(QLatin1Char('_'));
+    if (time.length() != 3)
+        return false;
+    for (const QString &t : time) {
+        if (t.length() != 2 || !isDigits(t))
+            return false;
+    }
+    const QString year = parts[4].left(4);
+    return isDigits(year) && year.length() == 4 && (parts[4].length() == 4 || parts[4].at(4) == QLatin1Char('_'));
+}
+
+// The screenshot and the chart images of each workout stay in the app folder for good (#157):
+// remove the ones older than 30 days. Only names written by QZ are matched (isQzWorkoutImageName):
+// on macOS/Windows the writable dir is Downloads / the current dir, so a plain *.jpg would hit the user's own files.
+void homeform::removeOldWorkoutImages() {
+    const QDateTime limit = QDateTime::currentDateTime().addDays(-30);
+    const QFileInfoList list =
+        QDir(getWritableAppDir())
+            .entryInfoList(QStringList() << QStringLiteral("*.jpg") << QStringLiteral("*.png"), QDir::Files);
+    int removed = 0;
+    for (const QFileInfo &f : list) {
+        if (!isQzWorkoutImageName(f.fileName()) || f.lastModified() >= limit)
+            continue;
+        if (QFile::remove(f.filePath()))
+            removed++;
+        else
+            // e.g. Android 11+: files left by a previous installation can't be removed by the new one
+            qDebug() << "cannot remove old workout image" << f.fileName();
+    }
+    qDebug() << "removed old workout images" << removed << "of" << list.length() << "images";
 }
 
 void homeform::keyMediaPrevious() {
@@ -1399,7 +1711,7 @@ void homeform::pelotonLoginState(bool ok) {
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
     if (!ok) {
-        setToastRequested("Peloton Login Error!");        
+        setToastRequested(QObject::tr("Peloton Login Error!"));        
     }
 }
 
@@ -1408,7 +1720,7 @@ void homeform::zwiftLoginState(bool ok) {
     m_zwiftLoginState = (ok ? 1 : 0);
     emit zwiftLoginChanged(m_zwiftLoginState);
     if (!ok) {
-        setToastRequested("Zwift Login Error!");
+        setToastRequested(QObject::tr("Zwift Login Error!"));
     }
 }
 
@@ -1451,10 +1763,10 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
         int timer = 0;        
 
         if(peloton_auto_start_with_intro) {
-            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro! ") + name + QStringLiteral(" - ") + instructor);
+            setToastRequested(QObject::tr("Peloton workout auto started! It will start automatically after the intro! %1 - %2").arg(name, instructor));
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + (peloton_start_offset + 4);  // + 64; // // 4 average time to buffer and 60 to the intro
         } else {
-            setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
+            setToastRequested(QObject::tr("Peloton workout auto started skipping the intro! %1 - %2").arg(name, instructor));
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
         }
         if(timer <= 0) {
@@ -1507,6 +1819,20 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
+QString homeform::safeFileName(const QString &name, const QString &fallback) {
+    QString safe = name.trimmed();
+    safe.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]")), QStringLiteral("_"));
+    safe.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    // File names are limited to 255 bytes and non-Latin letters take 2-3 bytes each in UTF-8
+    safe.truncate(100);
+    safe.remove(QRegularExpression(QStringLiteral("^\\.+|\\.+$")));
+    if (safe.isEmpty()) {
+        safe = fallback;
+    }
+    return safe;
 }
 
 void homeform::backup() {
@@ -1651,6 +1977,37 @@ void homeform::refresh_bluetooth_devices_clicked() {
     bluetoothManager->restart();
 }
 
+QString homeform::bluetoothSearchStatus() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return QString();
+    // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
+    const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
+                                                       : tr("%1 found").arg(lastFoundDevice);
+    if (bluetoothManager->isSearching())
+        return scanning;
+    if (bluetoothManager->searchStopped())
+        return tr("Search stopped, tap the Bluetooth icon");
+    if (!bluetoothManager->nextSearchMs())
+        return QString();
+    const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
+    // the timer may fire a little late: the search is about to start
+    if (left <= 0)
+        return scanning;
+    const QString countdown = tr("Next search in %1 s").arg((left + 999) / 1000);
+    // the device name may be long: the countdown goes to a second line
+    if (lastFoundDevice.isEmpty())
+        return countdown;
+    return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
+}
+
+void homeform::bluetoothSearchNow() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return;
+    const int waitSec = bluetoothManager->searchNow();
+    if (waitSec > 0)
+        setToastRequested(tr("Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s").arg(waitSec));
+}
+
 void homeform::selectGymModeDevice(const QString &deviceName) {
     if (!bluetoothManager)
         return;
@@ -1763,6 +2120,8 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::workoutEventStateChanged);
         disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         disconnect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        disconnect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                   &homeform::onTrainingProgramIntervalTransition);
         disconnect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
@@ -1770,6 +2129,8 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        connect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                &homeform::onTrainingProgramIntervalTransition);
         // Connect training program speed changes to reset HR PID timer
         connect(trainProgram, &trainprogram::changeSpeed, this,
                 &homeform::onTrainingProgramSpeedChanged);
@@ -1836,9 +2197,18 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
-            setChartIconVisible(trainProgram->powerzoneWorkout());
+            // chartTargetWorkout() also returns true for pure heart-rate-driven rows (HRabove/HRbelow/zoneHR/etc,
+            // e.g. Garmin-style HR triggered segments). Those don't have a target power/speed of their own, so a
+            // treadmill running one of them should still get the speed/inclination chart (which also renders the
+            // heart panel), not the bike/power chart.
+            bool treadmillMode = bluetoothManager->device()->deviceType() == TREADMILL &&
+                                  !trainProgram->powerzoneWorkout() &&
+                                  (trainProgram->speedInclinationTargetWorkout() || trainProgram->chartTargetWorkout());
+            setChartTreadmillMode(treadmillMode);
+            bool chartWorkout = trainProgram->chartTargetWorkout() || trainProgram->speedInclinationTargetWorkout();
+            setChartIconVisible(chartWorkout);
             if (chartFooterVisible()) {
-                if (trainProgram->powerzoneWorkout()) {
+                if (chartWorkout) {
                     // reloading
                     setChartFooterVisible(false);
                     setChartFooterVisible(true);
@@ -1861,6 +2231,15 @@ void homeform::onToastRequested(QString message) {
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
         m_speech.say(message);
+    }
+}
+
+void homeform::onTrainingProgramIntervalTransition() {
+    QSettings settings;
+    if (settings.value(QZSettings::trainprogram_sound_on_segment,
+                       QZSettings::default_trainprogram_sound_on_segment)
+            .toBool()) {
+        emit trainingProgramIntervalSoundRequested();
     }
 }
 
@@ -1900,6 +2279,26 @@ void homeform::gearDown() {
     }
 }
 
+void homeform::externalControllerGearUp() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Plus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
+void homeform::externalControllerGearDown() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Minus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
 void homeform::speedPlus() {
     Plus(QStringLiteral("speed"));
 }
@@ -1918,8 +2317,8 @@ void homeform::inclinationMinus() {
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
-    connect(d, &smartspin2k::gearUp, this, &homeform::gearUp);
-    connect(d, &smartspin2k::gearDown, this, &homeform::gearDown);
+    connect(d, &smartspin2k::gearUp, this, &homeform::externalControllerGearUp);
+    connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
 void homeform::sortTiles() {
@@ -3266,7 +3665,7 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_odometer_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_odometer_order, 0).toInt() == i) {
                 odometer->setGridId(i);
-                odometer->setName("Odometer (m)");
+                odometer->setName(tr("Odometer (m)"));
                 dataList.append(odometer);
             }
 
@@ -3387,14 +3786,14 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_pace_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_pace_order, 0).toInt() == i) {
                 pace->setGridId(i);
-                pace->setName("Pace (m/500m)");
+                pace->setName(tr("Pace (m/500m)"));
                 dataList.append(pace);
             }
 
             if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
                 settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
                 avg_pace->setGridId(i);
-                avg_pace->setName("Avg Pace (m/500m)");
+                avg_pace->setName(tr("Avg Pace (m/500m)"));
                 dataList.append(avg_pace);
             }
 
@@ -3458,7 +3857,7 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_target_pace_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_pace_order, 50).toInt() == i) {
                 target_pace->setGridId(i);
-                target_pace->setName("T.Pace(m/500m)");
+                target_pace->setName(tr("T.Pace(m/500m)"));
                 dataList.append(target_pace);
             }
 
@@ -4349,35 +4748,37 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
     if (current) {
         qDebug() << "moveTile" << name << newIndex << oldIndex;
 
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
-        }
+        // Some DataObject m_ids don't match their QZSettings _order key (camelCase vs snake_case).
+        // This lambda returns the correct settings key for a given DataObject.
+        auto orderKey = [](const DataObject *d) -> QString {
+            static const QHash<QString, QString> overrides = {
+                {QStringLiteral("avgWattLap"),          QStringLiteral("tile_avg_watt_lap_order")},
+                {QStringLiteral("joul"),                QStringLiteral("tile_jouls_order")},
+                {QStringLiteral("steeringangle"),       QStringLiteral("tile_steering_angle_order")},
+                {QStringLiteral("stride_length"),       QStringLiteral("tile_instantaneous_stride_length_order")},
+                {QStringLiteral("external_inclination"),QStringLiteral("tile_ext_incline_order")},
+                {QStringLiteral("target_inclination"),  QStringLiteral("tile_target_incline_order")},
+            };
+            auto it = overrides.constFind(d->m_id);
+            if (it != overrides.constEnd()) return it.value();
+            return QStringLiteral("tile_") + d->m_id.toLower() + QStringLiteral("_order");
+        };
 
         int i = 0;
         foreach (QObject *d, dataList) {
             if (i == newIndex) {
-                settings.setValue("tile_" + current->m_id.toLower() + "_order", i);
+                settings.setValue(orderKey(current), i);
                 i++;
             }
-            QString n = ((DataObject *)d)->m_id;
             if (((DataObject *)d)->name().compare(name)) {
-                settings.setValue("tile_" + n.toLower() + "_order", i);
+                settings.setValue(orderKey((DataObject *)d), i);
                 i++;
             }
         }
-
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
+        if (i <= newIndex) {
+            settings.setValue(orderKey(current), newIndex);
         }
 
-        // sortTiles();
-        // dataList.move(oldIndex, newIndex);
         // very dirty, but i needed a way to synchronize QML with C++
         QTimer::singleShot(100, this, &homeform::sortTilesTimeout);
     }
@@ -4469,6 +4870,7 @@ void homeform::deviceFound(const QString &name) {
         return;
     }
 
+    lastFoundDevice = name;
     emit bluetoothDevicesChanged(bluetoothDevices());
 
     if (m_labelHelp == false) {
@@ -4488,6 +4890,13 @@ void homeform::LargeButton(const QString &name) {
     qDebug() << QStringLiteral("LargeButton") << name;
     if (!bluetoothManager || !bluetoothManager->device())
         return;
+
+    if (name.startsWith(QStringLiteral("preset_powerzone_")) || name.contains(QStringLiteral("target_power")) ||
+        name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
 
     if (bluetoothManager->device()->deviceType() == BIKE || 
         bluetoothManager->device()->deviceType() == ELLIPTICAL ||
@@ -4967,6 +5376,11 @@ void homeform::Plus(const QString &name) {
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
@@ -5122,7 +5536,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -5183,26 +5600,23 @@ void homeform::Plus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             }
         }
@@ -5273,6 +5687,11 @@ void homeform::Minus(const QString &name) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Minus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
@@ -5425,7 +5844,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(-resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -5486,26 +5908,23 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             }
         }
@@ -5594,6 +6013,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             Session.clear();
             chartImagesFilenames.clear();
+            mailSent = false;
 
 #ifdef Q_OS_IOS
             // due to #857
@@ -5740,7 +6160,15 @@ void homeform::Stop() {
     if (!(pelotonHandler && !pelotonHandler->current_ride_id.isEmpty())) {
         saveSessionAsTrainingProgram();
     }
-    fit_save_clicked();
+
+    m_workoutRpe = -1;
+    m_workoutFeel = -1;
+    if (!settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool()) {
+        // Popup disabled: save (and upload) the FIT file right away, as before.
+        fit_save_clicked();
+    }
+    // else: QML shows the RPE/feel popup and calls finalizeFitSave() once the user answers,
+    // which writes the FIT file (with RPE/feel embedded) and triggers the uploads.
 
     if (bluetoothManager->device()) {
         bluetoothManager->device()->setPaused(paused | stopped);
@@ -5778,6 +6206,9 @@ void homeform::Lap() {
 
             bluetoothManager->device()->setLap();
             lapTrigger = true;
+            if (trainProgram) {
+                trainProgram->advanceLapButtonStep();
+            }
         }
     }
 }
@@ -5833,7 +6264,7 @@ void homeform::updateGearsValue() {
         gear = ((bike *)bluetoothManager->device())->VirtualBike()->currentGear();
     if (gears_custom_table_enabled) {
         this->gears->setValue(QString::number(gear));
-        this->gears->setSecondLine(QStringLiteral("offset ") + QString::number(((bike *)bluetoothManager->device())->gearsModifier(), 'f', 1));
+        this->gears->setSecondLine(tr("offset ") + QString::number(((bike *)bluetoothManager->device())->gearsModifier(), 'f', 1));
     } else if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
         this->gears->setValue(QString::number(gear));
         this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
@@ -5929,6 +6360,22 @@ void homeform::update() {
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        const bool tileWattColorEnabled =
+            settings.value(QZSettings::tile_watt_color_enabled, QZSettings::default_tile_watt_color_enabled).toBool();
+        const bool tilePaceColorEnabled =
+            settings.value(QZSettings::tile_pace_color_enabled, QZSettings::default_tile_pace_color_enabled).toBool();
+        const auto setWattValueFontColor = [this, tileWattColorEnabled](const QString &color) {
+            this->watt->setValueFontColor(tileWattColorEnabled ? color : QStringLiteral("white"));
+        };
+        const auto setPaceValueFontColor = [this, tilePaceColorEnabled](const QString &color) {
+            this->pace->setValueFontColor(tilePaceColorEnabled ? color : QStringLiteral("white"));
+        };
+        if (!tileWattColorEnabled) {
+            setWattValueFontColor(QStringLiteral("white"));
+        }
+        if (!tilePaceColorEnabled) {
+            setPaceValueFontColor(QStringLiteral("white"));
+        }
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
         double cm_inches_conversion = 1.0;        
@@ -6037,9 +6484,9 @@ void homeform::update() {
         emit currentSpeedChanged(bluetoothManager->device()->currentSpeed().value());
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine(
-            QStringLiteral("AVG: ") +
+            QObject::tr("AVG: ") +
             QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) +
-            QStringLiteral(" MAX: ") +
+            QObject::tr(" MAX: ") +
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         // Heart rate display - show as percentage if enabled
         if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
@@ -6051,21 +6498,26 @@ void homeform::update() {
             heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
         }
         hrv->setValue(QString::number(bluetoothManager->device()->currentHRV().value(), 'f', 2));
-        hrv->setSecondLine(QStringLiteral("AVG: ") +
+        hrv->setSecondLine(QObject::tr("AVG: ") +
                           QString::number(bluetoothManager->device()->currentHRV().average(), 'f', 2));
       
 
         bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
-        calories->setSecondLine(QString::number((activeOnly ? bluetoothManager->device()->activeCalories().rate1s() : bluetoothManager->device()->calories().rate1s()) * 60.0, 'f', 1) +
-                                " /min");
+        double caloriesPerMinute =
+            (activeOnly ? bluetoothManager->device()->activeCalories().rate1s()
+                        : bluetoothManager->device()->calories().rate1s()) *
+            60.0;
+        if (caloriesPerMinute < 0)
+            caloriesPerMinute = 0;
+        calories->setSecondLine(QString::number(caloriesPerMinute, 'f', 1) + tr(" /min"));
         if (!settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool())
             fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         else
             fan->setValue(QString::number(qRound(((double)bluetoothManager->device()->fanSpeed()) / 10.0) * 10.0));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         jouls->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
-                             " /min");
+                             tr(" /min"));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("h:mm:ss")));
         moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
 
@@ -6091,10 +6543,10 @@ void homeform::update() {
                 }
             }
 
-            peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
+            peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + tr(" sec."));
             peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
             peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) +
-                                             QStringLiteral(" sec."));
+                                             tr(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             remaningTimeTrainingProgramCurrentRow->setSecondLine(
@@ -6105,10 +6557,17 @@ void homeform::update() {
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
-            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 || next.distance != -1) {
+            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 ||
+                next.distance != -1 || next.waitForLap || next.HRabove > 0 || next.HRbelow > 0) {
                 QString duration = next.duration.toString(QStringLiteral("mm:ss"));
                 if(next.distance != -1) {
                     duration = QString::number(next.distance, 'f' , 1);
+                } else if (next.waitForLap) {
+                    duration = QStringLiteral("Lap");
+                } else if (next.HRabove > 0) {
+                    duration = QStringLiteral(">") + QString::number(next.HRabove) + QStringLiteral(" bpm");
+                } else if (next.HRbelow > 0) {
+                    duration = QStringLiteral("<") + QString::number(next.HRbelow) + QStringLiteral(" bpm");
                 }
                 if (next.requested_peloton_resistance != -1) {
                     nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance));
@@ -6198,16 +6657,16 @@ void homeform::update() {
         }
         mets->setValue(QString::number(bluetoothManager->device()->currentMETS().value(), 'f', 1));
         mets->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
-            QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
+            QObject::tr("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
+            QObject::tr(" MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString(QStringLiteral("h:mm:ss")));
         lapElapsed->setSecondLine(QString::number(bluetoothManager->device()->lapOdometer() * unit_conversion, 'f', 2));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         avgWattLap->setValue(QString::number(bluetoothManager->device()->wattsMetric().lapAverage(), 'f', 0));
         wattKg->setValue(QString::number(bluetoothManager->device()->wattKg().value(), 'f', 1));
         wattKg->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
-            QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
+            QObject::tr("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
+            QObject::tr(" MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
         QLocale locale = QLocale::system();
 
         // Format the time based on the locale
@@ -6233,9 +6692,9 @@ void homeform::update() {
         cadence = bluetoothManager->device()->currentCadence().value();
         this->cadence->setValue(QString::number(cadence));
         this->cadence->setSecondLine(
-            QStringLiteral("AVG: ") +
+            QObject::tr("AVG: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-            QStringLiteral(" MAX: ") +
+            QObject::tr(" MAX: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
 
 
@@ -6298,14 +6757,14 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             const double adjustedSpeed =
                 ((treadmill *)bluetoothManager->device())->gradeAdjustedSpeed(
@@ -6316,15 +6775,24 @@ void homeform::update() {
             } else {
                 this->grade_adjusted_pace->setValue(QStringLiteral("N/A"));
             }
-            this->grade_adjusted_pace->setSecondLine(QStringLiteral("Incl: ") +
+            this->grade_adjusted_pace->setSecondLine(tr("Incl: ") +
                                                      QString::number(inclination, 'f', 1) + QStringLiteral("%"));
             this->target_power->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    tr("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->stepCount->setValue(QString::number(
@@ -6333,49 +6801,49 @@ void homeform::update() {
 
             this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
             this->instantaneousStrideLengthCM->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().max(), 'f', 0));
 
             this->groundContactMS->setValue(QString::number(groundContact, 'f', 0));
             this->groundContactMS->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().max(), 'f', 0));
 
             this->verticalOscillationMM->setValue(QString::number(verticalOscillation, 'f', 0));
             this->verticalOscillationMM->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().average(), 'f',
                                 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().max(), 'f', 0));
 
             // if there is no training program, the color is based on presets
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6386,17 +6854,17 @@ void homeform::update() {
                 // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6405,15 +6873,19 @@ void homeform::update() {
 
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
+                //: Short tile value: Peloton running/walking pace target zone "Recovery" (not "record"); zones: (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("Rec."));
                 break;
             case 1:
+                //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("Easy"));
                 break;
             case 2:
                 if (isWalkingWorkout) {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Brisk"));
                 } else {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Moder."));
                 }
                 break;
@@ -6421,6 +6893,7 @@ void homeform::update() {
                 if (isWalkingWorkout) {
                     this->target_zone->setValue(tr("Power"));
                 } else {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Chall."));
                 }
                 break;
@@ -6432,6 +6905,7 @@ void homeform::update() {
                 }
                 break;
             case 5:
+                //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("V.Hard"));
                 break;
             case 6:
@@ -6489,20 +6963,20 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->stepCount->setValue(QString::number(
@@ -6512,25 +6986,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6541,17 +7015,17 @@ void homeform::update() {
                        // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6590,9 +7064,9 @@ void homeform::update() {
                 inclination = ((bike *)bluetoothManager->device())->currentInclination().value();
                 this->inclination->setValue(QString::number(inclination, 'f', 1));
                 this->inclination->setSecondLine(
-                    QStringLiteral("AVG: ") +
+                    QObject::tr("AVG: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                    QStringLiteral(" MAX: ") +
+                    QObject::tr(" MAX: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             }
             if (bluetoothManager->externalInclination())
@@ -6612,17 +7086,17 @@ void homeform::update() {
             bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
             bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
             if (!power3s && !power5s) {
-                powerAvg->setLargeButtonLabel(QStringLiteral("Off"));
+                powerAvg->setLargeButtonLabel(tr("Off"));
                 powerAvg->setLargeButtonColor(QStringLiteral("grey"));
             } else if (power3s) {
-                powerAvg->setLargeButtonLabel(QStringLiteral("3s avg"));
+                powerAvg->setLargeButtonLabel(tr("3s avg"));
                 powerAvg->setLargeButtonColor(QStringLiteral("green"));
             } else {
-                powerAvg->setLargeButtonLabel(QStringLiteral("5s avg"));
+                powerAvg->setLargeButtonLabel(tr("5s avg"));
                 powerAvg->setLargeButtonColor(QStringLiteral("blue"));
             }
 
-            extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
+            extIncline->setSecondLine(tr("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((bike *)bluetoothManager->device())->pelotonResistance().value();
@@ -6635,28 +7109,45 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    tr("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             updateGearsValue();
 
             this->resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-            this->target_resistance->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(
-                    bluetoothManager->device()->difficult() *
-                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() +
-                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                            .toDouble(),
-                    'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
+                this->target_resistance->setSecondLine(
+                    QStringLiteral("%1%2")
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                                    : QStringLiteral(""))
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram()));
+            } else {
+                this->target_resistance->setSecondLine(
+                    QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                    QString::number(
+                        bluetoothManager->device()->difficult() *
+                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                .toDouble() +
+                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                .toDouble(),
+                        'f', 0));
+            }
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -6687,14 +7178,14 @@ void homeform::update() {
 
             this->pace->setValue(((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_pace->setValue(
                 ((rower *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
@@ -6711,20 +7202,20 @@ void homeform::update() {
                     if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                         bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                        this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                        setPaceValueFontColor(QStringLiteral("limegreen"));
                     } else if (bluetoothManager->device()->currentSpeed().value() <=
                                    (trainProgram->currentRow().upper_speed + 0.2) &&
                                bluetoothManager->device()->currentSpeed().value() >=
                                    (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                        this->pace->setValueFontColor(QStringLiteral("orange"));
+                        setPaceValueFontColor(QStringLiteral("orange"));
                     } else {
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
-                        this->pace->setValueFontColor(QStringLiteral("red"));
+                        setPaceValueFontColor(QStringLiteral("red"));
                     }
                 } else {
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 }
                 switch (trainProgram->currentRow().pace_intensity) {
                 case 0:
@@ -6771,17 +7262,26 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    tr("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
 
             this->resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
@@ -6793,34 +7293,34 @@ void homeform::update() {
                             .toDouble(),
                     'f', 0));
             this->strokesLength->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
 
             // if there is no training program, the color is based on presets
             if (!trainProgram || trainProgram->currentRow().speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 8) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6844,14 +7344,14 @@ void homeform::update() {
                 else
                     this->pace->setValue("N/A");
                 this->pace->setSecondLine(
-                    QStringLiteral("AVG: ") +
+                    QObject::tr("AVG: ") +
                     ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                    QStringLiteral(" MAX: ") +
+                    QObject::tr(" MAX: ") +
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->avg_pace->setValue(
                     ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
                 this->avg_pace->setSecondLine(
-                    QStringLiteral("MAX: ") +
+                    QObject::tr("MAX: ") +
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->inclination->setValue(QString::number(inclination, 'f', 0));
                 this->inclination->setSecondLine("");
@@ -6869,14 +7369,14 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
@@ -6888,9 +7388,9 @@ void homeform::update() {
                 ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
@@ -6904,9 +7404,9 @@ void homeform::update() {
             inclination = ((elliptical *)bluetoothManager->device())->currentInclination().value();
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
@@ -6951,8 +7451,8 @@ void homeform::update() {
         }
 
         watt->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
-            QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
+            QObject::tr("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
+            QObject::tr(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
         if (trainProgram) {
             int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
@@ -6971,8 +7471,8 @@ void homeform::update() {
 
             if (lower_requested_peloton_resistance != -1) {
                 this->target_peloton_resistance->setSecondLine(
-                    QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
-                    QStringLiteral(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
+                    tr("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
+                    QObject::tr(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
             } else {
                 this->target_peloton_resistance->setSecondLine(QLatin1String(""));
             }
@@ -6998,8 +7498,8 @@ void homeform::update() {
             int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
             int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
             if (lower_cadence != -1) {
-                this->target_cadence->setSecondLine(QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
-                                                    QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
+                this->target_cadence->setSecondLine(tr("MIN: ") + QString::number(lower_cadence, 'f', 0) +
+                                                    QObject::tr(" MAX: ") + QString::number(upper_cadence, 'f', 0));
             } else {
                 this->target_cadence->setSecondLine(QLatin1String(""));
             }
@@ -7045,7 +7545,7 @@ void homeform::update() {
                 ftpZone = 1.9;
             }
             ftp->setValueFontColor(QStringLiteral("white"));
-            watt->setValueFontColor(QStringLiteral("white"));
+            setWattValueFontColor(QStringLiteral("white"));
         } else if (ftpPerc < 76) {
 
             ftpMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
@@ -7056,7 +7556,7 @@ void homeform::update() {
                 ftpZone = 2.9;
             }
             ftp->setValueFontColor(QStringLiteral("limegreen"));
-            watt->setValueFontColor(QStringLiteral("limegreen"));
+            setWattValueFontColor(QStringLiteral("limegreen"));
         } else if (ftpPerc < 91) {
 
             ftpMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
@@ -7067,7 +7567,7 @@ void homeform::update() {
                 ftpZone = 3.9;
             }
             ftp->setValueFontColor(QStringLiteral("gold"));
-            watt->setValueFontColor(QStringLiteral("gold"));
+            setWattValueFontColor(QStringLiteral("gold"));
         } else if (ftpPerc < 106) {
 
             ftpMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
@@ -7078,7 +7578,7 @@ void homeform::update() {
                 ftpZone = 4.9;
             }
             ftp->setValueFontColor(QStringLiteral("orange"));
-            watt->setValueFontColor(QStringLiteral("orange"));
+            setWattValueFontColor(QStringLiteral("orange"));
         } else if (ftpPerc < 121) {
 
             ftpMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
@@ -7089,7 +7589,7 @@ void homeform::update() {
                 ftpZone = 5.9;
             }
             ftp->setValueFontColor(QStringLiteral("darkorange"));
-            watt->setValueFontColor(QStringLiteral("darkorange"));
+            setWattValueFontColor(QStringLiteral("darkorange"));
         } else if (ftpPerc < 151) {
 
             ftpMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
@@ -7100,7 +7600,7 @@ void homeform::update() {
                 ftpZone = 6.9;
             }
             ftp->setValueFontColor(QStringLiteral("orangered"));
-            watt->setValueFontColor(QStringLiteral("orangered"));
+            setWattValueFontColor(QStringLiteral("orangered"));
         } else {
 
             ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
@@ -7108,11 +7608,11 @@ void homeform::update() {
             ftpZone = 7;
 
             ftp->setValueFontColor(QStringLiteral("red"));
-            watt->setValueFontColor(QStringLiteral("red"));
+            setWattValueFontColor(QStringLiteral("red"));
         }
         bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
-        ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
+        ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + tr("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
         if (bluetoothManager->device()->deviceType() == BIKE ||
@@ -7188,13 +7688,23 @@ void homeform::update() {
             }
             bluetoothManager->device()->setTargetPowerZone(requestedZone);
             target_zone->setValue(QStringLiteral("Z") + QString::number(requestedZone, 'f', 1));
-            target_zone->setSecondLine(requestedMinW + QStringLiteral("-") + requestedMaxW + QStringLiteral("W ") +
+            target_zone->setSecondLine(requestedMinW + QStringLiteral("-") + requestedMaxW + tr("W ") +
                                        QString::number(requestedPerc, 'f', 0) + QStringLiteral("%"));
         }
 
         QString Z;
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
+        double currentHRZoneDisplay =
+            interpolatedHeartZone(percHeartRate,
+                                  settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                      .toDouble());
         double hrCurrentZoneRangeMin = 0;
         double hrCurrentZoneRangeMax = maxHeartRate;
 
@@ -7308,21 +7818,21 @@ void homeform::update() {
             break;
         }
         bluetoothManager->device()->setHeartZone(currentHRZone);
-        Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
+        Z = QStringLiteral("Z") + QString::number(currentHRZoneDisplay, 'f', 1);
 
         // Heart rate second line - show as percentage if enabled
         if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
             double maxHR = heartRateMax();
             double avgHRPercent = ((bluetoothManager->device())->currentHeart().average() / maxHR) * 100.0;
             double maxHRPercent = ((bluetoothManager->device())->currentHeart().max() / maxHR) * 100.0;
-            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+            heart->setSecondLine(Z + QObject::tr(" AVG: ") +
                                  QString::number(avgHRPercent, 'f', 0) + "%" +
-                                 QStringLiteral(" MAX: ") +
+                                 QObject::tr(" MAX: ") +
                                  QString::number(maxHRPercent, 'f', 0) + "%");
         } else {
-            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+            heart->setSecondLine(Z + QObject::tr(" AVG: ") +
                                  QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
-                                 QStringLiteral(" MAX: ") +
+                                 QObject::tr(" MAX: ") +
                                  QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
         }
 
@@ -7367,6 +7877,8 @@ void homeform::update() {
             // Get resistance and inclination values
             int resistance = 0;
             double inclination = 0.0;
+            int antEquipmentType = 0x19; // ANT+ FE Trainer/Stationary Bike
+            int strokeCount = 0;
             
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
@@ -7375,17 +7887,21 @@ void homeform::update() {
                 resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
                 inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                antEquipmentType = 0x16; // ANT+ FE Rower
                 resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+                strokeCount = (int)((rower*)bluetoothManager->device())->currentStrokesCount().value();
             }
             
             // Call the extended metrics update via JNI
             KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
-                "(JIDID)V", 
+                "(JIDIDII)V",
                 distanceMeters, 
                 heartRate, 
                 elapsedTimeSeconds, 
                 resistance, 
-                inclination);                                      
+                inclination,
+                antEquipmentType,
+                strokeCount);
         }
 #endif
 
@@ -7557,6 +8073,8 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
+            double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
+            double trainprogram_pid_hr_recovery_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7630,31 +8148,61 @@ void homeform::update() {
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
-                        const double step = 0.2;
-                        double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < ((uint8_t)currentHRZone) && currentSpeed > minSpeed) {
-                            double newSpeed = std::max(currentSpeed - step, minSpeed);
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > ((uint8_t)currentHRZone) && currentSpeed < maxSpeed) {
-                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
-                            pid_heart_zone_small_inc_counter++;
-                            if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
-                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                                ((treadmill *)bluetoothManager->device())
-                                    ->changeSpeedAndInclination(
-                                        newSpeed,
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                        const double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const treadmill_pid_hr_mode globalPidMode = trainprogram::pidHrModeFromString(
+                            settings.value(QZSettings::treadmill_pid_heart_control,
+                                           QZSettings::default_treadmill_pid_heart_control)
+                                .toString());
+                        const treadmill_pid_hr_mode pidMode =
+                            trainProgram ? trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalPidMode)
+                                         : globalPidMode;
+                        const bool useInclinationPid =
+                            pidMode == treadmill_pid_hr_mode::Inclination &&
+                            ((treadmill *)bluetoothManager->device())->canHandleInclineChange();
+                        if (zone < ((uint8_t)currentHRZone) && (useInclinationPid || currentSpeed > minSpeed)) {
+                            if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("zone below target"))) {
                                 pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if (zone > ((uint8_t)currentHRZone) && (useInclinationPid || currentSpeed < maxSpeed)) {
+                            if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("zone above target"))) {
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if (trainprogram_pid_pushy) {
+                            double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
+                            // Slowdown threshold is symmetric: midpoint between pushyZoneLimit and zone top
+                            // e.g. pushy=0.8: slowdown at zone+0.9, neutral band [0.8, 0.9]
+                            double pushySlowdownThreshold = (double)zone + (1.0 + trainprogram_pid_hr_pushy_zone_limit) / 2.0;
+                            double pushyHRZone = currentHRZone;
+                            if (zone == 1) {
+                                double zone1Limit =
+                                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                        .toDouble();
+                                double zone1LowerLimit = qBound(0.0, trainprogram_pid_hr_recovery_zone_limit, zone1Limit - 1.0);
+                                double effectiveZone1Width = zone1Limit - zone1LowerLimit;
+                                if (effectiveZone1Width > 0.0) {
+                                    double maxHeartRate = heartRateMax();
+                                    double currentHRPercent =
+                                        (bluetoothManager->device()->currentHeart().value() * 100.0) / maxHeartRate;
+                                    pushyHRZone =
+                                        1.0 + ((currentHRPercent - zone1LowerLimit) / effectiveZone1Width);
+                                    pushyHRZone = qBound(1.0, pushyHRZone, 1.9999);
+                                }
+                            }
+                            double distanceToNextZone = ((double)zone + 1.0) - pushyHRZone;
+                            if (pushyHRZone > pushySlowdownThreshold && (useInclinationPid || currentSpeed > minSpeed)) {
+                                if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("pushy slowdown"))) {
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
+                            } else if (pushyHRZone < pushyZoneLimit && distanceToNextZone > 0.0 &&
+                                       (useInclinationPid || currentSpeed < maxSpeed)) {
+                                pid_heart_zone_small_inc_counter++;
+                                if (pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
+                                    if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("pushy increase"))) {
+                                        pid_heart_zone_small_inc_counter = 0;
+                                    }
+                                }
+                            } else {
+                                pid_heart_zone_small_inc_counter++;
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == BIKE) {
@@ -7807,46 +8355,41 @@ void homeform::update() {
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
-                        const double step = 0.2;
-                        double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const treadmill_pid_hr_mode globalPidMode = trainprogram::pidHrModeFromString(
+                            settings.value(QZSettings::treadmill_pid_heart_control,
+                                           QZSettings::default_treadmill_pid_heart_control)
+                                .toString());
+                        const treadmill_pid_hr_mode pidMode =
+                            trainProgram ? trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalPidMode)
+                                         : globalPidMode;
+                        const bool useInclinationPid =
+                            pidMode == treadmill_pid_hr_mode::Inclination &&
+                            ((treadmill *)bluetoothManager->device())->canHandleInclineChange();
                         qDebug() << QStringLiteral("TREADMILL PID HR - currentSpeed:") << currentSpeed
                                  << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
 
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
-                            currentSpeed > minSpeed) {
-                            double newSpeed = std::max(currentSpeed - step, minSpeed);
-                            qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << newSpeed;
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   currentSpeed < maxSpeed) {
-                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                            qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << newSpeed;
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (currentSpeed < maxSpeed &&
-                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
-                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
-                                     << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
-                            pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
-                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                                qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
-                                         << currentSpeed << QStringLiteral("to") << newSpeed;
-                                ((treadmill *)bluetoothManager->device())
-                                    ->changeSpeedAndInclination(
-                                        newSpeed,
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                            (useInclinationPid || currentSpeed > minSpeed)) {
+                            if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("HR above maximum"))) {
                                 pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
+                                   (useInclinationPid || currentSpeed < maxSpeed)) {
+                            if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("HR below minimum"))) {
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if ((useInclinationPid || currentSpeed < maxSpeed) &&
+                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                            const double hrDistance = fabs(hrmax - bluetoothManager->device()->currentHeart().average20s());
+                            const double threshold = hrDistance > 0.0 ? (30.0 / hrDistance) : 30.0;
+                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
+                                     << QStringLiteral("threshold:") << threshold;
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > threshold) {
+                                if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("pushy increase"))) {
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
                             }
                         } else {
                             qDebug() << QStringLiteral("TREADMILL PID HR - No action taken (in zone or at limits)");
@@ -7986,7 +8529,7 @@ void homeform::update() {
                     settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble()) {
                         qDebug() << QStringLiteral("Autolap based on distance");
                         Lap();
-                        setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
+                        setToastRequested(QObject::tr("AutoLap %1").arg(QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1)));
                 }
             }
 
@@ -8215,6 +8758,7 @@ void homeform::update() {
                                settings.value(QZSettings::tts_act_speed, QZSettings::default_tts_act_speed).toBool()) {
                         tts_speed_played = bluetoothManager->device()->currentSpeed().value();
                         QString s;
+                        //: Text-to-speech: spoken before the new speed value, e.g. "speed changed to" + "12.5" + " kilometers per hour". Must read naturally when the number follows.
                         s.append((description ? tr("speed changed to") : "") +
                                  (!miles ? QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 1) +
                                                (description ? tr(" kilometers per hour") : "")
@@ -8372,13 +8916,24 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
     QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
     QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    if (clearAndroidJniException("Uri.parse") || !jUri.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
         QtAndroid::androidContext().object(),
         jUri.object());
-    return result.toString();
+    if (clearAndroidJniException("ContentHelper.getFileName") || !result.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
+
+    QString fileName = result.toString();
+    if (fileName.isEmpty()) {
+        fileName = fallbackFileNameFromUri(uriString);
+    }
+    return fileName;
 #else
     return uriString;
 #endif
@@ -8386,40 +8941,80 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = "";
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13))
-        fileNameLocal = getFileNameFromContentUri(file.toString());
-    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
+    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QDir().mkpath(destinationDir);
+
+    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
         qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
-        return file.toString();
+        return sourcePath;
     }
-    
-    QString filename = "";
-    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
-    // android <14 fallback
-    if(fileNameLocal.length() == 0) {
-        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
-        filename = file.fileName();
-    } else {
-        QFileInfo f(fileNameLocal);
-        filename = f.fileName();        
+
+    QString filename;
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        filename = getFileNameFromContentUri(file.toString());
     }
-    QString dest = getWritableAppDir() + subfolder + "/" + filename;
-    qDebug() << file.fileName() << fileNameLocal << filename;
+    if (filename.isEmpty() && !sourcePath.isEmpty()) {
+        filename = QFileInfo(sourcePath).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QFileInfo(file.fileName()).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QStringLiteral("imported_file");
+    }
+
+    const QString dest = destinationDir + filename;
+    qDebug() << file.fileName() << sourcePath << filename;
     QFile::remove(dest);
+
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        QAndroidJniObject jUriString = QAndroidJniObject::fromString(file.toString());
+        QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod(
+            "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+        if (clearAndroidJniException("Uri.parse for copy") || !jUri.isValid()) {
+            qWarning() << "Unable to parse content URI for copy" << file;
+            return QString();
+        }
+
+        QAndroidJniObject jDest = QAndroidJniObject::fromString(dest);
+        jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyContentToFile",
+            "(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            jUri.object(),
+            jDest.object<jstring>());
+        if (clearAndroidJniException("ContentHelper.copyContentToFile")) {
+            QFile::remove(dest);
+            return QString();
+        }
+
+        qDebug() << "copyContentToFile" << dest << static_cast<bool>(copied);
+        if (!copied || !QFile::exists(dest)) {
+            QFile::remove(dest);
+            return QString();
+        }
+        return dest;
+    }
+
+    QFile fileFile(sourcePath);
     bool copy = fileFile.copy(dest);
     qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
-    return dest;
+    return copy ? dest : QString();
 #endif
     return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 #ifdef Q_OS_ANDROID
-    copyAndroidContentsURI(fileName, "profiles");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
+    if (!copiedFile.isEmpty()) {
+        loadSettings(QUrl::fromLocalFile(copiedFile));
+    }
 #else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     QFileInfo fileInfo(file);
     bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
     qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
@@ -8427,13 +9022,17 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "training");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "training");
+    if (!copiedFile.isEmpty()) {
+        trainprogram_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "gpx");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "gpx");
+    if (!copiedFile.isEmpty()) {
+        gpx_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 bool homeform::startTrainingProgramFromFile(const QString &filePath) {
@@ -8450,6 +9049,275 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
     return true;
+}
+
+void homeform::openAndroidDocumentPicker(const QString &kind) {
+#ifdef Q_OS_ANDROID
+    int requestCode = 0;
+    QString mimeType = QStringLiteral("*/*");
+    QString destinationDir;
+    if (kind == QStringLiteral("profile")) {
+        requestCode = AndroidDocumentPickerProfileRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("profiles/");
+    } else if (kind == QStringLiteral("training")) {
+        requestCode = AndroidDocumentPickerTrainingRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("training/");
+    } else if (kind == QStringLiteral("gpx")) {
+        requestCode = AndroidDocumentPickerGpxRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("gpx/");
+    } else if (kind == QStringLiteral("settings")) {
+        requestCode = AndroidDocumentPickerSettingsRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("settings/");
+    } else if (kind == QStringLiteral("fit")) {
+        requestCode = AndroidDocumentPickerFitRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("fit/");
+    } else {
+        qWarning() << "Unknown Android document picker kind" << kind;
+        return;
+    }
+
+    QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(destinationDir);
+    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
+                                                  javaMimeType.object<jstring>(), requestCode,
+                                                  javaDestinationDir.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
+        return;
+    }
+#else
+    Q_UNUSED(kind)
+#endif
+}
+
+void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
+#ifdef Q_OS_ANDROID
+    // the Java side already copied the workouts into the fit folder; the folder import
+    // passes one path per line
+    if (requestCode == AndroidDocumentPickerFitRequestCode ||
+        requestCode == AndroidDocumentPickerFitFolderRequestCode) {
+        importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
+        return;
+    }
+    if (localPath.isEmpty()) {
+        qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        return;
+    }
+
+    const QUrl localUrl = QUrl::fromLocalFile(localPath);
+    QString kind;
+    switch (requestCode) {
+    case AndroidDocumentPickerProfileRequestCode:
+        kind = QStringLiteral("profile");
+        break;
+    case AndroidDocumentPickerTrainingRequestCode:
+        kind = QStringLiteral("training");
+        break;
+    case AndroidDocumentPickerGpxRequestCode:
+        kind = QStringLiteral("gpx");
+        break;
+    case AndroidDocumentPickerSettingsRequestCode:
+        kind = QStringLiteral("settings");
+        break;
+    default:
+        qWarning() << "Unknown Android document picker request code" << requestCode << localPath;
+        return;
+    }
+
+    emit androidDocumentPicked(kind, localUrl);
+#else
+    Q_UNUSED(requestCode)
+    Q_UNUSED(localPath)
+#endif
+}
+
+void homeform::importFitFile(const QUrl &fileUrl) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(fileUrl);
+    const QFileInfo source(sourcePath);
+    if (sourcePath.isEmpty() || !source.isFile()) {
+        setToastRequested(tr("The workout file could not be opened."));
+        return;
+    }
+    const QString destinationDir = getWritableAppDir() + QStringLiteral("fit/");
+    QDir().mkpath(destinationDir);
+    if (source.absolutePath() + QStringLiteral("/") == destinationDir) {
+        importFitFilesToHistory(QStringList() << sourcePath);
+        return;
+    }
+
+    // keep any workout with the same file name: same name and size is the same workout,
+    // otherwise the copy gets a free "_N" name
+    QString destination;
+    for (int attempt = 0; attempt < 100 && destination.isEmpty(); attempt++) {
+        const QString candidate = destinationDir +
+                                  (attempt == 0 ? source.fileName()
+                                                : QStringLiteral("%1_%2.%3")
+                                                      .arg(source.completeBaseName())
+                                                      .arg(attempt)
+                                                      .arg(source.suffix()));
+        if (QFileInfo::exists(candidate)) {
+            if (QFileInfo(candidate).size() == source.size()) {
+                destination = candidate;
+            }
+        } else if (QFile::copy(sourcePath, candidate)) {
+            destination = candidate;
+        }
+    }
+    if (destination.isEmpty()) {
+        setToastRequested(tr("The workout file could not be copied."));
+        return;
+    }
+    importFitFilesToHistory(QStringList() << destination);
+}
+
+// The history database is only a cache of the .fit files. After the app is reinstalled on
+// Android 14+, ddb.sqlite in Documents/QZ belongs to the previous install: it can be neither
+// opened nor removed nor replaced. A new database is then kept next to it (ddb-1.sqlite, ...)
+// and filled again from the .fit files; once a folder import has removed the old ddb.sqlite,
+// the next start goes back to that name and drops the spare ones. A spare left by an earlier
+// install is locked the same way, so with every name taken the database goes to the private
+// folder of the app instead.
+QString homeform::historyDatabasePath() {
+    const QString dir = getWritableAppDir();
+    const QString mainPath = dir + QStringLiteral("ddb.sqlite");
+    QString chosen;
+    for (int i = 0; i < 20 && chosen.isEmpty(); i++) {
+        const QString path = i == 0 ? mainPath : dir + QStringLiteral("ddb-%1.sqlite").arg(i);
+        const bool existed = QFileInfo(path).size() > 0;
+        QFile file(path);
+        if (file.open(QIODevice::ReadWrite)) {
+            file.close();
+            chosen = path;
+            m_historyDatabaseIsNew = !existed;
+        } else {
+            qDebug() << "history database not usable:" << path << file.errorString();
+        }
+    }
+    if (chosen.isEmpty()) {
+        const QString privateDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir().mkpath(privateDir);
+        const QString privatePath = privateDir + QStringLiteral("/ddb.sqlite");
+        m_historyDatabaseIsNew = QFileInfo(privatePath).size() == 0;
+        qDebug() << "history database:" << privatePath << "new:" << m_historyDatabaseIsNew
+                 << "(every name in the QZ folder is taken)";
+        return privatePath;
+    }
+    if (chosen == mainPath) {
+        QDirIterator spare(dir, QStringList() << QStringLiteral("ddb-*.sqlite*"), QDir::Files);
+        while (spare.hasNext()) {
+            QFile::remove(spare.next());
+        }
+        const QString privatePath =
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/ddb.sqlite");
+        QFile::remove(privatePath + QStringLiteral("-journal"));
+        QFile::remove(privatePath);
+    }
+    qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
+    return chosen;
+}
+
+bool homeform::startFitFolderImport(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    // the old database can be removed only through the folder grant
+    const bool removeOldDatabase = m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite");
+    // the spare database in use sits among the old ones and must survive their removal
+    const QFileInfo database(m_historyDatabasePath);
+    const QString keepDatabase =
+        database.absolutePath() + QStringLiteral("/") == getWritableAppDir() ? database.fileName() : QString();
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
+    QAndroidJniObject javaKeepDatabase = QAndroidJniObject::fromString(keepDatabase);
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openFitFolderPicker", "(ILjava/lang/String;ZLjava/lang/String;Z)Z", AndroidDocumentPickerFitFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(removeOldDatabase),
+        javaKeepDatabase.object<jstring>(), static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openFitFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+// A new spare history database means ddb.sqlite of a previous install sits in the QZ folder
+// (Android 14+ after a reinstall), so its workouts are there too, hidden from the app. With a
+// saved folder grant they are imported right away; without one, the user is asked once. A
+// first install, or a database removed by hand, starts on ddb.sqlite and is not asked.
+// workouts in the history database, read through the connection of the workout model
+int homeform::historyWorkoutCount() {
+    QSqlDatabase db = QSqlDatabase::database(FitDatabaseProcessor::DB_CONNECTION_NAME + QStringLiteral("_main"));
+    if (!db.isOpen()) {
+        return 0;
+    }
+    QSqlQuery query(db);
+    if (!query.exec(QStringLiteral("SELECT COUNT(*) FROM workouts")) || !query.next()) {
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+void homeform::historyPageOpened() {
+    m_historyPageOpened = true;
+    maybeOfferHistoryRecovery();
+}
+
+// the offer waits for both the end of the start-up processing and the history page
+void homeform::maybeOfferHistoryRecovery() {
+    if (!m_historyRecoveryPending || !m_historyPageOpened) {
+        return;
+    }
+    m_historyRecoveryPending = false;
+    offerHistoryRecovery();
+}
+
+void homeform::offerHistoryRecovery() {
+#ifdef Q_OS_ANDROID
+    if (m_historyDatabasePath == getWritableAppDir() + QStringLiteral("ddb.sqlite")) {
+        return;
+    }
+    m_fitImportQuiet = true;
+    if (!startFitFolderImport(false)) {
+        m_fitImportQuiet = false;
+        emit historyRecoveryOfferRequested();
+    }
+#endif
+}
+
+void homeform::importFitFolder() {
+#ifdef Q_OS_ANDROID
+    startFitFolderImport(true);
+#else
+    // other platforms can read their own folder: take every workout file in it again
+    QStringList files;
+    QDirIterator it(getWritableAppDir() + QStringLiteral("fit"), QStringList() << QStringLiteral("*.fit")
+                                                                              << QStringLiteral("*.FIT"),
+                    QDir::Files);
+    while (it.hasNext()) {
+        files << it.next();
+    }
+    importFitFilesToHistory(files);
+#endif
+}
+
+void homeform::importFitFilesToHistory(const QStringList &files) {
+    if (!fitProcessor || !workoutModel) {
+        return;
+    }
+    if (files.isEmpty()) {
+        setFitImportRunning(false);
+        if (m_fitImportQuiet) {
+            // automatic import at start: the saved grant found nothing (folder gone), so ask
+            m_fitImportQuiet = false;
+            emit historyRecoveryOfferRequested();
+            return;
+        }
+        setToastRequested(tr("No workout files (.fit) found."));
+        return;
+    }
+    setFitImportRunning(true);
+    QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
@@ -8545,10 +9413,11 @@ void homeform::trainprogram_autostart_requested() {
     }
 
     if (dev && !dev->isPaused()) {
-        // Device is running, call Start() twice (pause then start)
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        // Pause and resume QZ to start the program, without sending STOP/START
+        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
     } else {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
@@ -8785,7 +9654,7 @@ void homeform::saveSessionAsTrainingProgram() {
     }
 
     // Save the XML file
-    if (trainprogram::saveXML(filename, rows)) {
+    if (trainprogram::saveXML(filename, rows, dev ? dev->deviceType() : UNKNOWN)) {
         lastTrainProgramFileSaved = filename;
         qDebug() << "Session saved as training program:" << filename;
     }
@@ -8901,7 +9770,8 @@ void homeform::fit_save_clicked() {
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
-                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile,
+                   m_workoutRpe, m_workoutFeel);
         lastFitFileSaved = filename;
 
         // Process the newly saved file immediately and refresh workout model
@@ -9170,13 +10040,14 @@ void homeform::strava_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
-        setToastRequested("Strava Auth Failed!");
+        setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
 
     // lets extract the access token, and possibly a new refresh token
     QByteArray r = reply->readAll();
-    qDebug() << QStringLiteral("Got response:") << r.data();
+    // the body has the access and refresh tokens; users may attach logs to public issues
+    qDebug() << QStringLiteral("Got response:") << r.size() << QStringLiteral("bytes");
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
@@ -9193,7 +10064,7 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
-    setToastRequested("Strava Login OK!");
+    setToastRequested(QObject::tr("Strava Login OK!"));
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -9335,9 +10206,9 @@ void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
             qDebug() << "JSON error message:" << jsonResponse.toJson();
         }
         
-        setToastRequested("Strava Upload Failed: " + replyStrava->errorString());        
+        setToastRequested(QObject::tr("Strava Upload Failed: %1").arg(replyStrava->errorString()));        
     } else {
-        setToastRequested("Strava Upload Failed");
+        setToastRequested(QObject::tr("Strava Upload Failed"));
     }
 }
 
@@ -9352,7 +10223,7 @@ void homeform::writeFileCompleted() {
 
     qDebug() << "reply:" << response;
 
-    setToastRequested("Strava Upload Completed!");
+    setToastRequested(QObject::tr("Strava Upload Completed!"));
 }
 
 void homeform::onStravaGranted() {
@@ -9391,7 +10262,11 @@ void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
 
 void homeform::replyDataReceived(const QByteArray &v) {
 
-    qDebug() << v;
+    // The OAuth body contains access and refresh tokens; avoid logging it.
+    if (v.contains("_token"))
+        qDebug() << QStringLiteral("Strava reply received:") << v.size() << QStringLiteral("bytes");
+    else
+        qDebug() << v;
 
     QByteArray data;
     QSettings settings;
@@ -9547,7 +10422,7 @@ void homeform::garmin_connect_login() {
     QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
 
     if (email.isEmpty() || password.isEmpty()) {
-        setToastRequested("Garmin credentials not configured. Please set email and password in settings.");
+        setToastRequested(QObject::tr("Garmin credentials not configured. Please set email and password in settings."));
         return;
     }
 
@@ -9557,19 +10432,20 @@ void homeform::garmin_connect_login() {
 
         // Connect signals
         connect(garminConnect, &GarminConnect::authenticated, this, [this]() {
-            setToastRequested("Garmin Connect: Authentication successful!");
+            setToastRequested(QObject::tr("Garmin Connect: Authentication successful!"));
+            garminConnect->checkFtpUpdates();
         });
 
         connect(garminConnect, &GarminConnect::authenticationFailed, this, [this](const QString &error) {
-            setToastRequested("Garmin Connect Login Failed: " + error);
+            setToastRequested(QObject::tr("Garmin Connect Login Failed: %1").arg(error));
         });
 
         connect(garminConnect, &GarminConnect::uploadSucceeded, this, [this]() {
-            setToastRequested("Garmin Connect: Upload successful!");
+            setToastRequested(QObject::tr("Garmin Connect: Upload successful!"));
         });
 
         connect(garminConnect, &GarminConnect::uploadFailed, this, [this](const QString &error) {
-            setToastRequested("Garmin Connect Upload Failed: " + error);
+            setToastRequested(QObject::tr("Garmin Connect Upload Failed: %1").arg(error));
         });
 
         connect(garminConnect, &GarminConnect::mfaRequired, this, [this]() {
@@ -9579,7 +10455,7 @@ void homeform::garmin_connect_login() {
 
         connect(garminConnect, &GarminConnect::workoutDownloaded, this,
                 [this](const QString &filename, const QString &workoutName) {
-                    setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
+                    setToastRequested(QObject::tr("Garmin workout saved: %1").arg(workoutName));
                     QString workoutDate;
                     const QString baseName = QFileInfo(filename).completeBaseName();
                     const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
@@ -9601,13 +10477,19 @@ void homeform::garmin_connect_login() {
                 [this](const QString &error) {
                     qDebug() << "Garmin: Workout download failed:" << error;
                 });
+
+        connect(garminConnect, &GarminConnect::ftpValuesAvailable, this,
+                [this](int cyclingFtp, const QString &cyclingCreateTime,
+                       int runningFtp, const QString &runningCreateTime) {
+                    handleGarminFtpValues(cyclingFtp, cyclingCreateTime, runningFtp, runningCreateTime);
+                });
     }
 
     // Always try to refresh token on startup for maximum token freshness
     // tryRefreshToken() handles all cases: valid tokens, expired access_token, etc.
     if (garminConnect->tryRefreshToken()) {
         qDebug() << "Garmin Connect: Token refresh successful, authenticated";
-        setToastRequested("Garmin Connect: Authenticated!");
+        setToastRequested(QObject::tr("Garmin Connect: Authenticated!"));
         emit garminConnect->authenticated();
         return;
     }
@@ -9615,7 +10497,7 @@ void homeform::garmin_connect_login() {
     // If already authenticated (refresh was skipped or not needed)
     if (garminConnect->isAuthenticated()) {
         qDebug() << "Garmin Connect: Already authenticated";
-        setToastRequested("Garmin Connect: Authenticated!");
+        setToastRequested(QObject::tr("Garmin Connect: Authenticated!"));
         emit garminConnect->authenticated();
         return;
     }
@@ -9627,7 +10509,7 @@ void homeform::garmin_connect_login() {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
         // Only show error toast if it's not MFA required (MFA has its own dialog)
         if (!garminConnect->lastError().contains("MFA", Qt::CaseInsensitive)) {
-            setToastRequested("Garmin Connect: Login failed - " + garminConnect->lastError());
+            setToastRequested(QObject::tr("Garmin Connect: Login failed - %1").arg(garminConnect->lastError()));
         }
     }
 }
@@ -9636,12 +10518,12 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     qDebug() << "Garmin MFA code submission requested";
 
     if (!garminConnect) {
-        setToastRequested("Garmin Connect not initialized");
+        setToastRequested(QObject::tr("Garmin Connect not initialized"));
         return;
     }
 
     if (mfaCode.isEmpty()) {
-        setToastRequested("Please enter a valid MFA code");
+        setToastRequested(QObject::tr("Please enter a valid MFA code"));
         return;
     }
 
@@ -9650,7 +10532,7 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
 
     // Submit MFA code to continue authentication (no need to restart login flow)
     // Note: This is async - results will be signaled via authenticated() or authenticationFailed()
-    setToastRequested("Submitting MFA code...");
+    setToastRequested(QObject::tr("Submitting MFA code..."));
     garminConnect->submitMfaCode(mfaCode);
 }
 
@@ -9693,17 +10575,17 @@ void homeform::garmin_start_downloaded_workout() {
     showNextGarminWorkoutPrompt();
 
     if (workoutFile.isEmpty()) {
-        setToastRequested("No Garmin workout file available");
+        setToastRequested(QObject::tr("No Garmin workout file available"));
         return;
     }
 
     if (!startTrainingProgramFromFile(workoutFile)) {
-        setToastRequested(QString("Failed to load Garmin workout: %1").arg(workoutName));
+        setToastRequested(QObject::tr("Failed to load Garmin workout: %1").arg(workoutName));
         return;
     }
 
     trainprogram_autostart_requested();
-    setToastRequested(QString("Starting Garmin workout: %1").arg(workoutName));
+    setToastRequested(QObject::tr("Starting Garmin workout: %1").arg(workoutName));
 }
 
 void homeform::garmin_dismiss_downloaded_workout_prompt() {
@@ -9716,11 +10598,110 @@ void homeform::garmin_dismiss_downloaded_workout_prompt() {
     showNextGarminWorkoutPrompt();
 }
 
+void homeform::handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreateTime,
+                                     int runningFtp, const QString &runningCreateTime) {
+    if (m_garminFtpPromptRequested) {
+        return;
+    }
+
+    QSettings settings;
+    QStringList updates;
+
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+
+    const int currentCyclingFtp =
+        qRound(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
+    const QString seenCyclingCreateTime =
+        settings.value(QZSettings::garmin_last_seen_cycling_ftp_create_time,
+                       QZSettings::default_garmin_last_seen_cycling_ftp_create_time).toString();
+    if (cyclingFtp > 0 && cyclingFtp != currentCyclingFtp &&
+        !cyclingCreateTime.isEmpty() && cyclingCreateTime != seenCyclingCreateTime) {
+        m_pendingGarminCyclingFtp = cyclingFtp;
+        m_pendingGarminCyclingFtpCreateTime = cyclingCreateTime;
+        updates << QObject::tr("Cycling FTP: %1 -> %2 W").arg(currentCyclingFtp).arg(cyclingFtp);
+    }
+
+    const int currentRunningFtp =
+        qRound(settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble());
+    const QString seenRunningCreateTime =
+        settings.value(QZSettings::garmin_last_seen_running_ftp_create_time,
+                       QZSettings::default_garmin_last_seen_running_ftp_create_time).toString();
+    if (runningFtp > 0 && runningFtp != currentRunningFtp &&
+        !runningCreateTime.isEmpty() && runningCreateTime != seenRunningCreateTime) {
+        m_pendingGarminRunningFtp = runningFtp;
+        m_pendingGarminRunningFtpCreateTime = runningCreateTime;
+        updates << QObject::tr("Running FTP: %1 -> %2 W").arg(currentRunningFtp).arg(runningFtp);
+    }
+
+    if (updates.isEmpty()) {
+        return;
+    }
+
+    m_garminFtpPromptMessage =
+        QObject::tr("Garmin Connect has newer FTP values:\n\n%1\n\nDo you want to update QZ settings?")
+            .arg(updates.join(QStringLiteral("\n")));
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(true);
+}
+
+void homeform::markPendingGarminFtpSeen() {
+    QSettings settings;
+    if (!m_pendingGarminCyclingFtpCreateTime.isEmpty()) {
+        settings.setValue(QZSettings::garmin_last_seen_cycling_ftp_create_time,
+                          m_pendingGarminCyclingFtpCreateTime);
+    }
+    if (!m_pendingGarminRunningFtpCreateTime.isEmpty()) {
+        settings.setValue(QZSettings::garmin_last_seen_running_ftp_create_time,
+                          m_pendingGarminRunningFtpCreateTime);
+    }
+}
+
+void homeform::garmin_accept_ftp_update() {
+    QSettings settings;
+    QStringList updated;
+
+    if (m_pendingGarminCyclingFtp > 0) {
+        settings.setValue(QZSettings::ftp, m_pendingGarminCyclingFtp);
+        updated << QObject::tr("cycling FTP");
+    }
+    if (m_pendingGarminRunningFtp > 0) {
+        settings.setValue(QZSettings::ftp_run, m_pendingGarminRunningFtp);
+        updated << QObject::tr("running FTP");
+    }
+
+    markPendingGarminFtpSeen();
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+    m_garminFtpPromptMessage.clear();
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(false);
+
+    if (!updated.isEmpty()) {
+        setToastRequested(QObject::tr("Updated Garmin %1").arg(updated.join(QObject::tr(" and "))));
+    }
+}
+
+void homeform::garmin_dismiss_ftp_update() {
+    markPendingGarminFtpSeen();
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+    m_garminFtpPromptMessage.clear();
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(false);
+}
+
 void homeform::echelon_switch_to_classic_bridge() {
     setEchelonBridgeSwitchPromptRequested(false);
 
     if (!bluetoothManager || !bluetoothManager->device()) {
-        setToastRequested(QStringLiteral("No active Echelon device found"));
+        setToastRequested(QObject::tr("No active Echelon device found"));
         return;
     }
 
@@ -9734,7 +10715,7 @@ void homeform::echelon_switch_to_classic_bridge() {
         return;
     }
 
-    setToastRequested(QStringLiteral("The connected device is neither an Echelon Connect Sport nor a fakebike"));
+    setToastRequested(QObject::tr("The connected device is neither an Echelon Connect Sport nor a fakebike"));
 }
 
 void homeform::echelon_dismiss_bridge_switch_prompt() {
@@ -9745,7 +10726,7 @@ void homeform::echelon_enable_virtual_bridge() {
     setEchelonEnablePromptRequested(false);
 
     if (!bluetoothManager || !bluetoothManager->device()) {
-        setToastRequested(QStringLiteral("No active Echelon device found"));
+        setToastRequested(QObject::tr("No active Echelon device found"));
         return;
     }
 
@@ -9754,11 +10735,64 @@ void homeform::echelon_enable_virtual_bridge() {
         return;
     }
 
-    setToastRequested(QStringLiteral("The connected device is not an Echelon Connect Sport"));
+    setToastRequested(QObject::tr("The connected device is not an Echelon Connect Sport"));
 }
 
 void homeform::echelon_dismiss_enable_prompt() {
     setEchelonEnablePromptRequested(false);
+}
+
+void homeform::backgroundNetworkLost() {
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool() ||
+        settings.value(QZSettings::android_notification_prompt_disabled,
+                       QZSettings::default_android_notification_prompt_disabled)
+            .toBool()) {
+        return;
+    }
+    qDebug() << "backgroundNetworkLost: Android notification prompt on resume";
+    if (QGuiApplication::applicationState() == Qt::ApplicationActive) {
+        setAndroidNotificationPromptRequested(true);
+    } else {
+        m_androidNotificationPromptPending = true;
+    }
+#endif
+}
+
+void homeform::android_notification_prompt_enable() {
+    setAndroidNotificationPromptRequested(false);
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    settings.setValue(QZSettings::android_notification_v2, true);
+    android_notification_apply(true);
+    setToastRequested(QObject::tr("Android notification enabled"));
+#endif
+}
+
+void homeform::android_notification_apply(bool enabled) {
+#ifdef Q_OS_ANDROID
+    if (enabled) {
+        // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
+        // start right away and the running workout doesn't need a restart
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
+            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+    }
+#else
+    Q_UNUSED(enabled);
+#endif
+}
+
+void homeform::android_notification_prompt_dismiss(bool dontAskAgain) {
+    setAndroidNotificationPromptRequested(false);
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::android_notification_prompt_disabled, true);
+    }
 }
 
 bool homeform::isStravaLoggedIn() {
@@ -9799,7 +10833,7 @@ bool homeform::isIntervalsICUUploadConfigured() {
 void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
     QFile f(filePath);
     if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
-        setToastRequested("Strava: unable to open FIT file");
+        setToastRequested(QObject::tr("Strava: unable to open FIT file"));
         return;
     }
 
@@ -9808,12 +10842,12 @@ void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
 
 void homeform::uploadHistoricalWorkoutToGarmin(const QString &filePath) {
     if (filePath.isEmpty() || !QFile::exists(filePath)) {
-        setToastRequested("Garmin: FIT file not found");
+        setToastRequested(QObject::tr("Garmin: FIT file not found"));
         return;
     }
 
     if (!isGarminUploadConfigured()) {
-        setToastRequested("Garmin is not configured");
+        setToastRequested(QObject::tr("Garmin is not configured"));
         return;
     }
 
@@ -9822,20 +10856,20 @@ void homeform::uploadHistoricalWorkoutToGarmin(const QString &filePath) {
     }
 
     if (!garminConnect || !garminConnect->isAuthenticated()) {
-        setToastRequested("Garmin: Not authenticated. Please login first.");
+        setToastRequested(QObject::tr("Garmin: Not authenticated. Please login first."));
         return;
     }
 
-    setToastRequested("Uploading to Garmin Connect...");
+    setToastRequested(QObject::tr("Uploading to Garmin Connect..."));
     if (!garminConnect->uploadFitFile(filePath)) {
-        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+        setToastRequested(QObject::tr("Garmin: Upload failed - %1").arg(garminConnect->lastError()));
     }
 }
 
 void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
     QFile f(filePath);
     if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
-        setToastRequested("Intervals.icu: unable to open FIT file");
+        setToastRequested(QObject::tr("Intervals.icu: unable to open FIT file"));
         return;
     }
 
@@ -9945,21 +10979,21 @@ void homeform::garmin_upload_file_prepare() {
 
     // Final check before upload
     if (!garminConnect || !garminConnect->isAuthenticated()) {
-        setToastRequested("Garmin: Not authenticated. Please login first.");
+        setToastRequested(QObject::tr("Garmin: Not authenticated. Please login first."));
         return;
     }
 
     // Upload to Garmin Connect using new uploadFitFile method
     qDebug() << "Garmin: Starting upload of" << lastFitFileSaved;
-    setToastRequested("Uploading to Garmin Connect...");
+    setToastRequested(QObject::tr("Uploading to Garmin Connect..."));
 
     bool success = garminConnect->uploadFitFile(lastFitFileSaved);
     if (success) {
         qDebug() << "Garmin: Upload successful";
-        setToastRequested("Garmin: Upload successful!");
+        setToastRequested(QObject::tr("Garmin: Upload successful!"));
     } else {
         qDebug() << "Garmin: Upload failed:" << garminConnect->lastError();
-        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+        setToastRequested(QObject::tr("Garmin: Upload failed - %1").arg(garminConnect->lastError()));
     }
 }
 
@@ -9969,7 +11003,7 @@ void homeform::garmin_download_todays_workout() {
         return;
     }
     QString trainingDir = getWritableAppDir() + QStringLiteral("training");
-    setToastRequested("Downloading Garmin daily workout...");
+    setToastRequested(QObject::tr("Downloading Garmin daily workout..."));
     garminConnect->downloadTodaysWorkout(trainingDir);
 }
 
@@ -10051,10 +11085,11 @@ void homeform::sendMail() {
     QSettings settings;
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
     double unit_conversion = 1.0;
     double meter_feet_conversion = 1.0;
-    QString meter_feet_unit = QStringLiteral("meters");
-    QString weightLossUnit = QStringLiteral("Kg");
+    QString meter_feet_unit = tr("meters");
+    QString weightLossUnit = tr("Kg");
     double WeightLoss = 0;
 
     // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
@@ -10063,13 +11098,23 @@ void homeform::sendMail() {
         return;
     }
 
+    if (mailSent) {
+        qDebug() << QStringLiteral("sendMail already requested, ignoring duplicate");
+        return;
+    }
+    mailSent = true;
+
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
-        weightLossUnit = QStringLiteral("Oz");
         meter_feet_conversion = 3.28084;
-        meter_feet_unit = QStringLiteral("feet");
+        meter_feet_unit = tr("feet");
     }
-    WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
+    // same rule as the Weight Loss tile: ounces only when the weight is not shown in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = tr("Oz");
+    }
+    WeightLoss = ((miles && !weight_kg_unit) ? bluetoothManager->device()->weightLoss() * 35.274
+                                             : bluetoothManager->device()->weightLoss());
 
     // Now we create a MimeMessage object. This will be the email.
 
@@ -10094,7 +11139,7 @@ void homeform::sendMail() {
 
     MimeText *text = new MimeText;
 
-    QString textMessage = QStringLiteral("Great workout!\n\n");
+    QString textMessage = tr("Great workout!") + QStringLiteral("\n\n");
 
     if (pelotonHandler) {
         if (!pelotonHandler->current_ride_id.isEmpty()) {
@@ -10106,138 +11151,177 @@ void homeform::sendMail() {
     }
 
     textMessage += '\n';
-    textMessage += QStringLiteral("Average Speed: ") +
-                   QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Speed: ") +
-                   QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Calories burned: ") +
-                   QString::number(bluetoothManager->device()->calories().value(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Distance: ") +
-                   QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Elevation Gain (") + meter_feet_unit + "): " +
-                   QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion, 'f',
-                                   (miles ? 0 : 1)) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Average Watt: ") +
-                   QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Watt: ") +
-                   QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Average Watt/Kg: ") +
-                   QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) + "\n";
+    // Workout summary for the user, in the app language. The technical lines below (QZ version, devices,
+    // debug log) stay in English: users forward this mail when they ask for support.
     textMessage +=
-        QStringLiteral("Max Watt/Kg: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1) + "\n";
-    textMessage += QStringLiteral("Average Heart Rate: ") +
-                   QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Heart Rate: ") +
-                   QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + QStringLiteral("\n");
+        tr("Average Speed: %1")
+            .arg(QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Max Speed: %1")
+            .arg(QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Calories burned: %1").arg(QString::number(bluetoothManager->device()->calories().value(), 'f', 0)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Distance: %1").arg(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage += tr("Elevation Gain (%1): %2")
+                       .arg(meter_feet_unit,
+                            QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion,
+                                            'f', (miles ? 0 : 1))) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Average Watt: %1").arg(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0)) +
+        QStringLiteral("\n");
+    textMessage += tr("Max Watt: %1").arg(QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0)) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Average Watt/Kg: %1").arg(QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1)) + "\n";
+    textMessage +=
+        tr("Max Watt/Kg: %1").arg(QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1)) + "\n";
+    textMessage += tr("Average Heart Rate: %1")
+                       .arg(QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0)) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Max Heart Rate: %1").arg(QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0)) +
+        QStringLiteral("\n");
 
     for(int i=0; i<bluetoothManager->device()->maxHeartZone(); i++) {
-        textMessage += QStringLiteral("Heart Rate Z") + QString::number(i + 1) + QStringLiteral(": ") +
-                    QTime(0, 0, 0, 0).addSecs(bluetoothManager->device()->secondsForHeartZone(i)).toString("H:mm:ss") + QStringLiteral("\n");        
+        textMessage +=
+            tr("Heart Rate Z%1: %2")
+                .arg(
+                    QString::number(i + 1),
+                    QTime(0, 0, 0, 0).addSecs(bluetoothManager->device()->secondsForHeartZone(i)).toString("H:mm:ss")) +
+            QStringLiteral("\n");
     }
 
-    textMessage += QStringLiteral("Total Output: ") +
-                   QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + QStringLiteral("\n");
     textMessage +=
-        QStringLiteral("Elapsed Time: ") + bluetoothManager->device()->elapsedTime().toString() + QStringLiteral("\n");
+        tr("Total Output: %1").arg(QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0)) +
+        QStringLiteral("\n");
     textMessage +=
-        QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
-    textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
-                   QStringLiteral("\n");
+        tr("Elapsed Time: %1").arg(bluetoothManager->device()->elapsedTime().toString()) + QStringLiteral("\n");
+    textMessage +=
+        tr("Moving Time: %1").arg(bluetoothManager->device()->movingTime().toString()) + QStringLiteral("\n");
+    textMessage +=
+        tr("Weight Loss (%1): %2").arg(weightLossUnit, QString::number(WeightLoss, 'f', 2)) + QStringLiteral("\n");
     double vo2max = metric::calculateVO2Max(&Session);
     if(vo2max)
-        textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(vo2max, 'f', 0) +
-                   QStringLiteral("\n");
+        textMessage += tr("Estimated VO2Max: %1").arg(QString::number(vo2max, 'f', 0)) + QStringLiteral("\n");
     if(bluetoothManager->device()->deviceType() == BLUETOOTH_TYPE::TREADMILL) {
-        textMessage += QStringLiteral("Running Stress Score: ") + QString::number(((treadmill*)bluetoothManager->device())->runningStressScore(), 'f', 0) +
-                       QStringLiteral("\n");
+        textMessage +=
+            tr("Running Stress Score: %1")
+                .arg(QString::number(((treadmill *)bluetoothManager->device())->runningStressScore(), 'f', 0)) +
+            QStringLiteral("\n");
     }
+    // powerPeak() returns -1 when the workout is shorter than the window: such lines are left out
     double peak = metric::powerPeak(&Session, 5);
     double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    textMessage += QStringLiteral("5 Seconds Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    if (peak >= 0) {
+        textMessage += tr("5 Seconds Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
     peak = metric::powerPeak(&Session, 60);
-    textMessage += QStringLiteral("1 Minute Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    if (peak >= 0) {
+        textMessage += tr("1 Minute Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
     peak = metric::powerPeak(&Session, 5 * 60);
-    textMessage += QStringLiteral("5 Minutes Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");    
+    if (peak >= 0) {
+        textMessage += tr("5 Minutes Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
 
     // FTP
     double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
-    peak = (metric::powerPeak(&Session, 20 * 60) * 0.95) * 0.95;
-    textMessage += QStringLiteral("Estimated FTP: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ");
-    if(peak > ftpSetting) {
-        textMessage += QStringLiteral(" FTP IMPROVED +") + QString::number(peak - ftpSetting, 'f', 0) +
-                       QStringLiteral("W!");
+    peak = metric::powerPeak(&Session, 20 * 60);
+    if (peak >= 0) {
+        peak = (peak * 0.95) * 0.95;
+        textMessage += tr("Estimated FTP: %1W").arg(QString::number(peak, 'f', 0)) + QStringLiteral(" ");
+        if (peak > ftpSetting) {
+            textMessage +=
+                QStringLiteral(" ") + tr("FTP IMPROVED +%1W!").arg(QString::number(peak - ftpSetting, 'f', 0));
+        }
+        textMessage += QStringLiteral("\n");
     }
-    textMessage += QStringLiteral("\n");
 
     if (bluetoothManager->device()->deviceType() == BIKE) {
-        textMessage += QStringLiteral("Average Cadence: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Cadence: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Peloton Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Peloton Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-    } else if (bluetoothManager->device()->deviceType() == ROWING) {
-        textMessage += QStringLiteral("Average Cadence: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Cadence: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentCadence().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Peloton Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Peloton Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Pace: ") +
-                       ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Pace: ") +
-                       ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
+        textMessage +=
+            tr("Average Cadence: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage += tr("Max Cadence: %1")
+                           .arg(QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
                        QStringLiteral("\n");
         textMessage +=
-            QStringLiteral("Average Strokes Length: ") +
-            QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
+            tr("Average Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Peloton Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Peloton Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+    } else if (bluetoothManager->device()->deviceType() == ROWING) {
+        textMessage +=
+            tr("Average Cadence: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Cadence: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Peloton Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Peloton Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage += tr("Average Pace: %1")
+                           .arg(((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss"))) +
+                       QStringLiteral("\n");
+        textMessage +=
+            tr("Max Pace: %1").arg(((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Strokes Length: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1)) +
+            "\n";
     } else if (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) {
-        textMessage += QStringLiteral("Average Pace: ") +
-                       (bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Pace: ") +
-                       (bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
+        textMessage +=
+            tr("Average Pace: %1").arg((bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Pace: %1").arg((bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
         // for stryd and similars
         if (bluetoothManager->device()->currentCadence().average() > 0) {
-            textMessage += QStringLiteral("Average Cadence: ") +
-                           QString::number((bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+            textMessage += tr("Average Cadence: %1")
+                               .arg(QString::number((bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
                            QStringLiteral("\n");
-            textMessage += QStringLiteral("Max Cadence: ") +
-                           QString::number((bluetoothManager->device())->currentCadence().max(), 'f', 0) +
+            textMessage += tr("Max Cadence: %1")
+                               .arg(QString::number((bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
                            QStringLiteral("\n");
         }
     }
@@ -10262,6 +11346,56 @@ void homeform::sendMail() {
 #define STRINGIFY(x) _STR(x)
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
+
+    QStringList temporaryFilesForMail;
+    QString compressedDebugLogForMail;
+    QString debugLogMailNote;
+    constexpr qint64 maxDebugLogAttachmentBytes = 10 * 1024 * 1024;
+    const QStringList logCandidates =
+        QDir(getWritableAppDir()).entryList(QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+    const QString logfilename = logCandidates.isEmpty() ? QString() : logCandidates.first();
+    if (settings.value(QZSettings::log_debug).toBool() && !logfilename.isEmpty() &&
+        QFile::exists(getWritableAppDir() + logfilename)) {
+        const QString debugLogFileName = getWritableAppDir() + logfilename;
+        QFile debugLogFile(debugLogFileName);
+        if (debugLogFile.open(QIODevice::ReadOnly)) {
+            bool gzipOk = false;
+            const QByteArray compressedDebugLog = gzipCompress(debugLogFile.readAll(), &gzipOk);
+            debugLogFile.close();
+
+            const QString compressedDebugLogFileName =
+                getWritableAppDir() + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral("_") +
+                QFileInfo(debugLogFileName).fileName() + QStringLiteral(".gz");
+            QFile compressedDebugLogFile(compressedDebugLogFileName);
+            if (!gzipOk) {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to gzip log file.");
+            } else if (compressedDebugLogFile.open(QIODevice::WriteOnly)) {
+                compressedDebugLogFile.write(compressedDebugLog);
+                compressedDebugLogFile.close();
+
+                const qint64 compressedDebugLogSize = QFileInfo(compressedDebugLogFileName).size();
+                if (compressedDebugLogSize <= maxDebugLogAttachmentBytes) {
+                    compressedDebugLogForMail = compressedDebugLogFileName;
+                    temporaryFilesForMail.append(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log attached: ") + QFileInfo(compressedDebugLogFileName).fileName() +
+                        QStringLiteral(" (") + QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB gzip compressed)");
+                } else {
+                    QFile::remove(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log not attached: compressed file is ") +
+                        QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB, above the 10.0 MB mail limit.");
+                }
+            } else {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to write compressed log file.");
+            }
+        } else {
+            debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to read log file.");
+        }
+    }
+    textMessage += debugLogMailNote;
 
     text->setText(textMessage);
     message->addPart(text);
@@ -10341,32 +11475,14 @@ void homeform::sendMail() {
         message->addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+    if (!compressedDebugLogForMail.isEmpty()) {
+        MimeAttachment *log = new MimeAttachment(new QFile(compressedDebugLogForMail));
+        log->setContentId(compressedDebugLogForMail);
+        log->setContentType(QStringLiteral("application/gzip"));
+        message->addPart(log);
+    }
 
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
-
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
-
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail, this);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
@@ -10412,13 +11528,30 @@ QString homeform::getAndroidDataAppDir() {
             QAndroidJniObject file;
             for (int i = 0; i < dataSize; i++) {
                 file = env->GetObjectArrayElement(dataArray, i);
+                if (!file.isValid())
+                    continue;
+                // isExternalStorageRemovable throws IllegalArgumentException on Waydroid/emulators
+                // where vold can't resolve the storage volume — clear any pending exception.
                 jboolean val = QAndroidJniObject::callStaticMethod<jboolean>(
                     "android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                    val = JNI_FALSE;
+                }
                 mediaPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
                 out = mediaPath.toString();
                 if (!val)
                     break;
             }
+        }
+    }
+    // Fallback to internal storage when external storage is unavailable (e.g. Waydroid)
+    if (out.isEmpty()) {
+        QAndroidJniObject internalDir = QtAndroid::androidActivity().callObjectMethod(
+            "getFilesDir", "()Ljava/io/File;");
+        if (internalDir.isValid()) {
+            QAndroidJniObject internalPath = internalDir.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+            out = internalPath.toString();
         }
     }
     path = out;
@@ -10466,12 +11599,18 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(filename, "settings");
+    QString settingsFile = file.fileName();
+#ifdef Q_OS_ANDROID
+    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+    if (!copiedSettingsFile.isEmpty()) {
+        settingsFile = copiedSettingsFile;
+    }
+#endif
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
     QSettings settings;
-    QSettings settings2Load(file.fileName(), QSettings::IniFormat);
+    QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
@@ -10535,6 +11674,68 @@ void homeform::restart() {
 #endif
 }
 
+bool homeform::adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
+                                             const QString &reason) {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != TREADMILL) {
+        return false;
+    }
+
+    QSettings settings;
+    treadmill *device = static_cast<treadmill *>(bluetoothManager->device());
+    treadmill_pid_hr_mode globalMode = trainprogram::pidHrModeFromString(
+        settings.value(QZSettings::treadmill_pid_heart_control,
+                       QZSettings::default_treadmill_pid_heart_control)
+            .toString());
+    treadmill_pid_hr_mode mode = globalMode;
+    if (trainProgram) {
+        mode = trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalMode);
+    }
+
+    if (mode == treadmill_pid_hr_mode::Inclination && device->canHandleInclineChange()) {
+        const double minInclination =
+            settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
+        double maxInclination =
+            settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+        if (trainProgram && trainProgram->currentRow().maxInclination >= 0) {
+            maxInclination = trainProgram->currentRow().maxInclination;
+        }
+        maxInclination = std::max(maxInclination, minInclination);
+        const double currentInclination = device->currentInclination().value();
+        const double step = device->minStepInclination();
+        const double newInclination = increaseLoad
+                                          ? std::min(currentInclination + step, maxInclination)
+                                          : std::max(currentInclination - step, minInclination);
+        if (qFuzzyCompare(currentInclination + 1.0, newInclination + 1.0)) {
+            qDebug() << QStringLiteral("TREADMILL PID HR - inclination at limit") << currentInclination
+                     << QStringLiteral("reason:") << reason;
+            return false;
+        }
+        qDebug() << QStringLiteral("TREADMILL PID HR - actuator: inclination, reason:") << reason
+                 << QStringLiteral("from") << currentInclination << QStringLiteral("to") << newInclination;
+        device->changeInclination(newInclination, newInclination);
+        return true;
+    }
+
+    if (mode == treadmill_pid_hr_mode::Inclination) {
+        qWarning() << QStringLiteral("TREADMILL PID HR - inclination requested but unsupported; falling back to speed");
+    }
+
+    const double currentSpeed = device->currentSpeed().value();
+    const double step = 0.2;
+    const double newSpeed = increaseLoad ? std::min(currentSpeed + step, maxSpeed)
+                                         : std::max(currentSpeed - step, minSpeed);
+    if (qFuzzyCompare(currentSpeed + 1.0, newSpeed + 1.0)) {
+        qDebug() << QStringLiteral("TREADMILL PID HR - speed at limit") << currentSpeed
+                 << QStringLiteral("reason:") << reason;
+        return false;
+    }
+    qDebug() << QStringLiteral("TREADMILL PID HR - actuator: speed, reason:") << reason
+             << QStringLiteral("from") << currentSpeed << QStringLiteral("to") << newSpeed;
+    device->changeSpeedAndInclination(newSpeed, device->currentInclination().value());
+    return true;
+}
+
 double homeform::heartRateMax() {
     QSettings settings;
     double maxHeartRate = 220.0 - settings.value(QZSettings::age, QZSettings::default_age).toDouble();
@@ -10573,9 +11774,18 @@ int homeform::preview_workout_points() {
 void homeform::licenseReply(QNetworkReply *reply) {
     QString r = reply->readAll();
     qDebug() << r;
+    static std::chrono::steady_clock::time_point lastNoAckToast;
     if (r.contains("OK")) {
         tLicense.stop();
+        lastNoAckToast = std::chrono::steady_clock::time_point{};
+        setToastRequested(tr("License Approved!"));
     } else {
+        const auto now = std::chrono::steady_clock::now();
+        if (lastNoAckToast == std::chrono::steady_clock::time_point{} ||
+            now - lastNoAckToast >= std::chrono::minutes(5)) {
+            setToastRequested(tr("License not found"));
+            lastNoAckToast = now;
+        }
         licenseRequest();
     }
 }
@@ -10874,7 +12084,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
                 qDebug() << "Intervals.icu: Error response body:" << QString::fromUtf8(response);
-                setToastRequested("Intervals.icu: Authentication failed");
+                setToastRequested(QObject::tr("Intervals.icu: Authentication failed"));
                 reply->deleteLater();
                 return;
             }
@@ -10914,11 +12124,11 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                     qDebug() << "Intervals.icu: Authentication completed successfully";
                 } else {
                     qDebug() << "Intervals.icu: No access_token in response";
-                    setToastRequested("Intervals.icu: Authentication failed");
+                    setToastRequested(QObject::tr("Intervals.icu: Authentication failed"));
                 }
             } else {
                 qDebug() << "Intervals.icu: Token exchange failed with status" << statusCode;
-                setToastRequested(QString("Intervals.icu: Error %1").arg(statusCode));
+                setToastRequested(QObject::tr("Intervals.icu: Error %1").arg(statusCode));
             }
 
             reply->deleteLater();
@@ -10929,7 +12139,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         QString error = values.value("error").toString();
         QString errorDesc = values.value("error_description").toString();
         qDebug() << "Intervals.icu: OAuth error occurred";
-        setToastRequested("Intervals.icu error: " + error);
+        setToastRequested(QObject::tr("Intervals.icu error: %1").arg(error));
     }
 }
 
@@ -11033,13 +12243,13 @@ bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &r
 
     if (token.isEmpty()) {
         qDebug() << "Intervals.icu: No access token available";
-        setToastRequested("Intervals.icu: Not authenticated");
+        setToastRequested(QObject::tr("Intervals.icu: Not authenticated"));
         return false;
     }
 
     if (athleteId.isEmpty()) {
         qDebug() << "Intervals.icu: No athlete ID available";
-        setToastRequested("Intervals.icu: No athlete ID configured");
+        setToastRequested(QObject::tr("Intervals.icu: No athlete ID configured"));
         return false;
     }
 
@@ -11140,11 +12350,11 @@ void homeform::writeFileCompletedIntervalsICU() {
 
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (statusCode >= 200 && statusCode < 300) {
-        setToastRequested("Intervals.icu upload successful!");
+        setToastRequested(QObject::tr("Intervals.icu upload successful!"));
     } else {
-        QString errorMsg = QString("Intervals.icu upload failed (HTTP %1)").arg(statusCode);
-        qDebug() << errorMsg << response;
-        setToastRequested(errorMsg);
+        // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
+        qDebug() << "Intervals.icu upload failed (HTTP" << statusCode << ")" << response;
+        setToastRequested(QObject::tr("Intervals.icu upload failed (HTTP %1)").arg(statusCode));
     }
 
     reply->deleteLater();
@@ -11158,9 +12368,9 @@ void homeform::errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code)
         qDebug() << "Error string:" << replyIntervalsICU->errorString();
         qDebug() << "HTTP status code:" << replyIntervalsICU->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        setToastRequested("Intervals.icu upload failed: " + replyIntervalsICU->errorString());
+        setToastRequested(QObject::tr("Intervals.icu upload failed: %1").arg(replyIntervalsICU->errorString()));
     } else {
-        setToastRequested("Intervals.icu upload failed");
+        setToastRequested(QObject::tr("Intervals.icu upload failed"));
     }
 }
 
@@ -11175,7 +12385,7 @@ void homeform::intervalsicu_download_todays_workout() {
 
     if (athleteId.isEmpty()) {
         qDebug() << "Intervals.icu: No athlete ID configured";
-        setToastRequested("Intervals.icu: Configure athlete ID first");
+        setToastRequested(QObject::tr("Intervals.icu: Configure athlete ID first"));
         return;
     }
 
@@ -11196,7 +12406,7 @@ void homeform::intervalsicu_download_todays_workout() {
     QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
     if (token.isEmpty()) {
         qDebug() << "Intervals.icu: No access token available";
-        setToastRequested("Intervals.icu: Please authenticate first");
+        setToastRequested(QObject::tr("Intervals.icu: Please authenticate first"));
         return;
     }
     request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
@@ -11213,7 +12423,7 @@ void homeform::intervalsicu_download_todays_workout() {
     });
 
     qDebug() << "Intervals.icu: Requesting workouts for" << today;
-    setToastRequested("Downloading workout from Intervals.icu...");
+    setToastRequested(QObject::tr("Downloading workout from Intervals.icu..."));
 }
 
 void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
@@ -11223,9 +12433,10 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     qDebug() << "Intervals.icu: Download response status:" << statusCode;
 
     if (statusCode != 200) {
-        QString errorMsg = QString("Failed to get workouts (HTTP %1)").arg(statusCode);
-        qDebug() << "Intervals.icu:" << errorMsg;
-        setToastRequested("Intervals.icu: " + errorMsg);
+        // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
+        qDebug() << "Intervals.icu: failed to get workouts (HTTP" << statusCode << ")";
+        setToastRequested(QObject::tr("Intervals.icu: %1")
+                              .arg(QObject::tr("Failed to get workouts (HTTP %1)").arg(statusCode)));
         reply->deleteLater();
         return;
     }
@@ -11234,7 +12445,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
     if (!jsonDoc.isArray()) {
         qDebug() << "Intervals.icu: Invalid response format";
-        setToastRequested("Intervals.icu: Invalid response");
+        setToastRequested(QObject::tr("Intervals.icu: Invalid response"));
         reply->deleteLater();
         return;
     }
@@ -11242,7 +12453,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     QJsonArray events = jsonDoc.array();
     if (events.isEmpty()) {
         qDebug() << "Intervals.icu: No workouts planned for today";
-        setToastRequested("No workouts planned for today on Intervals.icu");
+        setToastRequested(QObject::tr("No workouts planned for today on Intervals.icu"));
         reply->deleteLater();
         return;
     }
@@ -11298,8 +12509,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                 }
 
                 // Sanitize filename
-                QString safeName = workoutName;
-                safeName.replace(QRegExp("[^a-zA-Z0-9_\\-]"), "_");
+                QString safeName = safeFileName(workoutName, QStringLiteral("Workout"));
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
@@ -11312,10 +12522,10 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                     file.write(zwoContent);
                     file.close();
                     qDebug() << "Intervals.icu: Workout saved to" << filename;
-                    setToastRequested(QString("Workout saved: %1").arg(safeName));
+                    setToastRequested(QObject::tr("Workout saved: %1").arg(safeName));
                 } else {
                     qDebug() << "Intervals.icu: Failed to save workout to" << filename;
-                    setToastRequested("Failed to save workout file");
+                    setToastRequested(QObject::tr("Failed to save workout file"));
                 }
             } else {
                 qDebug() << "Intervals.icu: Failed to download workout" << eventId << "- HTTP" << statusCode;
@@ -11415,4 +12625,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-

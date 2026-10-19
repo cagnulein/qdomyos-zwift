@@ -73,9 +73,10 @@ void moxy5sensor::characteristicChanged(const QLowEnergyCharacteristic &characte
                   QStringLiteral("Previous SmO2: ") + QString::number(m_previousSaturatedHemoglobin, 'f', 2) + "% " +
                   QStringLiteral("THb: ") + QString::number(m_totalHemoglobinConcentration, 'f', 2) + " g/dL";
 
-        homeform::singleton()->setToastRequested(QStringLiteral("Current SmO2: ") + QString::number(m_currentSaturatedHemoglobin, 'f', 2) + "% " +
-                                                 QStringLiteral("Previous SmO2: ") + QString::number(m_previousSaturatedHemoglobin, 'f', 2) + "% " +
-                                                 QStringLiteral("THb: ") + QString::number(m_totalHemoglobinConcentration, 'f', 2) + " g/dL");
+        homeform::singleton()->setToastRequested(QObject::tr("Current SmO2: %1% Previous SmO2: %2% THb: %3 g/dL")
+                                                     .arg(QString::number(m_currentSaturatedHemoglobin, 'f', 2),
+                                                          QString::number(m_previousSaturatedHemoglobin, 'f', 2),
+                                                          QString::number(m_totalHemoglobinConcentration, 'f', 2)));
     }
 }
 
@@ -165,7 +166,7 @@ void moxy5sensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')';
 
     if(homeform::singleton())
-        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
 
     // Controlla se il dispositivo è un Moxy 5 o semplicemente collegati a qualsiasi dispositivo che trovi
     // (qui puoi aggiungere un filtro per il nome se necessario)

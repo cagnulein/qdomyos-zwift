@@ -150,6 +150,7 @@ virtualdevices/virtualdevice.cpp \
 androidactivityresultreceiver.cpp \
 androidadblog.cpp \
 devices/apexbike/apexbike.cpp \
+devices/volavabike/volavabike.cpp \
 handleurl.cpp \
 devices/iconceptelliptical/iconceptelliptical.cpp \
 localipaddress.cpp \
@@ -162,6 +163,8 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/freebeatbike/FreebeatUSB.cpp \
+devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -172,6 +175,7 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -221,6 +225,7 @@ devices/dircon/dirconprocessor.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
+devices/echelonconnectsport/echelonunlock.cpp \
 devices/echelonconnectsport/echelonconnectsport.cpp \
 devices/echelonrower/echelonrower.cpp \
 devices/echelonstride/echelonstride.cpp \
@@ -232,6 +237,7 @@ devices/fakebike/fakebike.cpp \
 filedownloader.cpp \
 devices/fitmetria_fanfit/fitmetria_fanfit.cpp \
 devices/fitplusbike/fitplusbike.cpp \
+devices/fitplusrower/fitplusrower.cpp \
 devices/fitshowtreadmill/fitshowtreadmill.cpp \
 fit-sdk/fit.cpp \
 fit-sdk/fit_accumulated_field.cpp \
@@ -264,6 +270,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
@@ -280,6 +287,7 @@ devices/nautiluselliptical/nautiluselliptical.cpp \
 devices/nautilustreadmill/nautilustreadmill.cpp \
 devices/npecablebike/npecablebike.cpp \
 devices/pafersbike/pafersbike.cpp \
+devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
@@ -299,6 +307,7 @@ simplecrypt.cpp \
 devices/skandikawiribike/skandikawiribike.cpp \
 devices/smartrowrower/smartrowrower.cpp \
 devices/smartspin2k/smartspin2k.cpp \
+devices/waterrowerusb/waterrowerusb.cpp \
 smtpclient/src/emailaddress.cpp \
 smtpclient/src/mimeattachment.cpp \
 smtpclient/src/mimecontentformatter.cpp \
@@ -325,15 +334,19 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
+webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
+devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
 devices/ultrasportbike/ultrasportbike.cpp \
+devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
+devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
@@ -343,6 +356,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -460,6 +474,7 @@ virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \
 devices/apexbike/apexbike.h \
+devices/volavabike/volavabike.h \
 devices/discoveryoptions.h \
 handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \
@@ -471,6 +486,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -480,6 +496,8 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/freebeatbike/freebeatbike.h \
+devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -544,6 +562,7 @@ devices/dircon/dirconprocessor.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
+devices/echelonconnectsport/echelonunlock.h \
 devices/echelonconnectsport/echelonconnectsport.h \
 devices/echelonrower/echelonrower.h \
 devices/echelonstride/echelonstride.h \
@@ -555,6 +574,7 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
@@ -783,9 +803,11 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/horizon5r_defaults.h \
 devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
@@ -800,6 +822,7 @@ devices/nautiluselliptical/nautiluselliptical.h \
 devices/nautilustreadmill/nautilustreadmill.h \
 devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
+devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
 peloton.h \
 powerzonepack.h \
@@ -821,6 +844,7 @@ simplecrypt.h \
 devices/skandikawiribike/skandikawiribike.h \
 devices/smartrowrower/smartrowrower.h \
 devices/smartspin2k/smartspin2k.h \
+devices/waterrowerusb/waterrowerusb.h \
 smtpclient/src/SmtpMime \
 smtpclient/src/emailaddress.h \
 smtpclient/src/mimeattachment.h \
@@ -849,7 +873,9 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.h \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
+webtranslation.h \
 devices/stagesbike/stagesbike.h \
+devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
@@ -860,16 +886,19 @@ devices/truetreadmill/truetreadmill.h \
 devices/trxappgateusbbike/trxappgateusbbike.h \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 devices/ultrasportbike/ultrasportbike.h \
+devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
+devices/wahookickruntreadmill/wahookickruntreadmill.h \
 wobjectdefs.h \
 wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 
@@ -1062,4 +1091,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.5
+VERSION = 2.22.0
