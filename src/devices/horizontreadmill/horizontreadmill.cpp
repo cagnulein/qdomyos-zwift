@@ -2759,8 +2759,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
-        } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
-            qDebug() << QStringLiteral("YPOO-MINI PRO found");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
+            qDebug() << QStringLiteral("YPOO MINI PRO unlock mode found");
             YPOO_MINI_PRO = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
             qDebug() << QStringLiteral("MX-TM found");
