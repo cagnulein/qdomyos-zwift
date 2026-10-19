@@ -8,7 +8,6 @@
 #include "../../src/sessionline.h"
 #include "../../src/devices/bluetoothdevice.h"
 
-
 /**
  * @brief Test suite for qfit FIT file reading/writing
  *
@@ -31,7 +30,10 @@ public:
      */
     void test_databaseReadability();
 
-
+    /**
+     * @brief Test that average speed is calculated from session samples, not metric update frequency
+     */
+    void test_averageSpeedUsesSessionSamples();
 
 protected:
     void SetUp() override;
@@ -62,10 +64,12 @@ TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
     this->test_newFormatDeveloperFields();
 }
 
+TEST_F(QFitTestSuite, TestAverageSpeedUsesSessionSamples) {
+    this->test_averageSpeedUsesSessionSamples();
+}
 
 TEST_F(QFitTestSuite, TestDatabaseReadability) {
     this->test_databaseReadability();
 }
-
 
 #endif // QFITTESTSUITE_H

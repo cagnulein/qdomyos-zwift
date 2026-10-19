@@ -16,7 +16,6 @@ class metric {
         METRIC_WATT = 1,
         METRIC_SPEED = 2,
         METRIC_ELAPSED = 3,
-        METRIC_INCLINATION = 4,
     } _metric_type;
 
     metric();
@@ -64,8 +63,6 @@ class metric {
     static double powerPeak(QList<SessionLine> *session, int seconds);
     
   private:
-    void accumulateTimeWeightedStats(const QDateTime &now);
-
     double m_value = 0;
     double m_totValue = 0;
     double m_countValue = 0;
@@ -81,14 +78,6 @@ class metric {
     double m_lapCountValue = 0;
     double m_lapMin = 999999999;
     double m_lapMax = 0;
-
-    double m_timeWeightedTotal = 0;
-    double m_timeWeightedDuration = 0;
-    double m_lapTimeWeightedTotal = 0;
-    double m_lapTimeWeightedDuration = 0;
-    QDateTime m_lastStatsTime = QDateTime::currentDateTime();
-    bool m_statsInitialized = false;
-    bool m_includeZeroInTimeWeightedStats = false;
 
     QDateTime m_lastChanged = QDateTime::currentDateTime();
     quint64 m_updateSequence = 0;
