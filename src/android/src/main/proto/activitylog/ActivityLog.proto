@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "activitylog/ActivityLogStats.proto";
+import "activitylog/ActivityLogSummary.proto";
+import "activitylog/ActivityLogMetadata.proto";
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivityLog {
+  ActivityLogMetadata metadata = 1;
+  string id = 2;
+  int32 softwareNumber = 3;
+  int64 startMsSinceEpoch = 4;
+  int64 endMsSinceEpoch = 5;
+  int32 durationMs = 6;
+  ActivityLogStats stats = 7;
+  ActivityLogSummary summary = 8;
+}

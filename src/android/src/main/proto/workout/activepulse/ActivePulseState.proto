@@ -1,0 +1,26 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "console/ConsoleType.proto";
+import "settings/heartrate/HeartRateZoneNumber.proto";
+import "workout/activepulse/ActivePulseActiveState.proto";
+import "workout/activepulse/ActivePulseScalingState.proto";
+option java_package = "com.ifit.glassos.workout.activepulse";
+option java_outer_classname = "ActivePulseStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivePulseState {
+  ActivePulseActiveState activeState = 1;
+  string workoutID = 2;
+  HeartRateZoneNumber currentZone = 3;
+  HeartRateZoneNumber targetZone = 4;
+  bool hasAchievedTargetZone = 5;
+  ActivePulseScalingState scalingState = 6;
+  int32 secondsInZoneZero = 7;
+  int32 secondsInZoneOne = 8;
+  int32 secondsInZoneTwo = 9;
+  int32 secondsInZoneThree = 10;
+  int32 secondsInZoneFour = 11;
+  int32 secondsInZoneFive = 12;
+  ConsoleType consoleType = 13;
+}

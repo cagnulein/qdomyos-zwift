@@ -1,0 +1,44 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "HeartRateServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message HeartRateMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastBpm = 3;
+  double maxBpm = 4;
+  double avgBpm = 5;
+  double minBpm = 6;
+}
+
+message HeartRateMetricList {
+  repeated HeartRateMetric metrics = 1;
+}
+
+message HeartRateRequest {
+  double bpm = 1;
+}
+
+service HeartRateService {
+  // check whether HeartRate is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // check whether HeartRate is Writable, like for Virtual Console or from outside apps like Apple Watch
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Heart Rate Metric relative to the current workout
+  rpc GetHeartRate(Empty) returns (HeartRateMetric) {}
+
+  rpc SetHeartRate(HeartRateRequest) returns (WorkoutResult) {}
+
+  // subscribe to HeartRate updates relative to the current workout
+  rpc HeartRateSubscription(Empty) returns (stream HeartRateMetric) {}
+
+  // gets a list of all of the HeartRate changes for the given workout ID
+  rpc GetHeartRateHistory(WorkoutID) returns (HeartRateMetricList) {}
+}

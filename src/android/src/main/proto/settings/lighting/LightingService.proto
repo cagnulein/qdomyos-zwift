@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings.lighting";
+option java_outer_classname = "LightingServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service LightingService {
+    rpc isAvailable(Empty) returns (AvailabilityResponse) {}
+    rpc IsEnabled(Empty) returns (BooleanResponse) {}
+    rpc IsEnabledFlow(Empty) returns (stream BooleanResponse) {}
+    rpc SetIsEnabled(BooleanRequest) returns (BooleanResponse) {}
+    rpc SetTestAnimation(BooleanRequest) returns (BooleanResponse) {}
+}

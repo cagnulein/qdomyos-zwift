@@ -1,0 +1,116 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.auth";
+option java_outer_classname = "AuthServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message Username {
+  string username = 1;
+}
+
+message UserCredentials {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthToken {
+  string username = 1;
+  string accessToken = 2;
+  int64 validUntilTimestampMs = 3;
+}
+
+message AuthCredentials {
+  string username = 1;
+  string accessToken = 2;
+  string refreshToken = 3;
+  int64 expiresIn = 4;
+}
+
+message GetCurrentTokenRequest {
+  bool forceRefresh = 1;
+}
+
+message AuthResult {
+  oneof errorOrToken {
+    IFitError error = 1;
+    AuthToken token = 2;
+  }
+}
+
+message MachineToken {
+  string accessToken = 1;
+  int64 validUntilTimestampMs = 2;
+}
+
+message MachineTokenResult {
+  oneof errorOrToken {
+    IFitError error = 1;
+    MachineToken token = 2;
+  }
+}
+
+message AuthTokenList {
+  repeated AuthToken tokens = 1;
+}
+
+message AuthQRCodeData {
+  string deviceCode = 1;
+  string userCode = 2;
+  string verificationUri = 3;
+  string verificationUriComplete = 4;
+  int64 expiresIn = 5;
+}
+
+message AuthQRCodeResult {
+  oneof errorOrData {
+    IFitError error = 1;
+    AuthQRCodeData data = 2;
+  }
+}
+
+message AuthQRCodePollingState {
+  oneof state {
+    AUTH_QR_CODE_POLLING_IDLE pollingIdle = 1;
+    AUTH_QR_CODE_POLLING_ACTIVE pollingActive = 2;
+    AUTH_QR_CODE_POLLING_EXPIRED pollingExpired = 3;
+    AUTH_QR_CODE_POLLING_USER_AUTHED pollingUserAuthed = 4;
+    AUTH_QR_CODE_POLLING_ERROR pollingError = 5;
+    AUTH_QR_CODE_POLLING_AUTH_ERROR pollingAuthError = 6;
+  }
+}
+
+message AUTH_QR_CODE_POLLING_IDLE {}
+message AUTH_QR_CODE_POLLING_ACTIVE {}
+message AUTH_QR_CODE_POLLING_EXPIRED {}
+message AUTH_QR_CODE_POLLING_USER_AUTHED {
+  AuthToken token = 1;
+}
+message AUTH_QR_CODE_POLLING_ERROR {
+  int32 errorCode = 1;
+  optional string errorMessage = 2;
+}
+message AUTH_QR_CODE_POLLING_AUTH_ERROR {
+  int32 errorCode = 1;
+  optional string errorMessage = 2;
+}
+
+
+service AuthService {
+  rpc Login(UserCredentials) returns (AuthResult) {}
+  rpc SwitchUser(Username) returns (AuthResult) {}
+  rpc SetCredentials(AuthCredentials) returns (AuthResult) {}
+  rpc Logout(Empty) returns (Empty) {}
+  rpc GetQRCodeData(Empty) returns (AuthQRCodeResult) {}
+  rpc StopPollingForQRAuthToken(Empty) returns (Empty) {}
+  rpc QrCodePollingStateChanged(Empty) returns (stream AuthQRCodePollingState) {}
+
+  rpc TokenChanged(Empty) returns (stream AuthToken) {}
+  rpc GetCurrentToken(GetCurrentTokenRequest) returns (AuthResult) {}
+  rpc GetAllTokens(Empty) returns (AuthTokenList) {}
+
+  rpc MachineTokenChanged(Empty) returns (stream MachineToken) {}
+  rpc GetMachineToken(Empty) returns (MachineTokenResult) {}
+}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.calibration";
+option java_outer_classname = "ThrottleCalibrationProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+
+enum ThrottleCalibrationState {
+  CALIBRATE_THROTTLE_STATE_IDLE = 0;
+  CALIBRATE_THROTTLE_STATE_FAILED = 1;
+  CALIBRATE_THROTTLE_STATE_WAITING_FOR_NEUTRAL = 2;
+  CALIBRATE_THROTTLE_STATE_WAITING_FOR_GRADE_FORWARD = 3;
+  CALIBRATE_THROTTLE_STATE_WAITING_FOR_GRADE_BACKWARD = 4;
+  CALIBRATE_THROTTLE_STATE_WAITING_FOR_SPEED_FORWARD = 5;
+  CALIBRATE_THROTTLE_STATE_WAITING_FOR_SPEED_BACKWARD = 6;
+  CALIBRATE_THROTTLE_STATE_DONE = 7;
+}
+
+message ThrottleCalibrationValues {
+  int32 rawGradeReading = 1;
+  int32 rawSpeedReading = 2;
+  int32 gradeTopThreshold = 3;
+  int32 gradeHighThreshold = 4;
+  int32 gradeLowThreshold = 5;
+  int32 gradeBottomThreshold = 6;
+  int32 gradeFilterConstant = 7;
+  int32 speedTopThreshold = 8;
+  int32 speedHighThreshold = 9;
+  int32 speedLowThreshold = 10;
+  int32 speedBottomThreshold = 11;
+  int32 speedFilterConstant = 12;
+}
+
+message ThrottleCalibrationStateResult {
+  ThrottleCalibrationState state = 1;
+  optional string errorMessage = 2;
+}
+
+

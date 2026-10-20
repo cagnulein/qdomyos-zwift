@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.appstore";
+option java_outer_classname = "StorageStatsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StorageStats {
+  int64 totalBytes = 1;
+  int64 allocatableBytes = 2;
+  int64 reservedBytes = 3;
+}

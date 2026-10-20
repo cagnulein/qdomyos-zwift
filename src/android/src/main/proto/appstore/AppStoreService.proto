@@ -1,0 +1,23 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "appstore/StorageStats.proto";
+import "appstore/AppStoreApp.proto";
+import "appstore/AppStoreActionRequest.proto";
+import "appstore/AppStoreState.proto";
+option java_package = "com.ifit.glassos.appstore";
+option java_outer_classname = "AppStoreServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service AppStoreService {
+  rpc AppStoreStateFlowSubscription(Empty) returns (stream AppStoreState) {}
+  rpc AppsFlowSubscription(Empty) returns (stream AppStoreAppList) {}
+
+  rpc RequestAppInstall(AppStoreActionRequest) returns (Empty) {}
+  rpc RequestAppUninstall(AppStoreActionRequest) returns (Empty) {}
+  rpc GetApps(BooleanRequest) returns (Empty) {}
+  rpc GoIdle(Empty) returns (Empty) {}
+
+  rpc GetStorageStats(Empty) returns (StorageStats) {}
+}

@@ -1,0 +1,33 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "ElevationServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ElevationMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double elevationGainMeters = 3;
+  double elevationLossMeters = 4;
+  double elevationNetMeters = 5;
+}
+
+message ElevationMetricList {
+  repeated ElevationMetric metrics = 1;
+}
+
+service ElevationService {
+  // check whether Elevation is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Elevation relative to the current workout
+  rpc GetElevation(Empty) returns (ElevationMetric) {}
+
+  // subscribe to Elevation updates relative to the current workout
+  rpc ElevationSubscription(Empty) returns (stream ElevationMetric) {}
+
+  // gets a list of all of the Elevation changes for the given workout ID
+  rpc GetElevationHistory(WorkoutID) returns (ElevationMetricList) {}
+}

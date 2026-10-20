@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutTargetTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum WorkoutTargetType {
+    WORKOUT_TARGET_TYPE_UNKNOWN = 0;
+    WORKOUT_TARGET_TYPE_CALORIES = 1;
+    WORKOUT_TARGET_TYPE_METERS = 2;
+    WORKOUT_TARGET_TYPE_SECONDS = 3;
+}

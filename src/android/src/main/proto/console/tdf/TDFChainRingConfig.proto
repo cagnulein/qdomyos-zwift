@@ -1,0 +1,26 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+option java_package = "com.ifit.glassos.console.tdf";
+option java_outer_classname = "TDFChainRingConfigProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum TDFChainRingConfig {
+    INVALID_CHAIN_RING = 0;
+    COMPACT_34_50 = 1;
+    SUB_COMPACT_36_52 = 2;
+    STANDARD_39_53 = 3;
+    TRIPLE_30_39_53 = 4;
+}
+
+message TDFChainRingConfigList {
+    repeated TDFChainRingConfig chainRingConfigs = 1;
+}
+
+message TDFChainRingConfigsResult {
+    oneof errorOrChainRingConfigs {
+        IFitError error = 1;
+        TDFChainRingConfigList chainRingConfigs = 2;
+    }
+}

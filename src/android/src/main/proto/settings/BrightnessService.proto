@@ -1,0 +1,26 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "BrightnessServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+import "util/Util.proto";
+
+message Brightness {
+  float brightnessPercent = 1;
+}
+
+message BrightnessResult {
+  oneof errorOrBrightness {
+    IFitError error = 1;
+    Brightness brightness = 2;
+  }
+}
+
+service BrightnessService {
+  rpc BrightnessChanged(Empty) returns (stream Brightness) {}
+  rpc SetBrightness(Brightness) returns (BrightnessResult) {}
+  rpc GetBrightness(Empty) returns (BrightnessResult) {}
+}

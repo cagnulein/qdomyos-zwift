@@ -81,6 +81,7 @@ class virtualbike : public virtualdevice {
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
     CharacteristicWriteProcessor0003 *writeP0003 = 0;
+    CharacteristicNotifier2ACD *notif2ACD = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
     CharacteristicNotifier2AD9 *notif2AD9 = 0;
     CharacteristicNotifier2A63 *notif2A63 = 0;
@@ -92,6 +93,7 @@ class virtualbike : public virtualdevice {
     qint64 lastFTMSFrameReceived = 0;
     qint64 lastDirconFTMSFrameReceived = 0;
 
+    bool sendVirtualTreadmillData = true;
     bool noHeartService = false;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1016,
+  "settingCount": 1019,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -16076,6 +16076,48 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "virtual_device_treadmill_data",
+      "name": "Send Virtual Treadmill Data",
+      "description": "Advertises FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data so another QZ instance can read the bike's incline. Disable if a third-party app has trouble with the extra treadmill data. Default is on. Restart QZ to apply.",
+      "parent": "virtual_device_bluetooth",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": true
+    },
+    {
+      "key": "nordictrackadbbike_gear_resistance_mode",
+      "name": "Gears Control Resistance (Separate Inc/Gear)",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "nordictrackadbbike_gear_debounce_ms",
+      "name": "Gear Change Debounce (ms)",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 100,
+      "defaultExpression": "100",
       "options": null,
       "restartRequired": false
     }

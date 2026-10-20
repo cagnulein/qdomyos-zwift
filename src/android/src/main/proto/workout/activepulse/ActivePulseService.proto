@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/activepulse/ActivePulseState.proto";
+option java_package = "com.ifit.glassos.workout.activepulse";
+option java_outer_classname = "ActivePulseServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service ActivePulseService {
+  // gets the current active state of the service
+  rpc GetIsActive(Empty) returns (BooleanResponse) {}
+
+  // sets the active state of the service
+  rpc SetIsActive(BooleanRequest) returns (Empty) {}
+
+  // subscribe to active pulse state updates
+  rpc ActivePulseStateSubscription(Empty) returns (stream ActivePulseState) {}
+}

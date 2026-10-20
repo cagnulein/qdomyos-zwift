@@ -1,0 +1,35 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "VideoQualityServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+import "util/Util.proto";
+
+enum VideoQualityLevel {
+  OPTIMIZED = 0;
+  HIGHEST = 1;
+  HIGH = 2;
+  MEDIUM = 3;
+  LOW = 4;
+  LOWEST = 5;
+}
+
+message VideoQuality {
+  VideoQualityLevel value = 1;
+}
+
+message VideoQualityResult {
+  oneof errorOrVideoQuality {
+    IFitError error = 1;
+    VideoQuality videoQuality = 2;
+  }
+}
+
+service VideoQualityService {
+  rpc SetVideoQuality(VideoQuality) returns (VideoQualityResult) {}
+  rpc GetVideoQuality(Empty) returns (VideoQualityResult) {}
+  rpc VideoQualityChanged(Empty) returns (stream VideoQuality) {}
+}

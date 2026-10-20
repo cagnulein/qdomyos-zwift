@@ -1,0 +1,27 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "settings/heartrate/HeartRateSettings.proto";
+option java_package = "com.ifit.glassos.settings.heartrate";
+option java_outer_classname = "HeartRateSettingsServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message HeartRateSettingsUpdate {
+  int32 restingHeartRate = 1;
+  int32 maxHeartRate = 2;
+}
+
+service HeartRateSettingsService {
+  // subscribe to heart rate settings changes
+  rpc HeartRateSettingsSubscription(Empty) returns (stream HeartRateSettings) {}
+
+  // reset heart rate settings to default values
+  rpc ResetHeartRateSettingsToDefault(Empty) returns (HeartRateSettings) {}
+
+  // updates heart rate settings
+  rpc UpdateHeartRateSettings(HeartRateSettingsUpdate) returns (HeartRateSettings) {}
+
+  // get the current heart rate settings
+  rpc GetHeartRateSettings(Empty) returns (HeartRateSettings) {}
+}

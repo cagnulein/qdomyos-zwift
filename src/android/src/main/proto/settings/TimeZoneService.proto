@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "TimeZoneServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+import "util/Util.proto";
+
+message TimeZone {
+  string id = 1;
+  string offsetString = 2;
+  int32 utcOffset = 3;
+  string name = 4;
+}
+
+message TimeZoneResult {
+  oneof errorOrTimeZone {
+    IFitError error = 1;
+    TimeZone timeZone = 2;
+  }
+}
+
+message TimeZoneList {
+  repeated TimeZone timeZones = 1;
+}
+
+service TimeZoneService {
+  rpc GetAllTimeZones(Empty) returns (TimeZoneList) {}
+  rpc SetTimeZone(TimeZone) returns (TimeZoneResult) {}
+  rpc GetCurrentTimeZone(Empty) returns (TimeZoneResult) {}
+  rpc TimeZoneChanged(Empty) returns (stream TimeZone) {}
+}

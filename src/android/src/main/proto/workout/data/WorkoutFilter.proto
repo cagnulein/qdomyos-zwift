@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutFilterProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum WorkoutFilter {
+    WORKOUT_FILTER_UNKNOWN = 0;
+    WORKOUT_FILTER_IFIT_BUILT = 1;
+    WORKOUT_FILTER_IS_MANUAL = 2;
+    WORKOUT_FILTER_IS_MAP = 3;
+    WORKOUT_FILTER_IS_VAULT = 4;
+    WORKOUT_FILTER_IS_VIDEO = 5;
+    WORKOUT_FILTER_IS_VUE = 6;
+    WORKOUT_FILTER_PORTRAIT_ORIENTATION = 7;
+    WORKOUT_FILTER_OFF_EQUIPMENT = 8;
+}

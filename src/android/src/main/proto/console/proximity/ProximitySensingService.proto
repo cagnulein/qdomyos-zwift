@@ -1,0 +1,28 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.console.proximity";
+option java_outer_classname = "ProximitySensingServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service ProximitySensingService {
+
+  // check whether Movement Detection (PIR) is Readable
+  rpc CanReadMovementDetect(Empty) returns (AvailabilityResponse) {}
+
+  // check whether User Distance (LIDAR) is Readable
+  rpc CanReadUserDistance(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Movement Detection (PIR) state
+  rpc GetMovementDetect(Empty) returns (BooleanResponse) {}
+
+  // subscribe to Movement Detection (PIR) updates
+  rpc MovementDetectSubscription(Empty) returns (stream BooleanResponse) {}
+
+  // get the current User Distance (LIDAR) in centimeters
+  rpc GetUserDistance(Empty) returns (FloatResponse) {}
+
+  // subscribe to User Distance (LIDAR) updates
+  rpc UserDistanceSubscription(Empty) returns (stream FloatResponse) {}
+}

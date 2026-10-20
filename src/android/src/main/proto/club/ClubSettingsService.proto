@@ -1,0 +1,84 @@
+syntax = "proto3";
+package com.ifit.glassos.club;
+option java_package = "com.ifit.glassos.club";
+option java_outer_classname = "ClubSettingsServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+import "settings/SystemUnitsService.proto";
+import "util/Util.proto";
+
+// Enum for UserRole
+enum UserRole {
+    HOME_USER = 0;
+    CLUB_ADMIN = 1;
+    CLUB_GUEST = 2;
+    CLUB_USER = 3;
+}
+
+// Response message for getting club code
+message GetClubCodeResponse {
+    oneof errorOrClubCode {
+        IFitError error = 1;
+        string clubCode = 2;
+    }
+}
+
+// Response message for getting video screensaver setting
+message GetUseVideoScreensaverResponse {
+    oneof errorOrUseVideoScreensaver {
+        IFitError error = 1;
+        bool useVideoScreensaver = 2;
+    }
+}
+
+message UserRoleResponse {
+    UserRole role = 1;
+}
+
+// Request message for changing user role
+message ChangeUserRoleRequest {
+    UserRole newRole = 1;
+}
+
+// Request message for saving club code
+message SaveClubCodeRequest {
+    string clubCode = 1;
+}
+
+// Request message for saving video screensaver setting
+message SaveUseVideoScreensaverRequest {
+    bool useVideoScreensaver = 1;
+}
+
+// Request message for saving default language
+message SaveDefaultLanguageRequest {
+    string language = 1;
+}
+
+// Request message for saving default language
+message IsEgymEnabledRequest {
+    bool featureFlagOnly = 1;
+    bool adminOnly = 2;
+}
+
+// Service definition for IFitClubSettingsService
+service IFitClubSettingsService {
+    rpc ChangeUserRole(ChangeUserRoleRequest) returns (Empty) {}
+    rpc CurrentUserRole(Empty) returns (stream UserRoleResponse) {}
+    rpc RestoreClubOwnerDefaultSettings(Empty) returns (Empty) {}
+    rpc GetClubCode(Empty) returns (GetClubCodeResponse) {}
+    rpc SaveClubCode(SaveClubCodeRequest) returns (Empty) {}
+    rpc GetUseVideoScreensaver(Empty) returns (GetUseVideoScreensaverResponse) {}
+    rpc SaveUseVideoScreensaver(SaveUseVideoScreensaverRequest) returns (Empty) {}
+    rpc SaveDefaultSystemUnits(SystemUnitsMessage) returns (Empty) {}
+    rpc SaveDefaultLanguage(SaveDefaultLanguageRequest) returns (Empty) {}
+    rpc GetCurrentUserRole(Empty) returns (UserRoleResponse) {}
+    rpc SaveAdminEgymEnabledState(BooleanRequest) returns (Empty) {}
+    rpc IsClub(Empty) returns (BooleanResponse) {}
+    rpc IsClubUser(Empty) returns (BooleanResponse) {}
+    rpc IsClubFreeUser(Empty) returns (BooleanResponse) {}
+    rpc IsClubGuest(Empty) returns (BooleanResponse) {}
+    rpc IsClubPremiumUser(Empty) returns (BooleanResponse) {}
+    rpc IsEgymEnabled(IsEgymEnabledRequest) returns (BooleanResponse) {}
+}

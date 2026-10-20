@@ -1,0 +1,29 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/data/map/MapCoordinate.proto";
+import "workout/data/map/MapViewType.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "MapWorkoutServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message MapViewTypeMessage {
+  MapViewType view = 1;
+}
+
+service MapWorkoutService {
+  rpc GetLocation(Empty) returns (MapCoordinate) {}
+  rpc LocationChanged(Empty) returns (stream MapCoordinate) {}
+
+  rpc GetSelectedMapType(Empty) returns (MapViewTypeMessage) {}
+  rpc SelectedMapTypeChanged(Empty) returns (stream MapViewTypeMessage) {}
+
+  rpc GetCurrentMapType(Empty) returns (MapViewTypeMessage) {}
+  rpc CurrentMapTypeChanged(Empty) returns (stream MapViewTypeMessage) {}
+
+  rpc GetStreetViewPoint(Empty) returns (MapCoordinate) {}
+  rpc StreetViewPointChanged(Empty) returns (stream MapCoordinate) {}
+
+  rpc SetMapType(MapViewTypeMessage) returns (Empty) {}
+}

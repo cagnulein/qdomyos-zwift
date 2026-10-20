@@ -1118,6 +1118,12 @@ class QZSettings {
      */
     static const QString virtual_device_bluetooth;
     static constexpr bool default_virtual_device_bluetooth = true;
+    /**
+     *@brief Advertise FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data on virtual bikes.
+     * Required to relay bike inclination between two QZ instances.
+     */
+    static const QString virtual_device_treadmill_data;
+    static constexpr bool default_virtual_device_treadmill_data = true;
 
     static const QString ios_peloton_workaround;
     static constexpr bool default_ios_peloton_workaround = true;
@@ -1190,7 +1196,7 @@ class QZSettings {
     static constexpr bool default_horizon_paragon_x = false;
 
     static const QString treadmill_step_speed;
-    static constexpr float default_treadmill_step_speed = 0.5;
+    static constexpr float default_treadmill_step_speed = 0.1;
 
     static const QString treadmill_step_incline;
     static constexpr float default_treadmill_step_incline = 0.5;
@@ -2330,7 +2336,7 @@ class QZSettings {
     static const QString treadmill_runn_closed_loop;
     static constexpr bool default_treadmill_runn_closed_loop = false;
     static const QString inclination_delay_seconds;
-    static constexpr float default_inclination_delay_seconds = 0.0;
+    static constexpr float default_inclination_delay_seconds = 3.0;
 
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;
@@ -2406,6 +2412,12 @@ class QZSettings {
 
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
+
+    static const QString nordictrackadbbike_gear_resistance_mode;
+    static constexpr bool default_nordictrackadbbike_gear_resistance_mode = false;
+
+    static const QString nordictrackadbbike_gear_debounce_ms;
+    static constexpr int default_nordictrackadbbike_gear_debounce_ms = 100;
 
     static const QString proform_treadmill_carbon_t7;
     static constexpr bool default_proform_treadmill_carbon_t7 = false;

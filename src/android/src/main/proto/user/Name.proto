@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "NameProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+
+enum NameType {
+  FIRST_NAME = 0;
+  LAST_NAME = 1;
+}
+
+message Name {
+  NameType type = 1;
+  string value = 2;
+}
+
+message NameResult {
+  oneof errorOrName {
+    IFitError error = 1;
+    Name name = 2;
+  }
+}

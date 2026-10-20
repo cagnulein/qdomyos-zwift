@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "MaxSpeedServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message MaxSpeedMessage {
+  double maxSpeedKph = 1;
+}
+
+service MaxSpeedService {
+  // sets the Max Speed for scaling workouts, we will not auto scale to a control set that would
+  // go above this value
+  rpc SetMaxSpeed(MaxSpeedMessage) returns (Empty) {}
+
+  // subscribe to active pulse state updates
+  rpc MaxSpeedSubscription(Empty) returns (stream MaxSpeedMessage) {}
+}

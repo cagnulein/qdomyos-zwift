@@ -1,0 +1,66 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+import "util/Util.proto";
+import "bluetooth/BluetoothDevice.proto";
+import "bluetooth/BluetoothDeviceType.proto";
+option java_package = "com.ifit.glassos.bluetooth";
+option java_outer_classname = "BluetoothServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message BluetoothResult {
+  oneof errorOrSuccess {
+    IFitError error = 1;
+    bool success = 2;
+  }
+}
+
+message StartScanRequest {
+  int32 scanTimeoutSeconds = 1;
+  repeated BluetoothDeviceType deviceTypes = 2;
+}
+
+message BluetoothScanState {
+  bool scanning = 1;
+}
+
+message BluetoothServiceState {
+  repeated BluetoothDevice connectedDevices = 1;
+}
+
+message MACAddressConnectionRequest {
+    string macAddress = 1;
+    BluetoothDeviceType deviceType = 2;
+}
+
+message MACAddressConnectionResult {
+    oneof emptyOrDevice {
+        BluetoothDevice device = 1;
+        Empty empty = 2;
+    }
+}
+
+message DeviceIdentifierRequest {
+    string deviceIdentifier = 1;
+}
+
+service BluetoothService {
+  rpc ScanStateChanged(Empty) returns (stream BluetoothScanState) {}
+  rpc BluetoothServiceStateChanged(Empty) returns (stream BluetoothServiceState) {}
+  rpc FoundDevicesChanged(Empty) returns (stream BluetoothDevice) {}
+  rpc StartScan(StartScanRequest) returns (BluetoothResult) {}
+  rpc StopScan(Empty) returns (BluetoothResult) {}
+
+  rpc ConnectDevice(BluetoothDevice) returns (BluetoothResult) {}
+  rpc ConnectWithMACAddress(MACAddressConnectionRequest) returns (MACAddressConnectionResult) {}
+  rpc DisconnectDevice(BluetoothDevice) returns (BluetoothResult) {}
+  rpc ConnectToHRM(DeviceIdentifierRequest) returns (BluetoothResult) {}
+  rpc ConnectToRing(DeviceIdentifierRequest) returns (BluetoothResult) {}
+
+  rpc GetPairedDevices(Empty) returns (BluetoothDeviceList) {}
+
+  rpc BluetoothDeviceBatteryLevelChanged(DeviceStreamRequest) returns (stream DeviceBatteryLevelResult) {}
+  rpc BluetoothDeviceConnectionStateChanged(DeviceStreamRequest) returns (stream DeviceConnectionStateResult) {}
+  rpc BluetoothDeviceRSSIChanged(DeviceStreamRequest) returns (stream DeviceRssiResult) {}
+}
