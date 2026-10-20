@@ -148,6 +148,9 @@ QByteArray sportstechf75treadmill::startupFrame() const {
 void sportstechf75treadmill::sendStartupCommand() {
 #ifdef Q_OS_ANDROID
     if (serialAvailable()) {
+        // Match the vendor startup order: reset the controller before the
+        // startup/status request, without changing the active-session logic.
+        sendCommand(kCommandStop, 0, 0);
         sendFrame(startupFrame());
     }
 #endif
