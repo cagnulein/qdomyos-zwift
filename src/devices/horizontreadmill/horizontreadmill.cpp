@@ -54,10 +54,12 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         timeA = timeB = 300; // for the normal treadmills, the timeout must be small, otherwise we are blocking the update timer on iOS
     }
 
+    const bool writeWithoutResponse = characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse;
+
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(timeA, &loop, SLOT(quit())); // 6 seconds are important
-    } else {
+    } else if (!writeWithoutResponse) {
         connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
         timeout.singleShot(timeB, &loop, SLOT(quit()));
     }
@@ -76,7 +78,8 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     if (!disable_log)
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
-    loop.exec();
+    if (!writeWithoutResponse || wait_for_response)
+        loop.exec();
 }
 
 void horizontreadmill::waitForAPacket() {
@@ -191,7 +194,7 @@ void horizontreadmill::btinit() {
 
     updateProfileCRC();
 
-    if (gattCustomService) {
+    if (gattCustomService && !YP_M1552) {
 
         if (horizon_paragon_x) {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01_paragon,
@@ -880,9 +883,21 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
-    if(YPOO_MINI_PRO) {
+    if(YPOO_MINI_PRO || YP_M1552) {
         uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
+        QLowEnergyService *unlockService = YP_M1552 ? gattYpM1552UnlockService : gattFTMSService;
+        if (unlockService && gattWriteCharControlPointIdYpooMiniPro.isValid()) {
+            if (YP_M1552) {
+                uint8_t ypM1552Unlock[] = {0x01, 0x00, 0x02, 0x02, 0x00, 0x05, 0x01, 0x01};
+                writeCharacteristic(unlockService, gattWriteCharControlPointIdYpooMiniPro, ypM1552Unlock,
+                                    sizeof(ypM1552Unlock), QStringLiteral("ypM1552Unlock"), false, false);
+            } else {
+                writeCharacteristic(unlockService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write),
+                                    QStringLiteral("ypooMiniProUnlock"), false, false);
+            }
+        } else {
+            qDebug() << QStringLiteral("YPOO unlock characteristic/service unavailable; skipping unlock");
+        }
         QThread::msleep(500);
     }
 
@@ -1038,7 +1053,15 @@ void horizontreadmill::update() {
             }
             requestStart = -1;
             emit tapeStarted();
-            if (gattCustomService) {
+            if (YP_M1552) {
+                if (gattYpM1552Service && gattWriteCharYpM1552.isValid()) {
+                    uint8_t write[] = {0x07};
+                    writeCharacteristic(gattYpM1552Service, gattWriteCharYpM1552, write, sizeof(write),
+                                        QStringLiteral("ypM1552Start"), false, false);
+                } else {
+                    qDebug() << QStringLiteral("YP-M1552 vendor write characteristic unavailable; skipping start");
+                }
+            } else if (gattCustomService) {
                 if (!horizon_paragon_x) {
                     if (horizon_treadmill_7_8) {
                         messageID++;
@@ -1108,7 +1131,15 @@ void horizontreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if (gattCustomService) {
+            if (YP_M1552) {
+                if (gattYpM1552Service && gattWriteCharYpM1552.isValid()) {
+                    uint8_t write[] = {0x08, 0x01};
+                    writeCharacteristic(gattYpM1552Service, gattWriteCharYpM1552, write, sizeof(write),
+                                        QStringLiteral("ypM1552Stop"), false, false);
+                } else {
+                    qDebug() << QStringLiteral("YP-M1552 vendor write characteristic unavailable; skipping stop");
+                }
+            } else if (gattCustomService) {
                 if (!horizon_paragon_x) {
                     /*if (horizon_treadmill_7_8)*/ {
                         // stop
@@ -1225,7 +1256,16 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
 
-    if (gattCustomService) {
+    if (YP_M1552) {
+        if (gattYpM1552Service && gattWriteCharYpM1552.isValid()) {
+            const uint16_t speed = qRound(requestSpeed * 100.0);
+            uint8_t write[] = {0x02, (uint8_t)(speed & 0xff), (uint8_t)(speed >> 8)};
+            writeCharacteristic(gattYpM1552Service, gattWriteCharYpM1552, write, sizeof(write),
+                                QStringLiteral("ypM1552Speed"), false, false);
+        } else {
+            qDebug() << QStringLiteral("YP-M1552 vendor write characteristic unavailable; skipping speed");
+        }
+    } else if (gattCustomService) {
         if (!horizon_paragon_x) {
             messageID++;
             uint8_t datas[4];
@@ -1318,7 +1358,16 @@ void horizontreadmill::forceIncline(double requestIncline) {
     if(tunturi_t60_treadmill)
         Inclination = treadmillInclinationOverride(requestIncline);
 
-    if (gattCustomService) {
+    if (YP_M1552) {
+        if (gattYpM1552Service && gattWriteCharYpM1552.isValid()) {
+            const int16_t incline = qRound(requestIncline * 10.0);
+            uint8_t write[] = {0x03, (uint8_t)(incline & 0xff), (uint8_t)((uint16_t)incline >> 8)};
+            writeCharacteristic(gattYpM1552Service, gattWriteCharYpM1552, write, sizeof(write),
+                                QStringLiteral("ypM1552Incline"), false, false);
+        } else {
+            qDebug() << QStringLiteral("YP-M1552 vendor write characteristic unavailable; skipping incline");
+        }
+    } else if (gattCustomService) {
         if (!horizon_paragon_x) {
             messageID++;
             uint8_t datas[3];
@@ -2371,6 +2420,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
+    QBluetoothUuid _YpM1552UnlockServiceId((quint16)0x1826);
+    QBluetoothUuid _YpM1552ServiceId((quint16)0xfff0);
+    QBluetoothUuid _YpM1552WriteCharId((quint16)0xfff2);
+    QBluetoothUuid _YpM1552NotifyCharId((quint16)0xfff1);
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -2423,9 +2476,20 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
-                } else if(c.uuid() == _YpooMiniProCharId && YPOO_MINI_PRO) {
-                    qDebug() << QStringLiteral("YPOO MINI PRO Control Point found");
+                } else if (s->serviceUuid() == _YpM1552UnlockServiceId &&
+                           c.uuid() == _YpooMiniProCharId && (YPOO_MINI_PRO || YP_M1552) &&
+                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
+                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))) {
+                    qDebug() << QStringLiteral("YPOO unlock Control Point found");
                     gattWriteCharControlPointIdYpooMiniPro = c;
+                    if (YP_M1552)
+                        gattYpM1552UnlockService = s;
+                } else if (s->serviceUuid() == _YpM1552ServiceId && c.uuid() == _YpM1552WriteCharId && YP_M1552 &&
+                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
+                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))) {
+                    qDebug() << QStringLiteral("YP-M1552 vendor Control Point found");
+                    gattWriteCharYpM1552 = c;
+                    gattYpM1552Service = s;
                 }
                 /* else if (c.uuid() == _gattInclinationSupported) {
                     s->readCharacteristic(c);
@@ -2467,7 +2531,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()) ||
+                     (gattYpM1552Service && s->serviceUuid() == gattYpM1552Service->serviceUuid() &&
+                      c.uuid() == _YpM1552NotifyCharId))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -2759,10 +2825,12 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
-                   device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-"))) {
             qDebug() << QStringLiteral("YPOO MINI PRO unlock mode found");
             YPOO_MINI_PRO = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
+            qDebug() << QStringLiteral("YP-M1552 YPTM protocol found");
+            YP_M1552 = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MX-TM "))) {
             qDebug() << QStringLiteral("MX-TM found");
             MX_TM = true;
