@@ -164,3 +164,11 @@ A KICKR CORE support user confirmed that connectivity worked again after the pai
 First confirm QZ receives the trainer's metrics and that Zwift pairs **QZ** as the controllable/resistance device, not just as a power source.
 
 In a confirmed Android support case, the successful troubleshooting instructions were to update QZ to a current **Play Store beta** build, set **FTMS Bike** under **QZ Settings > Bike Options** to **Disabled** if a device was manually forced there, restart QZ, and test again. The rider confirmed resistance control worked afterward. Since the two changes were made together, the thread does not isolate which one fixed the problem. Do not disable FTMS indiscriminately on unrelated trainers.
+
+## Why can Schwinn IC4 resistance in QZ differ from the console?
+
+The Schwinn IC4 is supported by QZ. Its QZ driver receives cadence and power over Bluetooth and uses those readings to calculate a resistance estimate. That estimate can vary with pedaling effort even when the physical resistance knob has not moved.
+
+Under **Bike Options**, QZ offers Schwinn resistance conversion variants and a resistance smoothing setting. Compare the QZ and console values at a steady cadence before adjusting the mapping. These settings change the reported resistance representation, not the physical knob calibration.
+
+**Watt Gain** and **Watt Offset** can adjust power reported by QZ but cannot calibrate the bike's own power sensor. The **speed calculated from power** setting can also make QZ speed and distance differ from the console. These behaviors are verified in QZ's Schwinn IC4 driver and metric settings; no customer-specific calibration fix was confirmed.
