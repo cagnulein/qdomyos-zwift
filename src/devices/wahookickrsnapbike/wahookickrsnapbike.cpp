@@ -893,7 +893,7 @@ void wahookickrsnapbike::serviceScanDone(void) {
         settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
         settings.sync();
             if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Zwift Hub device found, please restart the app to enjoy virtual gearing!");
+            homeform::singleton()->setToastRequested(QObject::tr("Zwift Hub device found, please restart the app to enjoy virtual gearing!"));
         return;
     }
 }

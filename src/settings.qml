@@ -10,7 +10,12 @@ import AndroidStatusBar 1.0
 //Page {
     ScrollView {
         objectName: "settingsPage"
-        contentWidth: -1
+        // Settings is a vertical page: never let a wide translated child enlarge the viewport.
+        contentWidth: availableWidth
+        // The page height from the column itself: ScrollView takes it from its only child on its
+        // own, but on a phone it stopped following after a turn of the screen - the column grew
+        // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
+        contentHeight: column1.implicitHeight
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -18,6 +23,9 @@ import AndroidStatusBar 1.0
                             AndroidStatusBar.waterfallLeftInset : 0
         anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                              AndroidStatusBar.waterfallRightInset : 0
+        // Padding, not margins: the text moves in, the scroll bar stays at the edge
+        leftPadding: window.contentSideMargin
+        rightPadding: window.contentSideMargin
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -28,6 +36,8 @@ import AndroidStatusBar 1.0
 
         property var settingsCatalog: ({ "settings": [], "virtualSettings": [], "pages": [] })
         property var searchableSettings: []
+        // The default of every setting by its key, for the switches a virtual setting is made of
+        property var settingDefaults: ({})
         property var filteredSettings: []
         property bool settingsCatalogLoaded: false
         property bool settingsCatalogLoading: false
@@ -35,17 +45,372 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        // The results list only the settings that differ from their default; the text, if any,
+        // narrows that list
+        property bool changedOnly: false
+        property string initialProfileSettingsSnapshot: ""
+        // Where every setting is on the settings pages (settings-index-worker.js), for a search
+        // result to open the setting itself
+        property var settingsIndex: null
+        property bool settingsIndexLoading: false
+        readonly property var settingsIndexPages: ["settings.qml", "settings-tiles.qml", "settings-tts.qml",
+                                                   "settings-shortcuts.qml", "settings-treadmill-inclination-override.qml",
+                                                   "gears.qml", "custominclinationresistance.qml"]
+        // A result tapped before the index was built: opened once the index arrives
+        property var pendingJump: null
+        property var pendingReveal: null
+        // The search a result was opened from: back returns to it
+        property var searchReturn: null
+        // The glow of the last jump: gone at once when back returns to the results
+        property var activeGlow: null
+        // Set while back puts the old query into the field: its onTextChanged must not search
+        property bool restoringSearch: false
+
+        // The sources of the settings pages, read once and parsed off the GUI thread
+        function loadSettingsIndex() {
+            if (settingsIndex || settingsIndexLoading)
+                return
+            settingsIndexLoading = true
+            var pages = []
+            var left = settingsIndexPages.length
+            settingsIndexPages.forEach(function (file) {
+                var xhr = new XMLHttpRequest()
+                xhr.open("GET", "qrc:/" + file)
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState !== XMLHttpRequest.DONE)
+                        return
+                    pages.push({ file: file, source: (xhr.status === 200 || xhr.status === 0) ? xhr.responseText : "" })
+                    if (--left === 0)
+                        settingsIndexWorker.sendMessage({ pages: pages })
+                }
+                xhr.send()
+            })
+        }
+
+        WorkerScript {
+            id: settingsIndexWorker
+            source: "settings-index-worker.js"
+            onMessage: {
+                settingsPane.settingsIndex = messageObject.map
+                settingsPane.settingsIndexLoading = false
+                if (settingsPane.pendingJump) {
+                    var entry = settingsPane.pendingJump
+                    settingsPane.pendingJump = null
+                    settingsPane.jumpToSetting(entry)
+                }
+            }
+        }
+
+        function findItem(item, predicate) {
+            if (!item)
+                return null
+            var kids = item.children
+            for (var i = 0; i < kids.length; i++) {
+                if (predicate(kids[i]))
+                    return kids[i]
+                var found = findItem(kids[i], predicate)
+                if (found)
+                    return found
+            }
+            return null
+        }
+
+        function normalizedLabel(text) {
+            return String(text).replace(/:\s*$/, "").trim().toLowerCase()
+        }
+
+        function settingLabels(entry, context) {
+            var name = entry.name || entry.key
+            return [name, qsTranslate(context, name), qsTranslate(context, name + ":"), entry._translatedName || ""]
+                .map(normalizedLabel)
+        }
+
+        // A section title without its emoji ("Maps 🗺️") for a message
+        function plainTitle(text) {
+            return String(text).replace(/\s*(?:[\uD83C-\uD83E][\uDC00-\uDFFF]|[⌀-⏿☀-➿])️?/g, "").trim()
+        }
+
+        // A text field keeps the focus (and the keyboard) until another control takes it
+        function dropTextFocus() {
+            var item = window.activeFocusItem
+            if (item && item.cursorPosition !== undefined) {
+                item.focus = false
+                Qt.inputMethod.hide()
+            }
+        }
+
+        function currentSearch(viaPush) {
+            return { query: settingsSearchTextField.text, changedOnly: changedOnly,
+                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
+        }
+
+        // A page among the results ("Wahoo Options"): back from it lands on the results
+        function openPageResult(entry) {
+            searchReturn = currentSearch(true)
+            // Or the search field takes the focus back with the keyboard on the way back
+            dropTextFocus()
+            stackView.push(entry.target)
+        }
+
+        // A search result opens the setting itself: its page, its sections, scrolled to it and
+        // lit for a moment. Without a label to find, the innermost section is shown.
+        function jumpToSetting(entry) {
+            // The index is built in the background: without it the jump knows no section
+            if (!settingsIndex) {
+                pendingJump = entry
+                loadSettingsIndex()
+                return
+            }
+            var where = settingsIndex[entry.key] || null
+            // A setting made of others ("Specific Model": a picker over one switch per model) is
+            // not on the page by its own key: it stands where the settings it is made of are
+            if (!where) {
+                var persistent = settingsCatalog.settings || []
+                for (var v = 0; v < persistent.length && !where; v++)
+                    if (persistent[v].virtualParent === entry.key)
+                        where = settingsIndex[persistent[v].key] || null
+            }
+            // A setting that is on no page: the result is the only place to change it, the tap
+            // leaves the results as they are
+            if (!where)
+                return
+            var page = settingsPane
+            var context = "settings"
+            searchReturn = currentSearch(false)
+            if (where.file !== "settings.qml") {
+                searchReturn.viaPush = true
+                stackView.push(where.file)
+                page = stackView.currentItem
+                context = where.file.replace(/\.qml$/, "")
+            }
+            // The filter is kept in searchReturn: back brings it up with its results
+            changedOnly = false
+            settingsSearchTextField.text = ""
+            // With the filter on and no text the line above changes nothing: the results are
+            // closed here, or the page under them stays hidden and the setting is not found
+            settingsSearchActive = false
+            settingsSearchPending = false
+            dropTextFocus()
+
+            var container = page.contentItem
+            var switchedOff = null
+            var opened = []
+            for (var i = 0; i < where.chain.length; i++) {
+                var wanted = qsTranslate(context, where.chain[i])
+                var english = where.chain[i]
+                // Starts with: some titles carry a medal emoji after the translated text
+                var section = findItem(container, function (item) {
+                    return item.isOpen !== undefined && item.accordionContent !== undefined &&
+                           typeof item.title === "string" &&
+                           (item.title.indexOf(wanted) === 0 || item.title.indexOf(english) === 0)
+                })
+                if (!section)
+                    break
+                // A section that is a switched-off setting itself (Wahoo direct connect): opened
+                // by force it showed its switch as on. It is lit instead, to be turned on first
+                if (section.linkedBoolSetting && !section.isOpen) {
+                    switchedOff = section
+                    break
+                }
+                if (!section.isOpen)
+                    opened.push(section)
+                section.isOpen = true
+                container = section
+            }
+            var names = settingLabels(entry, context)
+            function named(item) {
+                // The unit a label carries on the page ("Bike Weight (kg)") is not in the name
+                return typeof item.text === "string" && item.text.length > 0 &&
+                       (names.indexOf(normalizedLabel(item.text)) >= 0 ||
+                        names.indexOf(normalizedLabel(item.text.replace(/\s*\([^()]*\)\s*:?\s*$/, ""))) >= 0)
+            }
+            var target = switchedOff ? switchedOff : findItem(container, function (item) {
+                return item.visible && named(item)
+            })
+            // A setting its page hides with the current values ("Use kg for weight" shows only
+            // with miles on) - the whole section was lit instead. Back to the results, the
+            // sections opened on the way closed again: the result has the control itself
+            if (!target && findItem(container, named)) {
+                for (var k = 0; k < opened.length; k++)
+                    opened[k].isOpen = false
+                if (searchReturn.viaPush)
+                    stackView.pop()
+                else
+                    restoreSearch()
+                toast.show(qsTr("Hidden on its page right now: change it here"))
+                return
+            }
+            // The fields of a switched-off section are not on the page yet
+            if (switchedOff)
+                toast.show(qsTr("Turn on “%1” to change this setting").arg(plainTitle(switchedOff.title)))
+            pendingReveal = { flickable: page.contentItem, target: target || container }
+            revealTimer.restart()
+        }
+
+        // Back (main.qml navigateBack) after a result was opened on this page: the results again
+        function handleBack() {
+            if (!searchReturn)
+                return false
+            restoreSearch()
+            return true
+        }
+
+        function restoreSearch() {
+            if (activeGlow)
+                activeGlow.destroy()
+            activeGlow = null
+            var back = searchReturn
+            searchReturn = null
+            // The search bar may have been closed with its button meanwhile
+            settingsSearchVisible = true
+            restoringSearch = true
+            settingsSearchTextField.text = back.query
+            restoringSearch = false
+            changedOnly = back.changedOnly
+            settingsSearchActive = back.query.trim().length > 0 || back.changedOnly
+            settingsSearchPending = false
+            filteredSettings = back.results
+            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt
+            if (changedOnly)
+                updateFilteredSettings()
+            // After the list is laid out again
+            contentItem.contentY = 0
+            Qt.callLater(function () {
+                contentItem.contentY = Math.max(0, Math.min(back.scroll, contentItem.contentHeight - contentItem.height))
+            })
+        }
+
+        // A result on another page (Tiles...): back from it lands on the results. A result on
+        // this page is forgotten once another page opens over it, or coming back from that
+        // page would bring the old search up
+        StackView.onActivated: {
+            if (searchReturn && searchReturn.viaPush)
+                restoreSearch()
+        }
+        StackView.onDeactivated: {
+            if (searchReturn && !searchReturn.viaPush)
+                searchReturn = null
+        }
+
+        function revealPending() {
+            var reveal = pendingReveal
+            pendingReveal = null
+            if (!reveal || !reveal.flickable || !reveal.target)
+                return
+            var flickable = reveal.flickable
+            var target = reveal.target
+            // The whole row when the label sits in one (label, field, OK). A row only: a switch
+            // in a small column with its description was lit with all of it
+            var row = (target.parent && String(target.parent).indexOf("Row") >= 0 &&
+                       target.parent.height > target.height && target.parent.height < 200)
+                      ? target.parent : target
+            var at = row.mapToItem(flickable.contentItem, 0, 0)
+            flickable.contentY = Math.max(0, Math.min(at.y - 96, flickable.contentHeight - flickable.height))
+            // Nothing to light when not even a section was found: the whole page would glow
+            if (target === flickable)
+                return
+            // On the flickable, not in its content: a ScrollView takes the content height from
+            // the only child of the content, a second child would zero it and throw the page to
+            // the top. So the highlight follows the scroll itself.
+            activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row })
+        }
+
+        Timer {
+            id: revealTimer
+            // The sections just opened have to be laid out before the position is read
+            interval: 250
+            onTriggered: settingsPane.revealPending()
+        }
+
+        Component {
+            id: settingHighlight
+            Rectangle {
+                id: glow
+                property Item flickable
+                property Item row
+                property int ticks: 0
+                radius: 12
+                // The sections above are still opening (their height animates) when the row is
+                // first measured: the row moves after it, so the glow and the scroll follow it
+                function follow() {
+                    if (!flickable || !row)
+                        return
+                    ticks++
+                    // The finger wins: once the page is touched the glow stops scrolling it
+                    if (flickable.dragging || flickable.moving)
+                        ticks = 1000
+                    if (ticks <= 20) {
+                        var at = row.mapToItem(flickable.contentItem, 0, 0).y
+                        flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
+                    }
+                    // Around the row itself, a little wider than its text, which starts at its
+                    // very edge; a lone label is as wide as its text: up to the same indent on the
+                    // right
+                    var pos = row.mapToItem(flickable, 0, 0)
+                    var w = row.width < flickable.width * 0.6 ? flickable.width - 2 * pos.x
+                                                              : Math.min(row.width, flickable.width - 2 * pos.x)
+                    if (w < row.width / 2)
+                        w = row.width
+                    // A title label: without the space it keeps above itself, and with the
+                    // control it names right under it ("FTMS Bike:" over its list and OK)
+                    var top = pos.y
+                    var bottom = pos.y + row.height
+                    if (String(row).indexOf("Label") >= 0) {
+                        if (row.topPadding > 0)
+                            top += row.topPadding
+                        var next = nextShown(row)
+                        if (next && next.text === undefined) {
+                            var nextPos = next.mapToItem(flickable, 0, 0)
+                            if (nextPos.y >= top && nextPos.y - bottom < 24)
+                                bottom = Math.max(bottom, nextPos.y + next.height)
+                        }
+                    }
+                    x = Math.max(0, pos.x - 6)
+                    width = Math.min(pos.x + w + 6, flickable.width) - x
+                    y = top - 2
+                    height = bottom - top + 4
+                }
+                function nextShown(item) {
+                    var siblings = item.parent ? item.parent.children : []
+                    for (var i = 0; i < siblings.length; i++) {
+                        if (siblings[i] !== item)
+                            continue
+                        for (var j = i + 1; j < siblings.length; j++)
+                            if (siblings[j].visible && siblings[j].height > 0)
+                                return siblings[j]
+                    }
+                    return null
+                }
+                Component.onCompleted: follow()
+                Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
+                color: Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22)
+                SequentialAnimation {
+                    running: true
+                    PauseAnimation { duration: 1200 }
+                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 800 }
+                    ScriptAction { script: glow.destroy() }
+                }
+            }
+        }
 
         function showSettingsSearch() {
             settingsSearchVisible = true
             loadSettingsCatalog()
+            loadSettingsIndex()
+            // The search bar is the top row of the page: bring it into view from any scroll
+            // position (after a result was opened the page is deep in a section)
+            if (settingsPane.contentItem)
+                settingsPane.contentItem.contentY = 0
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
         }
 
         function hideSettingsSearch() {
+            // The search closed is done with: back no longer brings its results up
+            searchReturn = null
             settingsSearchDebounceTimer.stop()
+            changedOnly = false
             settingsSearchTextField.text = ""
             settingsSearchVisible = false
             settingsSearchActive = false
@@ -56,6 +421,29 @@ import AndroidStatusBar 1.0
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
+        }
+
+        function profileSettingsSnapshot() {
+            var values = []
+            for (var key in settings) {
+                var value = settings[key]
+                if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
+                    values.push(key + "=" + String(value))
+            }
+            values.sort()
+            return values.join("\n")
+        }
+
+        function profileSaveReminderNeeded() {
+            return settings.profile_name.length > 0 &&
+                   settings.profile_name !== "default" &&
+                   initialProfileSettingsSnapshot.length > 0 &&
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
+        Component.onCompleted: {
+            initialProfileSettingsSnapshot = profileSettingsSnapshot()
+            window.settings_restart_to_apply = false
         }
 
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
@@ -105,6 +493,11 @@ import AndroidStatusBar 1.0
                 virtualSettings[i].catalogKind = "virtual"
                 items.push(virtualSettings[i])
             }
+
+            var defaults = {}
+            for (var d = 0; d < persistentSettings.length; d++)
+                defaults[persistentSettings[d].key] = persistentSettings[d].defaultValue
+            settingDefaults = defaults
 
             for (var j = 0; j < persistentSettings.length; j++) {
                 if (persistentSettings[j].control === "virtualOption")
@@ -218,15 +611,17 @@ import AndroidStatusBar 1.0
             }
 
             var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
-            if (query.length === 0) {
+            if (query.length === 0 && !changedOnly) {
                 filteredSettings = []
                 settingsSearchPending = false
                 return
             }
 
-            var tokens = query.split(/\s+/)
+            var tokens = query.length > 0 ? query.split(/\s+/) : []
             var results = []
             for (var i = 0; i < searchableSettings.length; i++) {
+                if (changedOnly && !isChanged(searchableSettings[i]))
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -239,15 +634,94 @@ import AndroidStatusBar 1.0
                 if (matched)
                     results.push(searchableSettings[i])
 
-                if (results.length >= 80)
+                // The changed settings are listed in full: a cut list would hide some of them
+                if (results.length >= 80 && !changedOnly)
                     break
             }
             filteredSettings = results
             settingsSearchPending = false
         }
 
+        function setChangedOnly(on) {
+            changedOnly = on
+            // A new list of one's own: back no longer returns to the previous one
+            searchReturn = null
+            settingsSearchDebounceTimer.stop()
+            settingsSearchActive = on || settingsSearchTextField.text.trim().length > 0
+            settingsSearchPending = settingsSearchActive
+            filteredSettings = []
+            loadSettingsCatalog()
+            updateFilteredSettings()
+        }
+
+        // Not listed among the changed settings:
+        // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
+        //   out of the logs;
+        // - the keys QZ writes by itself, without anyone touching them: the MyWhoosh link cycles
+        //   its actions with a controller button, the last gear is kept on every shift with
+        //   gears_restore_value, the detection of the equipment marks what it found
+        readonly property var privateKeyParts: ["password", "user_email", "username", "token", "cryptokey",
+                                                "garmin_device_serial", "garmin_email"]
+        readonly property var appWrittenKeys: ["mywhoosh_link_camera_value", "mywhoosh_link_emote_value",
+                                               "gears_current_value_f", "domyosbike_notfmts",
+                                               "toorxtreadmill_discovery_completed"]
+        function isPrivateSetting(entry) {
+            var key = entry.key.toLowerCase()
+            for (var i = 0; i < privateKeyParts.length; i++) {
+                if (key.indexOf(privateKeyParts[i]) >= 0)
+                    return true
+            }
+            return appWrittenKeys.indexOf(entry.key) >= 0
+        }
+
+        // From the store, not from this page's Settings: another settings page (tiles, voice)
+        // writes through a Settings object of its own, which this one does not hear about. The
+        // store may give a boolean back as the string "true"
+        function storedValue(key, type, fallback) {
+            var value = settings.value(key, fallback)
+            if (type === "boolean")
+                return value === true || value === "true"
+            return value
+        }
+
+        function differsFromDefault(key, type, fallback) {
+            // No plain default in the catalog (an expression it could not work out)
+            if (fallback === null || fallback === undefined)
+                return false
+            var value = storedValue(key, type, fallback)
+            if (type === "boolean")
+                return value !== !!fallback
+            if (type === "integer" || type === "number") {
+                // A real written as a float by the C++ side reads back as 0.33000001...
+                var difference = Math.abs(Number(value) - Number(fallback))
+                return difference > 0.000001 * Math.max(1, Math.abs(Number(fallback)))
+            }
+            return String(value) !== String(fallback)
+        }
+
+        function isChanged(entry) {
+            // A picker over one switch per model: changed when one of its switches is. Not by the
+            // picked index - a switch on by default (nordictrack_10_treadmill) picks a model there
+            if (entry.catalogKind === "virtual") {
+                for (var o = 0; entry.options && o < entry.options.length; o++) {
+                    var key = entry.options[o].sets
+                    if (key && differsFromDefault(key, "boolean", settingDefaults[key]))
+                        return true
+                }
+                return false
+            }
+            return entry.catalogKind === "setting" && !isPrivateSetting(entry) &&
+                   differsFromDefault(entry.key, entry.type, entry.defaultValue)
+        }
+
+        // From the store as well: a value changed on the voice or tiles page, opened over this
+        // one, is not in this page's copy until the settings are opened again. The copy stays the
+        // fallback of a key not written yet, and keeps the bindings of the cards on its property
         function settingValue(entry) {
-            var value = settings[entry.key]
+            var copy = settings[entry.key]
+            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
+                return Number(value)
             return value === undefined ? entry.defaultValue : value
         }
 
@@ -261,9 +735,12 @@ import AndroidStatusBar 1.0
             } else {
                 settings[entry.key] = value
             }
+            // Straight into the store too: the card reads it back (settingValue), and the page's
+            // Settings writes it only a moment later
+            settings.setValue(entry.key, settings[entry.key])
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         function optionValues(entry) {
@@ -282,14 +759,21 @@ import AndroidStatusBar 1.0
             return []
         }
 
+        function isBluetoothDeviceSetting(entry) {
+            return entry && entry.options && entry.options.expression &&
+                   entry.options.expression.indexOf("bluetoothDevices") >= 0
+        }
+
         function optionIndex(entry) {
             var values = optionValues(entry)
             var value = settingValue(entry)
+            var bluetoothDeviceSetting = isBluetoothDeviceSetting(entry)
             for (var i = 0; i < values.length; i++) {
-                if (values[i] === value)
+                var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]
+                if (candidate === value)
                     return i
             }
-            return 0
+            return bluetoothDeviceSetting ? -1 : 0
         }
 
         function virtualOptionLabels(entry) {
@@ -323,7 +807,7 @@ import AndroidStatusBar 1.0
                 settings[entry.options[index].sets] = true
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -1207,7 +1691,7 @@ import AndroidStatusBar 1.0
 
             // from version 2.16.40
             property bool nordictrack_treadmill_t8_5s: false
-            
+
             // from version 2.16.41
             property bool proform_treadmill_705_cst: false
             property bool zwift_click: false
@@ -1251,10 +1735,10 @@ import AndroidStatusBar 1.0
             property bool proform_595i_proshox2: false
 
             // from version 2.16.55
-            property bool proform_treadmill_8_7: false
+            property bool proform_treadmill_8_7: false            
 
             // from version 2.16.56
-            property bool proform_bike_325_csx: false
+            property bool proform_bike_325_csx: false            
 
             // from version 2.16.58
             property string strava_upload_mode: "Always"
@@ -1468,7 +1952,7 @@ import AndroidStatusBar 1.0
             property int  tile_heat_time_in_zone_4_order: 71
 
             property bool proform_treadmill_carbon_tls: false
-            
+
             // 2.19.1            
             property bool proform_treadmill_995i: false
             property bool rogue_echo_bike: false
@@ -1478,16 +1962,13 @@ import AndroidStatusBar 1.0
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
 
-            property bool nordictrackadbbike_gear_resistance_mode: false
-            property int nordictrackadbbike_gear_debounce_ms: 100
-
             // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
             property int pid_heart_zone_erg_mode_watt_step: 5            
-            
+
             // Automatic Virtual Shifting settings
             property bool automatic_virtual_shifting_enabled: false
             property int automatic_virtual_shifting_gear_up_cadence: 95
@@ -1511,6 +1992,7 @@ import AndroidStatusBar 1.0
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
             property string ftms_elliptical: "Disabled"
+            
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
@@ -1531,7 +2013,7 @@ import AndroidStatusBar 1.0
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
             property real treadmill_speed_max: 100
-            
+
             // Intervals.icu settings
             property string intervalsicu_accesstoken: ""
             property string intervalsicu_refreshtoken: ""
@@ -1558,9 +2040,9 @@ import AndroidStatusBar 1.0
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
-            
-            property bool power_sensor_cadence_instead_treadmill: false            
-            
+
+            property bool power_sensor_cadence_instead_treadmill: false
+
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""
 
@@ -1570,16 +2052,16 @@ import AndroidStatusBar 1.0
 			property real peloton_treadmill_walking_min_speed: 0.0
 			property real peloton_treadmill_running_min_speed: 0.0
 			property bool trainprogram_auto_lap_on_segment: false
-            
+
 			property bool power_avg_3s: false
 			property bool tile_power_avg_enabled: false
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
-            
+
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
-      
+
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false			
 			property bool weight_kg_unit: false 
@@ -1587,13 +2069,13 @@ import AndroidStatusBar 1.0
 			property bool tile_heart_show_as_percent: false
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
-                             
+
             property bool nordictrack_gx_4_5_pro: false            
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
-                    
+
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
@@ -1604,16 +2086,16 @@ import AndroidStatusBar 1.0
             property string ios_live_activity_compact_trailing_metric: "Watt"
             property bool nordictrack_treadmill_commercial_le: false
 
-            property bool umay_s100_treadmill: false
+            property bool umay_s100_treadmill: false            
             property bool gym_mode: false
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
             property bool cycplus_bc2_controller: false
       		property bool lifespan_bike: false
-      
+
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
-            
+
             property bool proform_carbon_tlx_v84_314_treadmill: false            
             property bool cscbike_custom_resistance_power_table: false
             property real cscbike_custom_resistance_level_1: 1
@@ -1706,10 +2188,63 @@ import AndroidStatusBar 1.0
             property real trainprogram_rest_speed: 420
             property bool trainprogram_sound_on_segment: false
             property bool tile_watt_color_enabled: true
-            property bool tile_pace_color_enabled: true                        
+            property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false
+            property real trainprogram_pid_hr_pushy_zone_limit: 0.8
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+            property bool rpe_feel_popup_enabled: false
+            property int zwiftplay_gear_ls1: 2
+            property int zwiftplay_gear_ls2: 2
+            property int zwiftplay_gear_rs1: 1
+            property int zwiftplay_gear_rs2: 1
+            property int zwiftplay_gear_paddle_left: 2
+            property int zwiftplay_gear_paddle_right: 1
+            property int zwiftplay_gear_lb: 0
+            property int zwiftplay_gear_rb: 0
+            // OpenBikeControl settings
+            property bool mywhoosh_link_enabled: false
+            property bool mywhoosh_link_override_gears: false
+            property int mywhoosh_link_left_up: 1
+            property int mywhoosh_link_left_down: 2
+            property int mywhoosh_link_left_left: 0
+            property int mywhoosh_link_left_right: 0
+            property int mywhoosh_link_left_shoulder: 5
+            property int mywhoosh_link_left_power: 0
+            property int mywhoosh_link_right_y: 6
+            property int mywhoosh_link_right_a: 0
+            property int mywhoosh_link_right_b: 7
+            property int mywhoosh_link_right_z: 0
+            property int mywhoosh_link_right_shoulder: 0
+            property int mywhoosh_link_right_power: 0
+            property int mywhoosh_link_camera_value: 1
+            property int mywhoosh_link_emote_value: 1
+            property bool waterrower_usb: false
+            property string freebeat_serialport: ""
+            property bool nordictrack_elliptical_s700: false
+            property bool virtual_device_tacx: false
+            property bool renpho_bike_knob_gears: false
+            property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
+            property bool custom_inclination_resistance_table_enabled: false
+            property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
+            property real power_sensor_speed_correction_threshold: 20.0
+            property bool flow_fitness_runner_dtm2000i: false
+            property bool nordictrack_incline_trainer_x7i_netl18716_0: false
+            property bool android_landscape_cutout_margin: true
+            property real watt_max: 9999
+            property bool proform_trainer_8_0_pftl59721_0: false
+            property bool android_landscape_cutout_prompt_shown: false
+            property bool pafers_rower: false
+            property bool android_notification_prompt_disabled: false
+            property bool android_notification_v2: true
+            property bool nordictrack_gx_le: false
+            property bool proform_treadmill_305_cst: false
+            property bool freemotion_t10_9b_hci: false
+            property bool treadmill_runn_closed_loop: false
+            property string treadmill_pid_heart_control: "Speed"
             property bool virtual_device_treadmill_data: true
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
         }
 
 
@@ -1745,10 +2280,6 @@ import AndroidStatusBar 1.0
         function timeToPaceSeconds(text) {
             var pieces = text.split(":")
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
-        }
-
-        Component.onCompleted: {
-            window.settings_restart_to_apply = false;
         }
 
         property var appLanguageOptions: [
@@ -1795,7 +2326,12 @@ import AndroidStatusBar 1.0
         ColumnLayout {
             id: column1
             spacing: 0
-            anchors.fill: parent
+            // Not tied to the bottom: the height of the column is the content height of the page, so
+            // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+            // as it was - a section opened after it could not be scrolled to its end
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
             RowLayout {
                 id: settingsSearchBar
@@ -1809,10 +2345,17 @@ import AndroidStatusBar 1.0
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
+                    // A new search of one's own: back no longer returns to the previous one
+                    onTextEdited: settingsPane.searchReturn = null
                     onTextChanged: {
-                        settingsPane.settingsSearchActive = text.trim().length > 0
+                        if (settingsPane.restoringSearch)
+                            return
+                        settingsPane.settingsSearchActive = text.trim().length > 0 || settingsPane.changedOnly
                         settingsSearchDebounceTimer.stop()
-                        if (settingsPane.settingsSearchActive) {
+                        if (text.trim().length === 0 && settingsPane.changedOnly) {
+                            // The text cleared: the whole list of changed settings at once
+                            settingsPane.updateFilteredSettings()
+                        } else if (settingsPane.settingsSearchActive) {
                             settingsPane.filteredSettings = []
                             settingsPane.settingsSearchPending = true
                             settingsPane.loadSettingsCatalog()
@@ -1822,6 +2365,13 @@ import AndroidStatusBar 1.0
                             settingsPane.settingsSearchPending = false
                         }
                     }
+                }
+
+                Button {
+                    text: qsTr("Changed")
+                    checkable: true
+                    checked: settingsPane.changedOnly
+                    onClicked: settingsPane.setChangedOnly(checked)
                 }
 
                 Button {
@@ -1848,6 +2398,11 @@ import AndroidStatusBar 1.0
                 Label {
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
+                          changedOnly && filteredSettings.length > 0 ?
+                              qsTr("Changed settings") + " (" + filteredSettings.length + ")" :
+                          // With a text the changed settings may be there, just not matching it
+                          changedOnly && settingsSearchTextField.text.trim().length === 0 ?
+                              qsTr("No changed settings") :
                           filteredSettings.length === 0 ? qsTr("No settings found") :
                           qsTr("Search results") + " (" + filteredSettings.length + ")"
                     color: Material.color(Material.Red)
@@ -1871,10 +2426,18 @@ import AndroidStatusBar 1.0
 
                         Rectangle {
                             anchors.fill: parent
-                            color: "transparent"
+                            color: resultArea.pressed ? Qt.rgba(0.5, 0.5, 0.5, 0.2) : "transparent"
                             border.color: Material.color(Material.Grey)
                             border.width: 1
                             radius: 2
+                        }
+
+                        // A tap on the card (not on its controls) opens the setting itself
+                        MouseArea {
+                            id: resultArea
+                            anchors.fill: parent
+                            onClicked: entry.catalogKind === "page" ? settingsPane.openPageResult(entry)
+                                                                    : settingsPane.jumpToSetting(entry)
                         }
 
                         ColumnLayout {
@@ -1922,7 +2485,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     visible: entry.catalogKind === "page"
                                     text: qsTr("Open")
-                                    onClicked: stackView.push(entry.target)
+                                    onClicked: settingsPane.openPageResult(entry)
                                 }
                             }
 
@@ -1961,12 +2524,12 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
                                 }
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 id: searchSettingComboBox
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
@@ -1975,6 +2538,9 @@ import AndroidStatusBar 1.0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.optionValues(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
+                                displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
+                                             ? settingsPane.settingValue(entry)
+                                             : currentText
                                 contentItem: Label {
                                     leftPadding: 12
                                     rightPadding: 36
@@ -1985,7 +2551,7 @@ import AndroidStatusBar 1.0
                                     elide: Text.ElideRight
                                 }
                                 delegate: ItemDelegate {
-                                    width: searchSettingComboBox.width
+                                    width: ListView.view.width
                                     text: modelData
                                     contentItem: Label {
                                         text: modelData
@@ -1997,13 +2563,13 @@ import AndroidStatusBar 1.0
                                 }
                                 onActivated: {
                                     var selectedValue = currentValue
-                                    if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
+                                    if (settingsPane.isBluetoothDeviceSetting(entry))
                                         selectedValue = settingsPane.stripRssi(selectedValue)
                                     settingsPane.setSettingValue(entry, selectedValue)
                                 }
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 id: searchVirtualComboBox
                                 visible: entry.catalogKind === "virtual"
                                 Layout.fillWidth: true
@@ -2022,7 +2588,7 @@ import AndroidStatusBar 1.0
                                     elide: Text.ElideRight
                                 }
                                 delegate: ItemDelegate {
-                                    width: searchVirtualComboBox.width
+                                    width: ListView.view.width
                                     text: modelData
                                     contentItem: Label {
                                         text: modelData
@@ -2063,21 +2629,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("UI Zoom:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: uiZoomTextField
+                            minimum: 10
                             text: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.ui_zoom = text
+                            onAccepted: if (valid) { settings.ui_zoom = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okUiZoomButton
                             text: qsTr("OK")
+                            enabled: uiZoomTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ui_zoom = uiZoomTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ui_zoom = uiZoomTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -2101,7 +2669,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("App Language:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: appLanguageCombo
                             model: appLanguageOptions
                             textRole: "label"
@@ -2148,24 +2716,27 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelWeight
-                            text: qsTr("Player Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
+                            text: qsTr("Player Weight") + " (" + ((settings.miles_unit && !settings.weight_kg_unit)?qsTr("lbs"):qsTr("kg")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: weightTextField
-                            text: ((settings.miles_unit && !settings.weight_kg_unit)?settings.weight * 2.20462:settings.weight)
+                            minimum: 1
+                            // 2 decimals as the field takes: 78 kg is 171.96035999999998 lbs unrounded
+                            text: Number(((settings.miles_unit && !settings.weight_kg_unit)?settings.weight * 2.20462:settings.weight).toFixed(2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.weight = text
+                            onAccepted: if (valid) settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWeightButton
                             text: qsTr("OK")
+                            enabled: weightTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.value / 2.20462:weightTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -2185,11 +2756,12 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelHeight
-                            text: qsTr("Player Height") + "(" + (settings.miles_unit?"ft/in":"cm") + ")"
+                            text: qsTr("Player Height") + " (" + (settings.miles_unit?qsTr("ft/in"):qsTr("cm")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: heightTextField
+                            format: settings.miles_unit ? "heightFtIn" : "heightCm"
                             text: settings.miles_unit ? Math.floor(settings.height / 30.48) + "'" + Math.round((settings.height % 30.48) / 2.54) + '"' : settings.height
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -2210,6 +2782,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okHeightButton
                             text: qsTr("OK")
+                            enabled: heightTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
@@ -2247,21 +2820,25 @@ import AndroidStatusBar 1.0
                             text: qsTr("Player Age:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ageTextField
+                            decimals: 0
+                            minimum: 1
+                            maximum: 120
                             text: settings.age
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.age = text
+                            onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okAgeButton
                             text: qsTr("OK")
+                            enabled: ageTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.age = ageTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.age = ageTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2285,15 +2862,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gender:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: sexTextField
                             model: [ "Male", "Female" ]
-                            displayText: settings.sex
+                            labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
+                            value: settings.sex
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + sexTextField.currentIndex)
-                                displayText = sexTextField.currentValue
                              }
 
                         }
@@ -2301,7 +2878,7 @@ import AndroidStatusBar 1.0
                             id: okSex
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.sex = sexTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.sex = sexTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2326,21 +2903,24 @@ import AndroidStatusBar 1.0
                             text: qsTr("FTP value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ftpTextField
+                            minimum: 1
+                            maximum: 2000
                             text: settings.ftp
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp = text
+                            onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFTPButton
                             text: qsTr("OK")
+                            enabled: ftpTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp = ftpTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftp = ftpTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2363,20 +2943,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Critical Power Run value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ftpRunTextField
+                            minimum: 1
+                            maximum: 2000
                             text: settings.ftp_run
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp_run = text
+                            onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftpRunTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftp_run = ftpRunTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2443,12 +3026,15 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            validator: EmailValidator {}
+                            inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okEmailButton
                             text: qsTr("OK")
+                            enabled: emailTextField.acceptableInput
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_email = emailTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -2749,16 +3335,16 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.heart_rate_belt_name
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.heart_rate_belt_name
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                displayText = heartBeltNameTextField.currentValue
                              }
 
                         }
@@ -2766,7 +3352,7 @@ import AndroidStatusBar 1.0
                             id: okHeartBeltNameButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2805,21 +3391,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Zone 1 %:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: heartRateZone1TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone1
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone1 = text
+                                    onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
                                     text: qsTr("OK")
+                                    enabled: heartRateZone1TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2830,21 +3418,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Zone 2 %:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: heartRateZone2TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone2
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone2 = text
+                                    onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
                                     text: qsTr("OK")
+                                    enabled: heartRateZone2TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2855,21 +3445,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Zone 3 %:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: heartRateZone3TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone3
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone3 = text
+                                    onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
                                     text: qsTr("OK")
+                                    enabled: heartRateZone3TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2880,21 +3472,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Zone 4 %:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: heartRateZone4TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone4
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone4 = text
+                                    onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
                                     text: qsTr("OK")
+                                    enabled: heartRateZone4TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2954,21 +3548,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Max Heart Rate")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: heartRateMaxOverrideValueTextField
+                                            minimum: 100
+                                            maximum: 250
                                             text: settings.heart_max_override_value
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.heart_max_override_value = text
+                                            onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
                                             text: qsTr("OK")
+                                            enabled: heartRateMaxOverrideValueTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2992,21 +3589,25 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resting Heart Rate")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: heartRateRestingValueTextField
+                                            decimals: 0
+                                            minimum: 20
+                                            maximum: 200
                                             text: settings.heart_rate_resting
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.heart_rate_resting = text
+                                            onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
                                             text: qsTr("OK")
+                                            enabled: heartRateRestingValueTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -3040,21 +3641,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Session 1 Watt:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: powerFromHeartPWR1TextField
+                                            minimum: 1
+                                            maximum: 2000
                                             text: settings.power_hr_pwr1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_pwr1 = text
+                                            onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
                                             text: qsTr("OK")
+                                            enabled: powerFromHeartPWR1TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -3065,21 +3669,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Session 1 HR:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: powerFromHeartHR1TextField
+                                            minimum: 30
+                                            maximum: 250
                                             text: settings.power_hr_hr1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_hr1 = text
+                                            onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
                                             text: qsTr("OK")
+                                            enabled: powerFromHeartHR1TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -3090,21 +3697,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Session 2 Watt:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: powerFromHeartPWR2TextField
+                                            minimum: 1
+                                            maximum: 2000
                                             text: settings.power_hr_pwr2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_pwr2 = text
+                                            onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
                                             text: qsTr("OK")
+                                            enabled: powerFromHeartPWR2TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -3115,21 +3725,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Session 2 HR:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: powerFromHeartHR2TextField
+                                            minimum: 30
+                                            maximum: 250
                                             text: settings.power_hr_hr2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_hr2 = text
+                                            onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
                                             text: qsTr("OK")
+                                            enabled: powerFromHeartHR2TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -3248,22 +3861,25 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gear Value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: specificGearValueField
+                            minimum: -9999
+                            maximum: 9999
+                            signed: true
                             text: settings.gears_current_value_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
-                            onAccepted: settings.gears_current_value_f = text
+                            onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            enabled: gearsRestoreValueDelegate.checked
+                            enabled: gearsRestoreValueDelegate.checked && specificGearValueField.valid
                             onClicked: {
-                                settings.gears_current_value_f = specificGearValueField.text
+                                settings.gears_current_value_f = specificGearValueField.value
                                 toast.show(qsTr("Setting saved!"))
                             }
                         }
@@ -3288,21 +3904,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rolling Resistance Factor")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: rollingreistanceTextField
                             text: settings.rolling_resistance
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.rolling_resistance = text
+                            onAccepted: settings.rolling_resistance = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okRollingResistanceButton
                             text: qsTr("OK")
+                            enabled: rollingreistanceTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.rolling_resistance = rollingreistanceTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.rolling_resistance = rollingreistanceTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -3317,24 +3934,25 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelBikeWeight
-                            text: qsTr("Bike Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
+                            text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? qsTr("lbs") : qsTr("kg"))
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: bikeweightTextField
-                            text: ((settings.miles_unit && !settings.weight_kg_unit)?settings.bike_weight * 2.20462:settings.bike_weight)
+                            text: Number(((settings.miles_unit && !settings.weight_kg_unit)?settings.bike_weight * 2.20462:settings.bike_weight).toFixed(2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.bike_weight = text
+                            onAccepted: settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?value / 2.20462:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeWeightButton
                             text: qsTr("OK")
+                            enabled: bikeweightTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.value / 2.20462:bikeweightTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3358,21 +3976,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rolling Res. Gain")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: crrGainTextField
                             text: settings.crrGain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.crrGain = text
+                            onAccepted: settings.crrGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCRRGainButton
                             text: qsTr("OK")
+                            enabled: crrGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.crrGain = crrGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.crrGain = crrGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     RowLayout {
@@ -3382,21 +4001,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Wind Res. Gain")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: cwGainTextField
                             text: settings.cwGain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.cwGain = text
+                            onAccepted: settings.cwGain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCWGainButton
                             text: qsTr("OK")
+                            enabled: cwGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cwGain = cwGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.cwGain = cwGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     IndicatorOnlySwitch {
@@ -3427,6 +4047,229 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }                    
 
+                    AccordionElement {
+                        id: openBikeControlAccordion
+                        title: qsTr("OpenBikeControl")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Enable OpenBikeControl")
+                                checked: settings.mywhoosh_link_enabled
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.mywhoosh_link_enabled = checked;
+                                    if (checked && settings.dircon_yes) {
+                                        settings.dircon_yes = false;
+                                        toast.show(qsTr("OpenBikeControl enabled: Wahoo direct connect disabled."));
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enable TCP server on port 21587 to send control commands using the OpenBikeControl link protocol")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Override Local Gear Changes")
+                                checked: settings.mywhoosh_link_override_gears
+                                Layout.fillWidth: true
+                                onClicked: { settings.mywhoosh_link_override_gears = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("When enabled, gear shift commands go only to OpenBikeControl clients. When disabled, they go to both OpenBikeControl clients and the local gear system")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Left Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Up:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_up
+                                    onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Down:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_down
+                                    onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Left:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_left
+                                    onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Right:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_right
+                                    onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_shoulder
+                                    onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Power:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_left_power
+                                    onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Right Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Y:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_y
+                                    onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right A:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_a
+                                    onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right B:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_b
+                                    onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Z:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_z
+                                    onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_shoulder
+                                    onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Power:")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
+                                    currentIndex: settings.mywhoosh_link_right_power
+                                    onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                Layout.topMargin: 10
+                                color: Material.color(Material.Orange)
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3434,21 +4277,26 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift Resistance Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: bikeResistanceOffsetTextField
+                            minimum: -100
+                            maximum: 100
+                            signed: true
+                            decimals: 0
                             text: settings.bike_resistance_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.bike_resistance_offset = text
+                            onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
                             text: qsTr("OK")
+                            enabled: bikeResistanceOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3472,21 +4320,24 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift Power Offset (W):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: bikePowerOffsetTextField
+                            signed: true
+                            decimals: 0
                             text: settings.bike_power_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.bike_power_offset = text
+                            onAccepted: settings.bike_power_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikePowerOffsetButton
                             text: qsTr("OK")
+                            enabled: bikePowerOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3510,21 +4361,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift Resistance Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: bikeResistanceGainTextField
                             text: settings.bike_resistance_gain_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.bike_resistance_gain_f = text
+                            onAccepted: settings.bike_resistance_gain_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceGainButton
                             text: qsTr("OK")
+                            enabled: bikeResistanceGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3548,21 +4400,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift ERG Watt Up Filter:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftErgFilterTextField
                             text: settings.zwift_erg_filter
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.zwift_erg_filter = text
+                            onAccepted: settings.zwift_erg_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgFilterButton
                             text: qsTr("OK")
+                            enabled: zwiftErgFilterTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3586,21 +4439,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift ERG Watt Down Filter:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftErgDownFilterTextField
                             text: settings.zwift_erg_filter_down
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.zwift_erg_filter_down = text
+                            onAccepted: settings.zwift_erg_filter_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
                             text: qsTr("OK")
+                            enabled: zwiftErgDownFilterTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3624,21 +4478,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Min. Resistance:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftErgResistanceDownTextField
                             text: settings.zwift_erg_resistance_down
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.zwift_erg_resistance_down = text
+                            onAccepted: settings.zwift_erg_resistance_down = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
                             text: qsTr("OK")
+                            enabled: zwiftErgResistanceDownTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3662,21 +4517,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Max. Resistance:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftErgResistanceUpTextField
                             text: settings.zwift_erg_resistance_up
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.zwift_erg_resistance_up = text
+                            onAccepted: settings.zwift_erg_resistance_up = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
                             text: qsTr("OK")
+                            enabled: zwiftErgResistanceUpTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3700,21 +4556,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Resistance at Startup:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: bikeResistanceStartTextField
+                            decimals: 0
                             text: settings.bike_resistance_start
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.bike_resistance_start = text
+                            onAccepted: settings.bike_resistance_start = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceStartButton
                             text: qsTr("OK")
+                            enabled: bikeResistanceStartTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3737,20 +4595,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gears Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: gearsGainTextField
                             text: settings.gears_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.gears_gain = text
+                            onAccepted: settings.gears_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: gearsGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.gears_gain = gearsGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3775,26 +4634,36 @@ import AndroidStatusBar 1.0
                         accordionContent: "customgears.qml"
                     }
 
+                    NewPageElement {
+                        title: qsTr("Custom Inclination to Resistance Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "custominclinationresistance.qml"
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
                             text: qsTr("Gears Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: gearsOffsetTextField
+                            signed: true
                             text: settings.gears_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.gears_offset = text
+                            onAccepted: settings.gears_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: gearsOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.gears_offset = gearsOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3856,9 +4725,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Profile:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                UiComboBox {
                                     id: automaticVirtualShiftingProfileComboBox
-                                    model: ["Cruise", "Climb", "Sprint"]
+                                    model: [qsTr("Cruise"), qsTr("Climb"), qsTr("Sprint")]
                                     currentIndex: settings.automatic_virtual_shifting_profile
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3885,20 +4754,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Cruise - Gear Up Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingGearUpCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3909,20 +4782,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Cruise - Gear Up Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingGearUpTimeTextField
                                     text: settings.automatic_virtual_shifting_gear_up_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_up_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingGearUpTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3933,20 +4807,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Cruise - Gear Down Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingGearDownCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3957,20 +4835,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Cruise - Gear Down Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingGearDownTimeTextField
                                     text: settings.automatic_virtual_shifting_gear_down_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_down_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingGearDownTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3991,20 +4870,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Climb - Gear Up Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_climb_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingClimbGearUpCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4015,20 +4898,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Climb - Gear Up Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearUpTimeTextField
                                     text: settings.automatic_virtual_shifting_climb_gear_up_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingClimbGearUpTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4039,20 +4923,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Climb - Gear Down Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_climb_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingClimbGearDownCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4063,20 +4951,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Climb - Gear Down Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearDownTimeTextField
                                     text: settings.automatic_virtual_shifting_climb_gear_down_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingClimbGearDownTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4097,20 +4986,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Sprint - Gear Up Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_sprint_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingSprintGearUpCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4121,20 +5014,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Sprint - Gear Up Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearUpTimeTextField
                                     text: settings.automatic_virtual_shifting_sprint_gear_up_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingSprintGearUpTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4145,20 +5039,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Sprint - Gear Down Cadence (RPM):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
+                                    decimals: 0
                                     text: settings.automatic_virtual_shifting_sprint_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = text
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingSprintGearDownCadenceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4169,20 +5067,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Sprint - Gear Down Time (seconds):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearDownTimeTextField
                                     text: settings.automatic_virtual_shifting_sprint_gear_down_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = text
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: automaticVirtualShiftingSprintGearDownTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -4194,23 +5093,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsBikeTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_bike
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_bike
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsBikeTextField.currentIndex)
-                                displayText = ftmsBikeTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -4226,7 +5125,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                
+
                     Label {
                         text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                         font.bold: true
@@ -4304,21 +5203,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Resistance Smoothing:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: scwhinnResistanceSmoothTextField
+                                    decimals: 0
                                     text: settings.schwinn_resistance_smooth
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.schwinn_resistance_smooth = text
+                                    onAccepted: settings.schwinn_resistance_smooth = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
                                     text: qsTr("OK")
+                                    enabled: scwhinnResistanceSmoothTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             Label {
@@ -4348,21 +5249,22 @@ import AndroidStatusBar 1.0
                                 text: qsTr("GR7 Cadence Multiplier:")
                                 Layout.fillWidth: true
                             }
-                            TextField {
+                            SettingsNumberField {
                                 id: horizonGr7CadenceMultiplierTextField
                                 text: settings.horizon_gr7_cadence_multiplier
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                onAccepted: settings.horizon_gr7_cadence_multiplier = text
+                                onAccepted: settings.horizon_gr7_cadence_multiplier = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
                                 text: qsTr("OK")
+                                enabled: horizonGr7CadenceMultiplierTextField.valid
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text; toast.show(qsTr("Setting saved!")); }
+                                onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.value; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                     }
@@ -4385,7 +5287,7 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Watt Profile:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                UiComboBox {
                                     id: echelonWattTableTextField
                                     model: [ "Echelon", "mgarcea" ]
                                     displayText: settings.echelon_watttable
@@ -4411,21 +5313,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Resistance Gain:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: echelonResistanceGainTextField
                                     text: settings.echelon_resistance_gain
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.echelon_resistance_gain = text
+                                    onAccepted: settings.echelon_resistance_gain = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
                                     text: qsTr("OK")
+                                    enabled: echelonResistanceGainTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -4435,21 +5338,25 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Resistance Offset:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: echelonResistanceOffsetTextField
+                                    minimum: -100
+                                    maximum: 100
+                                    signed: true
                                     text: settings.echelon_resistance_offset
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.echelon_resistance_offset = text
+                                    onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
                                     text: qsTr("OK")
+                                    enabled: echelonResistanceOffsetTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4542,6 +5449,19 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.renpho_bike_double_resistance = checked
                             }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Physical resistance knob controls QZ gears")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.renpho_bike_knob_gears
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.renpho_bike_knob_gears = checked
+                            }
                         }
                     }
 
@@ -4586,7 +5506,7 @@ import AndroidStatusBar 1.0
                             onClicked: { settings.saris_trainer = checked; window.settings_restart_to_apply = true; }
                         }
                     }
-                    
+
                     AccordionElement {
                         id: cardioFitBikeAccordion
                         title: qsTr("CardioFIT Bike Options")
@@ -4632,7 +5552,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: "Snode Bike Options"
+                        title: qsTr("Snode Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -4793,21 +5713,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Samples Filter:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: flywheelBikeFilterTextField
+                                    decimals: 0
                                     text: settings.flywheel_filter
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.flywheel_filter = text
+                                    onAccepted: settings.flywheel_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
                                     text: qsTr("OK")
+                                    enabled: flywheelBikeFilterTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4855,21 +5777,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Cadence Filter:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: domyosBikeCadenceFilterTextField
                                     text: settings.domyos_bike_cadence_filter
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.domyos_bike_cadence_filter = text
+                                    onAccepted: settings.domyos_bike_cadence_filter = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
                                     text: qsTr("OK")
+                                    enabled: domyosBikeCadenceFilterTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4886,6 +5809,7 @@ import AndroidStatusBar 1.0
                                 onClicked: settings.domyosbike_notfmts = checked
                             }
                             IndicatorOnlySwitch {
+                                //: Domyos bike switch: QZ sends its own calories and distance values to the bike console display.
                                 text: qsTr("Fix Calories/Km to Console")
                                 spacing: 0
                                 bottomPadding: 0
@@ -4987,21 +5911,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Wheel Ratio:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: proformBikeWheelRatioTextField
                                     text: settings.proform_wheel_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.proform_wheel_ratio = text
+                                    onAccepted: settings.proform_wheel_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
                                     text: qsTr("OK")
+                                    enabled: proformBikeWheelRatioTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5010,7 +5935,7 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -5038,7 +5963,8 @@ import AndroidStatusBar 1.0
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
                                     "Proform 325 CSX PFEX439210 INT.0",
-                                    "NordicTrack VR21"
+                                    "NordicTrack VR21",
+                                    "NordicTrack GX LE"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -5077,7 +6003,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
                                                     settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
-                                                    settings.nordictrack_vr21 ? 22 : 0;
+                                                    settings.nordictrack_vr21 ? 22 :
+                                                    settings.nordictrack_gx_le ? 23 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -5114,6 +6041,7 @@ import AndroidStatusBar 1.0
                                     settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
+                                    settings.nordictrack_gx_le = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -5139,6 +6067,7 @@ import AndroidStatusBar 1.0
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
                                         case 22: settings.nordictrack_vr21 = true; break;
+                                        case 23: settings.nordictrack_gx_le = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -5163,21 +6092,23 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "TDF1 IP:"
+                                    text: qsTr("TDF1 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDF1IPTextField
+                                    format: "host"
                                     text: settings.proformtdf1ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.proformtdf1ip = text
+                                    onAccepted: { settings.proformtdf1ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformTDF1IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -5187,22 +6118,24 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: "TDF4 IP:"
+                                    text: qsTr("TDF4 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDF4IPTextField
+                                    format: "host"
                                     text: settings.proformtdf4ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.proformtdf4ip = text
+                                    onAccepted: { settings.proformtdf4ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
                                     text: qsTr("OK")
+                                    enabled: proformTDF4IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -5214,19 +6147,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("TDF Companion IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDFCompanionIPTextField
+                                    format: "host"
                                     text: settings.tdf_10_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.tdf_10_ip = text
+                                    onAccepted: { settings.tdf_10_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
                                     text: qsTr("OK")
+                                    enabled: proformTDFCompanionIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -5310,7 +6245,7 @@ import AndroidStatusBar 1.0
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                onAccepted: settings.computrainer_serialport = text
+                                onAccepted: { settings.computrainer_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
@@ -5344,7 +6279,7 @@ import AndroidStatusBar 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onAccepted: settings.kettler_usb_serialport = text
+                                onAccepted: { settings.kettler_usb_serialport = text; window.settings_restart_to_apply = true; }
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
@@ -5358,10 +6293,10 @@ import AndroidStatusBar 1.0
                             spacing: 10
                             Label {
                                 id: labelKettlerUsbBaudrate
-                                text: "Baudrate:"
+                                text: qsTr("Baudrate:")
                                 Layout.fillWidth: true
                             }
-                            ComboBox {
+                            UiComboBox {
                                 id: kettlerUsbBaudrateComboBox
                                 model: [ "9600", "57600" ]
                                 displayText: settings.kettler_usb_baudrate.toString()
@@ -5385,6 +6320,41 @@ import AndroidStatusBar 1.0
                         }
                     }
 										}
+
+
+                    AccordionElement {
+                        id: freebeatBikeAccordion
+                        title: qsTr("Freebeat Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelFreebeatSerialPort
+                                    text: qsTr("Serial Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: freebeatSerialPortTextField
+                                    text: settings.freebeat_serialport
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.freebeat_serialport = text; window.settings_restart_to_apply = true; }
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okFreebeatSerialPortButton
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.freebeat_serialport = freebeatSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                        }
+                    }
 
 
                     AccordionElement {
@@ -5420,21 +6390,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Bike ID:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: m3iBikeIdTextField
+                                    decimals: 0
                                     text: settings.m3i_bike_id
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.m3i_bike_id = text
+                                    onAccepted: { settings.m3i_bike_id = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
                                     text: qsTr("OK")
+                                    enabled: m3iBikeIdTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5445,21 +6417,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Speed Buffer Size:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: m3iBikeSpeedBuffsizeTextField
+                                    decimals: 0
                                     text: settings.m3i_bike_speed_buffsize
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.m3i_bike_speed_buffsize = text
+                                    onAccepted: settings.m3i_bike_speed_buffsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
                                     text: qsTr("OK")
+                                    enabled: m3iBikeSpeedBuffsizeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5546,28 +6520,32 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true; 
                                 }
                             }
-                            
+
                             RowLayout {
                                 spacing: 10
                                 Label {
                                     text: qsTr("ANT+ Bike Device Number (0=Auto):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: antBikeDeviceNumberTextField
+                                    minimum: 0
+                                    maximum: 65535
+                                    decimals: 0
                                     text: settings.ant_bike_device_number
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.ant_bike_device_number = text
+                                    onAccepted: if (valid) { settings.ant_bike_device_number = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
                                     text: qsTr("OK")
+                                    enabled: antBikeDeviceNumberTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -5575,7 +6553,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: "Toputure Bikes"
+                        title: qsTr("Toputure Bikes")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5672,20 +6650,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("ANT+ Speed Offset")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: antspeedOffsetTextField
+                            signed: true
                             text: settings.ant_speed_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ant_speed_offset = text
+                            onAccepted: settings.ant_speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: antspeedOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5709,20 +6689,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("ANT+ Speed Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: antspeedGainTextField
                             text: settings.ant_speed_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.ant_speed_gain = text
+                            onAccepted: settings.ant_speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: antspeedGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_speed_gain = antspeedGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ant_speed_gain = antspeedGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5760,21 +6741,25 @@ import AndroidStatusBar 1.0
                             text: qsTr("ANT+ Heart Device Number (0=Auto):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: antHeartDeviceNumberTextField
+                            minimum: 0
+                            maximum: 65535
+                            decimals: 0
                             text: settings.ant_heart_device_number
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ant_heart_device_number = text
+                            onAccepted: if (valid) { settings.ant_heart_device_number = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
                             text: qsTr("OK")
+                            enabled: antHeartDeviceNumberTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5870,6 +6855,36 @@ import AndroidStatusBar 1.0
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
                     }
 
+                    IndicatorOnlySwitch {
+                        id: landscapeCutoutMarginDelegate
+                        text: qsTr("Keep Content Clear of the Camera Cutout")
+                        visible: Qt.platform.os === "android"
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_landscape_cutout_margin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_landscape_cutout_margin = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.")
+                        visible: Qt.platform.os === "android"
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5877,9 +6892,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Type:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: floatingWindowTypeComboBox
-                            model: ["Classic", "Horizontal"]
+                            model: [qsTr("Classic"), qsTr("Horizontal")]
                             currentIndex: settings.floatingwindow_type
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5928,20 +6943,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Width:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingWidthField
+                            minimum: 1
+                            decimals: 0
                             text: settings.floating_width
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_width = text
+                            onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingWidthButton
                             text: qsTr("OK")
+                            enabled: floatingWidthField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_width = floatingWidthField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_width = floatingWidthField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5965,20 +6983,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Height:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingHeightField
+                            minimum: 1
+                            decimals: 0
                             text: settings.floating_height
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_height = text
+                            onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingHeightButton
                             text: qsTr("OK")
+                            enabled: floatingHeightField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_height = floatingHeightField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_height = floatingHeightField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6002,20 +7023,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window % Transparency:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingTransparencyField
+                            decimals: 0
+                            maximum: 100
                             text: settings.floating_transparency
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_transparency = text
+                            onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingTransparencyButton
                             text: qsTr("OK")
+                            enabled: floatingTransparencyField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_transparency = floatingTransparencyField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6073,9 +7097,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Chart Display Mode:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: chartDisplayModeComboBox
-                            model: ["Both Charts", "Heart Rate Only", "Power Only"]
+                            model: [qsTr("Both Charts"), qsTr("Heart Rate Only"), qsTr("Power Only")]
                             currentIndex: settings.chart_display_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6110,7 +7134,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("iOS Live Activity Left Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: iosLiveActivityCompactLeadingMetricComboBox
                             model: rootItem.metrics
                             displayText: settings.ios_live_activity_compact_leading_metric
@@ -6119,9 +7143,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6131,7 +7155,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("iOS Live Activity Right Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: iosLiveActivityCompactTrailingMetricComboBox
                             model: rootItem.metrics
                             displayText: settings.ios_live_activity_compact_trailing_metric
@@ -6140,9 +7164,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6335,19 +7359,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("2nd line tile text size:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: secondLineTextSizeField
+                                    minimum: 1
+                                    maximum: 100
+                                    decimals: 0
                                     text: settings.theme_tile_secondline_textsize
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.theme_tile_secondline_textsize = text
+                                    onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: secondLineTextSizeField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.value; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -6377,7 +7405,7 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.peloton_username = text
+                            onAccepted: { settings.peloton_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6406,8 +7434,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelPelotonPassword
-                            text: qsTr("Password:") + ((rootItem.pelotonLogin===-1)?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("Password:") + ((rootItem.pelotonLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.pelotonLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.pelotonLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.pelotonLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: pelotonPasswordTextField
@@ -6417,7 +7454,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
                             echoMode: TextInput.PasswordEchoOnEdit
-                            onAccepted: settings.peloton_password = text
+                            onAccepted: { settings.peloton_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6453,7 +7490,6 @@ import AndroidStatusBar 1.0
                         }
                         Layout.fillWidth: true
                         onClicked: {
-                            stackView.push("WebPelotonAuth.qml")
                             peloton_connect_clicked()
                         }
                     }
@@ -6465,15 +7501,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Difficulty:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: pelotonDifficultyTextField
                             model: [ "lower", "upper", "average" ]
-                            displayText: settings.peloton_difficulty
+                            labels: ({ "lower": qsTr("lower"), "upper": qsTr("upper"), "average": qsTr("average") })
+                            value: settings.peloton_difficulty
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
-                                displayText = pelotonDifficultyTextField.currentValue
                              }
 
                         }
@@ -6481,7 +7517,7 @@ import AndroidStatusBar 1.0
                             id: okPelotonDifficultyButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6504,7 +7540,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Treadmill Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonTreadmillLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_treadmill_level
@@ -6542,7 +7578,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Treadmill Walk Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonTreadmillWalkLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_treadmill_walk_level
@@ -6577,10 +7613,10 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Walking Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            text: qsTr("Walking Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pelotonTreadmillWalkingMinSpeedTextField
                             text: (settings.miles_unit ? settings.peloton_treadmill_walking_min_speed * 0.621371 : settings.peloton_treadmill_walking_min_speed).toFixed(1)
                             horizontalAlignment: Text.AlignRight
@@ -6590,8 +7626,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonTreadmillWalkingMinSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.value / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6611,10 +7648,10 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Running Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            text: qsTr("Running Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pelotonTreadmillRunningMinSpeedTextField
                             text: (settings.miles_unit ? settings.peloton_treadmill_running_min_speed * 0.621371 : settings.peloton_treadmill_running_min_speed).toFixed(1)
                             horizontalAlignment: Text.AlignRight
@@ -6624,8 +7661,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonTreadmillRunningMinSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.value / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6648,7 +7686,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rower Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonRowerLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_rower_level
@@ -6721,8 +7759,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelPZPPassword
-                            text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1)?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.pzpLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.pzpLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.pzpLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: pzpPasswordTextField
@@ -6763,21 +7810,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Conversion Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pelotonGainTextField
                             text: settings.peloton_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.peloton_gain = text
+                            onAccepted: settings.peloton_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonGainButton
                             text: qsTr("OK")
+                            enabled: pelotonGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_gain = pelotonGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_gain = pelotonGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6801,21 +7849,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Conversion Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pelotonOffsetTextField
+                            signed: true
                             text: settings.peloton_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.peloton_offset = text
+                            onAccepted: settings.peloton_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonOffsetButton
                             text: qsTr("OK")
+                            enabled: pelotonOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_offset = pelotonOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_offset = pelotonOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6922,7 +7972,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Override Cadence Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonCadenceMetricTextField
                             model: rootItem.metrics
                             displayText: settings.peloton_cadence_metric
@@ -6949,7 +7999,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Override HR Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonHeartRateMetricTextField
                             model: rootItem.metrics
                             displayText: settings.peloton_heartrate_metric
@@ -6989,15 +8039,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Date on Strava:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: pelotonDateOnStravaTextField
                             model: [ "Before Title", "After Title", "Disabled" ]
-                            displayText: settings.peloton_date
+                            labels: ({ "Before Title": qsTr("Before Title"), "After Title": qsTr("After Title"), "Disabled": qsTr("Disabled") })
+                            value: settings.peloton_date
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + pelotonDateOnStravaTextField.currentIndex)
-                                displayText = pelotonDateOnStravaTextField.currentValue
                             }
 
                         }
@@ -7005,7 +8055,7 @@ import AndroidStatusBar 1.0
                             id: okPelotonDateOnStrava
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7028,7 +8078,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Date Format:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonDateFormatTextField
                             model: [ "MM/dd/yy", "yy/MM/dd" ]
                             displayText: settings.peloton_date_format
@@ -7207,7 +8257,7 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.zwift_username = text
+                            onAccepted: { settings.zwift_username = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -7236,8 +8286,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftPassword
-                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1 || Qt.platform.os === "android")?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.zwiftLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.zwiftLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.zwiftLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: zwiftPasswordTextField
@@ -7247,7 +8306,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
                             echoMode: TextInput.PasswordEchoOnEdit
-                            onAccepted: settings.zwift_password = text
+                            onAccepted: { settings.zwift_password = text; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -7383,19 +8442,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Poll Time:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftPollTimeTextField
+                            minimum: 1
+                            decimals: 0
                             text: settings.zwift_api_poll
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.zwift_api_poll = text
+                            onAccepted: if (valid) { settings.zwift_api_poll = value; window.settings_restart_to_apply = true; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: zwiftPollTimeTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7451,7 +8513,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7478,7 +8540,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr_climb_portal
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -7492,7 +8554,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7673,6 +8735,33 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Ask RPE / Feeling after workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rpe_feel_popup_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rpe_feel_popup_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         text: qsTr("Fetch Garmin Workouts on Startup")
                         spacing: 0
                         bottomPadding: 0
@@ -7711,11 +8800,14 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.garmin_email = text
+                            validator: EmailValidator {}
+                            inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
+                            onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_email = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: garminEmailTextField.acceptableInput
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 rootItem.garmin_connect_logout();
@@ -7728,7 +8820,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Password:"
+                            text: qsTr("Garmin Password:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -7738,7 +8830,7 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.garmin_password = text
+                            onAccepted: { rootItem.garmin_connect_logout(); settings.garmin_password = text; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -7755,14 +8847,14 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Server:"
+                            text: qsTr("Garmin Server:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: garminServerComboBox
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            model: ["Global (garmin.com)", "China (garmin.cn)"]
+                            model: [qsTr("Global (garmin.com)"), qsTr("China (garmin.cn)")]
                             currentIndex: settings.garmin_domain === "garmin.cn" ? 1 : 0
                             onCurrentIndexChanged: {
                                 var newDomain = currentIndex === 1 ? "garmin.cn" : "garmin.com";
@@ -7854,7 +8946,6 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Submit")
                                     Layout.fillWidth: true
                                     highlighted: true
-                                    enabled: mfaCodeTextField.text.length > 0
                                     onClicked: {
                                         rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
                                         mfaCodeTextField.text = "";
@@ -7916,19 +9007,43 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
 
-                    ComboBox {
+                    UiComboBox {
                         id: garminDeviceComboBoxDelegate
                         model: [
+                            "Approach G10",
+                            "Approach G80",
+                            "Approach J1",
+                            "Approach S10",
+                            "Approach S12",
+                            "Approach S20",
+                            "Approach S40",
+                            "Approach S42",
+                            "Approach S6",
+                            "Approach S60",
+                            "Approach S70",
+                            "Approach S72 43mm",
+                            "Approach S72 47mm",
+                            "Approach X10",
+                            "Approach X40",
+                            "Approach Z80",
+                            "Approachs44",
+                            "Approachs50",
+                            "D2 Air X10",
+                            "D2 Air X15",
+                            "D2 Bravo",
+                            "D2 Bravo Titanium",
+                            "D2 Mach1 Pro",
+                            "D2 Mach2",
+                            "D2 Mach2 Pro",
                             "D2Airvenu",
-                            "Edge1000",
-                            "Edge20",
-                            "Edge200",
-                            "Edge25",
-                            "Edge500",
-                            "Edge510",
-                            "Edge520",
-                            "Edge800",
-                            "Edge810",
+                            "D2Charlie",
+                            "Descent",
+                            "Descent G1",
+                            "Descent G2",
+                            "Descent Mk2",
+                            "Descent Mk2s",
+                            "Descent Mk3",
+                            "Descent Mk3i",
                             "Edge 1030",
                             "Edge 1030 Plus",
                             "Edge 1040",
@@ -7938,55 +9053,82 @@ import AndroidStatusBar 1.0
                             "Edge 520 Plus",
                             "Edge 530",
                             "Edge 540",
+                            "Edge 550",
                             "Edge 820",
                             "Edge 830",
                             "Edge 840",
+                            "Edge 850",
                             "Edge Explore",
-                            "Edge Explore2",
                             "Edge Explore 1000",
                             "Edge Explore 820",
+                            "Edge Explore2",
+                            "Edge Mtb",
                             "Edge Remote",
                             "Edge Touring",
+                            "Edge1000",
+                            "Edge20",
+                            "Edge200",
+                            "Edge25",
+                            "Edge500",
+                            "Edge510",
+                            "Edge520",
+                            "Edge800",
+                            "Edge810",
+                            "Enduro",
+                            "Enduro2",
+                            "Enduro3",
+                            "Enduro4",
                             "Epix",
-                            "Epix Japan",
-                            "Epix Korea",
                             "Epix Gen2",
                             "Epix Gen2 Apac",
                             "Epix Gen2 Pro 42",
                             "Epix Gen2 Pro 47",
                             "Epix Gen2 Pro 51",
+                            "Epix Japan",
+                            "Epix Korea",
                             "Fenix",
+                            "Fenix E",
                             "Fenix2",
                             "Fenix3",
                             "Fenix3 Chronos",
                             "Fenix3 Hr",
                             "Fenix5",
+                            "Fenix5 Plus",
                             "Fenix5S",
                             "Fenix5S Plus",
                             "Fenix5X",
                             "Fenix5X Plus",
-                            "Fenix5 Plus",
                             "Fenix6",
+                            "Fenix6 Sport",
                             "Fenix6S",
                             "Fenix6S Sport",
                             "Fenix6X",
-                            "Fenix6 Sport",
                             "Fenix7",
+                            "Fenix7 Pro Solar",
+                            "Fenix7 Pro Solar No Wifi",
                             "Fenix7S",
                             "Fenix7S Pro Solar",
                             "Fenix7X",
                             "Fenix7X Pro Solar",
-                            "Fenix7 Pro Solar",
                             "Fenix8",
+                            "Fenix8 Pro",
                             "Fenix8 Small",
                             "Fenix8 Solar",
                             "Fenix8 Solar Large",
-                            "Fenix E",
+                            "Fenix9",
+                            "Fenix9 43mm",
+                            "Fenix9 Pro 43mm",
+                            "Fenix9 Pro 47mm",
+                            "Fenix9 Pro 51mm",
+                            "Fenix9 Pro Solar 47mm",
+                            "Fenix9 Pro Solar 51mm",
                             "Forerunner 10",
                             "Forerunner 110",
                             "Forerunner 15",
                             "Forerunner 165",
                             "Forerunner 165 Music",
+                            "Forerunner 170",
+                            "Forerunner 170 Music",
                             "Forerunner 220",
                             "Forerunner 225",
                             "Forerunner 230",
@@ -8008,6 +9150,8 @@ import AndroidStatusBar 1.0
                             "Forerunner 45",
                             "Forerunner 50",
                             "Forerunner 55",
+                            "Forerunner 570 Large",
+                            "Forerunner 570 Small",
                             "Forerunner 60",
                             "Forerunner 610",
                             "Forerunner 620",
@@ -8015,6 +9159,7 @@ import AndroidStatusBar 1.0
                             "Forerunner 645",
                             "Forerunner 645M",
                             "Forerunner 70",
+                            "Forerunner 70 2026",
                             "Forerunner 735Xt",
                             "Forerunner 745",
                             "Forerunner 910Xt",
@@ -8024,18 +9169,65 @@ import AndroidStatusBar 1.0
                             "Forerunner 945 Lte",
                             "Forerunner 955",
                             "Forerunner 965",
+                            "Forerunner 970",
+                            "Instinct 2",
+                            "Instinct 2s",
+                            "Instinct 2x",
+                            "Instinct Crossover",
+                            "Instinct Crossover Amoled",
+                            "Instinct Esports",
+                            "Instinct Solar",
+                            "Instinct3 Amoled 45mm",
+                            "Instinct3 Amoled 50mm",
+                            "Instinct3 Solar 45mm",
+                            "Instinct3 Solar 50mm",
+                            "Instincte 40mm",
+                            "Instincte 45mm",
+                            "Legacy Captain Marvel",
+                            "Legacy Darth Vader",
+                            "Legacy First Avenger",
+                            "Legacy Rey",
+                            "Lily",
+                            "Lily Athlete",
+                            "Lily2",
+                            "Marq Adventurer",
+                            "Marq Athlete",
+                            "Marq Aviator",
+                            "Marq Captain",
+                            "Marq Commander",
+                            "Marq Driver",
+                            "Marq Expedition",
+                            "Marq Gen2",
+                            "Marq Gen2 Aviator",
+                            "Marq Gen2 Commander",
+                            "Marq Golfer",
+                            "Swim",
+                            "Swim2",
+                            "Tactix7",
+                            "Tactix8 Amoled",
+                            "Tactix8 Solar",
+                            "Tacx",
                             "Venu",
+                            "Venu Sq",
+                            "Venu Sq Music",
+                            "Venu Sq Music V2",
+                            "Venu Sq2",
+                            "Venu Sq2Music",
+                            "Venu X1",
                             "Venu2",
-                            "Venu2S",
                             "Venu2 Plus",
+                            "Venu2S",
                             "Venu3",
                             "Venu3S",
                             "Venu4",
                             "Venu4S",
-                            "Venu Sq",
-                            "Venu Sq2",
-                            "Venu Sq2Music",
-                            "Venu Sq Music",
+                            "Vivo Active",
+                            "Vivo Active Hr",
+                            "Vivo Move",
+                            "Vivo Move Hr",
+                            "Vivo Move Sport",
+                            "Vivo Move3",
+                            "Vivo Move3 Premium",
                             "Vivoactive 3",
                             "Vivoactive 3M L",
                             "Vivoactive 3M W",
@@ -8043,266 +9235,468 @@ import AndroidStatusBar 1.0
                             "Vivoactive 4 Small",
                             "Vivoactive 5",
                             "Vivoactive 6",
-                            "Tacx",
+                            "Vivomove Trend",
                             "Zwift"
                         ]
                         currentIndex: {
-                            if (settings.fit_file_garmin_device_training_effect_device === 2187) return 0;  // D2AIRVENU
-                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 1;  // EDGE1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2238) return 2;  // EDGE20
-                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 3;  // EDGE200
-                            if (settings.fit_file_garmin_device_training_effect_device === 2147) return 4;  // EDGE25
-                            if (settings.fit_file_garmin_device_training_effect_device === 1036) return 5;  // EDGE500
-                            if (settings.fit_file_garmin_device_training_effect_device === 1561) return 6;  // EDGE510
-                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 7;  // EDGE520
-                            if (settings.fit_file_garmin_device_training_effect_device === 1169) return 8;  // EDGE800
-                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 9;  // EDGE810
-                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 10;  // EDGE_1030
-                            if (settings.fit_file_garmin_device_training_effect_device === 3570) return 11;  // EDGE_1030_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3843) return 12;  // EDGE_1040
-                            if (settings.fit_file_garmin_device_training_effect_device === 4440) return 13;  // EDGE_1050
-                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 14;  // EDGE_130
-                            if (settings.fit_file_garmin_device_training_effect_device === 3558) return 15;  // EDGE_130_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3112) return 16;  // EDGE_520_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 17;  // EDGE_530
-                            if (settings.fit_file_garmin_device_training_effect_device === 4061) return 18;  // EDGE_540
-                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 19;  // EDGE_820
-                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 20;  // EDGE_830
-                            if (settings.fit_file_garmin_device_training_effect_device === 4062) return 21;  // EDGE_840
-                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 22;  // EDGE_EXPLORE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4169) return 23;  // EDGE_EXPLORE2
-                            if (settings.fit_file_garmin_device_training_effect_device === 2204) return 24;  // EDGE_EXPLORE_1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2531) return 25;  // EDGE_EXPLORE_820
-                            if (settings.fit_file_garmin_device_training_effect_device === 10014) return 26;  // EDGE_REMOTE
-                            if (settings.fit_file_garmin_device_training_effect_device === 1736) return 27;  // EDGE_TOURING
-                            if (settings.fit_file_garmin_device_training_effect_device === 1988) return 28;  // EPIX
-                            if (settings.fit_file_garmin_device_training_effect_device === 2332) return 29;  // EPIX_JAPAN
-                            if (settings.fit_file_garmin_device_training_effect_device === 2457) return 30;  // EPIX_KOREA
-                            if (settings.fit_file_garmin_device_training_effect_device === 3943) return 31;  // EPIX_GEN2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3944) return 32;  // EPIX_GEN2_APAC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4312) return 33;  // EPIX_GEN2_PRO_42
-                            if (settings.fit_file_garmin_device_training_effect_device === 4313) return 34;  // EPIX_GEN2_PRO_47
-                            if (settings.fit_file_garmin_device_training_effect_device === 4314) return 35;  // EPIX_GEN2_PRO_51
-                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 36;  // FENIX
-                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 37;  // FENIX2
-                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 38;  // FENIX3
-                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 39;  // FENIX3_CHRONOS
-                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 40;  // FENIX3_HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 41;  // FENIX5
-                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 42;  // FENIX5S
-                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 43;  // FENIX5S_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 44;  // FENIX5X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 45;  // FENIX5X_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 46;  // FENIX5_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 47;  // FENIX6
-                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 48;  // FENIX6S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3287) return 49;  // FENIX6S_SPORT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 50;  // FENIX6X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3289) return 51;  // FENIX6_SPORT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 52;  // FENIX7
-                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 53;  // FENIX7S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4374) return 54;  // FENIX7S_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 55;  // FENIX7X
-                            if (settings.fit_file_garmin_device_training_effect_device === 4376) return 56;  // FENIX7X_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4375) return 57;  // FENIX7_PRO_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 58;  // FENIX8
-                            if (settings.fit_file_garmin_device_training_effect_device === 4534) return 59;  // FENIX8_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4532) return 60;  // FENIX8_SOLAR
-                            if (settings.fit_file_garmin_device_training_effect_device === 4533) return 61;  // FENIX8_SOLAR_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4666) return 62;  // FENIX_E
-                            if (settings.fit_file_garmin_device_training_effect_device === 1482) return 63;  // FR10
-                            if (settings.fit_file_garmin_device_training_effect_device === 1124) return 64;  // FR110
-                            if (settings.fit_file_garmin_device_training_effect_device === 1903) return 65;  // FR15
-                            if (settings.fit_file_garmin_device_training_effect_device === 4432) return 66;  // FR165
-                            if (settings.fit_file_garmin_device_training_effect_device === 4433) return 67;  // FR165_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 1632) return 68;  // FR220
-                            if (settings.fit_file_garmin_device_training_effect_device === 2153) return 69;  // FR225
-                            if (settings.fit_file_garmin_device_training_effect_device === 2157) return 70;  // FR230
-                            if (settings.fit_file_garmin_device_training_effect_device === 2431) return 71;  // FR235
-                            if (settings.fit_file_garmin_device_training_effect_device === 3076) return 72;  // FR245
-                            if (settings.fit_file_garmin_device_training_effect_device === 3077) return 73;  // FR245_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2148) return 74;  // FR25
-                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 75;  // FR255
-                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 76;  // FR255_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 77;  // FR255_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 78;  // FR255_SMALL_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 4257) return 79;  // FR265_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4258) return 80;  // FR265_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 2891) return 81;  // FR30
-                            if (settings.fit_file_garmin_device_training_effect_device === 1018) return 82;  // FR310XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 1446) return 83;  // FR310XT_4T
-                            if (settings.fit_file_garmin_device_training_effect_device === 2503) return 84;  // FR35
-                            if (settings.fit_file_garmin_device_training_effect_device === 717) return 85;  // FR405
-                            if (settings.fit_file_garmin_device_training_effect_device === 3282) return 86;  // FR45
-                            if (settings.fit_file_garmin_device_training_effect_device === 782) return 87;  // FR50
-                            if (settings.fit_file_garmin_device_training_effect_device === 3869) return 88;  // FR55
-                            if (settings.fit_file_garmin_device_training_effect_device === 988) return 89;  // FR60
-                            if (settings.fit_file_garmin_device_training_effect_device === 1345) return 90;  // FR610
-                            if (settings.fit_file_garmin_device_training_effect_device === 1623) return 91;  // FR620
-                            if (settings.fit_file_garmin_device_training_effect_device === 2156) return 92;  // FR630
-                            if (settings.fit_file_garmin_device_training_effect_device === 2886) return 93;  // FR645
-                            if (settings.fit_file_garmin_device_training_effect_device === 2888) return 94;  // FR645M
-                            if (settings.fit_file_garmin_device_training_effect_device === 1436) return 95;  // FR70
-                            if (settings.fit_file_garmin_device_training_effect_device === 2158) return 96;  // FR735XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 3589) return 97;  // FR745
-                            if (settings.fit_file_garmin_device_training_effect_device === 1328) return 98;  // FR910XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 1765) return 99;  // FR920XT
-                            if (settings.fit_file_garmin_device_training_effect_device === 2691) return 100;  // FR935
-                            if (settings.fit_file_garmin_device_training_effect_device === 3113) return 101;  // FR945
-                            if (settings.fit_file_garmin_device_training_effect_device === 3652) return 102;  // FR945_LTE
-                            if (settings.fit_file_garmin_device_training_effect_device === 4024) return 103;  // FR955
-                            if (settings.fit_file_garmin_device_training_effect_device === 4315) return 104;  // FR965
-                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 105;  // VENU
-                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 106;  // VENU2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 107;  // VENU2S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3851) return 108;  // VENU2_PLUS
-                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 109;  // VENU3
-                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 110;  // VENU3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 111;  // VENU4
-                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 112;  // VENU4S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 113;  // VENUSQ
-                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 114;  // VENUSQ2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 115;  // VENUSQ2MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 116;  // VENUSQ_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 117;  // VIVOACTIVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 118;  // VIVOACTIVE3M_L
-                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 119;  // VIVOACTIVE3M_W
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 120;  // VIVOACTIVE4_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 121;  // VIVOACTIVE4_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 122;  // VIVOACTIVE5
-                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 123;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 124;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 125;  // Zwift
-                            return 20;  // Default to Edge 830
+                            if (settings.fit_file_garmin_device_training_effect_device === 1405) return 0;  // APPROACH_G10
+                            if (settings.fit_file_garmin_device_training_effect_device === 3085) return 1;  // APPROACH_G80
+                            if (settings.fit_file_garmin_device_training_effect_device === 4825) return 2;  // APPROACH_J1
+                            if (settings.fit_file_garmin_device_training_effect_device === 3049) return 3;  // APPROACH_S10
+                            if (settings.fit_file_garmin_device_training_effect_device === 3823) return 4;  // APPROACH_S12
+                            if (settings.fit_file_garmin_device_training_effect_device === 2266) return 5;  // APPROACH_S20
+                            if (settings.fit_file_garmin_device_training_effect_device === 3314) return 6;  // APPROACH_S40
+                            if (settings.fit_file_garmin_device_training_effect_device === 3934) return 7;  // APPROACH_S42
+                            if (settings.fit_file_garmin_device_training_effect_device === 1936) return 8;  // APPROACH_S6
+                            if (settings.fit_file_garmin_device_training_effect_device === 2656) return 9;  // APPROACH_S60
+                            if (settings.fit_file_garmin_device_training_effect_device === 4233) return 10;  // APPROACH_S70
+                            if (settings.fit_file_garmin_device_training_effect_device === 4874) return 11;  // APPROACH_S72_43MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4875) return 12;  // APPROACH_S72_47MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 2962) return 13;  // APPROACH_X10
+                            if (settings.fit_file_garmin_device_training_effect_device === 2292) return 14;  // APPROACH_X40
+                            if (settings.fit_file_garmin_device_training_effect_device === 2806) return 15;  // APPROACH_Z80
+                            if (settings.fit_file_garmin_device_training_effect_device === 4647) return 16;  // APPROACHS44
+                            if (settings.fit_file_garmin_device_training_effect_device === 4656) return 17;  // APPROACHS50
+                            if (settings.fit_file_garmin_device_training_effect_device === 4125) return 18;  // D2_AIR_X10
+                            if (settings.fit_file_garmin_device_training_effect_device === 4944) return 19;  // D2_AIR_X15
+                            if (settings.fit_file_garmin_device_training_effect_device === 2262) return 20;  // D2_BRAVO
+                            if (settings.fit_file_garmin_device_training_effect_device === 2547) return 21;  // D2_BRAVO_TITANIUM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4556) return 22;  // D2_MACH1_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4879) return 23;  // D2_MACH2
+                            if (settings.fit_file_garmin_device_training_effect_device === 5056) return 24;  // D2_MACH2_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 2187) return 25;  // D2AIRVENU
+                            if (settings.fit_file_garmin_device_training_effect_device === 2819) return 26;  // D2CHARLIE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2859) return 27;  // DESCENT
+                            if (settings.fit_file_garmin_device_training_effect_device === 4005) return 28;  // DESCENT_G1
+                            if (settings.fit_file_garmin_device_training_effect_device === 4588) return 29;  // DESCENT_G2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3258) return 30;  // DESCENT_MK2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3542) return 31;  // DESCENT_MK2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4222) return 32;  // DESCENT_MK3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4223) return 33;  // DESCENT_MK3I
+                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 34;  // EDGE_1030
+                            if (settings.fit_file_garmin_device_training_effect_device === 3570) return 35;  // EDGE_1030_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3843) return 36;  // EDGE_1040
+                            if (settings.fit_file_garmin_device_training_effect_device === 4440) return 37;  // EDGE_1050
+                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 38;  // EDGE_130
+                            if (settings.fit_file_garmin_device_training_effect_device === 3558) return 39;  // EDGE_130_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3112) return 40;  // EDGE_520_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 41;  // EDGE_530
+                            if (settings.fit_file_garmin_device_training_effect_device === 4061) return 42;  // EDGE_540
+                            if (settings.fit_file_garmin_device_training_effect_device === 4633) return 43;  // EDGE_550
+                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 44;  // EDGE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 45;  // EDGE_830
+                            if (settings.fit_file_garmin_device_training_effect_device === 4062) return 46;  // EDGE_840
+                            if (settings.fit_file_garmin_device_training_effect_device === 4634) return 47;  // EDGE_850
+                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 48;  // EDGE_EXPLORE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2204) return 49;  // EDGE_EXPLORE_1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2531) return 50;  // EDGE_EXPLORE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 4169) return 51;  // EDGE_EXPLORE2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4655) return 52;  // EDGE_MTB
+                            if (settings.fit_file_garmin_device_training_effect_device === 10014) return 53;  // EDGE_REMOTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 1736) return 54;  // EDGE_TOURING
+                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 55;  // EDGE1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2238) return 56;  // EDGE20
+                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 57;  // EDGE200
+                            if (settings.fit_file_garmin_device_training_effect_device === 2147) return 58;  // EDGE25
+                            if (settings.fit_file_garmin_device_training_effect_device === 1036) return 59;  // EDGE500
+                            if (settings.fit_file_garmin_device_training_effect_device === 1561) return 60;  // EDGE510
+                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 61;  // EDGE520
+                            if (settings.fit_file_garmin_device_training_effect_device === 1169) return 62;  // EDGE800
+                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 63;  // EDGE810
+                            if (settings.fit_file_garmin_device_training_effect_device === 3638) return 64;  // ENDURO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4341) return 65;  // ENDURO2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4575) return 66;  // ENDURO3
+                            if (settings.fit_file_garmin_device_training_effect_device === 5169) return 67;  // ENDURO4
+                            if (settings.fit_file_garmin_device_training_effect_device === 1988) return 68;  // EPIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 3943) return 69;  // EPIX_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3944) return 70;  // EPIX_GEN2_APAC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4312) return 71;  // EPIX_GEN2_PRO_42
+                            if (settings.fit_file_garmin_device_training_effect_device === 4313) return 72;  // EPIX_GEN2_PRO_47
+                            if (settings.fit_file_garmin_device_training_effect_device === 4314) return 73;  // EPIX_GEN2_PRO_51
+                            if (settings.fit_file_garmin_device_training_effect_device === 2332) return 74;  // EPIX_JAPAN
+                            if (settings.fit_file_garmin_device_training_effect_device === 2457) return 75;  // EPIX_KOREA
+                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 76;  // FENIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 4666) return 77;  // FENIX_E
+                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 78;  // FENIX2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 79;  // FENIX3
+                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 80;  // FENIX3_CHRONOS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 81;  // FENIX3_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 82;  // FENIX5
+                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 83;  // FENIX5_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 84;  // FENIX5S
+                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 85;  // FENIX5S_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 86;  // FENIX5X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 87;  // FENIX5X_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 88;  // FENIX6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3289) return 89;  // FENIX6_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 90;  // FENIX6S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3287) return 91;  // FENIX6S_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 92;  // FENIX6X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 93;  // FENIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 4375) return 94;  // FENIX7_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4595) return 95;  // FENIX7_PRO_SOLAR_NO_WIFI
+                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 96;  // FENIX7S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4374) return 97;  // FENIX7S_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 98;  // FENIX7X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4376) return 99;  // FENIX7X_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 100;  // FENIX8
+                            if (settings.fit_file_garmin_device_training_effect_device === 4631) return 101;  // FENIX8_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4534) return 102;  // FENIX8_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4532) return 103;  // FENIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4533) return 104;  // FENIX8_SOLAR_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 5134) return 105;  // FENIX9
+                            if (settings.fit_file_garmin_device_training_effect_device === 5133) return 106;  // FENIX9_43MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4952) return 107;  // FENIX9_PRO_43MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4953) return 108;  // FENIX9_PRO_47MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4954) return 109;  // FENIX9_PRO_51MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4955) return 110;  // FENIX9_PRO_SOLAR_47MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4956) return 111;  // FENIX9_PRO_SOLAR_51MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 1482) return 112;  // FR10
+                            if (settings.fit_file_garmin_device_training_effect_device === 1124) return 113;  // FR110
+                            if (settings.fit_file_garmin_device_training_effect_device === 1903) return 114;  // FR15
+                            if (settings.fit_file_garmin_device_training_effect_device === 4432) return 115;  // FR165
+                            if (settings.fit_file_garmin_device_training_effect_device === 4433) return 116;  // FR165_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4815) return 117;  // FR170
+                            if (settings.fit_file_garmin_device_training_effect_device === 4814) return 118;  // FR170_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 1632) return 119;  // FR220
+                            if (settings.fit_file_garmin_device_training_effect_device === 2153) return 120;  // FR225
+                            if (settings.fit_file_garmin_device_training_effect_device === 2157) return 121;  // FR230
+                            if (settings.fit_file_garmin_device_training_effect_device === 2431) return 122;  // FR235
+                            if (settings.fit_file_garmin_device_training_effect_device === 3076) return 123;  // FR245
+                            if (settings.fit_file_garmin_device_training_effect_device === 3077) return 124;  // FR245_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2148) return 125;  // FR25
+                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 126;  // FR255
+                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 127;  // FR255_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 128;  // FR255_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 129;  // FR255_SMALL_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4257) return 130;  // FR265_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4258) return 131;  // FR265_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 2891) return 132;  // FR30
+                            if (settings.fit_file_garmin_device_training_effect_device === 1018) return 133;  // FR310XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1446) return 134;  // FR310XT_4T
+                            if (settings.fit_file_garmin_device_training_effect_device === 2503) return 135;  // FR35
+                            if (settings.fit_file_garmin_device_training_effect_device === 717) return 136;  // FR405
+                            if (settings.fit_file_garmin_device_training_effect_device === 3282) return 137;  // FR45
+                            if (settings.fit_file_garmin_device_training_effect_device === 782) return 138;  // FR50
+                            if (settings.fit_file_garmin_device_training_effect_device === 3869) return 139;  // FR55
+                            if (settings.fit_file_garmin_device_training_effect_device === 4570) return 140;  // FR570_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4574) return 141;  // FR570_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 988) return 142;  // FR60
+                            if (settings.fit_file_garmin_device_training_effect_device === 1345) return 143;  // FR610
+                            if (settings.fit_file_garmin_device_training_effect_device === 1623) return 144;  // FR620
+                            if (settings.fit_file_garmin_device_training_effect_device === 2156) return 145;  // FR630
+                            if (settings.fit_file_garmin_device_training_effect_device === 2886) return 146;  // FR645
+                            if (settings.fit_file_garmin_device_training_effect_device === 2888) return 147;  // FR645M
+                            if (settings.fit_file_garmin_device_training_effect_device === 1436) return 148;  // FR70
+                            if (settings.fit_file_garmin_device_training_effect_device === 4916) return 149;  // FR70_2026
+                            if (settings.fit_file_garmin_device_training_effect_device === 2158) return 150;  // FR735XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3589) return 151;  // FR745
+                            if (settings.fit_file_garmin_device_training_effect_device === 1328) return 152;  // FR910XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1765) return 153;  // FR920XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 2691) return 154;  // FR935
+                            if (settings.fit_file_garmin_device_training_effect_device === 3113) return 155;  // FR945
+                            if (settings.fit_file_garmin_device_training_effect_device === 3652) return 156;  // FR945_LTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4024) return 157;  // FR955
+                            if (settings.fit_file_garmin_device_training_effect_device === 4315) return 158;  // FR965
+                            if (settings.fit_file_garmin_device_training_effect_device === 4565) return 159;  // FR970
+                            if (settings.fit_file_garmin_device_training_effect_device === 3888) return 160;  // INSTINCT_2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3889) return 161;  // INSTINCT_2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4394) return 162;  // INSTINCT_2X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4155) return 163;  // INSTINCT_CROSSOVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 4678) return 164;  // INSTINCT_CROSSOVER_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 3126) return 165;  // INSTINCT_ESPORTS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3466) return 166;  // INSTINCT_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4586) return 167;  // INSTINCT3_AMOLED_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4587) return 168;  // INSTINCT3_AMOLED_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4585) return 169;  // INSTINCT3_SOLAR_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4759) return 170;  // INSTINCT3_SOLAR_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4583) return 171;  // INSTINCTE_40MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4584) return 172;  // INSTINCTE_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 3500) return 173;  // LEGACY_CAPTAIN_MARVEL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3499) return 174;  // LEGACY_DARTH_VADER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3501) return 175;  // LEGACY_FIRST_AVENGER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3498) return 176;  // LEGACY_REY
+                            if (settings.fit_file_garmin_device_training_effect_device === 3615) return 177;  // LILY
+                            if (settings.fit_file_garmin_device_training_effect_device === 4477) return 178;  // LILY_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4380) return 179;  // LILY2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3624) return 180;  // MARQ_ADVENTURER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3251) return 181;  // MARQ_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3247) return 182;  // MARQ_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3248) return 183;  // MARQ_CAPTAIN
+                            if (settings.fit_file_garmin_device_training_effect_device === 3249) return 184;  // MARQ_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3246) return 185;  // MARQ_DRIVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3250) return 186;  // MARQ_EXPEDITION
+                            if (settings.fit_file_garmin_device_training_effect_device === 4105) return 187;  // MARQ_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4124) return 188;  // MARQ_GEN2_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4472) return 189;  // MARQ_GEN2_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3739) return 190;  // MARQ_GOLFER
+                            if (settings.fit_file_garmin_device_training_effect_device === 1499) return 191;  // SWIM
+                            if (settings.fit_file_garmin_device_training_effect_device === 3405) return 192;  // SWIM2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4135) return 193;  // TACTIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 4775) return 194;  // TACTIX8_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 4776) return 195;  // TACTIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 196;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 197;  // VENU
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 198;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 199;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3599) return 200;  // VENUSQ_MUSIC_V2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 201;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 202;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4603) return 203;  // VENU_X1
+                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 204;  // VENU2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3851) return 205;  // VENU2_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 206;  // VENU2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 207;  // VENU3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 208;  // VENU3S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 209;  // VENU4
+                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 210;  // VENU4S
+                            if (settings.fit_file_garmin_device_training_effect_device === 1907) return 211;  // VIVO_ACTIVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2337) return 212;  // VIVO_ACTIVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2368) return 213;  // VIVO_MOVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2772) return 214;  // VIVO_MOVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3982) return 215;  // VIVO_MOVE_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3378) return 216;  // VIVO_MOVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3308) return 217;  // VIVO_MOVE3_PREMIUM
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 218;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 219;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 220;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 221;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 222;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 223;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 224;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3983) return 225;  // VIVOMOVE_TREND
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 226;  // Zwift
+                            return 45;  // Default to Edge 830
                         }
-                        onCurrentIndexChanged: {
+                        onActivated: {
                             switch(currentIndex) {
-                                case 0: settings.fit_file_garmin_device_training_effect_device = 2187; break;  // D2AIRVENU
-                                case 1: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // EDGE1000
-                                case 2: settings.fit_file_garmin_device_training_effect_device = 2238; break;  // EDGE20
-                                case 3: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // EDGE200
-                                case 4: settings.fit_file_garmin_device_training_effect_device = 2147; break;  // EDGE25
-                                case 5: settings.fit_file_garmin_device_training_effect_device = 1036; break;  // EDGE500
-                                case 6: settings.fit_file_garmin_device_training_effect_device = 1561; break;  // EDGE510
-                                case 7: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // EDGE520
-                                case 8: settings.fit_file_garmin_device_training_effect_device = 1169; break;  // EDGE800
-                                case 9: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // EDGE810
-                                case 10: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // EDGE_1030
-                                case 11: settings.fit_file_garmin_device_training_effect_device = 3570; break;  // EDGE_1030_PLUS
-                                case 12: settings.fit_file_garmin_device_training_effect_device = 3843; break;  // EDGE_1040
-                                case 13: settings.fit_file_garmin_device_training_effect_device = 4440; break;  // EDGE_1050
-                                case 14: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // EDGE_130
-                                case 15: settings.fit_file_garmin_device_training_effect_device = 3558; break;  // EDGE_130_PLUS
-                                case 16: settings.fit_file_garmin_device_training_effect_device = 3112; break;  // EDGE_520_PLUS
-                                case 17: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // EDGE_530
-                                case 18: settings.fit_file_garmin_device_training_effect_device = 4061; break;  // EDGE_540
-                                case 19: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // EDGE_820
-                                case 20: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // EDGE_830
-                                case 21: settings.fit_file_garmin_device_training_effect_device = 4062; break;  // EDGE_840
-                                case 22: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // EDGE_EXPLORE
-                                case 23: settings.fit_file_garmin_device_training_effect_device = 4169; break;  // EDGE_EXPLORE2
-                                case 24: settings.fit_file_garmin_device_training_effect_device = 2204; break;  // EDGE_EXPLORE_1000
-                                case 25: settings.fit_file_garmin_device_training_effect_device = 2531; break;  // EDGE_EXPLORE_820
-                                case 26: settings.fit_file_garmin_device_training_effect_device = 10014; break;  // EDGE_REMOTE
-                                case 27: settings.fit_file_garmin_device_training_effect_device = 1736; break;  // EDGE_TOURING
-                                case 28: settings.fit_file_garmin_device_training_effect_device = 1988; break;  // EPIX
-                                case 29: settings.fit_file_garmin_device_training_effect_device = 2332; break;  // EPIX_JAPAN
-                                case 30: settings.fit_file_garmin_device_training_effect_device = 2457; break;  // EPIX_KOREA
-                                case 31: settings.fit_file_garmin_device_training_effect_device = 3943; break;  // EPIX_GEN2
-                                case 32: settings.fit_file_garmin_device_training_effect_device = 3944; break;  // EPIX_GEN2_APAC
-                                case 33: settings.fit_file_garmin_device_training_effect_device = 4312; break;  // EPIX_GEN2_PRO_42
-                                case 34: settings.fit_file_garmin_device_training_effect_device = 4313; break;  // EPIX_GEN2_PRO_47
-                                case 35: settings.fit_file_garmin_device_training_effect_device = 4314; break;  // EPIX_GEN2_PRO_51
-                                case 36: settings.fit_file_garmin_device_training_effect_device = 1551; break;  // FENIX
-                                case 37: settings.fit_file_garmin_device_training_effect_device = 1967; break;  // FENIX2
-                                case 38: settings.fit_file_garmin_device_training_effect_device = 2050; break;  // FENIX3
-                                case 39: settings.fit_file_garmin_device_training_effect_device = 2432; break;  // FENIX3_CHRONOS
-                                case 40: settings.fit_file_garmin_device_training_effect_device = 2413; break;  // FENIX3_HR
-                                case 41: settings.fit_file_garmin_device_training_effect_device = 2697; break;  // FENIX5
-                                case 42: settings.fit_file_garmin_device_training_effect_device = 2544; break;  // FENIX5S
-                                case 43: settings.fit_file_garmin_device_training_effect_device = 2900; break;  // FENIX5S_PLUS
-                                case 44: settings.fit_file_garmin_device_training_effect_device = 2604; break;  // FENIX5X
-                                case 45: settings.fit_file_garmin_device_training_effect_device = 3111; break;  // FENIX5X_PLUS
-                                case 46: settings.fit_file_garmin_device_training_effect_device = 3110; break;  // FENIX5_PLUS
-                                case 47: settings.fit_file_garmin_device_training_effect_device = 3290; break;  // FENIX6
-                                case 48: settings.fit_file_garmin_device_training_effect_device = 3288; break;  // FENIX6S
-                                case 49: settings.fit_file_garmin_device_training_effect_device = 3287; break;  // FENIX6S_SPORT
-                                case 50: settings.fit_file_garmin_device_training_effect_device = 3291; break;  // FENIX6X
-                                case 51: settings.fit_file_garmin_device_training_effect_device = 3289; break;  // FENIX6_SPORT
-                                case 52: settings.fit_file_garmin_device_training_effect_device = 3906; break;  // FENIX7
-                                case 53: settings.fit_file_garmin_device_training_effect_device = 3905; break;  // FENIX7S
-                                case 54: settings.fit_file_garmin_device_training_effect_device = 4374; break;  // FENIX7S_PRO_SOLAR
-                                case 55: settings.fit_file_garmin_device_training_effect_device = 3907; break;  // FENIX7X
-                                case 56: settings.fit_file_garmin_device_training_effect_device = 4376; break;  // FENIX7X_PRO_SOLAR
-                                case 57: settings.fit_file_garmin_device_training_effect_device = 4375; break;  // FENIX7_PRO_SOLAR
-                                case 58: settings.fit_file_garmin_device_training_effect_device = 4536; break;  // FENIX8
-                                case 59: settings.fit_file_garmin_device_training_effect_device = 4534; break;  // FENIX8_SMALL
-                                case 60: settings.fit_file_garmin_device_training_effect_device = 4532; break;  // FENIX8_SOLAR
-                                case 61: settings.fit_file_garmin_device_training_effect_device = 4533; break;  // FENIX8_SOLAR_LARGE
-                                case 62: settings.fit_file_garmin_device_training_effect_device = 4666; break;  // FENIX_E
-                                case 63: settings.fit_file_garmin_device_training_effect_device = 1482; break;  // FR10
-                                case 64: settings.fit_file_garmin_device_training_effect_device = 1124; break;  // FR110
-                                case 65: settings.fit_file_garmin_device_training_effect_device = 1903; break;  // FR15
-                                case 66: settings.fit_file_garmin_device_training_effect_device = 4432; break;  // FR165
-                                case 67: settings.fit_file_garmin_device_training_effect_device = 4433; break;  // FR165_MUSIC
-                                case 68: settings.fit_file_garmin_device_training_effect_device = 1632; break;  // FR220
-                                case 69: settings.fit_file_garmin_device_training_effect_device = 2153; break;  // FR225
-                                case 70: settings.fit_file_garmin_device_training_effect_device = 2157; break;  // FR230
-                                case 71: settings.fit_file_garmin_device_training_effect_device = 2431; break;  // FR235
-                                case 72: settings.fit_file_garmin_device_training_effect_device = 3076; break;  // FR245
-                                case 73: settings.fit_file_garmin_device_training_effect_device = 3077; break;  // FR245_MUSIC
-                                case 74: settings.fit_file_garmin_device_training_effect_device = 2148; break;  // FR25
-                                case 75: settings.fit_file_garmin_device_training_effect_device = 3992; break;  // FR255
-                                case 76: settings.fit_file_garmin_device_training_effect_device = 3990; break;  // FR255_MUSIC
-                                case 77: settings.fit_file_garmin_device_training_effect_device = 3993; break;  // FR255_SMALL
-                                case 78: settings.fit_file_garmin_device_training_effect_device = 3991; break;  // FR255_SMALL_MUSIC
-                                case 79: settings.fit_file_garmin_device_training_effect_device = 4257; break;  // FR265_LARGE
-                                case 80: settings.fit_file_garmin_device_training_effect_device = 4258; break;  // FR265_SMALL
-                                case 81: settings.fit_file_garmin_device_training_effect_device = 2891; break;  // FR30
-                                case 82: settings.fit_file_garmin_device_training_effect_device = 1018; break;  // FR310XT
-                                case 83: settings.fit_file_garmin_device_training_effect_device = 1446; break;  // FR310XT_4T
-                                case 84: settings.fit_file_garmin_device_training_effect_device = 2503; break;  // FR35
-                                case 85: settings.fit_file_garmin_device_training_effect_device = 717; break;  // FR405
-                                case 86: settings.fit_file_garmin_device_training_effect_device = 3282; break;  // FR45
-                                case 87: settings.fit_file_garmin_device_training_effect_device = 782; break;  // FR50
-                                case 88: settings.fit_file_garmin_device_training_effect_device = 3869; break;  // FR55
-                                case 89: settings.fit_file_garmin_device_training_effect_device = 988; break;  // FR60
-                                case 90: settings.fit_file_garmin_device_training_effect_device = 1345; break;  // FR610
-                                case 91: settings.fit_file_garmin_device_training_effect_device = 1623; break;  // FR620
-                                case 92: settings.fit_file_garmin_device_training_effect_device = 2156; break;  // FR630
-                                case 93: settings.fit_file_garmin_device_training_effect_device = 2886; break;  // FR645
-                                case 94: settings.fit_file_garmin_device_training_effect_device = 2888; break;  // FR645M
-                                case 95: settings.fit_file_garmin_device_training_effect_device = 1436; break;  // FR70
-                                case 96: settings.fit_file_garmin_device_training_effect_device = 2158; break;  // FR735XT
-                                case 97: settings.fit_file_garmin_device_training_effect_device = 3589; break;  // FR745
-                                case 98: settings.fit_file_garmin_device_training_effect_device = 1328; break;  // FR910XT
-                                case 99: settings.fit_file_garmin_device_training_effect_device = 1765; break;  // FR920XT
-                                case 100: settings.fit_file_garmin_device_training_effect_device = 2691; break;  // FR935
-                                case 101: settings.fit_file_garmin_device_training_effect_device = 3113; break;  // FR945
-                                case 102: settings.fit_file_garmin_device_training_effect_device = 3652; break;  // FR945_LTE
-                                case 103: settings.fit_file_garmin_device_training_effect_device = 4024; break;  // FR955
-                                case 104: settings.fit_file_garmin_device_training_effect_device = 4315; break;  // FR965
-                                case 105: settings.fit_file_garmin_device_training_effect_device = 3226; break;  // VENU
-                                case 106: settings.fit_file_garmin_device_training_effect_device = 3703; break;  // VENU2
-                                case 107: settings.fit_file_garmin_device_training_effect_device = 3704; break;  // VENU2S
-                                case 108: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
-                                case 109: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
-                                case 110: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
-                                case 111: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
-                                case 112: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
-                                case 113: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
-                                case 115: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
-                                case 116: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
-                                case 117: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
-                                case 118: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
-                                case 119: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
-                                case 120: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
-                                case 121: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
-                                case 122: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
-                                case 123: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 124: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 125: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 0: settings.fit_file_garmin_device_training_effect_device = 1405; break;  // APPROACH_G10
+                                case 1: settings.fit_file_garmin_device_training_effect_device = 3085; break;  // APPROACH_G80
+                                case 2: settings.fit_file_garmin_device_training_effect_device = 4825; break;  // APPROACH_J1
+                                case 3: settings.fit_file_garmin_device_training_effect_device = 3049; break;  // APPROACH_S10
+                                case 4: settings.fit_file_garmin_device_training_effect_device = 3823; break;  // APPROACH_S12
+                                case 5: settings.fit_file_garmin_device_training_effect_device = 2266; break;  // APPROACH_S20
+                                case 6: settings.fit_file_garmin_device_training_effect_device = 3314; break;  // APPROACH_S40
+                                case 7: settings.fit_file_garmin_device_training_effect_device = 3934; break;  // APPROACH_S42
+                                case 8: settings.fit_file_garmin_device_training_effect_device = 1936; break;  // APPROACH_S6
+                                case 9: settings.fit_file_garmin_device_training_effect_device = 2656; break;  // APPROACH_S60
+                                case 10: settings.fit_file_garmin_device_training_effect_device = 4233; break;  // APPROACH_S70
+                                case 11: settings.fit_file_garmin_device_training_effect_device = 4874; break;  // APPROACH_S72_43MM
+                                case 12: settings.fit_file_garmin_device_training_effect_device = 4875; break;  // APPROACH_S72_47MM
+                                case 13: settings.fit_file_garmin_device_training_effect_device = 2962; break;  // APPROACH_X10
+                                case 14: settings.fit_file_garmin_device_training_effect_device = 2292; break;  // APPROACH_X40
+                                case 15: settings.fit_file_garmin_device_training_effect_device = 2806; break;  // APPROACH_Z80
+                                case 16: settings.fit_file_garmin_device_training_effect_device = 4647; break;  // APPROACHS44
+                                case 17: settings.fit_file_garmin_device_training_effect_device = 4656; break;  // APPROACHS50
+                                case 18: settings.fit_file_garmin_device_training_effect_device = 4125; break;  // D2_AIR_X10
+                                case 19: settings.fit_file_garmin_device_training_effect_device = 4944; break;  // D2_AIR_X15
+                                case 20: settings.fit_file_garmin_device_training_effect_device = 2262; break;  // D2_BRAVO
+                                case 21: settings.fit_file_garmin_device_training_effect_device = 2547; break;  // D2_BRAVO_TITANIUM
+                                case 22: settings.fit_file_garmin_device_training_effect_device = 4556; break;  // D2_MACH1_PRO
+                                case 23: settings.fit_file_garmin_device_training_effect_device = 4879; break;  // D2_MACH2
+                                case 24: settings.fit_file_garmin_device_training_effect_device = 5056; break;  // D2_MACH2_PRO
+                                case 25: settings.fit_file_garmin_device_training_effect_device = 2187; break;  // D2AIRVENU
+                                case 26: settings.fit_file_garmin_device_training_effect_device = 2819; break;  // D2CHARLIE
+                                case 27: settings.fit_file_garmin_device_training_effect_device = 2859; break;  // DESCENT
+                                case 28: settings.fit_file_garmin_device_training_effect_device = 4005; break;  // DESCENT_G1
+                                case 29: settings.fit_file_garmin_device_training_effect_device = 4588; break;  // DESCENT_G2
+                                case 30: settings.fit_file_garmin_device_training_effect_device = 3258; break;  // DESCENT_MK2
+                                case 31: settings.fit_file_garmin_device_training_effect_device = 3542; break;  // DESCENT_MK2S
+                                case 32: settings.fit_file_garmin_device_training_effect_device = 4222; break;  // DESCENT_MK3
+                                case 33: settings.fit_file_garmin_device_training_effect_device = 4223; break;  // DESCENT_MK3I
+                                case 34: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // EDGE_1030
+                                case 35: settings.fit_file_garmin_device_training_effect_device = 3570; break;  // EDGE_1030_PLUS
+                                case 36: settings.fit_file_garmin_device_training_effect_device = 3843; break;  // EDGE_1040
+                                case 37: settings.fit_file_garmin_device_training_effect_device = 4440; break;  // EDGE_1050
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // EDGE_130
+                                case 39: settings.fit_file_garmin_device_training_effect_device = 3558; break;  // EDGE_130_PLUS
+                                case 40: settings.fit_file_garmin_device_training_effect_device = 3112; break;  // EDGE_520_PLUS
+                                case 41: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // EDGE_530
+                                case 42: settings.fit_file_garmin_device_training_effect_device = 4061; break;  // EDGE_540
+                                case 43: settings.fit_file_garmin_device_training_effect_device = 4633; break;  // EDGE_550
+                                case 44: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // EDGE_820
+                                case 45: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // EDGE_830
+                                case 46: settings.fit_file_garmin_device_training_effect_device = 4062; break;  // EDGE_840
+                                case 47: settings.fit_file_garmin_device_training_effect_device = 4634; break;  // EDGE_850
+                                case 48: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // EDGE_EXPLORE
+                                case 49: settings.fit_file_garmin_device_training_effect_device = 2204; break;  // EDGE_EXPLORE_1000
+                                case 50: settings.fit_file_garmin_device_training_effect_device = 2531; break;  // EDGE_EXPLORE_820
+                                case 51: settings.fit_file_garmin_device_training_effect_device = 4169; break;  // EDGE_EXPLORE2
+                                case 52: settings.fit_file_garmin_device_training_effect_device = 4655; break;  // EDGE_MTB
+                                case 53: settings.fit_file_garmin_device_training_effect_device = 10014; break;  // EDGE_REMOTE
+                                case 54: settings.fit_file_garmin_device_training_effect_device = 1736; break;  // EDGE_TOURING
+                                case 55: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // EDGE1000
+                                case 56: settings.fit_file_garmin_device_training_effect_device = 2238; break;  // EDGE20
+                                case 57: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // EDGE200
+                                case 58: settings.fit_file_garmin_device_training_effect_device = 2147; break;  // EDGE25
+                                case 59: settings.fit_file_garmin_device_training_effect_device = 1036; break;  // EDGE500
+                                case 60: settings.fit_file_garmin_device_training_effect_device = 1561; break;  // EDGE510
+                                case 61: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // EDGE520
+                                case 62: settings.fit_file_garmin_device_training_effect_device = 1169; break;  // EDGE800
+                                case 63: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // EDGE810
+                                case 64: settings.fit_file_garmin_device_training_effect_device = 3638; break;  // ENDURO
+                                case 65: settings.fit_file_garmin_device_training_effect_device = 4341; break;  // ENDURO2
+                                case 66: settings.fit_file_garmin_device_training_effect_device = 4575; break;  // ENDURO3
+                                case 67: settings.fit_file_garmin_device_training_effect_device = 5169; break;  // ENDURO4
+                                case 68: settings.fit_file_garmin_device_training_effect_device = 1988; break;  // EPIX
+                                case 69: settings.fit_file_garmin_device_training_effect_device = 3943; break;  // EPIX_GEN2
+                                case 70: settings.fit_file_garmin_device_training_effect_device = 3944; break;  // EPIX_GEN2_APAC
+                                case 71: settings.fit_file_garmin_device_training_effect_device = 4312; break;  // EPIX_GEN2_PRO_42
+                                case 72: settings.fit_file_garmin_device_training_effect_device = 4313; break;  // EPIX_GEN2_PRO_47
+                                case 73: settings.fit_file_garmin_device_training_effect_device = 4314; break;  // EPIX_GEN2_PRO_51
+                                case 74: settings.fit_file_garmin_device_training_effect_device = 2332; break;  // EPIX_JAPAN
+                                case 75: settings.fit_file_garmin_device_training_effect_device = 2457; break;  // EPIX_KOREA
+                                case 76: settings.fit_file_garmin_device_training_effect_device = 1551; break;  // FENIX
+                                case 77: settings.fit_file_garmin_device_training_effect_device = 4666; break;  // FENIX_E
+                                case 78: settings.fit_file_garmin_device_training_effect_device = 1967; break;  // FENIX2
+                                case 79: settings.fit_file_garmin_device_training_effect_device = 2050; break;  // FENIX3
+                                case 80: settings.fit_file_garmin_device_training_effect_device = 2432; break;  // FENIX3_CHRONOS
+                                case 81: settings.fit_file_garmin_device_training_effect_device = 2413; break;  // FENIX3_HR
+                                case 82: settings.fit_file_garmin_device_training_effect_device = 2697; break;  // FENIX5
+                                case 83: settings.fit_file_garmin_device_training_effect_device = 3110; break;  // FENIX5_PLUS
+                                case 84: settings.fit_file_garmin_device_training_effect_device = 2544; break;  // FENIX5S
+                                case 85: settings.fit_file_garmin_device_training_effect_device = 2900; break;  // FENIX5S_PLUS
+                                case 86: settings.fit_file_garmin_device_training_effect_device = 2604; break;  // FENIX5X
+                                case 87: settings.fit_file_garmin_device_training_effect_device = 3111; break;  // FENIX5X_PLUS
+                                case 88: settings.fit_file_garmin_device_training_effect_device = 3290; break;  // FENIX6
+                                case 89: settings.fit_file_garmin_device_training_effect_device = 3289; break;  // FENIX6_SPORT
+                                case 90: settings.fit_file_garmin_device_training_effect_device = 3288; break;  // FENIX6S
+                                case 91: settings.fit_file_garmin_device_training_effect_device = 3287; break;  // FENIX6S_SPORT
+                                case 92: settings.fit_file_garmin_device_training_effect_device = 3291; break;  // FENIX6X
+                                case 93: settings.fit_file_garmin_device_training_effect_device = 3906; break;  // FENIX7
+                                case 94: settings.fit_file_garmin_device_training_effect_device = 4375; break;  // FENIX7_PRO_SOLAR
+                                case 95: settings.fit_file_garmin_device_training_effect_device = 4595; break;  // FENIX7_PRO_SOLAR_NO_WIFI
+                                case 96: settings.fit_file_garmin_device_training_effect_device = 3905; break;  // FENIX7S
+                                case 97: settings.fit_file_garmin_device_training_effect_device = 4374; break;  // FENIX7S_PRO_SOLAR
+                                case 98: settings.fit_file_garmin_device_training_effect_device = 3907; break;  // FENIX7X
+                                case 99: settings.fit_file_garmin_device_training_effect_device = 4376; break;  // FENIX7X_PRO_SOLAR
+                                case 100: settings.fit_file_garmin_device_training_effect_device = 4536; break;  // FENIX8
+                                case 101: settings.fit_file_garmin_device_training_effect_device = 4631; break;  // FENIX8_PRO
+                                case 102: settings.fit_file_garmin_device_training_effect_device = 4534; break;  // FENIX8_SMALL
+                                case 103: settings.fit_file_garmin_device_training_effect_device = 4532; break;  // FENIX8_SOLAR
+                                case 104: settings.fit_file_garmin_device_training_effect_device = 4533; break;  // FENIX8_SOLAR_LARGE
+                                case 105: settings.fit_file_garmin_device_training_effect_device = 5134; break;  // FENIX9
+                                case 106: settings.fit_file_garmin_device_training_effect_device = 5133; break;  // FENIX9_43MM
+                                case 107: settings.fit_file_garmin_device_training_effect_device = 4952; break;  // FENIX9_PRO_43MM
+                                case 108: settings.fit_file_garmin_device_training_effect_device = 4953; break;  // FENIX9_PRO_47MM
+                                case 109: settings.fit_file_garmin_device_training_effect_device = 4954; break;  // FENIX9_PRO_51MM
+                                case 110: settings.fit_file_garmin_device_training_effect_device = 4955; break;  // FENIX9_PRO_SOLAR_47MM
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 4956; break;  // FENIX9_PRO_SOLAR_51MM
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 1482; break;  // FR10
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 1124; break;  // FR110
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 1903; break;  // FR15
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 4432; break;  // FR165
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 4433; break;  // FR165_MUSIC
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 4815; break;  // FR170
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 4814; break;  // FR170_MUSIC
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 1632; break;  // FR220
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 2153; break;  // FR225
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 2157; break;  // FR230
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 2431; break;  // FR235
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 3076; break;  // FR245
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 3077; break;  // FR245_MUSIC
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 2148; break;  // FR25
+                                case 126: settings.fit_file_garmin_device_training_effect_device = 3992; break;  // FR255
+                                case 127: settings.fit_file_garmin_device_training_effect_device = 3990; break;  // FR255_MUSIC
+                                case 128: settings.fit_file_garmin_device_training_effect_device = 3993; break;  // FR255_SMALL
+                                case 129: settings.fit_file_garmin_device_training_effect_device = 3991; break;  // FR255_SMALL_MUSIC
+                                case 130: settings.fit_file_garmin_device_training_effect_device = 4257; break;  // FR265_LARGE
+                                case 131: settings.fit_file_garmin_device_training_effect_device = 4258; break;  // FR265_SMALL
+                                case 132: settings.fit_file_garmin_device_training_effect_device = 2891; break;  // FR30
+                                case 133: settings.fit_file_garmin_device_training_effect_device = 1018; break;  // FR310XT
+                                case 134: settings.fit_file_garmin_device_training_effect_device = 1446; break;  // FR310XT_4T
+                                case 135: settings.fit_file_garmin_device_training_effect_device = 2503; break;  // FR35
+                                case 136: settings.fit_file_garmin_device_training_effect_device = 717; break;  // FR405
+                                case 137: settings.fit_file_garmin_device_training_effect_device = 3282; break;  // FR45
+                                case 138: settings.fit_file_garmin_device_training_effect_device = 782; break;  // FR50
+                                case 139: settings.fit_file_garmin_device_training_effect_device = 3869; break;  // FR55
+                                case 140: settings.fit_file_garmin_device_training_effect_device = 4570; break;  // FR570_LARGE
+                                case 141: settings.fit_file_garmin_device_training_effect_device = 4574; break;  // FR570_SMALL
+                                case 142: settings.fit_file_garmin_device_training_effect_device = 988; break;  // FR60
+                                case 143: settings.fit_file_garmin_device_training_effect_device = 1345; break;  // FR610
+                                case 144: settings.fit_file_garmin_device_training_effect_device = 1623; break;  // FR620
+                                case 145: settings.fit_file_garmin_device_training_effect_device = 2156; break;  // FR630
+                                case 146: settings.fit_file_garmin_device_training_effect_device = 2886; break;  // FR645
+                                case 147: settings.fit_file_garmin_device_training_effect_device = 2888; break;  // FR645M
+                                case 148: settings.fit_file_garmin_device_training_effect_device = 1436; break;  // FR70
+                                case 149: settings.fit_file_garmin_device_training_effect_device = 4916; break;  // FR70_2026
+                                case 150: settings.fit_file_garmin_device_training_effect_device = 2158; break;  // FR735XT
+                                case 151: settings.fit_file_garmin_device_training_effect_device = 3589; break;  // FR745
+                                case 152: settings.fit_file_garmin_device_training_effect_device = 1328; break;  // FR910XT
+                                case 153: settings.fit_file_garmin_device_training_effect_device = 1765; break;  // FR920XT
+                                case 154: settings.fit_file_garmin_device_training_effect_device = 2691; break;  // FR935
+                                case 155: settings.fit_file_garmin_device_training_effect_device = 3113; break;  // FR945
+                                case 156: settings.fit_file_garmin_device_training_effect_device = 3652; break;  // FR945_LTE
+                                case 157: settings.fit_file_garmin_device_training_effect_device = 4024; break;  // FR955
+                                case 158: settings.fit_file_garmin_device_training_effect_device = 4315; break;  // FR965
+                                case 159: settings.fit_file_garmin_device_training_effect_device = 4565; break;  // FR970
+                                case 160: settings.fit_file_garmin_device_training_effect_device = 3888; break;  // INSTINCT_2
+                                case 161: settings.fit_file_garmin_device_training_effect_device = 3889; break;  // INSTINCT_2S
+                                case 162: settings.fit_file_garmin_device_training_effect_device = 4394; break;  // INSTINCT_2X
+                                case 163: settings.fit_file_garmin_device_training_effect_device = 4155; break;  // INSTINCT_CROSSOVER
+                                case 164: settings.fit_file_garmin_device_training_effect_device = 4678; break;  // INSTINCT_CROSSOVER_AMOLED
+                                case 165: settings.fit_file_garmin_device_training_effect_device = 3126; break;  // INSTINCT_ESPORTS
+                                case 166: settings.fit_file_garmin_device_training_effect_device = 3466; break;  // INSTINCT_SOLAR
+                                case 167: settings.fit_file_garmin_device_training_effect_device = 4586; break;  // INSTINCT3_AMOLED_45MM
+                                case 168: settings.fit_file_garmin_device_training_effect_device = 4587; break;  // INSTINCT3_AMOLED_50MM
+                                case 169: settings.fit_file_garmin_device_training_effect_device = 4585; break;  // INSTINCT3_SOLAR_45MM
+                                case 170: settings.fit_file_garmin_device_training_effect_device = 4759; break;  // INSTINCT3_SOLAR_50MM
+                                case 171: settings.fit_file_garmin_device_training_effect_device = 4583; break;  // INSTINCTE_40MM
+                                case 172: settings.fit_file_garmin_device_training_effect_device = 4584; break;  // INSTINCTE_45MM
+                                case 173: settings.fit_file_garmin_device_training_effect_device = 3500; break;  // LEGACY_CAPTAIN_MARVEL
+                                case 174: settings.fit_file_garmin_device_training_effect_device = 3499; break;  // LEGACY_DARTH_VADER
+                                case 175: settings.fit_file_garmin_device_training_effect_device = 3501; break;  // LEGACY_FIRST_AVENGER
+                                case 176: settings.fit_file_garmin_device_training_effect_device = 3498; break;  // LEGACY_REY
+                                case 177: settings.fit_file_garmin_device_training_effect_device = 3615; break;  // LILY
+                                case 178: settings.fit_file_garmin_device_training_effect_device = 4477; break;  // LILY_ATHLETE
+                                case 179: settings.fit_file_garmin_device_training_effect_device = 4380; break;  // LILY2
+                                case 180: settings.fit_file_garmin_device_training_effect_device = 3624; break;  // MARQ_ADVENTURER
+                                case 181: settings.fit_file_garmin_device_training_effect_device = 3251; break;  // MARQ_ATHLETE
+                                case 182: settings.fit_file_garmin_device_training_effect_device = 3247; break;  // MARQ_AVIATOR
+                                case 183: settings.fit_file_garmin_device_training_effect_device = 3248; break;  // MARQ_CAPTAIN
+                                case 184: settings.fit_file_garmin_device_training_effect_device = 3249; break;  // MARQ_COMMANDER
+                                case 185: settings.fit_file_garmin_device_training_effect_device = 3246; break;  // MARQ_DRIVER
+                                case 186: settings.fit_file_garmin_device_training_effect_device = 3250; break;  // MARQ_EXPEDITION
+                                case 187: settings.fit_file_garmin_device_training_effect_device = 4105; break;  // MARQ_GEN2
+                                case 188: settings.fit_file_garmin_device_training_effect_device = 4124; break;  // MARQ_GEN2_AVIATOR
+                                case 189: settings.fit_file_garmin_device_training_effect_device = 4472; break;  // MARQ_GEN2_COMMANDER
+                                case 190: settings.fit_file_garmin_device_training_effect_device = 3739; break;  // MARQ_GOLFER
+                                case 191: settings.fit_file_garmin_device_training_effect_device = 1499; break;  // SWIM
+                                case 192: settings.fit_file_garmin_device_training_effect_device = 3405; break;  // SWIM2
+                                case 193: settings.fit_file_garmin_device_training_effect_device = 4135; break;  // TACTIX7
+                                case 194: settings.fit_file_garmin_device_training_effect_device = 4775; break;  // TACTIX8_AMOLED
+                                case 195: settings.fit_file_garmin_device_training_effect_device = 4776; break;  // TACTIX8_SOLAR
+                                case 196: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 197: settings.fit_file_garmin_device_training_effect_device = 3226; break;  // VENU
+                                case 198: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 199: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 200: settings.fit_file_garmin_device_training_effect_device = 3599; break;  // VENUSQ_MUSIC_V2
+                                case 201: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 202: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 203: settings.fit_file_garmin_device_training_effect_device = 4603; break;  // VENU_X1
+                                case 204: settings.fit_file_garmin_device_training_effect_device = 3703; break;  // VENU2
+                                case 205: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
+                                case 206: settings.fit_file_garmin_device_training_effect_device = 3704; break;  // VENU2S
+                                case 207: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
+                                case 208: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
+                                case 209: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
+                                case 210: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
+                                case 211: settings.fit_file_garmin_device_training_effect_device = 1907; break;  // VIVO_ACTIVE
+                                case 212: settings.fit_file_garmin_device_training_effect_device = 2337; break;  // VIVO_ACTIVE_HR
+                                case 213: settings.fit_file_garmin_device_training_effect_device = 2368; break;  // VIVO_MOVE
+                                case 214: settings.fit_file_garmin_device_training_effect_device = 2772; break;  // VIVO_MOVE_HR
+                                case 215: settings.fit_file_garmin_device_training_effect_device = 3982; break;  // VIVO_MOVE_SPORT
+                                case 216: settings.fit_file_garmin_device_training_effect_device = 3378; break;  // VIVO_MOVE3
+                                case 217: settings.fit_file_garmin_device_training_effect_device = 3308; break;  // VIVO_MOVE3_PREMIUM
+                                case 218: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 219: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 220: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 221: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 222: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 223: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 224: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 225: settings.fit_file_garmin_device_training_effect_device = 3983; break;  // VIVOMOVE_TREND
+                                case 226: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -8501,15 +9895,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID on Heart Zone:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: treadmillPidHRTextField
                             model: [ "Disabled", "1", "2","3","4","5" ]
-                            displayText: settings.treadmill_pid_heart_zone
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.treadmill_pid_heart_zone
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + treadmillPidHRTextField.currentIndex)
-                                displayText = treadmillPidHRTextField.currentValue
                              }
 
                         }
@@ -8517,12 +9911,38 @@ import AndroidStatusBar 1.0
                             id: okTreadmillPidHR
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillPidHRControl
+                            text: qsTr("PID HR actuator:")
+                            Layout.fillWidth: true
+                        }
+                        ValueComboBox {
+                            id: treadmillPidHRControlTextField
+                            model: [ "Speed", "Inclination" ]
+                            labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
+                            value: settings.treadmill_pid_heart_control
+                            currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
+                                toast.show(qsTr("Setting saved!"));
+                            }
                         }
                     }
 
                     Label {
-                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8540,8 +9960,11 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID on HR min:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillPidHRminTextField
+                            minimum: 0
+                            maximum: 250
+                            decimals: 0
                             text: settings.treadmill_pid_heart_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8551,8 +9974,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillPidHRminTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text ; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.value ; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8562,8 +9986,11 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID on HR max:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillPidHRmaxTextField
+                            minimum: 0
+                            maximum: 250
+                            decimals: 0
                             text: settings.treadmill_pid_heart_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8573,8 +10000,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillPidHRmaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.value ; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8607,6 +10035,77 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: pidHrRecoveryZoneLimitTextField
+                            maximum: 100
+                            text: settings.trainprogram_pid_hr_recovery_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: pidHrRecoveryZoneLimitTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = pidHrRecoveryZoneLimitTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Pushy Zone Limit:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: pidHrPushyZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_pushy_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: pidHrPushyZoneLimitTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = pidHrPushyZoneLimitTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8652,8 +10151,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("1 mile pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace1mileTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_1mile * 1.60934) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_1mile * 1.60934) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals((((settings.pacef_1mile * 1.60934) % 60)),0).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8664,6 +10164,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace1Mile
                             text: qsTr("OK")
+                            enabled: trainProgramPace1mileTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8689,8 +10190,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("5 km pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace5kmTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_5km * 5) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_5km * 5) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_5km * 5) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8701,6 +10203,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace5km
                             text: qsTr("OK")
+                            enabled: trainProgramPace5kmTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8726,8 +10229,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("10 km pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace10kmTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_10km * 10) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_10km * 10) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_10km * 10) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8738,6 +10242,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace10KM
                             text: qsTr("OK")
+                            enabled: trainProgramPace10kmTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8763,8 +10268,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Half Marathon pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPaceHalfMarathonTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_halfmarathon * 21) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_halfmarathon * 21) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_halfmarathon * 21) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8775,6 +10281,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPaceHalfMarathon
                             text: qsTr("OK")
+                            enabled: trainProgramPaceHalfMarathonTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8800,8 +10307,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Marathon pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPaceMarathonTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_marathon * 42) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_marathon * 42) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_marathon * 42) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8812,6 +10320,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPaceMarathon
                             text: qsTr("OK")
+                            enabled: trainProgramPaceMarathonTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8837,8 +10346,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Warmup Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8847,9 +10357,10 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramWarmupSpeed
-                            text: "OK"
+                            text: qsTr("OK")
+                            enabled: trainProgramWarmupSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8860,8 +10371,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Cooldown Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8870,9 +10382,10 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramCooldownSpeed
-                            text: "OK"
+                            text: qsTr("OK")
+                            enabled: trainProgramCooldownSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8883,8 +10396,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rest Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramRestSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8893,9 +10407,10 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramRestSpeed
-                            text: "OK"
+                            text: qsTr("OK")
+                            enabled: trainProgramRestSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8906,15 +10421,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Default Pace:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: treadmillPaceDefaultTextField
                             model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
-                            displayText: settings.pace_default
+                            labels: ({ "1 mile": qsTr("1 mile"), "5 km": qsTr("5 km"), "10 km": qsTr("10 km"), "Half Marathon": qsTr("Half Marathon"), "Marathon": qsTr("Marathon") })
+                            value: settings.pace_default
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + treadmillPaceDefaultTextField.currentIndex)
-                                displayText = treadmillPaceDefaultTextField.currentValue
                              }
 
                         }
@@ -8922,7 +10437,7 @@ import AndroidStatusBar 1.0
                             id: okTreadmillPaceDefault
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8946,8 +10461,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("ERG Mode Watt Step:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pidHeartZoneErgModeWattStepTextField
+                            decimals: 0
                             text: settings.pid_heart_zone_erg_mode_watt_step.toString()
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8958,8 +10474,9 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPidHeartZoneErgModeWattStep
                             text: qsTr("OK")
+                            enabled: pidHeartZoneErgModeWattStepTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8994,21 +10511,24 @@ import AndroidStatusBar 1.0
                             text: qsTr("Duration (minutes):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomDurationTextField
+                            minimum: 1
+                            decimals: 0
                             text: settings.trainprogram_total
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_total = text
+                            onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomDuration
                             text: qsTr("OK")
+                            enabled: trainProgramRandomDurationTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9019,21 +10539,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Period (seconds):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomPeriodTextField
+                            minimum: 1
                             text: settings.trainprogram_period_seconds
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_period_seconds = text
+                            onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
                             text: qsTr("OK")
+                            enabled: trainProgramRandomPeriodTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9044,21 +10566,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Speed min.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomSpeedMinTextField
                             text: settings.trainprogram_speed_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.trainprogram_speed_min = text
+                            onAccepted: settings.trainprogram_speed_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
                             text: qsTr("OK")
+                            enabled: trainProgramRandomSpeedMinTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9069,21 +10592,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Speed max.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomSpeedMaxTextField
                             text: settings.trainprogram_speed_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.trainprogram_speed_max = text
+                            onAccepted: settings.trainprogram_speed_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
                             text: qsTr("OK")
+                            enabled: trainProgramRandomSpeedMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9094,21 +10618,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Incline min.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomInclineMinTextField
+                            signed: true
                             text: settings.trainprogram_incline_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.trainprogram_incline_min = text
+                            onAccepted: settings.trainprogram_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
                             text: qsTr("OK")
+                            enabled: trainProgramRandomInclineMinTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9119,21 +10645,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Incline max.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomInclineMaxTextField
                             text: settings.trainprogram_incline_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.trainprogram_incline_max = text
+                            onAccepted: settings.trainprogram_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
                             text: qsTr("OK")
+                            enabled: trainProgramRandomInclineMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9144,21 +10671,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Resistance min.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomResistanceMinTextField
                             text: settings.trainprogram_resistance_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_resistance_min = text
+                            onAccepted: settings.trainprogram_resistance_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
                             text: qsTr("OK")
+                            enabled: trainProgramRandomResistanceMinTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9169,21 +10697,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Resistance max.:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramRandomResistanceMaxTextField
                             text: settings.trainprogram_resistance_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_resistance_max = text
+                            onAccepted: settings.trainprogram_resistance_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
                             text: qsTr("OK")
+                            enabled: trainProgramRandomResistanceMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9384,21 +10913,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Speed Step:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillSpeedStepTextField
                             text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_step_speed = text
+                            onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
                             text: qsTr("OK")
+                            enabled: treadmillSpeedStepTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.value * 1.60934:treadmillSpeedStepTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9422,20 +10952,24 @@ import AndroidStatusBar 1.0
                             text: qsTr("Min. Inclination:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillInclinationMinTextField
+                            minimum: -100
+                            maximum: 100
+                            signed: true
                             text: settings.treadmill_incline_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_incline_min = text
+                            onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillInclinationMinTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9458,20 +10992,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Max. Inclination:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillInclinationMaxTextField
+                            minimum: -100
+                            maximum: 100
                             text: settings.treadmill_incline_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_incline_max = text
+                            onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillInclinationMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9491,23 +11028,24 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            text: qsTr("Max. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillSpeedMaxTextField
                             text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillSpeedMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.value * 1.60934:treadmillSpeedMaxTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9527,23 +11065,24 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Min. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            text: qsTr("Min. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillSpeedMinTextField
                             text: (settings.miles_unit?settings.treadmill_speed_min * 0.621371:settings.treadmill_speed_min).toFixed(1)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?text * 1.60934:text)
+                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillSpeedMinTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.value * 1.60934:treadmillSpeedMinTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9567,21 +11106,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Step Count Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: stepGainTextField
                             text: settings.step_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.step_gain = text
+                            onAccepted: settings.step_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okStepGainButton
                             text: qsTr("OK")
+                            enabled: stepGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.step_gain = stepGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.step_gain = stepGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9599,6 +11139,7 @@ import AndroidStatusBar 1.0
                     }
 
                     NewPageElement {
+                        //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
                         title: qsTr("Inclination Overrides")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)
@@ -9652,23 +11193,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsTreadmillTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_treadmill
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_treadmill
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
-                                displayText = ftmsTreadmillTextField.currentValue
                             }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9711,7 +11252,7 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -9780,6 +11321,11 @@ import AndroidStatusBar 1.0
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
                                     "ProForm 105 CST",
+                                    "Nordictrack Incline Trainer X7i NTL15010.0",
+                                    "Nordictrack Incline Trainer X7i NETL18716.0",
+                                    "ProForm Trainer 8.0 PFTL59721.0",
+                                    "ProForm 305 CST PETL59817.0",
+                                    "Freemotion T10.9B (HCI snoop)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -9858,7 +11404,12 @@ import AndroidStatusBar 1.0
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
                                                     settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
-                                                    settings.proform_treadmill_105_cst ? 62 : 0;
+                                                    settings.proform_treadmill_105_cst ? 62 :
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
+                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 :
+                                                    settings.proform_trainer_8_0_pftl59721_0 ? 65 :
+                                                    settings.proform_treadmill_305_cst ? 66 :
+                                                    settings.freemotion_t10_9b_hci ? 67 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9935,6 +11486,11 @@ import AndroidStatusBar 1.0
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
                                     settings.proform_treadmill_105_cst = false;
+                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 = false;
+                                    settings.proform_trainer_8_0_pftl59721_0 = false;
+                                    settings.proform_treadmill_305_cst = false;
+                                    settings.freemotion_t10_9b_hci = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -10000,6 +11556,11 @@ import AndroidStatusBar 1.0
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                         case 62: settings.proform_treadmill_105_cst = true; break;
+                                        case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
+                                        case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
+                                        case 65: settings.proform_trainer_8_0_pftl59721_0 = true; break;
+                                        case 66: settings.proform_treadmill_305_cst = true; break;
+                                        case 67: settings.freemotion_t10_9b_hci = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10009,22 +11570,24 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: "Proform IP:"
+                                    text: qsTr("Proform IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformtreadmillIPTextField
+                                    format: "host"
                                     text: settings.proformtreadmillip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.proformtreadmillip = text
+                                    onAccepted: { settings.proformtreadmillip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
                                     text: qsTr("OK")
+                                    enabled: proformtreadmillIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -10033,22 +11596,24 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: "Nordictrack 2950 IP:"
+                                    text: qsTr("Nordictrack 2950 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: nordictrack2950IPTextField
+                                    format: "host"
                                     text: settings.nordictrack_2950_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.nordictrack_2950_ip = text
+                                    onAccepted: { settings.nordictrack_2950_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
                                     text: qsTr("OK")
+                                    enabled: nordictrack2950IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -10090,7 +11655,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.pafers_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.pafers_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.pafers_treadmill = checked; if (checked) settings.pafers_rower = false; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
                                 id: bhIboxsterPlusDelegate
@@ -10104,7 +11669,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.pafers_treadmill_bh_iboxster_plus
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.pafers_treadmill_bh_iboxster_plus = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.pafers_treadmill_bh_iboxster_plus = checked; if (checked) settings.pafers_rower = false; window.settings_restart_to_apply = true; }
                             }
                         }
                     }
@@ -10431,20 +11996,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Remap 5 km/h button:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: domyosTreadmillButton5KmhTimeTextField
                                     text: settings.domyos_treadmill_button_5kmh
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.domyos_treadmill_button_5kmh = text
+                                    onAccepted: { settings.domyos_treadmill_button_5kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: domyosTreadmillButton5KmhTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10454,20 +12020,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Remap 10 km/h button:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: domyosTreadmillButton10KmhTimeTextField
                                     text: settings.domyos_treadmill_button_10kmh
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.domyos_treadmill_button_10kmh = text
+                                    onAccepted: { settings.domyos_treadmill_button_10kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: domyosTreadmillButton10KmhTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10477,20 +12044,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Remap 16 km/h button:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: domyosTreadmillButton16KmhTimeTextField
                                     text: settings.domyos_treadmill_button_16kmh
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.domyos_treadmill_button_16kmh = text
+                                    onAccepted: { settings.domyos_treadmill_button_16kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: domyosTreadmillButton16KmhTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10500,20 +12068,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Remap 22 km/h button:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: domyosTreadmillButton22KmhTimeTextField
                                     text: settings.domyos_treadmill_button_22kmh
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.domyos_treadmill_button_22kmh = text
+                                    onAccepted: { settings.domyos_treadmill_button_22kmh = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: domyosTreadmillButton22KmhTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10523,20 +12092,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Pool time (ms):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: pollDeviceTimeTextField
+                                    minimum: 1
+                                    decimals: 0
                                     text: settings.poll_device_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.poll_device_time = text
+                                    onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: pollDeviceTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.poll_device_time = pollDeviceTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
                             Label {
@@ -10742,21 +12314,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User ID:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: fitshowTreadmillUserIdTextField
+                                    decimals: 0
                                     text: settings.fitshow_user_id
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitshow_user_id = text
+                                    onAccepted: settings.fitshow_user_id = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
                                     text: qsTr("OK")
+                                    enabled: fitshowTreadmillUserIdTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -10921,7 +12495,7 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.horizon_treadmill_profile_user1 = text
+                                    onAccepted: { settings.horizon_treadmill_profile_user1 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -10944,7 +12518,7 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.horizon_treadmill_profile_user2 = text
+                                    onAccepted: { settings.horizon_treadmill_profile_user2 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -10967,7 +12541,7 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.horizon_treadmill_profile_user3 = text
+                                    onAccepted: { settings.horizon_treadmill_profile_user3 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -10990,7 +12564,7 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.horizon_treadmill_profile_user4 = text
+                                    onAccepted: { settings.horizon_treadmill_profile_user4 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -11013,7 +12587,7 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.horizon_treadmill_profile_user5 = text
+                                    onAccepted: { settings.horizon_treadmill_profile_user5 = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -11226,6 +12800,21 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.jtx_fitness_sprint_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: flowFitnessRunnerDtm2000iDelegate
+                        text: qsTr("Flow Fitness Runner DTM2000i")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.flow_fitness_runner_dtm2000i
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.flow_fitness_runner_dtm2000i = checked; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -11457,7 +13046,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.csafe_rower = text
+                                    onAccepted: { settings.csafe_rower = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -11475,25 +13064,25 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsRowerTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_rower
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_rower
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsRowerTextField.currentIndex)
-                                displayText = ftmsRowerTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
-                    }
+                    }                   
 
                     Button {
                         text: qsTr("Refresh Devices List")
@@ -11512,6 +13101,36 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    CheckBox {
+                        id: waterrowerUSBCheckBox
+                        text: qsTr("WaterRower USB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.waterrower_usb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: pafersRowerDelegate
+                        text: qsTr("Pafers Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.pafers_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.pafers_rower = checked; if (checked) { settings.pafers_treadmill = false; settings.pafers_treadmill_bh_iboxster_plus = false; } window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {
@@ -11555,20 +13174,22 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "ProForm Rower IP:"
+                                    text: qsTr("ProForm Rower IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformRowerIPTextField
+                                    format: "host"
                                     text: settings.proform_rower_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.proform_rower_ip = text
+                                    onAccepted: { settings.proform_rower_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformRowerIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -11600,21 +13221,22 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Speed Ratio:")
                                 Layout.fillWidth: true
                             }
-                            TextField {
+                            SettingsNumberField {
                                 id: domyosEllipticalSpeedRatioTextField
                                 text: settings.domyos_elliptical_speed_ratio
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_elliptical_speed_ratio = text
+                                onAccepted: settings.domyos_elliptical_speed_ratio = value
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okDomyosEllipticalRatioButton
                                 text: qsTr("OK")
+                                enabled: domyosEllipticalSpeedRatioTextField.valid
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show(qsTr("Setting saved!")); }
+                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                         IndicatorOnlySwitch {
@@ -11651,7 +13273,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.csafe_elliptical_port = text
+                                    onAccepted: { settings.csafe_elliptical_port = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -11669,23 +13291,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsEllipticalTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_elliptical
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_elliptical
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsEllipticalTextField.currentIndex)
-                                displayText = ftmsEllipticalTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11783,24 +13405,39 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
+                            IndicatorOnlySwitch {
+                                text: "NordicTrack Elliptical Spacesaver S700"
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_elliptical_s700
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_elliptical_s700 = checked; window.settings_restart_to_apply = true; }
+                            }
                             RowLayout {
                                 spacing: 10
                                 Label {
                                     text: qsTr("Companion IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformEllipticalCompanionIPTextField
+                                    format: "host"
                                     text: settings.proform_elliptical_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.proform_elliptical_ip = text
+                                    onAccepted: { settings.proform_elliptical_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformEllipticalCompanionIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -11901,16 +13538,16 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.filter_device
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.filter_device
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
-                                displayText = filterDeviceTextField.currentValue
                              }
 
                         }
@@ -11918,7 +13555,7 @@ import AndroidStatusBar 1.0
                             id: okFilterDeviceButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11976,21 +13613,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Watt Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: wattOffsetTextField
+                            signed: true
                             text: settings.watt_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.watt_offset = text
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: { settings.watt_offset = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okwattOffsetButton
                             text: qsTr("OK")
+                            enabled: wattOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12014,21 +13653,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Watt Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: wattGainTextField
                             text: settings.watt_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.watt_gain = text
+                            onAccepted: { settings.watt_gain = value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWattGainButton
                             text: qsTr("OK")
+                            enabled: wattGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.watt_gain = wattGainTextField.value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12048,25 +13688,65 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelwattMax
+                            text: qsTr("Max Watt:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: wattMaxTextField
+                            text: settings.watt_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.watt_max = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okWattMaxButton
+                            text: qsTr("OK")
+                            enabled: wattMaxTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.watt_max = wattMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelspeedOffset
                             text: qsTr("Speed Offset")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: speedOffsetTextField
+                            signed: true
                             text: settings.speed_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.speed_offset = text
+                            onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okspeedOffsetButton
                             text: qsTr("OK")
+                            enabled: speedOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.speed_offset = speedOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12091,21 +13771,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Speed Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: speedGainTextField
                             text: settings.speed_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.speed_gain = text
+                            onAccepted: settings.speed_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okSpeedGainButton
                             text: qsTr("OK")
+                            enabled: speedGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.speed_gain = speedGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.speed_gain = speedGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12129,21 +13810,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Cadence Offset")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: cadenceOffsetTextField
+                            signed: true
                             text: settings.cadence_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.cadence_offset = text
+                            onAccepted: settings.cadence_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okcadenceOffsetButton
                             text: qsTr("OK")
+                            enabled: cadenceOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_offset = cadenceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.cadence_offset = cadenceOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12167,21 +13850,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Cadence Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: cadenceGainTextField
                             text: settings.cadence_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.cadence_gain = text
+                            onAccepted: settings.cadence_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCadenceGainButton
                             text: qsTr("OK")
+                            enabled: cadenceGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.cadence_gain = cadenceGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12212,22 +13896,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Strava Upload:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: stravaUploadMode
                             model: [ "Always", "Request", "Disabled" ]
-                            displayText: settings.strava_upload_mode
+                            labels: ({ "Always": qsTr("Always"), "Request": qsTr("Request"), "Disabled": qsTr("Disabled") })
+                            value: settings.strava_upload_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + stravaUploadMode.currentIndex)
-                                displayText = stravaUploadMode.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.strava_upload_mode = stravaUploadMode.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12439,9 +14123,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Power Averaging Mode:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: powerAvgCombo
-                            model: ["Off", "3 seconds", "5 seconds"]
+                            model: [qsTr("Off"), qsTr("3 seconds"), qsTr("5 seconds")]
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             currentIndex: {
@@ -12540,21 +14224,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift Inclination Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillInclinationOffsetTextField
+                            signed: true
                             text: settings.zwift_inclination_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.zwift_inclination_offset = text
+                            onAccepted: settings.zwift_inclination_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
                             text: qsTr("OK")
+                            enabled: treadmillInclinationOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12578,21 +14264,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Zwift Inclination Gain:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillInclinationGainTextField
                             text: settings.zwift_inclination_gain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.zwift_inclination_gain = text
+                            onAccepted: settings.zwift_inclination_gain = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
                             text: qsTr("OK")
+                            enabled: treadmillInclinationGainTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12615,20 +14302,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Minimum Inclination:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: minInclinationTextField
+                            signed: true
                             text: settings.min_inclination
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.min_inclination = text
+                            onAccepted: settings.min_inclination = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: minInclinationTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.min_inclination = minInclinationTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12652,21 +14341,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Inclination Step:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: inclinationStepTextField
                             text: settings.treadmill_step_incline
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_step_incline = text
+                            onAccepted: settings.treadmill_step_incline = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okInclinationStepButton
                             text: qsTr("OK")
+                            enabled: inclinationStepTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_incline = inclinationStepTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_step_incline = inclinationStepTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12771,25 +14461,26 @@ import AndroidStatusBar 1.0
                             text: qsTr("AutoLap on Distance:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: autoLapOnDistanceTextField
                             text: (settings.miles_unit?settings.autolap_distance * 0.621371:settings.autolap_distance).toFixed(1)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.autolap_distance = text
+                            onAccepted: settings.autolap_distance = (settings.miles_unit?value * 1.60934:value)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: autoLapOnDistanceTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.text * 1.60934:autoLapOnDistanceTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.value * 1.60934:autoLapOnDistanceTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
                     Label {
-                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: "+ (settings.miles_unit?"Mi":"KM") +" Default: 0 (disabled).")
+                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? qsTr("Mi") : qsTr("KM"))
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12807,20 +14498,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Inclination Delay:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: treadmillInclinationDelayTextField
                             text: settings.inclination_delay_seconds
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.inclination_delay_seconds = text
+                            onAccepted: settings.inclination_delay_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillInclinationDelayTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12930,16 +14622,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.cadence_sensor_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.cadence_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
-                                        displayText = cadenceSensorNameTextField.currentValue
                                     }
 
                                 }
@@ -12947,7 +14639,7 @@ import AndroidStatusBar 1.0
                                     id: okCadenceSensorNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -12978,21 +14670,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Wheel Ratio:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: cadenceSpeedRatioTextField
                                     text: settings.cadence_sensor_speed_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.cadence_sensor_speed_ratio = text
+                                    onAccepted: settings.cadence_sensor_speed_ratio = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
                                     text: qsTr("OK")
+                                    enabled: cadenceSpeedRatioTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13069,20 +14762,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Resistance Level 1:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: cscBikeCustomResistanceLevel1TextField
                                     text: settings.cscbike_custom_resistance_level_1
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.cscbike_custom_resistance_level_1 = text
+                                    onAccepted: settings.cscbike_custom_resistance_level_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: cscBikeCustomResistanceLevel1TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13092,20 +14786,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Watt 1:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: cscBikeCustomWatt1TextField
                                     text: settings.cscbike_custom_watt_1
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.cscbike_custom_watt_1 = text
+                                    onAccepted: settings.cscbike_custom_watt_1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: cscBikeCustomWatt1TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13115,20 +14810,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Resistance Level 2:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: cscBikeCustomResistanceLevel2TextField
                                     text: settings.cscbike_custom_resistance_level_2
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.cscbike_custom_resistance_level_2 = text
+                                    onAccepted: settings.cscbike_custom_resistance_level_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: cscBikeCustomResistanceLevel2TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13138,20 +14834,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Watt 2:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: cscBikeCustomWatt2TextField
                                     text: settings.cscbike_custom_watt_2
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.cscbike_custom_watt_2 = text
+                                    onAccepted: settings.cscbike_custom_watt_2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: cscBikeCustomWatt2TextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13318,6 +15015,70 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
+                                text: qsTr("Runn/Stryd closed-loop treadmill speed correction")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.treadmill_runn_closed_loop
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.treadmill_runn_closed_loop = checked
+                            }
+
+                            Label {
+                                text: qsTr("Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires 'Use speed from the power sensor'. Disabled by default.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Power sensor speed correction threshold (%):")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                SettingsNumberField {
+                                    id: powerSensorSpeedCorrectionThresholdTextField
+                                    minimum: 0
+                                    maximum: 100
+                                    text: settings.power_sensor_speed_correction_threshold
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    enabled: powerSensorSpeedCorrectionThresholdTextField.valid
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.power_sensor_speed_correction_threshold = powerSensorSpeedCorrectionThresholdTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
                                 text: qsTr("Use inclination from the power sensor")
                                 spacing: 0
                                 bottomPadding: 0
@@ -13404,8 +15165,9 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                TextField {
+                                SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffATextField
+                                    signed: true
                                     text: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -13413,9 +15175,10 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: powerSensorSpeedInclinationCoeffATextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13425,8 +15188,9 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                TextField {
+                                SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffBTextField
+                                    signed: true
                                     text: settings.power_sensor_speed_inclination_coeff_b
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -13434,9 +15198,10 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
+                                    enabled: powerSensorSpeedInclinationCoeffBTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13460,16 +15225,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.power_sensor_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.power_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
-                                        displayText = powerSensorNameTextField.currentValue
                                     }
 
                                 }
@@ -13477,7 +15242,7 @@ import AndroidStatusBar 1.0
                                     id: okPowerSensorNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.displayText); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.value); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13526,16 +15291,16 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ComboBox {
+                                        ValueComboBox {
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
-                                            displayText: settings.elite_rizer_name
+                                            labels: ({ "Disabled": qsTr("Disabled") })
+                                            value: settings.elite_rizer_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
-                                                displayText = eliteRizerNameTextField.currentValue
                                             }
 
                                         }
@@ -13543,7 +15308,7 @@ import AndroidStatusBar 1.0
                                             id: okEliteRizerNameButton
                                             text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -13560,21 +15325,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Difficulty/Gain:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: eliteRizerGainTextField
                                             text: settings.elite_rizer_gain
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.elite_rizer_gain = text
+                                            onAccepted: settings.elite_rizer_gain = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
                                             text: qsTr("OK")
+                                            enabled: eliteRizerGainTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }                                    
                                 }                                
@@ -13594,16 +15360,16 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ComboBox {
+                                        ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
-                                            displayText: settings.elite_sterzo_smart_name
+                                            labels: ({ "Disabled": qsTr("Disabled") })
+                                            value: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteSterzoSmartNameTextField.currentIndex)
-                                                displayText = eliteSterzoSmartNameTextField.currentValue
                                             }
 
                                         }
@@ -13611,7 +15377,7 @@ import AndroidStatusBar 1.0
                                             id: okEliteSterzoSmartNameButton
                                             text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -13641,16 +15407,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.ftms_accessory_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.ftms_accessory_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)
-                                        displayText = ftmsAccessoryNameTextField.currentValue
                                     }
 
                                 }
@@ -13658,7 +15424,7 @@ import AndroidStatusBar 1.0
                                     id: okFTMSAccessoryNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13691,21 +15457,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Shift Step")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: ss2kShiftStepTextField
                                     text: settings.ss2k_shift_step
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.ss2k_shift_step = text
+                                    onAccepted: settings.ss2k_shift_step = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okSS2kShiftStep
                                     text: qsTr("OK")
+                                    enabled: ss2kShiftStepTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13715,21 +15482,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Max Resistance")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: ss2kMaxResistanceTextField
                                     text: settings.ss2k_max_resistance
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.ss2k_max_resistance = text
+                                    onAccepted: settings.ss2k_max_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
                                     text: qsTr("OK")
+                                    enabled: ss2kMaxResistanceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13739,21 +15507,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Min Resistance")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: ss2kMinResistanceTextField
                                     text: settings.ss2k_min_resistance
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.ss2k_min_resistance = text
+                                    onAccepted: settings.ss2k_min_resistance = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okSS2kMinResistance
                                     text: qsTr("OK")
+                                    enabled: ss2kMinResistanceTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13772,21 +15541,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resistance Sample 1")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kResistanceSample1TextField
                                             text: settings.ss2k_resistance_sample_1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.resistance_sample_1 = text
+                                            onAccepted: { settings.ss2k_resistance_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
                                             text: qsTr("OK")
+                                            enabled: ss2kResistanceSample1TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13795,21 +15565,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Shift Step Sample 1")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kShiftStepSample1TextField
                                             text: settings.ss2k_shift_step_sample_1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.ss2k_shift_step_sample_1 = text
+                                            onAccepted: { settings.ss2k_shift_step_sample_1 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
                                             text: qsTr("OK")
+                                            enabled: ss2kShiftStepSample1TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13819,21 +15590,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resistance Sample 2")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kResistanceSample2TextField
                                             text: settings.ss2k_resistance_sample_2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.resistance_sample_2 = text
+                                            onAccepted: { settings.ss2k_resistance_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
                                             text: qsTr("OK")
+                                            enabled: ss2kResistanceSample2TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13842,21 +15614,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Shift Step Sample 2")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kShiftStepSample2TextField
                                             text: settings.ss2k_shift_step_sample_2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.ss2k_shift_step_sample_2 = text
+                                            onAccepted: { settings.ss2k_shift_step_sample_2 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
                                             text: qsTr("OK")
+                                            enabled: ss2kShiftStepSample2TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13866,21 +15639,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resistance Sample 3")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kResistanceSample3TextField
                                             text: settings.ss2k_resistance_sample_3
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.resistance_sample_3 = text
+                                            onAccepted: { settings.ss2k_resistance_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
                                             text: qsTr("OK")
+                                            enabled: ss2kResistanceSample3TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13889,21 +15663,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Shift Step Sample 3")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kShiftStepSample3TextField
                                             text: settings.ss2k_shift_step_sample_3
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.ss2k_shift_step_sample_3 = text
+                                            onAccepted: { settings.ss2k_shift_step_sample_3 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
                                             text: qsTr("OK")
+                                            enabled: ss2kShiftStepSample3TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13913,21 +15688,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resistance Sample 4")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kResistanceSample4TextField
                                             text: settings.ss2k_resistance_sample_4
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.resistance_sample_4 = text
+                                            onAccepted: { settings.ss2k_resistance_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
                                             text: qsTr("OK")
+                                            enabled: ss2kResistanceSample4TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13936,21 +15712,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Shift Step Sample 4")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: ss2kShiftStepSample4TextField
                                             text: settings.ss2k_shift_step_sample_4
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.ss2k_shift_step_sample_4 = text
+                                            onAccepted: { settings.ss2k_shift_step_sample_4 = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
                                             text: qsTr("OK")
+                                            enabled: ss2kShiftStepSample4TextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -13989,15 +15766,15 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: fitmetriaFanFitModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + fitmetriaFanFitModeTextField.currentIndex)
-                                        displayText = fitmetriaFanFitModeTextField.currentValue
                                     }
 
                                 }
@@ -14005,7 +15782,7 @@ import AndroidStatusBar 1.0
                                     id: okFitmetriaFanFitModeTextField
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14015,21 +15792,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Min. value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: fitmetriaFanFitMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
                                     text: qsTr("OK")
+                                    enabled: fitmetriaFanFitMinTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14039,21 +15819,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Max value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: fitmetriaFanFitMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
                                     text: qsTr("OK")
+                                    enabled: fitmetriaFanFitMaxTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -14087,22 +15870,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: headWindModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + headWindModeTextField.currentIndex)
-                                        displayText = headWindModeTextField.currentValue
                                     }
 
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14111,20 +15894,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Min. value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: headWindMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: headWindMinTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14133,20 +15919,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Max value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: headWindMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: headWindMaxTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -14180,22 +15969,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: eliteAriaModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + eliteAriaModeTextField.currentIndex)
-                                        displayText = eliteAriaModeTextField.currentValue
                                     }
 
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14204,20 +15993,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Min. value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: eliteAriaMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: eliteAriaMinTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14226,20 +16018,23 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Max value (0-100):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: eliteAriaMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = text
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: eliteAriaMaxTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -14527,26 +16322,146 @@ import AndroidStatusBar 1.0
                                 color: Material.color(Material.Lime)
                             }
 
+                            Label {
+                                text: qsTr("Gear Controls")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            Label {
+                                text: qsTr("Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Up (LS1):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_ls1
+                                    onActivated: settings.zwiftplay_gear_ls1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Down (LS2):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_ls2
+                                    onActivated: settings.zwiftplay_gear_ls2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Up (RS1):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_rs1
+                                    onActivated: settings.zwiftplay_gear_rs1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Down (RS2):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_rs2
+                                    onActivated: settings.zwiftplay_gear_rs2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Paddle (ZL):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_paddle_left
+                                    onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Paddle (ZR):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_paddle_right
+                                    onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Power Up (LB):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_lb
+                                    onActivated: settings.zwiftplay_gear_lb = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Ride On (RB):")
+                                    Layout.fillWidth: true
+                                }
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
+                                    currentIndex: settings.zwiftplay_gear_rb
+                                    onActivated: settings.zwiftplay_gear_rb = currentIndex
+                                }
+                            }
+
                             RowLayout {
                                 spacing: 10
                                 Label {
                                     text: qsTr("Pool time (ms):")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
 																		id: zwiftDevPollTimeTextField
+																		minimum: 1
+																		decimals: 0
                                     text: settings.poll_device_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.poll_device_time = text
+                                    onAccepted: if (valid) { settings.poll_device_time = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: zwiftDevPollTimeTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
                             Label {
@@ -14593,7 +16508,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Maps Type:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: mapsTypeTextField
                             model: [ "2D", "3D" ]
                             displayText: settings.maps_type
@@ -14648,21 +16563,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Window Time (sec.):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: videoWindowTextField
+                            decimals: 0
                             text: settings.video_playback_window_s
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.video_playback_window_s = text
+                            onAccepted: settings.video_playback_window_s = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okVideoWindow
                             text: qsTr("OK")
+                            enabled: videoWindowTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.video_playback_window_s = videoWindowTextField.text
+                            onClicked: settings.video_playback_window_s = videoWindowTextField.value
                         }
                     }
                 }
@@ -15034,7 +16951,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Label {
-                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.")
+                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -15066,6 +16983,33 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    SwitchDelegate {
+                                        text: qsTr("Virtual Tacx")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_tacx
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_tacx = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual bluetooth bridge to the Tacx App.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 9
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -15117,20 +17061,22 @@ import AndroidStatusBar 1.0
                                             text: qsTr("ID:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: dirconIdTextField
+                                            decimals: 0
                                             text: settings.dircon_id
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.dircon_id = text
+                                            onAccepted: { settings.dircon_id = value; window.settings_restart_to_apply = true; }
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             text: qsTr("OK")
+                                            enabled: dirconIdTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true; }
+                                            onClicked: { settings.dircon_id = dirconIdTextField.value; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true; }
                                         }
                                     }
 
@@ -15154,20 +17100,24 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Server Port:")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: dirconServerPortTextField
+                                            minimum: 1
+                                            maximum: 65535
+                                            decimals: 0
                                             text: settings.dircon_server_base_port
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.dircon_server_base_port = text
+                                            onAccepted: if (valid) settings.dircon_server_base_port = value
                                         }
                                         Button {
                                             id: okDirconServerPort
                                             text: qsTr("OK")
+                                            enabled: dirconServerPortTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -15183,7 +17133,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -15225,20 +17175,24 @@ import AndroidStatusBar 1.0
                                     text: qsTr("MQTT Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: mqttPortTextField
+                                    minimum: 1
+                                    maximum: 65535
+                                    decimals: 0
                                     text: settings.mqtt_port
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.mqtt_port = text
+                                    onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: mqttPortTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.mqtt_port = mqttPortTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -15381,18 +17335,20 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OSC IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: oscIPTextField
+                                    format: "ip"
                                     text: settings.osc_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.osc_ip = text
+                                    onAccepted: { settings.osc_ip = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: oscIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -15404,21 +17360,25 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OSC Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: oscPortTextField
+                                    minimum: 1
+                                    maximum: 65535
+                                    decimals: 0
                                     text: settings.osc_port
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.osc_port = text
+                                    onAccepted: if (valid) { settings.osc_port = value; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: oscPortTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.osc_port = oscPortTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -15783,10 +17743,11 @@ import AndroidStatusBar 1.0
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.android_notification
+                        checked: settings.android_notification_v2
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.android_notification = checked; window.settings_restart_to_apply = true; }
+                        // applied at once (the service starts or stops), no restart needed
+                        onClicked: { settings.android_notification_v2 = checked; rootItem.android_notification_apply(checked); }
                     }
 
                     Label {
@@ -15857,21 +17818,27 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    GridLayout {
+                        id: logsButtonsLayout
                         Layout.fillWidth: true
-                        
+                        Layout.minimumWidth: 0
+                        columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1
+
                         Button {
                             id: clearLogs
                             text: qsTr("Clear History")
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             onClicked: rootItem.clearFiles();
                         }
-                        
+
                         Button {
+                            id: showLogs
                             text: qsTr("Show Logs Folder")
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             onClicked: {
-                                toast.show(rootItem.getProfileDir())
+                                toast.show(rootItem.getWritableAppDir())
                             }
                         }
                     }

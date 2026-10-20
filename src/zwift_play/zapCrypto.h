@@ -7,6 +7,7 @@
 #include <openssl/hmac.h>
 #include <openssl/err.h>
 #include <QByteArray>
+#include <QtEndian>
 #include <cassert>
 #include "localKeyProvider.h"
 
@@ -36,8 +37,11 @@ public:
     QByteArray decrypt(const QByteArray &counterArray, const QByteArray &payload) {
         assert(!encryptionKeyBytes.isEmpty() && !ivBytes.isEmpty());
 
+        if (counterArray.size() != static_cast<int>(sizeof(qint32)) || payload.size() <= EncryptionUtils::MAC_LENGTH) {
+            return QByteArray();
+        }
+
         QByteArray nonceBytes = ivBytes + counterArray;
-        qDebug() << "nonceBytes" << nonceBytes.toHex(' ');
         return encryptDecrypt(false, nonceBytes, payload);
     }
 
@@ -48,35 +52,47 @@ private:
     int counter;
 
     QByteArray encryptDecrypt(bool encrypt, const QByteArray &nonceBytes, const QByteArray &data) {
-        int outlen;
-        QByteArray output(data.size() + (encrypt ? EncryptionUtils::MAC_LENGTH : 0), 0);
+        const int payloadLength = encrypt ? data.size() : data.size() - EncryptionUtils::MAC_LENGTH;
+        if (payloadLength < 0) {
+            return QByteArray();
+        }
+
+        QByteArray cipherText = encrypt ? data : data.left(payloadLength);
+        QByteArray tagBytes = encrypt ? QByteArray() : data.mid(payloadLength, EncryptionUtils::MAC_LENGTH);
+        QByteArray output(payloadLength, 0);
         EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) {
+            return QByteArray();
+        }
 
         EVP_CipherInit_ex(ctx, EVP_aes_256_ccm(), NULL, NULL, NULL, encrypt);
+        EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_CCM_SET_IVLEN, nonceBytes.size(), NULL);
 
-        EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_CCM_SET_IVLEN, ivBytes.size(), NULL);
-
-        if (encrypt) {
-            EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_CCM_SET_TAG, EncryptionUtils::MAC_LENGTH, NULL);
+        if (!encrypt) {
+            EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_CCM_SET_TAG, EncryptionUtils::MAC_LENGTH,
+                                const_cast<char *>(tagBytes.constData()));
         }
 
         EVP_CipherInit_ex(ctx, NULL, NULL,
                           reinterpret_cast<const unsigned char *>(encryptionKeyBytes.constData()),
                           reinterpret_cast<const unsigned char *>(nonceBytes.constData()), encrypt);
 
-        EVP_CipherUpdate(ctx, NULL, &outlen, NULL, data.size());
+        int outlen = 0;
+        if (EVP_CipherUpdate(ctx, NULL, &outlen, NULL, cipherText.size()) != 1) {
+            EVP_CIPHER_CTX_free(ctx);
+            return QByteArray();
+        }
 
-        int ret = EVP_CipherUpdate(ctx, reinterpret_cast<unsigned char *>(output.data()), &outlen,
-                                   reinterpret_cast<const unsigned char *>(data.constData()), data.size());
-        if (ret != 1) {
-            qDebug() << "error" << ERR_get_error();
-            //EVP_CIPHER_CTX_free(ctx);
-            //return QByteArray();
+        if (EVP_CipherUpdate(ctx, reinterpret_cast<unsigned char *>(output.data()), &outlen,
+                             reinterpret_cast<const unsigned char *>(cipherText.constData()),
+                             cipherText.size()) != 1) {
+            EVP_CIPHER_CTX_free(ctx);
+            return QByteArray();
         }
 
         if (EVP_CipherFinal_ex(ctx, reinterpret_cast<unsigned char *>(output.data()) + outlen, &outlen) <= 0) {
             EVP_CIPHER_CTX_free(ctx);
-            //return QByteArray();
+            return QByteArray();
         }
 
         if (encrypt) {
@@ -127,8 +143,8 @@ private:
     }
 
     static QByteArray createCounterBytes(int messageCounter) {
-        QByteArray counterBytes;
-        counterBytes.setNum(messageCounter, 16);
+        QByteArray counterBytes(sizeof(qint32), 0);
+        qToBigEndian(static_cast<qint32>(messageCounter), reinterpret_cast<uchar *>(counterBytes.data()));
         return counterBytes;
     }
 

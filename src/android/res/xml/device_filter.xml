@@ -29,6 +29,11 @@
     <usb-device vendor-id="17A4" product-id="0002" />
     <usb-device vendor-id="17A4" product-id="0001" />
 
+    <!-- WaterRower devices - Microchip Technology Inc. -->
+    <usb-device vendor-id="1240" product-id="10" />   <!-- 0x04D8 / 0x000A: MCP2200 USB-to-UART -->
+    <usb-device vendor-id="1240" product-id="223" />  <!-- 0x04D8 / 0x00DF: WaterRower Custom Application -->
+    <usb-device vendor-id="1240" />                   <!-- 0x04D8 / ......: All Microchip Technology devices -->
+
     <!-- CDC driver -->
     <usb-device vendor-id="9025" />                   <!-- 0x2341 / ......: Arduino -->
     <usb-device vendor-id="5824" product-id="1155" /> <!-- 0x16C0 / 0x0483: Teensyduino  -->

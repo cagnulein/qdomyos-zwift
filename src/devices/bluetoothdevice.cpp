@@ -328,8 +328,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
     _lastTimeUpdate = current;
     _firstUpdate = false;
 
-    // Update iOS Live Activity with throttling
-    update_ios_live_activity();
+    // Update iOS Live Activity with throttling only for the primary device.
+    if (!from_accessory)
+        update_ios_live_activity();
 }
 
 void bluetoothdevice::update_hr_from_external() {
@@ -371,6 +372,7 @@ void bluetoothdevice::update_hr_from_external() {
             h.setElevationGain(elevationGain().value());
             Heart = appleWatchHeartRate;
             heartRateFromHealthKit = appleWatchHeartRate > 0;
+            healthKitHeartUpdateSequence = Heart.updateSequence();
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
@@ -383,6 +385,15 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
     }
     // Note: workoutTrackingUpdate is now called from update_ios_live_activity() with throttling
+}
+
+bool bluetoothdevice::heartRateIsFromHealthKit() {
+    // Detect HR supplied directly by a device driver, even if its BPM value is unchanged.
+    if (heartRateFromHealthKit && Heart.updateSequence() != healthKitHeartUpdateSequence) {
+        qDebug() << "Heart rate source changed from HealthKit to device";
+        heartRateFromHealthKit = false;
+    }
+    return heartRateFromHealthKit;
 }
 
 void bluetoothdevice::update_ios_live_activity() {
@@ -409,14 +420,15 @@ void bluetoothdevice::update_ios_live_activity() {
                 .toString();
         QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
         QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
-        const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : (uint8_t)Heart.value();
+        const uint8_t liveActivityHeartRate = (uint8_t)Heart.value();
+        const uint8_t workoutHeartRate = heartRateIsFromHealthKit() ? 0 : liveActivityHeartRate;
+        const double currentElevationGain = elevationGain().value();
+        qDebug() << "Apple Health workout elevation gain:" << currentElevationGain;
         h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
-                                deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles,
-                                workoutHeartRate, compactLeadingMetricUtf8.constData(),
+                                deviceType(), odometer() * 1000.0, totalCalories().value(), currentElevationGain, useMiles,
+                                workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
                                 metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                 metricValueForSetting(compactTrailingMetric));
-        heartRateFromHealthKit = false;
-
         lastUpdate = current;
     }
     #endif

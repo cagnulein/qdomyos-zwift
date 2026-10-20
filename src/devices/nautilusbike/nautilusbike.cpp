@@ -213,14 +213,20 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
 double nautilusbike::GetSpeedFromPacket(const QByteArray &packet) {
     const double miles = 1.60934;
-    QSettings settings;
-    const bool milesUnit = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     uint16_t convertedData = 0;
     double data = 0;
     convertedData = (packet.at(4) << 8) | ((uint8_t)packet.at(3));
     data = (double)convertedData / 100.0f;
-    if (milesUnit)
+    if (B616) {
+        // B616 sends speed in km/h, but in mph when the bike unit is set to miles
+        QSettings settings;
+        const bool milesUnit = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+        if (milesUnit)
+            data = data * miles;
+    } else {
+        // B628 and other models always send speed in mph; convert to km/h
         data = data * miles;
+    }
 
     return data;
 }
