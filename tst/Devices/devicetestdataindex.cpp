@@ -638,6 +638,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+		->acceptDeviceName("RCR-", DeviceNameComparison::StartsWithIgnoreCase, 8) // Van Rysel RCR (Decathlon)
 
 
         // Starts with DT- and is 14+ characters long.
@@ -651,6 +652,7 @@ void DeviceTestDataIndex::Initialize() {
         ->rejectDeviceName("XQ020111814", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XQ02ABC18141", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XQ02011181411", DeviceNameComparison::IgnoreCase)
+		->rejectDeviceName("RCR-XXXXX", DeviceNameComparison::IgnoreCase)
 
         ->excluding(ftmsBikeConfigureExclusions);
 
