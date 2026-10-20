@@ -35,6 +35,9 @@ class sportstechf75treadmill : public treadmill {
     void readSerial();
     void parseFrames();
     void handleFrame(const QByteArray &frame);
+    void handlePhysicalKey(int key);
+    void changeSpeedByTileStep(int direction);
+    void changeInclinationByTileStep(int direction);
     void sendFrame(const QByteArray &frame);
     void sendStartupCommand();
     void sendRunningCommand(double speed, int incline, bool allowZero = false);

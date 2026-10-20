@@ -23,6 +23,17 @@ constexpr int kKeyEventStop = 0x68;
 constexpr int kKeyEventEmergencyStop = 0x69;
 constexpr int kKeyEventInclineUpObserved = 0x0A;
 constexpr int kKeyEventInclineUpVendor = 0x0D;
+constexpr int kKeyEventSpeedPlus = 0x0F;
+constexpr int kKeyEventSpeedMinus = 0x10;
+constexpr int kKeyEventSpeed4 = 0x2F;
+constexpr int kKeyEventSpeed8 = 0x33;
+constexpr int kKeyEventSpeed12 = 0x37;
+constexpr int kKeyEventInclineMinus = 0x0E;
+constexpr int kKeyEventIncline4 = 0x15;
+constexpr int kKeyEventIncline8 = 0x19;
+constexpr int kKeyEventIncline12 = 0x1D;
+constexpr int kKeyEventHome = 0x0C;
+constexpr int kKeyEventReturn = 0x02;
 constexpr int kCommandStart = 0xA2;
 constexpr int kCommandStop = 0x00;
 // The vendor sends A2 as a one-second countdown: 03, 02, 01, 00.
@@ -266,6 +277,87 @@ void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
     sendFrame(commandFrame(command, data1, data2));
 }
 
+void sportstechf75treadmill::changeSpeedByTileStep(int direction) {
+    QSettings settings;
+    const bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double speed = currentSpeed().value();
+    const double requestedSpeedValue = requestedSpeed();
+    const double targetSpeed = currentTargetSpeed();
+    if (targetSpeed != -1) {
+        speed = targetSpeed;
+    }
+    if (requestedSpeedValue != -1 && (direction > 0 || requestedSpeedValue < speed)) {
+        speed = requestedSpeedValue;
+    }
+
+    double minStep = minStepSpeed();
+    double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
+    if (!miles) {
+        step = static_cast<double>(qRound(step * 10.0)) / 10.0;
+    }
+    if (step > minStep) {
+        minStep = step;
+    }
+
+    int rest = 0;
+    if (!miles) {
+        rest = (minStep * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStep * 10.0));
+    }
+    if (rest == 5 || rest == 0) {
+        speed += direction > 0 ? minStep : -minStep;
+    } else {
+        speed += direction > 0 ? (static_cast<double>(rest) / 10.0) : -(static_cast<double>(rest) / 10.0);
+    }
+    qDebug() << "Sportstech F75 physical speed step" << direction << "target" << speed;
+    changeSpeed(speed);
+}
+
+void sportstechf75treadmill::changeInclinationByTileStep(int direction) {
+    QSettings settings;
+    double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+    if (step < minStepInclination()) {
+        step = minStepInclination();
+    }
+    const double inclination = currentInclination().value() + (direction > 0 ? step : -step);
+    qDebug() << "Sportstech F75 physical incline step" << direction << "target" << inclination;
+    changeInclination(inclination, inclination);
+}
+
+void sportstechf75treadmill::handlePhysicalKey(int key) {
+    if (key == kKeyEventStart) {
+        // QZ's Start action is also its pause/resume toggle. The UI slot
+        // receives this signal with send_event_to_device=false, so the
+        // physical Start/Resume action is not echoed to the UART.
+        emit buttonHWStart();
+    } else if (key == kKeyEventEmergencyStop) {
+        // Keep emergency stop separate from the gradual normal-stop path.
+        emit buttonHWEmergencyStop();
+    } else if (key == kKeyEventStop) {
+        emit buttonHWStop();
+    } else if (key == kKeyEventInclineUpObserved || key == kKeyEventInclineUpVendor) {
+        // 0x0A is the empirical F75 code and 0x0D is the vendor-parser code.
+        emit buttonHWInclineUp();
+    } else if (key == kKeyEventSpeedPlus) {
+        changeSpeedByTileStep(1);
+    } else if (key == kKeyEventSpeedMinus) {
+        changeSpeedByTileStep(-1);
+    } else if (key == kKeyEventSpeed4 || key == kKeyEventSpeed8 || key == kKeyEventSpeed12) {
+        const double speed = key == kKeyEventSpeed4 ? 4.0 : (key == kKeyEventSpeed8 ? 8.0 : 12.0);
+        qDebug() << "Sportstech F75 physical speed preset" << speed;
+        changeSpeed(speed);
+    } else if (key == kKeyEventInclineMinus) {
+        changeInclinationByTileStep(-1);
+    } else if (key == kKeyEventIncline4 || key == kKeyEventIncline8 || key == kKeyEventIncline12) {
+        const double inclination = key == kKeyEventIncline4 ? 4.0 : (key == kKeyEventIncline8 ? 8.0 : 12.0);
+        qDebug() << "Sportstech F75 physical incline preset" << inclination;
+        changeInclination(inclination, inclination);
+    } else if (key == kKeyEventHome || key == kKeyEventReturn) {
+        qDebug() << "Sportstech F75 physical navigation key ignored" << Qt::hex << key << Qt::dec;
+    } else {
+        qDebug() << "Sportstech F75 unhandled physical key event" << Qt::hex << key << Qt::dec;
+    }
+}
+
 void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
     qDebug() << "Sportstech F75 RX candidate" << frame.toHex(' ');
     if (frame.size() != 6 || static_cast<uint8_t>(frame.at(0)) != kTelemetryStart ||
@@ -292,34 +384,19 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
         const bool observedInclineUpChecksum =
             key == kKeyEventInclineUpObserved && reportedChecksum ==
                 ((function + payload + kKeyEventInclineUpVendor) & 0xFF);
+        const bool speedPresetChecksum =
+            (key == kKeyEventSpeed4 || key == kKeyEventSpeed8 || key == kKeyEventSpeed12) &&
+            reportedChecksum == ((key + 0x41) & 0xFF);
         if (payload != 0x01 ||
-            (reportedChecksum != expectedChecksum && !startStopChecksum && !observedInclineUpChecksum)) {
+            (reportedChecksum != expectedChecksum && !startStopChecksum && !observedInclineUpChecksum &&
+             !speedPresetChecksum)) {
             qWarning() << "Sportstech F75 key-event checksum error" << frame.toHex(' ')
                        << "expected" << expectedChecksum;
             return;
         }
 
         qDebug() << "Sportstech F75 physical key event" << Qt::hex << key << Qt::dec;
-        if (key == kKeyEventStart) {
-            // QZ's Start action is also its pause/resume toggle. The UI slot
-            // receives this signal with send_event_to_device=false, so the
-            // physical Start/Resume action is not echoed to the UART.
-            emit buttonHWStart();
-        } else if (key == kKeyEventEmergencyStop) {
-            // The F75 emergency key is reported as 0x69. Keep it separate
-            // from the gradual normal-stop path so it cannot be followed by
-            // another periodic A0 command.
-            emit buttonHWEmergencyStop();
-        } else if (key == kKeyEventStop) {
-            // Stop is terminal in QZ, unlike the Start/Pause toggle.
-            emit buttonHWStop();
-        } else if (key == kKeyEventInclineUpObserved || key == kKeyEventInclineUpVendor) {
-            // 0x0A is the empirical F75 code and 0x0D is the vendor-parser
-            // code. Both represent one Incline+ action, never two steps.
-            emit buttonHWInclineUp();
-        } else {
-            qDebug() << "Sportstech F75 unhandled physical key event" << Qt::hex << key << Qt::dec;
-        }
+        handlePhysicalKey(key);
         return;
     }
 
