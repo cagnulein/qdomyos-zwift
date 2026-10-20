@@ -33,6 +33,7 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
+    ypooM5Clock.start();
     connect(refresh, &QTimer::timeout, this, &horizontreadmill::update);
     refresh->start(200ms);
 }
@@ -43,7 +44,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     QEventLoop loop;
     QTimer timeout;
 
-    if (!service) {
+    if (!service || (YPOO_M5 && !characteristic.isValid())) {
         qDebug() << "no gattCustomService available";
         return;
     }
@@ -54,7 +55,23 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         timeA = timeB = 300; // for the normal treadmills, the timeout must be small, otherwise we are blocking the update timer on iOS
     }
 
-    if (wait_for_response) {
+    const bool ypooM5ControlPoint = YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9);
+    if (YPOO_M5)
+        ypooM5WritePending = true;
+
+    if (ypooM5ControlPoint) {
+        // Telemetry and unrelated indications must not complete a control procedure.
+        const uint8_t opcode = data[0];
+        if (opcode == FTMS_REQUEST_CONTROL)
+            ypooM5ControlGranted = false;
+        connect(service, &QLowEnergyService::characteristicChanged, &loop,
+                [&loop, opcode](const QLowEnergyCharacteristic &replyCharacteristic, const QByteArray &reply) {
+                    if (replyCharacteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) && reply.size() >= 3 &&
+                        (uint8_t)reply.at(0) == 0x80 && (uint8_t)reply.at(1) == opcode)
+                        loop.quit();
+                });
+        timeout.singleShot(1000, &loop, SLOT(quit()));
+    } else if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(timeA, &loop, SLOT(quit())); // 6 seconds are important
     } else {
@@ -77,6 +94,8 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
+    if (YPOO_M5)
+        ypooM5WritePending = false;
 }
 
 void horizontreadmill::waitForAPacket() {
@@ -88,6 +107,10 @@ void horizontreadmill::waitForAPacket() {
 }
 
 void horizontreadmill::btinit() {
+    if (YPOO_M5) {
+        if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
+            virtualTreadmill->clearControlPointWrites();
+    }
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
     horizon_treadmill_profile_users.append(
@@ -880,6 +903,18 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
+    if (YPOO_M5) {
+        if (!gattFTMSService || !gattWriteCharControlPointId.isValid() ||
+            !gattWriteCharControlPointIdYpooMiniPro.isValid()) {
+            emit debug(QStringLiteral("YPOO M5: FTMS control/unlock characteristic unavailable"));
+            return;
+        }
+        uint8_t unlock[] = {0x01, 0x00, 0x02, 0x02, 0x00, 0x05, 0x01, 0x01};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, unlock, sizeof(unlock),
+                            QStringLiteral("YPOO M5 unlock"));
+        QThread::msleep(500);
+    }
+
     if(YPOO_MINI_PRO) {
         uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
@@ -894,7 +929,7 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
-    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
+    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO || YPOO_M5) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
@@ -903,12 +938,18 @@ void horizontreadmill::btinit() {
                             false);
     }
 
+    if (YPOO_M5 && !ypooM5ControlGranted) {
+        emit debug(QStringLiteral("YPOO M5: FTMS control was not granted; motor commands disabled"));
+        return;
+    }
     initDone = true;
 }
 
 float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
 
 void horizontreadmill::update() {
+    if (YPOO_M5 && ypooM5WritePending)
+        return;
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -967,6 +1008,11 @@ void horizontreadmill::update() {
                                 "start simulation", false, false);
             }
             // updateDisplay(elapsed);
+        }
+
+        if (YPOO_M5) {
+            updateYpooM5Control();
+            return;
         }
 
         // this treadmill can't go below 1
@@ -1216,6 +1262,66 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
     return true;
 }
 
+void horizontreadmill::updateYpooM5Control() {
+    if (!initDone)
+        return;
+
+    // Stop takes priority over simultaneous starts and queued workout targets.
+    if (requestStop != -1 || requestPause != -1) {
+        ypooM5Control.requestStop();
+        requestStart = requestStop = requestPause = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+    } else {
+        if (requestStart != -1) {
+            ypooM5Control.requestStart();
+            requestStart = -1;
+        }
+        if (requestSpeed != -1) {
+            if (!ypooM5Control.requestSpeed(requestSpeed))
+                emit debug(QStringLiteral("YPOO M5: speed target rejected (range or treadmill stopped)"));
+            requestSpeed = -1;
+        }
+        if (requestInclination != -100) {
+            if (!ypooM5Control.requestIncline(treadmillInclinationOverrideReverse(requestInclination)))
+                emit debug(QStringLiteral("YPOO M5: incline target rejected (range or treadmill stopped)"));
+            requestInclination = -100;
+        }
+    }
+
+    const auto command = ypooM5Control.next(ypooM5Clock.elapsed());
+    const auto failure = ypooM5Control.takeFailure();
+    if (failure != YpooM5Control::Action::None)
+        emit debug(QStringLiteral("YPOO M5: command %1 not confirmed by telemetry; retries stopped")
+                       .arg(static_cast<int>(failure)));
+
+    switch (command.action) {
+    case YpooM5Control::Action::Start: {
+        lastStart = QDateTime::currentMSecsSinceEpoch();
+        uint8_t start[] = {FTMS_START_RESUME};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, start, sizeof(start),
+                            QStringLiteral("YPOO M5 start"));
+        horizonPaused = false;
+        break;
+    }
+    case YpooM5Control::Action::Stop: {
+        lastStop = QDateTime::currentMSecsSinceEpoch();
+        uint8_t stop[] = {FTMS_STOP_PAUSE, 0x01};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, stop, sizeof(stop),
+                            QStringLiteral("YPOO M5 stop"));
+        break;
+    }
+    case YpooM5Control::Action::Speed:
+        forceSpeed(command.value);
+        break;
+    case YpooM5Control::Action::Incline:
+        forceIncline(command.value);
+        break;
+    case YpooM5Control::Action::None:
+        break;
+    }
+}
+
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
@@ -1274,7 +1380,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !YPOO_M5 && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1357,7 +1463,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !YPOO_M5 && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1578,6 +1684,28 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    if (YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9)) {
+        if (newValue.size() >= 3 && (uint8_t)newValue.at(0) == FTMS_RESPONSE_CODE) {
+            if ((uint8_t)newValue.at(1) == FTMS_STOP_PAUSE)
+                ypooM5Control.stopResponse((uint8_t)newValue.at(2) == FTMS_SUCCESS);
+            else if ((uint8_t)newValue.at(1) == FTMS_REQUEST_CONTROL)
+                ypooM5ControlGranted = (uint8_t)newValue.at(2) == FTMS_SUCCESS;
+        }
+        return;
+    }
+
+    if (YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        double reportedSpeed = 0;
+        double reportedIncline = 0;
+        if (!YpooM5Control::readTelemetry(reinterpret_cast<const uint8_t *>(newValue.constData()),
+                                         newValue.size(), reportedSpeed, reportedIncline))
+            return;
+        const bool wasRunning = ypooM5Control.running();
+        ypooM5Control.telemetry(reportedSpeed, reportedIncline, ypooM5Clock.elapsed());
+        if (!wasRunning && ypooM5Control.running())
+            emit tapeStarted();
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
@@ -2423,8 +2551,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
-                } else if(c.uuid() == _YpooMiniProCharId && YPOO_MINI_PRO) {
-                    qDebug() << QStringLiteral("YPOO MINI PRO Control Point found");
+                } else if(c.uuid() == _YpooMiniProCharId && (YPOO_MINI_PRO ||
+                          (YPOO_M5 && s->serviceUuid() == QBluetoothUuid((quint16)0x1826) &&
+                           (c.properties() & QLowEnergyCharacteristic::WriteNoResponse)))) {
+                    qDebug() << QStringLiteral("YPOO unlock characteristic found");
                     gattWriteCharControlPointIdYpooMiniPro = c;
                 }
                 /* else if (c.uuid() == _gattInclinationSupported) {
@@ -2440,7 +2570,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattMerachUnlockService = s;
                 } else if (c.properties() & QLowEnergyCharacteristic::Write &&
                     c.uuid() == _gattWriteCharCustomService &&
-                    !BOWFLEX_T9 && !MX_TM &&
+                    !BOWFLEX_T9 && !MX_TM && !YPOO_M5 &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2557,6 +2687,16 @@ void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic 
     Q_UNUSED(characteristic);
 
     if (newValue.isEmpty()) {
+        return;
+    }
+
+    if (YPOO_M5) {
+        if (!initDone)
+            return;
+        if ((uint8_t)newValue.at(0) == FTMS_START_RESUME)
+            start();
+        else if ((uint8_t)newValue.at(0) == FTMS_STOP_PAUSE && newValue.size() >= 2)
+            stop(false);
         return;
     }
 
@@ -2759,6 +2899,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YPTM-U0"))) {
+            qDebug() << QStringLiteral("YPOO M5 FTMS unlock mode found");
+            YPOO_M5 = true;
+            minInclination = -6.0;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;
@@ -2873,6 +3017,15 @@ bool horizontreadmill::connected() {
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        if (YPOO_M5) {
+            ypooM5Control.reset();
+            ypooM5ControlGranted = false;
+            if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
+                virtualTreadmill->clearControlPointWrites();
+            requestStart = requestStop = requestPause = -1;
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
@@ -3541,6 +3694,8 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
+    if (YPOO_M5)
+        return 1.0;
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
     if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE || run_bt_treadmill)
