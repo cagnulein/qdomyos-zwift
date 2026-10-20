@@ -2050,6 +2050,10 @@ void homeform::trainProgramSignals() {
                    &homeform::EmergencyStopFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
                    &homeform::InclineUpFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWHome, this,
+                   &homeform::HomeFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWBack, this,
+                   &homeform::BackFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -2095,6 +2099,10 @@ void homeform::trainProgramSignals() {
                     &homeform::EmergencyStopFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
                     &homeform::InclineUpFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWHome, this,
+                    &homeform::HomeFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWBack, this,
+                    &homeform::BackFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -2189,6 +2197,14 @@ void homeform::onTrainingProgramSpeedChanged(double speed) {
     // Record the timestamp when the training program changed speed
     // This is used by the HR PID controller to avoid race conditions
     lastTrainingProgramSpeedChange = QDateTime::currentDateTime();
+}
+
+void homeform::HomeFromDevice() {
+    emit physicalHomeRequested();
+}
+
+void homeform::BackFromDevice() {
+    emit physicalBackRequested();
 }
 
 

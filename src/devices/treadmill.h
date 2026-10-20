@@ -75,6 +75,8 @@ class treadmill : public bluetoothdevice {
     void buttonHWStop();    // Physical stop button pressed on hardware
     void buttonHWEmergencyStop(); // Physical emergency stop pressed on hardware
     void buttonHWInclineUp(); // Physical incline-up button pressed on hardware
+    void buttonHWHome(); // Physical home button pressed on hardware
+    void buttonHWBack(); // Physical back/return button pressed on hardware
 
   protected:
     volatile double requestSpeed = -1;

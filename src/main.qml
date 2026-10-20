@@ -409,6 +409,30 @@ ApplicationWindow {
         return true
     }
 
+    // Physical Home on the Sportstech console returns QZ to its starting page.
+    // It changes navigation only; it does not stop an active workout.
+    function navigateHome() {
+        drawer.close()
+        while (stackView.depth > 1) {
+            if (!navigateBack(true)) {
+                break
+            }
+        }
+        toolButtonLoadSettings.visible = false
+        toolButtonSaveSettings.visible = false
+        rootItem.sortTiles()
+    }
+
+    Connections {
+        target: rootItem
+        function onPhysicalHomeRequested() {
+            navigateHome()
+        }
+        function onPhysicalBackRequested() {
+            navigateBack(true)
+        }
+    }
+
     // On Android an unhandled back key closes the window, which quits the app.
     // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
     // Popups and the drawer close themselves on back before this is reached.

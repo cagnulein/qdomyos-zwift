@@ -352,7 +352,12 @@ void sportstechf75treadmill::handlePhysicalKey(int key) {
         qDebug() << "Sportstech F75 physical incline preset" << inclination;
         changeInclination(inclination, inclination);
     } else if (key == kKeyEventHome || key == kKeyEventReturn) {
-        qDebug() << "Sportstech F75 physical navigation key ignored" << Qt::hex << key << Qt::dec;
+        qDebug() << "Sportstech F75 physical navigation key" << Qt::hex << key << Qt::dec;
+        if (key == kKeyEventHome) {
+            emit buttonHWHome();
+        } else {
+            emit buttonHWBack();
+        }
     } else {
         qDebug() << "Sportstech F75 unhandled physical key event" << Qt::hex << key << Qt::dec;
     }

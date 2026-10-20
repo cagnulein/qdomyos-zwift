@@ -1332,6 +1332,8 @@ public:
     void StopFromDevice();   // Called when physical stop button pressed on hardware
     void EmergencyStopFromDevice(); // Called when physical emergency stop pressed on hardware
     void InclineUpFromDevice(); // Called when physical incline-up button pressed on hardware
+    void HomeFromDevice(); // Called when physical home button pressed on hardware
+    void BackFromDevice(); // Called when physical back/return button pressed on hardware
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
@@ -1403,6 +1405,8 @@ public:
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
     void trainingProgramIntervalSoundRequested();
+    void physicalHomeRequested();
+    void physicalBackRequested();
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
