@@ -19,6 +19,19 @@ public class QLog {
         }
     }
 
+    // Whether detailed polling diagnostics should be emitted to Qt and Android Logcat.
+    // Keep this in sync with QZ's existing Debug Log setting.
+    private static native boolean isDebugLoggingEnabledNative();
+
+    public static boolean isDebugLoggingEnabled() {
+        try {
+            return isDebugLoggingEnabledNative();
+        } catch (UnsatisfiedLinkError e) {
+            // Preserve diagnostics if the native bridge has not been loaded yet.
+            return true;
+        }
+    }
+
     // Debug level methods
     public static int d(String tag, String msg) {
         try {
