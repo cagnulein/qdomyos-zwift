@@ -25,8 +25,9 @@ ScrollView {
     }
 
     property var gearRows: []
-    property int rowHeight: 55
-    property int offsetControlHeight: 43
+    // the rows, the fields and their -/+ grow with the text
+    property int rowHeight: window.fontPx(55)
+    property int offsetControlHeight: window.fontPx(43)
 
     Component.onCompleted: {
         loadGearRows()
@@ -243,7 +244,7 @@ ScrollView {
 
                             Button {
                                 text: "-"
-                                Layout.preferredWidth: 34
+                                Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
                                 onClicked: {
                                     gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) - 0.5)
@@ -261,6 +262,10 @@ ScrollView {
                                 selectedTextColor: "white"
                                 selectionColor: Material.accent
                                 horizontalAlignment: Text.AlignHCenter
+                                // Material pads 8 above and 16 below: with a bigger text the number sat
+                                // well over the middle of the field
+                                topPadding: window.textScale !== 1 ? 0 : 8
+                                bottomPadding: window.textScale !== 1 ? 0 : 16
                                 background: Rectangle {
                                     color: "white"
                                     border.color: "#cccccc"
@@ -278,7 +283,7 @@ ScrollView {
 
                             Button {
                                 text: "+"
-                                Layout.preferredWidth: 34
+                                Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
                                 onClicked: {
                                     gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + 0.5)

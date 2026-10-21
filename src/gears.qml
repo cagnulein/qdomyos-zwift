@@ -763,6 +763,9 @@ ScrollView {
                                     // with a bigger text the field takes the cell and grows with the row
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
                                     height: window.fontPx(30)
+                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: crankset
@@ -835,6 +838,8 @@ ScrollView {
                                     anchors.centerIn: parent
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
                                     height: window.fontPx(30)
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: cog
