@@ -1,4 +1,5 @@
 #include "homeform.h"
+#include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
 #ifdef Q_OS_IOS
@@ -2194,6 +2195,29 @@ void homeform::trainProgramSignals() {
         connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                 &bluetoothdevice::workoutEventStateChanged);
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
+
+        if (auto *lifeFitness = dynamic_cast<lifefitnesstreadmill *>(bluetoothManager->device())) {
+            lifefitnessworkout::Program program;
+            lifefitnessworkout::Profile profile;
+            QSettings settings;
+            profile.age = settings.value(QZSettings::age, QZSettings::default_age).toInt();
+            profile.gender = settings.value(QZSettings::sex, QZSettings::default_sex).toString().compare(
+                                 QStringLiteral("Female"), Qt::CaseInsensitive) == 0
+                                 ? 1
+                                 : 0;
+            profile.weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+            profile.heightCm = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+
+            QString error;
+            if (trainProgram && lifefitnessworkout::buildProgram(trainProgram->rows, trainProgram->description, profile,
+                                                                  program, &error)) {
+                lifeFitness->setLifeFitnessWorkout(program.summaryFrames, program.detailFrames);
+            } else {
+                lifeFitness->setLifeFitnessWorkout({}, {});
+                if (!error.isEmpty())
+                    qDebug() << QStringLiteral("Life Fitness workout not prepared:") << error;
+            }
+        }
 
         if (trainProgram) {
             // chartTargetWorkout() also returns true for pure heart-rate-driven rows (HRabove/HRbelow/zoneHR/etc,
