@@ -47,10 +47,12 @@ ColumnLayout {
             wrapMode: window.labelWrap
         }
         Text {
-            y:13
+            // With a bigger text the arrow grew down from the top of its box and sat below the
+            // title: it is centred on the first line of the title instead
+            y: window.textScale !== 1 ? accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2 : 13
             anchors.right:  parent.right
             anchors.rightMargin: 20
-            width: 30; height: 30
+            width: 30; height: window.textScale !== 1 ? implicitHeight : 30
             id: indicatImg
             text: ">"
             font.pixelSize: window.fontPx(24)
