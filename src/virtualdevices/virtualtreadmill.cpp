@@ -457,7 +457,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             serviceRSC = leController->addService(serviceDataRSC);
         QThread::msleep(100);
         
-        serviceDIS = leController->addService(serviceDataDIS);
+#if defined(Q_OS_MACOS)
+        // CoreBluetooth reserves Device Information (180A); adding it prevents
+        // the M5 virtual peripheral from starting advertising on macOS.
+        if (!forwardControlPointWrites)
+#endif
+            serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
         if (!echelon) {
@@ -810,6 +815,15 @@ void virtualtreadmill::reconnect() {
     if (bluetooth_relaxed) {
         return;
     }
+
+#if defined(Q_OS_MACOS)
+    if (forwardControlPointWrites) {
+        // Qt's CoreBluetooth backend retains local services and handles when a
+        // central unsubscribes. Re-adding them breaks subsequent notifications.
+        leController->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData, advertisingData);
+        return;
+    }
+#endif
 
     qDebug() << "virtualtreadmill reconnect " << treadMill->connected();
     

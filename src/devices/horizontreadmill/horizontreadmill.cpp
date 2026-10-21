@@ -108,6 +108,7 @@ void horizontreadmill::waitForAPacket() {
 
 void horizontreadmill::btinit() {
     if (YPOO_M5) {
+        initDone = false;
         if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
             virtualTreadmill->clearControlPointWrites();
     }
@@ -909,10 +910,49 @@ void horizontreadmill::btinit() {
             emit debug(QStringLiteral("YPOO M5: FTMS control/unlock characteristic unavailable"));
             return;
         }
-        uint8_t unlock[] = {0x01, 0x00, 0x02, 0x02, 0x00, 0x05, 0x01, 0x01};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, unlock, sizeof(unlock),
-                            QStringLiteral("YPOO M5 unlock"));
-        QThread::msleep(500);
+        requestStart = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        for (unsigned attempt = 0; attempt < 3; ++attempt) {
+            uint8_t unlock[] = {0x01, 0x00, 0x02, 0x02, 0x00, 0x05, 0x01, 0x01};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, unlock, sizeof(unlock),
+                                QStringLiteral("YPOO M5 unlock"));
+            QThread::msleep(500);
+            uint8_t control[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, control, sizeof(control),
+                                QStringLiteral("YPOO M5 requestControl"));
+            if (ypooM5ControlGranted && !ypooM5Control.hasFreshTelemetry(ypooM5Clock.elapsed())) {
+                QEventLoop telemetry;
+                ypooM5WritePending = true;
+                connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &telemetry,
+                        [this, &telemetry](const QLowEnergyCharacteristic &, const QByteArray &) {
+                            if (ypooM5Control.hasFreshTelemetry(ypooM5Clock.elapsed()))
+                                telemetry.quit();
+                        });
+                QTimer::singleShot(1500, &telemetry, &QEventLoop::quit);
+                telemetry.exec();
+                ypooM5WritePending = false;
+            }
+            if (ypooM5ControlGranted && ypooM5Control.hasFreshTelemetry(ypooM5Clock.elapsed())) {
+                initDone = true;
+                requestStart = -1; // An early click must not replay after an initialization retry.
+                requestSpeed = -1;
+                requestInclination = -100;
+                emit debug(QStringLiteral("YPOO M5: control granted and live telemetry received; ready"));
+                if (homeform::singleton())
+                    homeform::singleton()->setToastRequested(QObject::tr("YPOO M5 ready"));
+                return;
+            }
+            emit debug(QStringLiteral("YPOO M5: initialization attempt %1 unconfirmed; no motor commands sent")
+                           .arg(attempt + 1));
+        }
+        requestStart = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        emit debug(QStringLiteral("YPOO M5: initialization failed; motor commands disabled"));
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(QObject::tr("YPOO M5 initialization failed; reconnect required"));
+        return;
     }
 
     if(YPOO_MINI_PRO) {
@@ -929,22 +969,15 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
-    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO || YPOO_M5) {
+    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
-        if (!YPOO_M5) {
-            // The M5 grants the first request but rejects a duplicate with 0x05.
-            QThread::msleep(500);
-            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                                false);
-        }
+        QThread::msleep(500);
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
     }
 
-    if (YPOO_M5 && !ypooM5ControlGranted) {
-        emit debug(QStringLiteral("YPOO M5: FTMS control was not granted; motor commands disabled"));
-        return;
-    }
     initDone = true;
 }
 
@@ -2586,56 +2619,73 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
-    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
-            auto characteristics_list = s->characteristics();
-            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                auto descriptors_list = c.descriptors();
-                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
-                }
-
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
-                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
-                      && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x01);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                        notificationSubscribed++;
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
+    if (YPOO_M5) {
+        // Match the verified transport: control indications first, then data.
+        // The M5 control path does not use training/machine-status notifications.
+        if (!gattFTMSService)
+            return;
+        for (const auto uuid : {quint16(0x2AD9), quint16(0x2ACD)}) {
+            const auto characteristic = gattFTMSService->characteristic(QBluetoothUuid(uuid));
+            const auto descriptor = characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (!descriptor.isValid()) {
+                emit debug(QStringLiteral("YPOO M5: required subscription unavailable"));
+                return;
+            }
+            ++notificationSubscribed;
+            gattFTMSService->writeDescriptor(descriptor, QByteArray::fromHex(uuid == 0x2AD9 ? "0200" : "0100"));
+        }
+    } else {
+        for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+            if (s->state() == QLowEnergyService::ServiceDiscovered) {
+                auto characteristics_list = s->characteristics();
+                for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                    auto descriptors_list = c.descriptors();
+                    for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                        qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                     }
 
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                           // FTMS indications, plus the Merach unlock indication characteristic.
-                           (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
-                              !gattCustomService) ||
-                             (MERACH_TREADMILL && gattMerachUnlockService &&
-                              s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
-                              c.uuid() == _gattWriteCharMerachUnlock)))) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x02);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                        notificationSubscribed++;
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
+                    if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
+                        // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                        ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                           || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
+                          && !gattCustomService) ||
+                         (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                        QByteArray descriptor;
+                        descriptor.append((char)0x01);
+                        descriptor.append((char)0x00);
+                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                            notificationSubscribed++;
+                        } else {
+                            qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << QStringLiteral(" is not valid");
+                        }
 
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                        qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                    } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
+                               // FTMS indications, plus the Merach unlock indication characteristic.
+                               (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
+                                  !gattCustomService) ||
+                                 (MERACH_TREADMILL && gattMerachUnlockService &&
+                                  s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
+                                  c.uuid() == _gattWriteCharMerachUnlock)))) {
+                        QByteArray descriptor;
+                        descriptor.append((char)0x02);
+                        descriptor.append((char)0x00);
+                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                            notificationSubscribed++;
+                        } else {
+                            qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << QStringLiteral(" is not valid");
+                        }
+
+                        qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                    }
                 }
             }
         }
@@ -2717,7 +2767,7 @@ void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
         notificationSubscribed--;
 
     if (!notificationSubscribed) {
-        if(homeform::singleton()) {
+        if(homeform::singleton() && !YPOO_M5) {
             homeform::singleton()->setToastRequested(QObject::tr("Treadmill ready"));
         }
         initRequest = true;
@@ -2754,7 +2804,9 @@ void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
-    firstStateChanged = 0;
+    // The virtual interface survives a physical reconnect. The M5 must still
+    // initialize the new physical connection without creating another interface.
+    firstStateChanged = YPOO_M5 && hasVirtualDevice() ? 1 : 0;
     auto services_list = m_control->services();
 
     // Check if DOMYOS device has native service
@@ -2772,6 +2824,10 @@ void horizontreadmill::serviceScanDone(void) {
     }
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            if (YPOO_M5 && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (YPOO M5 uses only FTMS 0x1826)";
+                continue;
+            }
             // If DOMYOS without native service, discover only FTMS (1826)
             if (DOMYOS && !hasNativeDomyosService && s != _FTMSServiceId) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";

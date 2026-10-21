@@ -17,6 +17,7 @@ class YpooM5Control {
 
     void reset() { *this = YpooM5Control(); }
     bool running() const { return speed > 0; }
+    bool hasFreshTelemetry(int64_t now) const { return lastTelemetry >= 0 && now - lastTelemetry <= 2000; }
 
     static bool readTelemetry(const uint8_t *data, size_t size, double &reportedSpeed, double &reportedIncline) {
         if (size < 2)
@@ -72,7 +73,19 @@ class YpooM5Control {
     bool requestIncline(double value) {
         if (!std::isfinite(value) || value < -6.0 || value > 15.0)
             return false;
-        return setTarget(inclineTarget, std::round(value));
+        double target = std::round(value);
+        if (value == std::floor(value) + 0.5) {
+            // Runna requests half steps despite the advertised whole-step range.
+            // Keep in-flight duplicates stable; resolve new ties toward the request.
+            const bool samePendingTarget = inclineTarget.pending && inclineTarget.requestedValue == value &&
+                                           std::fabs(incline - inclineTarget.value) >= 0.05;
+            target = samePendingTarget ? inclineTarget.value
+                                       : (value < incline ? std::floor(value) : std::ceil(value));
+        }
+        if (!setTarget(inclineTarget, target))
+            return false;
+        inclineTarget.requestedValue = value;
+        return true;
     }
 
     void telemetry(double reportedSpeed, double reportedIncline, int64_t now) {
@@ -82,10 +95,18 @@ class YpooM5Control {
         }
         speed = reportedSpeed;
         incline = reportedIncline;
+        if (running())
+            zeroSpeedSince = -1;
+        else if (zeroSpeedSince < 0 || !hasFreshTelemetry(now))
+            zeroSpeedSince = now;
         lastTelemetry = now;
         if (running())
             starting = false;
-        if (stopRequested && stopAcknowledged && !running()) {
+        // Some countdown cancellations stay at zero while every Stop is rejected.
+        // Only accept that evidence after the whole startup window has expired.
+        const bool countdownCancelled = starting && now - startSent >= 10000 &&
+                                        zeroSpeedSince >= 0 && now - zeroSpeedSince >= 2000;
+        if (stopRequested && !running() && (stopAcknowledged || countdownCancelled)) {
             stopRequested = false;
             starting = false;
         }
@@ -101,13 +122,15 @@ class YpooM5Control {
         if (lastCommandSent >= 0 && now - lastCommandSent < 250)
             return {Action::None, 0};
         if (stopRequested) {
-            if (!starting && !running() && stopAttempts == 0 && lastTelemetry >= 0 && now - lastTelemetry <= 2000) {
+            if (!starting && !running() && stopAttempts == 0 && hasFreshTelemetry(now)) {
                 stopRequested = false;
                 return {Action::None, 0};
             }
             if (lastStopSent >= 0 && now - lastStopSent < 1000)
                 return {Action::None, 0};
             if (stopAttempts == 6) {
+                if (starting && (now - startSent < 10000 || (hasFreshTelemetry(now) && !running())))
+                    return {Action::None, 0}; // Observe cancellation without unbounded Stop writes.
                 failure = Action::Stop;
                 faulted = true;
                 stopRequested = false;
@@ -134,7 +157,7 @@ class YpooM5Control {
                 return {Action::Start, 0};
             }
         }
-        if (lastTelemetry < 0 || now - lastTelemetry > 2000 || !running() || starting)
+        if (!hasFreshTelemetry(now) || !running() || starting)
             return {Action::None, 0};
         const Command speedCommand = nextTarget(speedTarget, speed, Action::Speed, now);
         if (speedCommand.action != Action::None) {
@@ -156,6 +179,7 @@ class YpooM5Control {
   private:
     struct Target {
         double value = 0;
+        double requestedValue = 0;
         bool pending = false;
         unsigned attempts = 0;
         int64_t lastSent = -1;
@@ -204,6 +228,7 @@ class YpooM5Control {
     int64_t lastStopSent = -1;
     int64_t lastCommandSent = -1;
     int64_t lastTelemetry = -1;
+    int64_t zeroSpeedSince = -1;
     double speed = 0;
     double incline = 0;
     Action failure = Action::None;

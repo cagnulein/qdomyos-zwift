@@ -7,11 +7,11 @@ existing behavior.
 
 ## Protocol verified on hardware
 
-1. Subscribe to Treadmill Data (`1826/2ACD`) and Control Point indications
-   (`1826/2AD9`).
+1. Subscribe to Control Point indications (`1826/2AD9`), then Treadmill Data
+   (`1826/2ACD`).
 2. Write `01 00 02 02 00 05 01 01`, without response, to
    `1826/d18d2c10-c44c-11e8-a355-529269fb1459`.
-3. Request FTMS control (`00`) once on `1826/2AD9` using a write with response.
+3. Request FTMS control (`00`) once per unlock attempt on `1826/2AD9` using a write with response.
    The Mac QZ log confirmed success (`80 00 01`) for the first request, but
    control-not-permitted (`80 00 05`) for a second request in the same session.
 4. Use standard FTMS control commands on `2AD9`:
@@ -31,15 +31,42 @@ The unlock acknowledgement can repeat the previous FTMS opcode and is not used
 as evidence that a motor command succeeded.
 
 The advertised ranges are 1.0–18.8 km/h in 0.1 km/h steps and -6–15% in 1% steps.
-Live testing used low speeds and 0–1% incline; the range endpoints were not
-physically exercised.
+Runna was observed requesting 0.5% incline steps despite the advertised increment.
+A direct hardware probe confirmed that `03 05 00` (0.5%) returns
+`80 03 01 00 00` and reports 0%; `03 0f 00` (1.5%) returns
+`80 03 01 0a 00` and reports 1%. Half-percent requests are not achievable targets.
+Nearest-step rounding can leave Runna's decrease button unchanged (2.5% maps to
+3%). QZ instead resolves halfway targets in the requested direction: 2.5% from
+3% maps to 2%, while 2.5% from 2% maps to 3%. Duplicate requests retain the same
+mapping while the movement is unconfirmed. After telemetry confirms the target,
+a new request can move in either direction. Other fractions retain nearest-step
+rounding, and telemetry always reports the actual whole percentage.
+The owner confirmed that Runna's increase/decrease buttons work with this mapping.
+A repeated half-step after confirmation is still indistinguishable from a new
+opposite button press and can reverse the change; automatic half-step workout
+targets are not verified. Whole-percentage requests retain their existing mapping.
+CLI checks used 1.0–1.2 km/h and 0–1% incline. Further owner tests exercised QZ,
+Kinomap incline/decline, and Runna controls. The advertised range endpoints have
+not been independently measured.
 
 ## Control and app forwarding
 
+QZ discovers only service `1826` for this model, subscribing to Control Point
+indications before Treadmill Data, matching the verified BLE transport.
+Initialization requires both a control grant and live telemetry, with at most
+three non-moving unlock/control attempts. Early Start/target requests are
+discarded; motor commands are never part of initialization. Wait for the
+"YPOO M5 ready" toast before pressing Start.
+
 QZ waits for fresh treadmill-reported telemetry before applying queued speed/incline
 targets. It confirms targets with telemetry, allows at most three target writes,
-and prioritizes stop. Stop confirmation requires both a successful stop response
-and a subsequent zero-speed sample. Stop/physical disconnect discard pending targets;
+and prioritizes stop. Once motion has been reported, stop confirmation requires
+a successful stop response followed by a zero-speed sample. If startup is
+cancelled before any motion, the firmware may reject every stop despite staying
+at rest. That cancellation can instead complete after the ten-second startup
+window expires and live telemetry confirms at least two seconds of continuous
+zero speed without a telemetry gap longer than two seconds. A new start still
+requires an explicit request. Stop/physical disconnect discard pending targets;
 target changes never implicitly start the belt.
 An unconfirmed stop disables new starts/targets until reconnection.
 Confirmation means that the treadmill reports the requested value; it is not an
@@ -61,12 +88,20 @@ requests; application-specific workflows remain subject to end-to-end testing.
 - Native iOS queue and bridge compilation on macOS:
   `python3 tools/test_ypoo_m5_ios_control.py`.
 
+On macOS, the M5 virtual peripheral omits Device Information (`180A`): a native
+CoreBluetooth probe confirmed that macOS reserves this UUID and rejects adding
+it, preventing advertising from starting. FTMS (`1826`) and Heart Rate (`180D`)
+are accepted. On client reconnect, the Mac peripheral reuses the local services
+and handles retained by Qt instead of registering duplicates. These restrictions
+do not change other device/platform paths.
+
 ## Live app acceptance test
 
-Use QZ on one device and Kinomap on another. Close YPOOFIT, Kinni, and other BLE
+Use QZ on one device and Kinomap or Runna on another. Close YPOOFIT, Kinni, and other BLE
 test clients first. Connect QZ to the physical `YPTM-U0…` treadmill, then connect
-Kinomap to QZ's virtual FTMS treadmill (`DomyosBridge` on macOS, `QZ` with the
-native iOS bridge). Do not select the physical treadmill in Kinomap.
+the training app to QZ's virtual FTMS treadmill (macOS may show the computer's
+Bluetooth name rather than `DomyosBridge`; the native iOS bridge uses `QZ`).
+Do not select the physical treadmill in the training app.
 Keep QZ Auto Resistance enabled, virtual Bluetooth enabled, and bike/cadence-only
 virtual modes disabled. Enable QZ debug logging before the test and restart QZ.
 
@@ -78,6 +113,7 @@ virtual modes disabled. Enable QZ debug logging before the test and restart QZ.
 | Stop during a run | Successful stop reply followed by zero-speed telemetry; belt visibly stops |
 | Stop during countdown with targets queued | Targets are discarded; only bounded stop retries follow; firmware may briefly start the belt |
 | Change a target repeatedly | Latest target wins; earlier targets are not replayed later |
+| Runna incline +, wait for telemetry, then − | Half-step requests move to the next whole percentage in each direction; telemetry reports the actual grade |
 | Physical stop, then physical restart | Previous pending workout targets are not replayed |
 | Stop, disconnect the physical treadmill, reconnect | No queued start or target is replayed; a new explicit start is required |
 
