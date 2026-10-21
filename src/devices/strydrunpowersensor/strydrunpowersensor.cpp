@@ -392,6 +392,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        // Keep the running sensor speed available for the alternative pace tile without
+        // changing the inherited treadmill speed metric.
+        alternativeSpeedValue = speed;
         bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
         if(stryd_speed_instead_treadmill)
             emit speedChanged(speed);
@@ -633,6 +636,11 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
+                if (c.uuid() == QBluetoothUuid(QStringLiteral("6a4ecd28-667b-11e3-949a-0800200c9a66"))) {
+                    qDebug() << QStringLiteral("Skipping unused HRM Pro Plus characteristic") << c.uuid();
+                    continue;
+                }
+
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -768,8 +776,19 @@ void strydrunpowersensor::errorService(QLowEnergyService::ServiceError err) {
 
 void strydrunpowersensor::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("strydrunpowersensor::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+    const QString errorName = QString::fromLocal8Bit(metaEnum.valueToKey(err));
+    const QString errorString = m_control ? m_control->errorString() : QString();
+    emit debug(QStringLiteral("strydrunpowersensor::error ") + errorName + QStringLiteral(": ") + errorString);
+
+    if (err == QLowEnergyController::AuthorizationError && !stopReconnectAfterAuthorizationError) {
+        stopReconnectAfterAuthorizationError = true;
+        const QString message = errorString.isEmpty()
+                                    ? QObject::tr("Bluetooth authorization failed (%1)").arg(errorName)
+                                    : QObject::tr("Bluetooth authorization failed: %1").arg(errorString);
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested(message);
+        }
+    }
 }
 
 void strydrunpowersensor::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -827,6 +846,10 @@ uint16_t strydrunpowersensor::watts() { return m_watt.value(); }
 void strydrunpowersensor::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        if (stopReconnectAfterAuthorizationError) {
+            qDebug() << QStringLiteral("Not reconnecting after Bluetooth authorization error");
+            return;
+        }
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
