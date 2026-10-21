@@ -72,6 +72,7 @@ virtual modes disabled. Enable QZ debug logging before the test and restart QZ.
 | --- | --- |
 | Explicit start, followed immediately by 1.2 km/h and 1% targets | One start; targets wait through countdown, then telemetry and console reach both targets |
 | During a run: 1.2 → 1.0 km/h and 1 → 0% incline | Both changes reach the console and QZ; the misleading speed failure reply does not cause an immediate retry loop |
+| During a run: 0 → -1 → 0% incline | Deck, console, QZ, and virtual FTMS telemetry preserve decline without clamping to zero |
 | Stop during a run | Successful stop reply followed by zero-speed telemetry; belt visibly stops |
 | Stop during countdown with targets queued | Targets are discarded; only bounded stop retries follow; firmware may briefly start the belt |
 | Change a target repeatedly | Latest target wins; earlier targets are not replayed later |

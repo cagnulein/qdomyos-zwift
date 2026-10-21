@@ -2,8 +2,10 @@
 #include <utility>
 
 #include "Tools/testsettings.h"
+#include "characteristics/characteristicnotifier2acd.h"
 #include "characteristics/characteristicwriteprocessor2ad9.h"
 #include "devices/elliptical.h"
+#include "devices/horizontreadmill/ypoom5control.h"
 #include "devices/treadmill.h"
 
 namespace {
@@ -13,6 +15,7 @@ class ControlPointTestTreadmill : public treadmill {
     void changeInclination(double grade, double) override { receivedIncline = grade; }
     void start() override { ++startCalls; }
     void stop(bool) override { ++stopCalls; }
+    void reportIncline(double value) { Inclination = value; }
     double receivedSpeed = -1;
     double receivedIncline = -100;
     unsigned startCalls = 0;
@@ -88,5 +91,21 @@ TEST_F(FtmsTreadmillControlTest, SharedDecoderPreservesEllipticalInclineRouting)
         QByteArray reply;
         ASSERT_EQ(ellipticalProcessor.writeProcess(0x2AD9, QByteArray::fromHex(example.first), reply), CP_OK);
         EXPECT_DOUBLE_EQ(elliptical.receivedIncline, example.second);
+    }
+}
+
+TEST_F(FtmsTreadmillControlTest, PreservesDeclineInVirtualTreadmillTelemetry) {
+    settings.qsettings.setValue(QZSettings::bike_cadence_sensor, false);
+    settings.qsettings.setValue(QZSettings::real_inclination_to_virtual_treamill_bridge, false);
+    CharacteristicNotifier2ACD notifier(&treadmill);
+    for (double incline : {-6.0, -1.0, 0.0, 1.0, 15.0}) {
+        treadmill.reportIncline(incline);
+        QByteArray packet;
+        ASSERT_EQ(notifier.notify(packet), CN_OK);
+        double reportedSpeed = 0;
+        double reportedIncline = 0;
+        ASSERT_TRUE(YpooM5Control::readTelemetry(reinterpret_cast<const uint8_t *>(packet.constData()),
+                                                packet.size(), reportedSpeed, reportedIncline));
+        EXPECT_DOUBLE_EQ(reportedIncline, incline);
     }
 }
