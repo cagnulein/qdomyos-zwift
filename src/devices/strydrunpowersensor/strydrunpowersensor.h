@@ -66,6 +66,7 @@ class strydrunpowersensor : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    bool stopReconnectAfterAuthorizationError = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
