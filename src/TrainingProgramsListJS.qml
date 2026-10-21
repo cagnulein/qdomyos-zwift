@@ -162,8 +162,12 @@ ColumnLayout {
                         id: filterField
                         Layout.fillWidth: true
                         // in a Row fillWidth does nothing: the field kept its 120 of Material and
-                        // showed less of the hint as the text grew
-                        width: window.textScale !== 1 ? window.fontPx(implicitWidth) : implicitWidth
+                        // showed less of the hint as the text grew. It grows with the text, but
+                        // leaves room for the back button on a narrow screen
+                        width: window.textScale !== 1
+                               ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth),
+                                     parent.width - x - (filterBackButton.visible ? filterBackButton.width + parent.spacing : 0)))
+                               : implicitWidth
                         placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
@@ -192,6 +196,7 @@ ColumnLayout {
                     }
 
                     Button {
+                        id: filterBackButton
                         text: "←"
                         visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
