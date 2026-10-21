@@ -139,7 +139,7 @@ ScrollView {
         Button {
             text: qsTr("Reset to Linear Defaults")
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: window.fontPx(40)
             onClicked: {
                 gearRows = defaultGearRows()
                 updateGearListModel()
