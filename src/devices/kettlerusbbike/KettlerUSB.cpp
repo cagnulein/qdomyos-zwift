@@ -71,9 +71,10 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 void KettlerUSB::initSequence() {
-    // Kettler initialization sequence from kettlerUSB2BLE
-    // Commands: VE, ID, VE, KI, CA, RS, CM, SP1
-    QStringList initCommands = {"VE", "ID", "VE", "KI", "CA", "RS", "CM", "SP1"};
+    // Match the initialization block recovered from the native Ergo Konzept
+    // application. Its model-specific setup sends RS, CM, and SP<profile>;
+    // BR is built from a runtime counter and is intentionally not guessed here.
+    QStringList initCommands = {"RS", "CM", "SP1"};
 
     for (const QString &cmd : initCommands) {
         sendCommand(cmd);
