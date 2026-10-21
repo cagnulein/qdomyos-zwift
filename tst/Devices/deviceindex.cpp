@@ -52,6 +52,8 @@ DEFINE_DEVICE(ComputrainerBike, "Computrainer Bike");
 DEFINE_DEVICE(Concept2SkiErg, "Concept2 Ski Erg");
 DEFINE_DEVICE(CyclopsPhantomBike, "Cyclops Phantom Bike");
 DEFINE_DEVICE(DeerRunTreadmill, "DeerRun Treadmill");
+DEFINE_DEVICE(DynamaxSprintFTMSBike, "Dynamax Sprint FTMS Bike");
+DEFINE_DEVICE(DynamaxTreadmillOtherFTMSBike, "Dynamax Treadmill (other FTMS bike selected)");
 DEFINE_DEVICE(DomyosBike, "Domyos Bike");
 DEFINE_DEVICE(DomyosElliptical, "Domyos Elliptical");
 DEFINE_DEVICE(DomyosRower, "Domyos Rower");
