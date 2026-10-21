@@ -116,6 +116,7 @@ class ftmsbike : public bike {
     uint16_t watts() override;
     void init();
     void forceResistance(resistance_t requestResistance);
+    bool writeToputureFitshowResistance(resistance_t requestedLevel);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
     void sendZwiftPlayInclination(double inclination);
@@ -130,6 +131,8 @@ class ftmsbike : public bike {
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
+    QLowEnergyService *gattToputureFitshowService = nullptr;
+    QLowEnergyCharacteristic gattToputureFitshowWriteCharacteristic;
 
     QLowEnergyCharacteristic zwiftPlayWriteChar;
     QLowEnergyService *zwiftPlayService = nullptr;
@@ -224,6 +227,7 @@ class ftmsbike : public bike {
     bool USDC_D700 = false;
     bool WLT_BK = false;
     bool TOPUTURE_TEB5 = false;
+    bool TOPUTURE_TBE5_FITSHOW = false; // Experimental FFF2 resistance control for TBE5 only.
     bool SMARTBIKE_3DIGIT = false;
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;

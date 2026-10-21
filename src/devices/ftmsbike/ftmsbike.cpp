@@ -332,7 +332,67 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+// Experimental TBE5 route: FFF0/FFF1/FFF2 and 02 42/02 44 frames verified in
+// the October 14 QZ log; preserve FTMS 2AD2/2ACE telemetry. Values are shared
+// with the existing 32-level FitShow/VirtuFit protocol in fitplusbike.
+bool ftmsbike::writeToputureFitshowResistance(resistance_t requestedLevel) {
+    if (!gattToputureFitshowService ||
+        gattToputureFitshowService->state() != QLowEnergyService::ServiceDiscovered ||
+        !gattToputureFitshowWriteCharacteristic.isValid()) {
+        emit debug(QStringLiteral("Toputure TBE5 FitShow FFF2 unavailable; not falling back to FTMS resistance"));
+        return false;
+    }
+    static const uint8_t tails[32][2] = {
+        {0xf9, 0xb9}, // level 1
+        {0xf9, 0xba}, // level 2
+        {0xfa, 0xb8}, // level 3
+        {0xfb, 0xbe}, // level 4
+        {0xfc, 0xb8}, // level 5
+        {0xfd, 0xba}, // level 6
+        {0xfe, 0xb8}, // level 7
+        {0xff, 0xb6}, // level 8
+        {0x00, 0x48}, // level 9
+        {0x00, 0x4b}, // level 10
+        {0x01, 0x4b}, // level 11
+        {0x03, 0x4e}, // level 12
+        {0x03, 0x4f}, // level 13
+        {0x05, 0x4a}, // level 14
+        {0x05, 0x4b}, // level 15
+        {0x06, 0x57}, // level 16
+        {0x07, 0x57}, // level 17
+        {0x08, 0x5b}, // level 18
+        {0x09, 0x5b}, // level 19
+        {0x0a, 0x5f}, // level 20
+        {0x0b, 0x5f}, // level 21
+        {0x0c, 0x5b}, // level 22
+        {0x0d, 0x5b}, // level 23
+        {0x0e, 0x57}, // level 24
+        {0x00, 0x58}, // level 25
+        {0x00, 0x5b}, // level 26
+        {0x00, 0x5a}, // level 27
+        {0x00, 0x5d}, // level 28
+        {0x00, 0x5c}, // level 29
+        {0x00, 0x5f}, // level 30
+        {0x00, 0x5e}, // level 31
+        {0x00, 0x61}, // level 32
+    };
+    const int level = qBound(1, qRound((double)requestedLevel), 32);
+    uint8_t packet[] = {0x02, 0x44, 0x05, (uint8_t)level,
+                        tails[level - 1][0], tails[level - 1][1], 0x03};
+    return enqueueWrite(gattToputureFitshowService, gattToputureFitshowWriteCharacteristic,
+                        packet, sizeof(packet),
+                        QStringLiteral("Toputure TBE5 FitShow level ") + QString::number(level),
+                        false, false,
+                        gattToputureFitshowWriteCharacteristic.properties() &
+                            QLowEnergyCharacteristic::WriteNoResponse);
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
+    if (TOPUTURE_TBE5_FITSHOW) {
+        // FTMS 0x11/0x04 is acknowledged but can jump to resistance 17-31 on this variant.
+        writeToputureFitshowResistance(requestResistance);
+        return;
+    }
     if (DOMYOS) {
         lastDomyosResistanceCommand = QDateTime::currentDateTime();
         lastDomyosRequestedResistance = requestResistance;
@@ -426,6 +486,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 }
 
 void ftmsbike::forceInclination(double requestInclination) {
+    if (TOPUTURE_TBE5_FITSHOW) {
+        // Provisional 0..10% => level 1..31 mapping; adjust after the iOS ride test.
+        forceResistance(qBound(1, qRound(1.0 + requestInclination * 3.0), 32));
+        return;
+    }
     // FTMS SET_INDOOR_BIKE_SIMULATION_PARAMS command
     // Byte 0: OpCode
     // Byte 1-2: Wind Speed (sint16, 0.001 m/s)
@@ -1825,6 +1890,15 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                     zwiftPlayService = s;
                 }
 
+                if (TOPUTURE_TBE5_FITSHOW && s->serviceUuid() == QBluetoothUuid((quint16)0xFFF0) &&
+                    c.uuid() == QBluetoothUuid((quint16)0xFFF2) &&
+                    (c.properties() & QLowEnergyCharacteristic::Write ||
+                     c.properties() & QLowEnergyCharacteristic::WriteNoResponse)) {
+                    gattToputureFitshowService = s;
+                    gattToputureFitshowWriteCharacteristic = c;
+                    emit debug(QStringLiteral("Toputure TBE5 FitShow FFF2 write characteristic found"));
+                }
+
                 QBluetoothUuid _mokFitnessWriteCharId((quint16)0xFFF2);
                 if (MOK_FITNESS &&
                     (c.properties() & QLowEnergyCharacteristic::Write ||
@@ -2035,6 +2109,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
         }*/
 
+        if (TOPUTURE_TBE5_FITSHOW && b.length() >= 5 &&
+            (uint8_t)b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            // The modified slope includes the existing virtual gearing adjustments.
+            const uint16_t rawGrade = (uint8_t)b.at(3) | ((uint16_t)(uint8_t)b.at(4) << 8);
+            const double grade = ((int16_t)rawGrade) / 100.0;
+            const int level = qBound(1, qRound(1.0 + grade * 3.0), 32);
+            emit debug(QStringLiteral("Toputure TBE5 FitShow slope %1%% -> level %2")
+                           .arg(grade).arg(level));
+            forceResistance(level);
+            return;
+        }
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
 }
@@ -2285,6 +2370,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 32;
+        } else if(device.name().toUpper().startsWith("TOPUTURE TBE5")) {
+            qDebug() << QStringLiteral("TOPUTURE TBE5 found: experimental FitShow control");
+            TOPUTURE_TEB5 = true; // Retain existing Toputure 32-level power calculation.
+            TOPUTURE_TBE5_FITSHOW = true;
+            max_resistance = 32;
+            ergModeSupported = false;
+            Resistance = 1;
         } else if(device.name().toUpper().startsWith("TOPUTURE TEB5")) {
             qDebug() << QStringLiteral("TOPUTURE TEB5 found");
             TOPUTURE_TEB5 = true;
