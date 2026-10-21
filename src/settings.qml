@@ -10855,62 +10855,73 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
                  
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessUsernameTextField
-                            text: settings.life_fitness_username
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessPasswordTextField
-                            text: settings.life_fitness_password
-                            echoMode: TextInput.Password
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
+                    AccordionElement {
+                        id: lifeFitnessAccordion
+                        title: qsTr("Life Fitness Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
 
-                    IndicatorOnlySwitch {
-                        id: lifeFitnessGuestLoginDelegate
-                        text: qsTr("Life Fitness guest login (experimental)")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.life_fitness_guest_login
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
-                    }
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessUsernameTextField
+                                    text: settings.life_fitness_username
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessPasswordTextField
+                                    text: settings.life_fitness_password
+                                    echoMode: TextInput.Password
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
 
-                    Label {
-                        text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessGuestLoginDelegate
+                                text: qsTr("Life Fitness guest login (experimental)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_guest_login
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
                     }
 
                     IndicatorOnlySwitch {
