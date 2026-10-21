@@ -25,9 +25,10 @@ ScrollView {
     }
 
     property var gearRows: []
-    // the rows, the fields and their -/+ grow with the text
-    property int rowHeight: window.fontPx(55)
-    property int offsetControlHeight: window.fontPx(43)
+    // the rows, the fields and their -/+ grow with the text like the Wahoo gear table
+    // (from 40 and 30), never below their size at 100 %
+    property int rowHeight: window.textScale !== 1 ? Math.max(55, window.fontPx(40)) : 55
+    property int offsetControlHeight: window.textScale !== 1 ? Math.max(43, window.fontPx(30)) : 43
 
     Component.onCompleted: {
         loadGearRows()
