@@ -231,7 +231,7 @@ void KettlerUSB::run() {
 
             if (curWritePower) {
                 // Send power command
-                QString powerCmd = QString("PW%1").arg((int)curPower);
+                QString powerCmd = QString("PW %1").arg((int)curPower);
                 sendCommand(powerCmd);
 
                 pvars.lock();
