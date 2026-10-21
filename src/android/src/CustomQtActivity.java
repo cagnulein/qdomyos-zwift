@@ -203,8 +203,9 @@ public class CustomQtActivity extends QtActivity {
     // and once it did, accessibilityTreeChanged() lets TalkBack read the new positions.
     // A double tap on a button is pressed by nativeAccessibleClick (Qt 5.15 does nothing for a
     // button and answers false, after which TalkBack taps the middle of the node). TalkBack gets
-    // true, a clicked event (it reads a new switch state from it) and a tree refresh for what the
-    // press opened or added. Anything else goes to Qt, as before.
+    // true, a clicked event and a tree refresh for what the press opened or added (TalkBack 17
+    // does not say a new switch state from the event: it says the state when the switch is
+    // touched again). Anything else goes to Qt, as before.
     // A value control of Qt (a spin box, a slider: an item with scroll actions and no children)
     // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
