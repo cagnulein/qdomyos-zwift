@@ -161,6 +161,9 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        // in a Row fillWidth does nothing: the field kept its 120 of Material and
+                        // showed less of the hint as the text grew
+                        width: window.textScale !== 1 ? window.fontPx(implicitWidth) : implicitWidth
                         placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
