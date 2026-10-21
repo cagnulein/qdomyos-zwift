@@ -1539,6 +1539,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Max Geschwindigkeit</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Max Steigung</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Max Widerstand</translation>
     </message>
@@ -5478,6 +5482,18 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Suchergebnisse</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Geändert</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Keine geänderten Einstellungen</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Geänderte Einstellungen</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
@@ -6013,7 +6029,7 @@ Bitte geben Sie ihn unten ein:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
+        <translation type="vanished">QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6339,6 +6355,10 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Inclination</source>
         <translation>Neigung</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7049,6 +7069,14 @@ WICHTIGE HINWEISE:
         <translation>Wenn Sie ein Bluetooth Laufband und ein Stryd Gerät mit QZ verbunden haben und die Geschwindigkeit von Stryd anstelle der Geschwindigkeit des Laufbands verwenden möchten, aktivieren Sie dies. Standardmäßig: deaktiviert.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Laufbandgeschwindigkeit per Runn/Stryd im geschlossenen Regelkreis korrigieren</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimentell: korrigiert die von QZ gesteuerte Laufbandgeschwindigkeit schrittweise anhand der Rückmeldung von Runn/Stryd, wenn der Treiber eigene Geschwindigkeitsmesswerte des Geräts liefert. Erfordert „Geschwindigkeit des Leistungssensors verwenden“. Standard: deaktiviert.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Schwelle der Geschwindigkeitskorrektur per Leistungssensor (%):</translation>
     </message>
@@ -7699,6 +7727,14 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Aktivieren Sie „%1“, um diese Einstellung zu ändern</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>PID Herzfrequenz – Stellgröße:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Die globale Einstellung „PID Herzfrequenz – Stellgröße“ wählt bei Laufbändern Geschwindigkeit oder Neigung; ein Trainingsintervall kann sie im Trainingseditor überschreiben. Die Kachel „PID-HF-Zone“ ändert nur die Ziel-Herzfrequenzzone.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

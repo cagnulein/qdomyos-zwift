@@ -140,7 +140,35 @@ bool lockscreen::appleWatchAppInstalled() {
 }
 
 void lockscreen::setTimerDisabled() {
-     [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+
+    // Qt's UIScene lifecycle can activate a window without calling the
+    // UIApplicationDelegate activation callback. Reassert the awake setting
+    // for both application and scene activation, including after unlock.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        void (^restoreIdleTimer)(NSNotification *) = ^(NSNotification *notification) {
+            UIApplication *application = [UIApplication sharedApplication];
+            const bool wasDisabled = application.idleTimerDisabled;
+            application.idleTimerDisabled = YES;
+            qDebug() << "QZ iOS idle timer on activation:"
+                     << QString::fromUtf8(notification.name.UTF8String)
+                     << "wasDisabled:" << wasDisabled
+                     << "nowDisabled:" << static_cast<bool>(application.idleTimerDisabled);
+        };
+        // These observers intentionally live until the process exits.
+        [center addObserverForName:UIApplicationDidBecomeActiveNotification
+                           object:nil
+                            queue:[NSOperationQueue mainQueue]
+                       usingBlock:restoreIdleTimer];
+        if (@available(iOS 13.0, *)) {
+            [center addObserverForName:UISceneDidActivateNotification
+                               object:nil
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:restoreIdleTimer];
+        }
+    });
 }
 
 void lockscreen::request()

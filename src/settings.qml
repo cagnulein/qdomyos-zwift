@@ -36,6 +36,8 @@ import AndroidStatusBar 1.0
 
         property var settingsCatalog: ({ "settings": [], "virtualSettings": [], "pages": [] })
         property var searchableSettings: []
+        // The default of every setting by its key, for the switches a virtual setting is made of
+        property var settingDefaults: ({})
         property var filteredSettings: []
         property bool settingsCatalogLoaded: false
         property bool settingsCatalogLoading: false
@@ -43,6 +45,9 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        // The results list only the settings that differ from their default; the text, if any,
+        // narrows that list
+        property bool changedOnly: false
         property string initialProfileSettingsSnapshot: ""
         // Where every setting is on the settings pages (settings-index-worker.js), for a search
         // result to open the setting itself
@@ -135,8 +140,8 @@ import AndroidStatusBar 1.0
         }
 
         function currentSearch(viaPush) {
-            return { query: settingsSearchTextField.text, results: filteredSettings,
-                     scroll: contentItem.contentY, viaPush: viaPush }
+            return { query: settingsSearchTextField.text, changedOnly: changedOnly,
+                     results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
         }
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
@@ -178,7 +183,13 @@ import AndroidStatusBar 1.0
                 page = stackView.currentItem
                 context = where.file.replace(/\.qml$/, "")
             }
+            // The filter is kept in searchReturn: back brings it up with its results
+            changedOnly = false
             settingsSearchTextField.text = ""
+            // With the filter on and no text the line above changes nothing: the results are
+            // closed here, or the page under them stays hidden and the setting is not found
+            settingsSearchActive = false
+            settingsSearchPending = false
             dropTextFocus()
 
             var container = page.contentItem
@@ -255,9 +266,13 @@ import AndroidStatusBar 1.0
             restoringSearch = true
             settingsSearchTextField.text = back.query
             restoringSearch = false
-            settingsSearchActive = back.query.trim().length > 0
+            changedOnly = back.changedOnly
+            settingsSearchActive = back.query.trim().length > 0 || back.changedOnly
             settingsSearchPending = false
             filteredSettings = back.results
+            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt
+            if (changedOnly)
+                updateFilteredSettings()
             // After the list is laid out again
             contentItem.contentY = 0
             Qt.callLater(function () {
@@ -395,6 +410,7 @@ import AndroidStatusBar 1.0
             // The search closed is done with: back no longer brings its results up
             searchReturn = null
             settingsSearchDebounceTimer.stop()
+            changedOnly = false
             settingsSearchTextField.text = ""
             settingsSearchVisible = false
             settingsSearchActive = false
@@ -477,6 +493,11 @@ import AndroidStatusBar 1.0
                 virtualSettings[i].catalogKind = "virtual"
                 items.push(virtualSettings[i])
             }
+
+            var defaults = {}
+            for (var d = 0; d < persistentSettings.length; d++)
+                defaults[persistentSettings[d].key] = persistentSettings[d].defaultValue
+            settingDefaults = defaults
 
             for (var j = 0; j < persistentSettings.length; j++) {
                 if (persistentSettings[j].control === "virtualOption")
@@ -590,15 +611,17 @@ import AndroidStatusBar 1.0
             }
 
             var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
-            if (query.length === 0) {
+            if (query.length === 0 && !changedOnly) {
                 filteredSettings = []
                 settingsSearchPending = false
                 return
             }
 
-            var tokens = query.split(/\s+/)
+            var tokens = query.length > 0 ? query.split(/\s+/) : []
             var results = []
             for (var i = 0; i < searchableSettings.length; i++) {
+                if (changedOnly && !isChanged(searchableSettings[i]))
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -611,15 +634,94 @@ import AndroidStatusBar 1.0
                 if (matched)
                     results.push(searchableSettings[i])
 
-                if (results.length >= 80)
+                // The changed settings are listed in full: a cut list would hide some of them
+                if (results.length >= 80 && !changedOnly)
                     break
             }
             filteredSettings = results
             settingsSearchPending = false
         }
 
+        function setChangedOnly(on) {
+            changedOnly = on
+            // A new list of one's own: back no longer returns to the previous one
+            searchReturn = null
+            settingsSearchDebounceTimer.stop()
+            settingsSearchActive = on || settingsSearchTextField.text.trim().length > 0
+            settingsSearchPending = settingsSearchActive
+            filteredSettings = []
+            loadSettingsCatalog()
+            updateFilteredSettings()
+        }
+
+        // Not listed among the changed settings:
+        // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
+        //   out of the logs;
+        // - the keys QZ writes by itself, without anyone touching them: the MyWhoosh link cycles
+        //   its actions with a controller button, the last gear is kept on every shift with
+        //   gears_restore_value, the detection of the equipment marks what it found
+        readonly property var privateKeyParts: ["password", "user_email", "username", "token", "cryptokey",
+                                                "garmin_device_serial", "garmin_email"]
+        readonly property var appWrittenKeys: ["mywhoosh_link_camera_value", "mywhoosh_link_emote_value",
+                                               "gears_current_value_f", "domyosbike_notfmts",
+                                               "toorxtreadmill_discovery_completed"]
+        function isPrivateSetting(entry) {
+            var key = entry.key.toLowerCase()
+            for (var i = 0; i < privateKeyParts.length; i++) {
+                if (key.indexOf(privateKeyParts[i]) >= 0)
+                    return true
+            }
+            return appWrittenKeys.indexOf(entry.key) >= 0
+        }
+
+        // From the store, not from this page's Settings: another settings page (tiles, voice)
+        // writes through a Settings object of its own, which this one does not hear about. The
+        // store may give a boolean back as the string "true"
+        function storedValue(key, type, fallback) {
+            var value = settings.value(key, fallback)
+            if (type === "boolean")
+                return value === true || value === "true"
+            return value
+        }
+
+        function differsFromDefault(key, type, fallback) {
+            // No plain default in the catalog (an expression it could not work out)
+            if (fallback === null || fallback === undefined)
+                return false
+            var value = storedValue(key, type, fallback)
+            if (type === "boolean")
+                return value !== !!fallback
+            if (type === "integer" || type === "number") {
+                // A real written as a float by the C++ side reads back as 0.33000001...
+                var difference = Math.abs(Number(value) - Number(fallback))
+                return difference > 0.000001 * Math.max(1, Math.abs(Number(fallback)))
+            }
+            return String(value) !== String(fallback)
+        }
+
+        function isChanged(entry) {
+            // A picker over one switch per model: changed when one of its switches is. Not by the
+            // picked index - a switch on by default (nordictrack_10_treadmill) picks a model there
+            if (entry.catalogKind === "virtual") {
+                for (var o = 0; entry.options && o < entry.options.length; o++) {
+                    var key = entry.options[o].sets
+                    if (key && differsFromDefault(key, "boolean", settingDefaults[key]))
+                        return true
+                }
+                return false
+            }
+            return entry.catalogKind === "setting" && !isPrivateSetting(entry) &&
+                   differsFromDefault(entry.key, entry.type, entry.defaultValue)
+        }
+
+        // From the store as well: a value changed on the voice or tiles page, opened over this
+        // one, is not in this page's copy until the settings are opened again. The copy stays the
+        // fallback of a key not written yet, and keeps the bindings of the cards on its property
         function settingValue(entry) {
-            var value = settings[entry.key]
+            var copy = settings[entry.key]
+            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
+                return Number(value)
             return value === undefined ? entry.defaultValue : value
         }
 
@@ -633,6 +735,9 @@ import AndroidStatusBar 1.0
             } else {
                 settings[entry.key] = value
             }
+            // Straight into the store too: the card reads it back (settingValue), and the page's
+            // Settings writes it only a moment later
+            settings.setValue(entry.key, settings[entry.key])
 
             window.settings_restart_to_apply = true
             toast.show(qsTr("Setting saved!"))
@@ -2136,6 +2241,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_305_cst: false
             property bool freemotion_t10_9b_hci: false
             property bool treadmill_runn_closed_loop: false
+            property string treadmill_pid_heart_control: "Speed"
             
             property string life_fitness_first_name: ""
             property string life_fitness_last_name: ""
@@ -2144,7 +2250,7 @@ import AndroidStatusBar 1.0
             property string life_fitness_username: ""
             property string life_fitness_password: ""
             property string life_fitness_api_key: ""
-            property bool life_fitness_guest_login: false
+            property bool life_fitness_guest_login: false            
         }
 
 
@@ -2250,9 +2356,12 @@ import AndroidStatusBar 1.0
                     onTextChanged: {
                         if (settingsPane.restoringSearch)
                             return
-                        settingsPane.settingsSearchActive = text.trim().length > 0
+                        settingsPane.settingsSearchActive = text.trim().length > 0 || settingsPane.changedOnly
                         settingsSearchDebounceTimer.stop()
-                        if (settingsPane.settingsSearchActive) {
+                        if (text.trim().length === 0 && settingsPane.changedOnly) {
+                            // The text cleared: the whole list of changed settings at once
+                            settingsPane.updateFilteredSettings()
+                        } else if (settingsPane.settingsSearchActive) {
                             settingsPane.filteredSettings = []
                             settingsPane.settingsSearchPending = true
                             settingsPane.loadSettingsCatalog()
@@ -2262,6 +2371,13 @@ import AndroidStatusBar 1.0
                             settingsPane.settingsSearchPending = false
                         }
                     }
+                }
+
+                Button {
+                    text: qsTr("Changed")
+                    checkable: true
+                    checked: settingsPane.changedOnly
+                    onClicked: settingsPane.setChangedOnly(checked)
                 }
 
                 Button {
@@ -2288,6 +2404,11 @@ import AndroidStatusBar 1.0
                 Label {
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
+                          changedOnly && filteredSettings.length > 0 ?
+                              qsTr("Changed settings") + " (" + filteredSettings.length + ")" :
+                          // With a text the changed settings may be there, just not matching it
+                          changedOnly && settingsSearchTextField.text.trim().length === 0 ?
+                              qsTr("No changed settings") :
                           filteredSettings.length === 0 ? qsTr("No settings found") :
                           qsTr("Search results") + " (" + filteredSettings.length + ")"
                     color: Material.color(Material.Red)
@@ -9771,8 +9892,34 @@ import AndroidStatusBar 1.0
                         }
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillPidHRControl
+                            text: qsTr("PID HR actuator:")
+                            Layout.fillWidth: true
+                        }
+                        ValueComboBox {
+                            id: treadmillPidHRControlTextField
+                            model: [ "Speed", "Inclination" ]
+                            labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
+                            value: settings.treadmill_pid_heart_control
+                            currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
+                                toast.show(qsTr("Setting saved!"));
+                            }
+                        }
+                    }
+
                     Label {
-                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

@@ -44,6 +44,22 @@ To test this:
 
 In a confirmed support case, an unnoticed second device was connecting to the bike; removing that competing connection restored QZ connectivity.
 
+## My bike loses resistance control or virtual shifting after a minute, but power and cadence still work. What should I check?
+
+A bike may initially work in QZ and a training app (such as MyWhoosh or Zwift), then stop responding to gradient/resistance or virtual-gear changes after a short time **even while watts and cadence continue updating**. This is not necessarily a complete Bluetooth disconnection. One possible cause is a competing or unwanted Bluetooth heart-rate connection.
+
+To isolate this kind of problem:
+
+1. **Test QZ without the training app.** Connect QZ to the physical bike, leave MyWhoosh/Zwift/other training apps closed or disconnected, and check that QZ can still change the bike's resistance after several minutes. If QZ alone is stable, focus next on how the training app pairs with QZ; if it fails even alone, investigate the direct bike-to-QZ connection instead.
+2. In **QZ Settings > Heart Rate Options**, enable **Disable HRM from the machinery** while testing. This prevents QZ from using heart-rate readings supplied by the bike.
+3. Keep **Heart rate service outside FTMS** disabled in QZ for the test, if that option is available.
+4. In the training app's device-pairing screen, **disconnect or unpair the heart-rate sensor** associated with QZ/the bike. Keep QZ paired as the **power/cadence and controllable trainer** so that resistance control continues to use QZ. If you need heart rate, use an independent HR source supported by your setup instead of adding back the suspected conflicting pairing during the test.
+5. Reconnect, ride beyond the time when control usually fails, and verify **both** that live metrics still update and that virtual shifting/gradient resistance still work.
+
+**Confirmed short test:** In one two-Android-device setup with a Domyos Training Bike 900 and MyWhoosh, resistance control and virtual shifting stopped after roughly one minute while power and cadence still arrived. QZ controlling the bike alone remained stable. With the HR-related settings and MyWhoosh heart-rate pairing changed as above, the rider reported normal control after approximately ten minutes. A full-length workout had **not yet been confirmed**, and several settings were changed together, so this does **not** prove a single root cause or guarantee that the workaround applies to every bike.
+
+If control still drops, note whether the **QZ-to-bike** connection or only the **training-app-to-QZ control path** is affected, check for other devices/apps connecting to the bike, and collect a QZ debug log covering the failure.
+
 ## QZ keeps finding or searching for the wrong nearby fitness device. How can I force the intended trainer or bike?
 
 If several supported Bluetooth fitness devices are nearby and QZ selects or keeps searching for the wrong one, use the **Manual Device** setting to restrict discovery to the device you actually want to use.
@@ -148,3 +164,11 @@ A KICKR CORE support user confirmed that connectivity worked again after the pai
 First confirm QZ receives the trainer's metrics and that Zwift pairs **QZ** as the controllable/resistance device, not just as a power source.
 
 In a confirmed Android support case, the successful troubleshooting instructions were to update QZ to a current **Play Store beta** build, set **FTMS Bike** under **QZ Settings > Bike Options** to **Disabled** if a device was manually forced there, restart QZ, and test again. The rider confirmed resistance control worked afterward. Since the two changes were made together, the thread does not isolate which one fixed the problem. Do not disable FTMS indiscriminately on unrelated trainers.
+
+## Why can Schwinn IC4 resistance in QZ differ from the console?
+
+The Schwinn IC4 is supported by QZ. Its QZ driver receives cadence and power over Bluetooth and uses those readings to calculate a resistance estimate. That estimate can vary with pedaling effort even when the physical resistance knob has not moved.
+
+Under **Bike Options**, QZ offers Schwinn resistance conversion variants and a resistance smoothing setting. Compare the QZ and console values at a steady cadence before adjusting the mapping. These settings change the reported resistance representation, not the physical knob calibration.
+
+**Watt Gain** and **Watt Offset** can adjust power reported by QZ but cannot calibrate the bike's own power sensor. The **speed calculated from power** setting can also make QZ speed and distance differ from the console. These behaviors are verified in QZ's Schwinn IC4 driver and metric settings; no customer-specific calibration fix was confirmed.

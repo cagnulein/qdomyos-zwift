@@ -60,3 +60,19 @@
 - A proprietary console may show live values through its own application while QZ cannot read the shared serial interface.
 - Physical controls, QZ commands, and telemetry are separate paths; testing them independently avoids mistaking a port-ownership conflict for an external training-app problem.
 - A startup log and the manufacturer's app state distinguish serial access contention from missing decoding or control support.
+
+## No QZ debug file appears on an embedded Android console
+
+### Provide first
+
+- Confirm Debug Log was enabled in QZ Experimental Settings and that a short reproduction was completed.
+- State whether any QZ log appeared in the accessible app files or Documents directory, and identify the console model and Android version.
+
+### If still unclear
+
+- If ADB access is available, support may request a short timestamped Android logcat capture covering one safe test action, alongside the status of manufacturer apps using the serial interface.
+- Do not disable manufacturer safety controls or services solely to gather logs.
+
+### Why it matters
+
+- Android system logs may expose serial-port access or process conflicts when QZ's own logging is unavailable.

@@ -1539,6 +1539,10 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Vitesse max</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Pente max</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Résistance maximale</translation>
     </message>
@@ -5474,6 +5478,18 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Résultats de recherche</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modifiés</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Aucun paramètre modifié</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Paramètres modifiés</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
@@ -6017,7 +6033,7 @@ Veuillez le saisir ci-dessous :</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une Zone de fréquence cardiaque choisie. Activez l&apos;option, définissez une zone de fréquence cardiaque cible pour l&apos;entraînement et cliquez sur OK. Par exemple, entrez 2 pour s&apos;entraîner dans la zone de FC 2 et le tapis roulant ajustera automatiquement la vitesse (ou la résistance sur un vélo) pour maintenir votre fréquence cardiaque dans la zone 2. QZ augmente ou diminue progressivement votre vitesse (ou la résistance du vélo) par petits incréments toutes les 40 secondes pour atteindre et maintenir votre zone de FC cible. Pendant l&apos;entraînement, vous pouvez afficher et utiliser les boutons ‘+’ et ‘-’ sur la tuile de maintien de la zone de FC pour changer la zone de FC cible.</translation>
+        <translation type="vanished">QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une Zone de fréquence cardiaque choisie. Activez l&apos;option, définissez une zone de fréquence cardiaque cible pour l&apos;entraînement et cliquez sur OK. Par exemple, entrez 2 pour s&apos;entraîner dans la zone de FC 2 et le tapis roulant ajustera automatiquement la vitesse (ou la résistance sur un vélo) pour maintenir votre fréquence cardiaque dans la zone 2. QZ augmente ou diminue progressivement votre vitesse (ou la résistance du vélo) par petits incréments toutes les 40 secondes pour atteindre et maintenir votre zone de FC cible. Pendant l&apos;entraînement, vous pouvez afficher et utiliser les boutons ‘+’ et ‘-’ sur la tuile de maintien de la zone de FC pour changer la zone de FC cible.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6343,6 +6359,10 @@ Veuillez le saisir ci-dessous :</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinaison</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Vitesse</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7065,6 +7085,14 @@ NOTES IMPORTANTES :
         <translation>Si vous avez un tapis de course Bluetooth et un appareil Stryd connecté à QZ et que vous souhaitez utiliser la vitesse du Stryd au lieu de celle du tapis de course, activez ceci. Par défaut : désactivé.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correction de la vitesse du tapis en boucle fermée avec Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Expérimental : corrige progressivement la vitesse du tapis commandée par QZ d&apos;après le retour de Runn/Stryd, lorsque le pilote fournit ses propres mesures de vitesse de la machine. Nécessite « Utiliser la vitesse du capteur de puissance ». Par défaut : désactivé.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Seuil de correction de vitesse du capteur de puissance (%) :</translation>
     </message>
@@ -7719,6 +7747,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Activez « %1 » pour modifier ce paramètre</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Maintien de la FC – agir sur :</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une zone de fréquence cardiaque choisie. Le réglage général « Maintien de la FC – agir sur » choisit la vitesse ou l&apos;inclinaison pour les tapis ; un intervalle d&apos;entraînement peut le remplacer dans l&apos;Éditeur d&apos;entraînement. La tuile « Zone de maintien de la FC » ne change que la zone de FC cible.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

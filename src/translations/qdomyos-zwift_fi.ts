@@ -2146,6 +2146,94 @@ Do you want to update QZ settings?</source>
         <source>Auto Resistance</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Max Incline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
@@ -2441,6 +2529,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <source>Female</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>lbs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WorkoutEditor</name>
@@ -2665,6 +2761,46 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter by date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>has a workout</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3334,6 +3470,264 @@ This may take a few moments on first startup.</source>
         <source>License not found</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HRV (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Odometer (m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Great workout!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3917,6 +4311,18 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Search results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5265,10 +5671,6 @@ Please enter it below:</source>
     </message>
     <message>
         <source>PID on Heart Zone:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7188,6 +7590,66 @@ Default: A = -0.96, B = 1.33</source>
         <source>Enables a virtual bluetooth bridge to the Tacx App.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>lbs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -7990,6 +8452,14 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Stroke Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>km/h</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

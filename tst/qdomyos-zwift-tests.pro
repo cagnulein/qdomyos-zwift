@@ -36,11 +36,13 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestKeepBikeParser.cpp \
+        Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
         Devices/TestLifeFitness95TParser.cpp \
         Devices/TestLifeFitnessWorkout.cpp \
@@ -50,6 +52,7 @@ SOURCES += \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestFitPlusBikeResistance.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -80,11 +83,13 @@ HEADERS += \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestEchelonUnlock.h \
     Devices/TestNautilusTreadmillParser.h \
     Devices/TestFtmsBikeResistance.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \
     Devices/TestTrxAppGateUsTreadmillParser.h \
     Devices/TestKeepBikeParser.h \
+    Devices/TestSportsPlusBikeParser.h \
     Devices/TestWahooKickrRunParser.h \
     Devices/TestLifeFitness95TParser.h \
     Devices/TestLifeFitnessWorkout.h \

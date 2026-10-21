@@ -85,3 +85,31 @@ The current code uses Gears Gain to control the step applied to local gear chang
 QZ's settings UI explicitly warns that enabling **Get Gears from Zwift** together with QZ's **Zwift Play/Click** controller options can cause conflicts, and offers to disable those options. If using Zwift on **Apple TV** over QZ's Wi-Fi/DIRCON virtual-trainer connection, this setup also leaves the Apple TV's Bluetooth connection available for Zwift Click; see [Apple TV/Wi-Fi bridging](integrations.md).
 
 **This is not the MyWhoosh setup.** For MyWhoosh with QZ/OpenBikeControl, the Click normally connects to QZ and **Get Gears from Zwift** is disabled; see [MyWhoosh](mywhoosh.md). The specific reports of disappearing Click controllers or overly strong resistance in Zwift were still being investigated, so this is code-verified configuration guidance rather than a claimed confirmed fix for those symptoms.
+
+## Why did Zwift become slower after I lowered Watt Gain, even though Speed Gain is still 1?
+
+**Watt Gain scales the power that QZ reports**, not how hard the bike physically feels. For example, **Watt Gain = 0.6** turns a 200 W reported reading into approximately **120 W** (before any other applicable adjustments). QZ's watt-metric implementation applies that multiplier to positive power values.
+
+When Zwift receives power from QZ, it uses that power along with its own ride physics to calculate the avatar's **virtual speed**. Lowering the reported power can therefore make the avatar slower, **even if Speed Gain stays at 1**. Speed Gain is a separate adjustment to a measured speed value; it is not a way to preserve Zwift's power-based virtual speed after changing Watt Gain.
+
+For an accurate starting point:
+
+1. Under QZ's **Advanced Settings**, restore **Watt Gain = 1.0** and **Watt Offset = 0**, unless you have a specific, measured calibration reason to use another value.
+2. Confirm that QZ shows plausible power readings from the bike and that Zwift is connected to QZ as the power source.
+3. If the bike has adjustable resistance but no mechanical gears, you can enable **QZ Settings > Tiles Options > Gears** to experiment with QZ's local virtual shifting. This changes the resistance/gearing experience; it does not require a physical cassette.
+
+A support user reported much lower virtual speed after reducing Watt Gain, then reported that restoring **1.0** resolved the immediate issue. Do not change Watt Gain simply to manipulate a race result; it changes the power value delivered to the training app. For a broader explanation of console versus virtual speed, see [the public FAQ](../qz_faq_public.md).
+
+## Can I use QZ's on-screen virtual gear buttons without Zwift Click or running Zwift?
+
+**Yes.** QZ includes local virtual gear controls on its dashboard. You do **not** need physical Zwift Click buttons, the Zwift app, or a Zwift subscription just to use these on-screen controls with a trainer that QZ can control.
+
+1. Connect the physical smart trainer to **QZ** and verify that QZ's live metrics update.
+2. Open **QZ Settings > Tiles Options** and enable the regular **Gears** tile to display the current virtual gear.
+3. Enable **Gears Big Buttons** in the same settings section to show the large **Gear − / Gear +** controls on the dashboard.
+4. Return to the dashboard and press Gear − / Gear + while pedalling. The displayed virtual gear should change; on a controllable and correctly configured trainer, check whether the physical effort changes appropriately.
+5. If using MyWhoosh, run it on a **separate device** and connect it to QZ's virtual trainer. QZ local gear controls should not be confused with gear commands handled by MyWhoosh Link/OpenBikeControl.
+
+The **Gears Big Buttons** setting and local gear up/down paths are present in the QZ settings and bike-control code. A support user explicitly confirmed successfully exposing the relevant controls, but this is **code-verified usage guidance**, not a claim that the user's particular trainer's resistance behavior was fully fixed.
+
+If you prefer the **physical Zwift Click / Click V2 controller**, that is a separate Bluetooth pairing flow: enable **Zwift Click** under QZ Accessories, leave **Get Gears from Zwift** disabled when QZ owns shifting, and follow the official Zwift handshake procedure if required for Click V2. The physical **Zwift Cog** itself is a fixed sprocket, not a source of gear-button events.

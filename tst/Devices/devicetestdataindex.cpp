@@ -724,6 +724,17 @@ void DeviceTestDataIndex::Initialize() {
              "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
+    // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_AdidasFTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceName("ADIDAS 0584", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName() : QZSettings::default_ftms_treadmill);
+            info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
+        })
+        ->excluding<trxappgateusbtreadmill>();
+
     // Horizon Treadmill (Toorx)
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_Toorx)
         ->expectDevice<horizontreadmill>()        
@@ -796,6 +807,22 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+
+    // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? info.DeviceName() : QStringLiteral("OTHER BIKE"));
+        });
+
+    // Selecting an unrelated FTMS bike must not stop a DYNAMAX treadmill from being detected.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxTreadmillOtherFTMSBike)
+        ->expectDevice<kingsmithr1protreadmill>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? QStringLiteral("OTHER BIKE") : info.DeviceName());
+        });
 
     // Kingsmith R1 Pro Treadmill
     RegisterNewDeviceTestData(DeviceIndex::KingsmithR1ProTreadmill)
@@ -1197,7 +1224,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sports Plus Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
-        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("CARE113770737", DeviceNameComparison::IgnoreCase);
 
     // Sports Plus Rower
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)

@@ -66,3 +66,40 @@
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
+
+## Bike reports metrics but remote resistance support is uncertain
+
+### Provide first
+
+- Exact bike model, QZ version, and which metrics update in QZ.
+- Whether the bike changes resistance using mechanical or electronic controls, and whether its manufacturer app can control resistance remotely.
+- Whether manual resistance requests from QZ work before a third-party app is opened.
+
+### If still unclear
+
+- With other bike apps closed, provide an nRF Connect screenshot showing the bike's Bluetooth services and characteristics, including any FTMS control point.
+- Provide a QZ debug log covering one manual resistance request and the bike's response.
+
+### Why it matters
+
+- Working telemetry does not prove remote resistance control is available.
+- Electronic buttons and FTMS service discovery do not by themselves establish which remote commands are accepted.
+
+## Trainer detected but workout metrics remain unavailable
+
+### Provide first
+
+- Trainer model, Bluetooth device name, QZ version, operating system, and whether workout tiles are absent or show zero.
+- Screenshot of the FTMS Bike selection in Bike Options.
+- Confirm whether live power and cadence appear in QZ before opening a receiving training app.
+
+### If still unclear
+
+- Select the trainer explicitly under FTMS Bike, restart QZ, and test QZ alone.
+- Compare the behavior before and after connecting any external controllers.
+- Provide a debug log beginning before device discovery if the dashboard still has no live values.
+
+### Why it matters
+
+- Bluetooth discovery does not establish that QZ selected a telemetry source.
+- Testing the trainer without other apps distinguishes incoming metric failures from downstream virtual-device pairing.
