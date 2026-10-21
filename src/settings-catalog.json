@@ -16448,13 +16448,6 @@
         "sourceLine": 10615
       },
       {
-        "key": "lifeFitnessAccordion",
-        "name": "Life Fitness Options",
-        "parent": "treadmillAccordion",
-        "depth": 1,
-        "sourceLine": 10711
-      },
-      {
         "key": "proformTreadmillAccordion",
         "name": "Proform/Nordictrack Options",
         "parent": "treadmillAccordion",
@@ -16474,6 +16467,13 @@
         "parent": "treadmillAccordion",
         "depth": 1,
         "sourceLine": 11572
+      },
+      {
+        "key": "lifeFitnessAccordion",
+        "name": "Life Fitness Options",
+        "parent": "treadmillAccordion",
+        "depth": 1,
+        "sourceLine": 11810
       },
       {
         "key": "runnerTTreadmillAccordion",
