@@ -269,7 +269,7 @@ void KettlerUSB::run() {
 
             if (curWritePower) {
                 // Send power command
-                QString powerCmd = QString("PW%1").arg((int)curPower);
+                QString powerCmd = QString("PW %1").arg((int)curPower);
                 if (sendCommand(powerCmd) < 0) {
                     qDebug() << "Kettler power command write failed";
                     closePort();
