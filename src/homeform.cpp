@@ -1355,9 +1355,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         bool garmin_download_workouts_on_start = settings.value(QZSettings::garmin_download_workouts_on_start,
                                                                  QZSettings::default_garmin_download_workouts_on_start)
                                                      .toBool();
-        QString token = settings.value(QZSettings::garmin_access_token).toString();
-
-        if (garmin_enabled && garmin_download_workouts_on_start && !token.isEmpty()) {
+        if (garmin_enabled && garmin_download_workouts_on_start &&
+            garminConnect && garminConnect->isAuthenticated()) {
             qDebug() << "Garmin Connect: Auto-downloading today's workout...";
             garmin_download_todays_workout();
         } else {
