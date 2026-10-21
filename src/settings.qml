@@ -11858,29 +11858,31 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
-                                TextField {
+                                SettingsTextField {
                                     id: lifeFitnessUsernameTextField
-                                    text: settings.life_fitness_username
+                                    savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: lifeFitnessUsernameTextField.dirty
                                     onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
                                 spacing: 10
                                 Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
-                                TextField {
+                                SettingsTextField {
                                     id: lifeFitnessPasswordTextField
-                                    text: settings.life_fitness_password
+                                    savedText: settings.life_fitness_password
                                     echoMode: TextInput.Password
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: lifeFitnessPasswordTextField.dirty
                                     onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
