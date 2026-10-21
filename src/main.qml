@@ -1463,8 +1463,32 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
-            // centered between the buttons of the bar: a bigger text would run into them
-            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
+            // Grows with the text size, but no wider than the room between the nearest shown
+            // buttons, centred: a title that does not fit takes a smaller font down to its size at
+            // 100 %, and only then an ellipsis. At 100 % it stays as it was
+            width: window.textScale !== 1 ? Math.min(implicitWidth, titleRoom) : implicitWidth
+            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
+            minimumPixelSize: window.appFontPx
+            // The line keeps the height of the full size: a smaller font in its middle, not at its top
+            verticalAlignment: window.textScale !== 1 ? Text.AlignVCenter : Text.AlignTop
+            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
+            readonly property real titleRoom: {
+                var c = parent.width / 2, room = c
+                var left = [toolButton, toolButtonFloating]
+                var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
+                             toolButtonVideo, toolButtonChart, toolButtonLockTiles, toolButtonAutoResistance]
+                for (var i = 0; i < left.length; i++)
+                    if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
+                        room = Math.min(room, c - (left[i].x + left[i].width))
+                // The search of the settings comes and goes with the scroll: its place is kept on the
+                // settings page all the time, or the title grew and shrank with it
+                for (var j = 0; j < right.length; j++) {
+                    var held = right[j] === toolButtonSettingsSearch && headerToolbar.settingsPageActive
+                    if ((held || (right[j].visible && right[j].opacity > 0)) && right[j].width > 0)
+                        room = Math.min(room, right[j].x - c)
+                }
+                return Math.max(0, 2 * (room - 4))
+            }
         }
     }
 
