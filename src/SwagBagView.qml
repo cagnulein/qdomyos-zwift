@@ -73,7 +73,9 @@ Item {
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
             color: "white"
-            font.pointSize: 22 * window.textScale
+            // already large: it grows at half the rate, so it stays above the body text
+            // without filling the screen (about 30 pt at 170 %)
+            font.pointSize: 22 * (1 + (window.textScale - 1) / 2)
             wrapMode: TextArea.Wrap
             text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!")
         }
