@@ -16,6 +16,59 @@ TEST(YpooM5ControlTest, ReadinessRequiresFreshTelemetryFromTheCurrentConnection)
     EXPECT_FALSE(control.hasFreshTelemetry(2600));
 }
 
+TEST(YpooM5ControlTest, PhysicalMotionAllowsRecordingWithoutIssuingAnotherStart) {
+    YpooM5Control control;
+    EXPECT_FALSE(control.canResumeRecording(0));
+    control.telemetry(0, 0, 0);
+    EXPECT_FALSE(control.canResumeRecording(0));
+    // Captured run: the console started the belt while QZ still considered itself stopped.
+    control.telemetry(9.5, 0, 1000);
+    EXPECT_TRUE(control.canResumeRecording(1000));
+    EXPECT_EQ(control.next(1000).action, Action::None);
+    EXPECT_FALSE(control.canResumeRecording(3001));
+    control.reset();
+    EXPECT_FALSE(control.canResumeRecording(3500));
+}
+
+TEST(YpooM5ControlTest, StopDecelerationCannotReopenAStoppedRecording) {
+    YpooM5Control control;
+    control.telemetry(9.5, 0, 0);
+    control.requestStop();
+    EXPECT_FALSE(control.canResumeRecording(0));
+    EXPECT_EQ(control.next(0).action, Action::Stop);
+    control.stopResponse(true);
+    control.telemetry(8.4, 0, 500);
+    EXPECT_FALSE(control.canResumeRecording(500));
+    control.telemetry(1, 0, 3000);
+    EXPECT_FALSE(control.canResumeRecording(3000));
+    control.telemetry(0, 0, 3500);
+    EXPECT_FALSE(control.canResumeRecording(3500));
+    // A later physical restart is a new recording, not a replayed Start command.
+    control.telemetry(1, 0, 4500);
+    EXPECT_TRUE(control.canResumeRecording(4500));
+    EXPECT_EQ(control.next(4500).action, Action::None);
+}
+
+TEST(YpooM5ControlTest, CancelledCountdownAndFailedStopCannotResumeRecording) {
+    YpooM5Control control;
+    control.telemetry(0, 0, 0);
+    control.requestStart();
+    EXPECT_EQ(control.next(0).action, Action::Start);
+    EXPECT_FALSE(control.canResumeRecording(0));
+    control.requestStop();
+    control.telemetry(1, 0, 3000); // Brief motion while cancelling the countdown.
+    EXPECT_FALSE(control.canResumeRecording(3000));
+    for (int64_t now = 3000; now < 9000; now += 1000) {
+        control.telemetry(1, 0, now);
+        EXPECT_EQ(control.next(now).action, Action::Stop);
+        EXPECT_FALSE(control.canResumeRecording(now));
+    }
+    control.telemetry(1, 0, 9000);
+    EXPECT_EQ(control.next(9000).action, Action::None);
+    EXPECT_EQ(control.takeFailure(), Action::Stop);
+    EXPECT_FALSE(control.canResumeRecording(9000));
+}
+
 TEST(YpooM5ControlTest, DecodesCapturedTelemetryWithRfuBitsAndExtraBytes) {
     const uint8_t speedPacket[] = {0x9c, 0x25, 0x78, 0x00, 0, 0, 0, 0, 0, 0xff, 0x7f, 0, 0,
                                    0,    0,    0,    0,    0, 0, 0, 0, 2, 0,    0,    0, 0};

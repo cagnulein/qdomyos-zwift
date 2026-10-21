@@ -18,6 +18,9 @@ class YpooM5Control {
     void reset() { *this = YpooM5Control(); }
     bool running() const { return speed > 0; }
     bool hasFreshTelemetry(int64_t now) const { return lastTelemetry >= 0 && now - lastTelemetry <= 2000; }
+    bool canResumeRecording(int64_t now) const {
+        return running() && hasFreshTelemetry(now) && !stopRequested && !faulted;
+    }
 
     static bool readTelemetry(const uint8_t *data, size_t size, double &reportedSpeed, double &reportedIncline) {
         if (size < 2)

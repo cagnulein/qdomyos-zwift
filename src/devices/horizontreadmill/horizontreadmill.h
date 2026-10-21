@@ -31,6 +31,7 @@
 
 #include "treadmill.h"
 #include "ypoom5control.h"
+#include "ypoom5distance.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -127,6 +128,7 @@ class horizontreadmill : public treadmill {
     bool ypooM5ControlGranted = false;
     QElapsedTimer ypooM5Clock;
     YpooM5Control ypooM5Control;
+    YpooM5Distance ypooM5Distance;
     bool MX_TM = false;
     bool FIT = false;
     bool FIT_TM = false;

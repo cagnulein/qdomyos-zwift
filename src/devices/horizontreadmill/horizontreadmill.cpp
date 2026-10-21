@@ -1026,7 +1026,7 @@ void horizontreadmill::update() {
             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                         now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
-            if (!treadmill_direct_distance) {
+            if (!YPOO_M5 && !treadmill_direct_distance) {
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             }
@@ -2107,7 +2107,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             index += 3;
         }
         {
-            if (firstDistanceCalculated && !isPaused() && !treadmill_direct_distance)
+            if (YPOO_M5) {
+                const double distance = ypooM5Distance.update(ypooM5Clock.elapsed(), Speed.value(), !isPaused());
+                if (!treadmill_direct_distance)
+                    Distance += distance;
+            } else if (firstDistanceCalculated && !isPaused() && !treadmill_direct_distance)
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
@@ -3078,6 +3082,7 @@ void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         if (YPOO_M5) {
             ypooM5Control.reset();
+            ypooM5Distance.reset();
             ypooM5ControlGranted = false;
             if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
                 virtualTreadmill->clearControlPointWrites();
@@ -3141,6 +3146,12 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if (YPOO_M5) {
+        // homeform resumes recording through Start_inner(false): no motor Start.
+        // Do not reopen/reset a stopped workout while the belt is decelerating.
+        return initDone && requestStop == -1 && requestPause == -1 && requestSpeed != 0 &&
+               ypooM5Control.canResumeRecording(ypooM5Clock.elapsed());
+    }
     QSettings settings;
     bool horizon_treadmill_omega_z =
         settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();

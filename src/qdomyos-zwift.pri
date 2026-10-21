@@ -811,6 +811,7 @@ mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/horizontreadmill/ypoom5control.h \
+devices/horizontreadmill/ypoom5distance.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
 keepawakehelper.h \

@@ -75,6 +75,22 @@ response acknowledges acceptance by QZ, not completed physical actuation. Actual
 application is checked asynchronously against treadmill telemetry; exhausted
 retries are recorded in the QZ debug log.
 
+Fresh belt motion also resumes QZ recording after a console/app start, without
+sending another motor Start. Pending Stop/Pause/zero-speed requests and an
+unconfirmed Stop prevent that automatic recording transition while the belt is
+decelerating. M5 software distance is integrated once per valid telemetry sample,
+using a dedicated monotonic clock and the previous reported speed. The generic
+timer/notification distance paths are bypassed for this model. Paused samples
+advance the baseline without adding distance; reconnects and telemetry gaps over
+two seconds do not extrapolate unobserved motion.
+A captured console-started run previously stayed marked stopped in
+QZ: one path skipped distance while advancing the shared timestamp and the other
+kept counting, producing 5.331 km instead of approximately 6.659 km from the
+logged speed. The firmware distance counter reached 6.610 km during that run.
+The regression fixture contains all 5,867 speed/timestamp samples from that run,
+with identifiers removed. Replay tests check the full 6.658622 km speed integral
+and a stopped-to-recording transition with the independent one-second UI poll.
+
 The Qt and opt-in native iOS virtual treadmill paths advertise speed/incline
 control and the supported ranges. Native iOS commands are queued without
 second-resolution timestamps; stop supersedes pending motion requests. Existing
@@ -83,7 +99,8 @@ requests; application-specific workflows remain subject to end-to-end testing.
 
 ## Regression checks
 
-- Google Test: `YpooM5ControlTest.*`, `FtmsTreadmillControlTest.*`, and Horizon
+- Google Test: `YpooM5ControlTest.*`, `YpooM5DistanceTest.*`,
+  `YpooM5DistanceClockTest.*`, `FtmsTreadmillControlTest.*`, and Horizon
   device discovery cases in `tst/qdomyos-zwift-tests.pro`.
 - Native iOS queue and bridge compilation on macOS:
   `python3 tools/test_ypoo_m5_ios_control.py`.
@@ -108,9 +125,11 @@ virtual modes disabled. Enable QZ debug logging before the test and restart QZ.
 | Test | Expected result |
 | --- | --- |
 | Explicit start, followed immediately by 1.2 km/h and 1% targets | One start; targets wait through countdown, then telemetry and console reach both targets |
+| Start from the console while QZ recording is stopped | QZ resumes recording after fresh motion telemetry, without a second motor Start; elapsed time and integrated distance advance together |
 | During a run: 1.2 → 1.0 km/h and 1 → 0% incline | Both changes reach the console and QZ; the misleading speed failure reply does not cause an immediate retry loop |
 | During a run: 0 → -1 → 0% incline | Deck, console, QZ, and virtual FTMS telemetry preserve decline without clamping to zero |
 | Stop during a run | Successful stop reply followed by zero-speed telemetry; belt visibly stops |
+| QZ Stop while the belt decelerates | Recording stays stopped; residual belt motion does not reopen/reset the workout |
 | Stop during countdown with targets queued | Targets are discarded; only bounded stop retries follow; firmware may briefly start the belt |
 | Change a target repeatedly | Latest target wins; earlier targets are not replayed later |
 | Runna incline +, wait for telemetry, then − | Half-step requests move to the next whole percentage in each direction; telemetry reports the actual grade |
