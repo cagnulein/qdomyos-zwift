@@ -772,9 +772,14 @@ ScrollView {
                                 height: parent.height
                                 focusPolicy: Qt.NoFocus
                                 Accessible.name: qsTr("Gear") + " " + gear
-                                Accessible.checkable: true
-                                Accessible.checked: gearTable.currentRow === index
-                                onClicked: gearTable.currentRow = index
+                                // checked on the chosen row, so a screen reader says it; a press
+                                // toggles it, so the binding is put back after choosing the row
+                                checkable: true
+                                checked: gearTable.currentRow === index
+                                onClicked: {
+                                    gearTable.currentRow = index
+                                    checked = Qt.binding(function() { return gearTable.currentRow === index })
+                                }
 
                                 background: Rectangle {
                                     border.width: 1
