@@ -10715,11 +10715,11 @@ import AndroidStatusBar 1.0
                             id: lifeFitnessUsernameTextField
                             text: settings.life_fitness_username
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_username = text
+                            onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
                         }
                         Button {
                             text: qsTr("OK")
-                            onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     RowLayout {
@@ -10730,11 +10730,11 @@ import AndroidStatusBar 1.0
                             text: settings.life_fitness_password
                             echoMode: TextInput.Password
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_password = text
+                            onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
                         }
                         Button {
                             text: qsTr("OK")
-                            onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -10750,7 +10750,7 @@ import AndroidStatusBar 1.0
                         checked: settings.life_fitness_guest_login
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.life_fitness_guest_login = checked
+                        onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
