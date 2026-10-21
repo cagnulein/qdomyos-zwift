@@ -10856,443 +10856,13 @@ import AndroidStatusBar 1.0
                     }
                  
                     AccordionElement {
-                        id: lifeFitnessAccordion
-                        title: qsTr("Life Fitness Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Yellow)
-                        color: Material.backgroundColor
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-
-                            RowLayout {
-                                spacing: 10
-                                Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
-                                TextField {
-                                    id: lifeFitnessUsernameTextField
-                                    text: settings.life_fitness_username
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
-                                }
-                                Button {
-                                    text: qsTr("OK")
-                                    onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                                }
-                            }
-                            RowLayout {
-                                spacing: 10
-                                Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
-                                TextField {
-                                    id: lifeFitnessPasswordTextField
-                                    text: settings.life_fitness_password
-                                    echoMode: TextInput.Password
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
-                                }
-                                Button {
-                                    text: qsTr("OK")
-                                    onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                                }
-                            }
-
-                            IndicatorOnlySwitch {
-                                id: lifeFitnessGuestLoginDelegate
-                                text: qsTr("Life Fitness guest login (experimental)")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.life_fitness_guest_login
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
-                            }
-
-                            Label {
-                                text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                verticalAlignment: Text.AlignVCenter
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
-                            }
-                        }
-                    }
-
-                    IndicatorOnlySwitch {
-                        id: treadmillDifficultyGainOffsetDelegate
-                        text: qsTr("Difficulty offset based")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.treadmill_difficulty_gain_or_offset
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.treadmill_difficulty_gain_or_offset = checked
-                    }
-
-                    Label {
-                        text: qsTr("Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelTreadmillStepSpeed
-                            text: qsTr("Speed Step:")
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: treadmillSpeedStepTextField
-                            text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            id: okTreadmillSpeedStepButton
-                            text: qsTr("OK")
-                            enabled: treadmillSpeedStepTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.value * 1.60934:treadmillSpeedStepTextField.value); toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("Min. Inclination:")
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: treadmillInclinationMinTextField
-                            minimum: -100
-                            maximum: 100
-                            signed: true
-                            text: settings.treadmill_incline_min
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: if (valid) settings.treadmill_incline_min = value
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            enabled: treadmillInclinationMinTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.value; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }                
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("Max. Inclination:")
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: treadmillInclinationMaxTextField
-                            minimum: -100
-                            maximum: 100
-                            text: settings.treadmill_incline_max
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: if (valid) settings.treadmill_incline_max = value
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            enabled: treadmillInclinationMaxTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.value; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("Max. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: treadmillSpeedMaxTextField
-                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            enabled: treadmillSpeedMaxTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.value * 1.60934:treadmillSpeedMaxTextField.value); toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("Min. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: treadmillSpeedMinTextField
-                            text: (settings.miles_unit?settings.treadmill_speed_min * 0.621371:settings.treadmill_speed_min).toFixed(1)
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            enabled: treadmillSpeedMinTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.value * 1.60934:treadmillSpeedMinTextField.value); toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelStepGain
-                            text: qsTr("Step Count Gain:")
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: stepGainTextField
-                            text: settings.step_gain
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.step_gain = value
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            id: okStepGainButton
-                            text: qsTr("OK")
-                            enabled: stepGainTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.step_gain = stepGainTextField.value; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    NewPageElement {
-                        //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
-                        title: qsTr("Inclination Overrides")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Grey)
-                        color: Material.backgroundColor
-                        accordionContent: "settings-treadmill-inclination-override.qml"
-                    }
-
-                    Label {
-                        text: qsTr("Overrides the default inclination values sent from the treadmill")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    IndicatorOnlySwitch {
-                        text: qsTr("Simulate Inclination with Speed")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.treadmill_simulate_inclination_with_speed
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.treadmill_simulate_inclination_with_speed = checked
-                    }
-
-                    Label {
-                        text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    Label {
-                        text: qsTr("FTMS Treadmill:")
-                        Layout.fillWidth: true
-                    }
-                    RowLayout {
-                        spacing: 10
-                        ValueComboBox {
-                            id: ftmsTreadmillTextField
-                            model: rootItem.bluetoothDevices
-                            labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.ftms_treadmill
-                            Layout.fillHeight: false
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onActivated: {
-                                console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
-                            }
-
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    Label {
-                        text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    AccordionElement {
                         id: proformTreadmillAccordion
                         title: qsTr("Proform/Nordictrack Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
-                            spacing: 0    
+                            spacing: 0
                             Label {
                                 text: qsTr("Specific Model:")
                                 Layout.fillWidth: true
@@ -11874,6 +11444,436 @@ import AndroidStatusBar 1.0
                                 color: Material.color(Material.Lime)
                             }
                         }
+                    }
+
+                    AccordionElement {
+                        id: lifeFitnessAccordion
+                        title: qsTr("Life Fitness Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessUsernameTextField
+                                    text: settings.life_fitness_username
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessPasswordTextField
+                                    text: settings.life_fitness_password
+                                    echoMode: TextInput.Password
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessGuestLoginDelegate
+                                text: qsTr("Life Fitness guest login (experimental)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_guest_login
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillDifficultyGainOffsetDelegate
+                        text: qsTr("Difficulty offset based")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_difficulty_gain_or_offset
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_difficulty_gain_or_offset = checked
+                    }
+
+                    Label {
+                        text: qsTr("Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillStepSpeed
+                            text: qsTr("Speed Step:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillSpeedStepTextField
+                            text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_step_speed = (settings.miles_unit?value * 1.60934:value)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTreadmillSpeedStepButton
+                            text: qsTr("OK")
+                            enabled: treadmillSpeedStepTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.value * 1.60934:treadmillSpeedStepTextField.value); toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Min. Inclination:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillInclinationMinTextField
+                            minimum: -100
+                            maximum: 100
+                            signed: true
+                            text: settings.treadmill_incline_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: if (valid) settings.treadmill_incline_min = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillInclinationMinTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Inclination:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillInclinationMaxTextField
+                            minimum: -100
+                            maximum: 100
+                            text: settings.treadmill_incline_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: if (valid) settings.treadmill_incline_max = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillInclinationMaxTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillSpeedMaxTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?value * 1.60934:value)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillSpeedMaxTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.value * 1.60934:treadmillSpeedMaxTextField.value); toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Min. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillSpeedMinTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_min * 0.621371:settings.treadmill_speed_min).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?value * 1.60934:value)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillSpeedMinTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.value * 1.60934:treadmillSpeedMinTextField.value); toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelStepGain
+                            text: qsTr("Step Count Gain:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: stepGainTextField
+                            text: settings.step_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.step_gain = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okStepGainButton
+                            text: qsTr("OK")
+                            enabled: stepGainTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.step_gain = stepGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    NewPageElement {
+                        //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
+                        title: qsTr("Inclination Overrides")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: "settings-treadmill-inclination-override.qml"
+                    }
+
+                    Label {
+                        text: qsTr("Overrides the default inclination values sent from the treadmill")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Simulate Inclination with Speed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_simulate_inclination_with_speed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_simulate_inclination_with_speed = checked
+                    }
+
+                    Label {
+                        text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("FTMS Treadmill:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ValueComboBox {
+                            id: ftmsTreadmillTextField
+                            model: rootItem.bluetoothDevices
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_treadmill
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
+                            }
+
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
