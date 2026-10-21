@@ -34,12 +34,17 @@ physically exercised.
 
 ## Control and app forwarding
 
-QZ waits for fresh physical telemetry before applying queued speed/incline
+QZ waits for fresh treadmill-reported telemetry before applying queued speed/incline
 targets. It confirms targets with telemetry, allows at most three target writes,
 and prioritizes stop. Stop confirmation requires both a successful stop response
-and a subsequent zero-speed sample. Stop/disconnect discard pending targets;
+and a subsequent zero-speed sample. Stop/physical disconnect discard pending targets;
 target changes never implicitly start the belt.
 An unconfirmed stop disables new starts/targets until reconnection.
+Confirmation means that the treadmill reports the requested value; it is not an
+independent measurement of belt speed or deck position. The virtual FTMS success
+response acknowledges acceptance by QZ, not completed physical actuation. Actual
+application is checked asynchronously against treadmill telemetry; exhausted
+retries are recorded in the QZ debug log.
 
 The Qt and opt-in native iOS virtual treadmill paths advertise speed/incline
 control and the supported ranges. Native iOS commands are queued without
@@ -53,3 +58,49 @@ requests; application-specific workflows remain subject to end-to-end testing.
   device discovery cases in `tst/qdomyos-zwift-tests.pro`.
 - Native iOS queue and bridge compilation on macOS:
   `python3 tools/test_ypoo_m5_ios_control.py`.
+
+## Live app acceptance test
+
+Use QZ on one device and Kinomap on another. Close YPOOFIT, Kinni, and other BLE
+test clients first. Connect QZ to the physical `YPTM-U0…` treadmill, then connect
+Kinomap to QZ's virtual FTMS treadmill (`DomyosBridge` on macOS, `QZ` with the
+native iOS bridge). Do not select the physical treadmill in Kinomap.
+Keep QZ Auto Resistance enabled, virtual Bluetooth enabled, and bike/cadence-only
+virtual modes disabled. Enable QZ debug logging before the test and restart QZ.
+
+| Test | Expected result |
+| --- | --- |
+| Explicit start, followed immediately by 1.2 km/h and 1% targets | One start; targets wait through countdown, then telemetry and console reach both targets |
+| During a run: 1.2 → 1.0 km/h and 1 → 0% incline | Both changes reach the console and QZ; the misleading speed failure reply does not cause an immediate retry loop |
+| Stop during a run | Successful stop reply followed by zero-speed telemetry; belt visibly stops |
+| Stop during countdown with targets queued | Targets are discarded; only bounded stop retries follow; firmware may briefly start the belt |
+| Change a target repeatedly | Latest target wins; earlier targets are not replayed later |
+| Physical stop, then physical restart | Previous pending workout targets are not replayed |
+| Stop, disconnect the physical treadmill, reconnect | No queued start or target is replayed; a new explicit start is required |
+
+Record the app request, QZ outgoing command, control-point reply, subsequent
+telemetry, and visual observation for each row. Mark an app control as untested
+if the app does not send that FTMS request; test that control with QZ's own UI
+separately. A Mac session exercises the Qt virtual peripheral path; repeat on
+an iOS build to validate the native iOS forwarding path end to end.
+
+### Building on macOS
+
+Install Qt 5 and Apple Command Line Tools. From the repository root, with pinned
+submodules initialized:
+
+```sh
+brew install qt@5
+git submodule update --init src/smtpclient tst/googletest zwiftplay
+/opt/homebrew/opt/qt@5/bin/lrelease src/qdomyos-zwift.pro
+qz_source="$PWD"
+mkdir -p /tmp/qz-macos-build
+cd /tmp/qz-macos-build
+/opt/homebrew/opt/qt@5/bin/qmake "$qz_source/src/qdomyos-zwift.pro" CONFIG-=ltcg CONFIG-=optimize_full
+make -j6
+open qdomyos-zwift.app --args -qml -name YPTM-U012A6B
+```
+
+The Qt path above is for Apple Silicon Homebrew. On Intel use the path reported
+by `brew --prefix qt@5`. This runs the branch built from the checkout; an existing
+released QZ app does not contain this change.
