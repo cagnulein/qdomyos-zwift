@@ -2983,8 +2983,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance1Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3101,8 +3100,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance2Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3219,8 +3217,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance3Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3337,8 +3334,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance4Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3455,8 +3451,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance5Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3577,8 +3572,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed1Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3699,8 +3693,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed2Color
 								text: qsTr("color:")
-        wrapMode: window.labelWrap
-              wrapMode: window.labelWrap
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
