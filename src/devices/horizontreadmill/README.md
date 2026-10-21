@@ -11,7 +11,9 @@ existing behavior.
    (`1826/2AD9`).
 2. Write `01 00 02 02 00 05 01 01`, without response, to
    `1826/d18d2c10-c44c-11e8-a355-529269fb1459`.
-3. Request FTMS control (`00`) on `1826/2AD9` using a write with response.
+3. Request FTMS control (`00`) once on `1826/2AD9` using a write with response.
+   The Mac QZ log confirmed success (`80 00 01`) for the first request, but
+   control-not-permitted (`80 00 05`) for a second request in the same session.
 4. Use standard FTMS control commands on `2AD9`:
 
 | Action | Example | Hardware observation |
