@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtQml 2.15
 
 Page {
 
@@ -113,7 +114,7 @@ Page {
                     icon.width: 46
                     text: rootItem.startText
                     // fixed width: keep the size it had before the Text size setting
-                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: start
                     width: 120
@@ -144,7 +145,7 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.stopText
-                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: stop
                     width: 120
