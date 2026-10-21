@@ -2903,6 +2903,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("YPOO M5 FTMS unlock mode found");
             YPOO_M5 = true;
             minInclination = -6.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
+            qDebug() << QStringLiteral("YPOO M5 YP-M1552 FTMS unlock mode found");
+            YPOO_M5 = true;
+            maxInclination = 12.0;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;

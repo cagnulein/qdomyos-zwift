@@ -1858,6 +1858,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TM55-")) || // LifeSmart TM55
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("YP-M1552-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T")) ||
                         (b.name().toUpper().startsWith("3G PRO ")) ||
