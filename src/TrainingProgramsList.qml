@@ -123,6 +123,8 @@ ColumnLayout {
                         folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
+                    // the field kept its 120 of Material and showed less of the hint as the text grew
+                    width: window.textScale !== 1 ? window.fontPx(implicitWidth) : implicitWidth
                     onTextChanged: updateFilter()
                 }
                      Button {
