@@ -16,6 +16,8 @@
 
 #include "KettlerUSB.h"
 
+#include <QRegularExpression>
+
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -70,63 +72,99 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * PROTOCOL FUNCTIONS
  * ---------------------------------------------------------------------- */
 
-void KettlerUSB::initSequence() {
-    // Kettler initialization sequence from kettlerUSB2BLE
-    // Commands: VE, ID, VE, KI, CA, RS, CM, SP1
-    QStringList initCommands = {"VE", "ID", "VE", "KI", "CA", "RS", "CM", "SP1"};
+bool KettlerUSB::initSequence() {
+    // The standard Kettler protocol expects one response per command. Keep
+    // the response associated with the command that produced it; otherwise a
+    // burst of init replies is consumed by the first status poll.
+    statusCommand = QStringLiteral("ST");
 
-    for (const QString &cmd : initCommands) {
-        sendCommand(cmd);
-        KettlerSleeper::msleep(150); // 150ms between commands
+    if (sendCommand(QStringLiteral("ID")) < 0)
+        return false;
+    if (readResponse().isEmpty())
+        return false;
+
+    if (sendCommand(statusCommand) < 0)
+        return false;
+    QString response = readResponse();
+    if (parseStatusResponse(response))
+        return true;
+    if (response != QStringLiteral("ERROR")) {
+        qDebug() << "Kettler initialization received no explicit ST protocol error:" << response;
+        return false;
     }
+
+    // Some standard-protocol consoles return ERROR to ST but expose the same
+    // telemetry through DB. This is the fallback used by the reference app.
+    statusCommand = QStringLiteral("DB");
+    if (sendCommand(statusCommand) < 0)
+        return false;
+    response = readResponse();
+    if (!parseStatusResponse(response)) {
+        qDebug() << "Kettler initialization did not return a valid status";
+        return false;
+    }
+    return true;
 }
 
-void KettlerUSB::parseStatusResponse(const QString &response) {
+bool KettlerUSB::isStatusResponse(const QString &response) {
+    if (response == "ACK" || response == "ERROR" || response.length() < 10)
+        return false;
+
+    const QStringList fields = response.split('\t', Qt::KeepEmptyParts);
+    // The standard response has a leading protocol field followed by at least
+    // eight status fields. Extra vendor fields may follow the power field.
+    if (fields.size() < 9)
+        return false;
+
+    const int numericFields[] = {1, 2, 3, 4, 6, 8};
+    for (const int index : numericFields) {
+        bool ok;
+        fields[index].toDouble(&ok);
+        if (!ok)
+            return false;
+    }
+
+    return QRegularExpression(QStringLiteral("^[0-9]{1,3}:[0-9]{2}$"))
+        .match(fields[7])
+        .hasMatch();
+}
+
+bool KettlerUSB::takeResponse(QByteArray &buffer, QString &response) {
+    const int lineEnd = buffer.indexOf("\r\n");
+    if (lineEnd < 0)
+        return false;
+
+    response = QString::fromLatin1(buffer.left(lineEnd)).trimmed();
+    buffer.remove(0, lineEnd + 2);
+    return true;
+}
+
+bool KettlerUSB::parseStatusResponse(const QString &response) {
     // Status response format (tab-separated):
-    // HR RPM Speed Distance Power Energy Time CurrentPower
-    // Example: 101\t047\t074\t002\t025\t0312\t01:12\t025
+    // Prefix HR RPM Speed Distance Unused Energy Time CurrentPower [extras]
+    // Example: 190\t000\t053\t188\t007\t043\t0019\t02:50\t043
 
     // Ignore non-status responses (ACK, ERROR, etc.)
-    if (response == "ACK" || response == "ERROR" || response.length() < 10) {
+    if (!isStatusResponse(response)) {
         qDebug() << "  Skipping non-status response:" << response;
-        return;
+        return false;
     }
 
-    QStringList fields = response.split('\t');
-    if (fields.size() >= 8) {
-        // Additional validation: check if fields contain numeric data
-        bool validData = true;
-        for (int i = 0; i < 8; i++) {
-            if (i != 6) { // Skip time field (format HH:MM)
-                bool ok;
-                fields[i].toDouble(&ok);
-                if (!ok && i != 3 && i != 5) { // Distance and Energy can be non-numeric sometimes
-                    validData = false;
-                    break;
-                }
-            }
-        }
+    QStringList fields = response.split('\t', Qt::KeepEmptyParts);
+    pvars.lock();
+    deviceHeartRate = fields[1].toDouble();
+    deviceCadence = fields[2].toDouble();
+    deviceSpeed = fields[3].toDouble() * 0.1; // Speed is in 0.1 km/h
+    deviceDistance = fields[4].toDouble() * 100; // Distance is in 100m units
+    devicePower = fields[8].toDouble(); // CurrentPower
+    pvars.unlock();
 
-        if (validData) {
-            pvars.lock();
-            deviceHeartRate = fields[0].toDouble();
-            deviceCadence = fields[1].toDouble();
-            deviceSpeed = fields[2].toDouble() * 0.1; // Speed is in 0.1 km/h
-            deviceDistance = fields[3].toDouble() * 100; // Distance is in 100m units
-            devicePower = fields[7].toDouble(); // CurrentPower (last field)
-            pvars.unlock();
-
-            qDebug() << "Kettler Status: HR=" << deviceHeartRate
-                     << " RPM=" << deviceCadence
-                     << " Speed=" << deviceSpeed
-                     << " Dist=" << deviceDistance
-                     << " Power=" << devicePower;
-        } else {
-            qDebug() << "  Invalid status data (non-numeric fields):" << response;
-        }
-    } else {
-        qDebug() << "  Invalid status format (expected 8 fields, got" << fields.size() << "):" << response;
-    }
+    qDebug() << "Kettler Status: HR=" << deviceHeartRate
+             << " RPM=" << deviceCadence
+             << " Speed=" << deviceSpeed
+             << " Dist=" << deviceDistance
+             << " Power=" << devicePower;
+    return true;
 }
 
 /* ----------------------------------------------------------------------
@@ -212,11 +250,11 @@ void KettlerUSB::run() {
     }
 
     // Send initialization sequence
-    initSequence();
-
-    // Flush buffer after init to clear any leftover responses
-    KettlerSleeper::msleep(500);
-    flushSerialBuffer();
+    if (!initSequence()) {
+        closePort();
+        quit(2);
+        return;
+    }
 
     // Wait 3 seconds before first poll (as per kettlerUSB2BLE)
     KettlerSleeper::msleep(3000);
@@ -232,7 +270,12 @@ void KettlerUSB::run() {
             if (curWritePower) {
                 // Send power command
                 QString powerCmd = QString("PW%1").arg((int)curPower);
-                sendCommand(powerCmd);
+                if (sendCommand(powerCmd) < 0) {
+                    qDebug() << "Kettler power command write failed";
+                    closePort();
+                    quit(2);
+                    return;
+                }
 
                 pvars.lock();
                 this->writePower = false;
@@ -241,23 +284,45 @@ void KettlerUSB::run() {
                 // Read and discard response (usually ACK or a number)
                 KettlerSleeper::msleep(150);
                 QString pwResponse = readResponse();
-                if (!pwResponse.isEmpty()) {
-                    qDebug() << "  PW response (discarded):" << pwResponse;
+                if (pwResponse.isEmpty()) {
+                    qDebug() << "Kettler power command response timed out";
+                    closePort();
+                    quit(2);
+                    return;
                 }
+                qDebug() << "  PW response (discarded):" << pwResponse;
 
-                // Immediately send ST to get fresh status
-                sendCommand("ST");
-                QString response = readResponse();
-                if (!response.isEmpty()) {
-                    parseStatusResponse(response);
+                // Immediately request fresh status
+                if (sendCommand(statusCommand) < 0) {
+                    qDebug() << "Kettler status command write failed";
+                    closePort();
+                    quit(2);
+                    return;
                 }
+                QString response = readResponse();
+                if (response.isEmpty()) {
+                    qDebug() << "Kettler status response timed out";
+                    closePort();
+                    quit(2);
+                    return;
+                }
+                parseStatusResponse(response);
             } else {
                 // Normal status poll
-                sendCommand("ST");
-                QString response = readResponse();
-                if (!response.isEmpty()) {
-                    parseStatusResponse(response);
+                if (sendCommand(statusCommand) < 0) {
+                    qDebug() << "Kettler status command write failed";
+                    closePort();
+                    quit(2);
+                    return;
                 }
+                QString response = readResponse();
+                if (response.isEmpty()) {
+                    qDebug() << "Kettler status response timed out";
+                    closePort();
+                    quit(2);
+                    return;
+                }
+                parseStatusResponse(response);
             }
 
             // Reduced polling interval from 2000ms to 500ms for faster response
@@ -284,7 +349,11 @@ void KettlerUSB::run() {
                 return;
             }
             isDeviceOpen = true;
-            initSequence();
+            if (!initSequence()) {
+                closePort();
+                quit(2);
+                return;
+            }
             KettlerSleeper::msleep(3000);
         }
     }
@@ -305,26 +374,57 @@ int KettlerUSB::sendCommand(const QString &command) {
 }
 
 QString KettlerUSB::readResponse() {
-    QString response = rawRead();
-    return response.trimmed();
+    QElapsedTimer timeout;
+    timeout.start();
+
+    while (timeout.elapsed() < KETTLER_READTIMEOUT) {
+        QString response;
+        if (takeResponse(rxBuffer, response))
+            return response;
+
+        const QString chunk = rawRead();
+        if (!chunk.isEmpty())
+            rxBuffer.append(chunk.toLatin1());
+        else
+            KettlerSleeper::msleep(10);
+    }
+
+    rxBuffer.clear();
+    return QString();
 }
 
 int KettlerUSB::closePort() {
-#ifdef WIN32
-    return (int)!CloseHandle(devicePort);
+#ifdef Q_OS_ANDROID
+    rxBuffer.clear();
+    return QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "close", "()Z") ? 0 : -1;
+#elif defined(WIN32)
+    if (devicePort == INVALID_HANDLE_VALUE)
+        return 0;
+    const int result = (int)!CloseHandle(devicePort);
+    devicePort = INVALID_HANDLE_VALUE;
+    rxBuffer.clear();
+    return result;
 #else
+    if (devicePort < 0)
+        return 0;
     tcflush(devicePort, TCIOFLUSH);
-    return close(devicePort);
+    const int result = close(devicePort);
+    devicePort = -1;
+    rxBuffer.clear();
+    return result;
 #endif
 }
 
 int KettlerUSB::openPort() {
 #ifdef Q_OS_ANDROID
     // Call Java Usbserial with configured baud rate for Kettler
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
-                                              "(Landroid/content/Context;I)V",
-                                              QtAndroid::androidContext().object(),
-                                              baudrate);
+    rxBuffer.clear();
+    const jboolean opened = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/Usbserial", "openKettler",
+                                                                           "(Landroid/content/Context;I)Z",
+                                                                           QtAndroid::androidContext().object(),
+                                                                           baudrate);
+    if (!opened)
+        return -1;
 #elif !defined(WIN32)
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
 
@@ -339,8 +439,12 @@ int KettlerUSB::openPort() {
 
     tcflush(devicePort, TCIOFLUSH);
 
-    if (ioctl(devicePort, TIOCSETD, &ldisc) == -1)
-        return errno;
+    if (ioctl(devicePort, TIOCSETD, &ldisc) == -1) {
+        const int error = errno;
+        close(devicePort);
+        devicePort = -1;
+        return error;
+    }
 
     tcgetattr(devicePort, &deviceSettings);
 
@@ -371,8 +475,12 @@ int KettlerUSB::openPort() {
     deviceSettings.c_cc[VMIN] = 0;
     deviceSettings.c_cc[VTIME] = 10; // 1 second timeout
 
-    if (tcsetattr(devicePort, TCSANOW, &deviceSettings) == -1)
-        return errno;
+    if (tcsetattr(devicePort, TCSANOW, &deviceSettings) == -1) {
+        const int error = errno;
+        close(devicePort);
+        devicePort = -1;
+        return error;
+    }
     tcgetattr(devicePort, &deviceSettings);
 
     tcflush(devicePort, TCIOFLUSH);
@@ -395,8 +503,11 @@ int KettlerUSB::openPort() {
     if (devicePort == INVALID_HANDLE_VALUE)
         return -1;
 
-    if (GetCommState(devicePort, &deviceSettings) == false)
+    if (GetCommState(devicePort, &deviceSettings) == false) {
+        CloseHandle(devicePort);
+        devicePort = INVALID_HANDLE_VALUE;
         return -1;
+    }
 
     // Convert int baudrate to Windows CBR constant
     switch (baudrate) {
@@ -416,6 +527,7 @@ int KettlerUSB::openPort() {
 
     if (SetCommState(devicePort, &deviceSettings) == false) {
         CloseHandle(devicePort);
+        devicePort = INVALID_HANDLE_VALUE;
         return -1;
     }
 
@@ -427,6 +539,7 @@ int KettlerUSB::openPort() {
     SetCommTimeouts(devicePort, &timeouts);
 #endif
 
+    rxBuffer.clear();
     return 0;
 }
 
@@ -438,22 +551,23 @@ int KettlerUSB::rawWrite(const char *bytes, int size) {
 #ifdef Q_OS_ANDROID
     QAndroidJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
-    jbyte *b = env->GetByteArrayElements(d, 0);
-    for (int i = 0; i < size; i++)
-        b[i] = bytes[i];
-    env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
-    rc = size;
-#elif defined(WIN32)
-    DWORD cBytes;
-    rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
-    if (!rc)
+    if (!d)
         return -1;
-    return rc;
+    env->SetByteArrayRegion(d, 0, size, reinterpret_cast<const jbyte *>(bytes));
+    rc = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "writeKettler", "([B)I", d);
+    env->DeleteLocalRef(d);
+#elif defined(WIN32)
+    DWORD cBytes = 0;
+    if (!WriteFile(devicePort, bytes, size, &cBytes, NULL) || cBytes != static_cast<DWORD>(size))
+        return -1;
+    return static_cast<int>(cBytes);
 #else
     rc = write(devicePort, bytes, size);
-    if (rc != -1)
-        tcdrain(devicePort);
+    if (rc != size)
+        return -1;
+    if (tcdrain(devicePort) != 0)
+        return -1;
+    return rc;
 #endif
 
     return rc;
@@ -477,14 +591,8 @@ QString KettlerUSB::rawRead() {
             data.append(b[i]);
         }
 
-        rxBuffer.append(data);
-
-        // Look for complete line (ends with \r\n)
-        int lineEnd = rxBuffer.indexOf("\r\n");
-        if (lineEnd >= 0) {
-            result = QString::fromLatin1(rxBuffer.left(lineEnd));
-            rxBuffer.remove(0, lineEnd + 2);
-        }
+        env->ReleaseByteArrayElements(d, b, JNI_ABORT);
+        result = QString::fromLatin1(data);
     }
 #elif defined(WIN32)
     char buffer[256];
@@ -503,7 +611,7 @@ QString KettlerUSB::rawRead() {
 #endif
 
     if (!result.isEmpty()) {
-        qDebug() << "Kettler RX:" << result;
+        qDebug() << "Kettler RX bytes:" << result.toLatin1().toHex(' ');
     }
 
     return result;
@@ -533,7 +641,10 @@ bool KettlerUSB::discover(QString filename) {
         return false;
 
     // Try sending VE command and see if we get a response
-    sendCommand("VE");
+    if (sendCommand("VE") < 0) {
+        closePort();
+        return false;
+    }
     KettlerSleeper::msleep(500);
     QString response = readResponse();
 
