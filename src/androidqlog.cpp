@@ -1,7 +1,18 @@
 #include <QDebug>
+#include <QSettings>
+#include "qzsettings.h"
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #include <jni.h>
+
+// Keep Java polling diagnostics governed by the QZ Debug Log option,
+// rather than introducing an independent compile-time logging switch.
+extern "C" JNIEXPORT jboolean JNICALL
+Java_org_cagnulen_qdomyoszwift_QLog_isDebugLoggingEnabledNative(JNIEnv *, jclass) {
+    QSettings settings;
+    return settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()
+               ? JNI_TRUE : JNI_FALSE;
+}
 
 extern "C" JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_QLog_sendToQt(JNIEnv *env, jclass clazz,
