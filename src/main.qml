@@ -246,10 +246,20 @@ ApplicationWindow {
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
+    // the app font has a pixel size, the one of the controls. On iOS and desktop it has a point
+    // size of its own (17 on iOS, already scaled by the system text size QZ started with), so a
+    // Text is scaled from that, in pixels, and the start-up system size is taken out of it when
+    // the size follows the system
+    readonly property real startupSystemTextScale: AndroidStatusBar.systemFontScale()
+    readonly property int plainFontPx: textScale === 1 ? 0
+        : Qt.application.font.pixelSize > 0 || Qt.application.font.pointSizeF <= 0 ? scaledFontPx
+        : Math.round(Qt.application.font.pointSizeF * Screen.logicalPixelDensity * 25.4 / 72 * textScale
+            / (systemTextScaleAvailable && settings.ui_text_scale_system && startupSystemTextScale > 0 ? startupSystemTextScale : 1))
     // Font of the section headers of the settings: a plain Text, which does not inherit the window
     // font. At 100 % the app font, the one a Text takes by itself
     readonly property font headerFont: textScale === 1 ? Qt.application.font
-        : Qt.font({ family: Qt.application.font.family, pixelSize: scaledFontPx })
+        : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
     // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
     // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
     // and then take the width of the screen and the height of the text

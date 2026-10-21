@@ -648,7 +648,7 @@ ScrollView {
 
                             Text {
                                 // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Gear")
                                 font.bold: true
@@ -664,7 +664,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Chainring")
                                 font.bold: true
@@ -680,7 +680,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Rear Cog")
                                 font.bold: true
@@ -742,7 +742,7 @@ ScrollView {
                                 color: "transparent"
 
                                 Text {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     anchors.centerIn: parent
                                     text: gear
                                     color: "black"

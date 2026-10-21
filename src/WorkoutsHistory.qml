@@ -576,7 +576,7 @@ Page {
 
                             Text {
                                 // a plain Text does not inherit the window font: the text size while it is not 100 %
-                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 text: date
                                 color: "#666666"
                             }
@@ -589,13 +589,13 @@ Page {
                                 rowSpacing: 4
 
                                 Text {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: wrapEmoji("⏱ ") + duration
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
 
                                 Text {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: {
                                         var useMiles = settings && settings.miles_unit
                                         var displayDistance = useMiles ? (distance / 1.60934) : distance
@@ -609,7 +609,7 @@ Page {
                                 spacing: 16
 
                                 Text {
-                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: Qt.platform.os === "android" ? 
                                           wrapEmoji("🔥 ") + Math.round(calories) + " " + qsTr("kcal") :
                                           "🔥 " + Math.round(calories) + " " + qsTr("kcal")
@@ -766,7 +766,7 @@ Page {
         width: window.textScale !== 1 ? Math.min(implicitWidth, parent.width - 32) : implicitWidth
 
         Text {
-            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
             width: window.textScale !== 1 ? confirmDialog.availableWidth : implicitWidth
             wrapMode: window.labelWrap
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
@@ -1113,7 +1113,7 @@ Page {
                 Repeater {
                     model: [qsTr("Sun"), qsTr("Mon"), qsTr("Tue"), qsTr("Wed"), qsTr("Thu"), qsTr("Fri"), qsTr("Sat")]
                     Text {
-                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
                         text: modelData
