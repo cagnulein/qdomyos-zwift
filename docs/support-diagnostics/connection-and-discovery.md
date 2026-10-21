@@ -84,3 +84,22 @@
 
 - Working telemetry does not prove remote resistance control is available.
 - Electronic buttons and FTMS service discovery do not by themselves establish which remote commands are accepted.
+
+## Trainer detected but workout metrics remain unavailable
+
+### Provide first
+
+- Trainer model, Bluetooth device name, QZ version, operating system, and whether workout tiles are absent or show zero.
+- Screenshot of the FTMS Bike selection in Bike Options.
+- Confirm whether live power and cadence appear in QZ before opening a receiving training app.
+
+### If still unclear
+
+- Select the trainer explicitly under FTMS Bike, restart QZ, and test QZ alone.
+- Compare the behavior before and after connecting any external controllers.
+- Provide a debug log beginning before device discovery if the dashboard still has no live values.
+
+### Why it matters
+
+- Bluetooth discovery does not establish that QZ selected a telemetry source.
+- Testing the trainer without other apps distinguishes incoming metric failures from downstream virtual-device pairing.
