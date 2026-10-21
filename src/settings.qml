@@ -6994,6 +6994,9 @@ import AndroidStatusBar 1.0
                         checked: settings.ui_text_scale_system
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
@@ -7029,6 +7032,9 @@ import AndroidStatusBar 1.0
                             // while the system size is used: the size in effect, read only
                             readonly property bool followsSystem: window.systemTextScaleAvailable && settings.ui_text_scale_system
                             readonly property int shownValue: followsSystem ? Math.round(window.textScale * 100) : settings.ui_text_scale
+                            // the screen reader read only the number, not what it is; the value in the
+                            // name, as Qt 5.15 on Android stops reading the text once a name is set
+                            Accessible.name: labelUiTextScale.text + " " + text
                             decimals: 0
                             minimum: 80
                             maximum: 170
