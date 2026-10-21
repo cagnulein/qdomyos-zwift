@@ -60,6 +60,9 @@ class horizontreadmill : public treadmill {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharControlPointIdYpooMiniPro;
     QLowEnergyService *gattFTMSService = nullptr;
+    QLowEnergyService *gattYpM1552UnlockService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharYpM1552;
+    QLowEnergyService *gattYpM1552Service = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
     QLowEnergyCharacteristic gattWriteCharMerachUnlock;
@@ -118,6 +121,7 @@ class horizontreadmill : public treadmill {
     bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
+    bool YP_M1552 = false;
     bool MX_TM = false;
     bool FIT = false;
     bool FIT_TM = false;
