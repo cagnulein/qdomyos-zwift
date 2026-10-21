@@ -764,18 +764,30 @@ ScrollView {
                         Row {
                             anchors.fill: parent
 
-                            // Gear Number (non-editable)
-                            Rectangle {
+                            // Gear Number (non-editable). A tap anywhere on the row chooses it (the
+                            // MouseArea above); for a screen reader the number is the button that
+                            // does, so "Delete Selected and Following" can be used with TalkBack too
+                            AbstractButton {
                                 width: parent.width / 3
                                 height: parent.height
-                                border.width: 1
-                                border.color: "#cccccc"
-                                color: "transparent"
+                                focusPolicy: Qt.NoFocus
+                                Accessible.name: qsTr("Gear") + " " + gear
+                                Accessible.checkable: true
+                                Accessible.checked: gearTable.currentRow === index
+                                onClicked: gearTable.currentRow = index
 
-                                Text {
-                                    anchors.centerIn: parent
+                                background: Rectangle {
+                                    border.width: 1
+                                    border.color: "#cccccc"
+                                    color: "transparent"
+                                }
+
+                                contentItem: Text {
                                     text: gear
                                     color: "black"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    Accessible.ignored: true
                                 }
                             }
 
