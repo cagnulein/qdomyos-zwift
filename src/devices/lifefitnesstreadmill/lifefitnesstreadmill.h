@@ -59,8 +59,23 @@ class lifefitnesstreadmill : public treadmill {
         int elapsedSeconds = 0;
     };
 
+    struct LoginProfile {
+        QByteArray firstName;
+        QByteArray lastName;
+        QByteArray age;
+        QByteArray gender;
+        QByteArray language;
+        QByteArray email;
+        QByteArray hmac;
+        QByteArray weight;
+        QByteArray height;
+        bool writeEmail = true;
+        bool writeMetricUnitsCharacteristic = true;
+    };
+
     lifefitnesstreadmill(bool noWriteResistance, bool noHeartService);
     static FtmsTreadmillData parseFtmsTreadmillData(const QByteArray &data);
+    static LoginProfile guestLoginProfile();
     void setLifeFitnessWorkout(const QList<QByteArray> &summaryFrames, const QList<QByteArray> &detailFrames);
     bool connected() override;
     void forceSpeed(double requestSpeed);

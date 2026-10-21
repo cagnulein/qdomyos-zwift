@@ -38,3 +38,26 @@ TEST(LifeFitness95TFtmsParserTest, DoesNotExposeFtmsSentinels) {
     EXPECT_FALSE(data.hasInclination);
     EXPECT_FALSE(data.hasEnergy);
 }
+
+TEST(LifeFitness95TGuestLoginTest, UsesTheStaticGuestProfile) {
+    const auto profile = lifefitnesstreadmill::guestLoginProfile();
+
+    EXPECT_EQ(profile.firstName, QByteArrayLiteral("QZ"));
+    EXPECT_EQ(profile.lastName, QByteArrayLiteral("Guest"));
+    EXPECT_EQ(profile.age, QByteArray::fromHex("23"));
+    EXPECT_EQ(profile.gender, QByteArray::fromHex("00"));
+    EXPECT_EQ(profile.language, QByteArrayLiteral("en"));
+    EXPECT_EQ(profile.hmac.size(), 32);
+    EXPECT_EQ(profile.hmac.left(31), QByteArray(31, '0'));
+    EXPECT_EQ(profile.hmac.right(1), QByteArrayLiteral("1"));
+    EXPECT_EQ(profile.weight, QByteArray::fromHex("c832"));
+    EXPECT_EQ(profile.height, QByteArray::fromHex("a406"));
+}
+
+TEST(LifeFitness95TGuestLoginTest, OmitsAccountOnlyFields) {
+    const auto profile = lifefitnesstreadmill::guestLoginProfile();
+
+    EXPECT_TRUE(profile.email.isEmpty());
+    EXPECT_FALSE(profile.writeEmail);
+    EXPECT_FALSE(profile.writeMetricUnitsCharacteristic);
+}

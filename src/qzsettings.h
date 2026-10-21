@@ -896,6 +896,9 @@ class QZSettings {
     static const QString life_fitness_preset_summary;
     static const QString default_life_fitness_preset_summary;
 
+    static const QString life_fitness_guest_login;
+    static constexpr bool default_life_fitness_guest_login = false;
+
     static const QString technogym_bike;
     static constexpr bool default_technogym_bike = false;
 

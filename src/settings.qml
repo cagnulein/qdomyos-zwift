@@ -2143,7 +2143,8 @@ import AndroidStatusBar 1.0
             property string life_fitness_preset_summary: ""
             property string life_fitness_username: ""
             property string life_fitness_password: ""
-            property string life_fitness_api_key: ""             
+            property string life_fitness_api_key: ""
+            property bool life_fitness_guest_login: false
         }
 
 
@@ -10735,6 +10736,34 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: lifeFitnessGuestLoginDelegate
+                        text: qsTr("Life Fitness guest login (experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.life_fitness_guest_login
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.life_fitness_guest_login = checked
+                    }
+
+                    Label {
+                        text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     IndicatorOnlySwitch {

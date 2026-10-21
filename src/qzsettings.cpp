@@ -328,6 +328,7 @@ const QString QZSettings::life_fitness_token = QStringLiteral("life_fitness_toke
 const QString QZSettings::default_life_fitness_token = QStringLiteral("");
 const QString QZSettings::life_fitness_preset_summary = QStringLiteral("life_fitness_preset_summary");
 const QString QZSettings::default_life_fitness_preset_summary = QStringLiteral("00000001CC5B0A0A5D");
+const QString QZSettings::life_fitness_guest_login = QStringLiteral("life_fitness_guest_login");
 const QString QZSettings::technogym_bike = QStringLiteral("technogym_bike");
 const QString QZSettings::sole_treadmill_inclination = QStringLiteral("sole_treadmill_inclination");
 const QString QZSettings::sole_treadmill_miles = QStringLiteral("sole_treadmill_miles");
@@ -1329,7 +1330,7 @@ const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 
-const uint32_t allSettingsCount = 1026;
+const uint32_t allSettingsCount = 1027;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2382,6 +2383,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::pafers_rower, QZSettings::default_pafers_rower},
     {QZSettings::android_notification_prompt_disabled, QZSettings::default_android_notification_prompt_disabled},
     {QZSettings::android_notification_v2, QZSettings::default_android_notification_v2},
+    {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

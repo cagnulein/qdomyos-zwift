@@ -68,6 +68,21 @@ lifefitnesstreadmill::lifefitnesstreadmill(bool noWriteResistance, bool noHeartS
     refresh->start(200ms);
 }
 
+lifefitnesstreadmill::LoginProfile lifefitnesstreadmill::guestLoginProfile() {
+    LoginProfile profile;
+    profile.firstName = QByteArrayLiteral("QZ");
+    profile.lastName = QByteArrayLiteral("Guest");
+    profile.age = QByteArray::fromHex(QByteArrayLiteral("23"));
+    profile.gender = QByteArray::fromHex(QByteArrayLiteral("00"));
+    profile.language = QByteArrayLiteral("en");
+    profile.hmac = QByteArrayLiteral("00000000000000000000000000000001");
+    profile.weight = QByteArray::fromHex(QByteArrayLiteral("c832"));
+    profile.height = QByteArray::fromHex(QByteArrayLiteral("a406"));
+    profile.writeEmail = false;
+    profile.writeMetricUnitsCharacteristic = false;
+    return profile;
+}
+
 void lifefitnesstreadmill::setLifeFitnessWorkout(const QList<QByteArray> &summaryFrames,
                                                  const QList<QByteArray> &detailFrames) {
     lifeFitnessSummaryFrames = summaryFrames;
@@ -348,18 +363,36 @@ bool lifefitnesstreadmill::fetchLifeFitnessServiceProfile(const QString &usernam
 void lifefitnesstreadmill::btinit() {
     if (gattCurrentStateCharacteristic.isValid() && gattWriteChar4CustomService2.isValid()) {
         QSettings settings;
-        QByteArray firstName =
-            settings.value(QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name)
-                .toString()
-                .toUtf8();
-        QByteArray lastName =
-            settings.value(QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name)
-                .toString()
-                .toUtf8();
-        QByteArray token =
-            settings.value(QZSettings::life_fitness_token, QZSettings::default_life_fitness_token)
-                .toString()
-                .toUtf8();
+        const bool guestLogin =
+            settings.value(QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login).toBool();
+        QByteArray firstName;
+        QByteArray lastName;
+        QByteArray token;
+        QByteArray serviceEmail;
+        bool writeEmail = true;
+        bool writeMetricUnitsCharacteristic = true;
+        LoginProfile guestProfile;
+        if (guestLogin) {
+            guestProfile = guestLoginProfile();
+            firstName = guestProfile.firstName;
+            lastName = guestProfile.lastName;
+            token = guestProfile.hmac;
+            writeEmail = guestProfile.writeEmail;
+            writeMetricUnitsCharacteristic = guestProfile.writeMetricUnitsCharacteristic;
+        } else {
+            firstName =
+                settings.value(QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name)
+                    .toString()
+                    .toUtf8();
+            lastName =
+                settings.value(QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name)
+                    .toString()
+                    .toUtf8();
+            token =
+                settings.value(QZSettings::life_fitness_token, QZSettings::default_life_fitness_token)
+                    .toString()
+                    .toUtf8();
+        }
         const QString username =
             settings.value(QZSettings::life_fitness_username, QZSettings::default_life_fitness_username)
                 .toString()
@@ -374,9 +407,8 @@ void lifefitnesstreadmill::btinit() {
         const QByteArray presetSummary = QByteArray::fromHex(
             (presetSummaryHex.isEmpty() ? QZSettings::default_life_fitness_preset_summary : presetSummaryHex)
                 .toLatin1());
-        QByteArray serviceEmail;
 
-        if (!username.isEmpty() && !password.isEmpty()) {
+        if (!guestLogin && !username.isEmpty() && !password.isEmpty()) {
             QByteArray serviceHmac;
             QByteArray serviceFirstName;
             QByteArray serviceLastName;
@@ -409,7 +441,9 @@ void lifefitnesstreadmill::btinit() {
             }
         }
 
-        if (firstName.isEmpty() || lastName.isEmpty() || token.isEmpty()) {
+        if (guestLogin) {
+            emit debug(QStringLiteral("Life Fitness guest login enabled; using in-memory guest profile"));
+        } else if (firstName.isEmpty() || lastName.isEmpty() || token.isEmpty()) {
             emit debug(QStringLiteral("Life Fitness profile and HMAC settings are required; skipping login"));
             return;
         }
@@ -455,7 +489,7 @@ void lifefitnesstreadmill::btinit() {
             if (!gattCustomService2)
                 return;
             const QLowEnergyCharacteristic characteristic = gattCustomService2->characteristic(QBluetoothUuid(uuid));
-            writeData(gattCustomService2, characteristic, data, info, true);
+            writeData(gattCustomService2, characteristic, data, info, true, guestLogin);
         };
 
         writeData(gattCustomService1, gattWriteChar1CustomService1, QByteArray(1, char(0x01)),
@@ -467,44 +501,67 @@ void lifefitnesstreadmill::btinit() {
 
         writeProfileField(0x2A8A, firstName, QStringLiteral("Life Fitness first name"));
         writeProfileField(0x2A90, lastName, QStringLiteral("Life Fitness last name"));
-        const quint16 ageValue = static_cast<quint16>(qBound(
-            0, settings.value(QZSettings::age, QZSettings::default_age).toInt(), 65535));
-        const QByteArray age = QByteArray(1, static_cast<char>(ageValue & 0xff)) +
-                               QByteArray(1, static_cast<char>((ageValue >> 8) & 0xff));
+        const QByteArray age = guestLogin
+                                   ? guestProfile.age
+                                   : [&]() {
+                                         const quint16 ageValue = static_cast<quint16>(qBound(
+                                             0, settings.value(QZSettings::age, QZSettings::default_age).toInt(), 65535));
+                                         return QByteArray(1, static_cast<char>(ageValue & 0xff)) +
+                                                QByteArray(1, static_cast<char>((ageValue >> 8) & 0xff));
+                                     }();
         writeProfileField(0x2A80, age, QStringLiteral("Life Fitness age"));
-        const QByteArray gender(
-            1, settings.value(QZSettings::sex, QZSettings::default_sex).toString().compare(
-                       QStringLiteral("Female"), Qt::CaseInsensitive) == 0
-                   ? char(0x01)
-                   : char(0x00));
+        const QByteArray gender = guestLogin
+                                      ? guestProfile.gender
+                                      : QByteArray(1, settings.value(QZSettings::sex, QZSettings::default_sex).toString().compare(
+                                                             QStringLiteral("Female"), Qt::CaseInsensitive) == 0
+                                                         ? char(0x01)
+                                                         : char(0x00));
         writeProfileField(0x2A8C, gender, QStringLiteral("Life Fitness gender"));
-        QByteArray language = QLocale::system().name().left(5).toUtf8();
-        if (language.size() != 5)
+        QByteArray language = guestLogin ? guestProfile.language : QLocale::system().name().left(5).toUtf8();
+        if (!guestLogin && language.size() != 5)
             language = QByteArrayLiteral("en_US");
         writeProfileField(0x2AA2, language, QStringLiteral("Life Fitness language"));
-        const QString email = serviceEmail.isEmpty()
-                                  ? settings.value(lifeFitnessCachedEmail,
-                                                   settings.value(QZSettings::user_email,
-                                                                  QZSettings::default_user_email))
-                                        .toString()
-                                        .trimmed()
-                                  : QString::fromUtf8(serviceEmail);
-        if (!email.isEmpty())
-            writeProfileField(0x2A87, email.toUtf8(), QStringLiteral("Life Fitness email"));
-        writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness HMAC"), true);
-        writeData(gattCustomService2, gattWriteChar4CustomService2, QByteArray(1, char(0x01)),
-                  QStringLiteral("Life Fitness metric units"));
+        if (writeEmail) {
+            const QString email = serviceEmail.isEmpty()
+                                      ? settings.value(lifeFitnessCachedEmail,
+                                                       settings.value(QZSettings::user_email,
+                                                                      QZSettings::default_user_email))
+                                            .toString()
+                                            .trimmed()
+                                      : QString::fromUtf8(serviceEmail);
+            if (!email.isEmpty())
+                writeProfileField(0x2A87, email.toUtf8(), QStringLiteral("Life Fitness email"));
+        }
+        writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness HMAC"), true,
+                  guestLogin);
+        if (writeMetricUnitsCharacteristic)
+            writeData(gattCustomService2, gattWriteChar4CustomService2, QByteArray(1, char(0x01)),
+                      QStringLiteral("Life Fitness metric units"));
 
-        const quint16 rawWeight = static_cast<quint16>(qBound(
-            0, qRound(settings.value(QZSettings::weight, QZSettings::default_weight).toDouble() / 0.005), 65535));
-        const QByteArray weight = QByteArray(1, static_cast<char>(rawWeight & 0xff)) +
-                                  QByteArray(1, static_cast<char>((rawWeight >> 8) & 0xff));
+        const QByteArray weight = guestLogin
+                                      ? guestProfile.weight
+                                      : [&]() {
+                                            const quint16 rawWeight = static_cast<quint16>(qBound(
+                                                0, qRound(settings.value(QZSettings::weight, QZSettings::default_weight)
+                                                              .toDouble()
+                                                          / 0.005),
+                                                65535));
+                                            return QByteArray(1, static_cast<char>(rawWeight & 0xff)) +
+                                                   QByteArray(1, static_cast<char>((rawWeight >> 8) & 0xff));
+                                        }();
         writeProfileField(0x2A98, weight, QStringLiteral("Life Fitness weight"));
 
-        const quint16 rawHeight = static_cast<quint16>(qBound(
-            0, qRound(settings.value(QZSettings::height, QZSettings::default_height).toDouble() / 0.01), 65535));
-        const QByteArray height = QByteArray(1, static_cast<char>(rawHeight & 0xff)) +
-                                  QByteArray(1, static_cast<char>((rawHeight >> 8) & 0xff));
+        const QByteArray height = guestLogin
+                                      ? guestProfile.height
+                                      : [&]() {
+                                            const quint16 rawHeight = static_cast<quint16>(qBound(
+                                                0, qRound(settings.value(QZSettings::height, QZSettings::default_height)
+                                                              .toDouble()
+                                                          / 0.01),
+                                                65535));
+                                            return QByteArray(1, static_cast<char>(rawHeight & 0xff)) +
+                                                   QByteArray(1, static_cast<char>((rawHeight >> 8) & 0xff));
+                                        }();
         writeProfileField(0x2A8E, height, QStringLiteral("Life Fitness height"));
         if (lifeFitnessWorkoutAvailable) {
             for (const QByteArray &frame : qAsConst(lifeFitnessSummaryFrames)) {
