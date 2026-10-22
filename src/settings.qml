@@ -150,7 +150,7 @@ import AndroidStatusBar 1.0
             searchReturn = currentSearch(true)
             // Or the search field takes the focus back with the keyboard on the way back
             dropTextFocus()
-            stackView.push(entry.target)
+            stackView.push(entry.target, { settings: settings })
         }
 
         // A search result opens the setting itself: its page, its sections, scrolled to it and
@@ -180,7 +180,7 @@ import AndroidStatusBar 1.0
             searchReturn = currentSearch(false)
             if (where.file !== "settings.qml") {
                 searchReturn.viaPush = true
-                stackView.push(where.file)
+                stackView.push(where.file, { settings: settings })
                 page = stackView.currentItem
                 context = where.file.replace(/\.qml$/, "")
             }
@@ -4704,6 +4704,7 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "customgears.qml"
+                        pageSettings: settings
                     }
 
                     NewPageElement {
@@ -4712,6 +4713,7 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "custominclinationresistance.qml"
+                        pageSettings: settings
                     }
 
                     RowLayout {
@@ -5239,6 +5241,7 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "gears.qml"
+                        pageSettings: settings
                     }
 
                     AccordionElement {
@@ -6924,6 +6927,7 @@ import AndroidStatusBar 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: "settings-tiles.qml"
+                pageSettings: settings
             }
 
             AccordionElement {
@@ -11520,6 +11524,7 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Grey)
                         color: Material.backgroundColor
                         accordionContent: "settings-treadmill-inclination-override.qml"
+                        pageSettings: settings
                     }
 
                     Label {
@@ -17081,6 +17086,7 @@ import AndroidStatusBar 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: "settings-tts.qml"
+                pageSettings: settings
             }
 
             AccordionElement {
