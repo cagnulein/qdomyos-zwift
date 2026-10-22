@@ -22,6 +22,7 @@ SOURCES += \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
+        TrainingProgram/trainingprogrampathtests.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
