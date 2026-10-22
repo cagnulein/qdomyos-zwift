@@ -1,4 +1,5 @@
 #include "trxappgateusbtreadmill.h"
+#include "trainprogram.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -10,6 +11,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <cmath>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -49,6 +51,107 @@ bool trxappgateusbtreadmill::isFlowFitnessDeviceName(const QString &deviceName) 
         }
     }
     return true;
+}
+
+QByteArray trxappgateusbtreadmill::iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds) {
+    if (speeds.size() != 10 || (command != 0xa6 && command != 0xa7)) {
+        return QByteArray();
+    }
+
+    QByteArray frame;
+    frame.append(static_cast<char>(0xf0));
+    frame.append(static_cast<char>(command));
+    frame.append(static_cast<char>(0x01));
+    frame.append(static_cast<char>(0xd3));
+    for (const double speed : speeds) {
+        if (!std::isfinite(speed) || speed < 0.0 || speed > 254.9) {
+            return QByteArray();
+        }
+        const int deciKmh = qRound(speed * 10.0);
+        frame.append(static_cast<char>((deciKmh / 100) + 1));
+        frame.append(static_cast<char>((deciKmh % 100) + 1));
+    }
+
+    quint8 checksum = 0;
+    for (const char byte : frame) {
+        checksum = static_cast<quint8>(checksum + static_cast<quint8>(byte));
+    }
+    frame.append(static_cast<char>(checksum));
+    return frame;
+}
+
+bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
+                                                        QString *error) {
+    if (!frames) {
+        return false;
+    }
+    frames->clear();
+    auto fail = [error](const QString &message) {
+        if (error) {
+            *error = message;
+        }
+        return false;
+    };
+
+    if (rows.size() != 10) {
+        return fail(QStringLiteral("iConsole programs require exactly 10 rows"));
+    }
+
+    QList<double> speeds;
+    for (const trainrow &row : rows) {
+        if (QTime(0, 0, 0).secsTo(row.duration) != 60 || row.rampDuration != QTime(0, 0, 0) ||
+            row.rampElapsed != QTime(0, 0, 0)) {
+            return fail(QStringLiteral("iConsole programs require ten one-minute non-ramp rows"));
+        }
+        speeds.append(row.speed < 0.0 ? 0.0 : row.speed);
+    }
+
+    const QByteArray speedA6 = iconsoleSpeedProgramFrame(0xa6, speeds);
+    const QByteArray speedA7 = iconsoleSpeedProgramFrame(0xa7, speeds);
+    if (speedA6.isEmpty() || speedA7.isEmpty()) {
+        return fail(QStringLiteral("iConsole program contains an unsupported speed"));
+    }
+    frames->append(speedA6);
+    frames->append(speedA7);
+    return true;
+}
+
+void trxappgateusbtreadmill::setTrainingProgram(const QList<trainrow> &rows) {
+    if (!iconsoleTreadmill) {
+        return;
+    }
+    QString error;
+    if (!buildIconsoleWorkoutFrames(rows, &pendingIconsoleWorkoutFrames, &error)) {
+        emit debug(QStringLiteral("iConsole workout not uploaded: ") + error);
+        return;
+    }
+    emit debug(QStringLiteral("iConsole workout queued with %1 frames").arg(pendingIconsoleWorkoutFrames.size()));
+    uploadPendingIconsoleWorkout();
+}
+
+void trxappgateusbtreadmill::uploadPendingIconsoleWorkout() {
+    if (!iconsoleTreadmill || !initDone || !gattCommunicationChannelService || pendingIconsoleWorkoutFrames.isEmpty()) {
+        return;
+    }
+
+    const QList<QByteArray> frames = pendingIconsoleWorkoutFrames;
+    pendingIconsoleWorkoutFrames.clear();
+    for (const QByteArray &frame : frames) {
+        if (frame.size() != 25) {
+            emit debug(QStringLiteral("iConsole workout frame has invalid size"));
+            continue;
+        }
+        const QByteArray firstPart = frame.left(20);
+        const QByteArray secondPart = frame.mid(20);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(firstPart.constData())),
+                            static_cast<uint8_t>(firstPart.size()), QStringLiteral("iConsole workout part 1"), false,
+                            false);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(secondPart.constData())),
+                            static_cast<uint8_t>(secondPart.size()), QStringLiteral("iConsole workout part 2"), false,
+                            true);
+        QThread::msleep(100);
+    }
+    emit debug(QStringLiteral("iConsole workout uploaded"));
 }
 
 void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -708,6 +811,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     }
     initDone = true;
+    uploadPendingIconsoleWorkout();
 }
 
 void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
@@ -887,6 +991,9 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
+        const QString upperDeviceName = device.name().toUpper();
+        iconsoleTreadmill = upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||
+                            upperDeviceName.startsWith(QStringLiteral("ICONSOLE+"));
         if (flowFitnessDevice) {
             treadmill_type = TYPE::FLOW_FITNESS;
         } else if (dkn_endurun_treadmill) {

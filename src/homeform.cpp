@@ -2154,6 +2154,7 @@ void homeform::trainProgramSignals() {
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                     &homeform::StopFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
+            ((treadmill *)bluetoothManager->device())->setTrainingProgram(trainProgram->rows);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
                     &bike::changeCadence);
