@@ -2285,12 +2285,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 32;
-        } else if(device.name().toUpper().startsWith("TOPUTURE TEB5")) {
+        } else if(device.name().toUpper().startsWith("TOPUTURE TBE5") ||
+                  device.name().toUpper().startsWith("TOPUTURE TEB5")) {
             qDebug() << QStringLiteral("TOPUTURE TEB5 found");
             TOPUTURE_TEB5 = true;
             max_resistance = 32;
             ergModeSupported = false;
-            Resistance = 1; // Initialize resistance to 1 for SPORT01
+            Resistance = 1;
         } else if(device.name().toUpper().startsWith("SPORT01")) {
             qDebug() << QStringLiteral("SPORT01 found");
             SPORT01 = true;
@@ -2359,6 +2360,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("SOLE B94 found - sending resistance level in 0.1 units");
             SOLE_B94 = true;
             resistance_lvl_mode = true;
+            ergModeSupported = false;
             max_resistance = 20;
         }
 

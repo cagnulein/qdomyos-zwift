@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -365,7 +366,8 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     color: Material.accent
                 }
             }
@@ -435,10 +437,15 @@ ScrollView {
             Layout.fillWidth: true
 
             ColumnLayout {
+                // With a bigger text the column took the width of the button label in one line and
+                // the button ran past the screen edge: it takes the width of the box instead
+                width: window.textScale !== 1 ? parent.width : implicitWidth
                 UiComboBox {
                        id: wheelSizeCombo
                        Accessible.name: qsTr("Virtual Wheel Size") + ": " + displayText
                        width: parent.width
+                       // the box was as wide as at 100 % and cut the wheel size ("700 x 1…")
+                       Layout.fillWidth: window.textScale !== 1
                        currentIndex: initialWheelSizeIndex
                        textRole: "text"
                        model: ListModel {
@@ -543,13 +550,15 @@ ScrollView {
                 Button {
                     text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    // with a bigger text the label wraps in two lines
+                    Layout.preferredHeight: window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50
                     font.bold: true
                     background: Rectangle {
                         color: "#9C27B0"
                         radius: 4
                     }
                     contentItem: Text {
+                        wrapMode: window.labelWrap
                         text: parent.text
                         font: parent.font
                         color: "white"
@@ -610,22 +619,26 @@ ScrollView {
                 spacing: 10
 
                 // Updated Buttons Row
-                RowLayout {
+                // With a bigger text three buttons in a row cut their labels ("Add…"): one under
+                // another, each the full width
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    spacing: 10
+                    Layout.preferredHeight: window.textScale > 1 ? -1 : 40
+                    columns: window.textScale > 1 ? 1 : 3
+                    columnSpacing: 10
+                    rowSpacing: 10
 
                     Button {
                         text: qsTr("Add Gear")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: addNewGear()
                     }
 
                     Button {
                         text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: {
                             if (gearTable.currentRow >= 0) {
                                 clearGearsFromIndex(gearTable.currentRow)
@@ -636,7 +649,7 @@ ScrollView {
                     Button {
                         text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: initializeGearRows()
                     }
                 }
@@ -644,7 +657,7 @@ ScrollView {
                 // Table Header (same as before)
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
+                    Layout.preferredHeight: window.fontPx(40)
                     color: "#f0f0f0"
                     border.width: 1
                     border.color: "#cccccc"
@@ -660,6 +673,8 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Gear")
                                 font.bold: true
@@ -675,6 +690,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Chainring")
                                 font.bold: true
@@ -690,6 +706,7 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
                                 text: qsTr("Rear Cog")
                                 font.bold: true
@@ -753,7 +770,8 @@ ScrollView {
 
                     delegate: Rectangle {
                         width: gearTable.width
-                        height: 40
+                        // the rows, the fields and their -/+ grow with the text
+                        height: window.fontPx(40)
                         color: gearTable.currentRow === index ? "#e0e0e0" : "white"
 
                         MouseArea {
@@ -788,6 +806,8 @@ ScrollView {
                                 }
 
                                 contentItem: Text {
+                                    // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: gear
                                     color: "black"
                                     horizontalAlignment: Text.AlignHCenter
@@ -820,8 +840,12 @@ ScrollView {
                                         valueModified()
                                     }
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    // with a bigger text the field takes the cell and grows with the row
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: crankset
@@ -845,7 +869,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -853,14 +878,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -868,7 +894,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
@@ -899,8 +925,10 @@ ScrollView {
                                         valueModified()
                                     }
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: cog
@@ -924,7 +952,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -932,14 +961,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -947,7 +977,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 

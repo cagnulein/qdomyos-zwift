@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -738,6 +739,13 @@ import AndroidStatusBar 1.0
             // Straight into the store too: the card reads it back (settingValue), and the page's
             // Settings writes it only a moment later
             settings.setValue(entry.key, settings[entry.key])
+
+            // The text size applies at once, like on its own page
+            if (entry.key === "ui_text_scale" || entry.key === "ui_text_scale_system") {
+                window.setTextScaleOption(entry.key, settings[entry.key])
+                toast.show(qsTr("Setting saved!"))
+                return
+            }
 
             window.settings_restart_to_apply = true
             toast.show(qsTr("Setting saved!"))
@@ -2242,6 +2250,17 @@ import AndroidStatusBar 1.0
             property bool freemotion_t10_9b_hci: false
             property bool treadmill_runn_closed_loop: false
             property string treadmill_pid_heart_control: "Speed"
+
+            property string life_fitness_first_name: ""
+            property string life_fitness_last_name: ""
+            property string life_fitness_token: ""
+            property string life_fitness_preset_summary: ""
+            property string life_fitness_username: ""
+            property string life_fitness_password: ""
+            property string life_fitness_api_key: ""
+            property bool life_fitness_guest_login: false
+            property int ui_text_scale: 100
+            property bool ui_text_scale_system: true
         }
 
 
@@ -2393,6 +2412,8 @@ import AndroidStatusBar 1.0
                 Layout.preferredWidth: Math.max(1, column1.width)
 
                 Label {
+                    // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
                           changedOnly && filteredSettings.length > 0 ?
@@ -2405,6 +2426,7 @@ import AndroidStatusBar 1.0
                     color: Material.color(Material.Red)
                     font.bold: true
                     Layout.fillWidth: true
+                    wrapMode: window.labelWrap
                 }
 
                 Repeater {
@@ -2456,6 +2478,7 @@ import AndroidStatusBar 1.0
                                     spacing: 2
 
                                     Label {
+                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                         text: entry._translatedName || entry.name || entry.key
                                         font.bold: true
                                         wrapMode: Text.WordWrap
@@ -2466,7 +2489,8 @@ import AndroidStatusBar 1.0
                                     Label {
                                         text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
                                         Layout.minimumWidth: 0
@@ -2494,7 +2518,8 @@ import AndroidStatusBar 1.0
                                 color: Material.color(Material.Lime)
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
@@ -2622,48 +2647,9 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            id: labelUiZoom
-                            text: qsTr("UI Zoom:")
-                            Layout.fillWidth: true
-                        }
-                        SettingsNumberField {
-                            id: uiZoomTextField
-                            minimum: 10
-                            text: settings.ui_zoom
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: if (valid) { settings.ui_zoom = value; window.settings_restart_to_apply = true; }
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            id: okUiZoomButton
-                            text: qsTr("OK")
-                            enabled: uiZoomTextField.valid
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ui_zoom = uiZoomTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    Label {
-                        text: qsTr("This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        width: column1.width * 0.8
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
                             id: labelAppLanguage
                             text: qsTr("App Language:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -2700,7 +2686,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2714,6 +2701,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelWeight
                             text: qsTr("Player Weight") + " (" + ((settings.miles_unit && !settings.weight_kg_unit)?qsTr("lbs"):qsTr("kg")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2740,7 +2728,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable 'Use kg for weight'.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2754,6 +2743,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelHeight
                             text: qsTr("Player Height") + " (" + (settings.miles_unit?qsTr("ft/in"):qsTr("cm")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -2801,7 +2791,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches\" format (e.g., 5'10\") for imperial units.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2815,6 +2806,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelAge
                             text: qsTr("Player Age:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2843,7 +2835,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your age so that calories burned can be more accurately calculated.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2857,6 +2850,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelSex
                             text: qsTr("Gender:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -2883,7 +2877,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Select your gender so that calories burned can be more accurately calculated.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2898,6 +2893,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelFTP
                             text: qsTr("FTP value:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2925,7 +2921,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2938,6 +2935,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Critical Power Run value:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2964,7 +2962,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2978,6 +2977,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelNickname
                             text: qsTr("Nickname:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -3001,7 +3001,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("No need to enter data here. It is for a possible future QZ feature.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3015,6 +3016,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelEmail
                             text: qsTr("Email:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -3041,7 +3043,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3069,7 +3072,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn on if you want QZ to display distance traveled in miles. Default is off and set to kilometers.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3098,7 +3102,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn on if you want to use kilograms (kg) for weight instead of pounds (lbs). Useful for UK users who use miles for distance but kg for weight.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3127,7 +3132,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn on to set QZ to always open in PAUSE mode. This is important for Peloton classes so that you can sync the start of your QZ workout with the start of the Peloton class. Turn off to have QZ start tracking and timing your workout as soon as it opens.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3155,7 +3161,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3171,7 +3178,7 @@ import AndroidStatusBar 1.0
                 text: qsTr("Zwift users: keep this setting off")
                 font.bold: yes
                 font.italic: yes
-                font.pixelSize: Qt.application.font.pixelSize - 2
+                font.pixelSize: window.fontHint
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
@@ -3204,7 +3211,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("(For Android Version 10 and above, this setting cannot be changed. This setting can be changed for Android Version 9 and below and for iOS.) When this setting is turned off, QZ sends heart rate data in a format designed to improve compatibility with third-party apps, such as Zwift and Peloton. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3232,7 +3240,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to prevent a built-in heart rate monitor (HRM) on your exercise equipment from sending that data to QZ. This allows QZ to connect to your external HRM, such as a chest band or Apple Watch.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3260,7 +3269,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3288,7 +3298,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3316,7 +3327,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3329,6 +3341,7 @@ import AndroidStatusBar 1.0
                         id: labelHeartRateBelt
                         text: qsTr("Heart Belt Name:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -3358,7 +3371,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3386,6 +3400,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelheartRateZone1Ratio
                                     text: qsTr("Zone 1 %:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -3413,6 +3428,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelheartRateZone2Ratio
                                     text: qsTr("Zone 2 %:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -3440,6 +3456,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelheartRateZone3Ratio
                                     text: qsTr("Zone 3 %:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -3467,6 +3484,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelheartRateZone4Ratio
                                     text: qsTr("Zone 4 %:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -3493,7 +3511,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3506,7 +3525,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Choose the percentages for where you want your zones 1-4 to end and click OK.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3543,6 +3563,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelHeartRateMaxOverrideValue
                                             text: qsTr("Max Heart Rate")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3570,7 +3591,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -3584,6 +3606,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelHeartRateRestingValue
                                             text: qsTr("Resting Heart Rate")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3612,7 +3635,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -3636,6 +3660,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelPowerFromHeartPWR1
                                             text: qsTr("Session 1 Watt:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3664,6 +3689,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelPowerFromHeartHR1
                                             text: qsTr("Session 1 HR:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3692,6 +3718,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelPowerFromHeartPWR2
                                             text: qsTr("Session 2 Watt:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3720,6 +3747,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelPowerFromHeartHR2
                                             text: qsTr("Session 2 HR:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -3748,7 +3776,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3790,7 +3819,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("QZ calculates speed based on your pedal cadence (RPMs). Enable this setting if you want your speed to be calculated based on your power output (watts), as Zwift and some other apps do. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3819,7 +3849,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("QZ will remember the last Gears value and it will restore on startup")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3856,6 +3887,7 @@ import AndroidStatusBar 1.0
 
                         Label {
                             text: qsTr("Gear Value:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -3886,7 +3918,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3899,6 +3932,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelRollingResistance
                             text: qsTr("Rolling Resistance Factor")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -3924,7 +3958,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("0.005 = Clinchers\n0.004 = Tubulars\n0.012 = MTB")
                         font.italic: true
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         color: "steelblue"
                     }
                     RowLayout {
@@ -3932,6 +3967,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelBikeWeight
                             text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? qsTr("lbs") : qsTr("kg"))
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -3957,7 +3993,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3971,6 +4008,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelCRRGain
                             text: qsTr("Rolling Res. Gain")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -3996,6 +4034,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelCWGain
                             text: qsTr("Wind Res. Gain")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4035,7 +4074,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4071,7 +4111,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable TCP server on port 21587 to send control commands using the OpenBikeControl link protocol")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
@@ -4088,7 +4129,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("When enabled, gear shift commands go only to OpenBikeControl clients. When disabled, they go to both OpenBikeControl clients and the local gear system")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
@@ -4097,14 +4139,16 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Left Controller Buttons")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
+                                wrapMode: window.labelWrap
                             }
 
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Up:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4117,6 +4161,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Down:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4129,6 +4174,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Left:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4141,6 +4187,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Right:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4153,6 +4200,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Shoulder:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4165,6 +4213,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Power:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4177,14 +4226,16 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Right Controller Buttons")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
+                                wrapMode: window.labelWrap
                             }
 
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Y:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4197,6 +4248,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right A:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4209,6 +4261,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right B:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4221,6 +4274,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Z:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4233,6 +4287,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Shoulder:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4245,6 +4300,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Power:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4258,7 +4314,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.topMargin: 10
@@ -4272,6 +4329,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelBikeResistanceOffset
                             text: qsTr("Zwift Resistance Offset:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4301,7 +4359,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4315,6 +4374,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelBikePowerOffset
                             text: qsTr("Zwift Power Offset (W):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4342,7 +4402,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4356,6 +4417,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelBikeResistanceGain
                             text: qsTr("Zwift Resistance Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4381,7 +4443,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4395,6 +4458,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelZwiftErgFilter
                             text: qsTr("Zwift ERG Watt Up Filter:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4420,7 +4484,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4434,6 +4499,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelZwiftErgDownFilter
                             text: qsTr("Zwift ERG Watt Down Filter:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4459,7 +4525,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("See above. Default is 10.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4473,6 +4540,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelZwiftErgResistanceDown
                             text: qsTr("Min. Resistance:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4498,7 +4566,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4512,6 +4581,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelZwiftErgResistanceUp
                             text: qsTr("Max. Resistance:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4537,7 +4607,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Similar to the above, but sets a maximum target resistance. Default is 999.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4551,6 +4622,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelBikeResistanceStart
                             text: qsTr("Resistance at Startup:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4577,7 +4649,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4590,6 +4663,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Gears Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4614,7 +4688,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Applies a multiplier to the gears. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4643,6 +4718,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Gears Offset:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -4668,7 +4744,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Applies an offset to the gears. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4705,7 +4782,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -4720,6 +4798,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Profile:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -4737,11 +4816,12 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Cruise Profile Settings")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
+                                wrapMode: window.labelWrap
                             }
 
                             RowLayout {
@@ -4749,6 +4829,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Cruise - Gear Up Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4777,6 +4858,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Cruise - Gear Up Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4802,6 +4884,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Cruise - Gear Down Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4830,6 +4913,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Cruise - Gear Down Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4853,11 +4937,12 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Climb Profile Settings")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
+                                wrapMode: window.labelWrap
                             }
 
                             RowLayout {
@@ -4865,6 +4950,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Climb - Gear Up Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4893,6 +4979,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Climb - Gear Up Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4918,6 +5005,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Climb - Gear Down Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4946,6 +5034,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Climb - Gear Down Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -4969,11 +5058,12 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Sprint Profile Settings")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 1)
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Grey)
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
+                                wrapMode: window.labelWrap
                             }
 
                             RowLayout {
@@ -4981,6 +5071,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Sprint - Gear Up Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5009,6 +5100,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Sprint - Gear Up Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5034,6 +5126,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Sprint - Gear Down Cadence (RPM):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5062,6 +5155,7 @@ import AndroidStatusBar 1.0
                                 visible: automaticVirtualShiftingEnabledDelegate.checked
                                 Label {
                                     text: qsTr("Sprint - Gear Down Time (seconds):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5087,6 +5181,7 @@ import AndroidStatusBar 1.0
                     Label {
                         text: qsTr("FTMS Bike:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -5114,7 +5209,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -5127,7 +5223,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -5198,6 +5295,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelSchwinnResistancSmoothing
                                     text: qsTr("Resistance Smoothing:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5223,7 +5321,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5244,6 +5343,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 id: labelHorizonGr7CadenceMultiplier
                                 text: qsTr("GR7 Cadence Multiplier:")
+                                wrapMode: window.labelWrap
                                 Layout.fillWidth: true
                             }
                             SettingsNumberField {
@@ -5282,6 +5382,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelEchelonWattTable
                                     text: qsTr("Watt Profile:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -5308,6 +5409,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelEchelonResistanceGain
                                     text: qsTr("Resistance Gain:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5333,6 +5435,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelEchelonResistanceOffset
                                     text: qsTr("Resistance Offset:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5594,7 +5697,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5708,6 +5812,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelflywheelBikeFilter
                                     text: qsTr("Samples Filter:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5772,6 +5877,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelDomyosBikeCadenceFilter
                                     text: qsTr("Cadence Filter:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5884,7 +5990,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5906,6 +6013,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelproformBikeWheelRatio
                                     text: qsTr("Wheel Ratio:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -5930,6 +6038,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Specific Model:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
 
                             UiComboBox {
@@ -6090,6 +6199,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("TDF1 IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -6116,6 +6226,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelproformTDF4IP
                                     text: qsTr("TDF4 IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -6142,6 +6253,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelproformTDFCompanionIP
                                     text: qsTr("TDF Companion IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -6204,6 +6316,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 id: labelcomputrainerSerialPort
                                 text: qsTr("Serial Port:")
+                                wrapMode: window.labelWrap
                                 Layout.fillWidth: true
                             }
                             TextField {
@@ -6239,6 +6352,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 id: labelKettlerUsbSerialPort
                                 text: qsTr("Serial Port:")
+                                wrapMode: window.labelWrap
                                 Layout.fillWidth: true
                             }
                             TextField {
@@ -6262,6 +6376,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 id: labelKettlerUsbBaudrate
                                 text: qsTr("Baudrate:")
+                                wrapMode: window.labelWrap
                                 Layout.fillWidth: true
                             }
                             UiComboBox {
@@ -6303,6 +6418,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelFreebeatSerialPort
                                     text: qsTr("Serial Port:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -6356,6 +6472,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelm3iBikeId
                                     text: qsTr("Bike ID:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -6383,6 +6500,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelm3iBikeSpeedBuffsize
                                     text: qsTr("Speed Buffer Size:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -6493,6 +6611,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("ANT+ Bike Device Number (0=Auto):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -6546,7 +6665,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -6576,7 +6696,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Set 100mm as wheel circumference in settings of ant+ speed sensor")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6603,7 +6724,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6616,6 +6738,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("ANT+ Speed Offset")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -6641,7 +6764,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6655,6 +6779,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("ANT+ Speed Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -6679,7 +6804,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6707,6 +6833,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("ANT+ Heart Device Number (0=Auto):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -6735,7 +6862,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6762,7 +6890,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6808,6 +6937,137 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelUiZoom
+                            text: qsTr("Tile size:")
+                            wrapMode: window.labelWrap
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: uiZoomTextField
+                            minimum: 10
+                            text: settings.ui_zoom
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: if (valid) { settings.ui_zoom = value; window.settings_restart_to_apply = true; }
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okUiZoomButton
+                            text: qsTr("OK")
+                            enabled: uiZoomTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ui_zoom = uiZoomTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    Label {
+                        text: qsTr("This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        width: column1.width * 0.8
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    // Text size of the app: the system one on Android and iOS, or our own.
+                    // Both apply at once, through the window (main.qml, textScale)
+                    IndicatorOnlySwitch {
+                        id: uiTextScaleSystemDelegate
+                        text: qsTr("Use System Text Size")
+                        visible: window.systemTextScaleAvailable
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ui_text_scale_system
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: {
+                            settings.ui_text_scale_system = checked;
+                            window.setTextScaleOption("ui_text_scale_system", checked);
+                            // back to the value the field shows for this mode, also after an edit
+                            uiTextScaleTextField.text = Qt.binding(function() { return uiTextScaleTextField.shownValue; });
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.")
+                        visible: window.systemTextScaleAvailable
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelUiTextScale
+                            text: qsTr("Text size:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: uiTextScaleTextField
+                            // while the system size is used: the size in effect, read only
+                            readonly property bool followsSystem: window.systemTextScaleAvailable && settings.ui_text_scale_system
+                            readonly property int shownValue: followsSystem ? Math.round(window.textScale * 100) : settings.ui_text_scale
+                            // the screen reader read only the number, not what it is; the value in the
+                            // name, as Qt 5.15 on Android stops reading the text once a name is set
+                            Accessible.name: labelUiTextScale.text + " " + text
+                            decimals: 0
+                            minimum: 80
+                            maximum: 170
+                            enabled: !followsSystem
+                            text: shownValue
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: if (valid) { settings.ui_text_scale = Math.round(value); window.setTextScaleOption("ui_text_scale", Math.round(value)); }
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okUiTextScaleButton
+                            text: qsTr("OK")
+                            enabled: uiTextScaleTextField.valid && !uiTextScaleTextField.followsSystem
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ui_text_scale = Math.round(uiTextScaleTextField.value); window.setTextScaleOption("ui_text_scale", Math.round(uiTextScaleTextField.value)); toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    Label {
+                        text: qsTr("Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     IndicatorOnlySwitch {
                         id: topBarEnabledDelegate
                         text: qsTr("Top Bar Enabled")
@@ -6844,7 +7104,8 @@ import AndroidStatusBar 1.0
                         visible: Qt.platform.os === "android"
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6858,6 +7119,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelFloatingWindowType
                             text: qsTr("Floating Window Type:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -6882,7 +7144,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6895,7 +7158,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows continuous display of the Start/Pause and Stop buttons across the top of the screen during your workouts. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6909,6 +7173,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelFloatingWidth
                             text: qsTr("Floating Window Width:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -6935,7 +7200,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: width of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6949,6 +7215,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelFloatingHeight
                             text: qsTr("Floating Window Height:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -6975,7 +7242,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: height of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6989,6 +7257,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelFloatingTransparency
                             text: qsTr("Floating Window % Transparency:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7015,7 +7284,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: transparency percentage of the floating window.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7043,7 +7313,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: if enabled the floating window will start as soon as the fitness devices is connected.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7063,6 +7334,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelChartDisplayMode
                             text: qsTr("Chart Display Mode:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7087,7 +7359,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7100,6 +7373,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("iOS Live Activity Left Metric:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7121,6 +7395,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("iOS Live Activity Right Metric:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7142,7 +7417,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7178,6 +7454,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Background Color:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7212,6 +7489,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelBackgroundColor
                                     text: qsTr("Tiles Background Color:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7259,6 +7537,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Tiles Shadow Color:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7292,6 +7571,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Statusbar Background Color:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7325,6 +7605,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("2nd line tile text size:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -7365,6 +7646,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonUsername
                             text: qsTr("Username:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -7389,7 +7671,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter the email address you use to login to Peloton (NOT your leaderboard name). Ensure there are no spaces before or after your email. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7403,6 +7686,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonPassword
                             text: qsTr("Password:") + ((rootItem.pelotonLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                             // Android has no reliable emoji font for the login result, so it is drawn
                             ShapeIcon {
@@ -7437,7 +7721,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter the password you use to login to Peloton. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7467,6 +7752,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonDifficulty
                             text: qsTr("Difficulty:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -7493,7 +7779,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7506,6 +7793,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Treadmill Level:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7531,7 +7819,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7544,6 +7833,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Treadmill Walk Level:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7569,7 +7859,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7582,6 +7873,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Walking Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7604,7 +7896,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7617,6 +7910,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Running Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7639,7 +7933,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7652,6 +7947,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Rower Level:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7677,7 +7973,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Difficulty level for Peloton rower classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7691,6 +7988,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPZPUsername
                             text: qsTr("PZP Username:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -7714,7 +8012,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7728,6 +8027,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPZPPassword
                             text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                             // Android has no reliable emoji font for the login result, so it is drawn
                             ShapeIcon {
@@ -7762,7 +8062,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7776,6 +8077,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonGain
                             text: qsTr("Conversion Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7801,7 +8103,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7815,6 +8118,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonOffset
                             text: qsTr("Conversion Offset:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7841,7 +8145,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7869,7 +8174,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on compatibility to Peloton over Bluetooth. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7896,7 +8202,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7923,7 +8230,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7938,6 +8246,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonCadenceMetric
                             text: qsTr("Override Cadence Metric:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7965,6 +8274,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPelotonHeartRateMetric
                             text: qsTr("Override HR Metric:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -7991,7 +8301,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8005,6 +8316,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelpelotonDateOnStrava
                             text: qsTr("Date on Strava:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -8031,7 +8343,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8044,6 +8357,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Date Format:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -8084,7 +8398,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8111,7 +8426,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("By default, QZ treats Spin-UPS in Power Zone rides as an increasing ramp to warm you up. You can disable this, to leave the resistance up to you.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8139,7 +8455,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8166,7 +8483,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8194,7 +8512,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8217,6 +8536,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Username:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -8241,7 +8561,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8255,6 +8576,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelZwiftPassword
                             text: qsTr("Password:") + ((rootItem.zwiftLogin===-1 || Qt.platform.os === "android")?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                             // Android has no reliable emoji font for the login result, so it is drawn
                             ShapeIcon {
@@ -8290,7 +8612,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter the password you use to login to Zwift. Click OK.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8340,7 +8663,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8367,7 +8691,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This setting shows the actual gear from QZ to Zwift. Negative values are not displayed on Zwift and it could have also limitation to higher gain value. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8395,7 +8720,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8408,6 +8734,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Poll Time:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -8434,7 +8761,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8461,7 +8789,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8488,7 +8817,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8529,7 +8859,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8566,7 +8897,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Wifi Compatibility for Rouvy")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8604,7 +8936,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8631,7 +8964,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8658,7 +8992,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Use your garmin watch to get the ANT+ metrics from a bike")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8693,7 +9028,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8720,7 +9056,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8747,7 +9084,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8760,6 +9098,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Garmin Email:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -8789,6 +9128,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Garmin Password:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -8816,6 +9156,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Garmin Server:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -8858,7 +9199,7 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("Garmin MFA Required")
-                                font.pixelSize: 18
+                                font.pixelSize: window.fontPx(18)
                                 font.bold: true
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignHCenter
@@ -8876,7 +9217,7 @@ import AndroidStatusBar 1.0
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignHCenter
-                                font.pixelSize: 12
+                                font.pixelSize: window.fontPx(12)
                                 font.italic: true
                                 color: Material.color(Material.Grey)
                             }
@@ -8886,8 +9227,8 @@ import AndroidStatusBar 1.0
                                 placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 40
-                                font.pixelSize: 16
+                                Layout.preferredHeight: window.fontPx(40)
+                                font.pixelSize: window.fontPx(16)
 
                                 onAccepted: {
                                     if (text.length > 0) {
@@ -8933,7 +9274,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8960,7 +9302,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8971,6 +9314,7 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Garmin device for FIT file")
+                        wrapMode: window.labelWrap
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                     }
@@ -9674,6 +10018,7 @@ import AndroidStatusBar 1.0
                         text: qsTr("Garmin device UNIT ID")
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
 
                     RowLayout {
@@ -9695,7 +10040,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder. If you want to see also the Acute load in Garmin Connect leave the default Unit ID here.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9738,7 +10084,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9765,7 +10112,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9792,7 +10140,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9820,7 +10169,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9847,7 +10197,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9861,6 +10212,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillPidHR
                             text: qsTr("PID on Heart Zone:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -9888,6 +10240,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillPidHRControl
                             text: qsTr("PID HR actuator:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -9913,7 +10266,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9926,6 +10280,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("PID on HR min:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -9952,6 +10307,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("PID on HR max:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -9978,7 +10334,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10005,7 +10362,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10018,6 +10376,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("PID Recovery Zone Lower Limit (%):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10041,7 +10400,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10054,6 +10414,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("PID Pushy Zone Limit:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10076,7 +10437,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10103,7 +10465,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enabling this the PID will ignore the inclination changes. Default: Disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10117,6 +10480,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramPace1mile
                             text: qsTr("1 mile pace (total time):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10142,7 +10506,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10156,6 +10521,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramPace5km
                             text: qsTr("5 km pace (total time):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10181,7 +10547,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("See 1 Mile Pace above; same except 5 km instead of 1 mile.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10195,6 +10562,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramPace10km
                             text: qsTr("10 km pace (total time):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10220,7 +10588,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("See 1 Mile Pace above; same except 10 km instead of 1 mile.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10234,6 +10603,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramPaceHalfMarathon
                             text: qsTr("Half Marathon pace (total time):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10259,7 +10629,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("See 1 Mile Pace above; same except half marathon distance instead of 1 mile.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10273,6 +10644,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramPaceMarathon
                             text: qsTr("Marathon pace (total time):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10298,7 +10670,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("See 1 Mile Pace above; same except marathon distance instead of 1 mile.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10312,6 +10685,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramWarmupSpeed
                             text: qsTr("Warmup Speed (pace):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10337,6 +10711,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramCooldownSpeed
                             text: qsTr("Cooldown Speed (pace):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10362,6 +10737,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRestSpeed
                             text: qsTr("Rest Speed (pace):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -10387,6 +10763,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillPaceDefault
                             text: qsTr("Default Pace:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -10413,7 +10790,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Select the default Pace to be used when the ZWO file does not indicate a precise pace.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10427,6 +10805,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPidHeartZoneErgModeWattStep
                             text: qsTr("ERG Mode Watt Step:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10452,7 +10831,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10477,6 +10857,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomDuration
                             text: qsTr("Duration (minutes):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10505,6 +10886,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomPeriod
                             text: qsTr("Period (seconds):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10532,6 +10914,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomSpeedMin
                             text: qsTr("Speed min.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10558,6 +10941,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomSpeedMax
                             text: qsTr("Speed max.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10584,6 +10968,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomInclineMin
                             text: qsTr("Incline min.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10611,6 +10996,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomInclineMax
                             text: qsTr("Incline max.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10637,6 +11023,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomResistanceMin
                             text: qsTr("Resistance min.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10663,6 +11050,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTrainProgramRandomResistanceMax
                             text: qsTr("Resistance max.:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10688,7 +11076,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10725,7 +11114,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10753,7 +11143,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10781,7 +11172,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10809,7 +11201,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10837,7 +11230,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10845,7 +11239,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+                 
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
                         text: qsTr("Difficulty offset based")
@@ -10865,7 +11259,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10879,6 +11274,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillStepSpeed
                             text: qsTr("Speed Step:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10904,7 +11300,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10918,6 +11315,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Min. Inclination:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10945,7 +11343,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10958,6 +11357,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Max. Inclination:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10984,7 +11384,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10997,6 +11398,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Max. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -11021,7 +11423,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11034,6 +11437,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Min. Speed:") + " (" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -11058,7 +11462,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11072,6 +11477,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelStepGain
                             text: qsTr("Step Count Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -11097,7 +11503,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11119,7 +11526,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Overrides the default inclination values sent from the treadmill")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11146,7 +11554,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11158,6 +11567,7 @@ import AndroidStatusBar 1.0
                     Label {
                         text: qsTr("FTMS Treadmill:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -11185,7 +11595,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11198,7 +11609,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11218,6 +11630,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Specific Model:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
 
                             UiComboBox {
@@ -11539,6 +11952,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelproformtreadmillip
                                     text: qsTr("Proform IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -11565,6 +11979,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelnordictrack2950IP
                                     text: qsTr("Nordictrack 2950 IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -11787,7 +12202,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -11797,6 +12213,77 @@ import AndroidStatusBar 1.0
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: lifeFitnessAccordion
+                        title: qsTr("Life Fitness Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessUsernameTextField
+                                    text: settings.life_fitness_username
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label { text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
+                                TextField {
+                                    id: lifeFitnessPasswordTextField
+                                    text: settings.life_fitness_password
+                                    echoMode: TextInput.Password
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.life_fitness_password = text; window.settings_restart_to_apply = true; }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessGuestLoginDelegate
+                                text: qsTr("Life Fitness guest login (experimental)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_guest_login
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_guest_login = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
 
                     AccordionElement {
                         id: runnerTTreadmillAccordion
@@ -11962,6 +12449,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Remap 5 km/h button:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -11986,6 +12474,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Remap 10 km/h button:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -12010,6 +12499,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Remap 16 km/h button:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -12034,6 +12524,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Remap 22 km/h button:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -12058,6 +12549,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Pool time (ms):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -12083,7 +12575,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -12280,6 +12773,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelfitshowTreadmillUserId
                                     text: qsTr("User ID:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -12455,6 +12949,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelhorizonTreadmillProfile1
                                     text: qsTr("User 1:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12478,6 +12973,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelhorizonTreadmillProfile2
                                     text: qsTr("User 2:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12501,6 +12997,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelhorizonTreadmillProfile3
                                     text: qsTr("User 3:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12524,6 +13021,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelhorizonTreadmillProfile4
                                     text: qsTr("User 4:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12547,6 +13045,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelhorizonTreadmillProfile5
                                     text: qsTr("User 5:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -13005,6 +13504,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Serial Port:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -13029,6 +13529,7 @@ import AndroidStatusBar 1.0
                     Label {
                         text: qsTr("FTMS Rower:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -13062,7 +13563,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13143,6 +13645,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("ProForm Rower IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -13187,6 +13690,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 id: labelDomyosEllipticalSpeedRatio
                                 text: qsTr("Speed Ratio:")
+                                wrapMode: window.labelWrap
                                 Layout.fillWidth: true
                             }
                             SettingsNumberField {
@@ -13232,6 +13736,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Serial Port:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -13256,6 +13761,7 @@ import AndroidStatusBar 1.0
                     Label {
                         text: qsTr("FTMS Elliptical:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -13289,7 +13795,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13390,6 +13897,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Companion IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -13503,6 +14011,7 @@ import AndroidStatusBar 1.0
                         id: labelFilterDevice
                         text: qsTr("Manual Device:")
                         Layout.fillWidth: true
+                        wrapMode: window.labelWrap
                     }
                     RowLayout {
                         spacing: 10
@@ -13538,7 +14047,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13565,7 +14075,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Shows a confirmation popup before stopping the workout from the UI.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13579,6 +14090,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelwattOffset
                             text: qsTr("Watt Offset:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13605,7 +14117,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13619,6 +14132,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelwattGain
                             text: qsTr("Watt Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13644,7 +14158,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13658,6 +14173,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelwattMax
                             text: qsTr("Max Watt:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13682,7 +14198,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13696,6 +14213,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelspeedOffset
                             text: qsTr("Speed Offset")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13722,7 +14240,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13737,6 +14256,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelspeedGain
                             text: qsTr("Speed Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13762,7 +14282,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13776,6 +14297,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelcadenceOffset
                             text: qsTr("Cadence Offset")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13802,7 +14324,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13816,6 +14339,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelcadenceGain
                             text: qsTr("Cadence Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -13841,7 +14365,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13862,6 +14387,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Strava Upload:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         ValueComboBox {
@@ -13888,6 +14414,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelStravaSuffix
                             text: qsTr("Suffix activity:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -13911,7 +14438,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13938,7 +14466,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("QZ can open an external browser to authorize Strava. Default: disabled.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13966,7 +14495,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13993,7 +14523,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14020,7 +14551,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Append the Date to the Strava Activity as a prefix only for non-Peloton workout")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14048,7 +14580,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14075,7 +14608,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14089,6 +14623,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelPowerAvg
                             text: qsTr("Power Averaging Mode:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -14120,7 +14655,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14148,7 +14684,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Enables the calculation of watts, even while in Pause mode. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14176,7 +14713,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14190,6 +14728,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillInclinationOffset
                             text: qsTr("Zwift Inclination Offset:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14216,7 +14755,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14230,6 +14770,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelTreadmillInclinationGain
                             text: qsTr("Zwift Inclination Gain:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14255,7 +14796,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14268,6 +14810,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Minimum Inclination:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14293,7 +14836,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14307,6 +14851,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelInclinationStep
                             text: qsTr("Inclination Step:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14332,7 +14877,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14359,7 +14905,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14387,7 +14934,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14414,7 +14962,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14427,6 +14976,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("AutoLap on Distance:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14451,7 +15001,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? qsTr("Mi") : qsTr("KM"))
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14464,6 +15015,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             text: qsTr("Inclination Delay:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14488,7 +15040,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14522,7 +15075,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Don't touch these settings if your bike works properly!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14574,7 +15128,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14587,6 +15142,7 @@ import AndroidStatusBar 1.0
                                 id: labelCadenceSensorName
                                 text: qsTr("Cadence Sensor:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -14622,7 +15178,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Use this setting to connect QZ to your cadence sensor. Default is Disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14636,6 +15193,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelCadenceSpeedRatio
                                     text: qsTr("Wheel Ratio:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -14661,7 +15219,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14688,7 +15247,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14715,7 +15275,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable a custom linear resistance/watt table for CSC bikes. Joroto bikes keep using their dedicated resistance power profile. Resistance is clamped using the existing Min. Resistance and Max. Resistance settings.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14728,6 +15289,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Resistance Level 1:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -14752,6 +15314,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Watt 1:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -14776,6 +15339,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Resistance Level 2:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -14800,6 +15364,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Watt 2:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -14824,7 +15389,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14862,7 +15428,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14890,7 +15457,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14918,7 +15486,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Some power sensors send cadence divided by 2. This setting will fix this behavior.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14946,7 +15515,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Divide the cadence sent to Strava by 2.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14973,7 +15543,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15000,7 +15571,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires 'Use speed from the power sensor'. Disabled by default.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15012,6 +15584,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Power sensor speed correction threshold (%):")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -15037,7 +15610,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15064,7 +15638,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15091,7 +15666,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15118,7 +15694,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15130,6 +15707,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Power Sensor Speed/Incline Coefficient A:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -15153,6 +15731,7 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Power Sensor Speed/Incline Coefficient B:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -15177,7 +15756,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.\n\nFor Stryd sensors use: A = -0.96, B = 1.33\n\nExamples with these values:\n• 8 km/h, 10% incline: (-0.96 + 1.33×8) × 10 = 97W added\n• 11 km/h, 10% incline: (-0.96 + 1.33×11) × 10 = 137W added\n\nIf both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).\n\nDefault: A = -0.96, B = 1.33")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15190,6 +15770,7 @@ import AndroidStatusBar 1.0
                                 id: labelPowerSensorName
                                 text: qsTr("Power Sensor:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -15225,7 +15806,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Leave on Disabled or select from list of found Bluetooth devices.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15291,6 +15873,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelEliteRizerGain
                                             text: qsTr("Difficulty/Gain:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15372,6 +15955,7 @@ import AndroidStatusBar 1.0
                                 id: labelFTMSAccessoryName
                                 text: qsTr("SmartSpin2k device:")
                                 Layout.fillWidth: true
+                                wrapMode: window.labelWrap
                             }
                             RowLayout {
                                 spacing: 10
@@ -15423,6 +16007,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelSS2KShiftStep
                                     text: qsTr("Shift Step")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15448,6 +16033,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelSS2KMaxResistance
                                     text: qsTr("Max Resistance")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15473,6 +16059,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelSS2KMinResistance
                                     text: qsTr("Min Resistance")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15507,6 +16094,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KResistanceSample1
                                             text: qsTr("Resistance Sample 1")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15531,6 +16119,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KShiftStepSample1
                                             text: qsTr("Shift Step Sample 1")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15556,6 +16145,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KResistanceSample2
                                             text: qsTr("Resistance Sample 2")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15580,6 +16170,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KShiftStepSample2
                                             text: qsTr("Shift Step Sample 2")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15605,6 +16196,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KResistanceSample3
                                             text: qsTr("Resistance Sample 3")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15629,6 +16221,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KShiftStepSample3
                                             text: qsTr("Shift Step Sample 3")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15654,6 +16247,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KResistanceSample4
                                             text: qsTr("Resistance Sample 4")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15678,6 +16272,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelSS2KShiftStepSample4
                                             text: qsTr("Shift Step Sample 4")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -15732,6 +16327,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelFitmetriaFanFitMode
                                     text: qsTr("Mode:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 ValueComboBox {
@@ -15758,6 +16354,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelFitmetriaFanFitMin
                                     text: qsTr("Min. value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15785,6 +16382,7 @@ import AndroidStatusBar 1.0
                                 Label {
                                     id: labelFitmetriaFanFitMax
                                     text: qsTr("Max value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15836,6 +16434,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Mode:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 ValueComboBox {
@@ -15860,6 +16459,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Min. value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15885,6 +16485,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Max value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15935,6 +16536,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Mode:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 ValueComboBox {
@@ -15959,6 +16561,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Min. value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -15984,6 +16587,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Max value (0-100):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -16035,7 +16639,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16072,7 +16677,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Thinkrider VS200 remote controller. Use it to change gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16109,7 +16715,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("CYCPLUS BC2 virtual shifter. Use it to change gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16146,7 +16753,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16173,7 +16781,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Also for Elite Square. Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16200,7 +16809,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16227,7 +16837,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Debounce the buttons, so you will only see 1 gear step even if you are keep pressing the buttons.  Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16254,7 +16865,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("You can swap the left to the right controller and viceversa.  Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16281,7 +16893,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16293,16 +16906,18 @@ import AndroidStatusBar 1.0
                             Label {
                                 text: qsTr("Gear Controls")
                                 font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 2)
                                 Layout.fillWidth: true
                                 Layout.topMargin: 20
+                                wrapMode: window.labelWrap
                             }
 
                             Label {
                                 text: qsTr("Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16314,6 +16929,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Shifter Up (LS1):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16326,6 +16942,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Shifter Down (LS2):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16338,6 +16955,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Shifter Up (RS1):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16350,6 +16968,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Shifter Down (RS2):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16362,6 +16981,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Left Paddle (ZL):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16374,6 +16994,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Right Paddle (ZR):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16386,6 +17007,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Power Up (LB):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16398,6 +17020,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 Label {
                                     text: qsTr("Ride On (RB):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
@@ -16411,6 +17034,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Pool time (ms):")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -16436,7 +17060,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16474,6 +17099,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelMapsType
                             text: qsTr("Maps Type:")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         UiComboBox {
@@ -16529,6 +17155,7 @@ import AndroidStatusBar 1.0
                         Label {
                             id: labelVideoWindow
                             text: qsTr("Window Time (sec.):")
+                            wrapMode: window.labelWrap
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -16584,7 +17211,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Useful in gyms with multiple similar machines. When enabled, QZ scans nearby equipment at startup and asks you which trainer to use before opening any Bluetooth connection.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -16612,7 +17240,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Leave this setting off unless the Support staff asks you to turn it on during troubleshooting. Can improve the Android Bluetooth connection to Zwift. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -16640,7 +17269,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -16668,7 +17298,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -16723,7 +17354,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16751,7 +17383,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables QZ to communicate with the Echelon app. This setting can only be used with iOS running QZ and iOS running the Echelon app. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16779,7 +17412,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16808,7 +17442,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("When enabled, the virtual rower will use the Concept2 PM5 protocol instead of FTMS. This provides compatibility with apps like Mywhoosh that only support PM5 rowers. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16837,7 +17472,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16865,7 +17501,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables third-party apps to change the resistance of your equipment. Default is on.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16894,7 +17531,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16922,7 +17560,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16932,6 +17571,8 @@ import AndroidStatusBar 1.0
                                     }
 
                                     SwitchDelegate {
+                                        // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                         text: qsTr("Virtual Tacx")
                                         spacing: 0
                                         bottomPadding: 0
@@ -16949,7 +17590,7 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables a virtual bluetooth bridge to the Tacx App.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: 9
+                                        font.pixelSize: window.fontPx(9)
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16986,7 +17627,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to MyWhoosh app. Leave the MyWhoosh compatibility disabled in order to use Zwift.")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -16999,6 +17641,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         Label {
                                             text: qsTr("ID:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -17024,7 +17667,8 @@ import AndroidStatusBar 1.0
                                         text: qsTr("If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0")
                                         font.bold: true
                                         font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17038,6 +17682,7 @@ import AndroidStatusBar 1.0
                                         Label {
                                             id: labelDirconServerPort
                                             text: qsTr("Server Port:")
+                                            wrapMode: window.labelWrap
                                             Layout.fillWidth: true
                                         }
                                         SettingsNumberField {
@@ -17078,6 +17723,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("MQTT Host:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -17100,7 +17746,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enter the MQTT broker hostname or IP address")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17113,6 +17760,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("MQTT Port:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -17140,7 +17788,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enter the MQTT broker port (default: 1883)")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17154,6 +17803,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Username:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -17176,7 +17826,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enter the MQTT broker username (if required)")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17190,6 +17841,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Password:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -17213,7 +17865,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enter the MQTT broker password (if required)")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17227,6 +17880,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("Device ID:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -17249,7 +17903,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enter a unique device identifier for MQTT client")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17273,6 +17928,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("OSC IP:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsFormatField {
@@ -17298,6 +17954,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     text: qsTr("OSC Port:")
+                                    wrapMode: window.labelWrap
                                     Layout.fillWidth: true
                                 }
                                 SettingsNumberField {
@@ -17342,7 +17999,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17370,7 +18028,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Forces the virtual Bluetooth bridge to send only the cadence information instead of the full FTMS metrics. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17443,7 +18102,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Forces Android devices to remain awake while QZ is running. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17471,7 +18131,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17498,7 +18159,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17526,7 +18188,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17554,7 +18217,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a treadmill.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17582,7 +18246,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories > Cadence Sensor Options. The cycling default is far too high for running - try 0.04-0.15 depending on pace, from walking to running, and tune to taste. Useful with apps like Kinomap or Zwift. Default is off.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17610,7 +18275,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates an elliptical.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17637,7 +18303,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a rower.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17665,7 +18332,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Leave this on unless you have issues connecting your Bluetooth HRM to QZ. If turning this off does not solve the connection issue, open a support ticket on GitHub. Default is on.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17694,7 +18362,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17721,7 +18390,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17749,7 +18419,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Turn this on to save a debug log to your device for use when requesting help with a bug.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17787,7 +18458,8 @@ import AndroidStatusBar 1.0
                         text: qsTr("Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.")
                         font.bold: true
                         font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter

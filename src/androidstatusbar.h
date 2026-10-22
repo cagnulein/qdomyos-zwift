@@ -39,6 +39,9 @@ public:
     int waterfallRightInset() const { return m_waterfallRight; }
     bool hasWaterfallDisplay() const { return m_waterfallTop > 0 || m_waterfallBottom > 0 || m_waterfallLeft > 0 || m_waterfallRight > 0; }
     int apiLevel() const;
+    // System text size: Android font scale, iOS Dynamic Type; 1.0 elsewhere.
+    // Read again when the app comes back to the foreground, the user changes it in the system settings.
+    Q_INVOKABLE double systemFontScale() const;
 
 public slots:
     void onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop, int waterfallBottom,

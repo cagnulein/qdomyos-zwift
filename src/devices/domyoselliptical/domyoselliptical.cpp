@@ -602,8 +602,8 @@ void domyoselliptical::error(QLowEnergyController::Error err) {
 void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("Domyos-EL")) &&
-        !device.name().startsWith(QStringLiteral("DomyosBridge"))) {
+    if (device.name().startsWith(QStringLiteral("Domyos-EL"), Qt::CaseInsensitive) &&
+        !device.name().startsWith(QStringLiteral("DomyosBridge"), Qt::CaseInsensitive)) {
         bluetoothDevice = device;
 
         if (device.address().toString().startsWith(QStringLiteral("57"))) {
