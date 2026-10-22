@@ -531,8 +531,7 @@ void bluetooth::startDiscovery() {
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                                   QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         }
-#endif
-    }
+#endif    
 
     QTimer::singleShot(1, this, &bluetooth::nonBluetoothDeviceDiscovery);
 }
