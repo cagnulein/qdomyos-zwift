@@ -808,6 +808,22 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
 
+    // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? info.DeviceName() : QStringLiteral("OTHER BIKE"));
+        });
+
+    // Selecting an unrelated FTMS bike must not stop a DYNAMAX treadmill from being detected.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxTreadmillOtherFTMSBike)
+        ->expectDevice<kingsmithr1protreadmill>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? QStringLiteral("OTHER BIKE") : info.DeviceName());
+        });
+
     // Kingsmith R1 Pro Treadmill
     RegisterNewDeviceTestData(DeviceIndex::KingsmithR1ProTreadmill)
         ->expectDevice<kingsmithr1protreadmill>()
