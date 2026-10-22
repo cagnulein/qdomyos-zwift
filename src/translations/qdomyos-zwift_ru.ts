@@ -4386,7 +4386,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Масштаб интерфейса:</translation>
+        <translation type="vanished">Масштаб интерфейса:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,7 +4398,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите</translation>
+        <translation type="vanished">Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -6351,6 +6351,14 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>Наклон</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Размер плиток:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите. Раньше называлась «Масштаб интерфейса» (UI Zoom).</translation>
     </message>
     <message>
         <source>Speed</source>
