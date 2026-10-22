@@ -728,17 +728,19 @@ import AndroidStatusBar 1.0
 
         function setSettingValue(entry, value) {
             if (entry.type === "boolean") {
-                settings[entry.key] = !!value
+                value = !!value
             } else if (entry.type === "integer") {
-                settings[entry.key] = parseInt(value)
+                // An empty field stores 0, as the int property turned NaN into before
+                value = parseInt(value) || 0
             } else if (entry.type === "number") {
-                settings[entry.key] = parseFloat(value)
-            } else {
-                settings[entry.key] = value
+                value = parseFloat(value)
             }
-            // Straight into the store too: the card reads it back (settingValue), and the page's
-            // Settings writes it only a moment later
-            settings.setValue(entry.key, settings[entry.key])
+            // Straight into the store, and before the copy: the card reads the store back
+            // (settingValue) as soon as the copy changes, and the page's Settings writes it only
+            // a moment later. Stored after the copy, the card got the old value and the switch
+            // flipped back
+            settings.setValue(entry.key, value)
+            settings[entry.key] = value
 
             // The text size applies at once, like on its own page
             if (entry.key === "ui_text_scale" || entry.key === "ui_text_scale_system") {
