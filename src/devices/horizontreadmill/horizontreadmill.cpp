@@ -2553,7 +2553,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattFTMSService = s;
                 } else if(c.uuid() == _YpooMiniProCharId && (YPOO_MINI_PRO ||
                           (YPOO_M5 && s->serviceUuid() == QBluetoothUuid((quint16)0x1826) &&
-                           (c.properties() & QLowEnergyCharacteristic::WriteNoResponse)))) {
+                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
+                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))))) {
                     qDebug() << QStringLiteral("YPOO unlock characteristic found");
                     gattWriteCharControlPointIdYpooMiniPro = c;
                 }
