@@ -71,15 +71,27 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 void KettlerUSB::initSequence() {
-    // Match the initialization block recovered from the native Ergo Konzept
-    // application. Its model-specific setup sends RS, CM, and SP<profile>;
-    // BR is built from a runtime counter and is intentionally not guessed here.
-    QStringList initCommands = {"RS", "CM", "SP1"};
-
-    for (const QString &cmd : initCommands) {
-        sendCommand(cmd);
-        KettlerSleeper::msleep(150); // 150ms between commands
+    // Match the sequence captured from the native Ergo Konzept application:
+    // RS, wait for its response, wait about 3 seconds, then CM. The native
+    // application does not send SP or BR in this startup sequence.
+    sendCommand("RS");
+    KettlerSleeper::msleep(150);
+    QString rsResponse = readResponse();
+    if (!rsResponse.isEmpty()) {
+        qDebug() << "  RS response:" << rsResponse;
     }
+
+    KettlerSleeper::msleep(2850);
+
+    sendCommand("CM");
+    KettlerSleeper::msleep(150);
+    QString cmResponse = readResponse();
+    if (!cmResponse.isEmpty()) {
+        qDebug() << "  CM response:" << cmResponse;
+    }
+
+    // The native application sends the first PW command about 200ms after CM.
+    KettlerSleeper::msleep(50);
 }
 
 void KettlerUSB::parseStatusResponse(const QString &response) {
@@ -212,15 +224,9 @@ void KettlerUSB::run() {
         isDeviceOpen = true;
     }
 
-    // Send initialization sequence
+    // Send the native startup sequence; initSequence() consumes the RS/CM
+    // acknowledgements before returning, so no post-init flush is needed.
     initSequence();
-
-    // Flush buffer after init to clear any leftover responses
-    KettlerSleeper::msleep(500);
-    flushSerialBuffer();
-
-    // Wait 3 seconds before first poll (as per kettlerUSB2BLE)
-    KettlerSleeper::msleep(3000);
 
     while (1) {
         if (isDeviceOpen) {
@@ -286,7 +292,6 @@ void KettlerUSB::run() {
             }
             isDeviceOpen = true;
             initSequence();
-            KettlerSleeper::msleep(3000);
         }
     }
 }
