@@ -15,11 +15,15 @@ SwitchDelegate {
             return false
 
         if (item.wrapMode !== undefined && item.maximumLineCount !== undefined) {
-            titleText = item
+            // set once: again, "maximumLineCount = 2" would undo the Binding of a bigger text
+            if (item === titleText)
+                return true
             item.wrapMode = Text.WrapAtWordBoundaryOrAnywhere
-            item.maximumLineCount = Qt.binding(function () { return window.textScale !== 1 ? 100 : 2 })
+            item.maximumLineCount = 2
             if (item.elide !== undefined)
                 item.elide = Text.ElideRight
+            // last: the Bindings below start with it and keep these values to restore at 100 %
+            titleText = item
             return true
         }
 
@@ -45,10 +49,14 @@ SwitchDelegate {
     // below. The first three terms are those of the Material style: at 100 % the height is the one of
     // the style
     property var titleText: null
+    // The text size of the app (main.qml). Without the app window, as in the layout test of the
+    // settings labels, the switch is the one of 100 %
+    readonly property real textScale: typeof window !== "undefined" && window ? window.textScale : 1
+    readonly property int scaledFontPx: typeof window !== "undefined" && window ? window.scaledFontPx : 0
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding,
-                             window.textScale !== 1 && titleText && titleText.lineCount > 1
+                             textScale !== 1 && titleText && titleText.lineCount > 1
                                  ? Math.max(implicitBackgroundHeight + topInset + bottomInset + 1,
                                             titleText.contentHeight + topPadding + bottomPadding + 12)
                                  : 0)
@@ -56,11 +64,27 @@ SwitchDelegate {
     // On iOS the title kept the size of the style while the text around it grew (the hint under it
     // too): with a size other than 100 % it takes the one of the window font, family, weight and
     // style stay those of the style. At 100 % the size of the style, as before
+    // (a Binding on "font.pixelSize" did not give the size back at 100 %: set here both ways)
+    property bool titleFontSet: false
+    function applyTitleFont() {
+        if (!titleText)
+            return
+        if (scaledFontPx > 0) {
+            titleText.font.pixelSize = scaledFontPx
+            titleFontSet = true
+        } else if (titleFontSet && contentItem && contentItem.font !== undefined) {
+            titleText.font = contentItem.font
+            titleFontSet = false
+        }
+    }
+    onScaledFontPxChanged: applyTitleFont()
+    onTitleTextChanged: applyTitleFont()
+    // With a bigger text a long title needs more than two lines; back to two at 100 %
     Binding {
         target: root.titleText
-        property: "font.pixelSize"
-        value: window.scaledFontPx
-        when: root.titleText !== null && window.scaledFontPx > 0
+        property: "maximumLineCount"
+        value: 100
+        when: root.titleText !== null && root.textScale !== 1
         restoreMode: Binding.RestoreBindingOrValue
     }
 
