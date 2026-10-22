@@ -144,11 +144,16 @@ public class AccessibilityTest {
         AccessibilityNodeInfo moved = null;
         for (int i = 0; i < 30; i++) {
             Thread.sleep(500);
+            // the same node, or, when the view made its item anew while scrolling (a GridView
+            // does), the node with the same whole description
             moved = null;
             for (AccessibilityNodeInfo node : appNodes()) {
                 if (node.equals(lowest)) {
                     moved = node;
                     break;
+                }
+                if (moved == null && description.equals(String.valueOf(node.getContentDescription()))) {
+                    moved = node;
                 }
             }
             if (moved == null) {
