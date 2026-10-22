@@ -71,13 +71,64 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 void KettlerUSB::initSequence() {
-    // Kettler initialization sequence from kettlerUSB2BLE
-    // Commands: VE, ID, VE, KI, CA, RS, CM, SP1
-    QStringList initCommands = {"VE", "ID", "VE", "KI", "CA", "RS", "CM", "SP1"};
+    // Match the sequence captured from the native Ergo Konzept application:
+    // RS, wait for its response, wait about 3 seconds, then CM. The native
+    // application does not send SP or BR in this startup sequence.
+    sendCommand("RS");
+    KettlerSleeper::msleep(150);
+    QString rsResponse = readResponse();
+    if (!rsResponse.isEmpty()) {
+        qDebug() << "  RS response:" << rsResponse;
+    }
 
-    for (const QString &cmd : initCommands) {
-        sendCommand(cmd);
-        KettlerSleeper::msleep(150); // 150ms between commands
+    KettlerSleeper::msleep(2850);
+
+    sendCommand("CM");
+    KettlerSleeper::msleep(150);
+    QString cmResponse = readResponse();
+    if (!cmResponse.isEmpty()) {
+        qDebug() << "  CM response:" << cmResponse;
+    }
+
+    // The native application sends PW 25 about 200ms after CM. Consume its
+    // status response before entering the steady-state polling loop.
+    sendPowerCommand(DEFAULT_POWER);
+}
+
+void KettlerUSB::sendPowerCommand(double power) {
+    QString powerCmd = QString("PW %1").arg((int)power);
+    sendCommand(powerCmd);
+    KettlerSleeper::msleep(150);
+
+    QString response = readResponse();
+    if (!response.isEmpty()) {
+        parseStatusResponse(response);
+    }
+}
+
+void KettlerUSB::pollNativeProtocol() {
+    // Match the native application's steady-state request/response block:
+    // CM -> ACK, ID -> AR1S, VE -> 018. Each response is consumed before the
+    // next command is sent so it cannot be mistaken for telemetry.
+    sendCommand("CM");
+    KettlerSleeper::msleep(150);
+    QString cmResponse = readResponse();
+    if (!cmResponse.isEmpty()) {
+        qDebug() << "  Native CM response:" << cmResponse;
+    }
+
+    sendCommand("ID");
+    KettlerSleeper::msleep(150);
+    QString idResponse = readResponse();
+    if (!idResponse.isEmpty()) {
+        qDebug() << "  Native ID response:" << idResponse;
+    }
+
+    sendCommand("VE");
+    KettlerSleeper::msleep(150);
+    QString veResponse = readResponse();
+    if (!veResponse.isEmpty()) {
+        qDebug() << "  Native VE response:" << veResponse;
     }
 }
 
@@ -190,8 +241,8 @@ int KettlerUSB::quit(int code) {
 void KettlerUSB::run() {
     int curstatus;
     double curPower = targetPower;
-    bool curWritePower = false;
     bool isDeviceOpen = false;
+    QElapsedTimer nativePollTimer;
 
     // Initialize
     pvars.lock();
@@ -211,56 +262,29 @@ void KettlerUSB::run() {
         isDeviceOpen = true;
     }
 
-    // Send initialization sequence
+    // Send the native startup sequence; initSequence() consumes the RS/CM
+    // acknowledgements before returning, so no post-init flush is needed.
     initSequence();
-
-    // Flush buffer after init to clear any leftover responses
-    KettlerSleeper::msleep(500);
-    flushSerialBuffer();
-
-    // Wait 3 seconds before first poll (as per kettlerUSB2BLE)
-    KettlerSleeper::msleep(3000);
+    nativePollTimer.start();
 
     while (1) {
         if (isDeviceOpen) {
-            // Check if we need to write power
+            // The native application continuously retransmits the current
+            // power target, rather than writing only after a QZ-side change.
             pvars.lock();
-            curWritePower = this->writePower;
             curPower = this->targetPower;
             pvars.unlock();
 
-            if (curWritePower) {
-                // Send power command
-                QString powerCmd = QString("PW%1").arg((int)curPower);
-                sendCommand(powerCmd);
+            sendPowerCommand(curPower);
 
-                pvars.lock();
-                this->writePower = false;
-                pvars.unlock();
-
-                // Read and discard response (usually ACK or a number)
-                KettlerSleeper::msleep(150);
-                QString pwResponse = readResponse();
-                if (!pwResponse.isEmpty()) {
-                    qDebug() << "  PW response (discarded):" << pwResponse;
-                }
-
-                // Immediately send ST to get fresh status
-                sendCommand("ST");
-                QString response = readResponse();
-                if (!response.isEmpty()) {
-                    parseStatusResponse(response);
-                }
-            } else {
-                // Normal status poll
-                sendCommand("ST");
-                QString response = readResponse();
-                if (!response.isEmpty()) {
-                    parseStatusResponse(response);
-                }
+            // The native polling block runs independently of PW updates and
+            // is repeated at roughly two-second intervals.
+            if (nativePollTimer.elapsed() >= 2000) {
+                pollNativeProtocol();
+                nativePollTimer.restart();
             }
 
-            // Reduced polling interval from 2000ms to 500ms for faster response
+            // Native PW writes are typically 0.6-0.8 seconds apart.
             KettlerSleeper::msleep(500);
         }
 
@@ -285,7 +309,8 @@ void KettlerUSB::run() {
             }
             isDeviceOpen = true;
             initSequence();
-            KettlerSleeper::msleep(3000);
+            nativePollTimer.start();
+            KettlerSleeper::msleep(500);
         }
     }
 }
