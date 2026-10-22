@@ -178,6 +178,7 @@ devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
+devices/lifefitnesstreadmill/lifefitnessworkout.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
 devices/mepanelbike/mepanelbike.cpp \
 devices/nautilusbike/nautilusbike.cpp \
@@ -225,6 +226,7 @@ devices/dircon/dirconprocessor.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
+devices/echelonconnectsport/echelonunlock.cpp \
 devices/echelonconnectsport/echelonconnectsport.cpp \
 devices/echelonrower/echelonrower.cpp \
 devices/echelonstride/echelonstride.cpp \
@@ -286,6 +288,7 @@ devices/nautiluselliptical/nautiluselliptical.cpp \
 devices/nautilustreadmill/nautilustreadmill.cpp \
 devices/npecablebike/npecablebike.cpp \
 devices/pafersbike/pafersbike.cpp \
+devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
@@ -344,6 +347,7 @@ devices/ultrasportbike/ultrasportbike.cpp \
 devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
+devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
@@ -353,6 +357,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -497,6 +502,7 @@ devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
+devices/lifefitnesstreadmill/lifefitnessworkout.h \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.h \
 devices/mepanelbike/mepanelbike.h \
 devices/nautilusbike/nautilusbike.h \
@@ -558,6 +564,7 @@ devices/dircon/dirconprocessor.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
+devices/echelonconnectsport/echelonunlock.h \
 devices/echelonconnectsport/echelonconnectsport.h \
 devices/echelonrower/echelonrower.h \
 devices/echelonstride/echelonstride.h \
@@ -817,6 +824,7 @@ devices/nautiluselliptical/nautiluselliptical.h \
 devices/nautilustreadmill/nautilustreadmill.h \
 devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
+devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
 peloton.h \
 powerzonepack.h \
@@ -886,11 +894,13 @@ virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
+devices/wahookickruntreadmill/wahookickruntreadmill.h \
 wobjectdefs.h \
 wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 

@@ -46,8 +46,8 @@ ColumnLayout {
 
     MessageDialog {
         id: deleteDialog
-        text: "Delete workout?"
-        informativeText: "This cannot be undone."
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
@@ -66,9 +66,9 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -93,20 +93,20 @@ ColumnLayout {
 
     RowLayout{
         spacing: 2
-        anchors.top: parent.top
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
 
         ColumnLayout {
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
+            Layout.fillHeight: true
 
             Row
             {
                 spacing: 5
+                leftPadding: window.contentSideMargin
                 Text
                 {
-                    text:"Filter"
+                    text:qsTr("Filter")
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -120,7 +120,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -137,14 +137,13 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 ScrollBar.vertical: ScrollBar {}
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo"]
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
                           showDotAndDotDot: false
                     showDirs: true
@@ -161,6 +160,7 @@ ColumnLayout {
                         z: 1
                         Item {
                             id: root
+                            x: window.contentSideMargin
                             property alias text: fileTextBox.text
                             property int spacing: 30
                             width: fileTextBox.width + spacing
@@ -251,10 +251,11 @@ ColumnLayout {
         }
 
         ScrollView {
-            anchors.top: parent.top
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            // Padding, not a margin: the content moves in, the scroll bar stays at the edge
+            rightPadding: window.contentSideMargin
             contentHeight: date.height + description.height + powerChart.height
-            Layout.preferredHeight: parent.height
+            Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
@@ -309,7 +310,7 @@ ColumnLayout {
                         legend.visible: false
                         height: 400
                         width: parent.width
-                        title: "Power"
+                        title: qsTr("Power")
                         titleFont.pixelSize: 20
 
                         DateTimeAxis {
@@ -353,13 +354,12 @@ ColumnLayout {
     }
 
     RowLayout {
-        height: 50
-        width: parent.width
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        Layout.fillWidth: true
+        Layout.preferredHeight: 50
 
         Button {
             Layout.fillWidth: true
-            text: "Start Workout"
+            text: qsTr("Start Workout")
             visible: selectedWorkoutUrl != ""
             onClicked: {
                 trainprogram_open_clicked(selectedWorkoutUrl)
@@ -370,7 +370,7 @@ ColumnLayout {
         Button {
             id: deleteButton
             Layout.fillWidth: true
-            text: "Delete"
+            text: qsTr("Delete")
             visible: selectedWorkoutUrl != ""
             onClicked: deleteDialog.visible = true
         }
@@ -378,7 +378,7 @@ ColumnLayout {
         Button {
             id: searchButton
             Layout.fillWidth: true
-            text: "Other folders"
+            text: qsTr("Other folders")
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'training')
                 if (Qt.platform.os === "android") {
@@ -387,9 +387,6 @@ ColumnLayout {
                     fileDialogLoader.active = true
                 }
             }
-        }
-        anchors {
-            bottom: parent.bottom
         }
     }
 }
