@@ -1,6 +1,8 @@
 #include "androidstatusbar.h"
 #include <QQmlEngine>
 #include <QDebug>
+#include <QGuiApplication>
+#include <QFont>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -62,6 +64,12 @@ double AndroidStatusBar::systemFontScale() const
     return scale > 0 ? scale : 1.0;
 #elif defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     return lockscreen::systemFontScale();
+#elif defined(Q_OS_IOS)
+    // The qmake build has no ios/lockscreen.mm (IO_UNDER_QT). Qt gives the app font the size of the
+    // body text, 17 at the default system text size: the same scale, read when QZ starts
+    const QFont font = QGuiApplication::font();
+    const double size = font.pixelSize() > 0 ? font.pixelSize() : font.pointSizeF();
+    return size > 0 ? size / 17.0 : 1.0;
 #else
     return 1.0;
 #endif
