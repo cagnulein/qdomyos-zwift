@@ -29,12 +29,14 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name);
     trackedSettings.insert(QZSettings::ftms_bike, QZSettings::default_ftms_bike);
     trackedSettings.insert(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill);
+    trackedSettings.insert(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical);
     trackedSettings.insert(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s);
     trackedSettings.insert(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms);
     trackedSettings.insert(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical);
     trackedSettings.insert(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical);
     trackedSettings.insert(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip);
     trackedSettings.insert(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill);
+    trackedSettings.insert(QZSettings::pafers_rower, QZSettings::default_pafers_rower);
     trackedSettings.insert(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus);
     trackedSettings.insert(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike);
     trackedSettings.insert(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill);
@@ -52,6 +54,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::toorx_bike, QZSettings::default_toorx_bike);
     trackedSettings.insert(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms);
     trackedSettings.insert(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill);
+    trackedSettings.insert(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe);
     trackedSettings.insert(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled );
     trackedSettings.insert(QZSettings::trixter_xdream_bike_heartrate_enabled, QZSettings::default_trixter_xdream_bike_heartrate_enabled );
     trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_enabled, QZSettings::default_trixter_xdream_bike_steering_enabled);

@@ -1,4 +1,11 @@
 #include "garminconnecttestsuite.h"
+#include "garminconnect.h"
+#include "qzsettings.h"
+#include <QDate>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSettings>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QString>
@@ -202,4 +209,609 @@ void GarminConnectTestSuite::test_fromEncodedToEncoded_roundTrip()
     // Verify NO unencoded characters
     EXPECT_FALSE(urlFromQt.contains("login-url=https://"))
         << "login-url should not have unencoded :// characters";
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_powerZoneUsesAverageWatts()
+{
+    static const char *kWorkoutJson = R"json({"atpPlanId":null,"author":null,"avgTrainingSpeed":null,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-02-28T12:40:43.0","description":"120W","descriptionI18nKey":null,"estimateType":null,"estimatedAnaerobicTrainingEffect":0,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":4800,"estimatedTrainingEffect":2.5,"isSessionTransitionEnabled":null,"locale":null,"ownerId":68966589,"poolLength":null,"poolLengthUnit":null,"priorityType":"REQUIRED","shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingEffectLabel":"AEROBIC_BASE","trainingPlanId":null,"updatedDate":null,"uploadTimestamp":null,"workoutId":null,"workoutIndex":0,"workoutName":"Base","workoutNameI18nKey":null,"workoutPhrase":"POOR_SLEEP_BASE","workoutProvider":null,"workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":4800,"endConditionZone":null,"equipmentType":null,"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":null,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":null,"targetType":{"displayOrder":2,"workoutTargetTypeId":2,"workoutTargetTypeKey":"power.zone"},"targetValueOne":98,"targetValueTwo":142,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":null,"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":null,"workoutThumbnailUrl":null,"workoutUuid":"3cb6ee63-7e3b-4ad8-8e07-a22d819e4985"})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_TRUE(xml.contains("<row duration=\"01:20:00\" power=\"120\"/>"))
+        << "Expected average watt target 120 from bounds 98/142. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("power=\"3854\""))
+        << "Power must not be misinterpreted as FTP zone conversion. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_calendarFallbackJson_selectsNearestUpcomingWorkout()
+{
+    static const char *kCalendarJson = R"json({
+        "startDayOfMonth": 0,
+        "numOfDaysInMonth": 28,
+        "month": 1,
+        "year": 2026,
+        "calendarItems": [
+            {"id": 1771393014302, "itemType": "weight", "date": "2026-02-18", "workoutUuid": null},
+            {"id": 1771993942000, "itemType": "fbtAdaptiveWorkout", "title": "Base", "date": "2026-02-25",
+             "sportTypeKey": "running", "workoutUuid": "09483634-794c-4034-b971-9cd80455018a"},
+            {"id": 1772166742000, "itemType": "fbtAdaptiveWorkout", "title": "Anaerobico", "date": "2026-02-27",
+             "sportTypeKey": "running", "workoutUuid": "708e2be1-e43d-4576-b7d3-c9bf8dc8fdea"},
+            {"id": 1772253142000, "itemType": "fbtAdaptiveWorkout", "title": "Lunga corsa", "date": "2026-02-28",
+             "sportTypeKey": "running", "workoutUuid": "c80a56c4-f2a1-4046-a3b4-e6dd4730c971"}
+        ]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kCalendarJson));
+    ASSERT_TRUE(doc.isObject()) << "Calendar JSON fixture must be valid";
+
+    const QDate anchorDate = QDate::fromString("2026-02-25", Qt::ISODate);
+    ASSERT_TRUE(anchorDate.isValid());
+
+    const QJsonArray items = doc.object()["calendarItems"].toArray();
+    int bestDaysAhead = 4;
+    QJsonObject bestItem;
+    for (const QJsonValue &itemVal : items) {
+        const QJsonObject item = itemVal.toObject();
+        const QString itemType = item["itemType"].toString();
+        if (itemType != "workout" && itemType != "fbtAdaptiveWorkout") {
+            continue;
+        }
+        if (itemType == "workout") {
+            const qint64 scheduleId = item["id"].toVariant().toLongLong();
+            if (scheduleId <= 0) {
+                continue;
+            }
+        } else {
+            const QString workoutUuid = item["workoutUuid"].toString();
+            if (workoutUuid.trimmed().isEmpty()) {
+                continue;
+            }
+        }
+
+        const QDate itemDate = QDate::fromString(item["date"].toString(), Qt::ISODate);
+        if (!itemDate.isValid()) {
+            continue;
+        }
+
+        const int daysAhead = anchorDate.daysTo(itemDate);
+        if (daysAhead < 0 || daysAhead > 3) {
+            continue;
+        }
+        if (daysAhead >= bestDaysAhead) {
+            continue;
+        }
+        bestDaysAhead = daysAhead;
+        bestItem = item;
+    }
+
+    ASSERT_FALSE(bestItem.isEmpty()) << "Expected at least one planned workout in fallback window";
+    EXPECT_EQ(bestItem["itemType"].toString().toStdString(), "fbtAdaptiveWorkout");
+    EXPECT_EQ(bestItem["date"].toString().toStdString(), "2026-02-25");
+    EXPECT_EQ(bestItem["title"].toString().toStdString(), "Base");
+    EXPECT_EQ(bestItem["workoutUuid"].toString().toStdString(), "09483634-794c-4034-b971-9cd80455018a");
+}
+
+void GarminConnectTestSuite::test_scheduleJson_nestedWorkoutPayloadParses()
+{
+    static const char *kScheduleJson = R"json({
+        "workoutScheduleId": 1567468629,
+        "workout": {
+            "workoutId": 1485541572,
+            "workoutName": "Long run",
+            "sportType": {"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
+            "estimatedDurationInSecs": 6420,
+            "workoutSegments": [{
+                "segmentOrder": 1,
+                "sportType": {"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
+                "workoutSteps": [{
+                    "type": "ExecutableStepDTO",
+                    "stepOrder": 1,
+                    "stepType": {"stepTypeId": 3, "stepTypeKey": "interval", "displayOrder": 3},
+                    "endCondition": {"conditionTypeId": 3, "conditionTypeKey": "distance", "displayOrder": 3, "displayable": true},
+                    "endConditionValue": 17702.784,
+                    "targetType": {"workoutTargetTypeId": 6, "workoutTargetTypeKey": "pace.zone", "displayOrder": 6},
+                    "targetValueOne": 2.9802667,
+                    "targetValueTwo": 2.5545143
+                }]
+            }]
+        },
+        "calendarDate": "2026-02-28"
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kScheduleJson));
+    ASSERT_TRUE(doc.isObject()) << "Schedule JSON fixture must be valid";
+
+    const QJsonObject root = doc.object();
+    ASSERT_TRUE(root["workout"].isObject()) << "Schedule fixture must contain nested workout object";
+
+    const QJsonObject workoutPayload = root["workout"].toObject();
+    const QString xml = garminConnectGenerateWorkoutXml(workoutPayload);
+
+    EXPECT_TRUE(xml.contains("<rows>")) << "Expected workout XML root. XML was:\n" << xml.toStdString();
+    EXPECT_TRUE(xml.contains("speed=\"")) << "Expected running speed target from nested workout payload. XML was:\n"
+                                           << xml.toStdString();
+    EXPECT_TRUE(xml.contains("forcespeed=\"1\"")) << "Expected forced speed for pace/speed targets. XML was:\n"
+                                                   << xml.toStdString();
+    EXPECT_FALSE(xml.contains("power=\"3854\""))
+        << "Nested schedule payload must not produce invalid power conversion. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly()
+{
+    static const char *kScheduleJsonFromLog = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-02-27","consumer":null,"createdDate":"2026-02-27","itp":false,"nameChanged":false,"newName":null,"ownerId":116920806,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":2.8351564809265977,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-02-26T16:53:34.0","description":null,"descriptionI18nKey":null,"estimateType":"TIME_ESTIMATED","estimatedDistanceInMeters":12874.752,"estimatedDistanceUnit":{"factor":160934.4,"unitId":4,"unitKey":"mile"},"estimatedDurationInSecs":3660,"isSessionTransitionEnabled":null,"locale":null,"ownerId":116920806,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-02-26T23:13:46.0","uploadTimestamp":null,"workoutId":1486746866,"workoutName":"6 @ HM pace 630/mi","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"workoutSteps":[{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":3,"conditionTypeKey":"distance","displayOrder":3,"displayable":true},"endConditionCompare":null,"endConditionValue":1609.34400001,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":{"factor":160934.4,"unitId":4,"unitKey":"mile"},"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":12570918089,"stepOrder":1,"stepType":{"displayOrder":1,"stepTypeId":1,"stepTypeKey":"warmup"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":6,"workoutTargetTypeId":6,"workoutTargetTypeKey":"pace.zone"},"targetValueOne":2.5957161,"targetValueTwo":2.5545143,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":3,"conditionTypeKey":"distance","displayOrder":3,"displayable":true},"endConditionCompare":null,"endConditionValue":9656.06400002,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":{"factor":160934.4,"unitId":4,"unitKey":"mile"},"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":12570918090,"stepOrder":2,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":6,"workoutTargetTypeId":6,"workoutTargetTypeKey":"pace.zone"},"targetValueOne":4.1265231,"targetValueTwo":3.9736889,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":3,"conditionTypeKey":"distance","displayOrder":3,"displayable":true},"endConditionCompare":null,"endConditionValue":1609.34400001,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":{"factor":160934.4,"unitId":4,"unitKey":"mile"},"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":12570918091,"stepOrder":3,"stepType":{"displayOrder":2,"stepTypeId":2,"stepTypeKey":"cooldown"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":6,"workoutTargetTypeId":6,"workoutTargetTypeKey":"pace.zone"},"targetValueOne":2.5957161,"targetValueTwo":2.5545143,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":null},"workoutScheduleId":1569279024})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kScheduleJsonFromLog));
+    ASSERT_TRUE(doc.isObject()) << "Schedule JSON fixture from log must be valid";
+
+    const QJsonObject root = doc.object();
+    ASSERT_TRUE(root["workout"].isObject()) << "Expected nested workout object in schedule payload";
+
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_FALSE(xml.contains("duration=\""))
+        << "Distance-based workout should not emit row duration attributes. XML was:\n"
+        << xml.toStdString();
+
+    EXPECT_TRUE(xml.contains("distance=\"1.609344\""))
+        << "Expected 1-mile steps converted to 1.609344 km. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("distance=\"9.656064\""))
+        << "Expected 6-mile interval converted to 9.656064 km. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed()
+{
+    static const char *kScheduleJsonFromLog = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-02-25","consumer":null,"createdDate":"2026-02-24","itp":false,"nameChanged":false,"newName":null,"ownerId":116920806,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":2.8597210718525474,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-02-25T04:48:59.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":9656.064,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":3600,"isSessionTransitionEnabled":null,"locale":null,"ownerId":116920806,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-02-25T16:09:21.0","uploadTimestamp":null,"workoutId":1485541079,"workoutName":"Easy run","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"workoutSteps":[{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":3600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":12558913161,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":6,"workoutTargetTypeId":6,"workoutTargetTypeKey":"pace.zone"},"targetValueOne":2.6867179,"targetValueTwo":2.68224,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":null},"workoutScheduleId":1567468124})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kScheduleJsonFromLog));
+    ASSERT_TRUE(doc.isObject()) << "Schedule JSON fixture from log must be valid";
+
+    const QJsonObject root = doc.object();
+    ASSERT_TRUE(root["workout"].isObject()) << "Expected nested workout object in schedule payload";
+
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_EQ(xml.count("<row "), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("duration=\"01:00:00\""))
+        << "Expected 3600s step duration serialized as 01:00:00. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("forcespeed=\"1\""))
+        << "Expected forcespeed enabled for pace.zone targets. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lower_speed=\"9.656\""))
+        << "Expected lower pace bound converted from 2.68224 m/s to 9.656 km/h. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("upper_speed=\"9.672\""))
+        << "Expected upper pace bound converted from 2.6867179 m/s to 9.672 km/h. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("speed=\"9.664\""))
+        << "Expected average pace speed converted to 9.664 km/h. XML was:\n"
+        << xml.toStdString();
+}
+
+
+void GarminConnectTestSuite::test_workoutDetailsJson_zoneNumberTargetsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Zone 2 Aerobic",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 900,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 1,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "lap.button"},
+                "endConditionValue": 1200,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 1,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 13500,
+                "targetType": {"workoutTargetTypeKey": "heart.rate.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 2,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_GE(xml.count("power=\""), 2)
+        << "Expected Garmin power.zone zoneNumber targets to become QZ power targets. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lapbutton=\"1\""))
+        << "Expected lap-button row to stay explicit. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("duration=\"03:45:00\" zonehr=\"2\""))
+        << "Expected Garmin heart.rate.zone zoneNumber target to become QZ HR zone target. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_lapButtonStepWaitsForLap()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Breakaways",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "description": "Press the lap key when you are ready to start.",
+                "endCondition": {"conditionTypeKey": "lap.button"},
+                "endConditionValue": null,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 110,
+                "targetValueTwo": 150,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lapbutton=\"1\""))
+        << "Expected lap-button end condition to be preserved. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("power=\"130\""))
+        << "Expected power target to remain active while waiting for lap. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("<textevent timeoffset=\"0\" message=\"Press the lap key when you are ready to start.\"/>"))
+        << "Expected Garmin lap-button prompt to be serialized as a text event. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("duration=\""))
+        << "Lap-button rows should not get a fake duration. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "HR Threshold Gate",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "heart.rate.above"},
+                "endConditionValue": 155,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 180,
+                "targetValueTwo": 210,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "heart.rate"},
+                "endConditionCompare": "lt",
+                "endConditionValue": 122,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 70,
+                "targetValueTwo": 90,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "heart.rate"},
+                "endConditionCompare": "gt",
+                "endConditionValue": 130,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "zoneNumber": 1,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrabove=\"155\""))
+        << "Expected Garmin Above bpm end condition to become a QZ HR-above gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrbelow=\"122\""))
+        << "Expected Garmin lt bpm end condition to become a QZ HR-below gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrabove=\"130\""))
+        << "Expected Garmin gt bpm end condition to become a QZ HR-above gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("duration=\""))
+        << "Heart-rate threshold rows should not get a fake duration. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_powerCurveTargetsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Power Curve Gate",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 300,
+                "powerCurveDuration": 1200,
+                "powerCurveScale": 90,
+                "targetType": {"workoutTargetTypeKey": "power.curve"},
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    QMap<int, double> powerCurve;
+    powerCurve.insert(1200, 194.4);
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object(), powerCurve);
+    EXPECT_TRUE(xml.contains("<row duration=\"00:05:00\" power=\"175\"/>"))
+        << "Expected 90% of the downloaded 20-minute power curve. XML was:\n"
+        << xml.toStdString();
+
+    QSettings settings;
+    const QVariant oldFtp = settings.value(QZSettings::ftp);
+    const bool hadOldFtp = settings.contains(QZSettings::ftp);
+    settings.setValue(QZSettings::ftp, 200.0);
+
+    const QString fallbackXml = garminConnectGenerateWorkoutXml(doc.object());
+    EXPECT_TRUE(fallbackXml.contains("<row duration=\"00:05:00\" power=\"180\"/>"))
+        << "Expected 90% FTP fallback when the power curve is unavailable. XML was:\n"
+        << fallbackXml.toStdString();
+
+    if (hadOldFtp) {
+        settings.setValue(QZSettings::ftp, oldFtp);
+    } else {
+        settings.remove(QZSettings::ftp);
+    }
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_nestedRepeatGroupIsUnrolled()
+{
+    // Real Sprint workout: warmup → [2× [12× (10s@497W + 20s@93W)] + 5min rest] → cooldown
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Sprint",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [
+                {
+                    "type": "ExecutableStepDTO",
+                    "endCondition": {"conditionTypeKey": "time"},
+                    "endConditionValue": 1200,
+                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                    "targetValueOne": 156,
+                    "targetValueTwo": 213
+                },
+                {
+                    "type": "RepeatGroupDTO",
+                    "numberOfIterations": 2,
+                    "endCondition": {"conditionTypeKey": "iterations"},
+                    "workoutSteps": [
+                        {
+                            "type": "RepeatGroupDTO",
+                            "numberOfIterations": 12,
+                            "endCondition": {"conditionTypeKey": "iterations"},
+                            "workoutSteps": [
+                                {
+                                    "type": "ExecutableStepDTO",
+                                    "endCondition": {"conditionTypeKey": "time"},
+                                    "endConditionValue": 10,
+                                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                                    "targetValueOne": 426,
+                                    "targetValueTwo": 568
+                                },
+                                {
+                                    "type": "ExecutableStepDTO",
+                                    "endCondition": {"conditionTypeKey": "time"},
+                                    "endConditionValue": 20,
+                                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                                    "targetValueOne": 1,
+                                    "targetValueTwo": 185
+                                }
+                            ]
+                        },
+                        {
+                            "type": "ExecutableStepDTO",
+                            "endCondition": {"conditionTypeKey": "time"},
+                            "endConditionValue": 300,
+                            "targetType": {"workoutTargetTypeKey": "power.zone"},
+                            "targetValueOne": 128,
+                            "targetValueTwo": 185
+                        }
+                    ]
+                },
+                {
+                    "type": "ExecutableStepDTO",
+                    "endCondition": {"conditionTypeKey": "time"},
+                    "endConditionValue": 900,
+                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                    "targetValueOne": 128,
+                    "targetValueTwo": 185
+                }
+            ]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Sprint workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    // Outer repeat (×2) must be unrolled — no <repeat times="2"> in output
+    EXPECT_FALSE(xml.contains("<repeat times=\"2\">"))
+        << "Outer 2× repeat must be unrolled because loadXML does not support nested <repeat>. XML was:\n"
+        << xml.toStdString();
+
+    // Inner repeat (×12) must be preserved as a <repeat> block
+    EXPECT_EQ(xml.count("<repeat times=\"12\">"), 2)
+        << "Inner 12× repeat must appear twice (once per unrolled outer iteration). XML was:\n"
+        << xml.toStdString();
+
+    // Sprint power: midpoint of [426, 568] = 497W
+    EXPECT_TRUE(xml.contains("duration=\"00:00:10\" power=\"497\""))
+        << "Sprint step must be 10s at 497W (midpoint of [426,568]). XML was:\n"
+        << xml.toStdString();
+
+    // In-set recovery: midpoint of [1, 185] = 93W
+    EXPECT_TRUE(xml.contains("duration=\"00:00:20\" power=\"93\""))
+        << "In-set recovery must be 20s at 93W (midpoint of [1,185]). XML was:\n"
+        << xml.toStdString();
+
+    // Between-set recovery and cooldown: midpoint of [128, 185] = 157W
+    EXPECT_TRUE(xml.contains("duration=\"00:05:00\" power=\"157\""))
+        << "Between-set 5min recovery must be at 157W. XML was:\n"
+        << xml.toStdString();
+
+    // Warmup: midpoint of [156, 213] = 185W
+    EXPECT_TRUE(xml.contains("duration=\"00:20:00\" power=\"185\""))
+        << "Warmup must be 20min at 185W (midpoint of [156,213]). XML was:\n"
+        << xml.toStdString();
+
+    // Cooldown: 15min at 157W
+    EXPECT_TRUE(xml.contains("duration=\"00:15:00\" power=\"157\""))
+        << "Cooldown must be 15min at 157W. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutFileName_appendsSportSuffix()
+{
+    const QString runFileName =
+        garminConnectWorkoutFileName(QStringLiteral("2026-05-28"), QStringLiteral("Base"), QStringLiteral("running"));
+    const QString rideFileName =
+        garminConnectWorkoutFileName(QStringLiteral("2026-05-28"), QStringLiteral("Base"), QStringLiteral("cycling"));
+
+    EXPECT_EQ(runFileName.toStdString(), "2026-05-28 - Base_Run.xml");
+    EXPECT_EQ(rideFileName.toStdString(), "2026-05-28 - Base_Ride.xml");
+    EXPECT_NE(runFileName.toStdString(), rideFileName.toStdString())
+        << "Same-day run and ride workouts with the same title must not overwrite each other";
+}
+
+void GarminConnectTestSuite::test_workoutFileName_sanitizesUnsafeCharacters()
+{
+    const QString fileName = garminConnectWorkoutFileName(
+        QStringLiteral("2026-05-28"),
+        QStringLiteral("QZ: Speed/Incline * Test?"),
+        QStringLiteral("running"));
+
+    EXPECT_EQ(fileName.toStdString(), "2026-05-28 - QZ_ Speed_Incline _ Test__Run.xml");
+    EXPECT_FALSE(fileName.contains(":"));
+    EXPECT_FALSE(fileName.contains("/"));
+    EXPECT_FALSE(fileName.contains("*"));
+    EXPECT_FALSE(fileName.contains("?"));
+
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryExplicitBpm()
+{
+    // Real Garmin "Bike FTP Test" workout details response, taken verbatim from the debug log
+    // debug-Sun_Jul_12_21_00_57_2026.log attached to https://github.com/cagnulein/qdomyos-zwift/issues/4805.
+    // The first step has cadence as the PRIMARY target (85-95rpm) and heart rate as the
+    // SECONDARY target (120-130bpm). Before the fix, appendGarminStep() only ever read the
+    // primary targetType, so this step produced no cadence attributes at all (cadence was not
+    // handled) and silently dropped the secondary heart-rate target.
+    static const char *kWorkoutJson = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-07-12","consumer":null,"createdDate":"2026-07-12","itp":false,"nameChanged":false,"newName":null,"ownerId":100426398,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":5.501091448333178,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-07-11T18:43:05.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":12713.8176,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":2400,"isSessionTransitionEnabled":null,"locale":null,"ownerId":100426398,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-07-13T03:59:58.0","uploadTimestamp":null,"workoutId":1628045944,"workoutName":"Bike FTP Test","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":"","endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":120,"secondaryTargetValueTwo":130,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177507,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"childStepId":1,"endCondition":{"conditionTypeId":7,"conditionTypeKey":"iterations","displayOrder":7,"displayable":false},"endConditionCompare":null,"endConditionValue":3,"numberOfIterations":3,"preferredEndConditionUnit":null,"skipLastRestStep":null,"smartRepeat":false,"stepId":13960177508,"stepOrder":2,"stepType":{"displayOrder":6,"stepTypeId":6,"stepTypeKey":"repeat"},"type":"RepeatGroupDTO","workoutSteps":[{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177509,"stepOrder":3,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":100,"targetValueTwo":115,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177511,"stepOrder":4,"stepType":{"displayOrder":5,"stepTypeId":5,"stepTypeKey":"rest"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":300,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":3,"stepId":13960177512,"stepOrder":5,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":90,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":120,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":1,"stepId":13960177513,"stepOrder":6,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":90,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177514,"stepOrder":7,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":"https://connect.garmin.com/chart-service/workout?data=md:s3,c2=600000.0,t3=v85.0~95.0,t4=v120.0~130.0;3(s3,c2=30000.0,t3=v100.0~115.0;s5,c2=30000.0;);s3,c2=300000.0,t3=v90.0~95.0,t4=z3;s3,c2=120000.0,t3=v85.0~90.0,t4=z1;s3,c2=1200000.0;"},"workoutScheduleId":1710676815})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Real issue #4805 workout JSON fixture must be valid";
+
+    const QJsonObject root = doc.object();
+    ASSERT_TRUE(root["workout"].isObject()) << "Expected nested workout object in schedule payload";
+
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_TRUE(xml.contains(
+        "<row duration=\"00:10:00\" lower_cadence=\"85\" upper_cadence=\"95\" cadence=\"90\" "
+        "hrmin=\"120\" hrmax=\"130\" looptimehr=\"10\"/>"))
+        << "Expected primary cadence target AND secondary heart-rate target on the same row. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryZoneNumber()
+{
+    // Same real workout log as above. Two later steps express the secondary heart-rate target
+    // purely as an HR zone index (secondaryZoneNumber), with secondaryTargetValueOne/Two both
+    // null. Before the fix these steps produced no heart-rate attributes at all.
+    static const char *kWorkoutJson = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-07-12","consumer":null,"createdDate":"2026-07-12","itp":false,"nameChanged":false,"newName":null,"ownerId":100426398,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":5.501091448333178,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-07-11T18:43:05.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":12713.8176,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":2400,"isSessionTransitionEnabled":null,"locale":null,"ownerId":100426398,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-07-13T03:59:58.0","uploadTimestamp":null,"workoutId":1628045944,"workoutName":"Bike FTP Test","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":"","endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":120,"secondaryTargetValueTwo":130,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177507,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"childStepId":1,"endCondition":{"conditionTypeId":7,"conditionTypeKey":"iterations","displayOrder":7,"displayable":false},"endConditionCompare":null,"endConditionValue":3,"numberOfIterations":3,"preferredEndConditionUnit":null,"skipLastRestStep":null,"smartRepeat":false,"stepId":13960177508,"stepOrder":2,"stepType":{"displayOrder":6,"stepTypeId":6,"stepTypeKey":"repeat"},"type":"RepeatGroupDTO","workoutSteps":[{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177509,"stepOrder":3,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":100,"targetValueTwo":115,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177511,"stepOrder":4,"stepType":{"displayOrder":5,"stepTypeId":5,"stepTypeKey":"rest"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":300,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":3,"stepId":13960177512,"stepOrder":5,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":90,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":120,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":1,"stepId":13960177513,"stepOrder":6,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":90,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13960177514,"stepOrder":7,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":"https://connect.garmin.com/chart-service/workout?data=md:s3,c2=600000.0,t3=v85.0~95.0,t4=v120.0~130.0;3(s3,c2=30000.0,t3=v100.0~115.0;s5,c2=30000.0;);s3,c2=300000.0,t3=v90.0~95.0,t4=z3;s3,c2=120000.0,t3=v85.0~90.0,t4=z1;s3,c2=1200000.0;"},"workoutScheduleId":1710676815})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Real issue #4805 workout JSON fixture must be valid";
+
+    const QJsonObject root = doc.object();
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_TRUE(xml.contains(
+        "<row duration=\"00:05:00\" lower_cadence=\"90\" upper_cadence=\"95\" cadence=\"93\" "
+        "zonehr=\"3\" looptimehr=\"10\"/>"))
+        << "Expected cadence target plus zone-number-only secondary HR target (zone 3). XML was:\n"
+        << xml.toStdString();
+
+    EXPECT_TRUE(xml.contains(
+        "<row duration=\"00:02:00\" lower_cadence=\"85\" upper_cadence=\"90\" cadence=\"88\" "
+        "zonehr=\"1\" looptimehr=\"10\"/>"))
+        << "Expected cadence target plus zone-number-only secondary HR target (zone 1). XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary()
+{
+    // Real Garmin "Bike FTP Test" workout details response, taken verbatim from the debug log
+    // debug-Sat_Jul_11_21_00_57_2026.log attached to https://github.com/cagnulein/qdomyos-zwift/issues/4805.
+    // The first step has power as the PRIMARY target (190-210W) and cadence as the SECONDARY
+    // target (80-90rpm). Before the fix, cadence was not a recognized target type at all, so the
+    // secondary cadence bounds were silently dropped.
+    static const char *kWorkoutJson = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-07-11","consumer":null,"createdDate":"2026-07-11","itp":false,"nameChanged":false,"newName":null,"ownerId":100426398,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":5.501091448333178,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-07-11T18:43:05.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":18668.3904,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":3480,"isSessionTransitionEnabled":null,"locale":null,"ownerId":100426398,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-07-12T03:58:21.0","uploadTimestamp":null,"workoutId":1628045944,"workoutName":"Bike FTP Test","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":"","endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"secondaryTargetValueOne":80,"secondaryTargetValueTwo":90,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748052,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":2,"workoutTargetTypeId":2,"workoutTargetTypeKey":"power.zone"},"targetValueOne":190,"targetValueTwo":210,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"childStepId":1,"endCondition":{"conditionTypeId":7,"conditionTypeKey":"iterations","displayOrder":7,"displayable":false},"endConditionCompare":null,"endConditionValue":3,"numberOfIterations":3,"preferredEndConditionUnit":null,"skipLastRestStep":null,"smartRepeat":false,"stepId":13946748053,"stepOrder":2,"stepType":{"displayOrder":6,"stepTypeId":6,"stepTypeKey":"repeat"},"type":"RepeatGroupDTO","workoutSteps":[{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748054,"stepOrder":3,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":100,"targetValueTwo":115,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748055,"stepOrder":4,"stepType":{"displayOrder":5,"stepTypeId":5,"stepTypeKey":"rest"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":300,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":3,"stepId":13946748056,"stepOrder":5,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":90,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":1,"stepId":13946748057,"stepOrder":6,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":90,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748058,"stepOrder":7,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":"https://connect.garmin.com/chart-service/workout?data=md:s3,c2=600000.0,t2=v190.0~210.0W,t3=v80.0~90.0;3(s3,c2=30000.0,t3=v100.0~115.0;s5,c2=30000.0;);s3,c2=300000.0,t3=v90.0~95.0,t4=z3;s3,c2=1200000.0,t3=v85.0~90.0,t4=z1;s3,c2=1200000.0;"},"workoutScheduleId":1708922038})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Real issue #4805 workout JSON fixture must be valid";
+
+    const QJsonObject root = doc.object();
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_TRUE(xml.contains(
+        "<row duration=\"00:10:00\" power=\"200\" lower_cadence=\"80\" upper_cadence=\"90\" cadence=\"85\"/>"))
+        << "Expected primary power target AND secondary cadence target on the same row. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_issue4805_cadenceOnlyStepInRepeat()
+{
+    // Same real workout log as test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary.
+    // The repeat block's first inner step has ONLY a primary cadence target (100-115rpm), no
+    // secondary target at all. Before the fix this row had no attributes for its target since
+    // cadence was entirely unhandled.
+    static const char *kWorkoutJson = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-07-11","consumer":null,"createdDate":"2026-07-11","itp":false,"nameChanged":false,"newName":null,"ownerId":100426398,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":5.501091448333178,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-07-11T18:43:05.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":18668.3904,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":3480,"isSessionTransitionEnabled":null,"locale":null,"ownerId":100426398,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-07-12T03:58:21.0","uploadTimestamp":null,"workoutId":1628045944,"workoutName":"Bike FTP Test","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":"","endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"secondaryTargetValueOne":80,"secondaryTargetValueTwo":90,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748052,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":2,"workoutTargetTypeId":2,"workoutTargetTypeKey":"power.zone"},"targetValueOne":190,"targetValueTwo":210,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"childStepId":1,"endCondition":{"conditionTypeId":7,"conditionTypeKey":"iterations","displayOrder":7,"displayable":false},"endConditionCompare":null,"endConditionValue":3,"numberOfIterations":3,"preferredEndConditionUnit":null,"skipLastRestStep":null,"smartRepeat":false,"stepId":13946748053,"stepOrder":2,"stepType":{"displayOrder":6,"stepTypeId":6,"stepTypeKey":"repeat"},"type":"RepeatGroupDTO","workoutSteps":[{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748054,"stepOrder":3,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":100,"targetValueTwo":115,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":1,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":30,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748055,"stepOrder":4,"stepType":{"displayOrder":5,"stepTypeId":5,"stepTypeKey":"rest"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":300,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":3,"stepId":13946748056,"stepOrder":5,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":90,"targetValueTwo":95,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":{"displayOrder":4,"workoutTargetTypeId":4,"workoutTargetTypeKey":"heart.rate.zone"},"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":1,"stepId":13946748057,"stepOrder":6,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":3,"workoutTargetTypeId":3,"workoutTargetTypeKey":"cadence"},"targetValueOne":85,"targetValueTwo":90,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null},{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":1200,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":13946748058,"stepOrder":7,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":1,"workoutTargetTypeId":1,"workoutTargetTypeKey":"no.target"},"targetValueOne":null,"targetValueTwo":0,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":"https://connect.garmin.com/chart-service/workout?data=md:s3,c2=600000.0,t2=v190.0~210.0W,t3=v80.0~90.0;3(s3,c2=30000.0,t3=v100.0~115.0;s5,c2=30000.0;);s3,c2=300000.0,t3=v90.0~95.0,t4=z3;s3,c2=1200000.0,t3=v85.0~90.0,t4=z1;s3,c2=1200000.0;"},"workoutScheduleId":1708922038})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Real issue #4805 workout JSON fixture must be valid";
+
+    const QJsonObject root = doc.object();
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_TRUE(xml.contains("<repeat times=\"3\">")) << "Expected repeat block. XML was:\n" << xml.toStdString();
+    EXPECT_TRUE(xml.contains(
+        "<row duration=\"00:00:30\" lower_cadence=\"100\" upper_cadence=\"115\" cadence=\"108\"/>"))
+        << "Expected plain cadence-only target inside the repeat block. XML was:\n"
+        << xml.toStdString();
 }

@@ -153,8 +153,20 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
     }
 }
 
+void fitshowtreadmill::cancelPendingStartTarget(const QString &reason) {
+    if (!m_startSpeedGate.waitingForRunning())
+        return;
+
+    emit debug(QStringLiteral("FitShow startup: discarding deferred speed/incline (%1)").arg(reason));
+    requestSpeed = -1;
+    requestInclination = -100;
+    m_runnController.reset();
+    m_startSpeedGate.cancel();
+}
+
 void fitshowtreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
+        cancelPendingStartTarget(QStringLiteral("disconnected"));
         emit disconnected();
         return;
     }
@@ -187,8 +199,19 @@ void fitshowtreadmill::update() {
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-        if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value()) {
+        // The FitShow controller acknowledges speed commands during START
+        // countdown without applying them. Keep the most recent requested
+        // workout speed/incline until physical RUNNING status is confirmed.
+        // Stop always wins over a pending target.
+        if (requestStop != -1) {
+            cancelPendingStartTarget(QStringLiteral("stop or pause requested"));
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
+        const bool canSendTarget = m_startSpeedGate.canSendTarget(requestStart != -1, requestStop != -1);
+
+        if (requestSpeed != -1 && canSendTarget) {
+            if (requestSpeed != rawSpeed.value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 double inc = rawInclination.value();
                 if (requestInclination != -100) {
@@ -202,7 +225,7 @@ void fitshowtreadmill::update() {
             requestSpeed = -1;
         }
 
-        if (requestInclination != -100) {
+        if (requestInclination != -100 && canSendTarget) {
             double inc = rawInclination.value();
             // only 0.5 or 1 changes otherwise it beeps forever
             double a = 1.0 / minStepInclination();
@@ -210,7 +233,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().valueRaw();
+                double speed = rawSpeed.value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -237,8 +260,10 @@ void fitshowtreadmill::update() {
                 0x00,
                 0x00 // mode-dependent value (u16le)
             };       // to verify
+            m_startSpeedGate.startSent();
             scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
             forceSpeedOrIncline(lastSpeed, lastInclination);
+            emit debug(QStringLiteral("FitShow startup: waiting for RUNNING before applying workout speed"));
 
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
@@ -304,7 +329,7 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+            homeform::singleton()->setToastRequested(QObject::tr("FTMS treadmill found, restart the app to apply the change"));
     }
 }
 
@@ -324,6 +349,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
+    bool cadenceAvailable = false;
+    bool stepCountAvailable = false;
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
@@ -334,8 +361,26 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     lastPacket = value;
 
     if(characteristic.uuid() == QBluetoothUuid((quint16)0x2a53) && value.length() >= 4) {
-        Cadence = value.at(3);
-        emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        bool hasExternalCadenceSensor =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+        bool ignoreTreadmillCadence =
+            settings.value(QZSettings::power_sensor_cadence_instead_treadmill,
+                           QZSettings::default_power_sensor_cadence_instead_treadmill)
+                .toBool();
+        bool garminCompanionEnabled =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+
+        if (!hasExternalCadenceSensor && !ignoreTreadmillCadence && !garminCompanionEnabled) {
+            evaluateStepCount();
+            parseCadence((uint8_t)value.at(3));
+            cadenceAvailable = true;
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        } else {
+            emit debug(QStringLiteral("Current cadence from treadmill ignored due to settings/external source"));
+        }
+        cadenceFromAppleWatch();
         return;
     }
 
@@ -435,9 +480,16 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         } else if (par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
                    par == FITSHOW_STATUS_END) {
             if (full_len >= 16) {
-                if (par == FITSHOW_STATUS_RUNNING)
+                if (par == FITSHOW_STATUS_RUNNING) {
                     IS_RUNNING = true;
-                else {
+                    if (m_startSpeedGate.waitingForRunning()) {
+                        m_startSpeedGate.runningConfirmed();
+                        emit debug(QStringLiteral("FitShow startup: RUNNING confirmed; releasing deferred workout target"));
+                    }
+                } else {
+                    if (par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
+                        par == FITSHOW_STATUS_END)
+                        cancelPendingStartTarget(QStringLiteral("stopped before RUNNING"));
                     IS_STATUS_STUDY = false;
                     IS_STATUS_ERRO = false;
                     IS_STATUS_SAFETY = false;
@@ -476,7 +528,10 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
-                StepCount = step_count;
+                if (step_count > 0) {
+                    StepCount = step_count;
+                    stepCountAvailable = true;
+                }
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -504,12 +559,17 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         .toBool())
                     miles = 1.60934;
 
-                if(IS_RUNNING)
-                    Speed = speed * miles;
-                else
-                    Speed = 0;
+                // Always update the treadmill speed used for motor control and corrections.
+                // When a Runn/Stryd sensor is selected, keep its speed in Speed instead.
+                const double machineSpeed = IS_RUNNING ? speed * miles : 0.0;
+                parseSpeed(machineSpeed);
+                if (!IS_RUNNING) {
+                    Speed = 0.0;
+                }
 
-                if (Speed.value() != speed) {
+                if (!settings.value(QZSettings::stryd_speed_instead_treadmill,
+                                    QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+                    Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
 
@@ -533,7 +593,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
                 {
                     if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled"))) {
-                        if (heart == 0 || disable_hr_frommachinery)
+                        bool garminCompanionEnabledForHeart =
+                            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+                        if (heart == 0 || disable_hr_frommachinery || garminCompanionEnabledForHeart)
                             update_hr_from_external();
                         else 
                             Heart = heart;
@@ -560,18 +622,22 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             } else if (par == FITSHOW_STATUS_STUDY) {
                 IS_STATUS_STUDY = true;
             } else if (par == FITSHOW_STATUS_ERROR) {
+                cancelPendingStartTarget(QStringLiteral("treadmill error"));
                 if (len > 2) {
                     IS_STATUS_ERRO = true;
                     ERRNO = array[2];
                     sendSportData();
                 }
             } else if (par == FITSHOW_STATUS_SAFETY) {
+                cancelPendingStartTarget(QStringLiteral("safety key removed"));
                 ERRNO = 100;
                 IS_STATUS_SAFETY = true;
                 sendSportData();
             }
-            if (Speed.value() != 0.0) {
-                Speed = 0.0;
+            const bool wasMoving = Speed.value() != 0.0;
+            parseSpeed(0.0);
+            Speed = 0.0;
+            if (wasMoving) {
                 emit speedChanged(0.0);
             }
             if (Inclination.value() != 0.0) {
@@ -618,7 +684,10 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
 
-                StepCount = step_count;
+                if (step_count > 0) {
+                    StepCount = step_count;
+                    stepCountAvailable = true;
+                }
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
@@ -628,6 +697,28 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (truetimer)
                     elapsed = seconds_elapsed;
                 // Distance = distance;
+            }
+        }
+    }
+
+    if (!cadenceFromAppleWatch() && !cadenceAvailable && Speed.value() > 0) {
+        bool garminCompanion =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+        bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                  .toString()
+                                  .startsWith(QStringLiteral("Disabled"));
+        bool hasCadenceSensor =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+        if (!hasPowerSensor && !hasCadenceSensor && !garminCompanion) {
+            double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+            if (calculatedCadence > 0) {
+                if (!stepCountAvailable)
+                    evaluateStepCount();
+                parseCadence(calculatedCadence);
+                emit debug(QStringLiteral("Current Cadence (calculated from speed): ") +
+                           QString::number(Cadence.value()));
             }
         }
     }
@@ -683,6 +774,7 @@ void fitshowtreadmill::btinit(bool startTape) {
     }
 
     if (startTape) {
+        m_startSpeedGate.startSent();
         scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
         forceSpeedOrIncline(lastSpeed, lastInclination);
     }
@@ -838,7 +930,8 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TR510-T"))) {
         qDebug() << "FS FIX!";
         fs_connected = true;
     } else if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
@@ -899,6 +992,7 @@ void fitshowtreadmill::searchingStop() { searchStopped = true; }
 void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        cancelPendingStartTarget(QStringLiteral("connection lost"));
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();

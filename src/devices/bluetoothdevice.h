@@ -235,6 +235,9 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
+            return wattsMetric().value();
+        }
         bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         if (power3s)
@@ -480,6 +483,11 @@ class bluetoothdevice : public QObject {
     virtual uint8_t metrics_override_heartrate();
 
     /**
+     * @brief metricValueForSetting Returns the current value for a metric selected by name.
+     */
+    virtual int metricValueForSetting(const QString &setting);
+
+    /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
     virtual resistance_t maxResistance();
@@ -489,10 +497,26 @@ class bluetoothdevice : public QObject {
     metric SkinTemperature;      // Skin temperature in °C or °F
     metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
 
+    /**
+     * @brief HRV Heart Rate Variability metric (RMSSD). Unit: milliseconds
+     */
+    metric currentHRV() { return HRV; }
+
+    /**
+     * @brief Get and clear accumulated RR-intervals for FIT file saving
+     * @return List of RR-intervals in milliseconds
+     */
+    QList<double> getRRIntervalsAndClear() {
+        QList<double> intervals = rrIntervalsForFit;
+        rrIntervalsForFit.clear();
+        return intervals;
+    }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
+    virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
@@ -592,6 +616,23 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
+    bool heartRateFromHealthKit = false;
+    quint64 healthKitHeartUpdateSequence = 0;
+
+    /**
+     * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
+     */
+    metric HRV;
+
+    /**
+     * @brief RR-intervals buffer for HRV calculation
+     */
+    QList<double> rrIntervals;
+
+    /**
+     * @brief RR-intervals buffer for FIT file saving (cleared after each SessionLine)
+     */
+    QList<double> rrIntervalsForFit;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
@@ -804,6 +845,7 @@ class bluetoothdevice : public QObject {
      * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
      */
     void update_ios_live_activity();
+    bool heartRateIsFromHealthKit();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)

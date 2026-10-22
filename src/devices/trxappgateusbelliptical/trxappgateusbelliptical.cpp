@@ -56,7 +56,13 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 }
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
-    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
+    if (elliptical_type == TYPE::TOORX) {
+        uint8_t resistance[] = {0xf0, 0xa6, 0x23, 0x01, 0x00, 0x00};
+        resistance[4] = requestResistance + 1;
+        for (uint8_t i = 0; i < sizeof(resistance) - 1; i++)
+            resistance[5] += resistance[i];
+        writeCharacteristic(resistance, sizeof(resistance), QStringLiteral("writingResistance"));
+    } else if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
         uint8_t noOpData1[] = {0xf0, 0xa6, 0x01, 0x01, 0x03, 0x9b};
         noOpData1[4] = requestResistance + 1;
         noOpData1[5] = noOpData1[4] + 0x98;
@@ -67,6 +73,10 @@ void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
         noOpData1[5] = noOpData1[4] + 0xcc;
         writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("writingResistance"));
     }
+}
+
+bool trxappgateusbelliptical::toorxResistanceInRange(resistance_t resistance) {
+    return resistance >= 1 && resistance <= 32;
 }
 
 void trxappgateusbelliptical::update() {
@@ -84,18 +94,48 @@ void trxappgateusbelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
+        // Restore resistance after reconnection and init
+        if (needsResistanceRestore && lastResistanceBeforeDisconnection > 0) {
+            qDebug() << QStringLiteral("Restoring resistance after reconnection:") << lastResistanceBeforeDisconnection;
+            forceResistance(lastResistanceBeforeDisconnection);
+            needsResistanceRestore = false;
+            lastResistanceBeforeDisconnection = -1;
+        }
+
+        // Calculate time since last valid packet
+        qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
+
+        // If we haven't received a valid packet for more than 5 seconds, reinitialize
+        if (msSinceLastValidPacket > 5000) {
+            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
+                     << QStringLiteral("seconds. Reinitializing connection...");
+
+            // Reset timer
+            lastValidPacketTime = QDateTime::currentDateTime();
+
+            m_control->disconnectFromDevice();
+        }
+
+
         {
             if (requestResistance != -1) {
                 if (requestResistance < 1)
                     requestResistance = 1;
-                if (requestResistance != currentResistance().value() && requestResistance >= 1 &&
-                    requestResistance <= 15) {
+                if (requestResistance != currentResistance().value() &&
+                    ((elliptical_type == TYPE::TOORX && toorxResistanceInRange(requestResistance)) ||
+                     (elliptical_type != TYPE::TOORX && requestResistance >= 1 && requestResistance <= 15))) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
                 requestResistance = -1;
             } else {
-                if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
+                if (elliptical_type == TYPE::TOORX) {
+                    if (lastToorxPollTime.isNull() || lastToorxPollTime.msecsTo(QDateTime::currentDateTime()) >= 500) {
+                        uint8_t noOpData1[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
+                        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                        lastToorxPollTime = QDateTime::currentDateTime();
+                    }
+                } else if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
                     uint8_t noOpData1[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
                     writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 } else {
@@ -139,7 +179,9 @@ void trxappgateusbelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    if (elliptical_type == TYPE::JTX_FITNESS) {
+    if (elliptical_type == TYPE::TOORX) {
+        return toorxSpeedFromPacket(packet);
+    } else if (elliptical_type == TYPE::JTX_FITNESS) {
         // JTX Fitness doesn't send speed via bluetooth, calculate from cadence using settings ratio
         QSettings settings;
         double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
@@ -155,13 +197,26 @@ double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 double trxappgateusbelliptical::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (elliptical_type == TYPE::JTX_FITNESS) {
+    if (elliptical_type == TYPE::TOORX) {
+        return toorxCadenceFromPacket(packet);
+    } else if (elliptical_type == TYPE::JTX_FITNESS) {
         // JTX Fitness uses only byte 5 for cadence
         convertedData = packet.at(5);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
     }
     return convertedData;
+}
+
+double trxappgateusbelliptical::toorxCadenceFromPacket(const QByteArray &packet) {
+    return (static_cast<uint8_t>(packet.at(9)) - 1) +
+           ((static_cast<uint8_t>(packet.at(8)) - 1) * 100);
+}
+
+double trxappgateusbelliptical::toorxSpeedFromPacket(const QByteArray &packet) {
+    const uint16_t convertedData = (static_cast<uint8_t>(packet.at(7)) - 1) +
+                                   ((static_cast<uint8_t>(packet.at(6)) - 1) * 100);
+    return static_cast<double>(convertedData) / 10.0;
 }
 
 double trxappgateusbelliptical::GetWattFromPacket(const QByteArray &packet) {
@@ -191,8 +246,22 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
-    if(newValue.length() != 21) {
+    lastValidPacketTime = QDateTime::currentDateTime();
+  
+    // Check for invalid packet length first
+    bool isValidPacket = (newValue.length() == 21);
+
+    if (!isValidPacket) {
+        // Invalid packet length - log and return
+        qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
         return;
+    }
+
+    // Log controller errors but don't block processing of valid packets
+    bool hasError = (m_control->error() != QLowEnergyController::NoError);
+    if (hasError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        // Continue processing - the packet is still valid
     }
 
     Resistance = newValue.at(18) - 1;
@@ -227,15 +296,35 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-
-    if (m_control->error() != QLowEnergyController::NoError) {
-        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
 }
 
 void trxappgateusbelliptical::btinit() {
 
-    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
+    if (elliptical_type == TYPE::TOORX) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x23, 0x01, 0xb4};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x23, 0x01, 0xb5};
+        const uint8_t initData4[] = {0xf0, 0xa3, 0x23, 0x01, 0x01, 0xb8};
+        const uint8_t initData5[] = {0xf0, 0xa4, 0x23, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xc2};
+        const uint8_t initData6[] = {0xf0, 0xa5, 0x23, 0x01, 0x02, 0xbb};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+    } else if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TAURUS_FX99) {
         uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
         uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
@@ -296,7 +385,7 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
         QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
-        if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS) {
+        if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::JTX_FITNESS || elliptical_type == TYPE::TOORX) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -380,7 +469,7 @@ void trxappgateusbelliptical::serviceScanDone(void) {
     QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
     QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
 
-    if (elliptical_type == TYPE::DCT2000I) {
+    if (elliptical_type == TYPE::DCT2000I || elliptical_type == TYPE::TOORX) {
         uuid = uuid2;
     }
 
@@ -449,6 +538,9 @@ void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &devic
     if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) {
         elliptical_type = DCT2000I;
         qDebug() << "DCT2000I workaround activacted!";
+    } else if (device.name().toUpper().startsWith(QStringLiteral("TOORX"))) {
+        elliptical_type = TOORX;
+        qDebug() << "TOORX protocol profile activated!";
     }
 
     {
@@ -497,9 +589,26 @@ bool trxappgateusbelliptical::connected() {
 void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+        qDebug() << QStringLiteral("trying to connect back again in 3 seconds...");
+
+        // Save current resistance before disconnection
+        if (Resistance.value() > 0) {
+            lastResistanceBeforeDisconnection = Resistance.value();
+            needsResistanceRestore = true;
+            qDebug() << QStringLiteral("Saved resistance before disconnection:") << lastResistanceBeforeDisconnection;
+        }
+
         initDone = false;
-        m_control->connectToDevice();
+
+        // Schedule reconnection after 3 seconds
+        QTimer::singleShot(3000, this, [this]() {
+            if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+                qDebug() << QStringLiteral("Reconnection timer fired, attempting to reconnect...");
+                // Reset the last valid packet timer
+                lastValidPacketTime = QDateTime::currentDateTime();
+                m_control->connectToDevice();
+            }
+        });
     }
 }
 

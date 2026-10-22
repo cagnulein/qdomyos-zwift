@@ -139,12 +139,12 @@ void cycleopsphantombike::update() {
         }
         if (requestInclination != -100 || lastGearValue != gears()) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+            forceInclination(lastRawRequestedInclinationValue + gearsModifier());   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
 

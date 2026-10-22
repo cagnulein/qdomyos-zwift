@@ -1,5 +1,6 @@
 #include "echelonconnectsport.h"
 #include "homeform.h"
+#include "echelonunlock.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -31,6 +32,14 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    directUnlockActivationTimer = new QTimer(this);
+    directUnlockActivationTimer->setSingleShot(true);
+    connect(directUnlockActivationTimer, &QTimer::timeout, this, &echelonconnectsport::sendDirectUnlockActivation);
+    directUnlockFallbackTimer = new QTimer(this);
+    directUnlockFallbackTimer->setSingleShot(true);
+    connect(directUnlockFallbackTimer, &QTimer::timeout, this, [this]() {
+        directUnlockFailed(QStringLiteral("timeout waiting for post-unlock traffic"));
+    });
     connect(refresh, &QTimer::timeout, this, &echelonconnectsport::update);
     refresh->start(200ms);
 }
@@ -137,6 +146,10 @@ void echelonconnectsport::update() {
         return;
     }
 
+    if (directUnlockInProgress) {
+        return;
+    }
+
     if (initRequest) {
         initRequest = false;
         btinit();
@@ -209,6 +222,16 @@ resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance)
 resistance_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    QSettings settings;
+    bool powerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+
+    if (powerSensorEnabled) {
+        return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
+    }
+
     if (Cadence.value() == 0)
         return 1;
 
@@ -239,7 +262,6 @@ double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                 const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -250,6 +272,28 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 
     qDebug() << " << " + newValue.toHex(' ');
+
+    if (directUnlockActivationSent && directUnlockTelemetryFrame(newValue)) {
+        directUnlockSucceeded = true;
+        directUnlockInProgress = false;
+        directUnlockActivationTimer->stop();
+        directUnlockFallbackTimer->stop();
+        qDebug() << QStringLiteral("Echelon direct unlock confirmed by post-auth traffic");
+    }
+
+    if (newValue.size() == 8 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(newValue.at(1)) == 0xe0) {
+        handleDirectUnlockChallenge(newValue);
+    }
+
+    if (newValue == QByteArray::fromHex("f0a5010ea4")) {
+        unlockResponseReceived = true;
+        maybePromptForClassicBridge();
+    }
+
+    if (auto *virtualBike = VirtualBike()) {
+        virtualBike->relayEchelonPacket(characteristic.uuid(), newValue);
+    }
 
     lastPacket = newValue;
 
@@ -362,6 +406,8 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
 
+    maybePromptForClassicBridge();
+
     if (!useNativeIOS && m_control && m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
@@ -397,7 +443,11 @@ void echelonconnectsport::btinit() {
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    if (!directUnlockInProgress && !directUnlockSucceeded) {
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    } else {
+        qDebug() << QStringLiteral("deferring normal Echelon init until direct unlock completes");
+    }
 
     initDone = true;
 
@@ -467,7 +517,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && !virtual_device_echelon) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
@@ -481,12 +533,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
                     this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 } else {
-                    qDebug() << QStringLiteral("creating virtual bike interface...");
-                    auto virtualBike =
-                        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                    // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-                    connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
-                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    createVirtualBike();
                 }
             }
     }
@@ -537,7 +584,7 @@ void echelonconnectsport::serviceScanDone(void) {
                 gattCommunicationChannelService->discoverDetails();
             } else {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Bluetooth Service Error! Restart the bike!"));
                 m_control->disconnectFromDevice();
             }
     }
@@ -553,6 +600,189 @@ void echelonconnectsport::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     qDebug() << QStringLiteral("echelonconnectsport::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
+}
+
+void echelonconnectsport::maybePromptForClassicBridge() {
+    QSettings settings;
+    const bool virtualEchelonEnabled =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+
+    if (!virtualEchelonEnabled || classicVirtualBridgeActive || classicBridgePromptShown || !unlockResponseReceived ||
+        Cadence.value() <= 0) {
+        return;
+    }
+
+    requestClassicBridgePrompt();
+}
+
+void echelonconnectsport::requestClassicBridgePrompt() {
+    if (!homeform::singleton()) {
+        return;
+    }
+
+    classicBridgePromptShown = true;
+    homeform::singleton()->setEchelonBridgeSwitchPromptRequested(true);
+}
+
+void echelonconnectsport::maybePromptToEnableVirtualEchelon(const QByteArray &newValue) {
+    QSettings settings;
+    const bool virtualEchelonEnabled =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    const bool isLockedFrame = newValue.size() == 8 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+                               static_cast<uint8_t>(newValue.at(1)) == 0xe0;
+
+    if (virtualEchelonEnabled || lockedBikePromptShown || !isLockedFrame || !homeform::singleton()) {
+        return;
+    }
+
+    lockedBikePromptShown = true;
+    homeform::singleton()->setEchelonEnablePromptRequested(true);
+}
+
+bool echelonconnectsport::virtualEchelonSessionActive() {
+    QSettings settings;
+    return settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool() &&
+           VirtualBike();
+}
+
+bool echelonconnectsport::directUnlockTelemetryFrame(const QByteArray &newValue) const {
+    if (newValue == QByteArray::fromHex("f0a5010ea4")) {
+        return true;
+    }
+
+    if (newValue.size() == 13 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(newValue.at(1)) == 0xd1) {
+        return true;
+    }
+
+    return newValue.size() == 5 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+           static_cast<uint8_t>(newValue.at(1)) == 0xd2;
+}
+
+void echelonconnectsport::handleDirectUnlockChallenge(const QByteArray &newValue) {
+    if (directUnlockInProgress || directUnlockSucceeded || virtualEchelonSessionActive()) {
+        return;
+    }
+
+    directUnlockChallenge = newValue;
+    const auto result = echelonunlock::responseForChallenge(newValue);
+    if (!result.valid()) {
+        directUnlockFailed(QStringLiteral("invalid challenge (%1)").arg(static_cast<int>(result.error)));
+        return;
+    }
+
+    directUnlockInProgress = true;
+    directUnlockActivationSent = false;
+    directUnlockActivationTimer->start(500);
+    directUnlockFallbackTimer->start(2500);
+
+    QByteArray response = result.response;
+    writeCharacteristic(reinterpret_cast<uint8_t *>(response.data()), static_cast<uint8_t>(response.size()),
+                        QStringLiteral("direct Echelon unlock response"), false, false);
+}
+
+void echelonconnectsport::sendDirectUnlockActivation() {
+    if (!directUnlockInProgress || directUnlockActivationSent) {
+        return;
+    }
+
+    directUnlockActivationSent = true;
+    QByteArray activation = echelonunlock::activationCommand();
+    writeCharacteristic(reinterpret_cast<uint8_t *>(activation.data()), static_cast<uint8_t>(activation.size()),
+                        QStringLiteral("direct Echelon unlock activation"), false, false);
+}
+
+void echelonconnectsport::directUnlockFailed(const QString &reason) {
+    if (!directUnlockInProgress && directUnlockChallenge.isEmpty()) {
+        return;
+    }
+
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
+    qDebug() << QStringLiteral("Echelon direct unlock failed:") << reason;
+    maybePromptToEnableVirtualEchelon(directUnlockChallenge);
+}
+
+void echelonconnectsport::resetDirectUnlockState() {
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockChallenge.clear();
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
+}
+
+void echelonconnectsport::createVirtualBike(bool forceClassicMode, DirconManager *existingDirconManager) {
+    qDebug() << QStringLiteral("creating virtual bike interface...")
+             << (forceClassicMode ? QStringLiteral("(classic bridge)") : QStringLiteral("(echelon bridge)"));
+    auto virtualBike =
+        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain,
+                        forceClassicMode, existingDirconManager);
+    connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+}
+
+void echelonconnectsport::switchToClassicVirtualBikeBridge() {
+    if (classicVirtualBridgeActive) {
+        return;
+    }
+
+    classicVirtualBridgeActive = true;
+    if (homeform::singleton()) {
+        homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
+        homeform::singleton()->setToastRequested(QObject::tr("Switching to classic Bluetooth bridge"));
+    }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QSettings settings;
+    const bool cadence =
+        settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    const bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && cadence) {
+        this->setVirtualDevice(nullptr, VIRTUAL_DEVICE_MODE::NONE);
+        if (!h) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+        }
+        h->virtualbike_ios();
+        return;
+    }
+#endif
+#endif
+
+    DirconManager *existingDirconManager = nullptr;
+    if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
+        existingDirconManager = virtualBike->detachDirconManager();
+    }
+
+    createVirtualBike(true, existingDirconManager);
+}
+
+void echelonconnectsport::enableVirtualEchelonBridge() {
+    resetDirectUnlockState();
+    QSettings settings;
+    settings.setValue(QZSettings::virtual_device_echelon, true);
+
+    classicVirtualBridgeActive = false;
+    classicBridgePromptShown = false;
+    lockedBikePromptShown = true;
+
+    if (homeform::singleton()) {
+        homeform::singleton()->setEchelonEnablePromptRequested(false);
+        homeform::singleton()->setToastRequested(QObject::tr("Virtual Echelon enabled for this bike"));
+    }
+
+    DirconManager *existingDirconManager = nullptr;
+    if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
+        existingDirconManager = virtualBike->detachDirconManager();
+    }
+
+    createVirtualBike(false, existingDirconManager);
 }
 
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -574,6 +804,7 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     if (device.name().startsWith(QStringLiteral("ECH"))) {
+        resetDirectUnlockState();
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -600,6 +831,7 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             qDebug() << QStringLiteral("LowEnergy controller disconnected");
+            resetDirectUnlockState();
             emit disconnected();
         });
 
@@ -607,6 +839,26 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control->connectToDevice();
         return;
     }
+}
+
+void echelonconnectsport::proxyVirtualBikeCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualBikeCommand ignored because the Echelon bike is not ready");
+        return;
+    }
+
+    // On the real-bike passthrough path the app's unlock handshake is proxied to the bike, but the
+    // corresponding A5 reply is not guaranteed to surface back as a bike notification. Mark the
+    // unlock flow as seen so the popup can still appear once cadence starts flowing.
+    if (!unlockResponseReceived && value.size() > 1 && static_cast<uint8_t>(value.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(value.at(1)) != 0xa0) {
+        unlockResponseReceived = true;
+        maybePromptForClassicBridge();
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon proxy"));
 }
 
 bool echelonconnectsport::connected() {
@@ -630,6 +882,16 @@ uint16_t echelonconnectsport::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
+
+    QSettings settings;
+    // If power sensor/pedal is enabled, use the actual power value from the external sensor
+    if (!settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        return m_watt.value();
+    }
+
+    // Otherwise, calculate power from resistance table
     return wattsFromResistance(Resistance.value());
 }
 
@@ -756,6 +1018,7 @@ void echelonconnectsport::controllerStateChanged(QLowEnergyController::Controlle
     if (state == QLowEnergyController::UnconnectedState
         && (m_control || useNativeIOS)
         ) {
+        resetDirectUnlockState();
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;

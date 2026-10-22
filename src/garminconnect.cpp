@@ -1,4 +1,6 @@
 #include "garminconnect.h"
+#include "devices/bike.h"
+#include "trainprogram.h"
 #include "qzsettings.h"
 #include <QDebug>
 #include <QRegularExpression>
@@ -12,6 +14,9 @@
 #include <QMessageAuthenticationCode>
 #include <QUuid>
 #include <QDateTime>
+#include <QDate>
+#include <QDir>
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -41,6 +46,114 @@ void GarminConnect::logout()
 {
     clearTokens();
     emit authenticated();
+}
+
+void GarminConnect::checkFtpUpdates()
+{
+    if (m_oauth2Token.access_token.isEmpty()) {
+        qDebug() << "GarminConnect: Skipping FTP check, no access token";
+        return;
+    }
+
+    const QString date = QDate::currentDate().toString(Qt::ISODate);
+    const QString urlString =
+        QString("%1/biometric-service/biometric/powerToWeight/latest/%2")
+            .arg(connectApiUrl(), date);
+    QNetworkRequest request{QUrl(urlString)};
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request.setRawHeader("User-Agent", USER_AGENT);
+    request.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        qDebug() << "GarminConnect: FTP check HTTP status:" << statusCode
+                 << "response length:" << response.length();
+
+        if (statusCode != 200) {
+            qDebug() << "GarminConnect: FTP check failed (HTTP" << statusCode << "):"
+                     << QString::fromUtf8(response).left(300);
+            return;
+        }
+
+        QJsonParseError parseError;
+        const QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            qDebug() << "GarminConnect: Invalid FTP check JSON:" << parseError.errorString()
+                     << QString::fromUtf8(response).left(300);
+            return;
+        }
+
+        QJsonArray entries;
+        if (doc.isArray()) {
+            entries = doc.array();
+        } else if (doc.isObject()) {
+            const QJsonObject obj = doc.object();
+            const QStringList possibleArrays = {
+                QStringLiteral("entries"),
+                QStringLiteral("values"),
+                QStringLiteral("items"),
+                QStringLiteral("data")
+            };
+            for (const QString &key : possibleArrays) {
+                if (obj.value(key).isArray()) {
+                    entries = obj.value(key).toArray();
+                    qDebug() << "GarminConnect: FTP check response array key:" << key;
+                    break;
+                }
+            }
+        }
+
+        if (entries.isEmpty()) {
+            qDebug() << "GarminConnect: FTP check response has no entries:"
+                     << QString::fromUtf8(response).left(500);
+        }
+
+        int cyclingFtp = 0;
+        int runningFtp = 0;
+        QString cyclingCreateTime;
+        QString runningCreateTime;
+
+        qDebug() << "GarminConnect: FTP check entries:" << entries.size();
+        for (const QJsonValue &entryVal : entries) {
+            const QJsonObject entry = entryVal.toObject();
+            if (entry.value(QStringLiteral("isStale")).toBool())
+                continue;
+
+            const QJsonValue ftpValue = entry.value(QStringLiteral("functionalThresholdPower"));
+            const int ftp = ftpValue.isString() ? ftpValue.toString().toDouble() : static_cast<int>(ftpValue.toDouble());
+            const QString createTime = entry.value(QStringLiteral("ftpCreateTime")).toString();
+            if (ftp <= 0 || createTime.isEmpty())
+                continue;
+
+            const QString sport = entry.value(QStringLiteral("sport")).toString().toUpper();
+            if (sport == QStringLiteral("CYCLING")) {
+                cyclingFtp = ftp;
+                cyclingCreateTime = createTime;
+            } else if (sport == QStringLiteral("RUNNING")) {
+                runningFtp = ftp;
+                runningCreateTime = createTime;
+            }
+        }
+
+        qDebug() << "GarminConnect: FTP check values cycling:" << cyclingFtp
+                 << "cyclingCreateTime:" << cyclingCreateTime
+                 << "running:" << runningFtp
+                 << "runningCreateTime:" << runningCreateTime;
+        if (cyclingFtp <= 0 && runningFtp <= 0) {
+            qDebug() << "GarminConnect: FTP check parsed no usable FTP values from:"
+                     << QString::fromUtf8(response).left(500);
+        }
+        emit ftpValuesAvailable(cyclingFtp, cyclingCreateTime, runningFtp, runningCreateTime);
+    });
+
+    qDebug() << "GarminConnect: Checking latest FTP values";
 }
 
 bool GarminConnect::uploadFitFile(const QString &fitFilePath)
@@ -110,6 +223,11 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
     QUrl url(connectApiUrl() + "/upload-service/upload/.fit");
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
+
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
 
     // Use OAuth2 Bearer token for authorization
     QString authHeader = "Bearer " + m_oauth2Token.access_token;
@@ -386,6 +504,9 @@ bool GarminConnect::fetchCsrfToken()
 bool GarminConnect::performLogin(const QString &email, const QString &password, bool suppressMfaSignal)
 {
     qDebug() << "GarminConnect: Performing login...";
+    qDebug() << "GarminConnect: Using domain:" << m_domain;
+    qDebug() << "GarminConnect: SSO URL:" << ssoUrl();
+    qDebug() << "GarminConnect: Connect API URL:" << connectApiUrl();
 
     QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
 
@@ -400,14 +521,14 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
     url.setQuery(query);
 
-    // Prepare POST data
-    QUrlQuery postData;
-    postData.addQueryItem("username", email);
-    postData.addQueryItem("password", password);
-    postData.addQueryItem("embed", "true");
-    postData.addQueryItem("_csrf", m_csrfToken);
-
-    QByteArray data = postData.query(QUrl::FullyEncoded).toUtf8();
+    // Prepare POST data using QUrl::toPercentEncoding() for each value so that ALL
+    // special characters (^, +, &, =, %, spaces, …) are correctly encoded.
+    // QUrlQuery::query(FullyEncoded) only encodes a subset of special chars and required
+    // a manual '+' → '%2B' patch (see #4121/#4137); this approach supersedes that workaround.
+    QByteArray data = "username=" + QUrl::toPercentEncoding(email) +
+                      "&password=" + QUrl::toPercentEncoding(password) +
+                      "&embed=true" +
+                      "&_csrf=" + QUrl::toPercentEncoding(m_csrfToken);
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
@@ -438,15 +559,54 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     qDebug() << "GarminConnect: Login response length:" << response.length();
     qDebug() << "GarminConnect: Response snippet:" << response.left(300);
 
-    // Check for success title (like Python garth library)
+    // Check page title (like Python garth library)
+    // garth checks ONLY the title for MFA detection, not the body
+    // This is important because some servers (like garmin.cn) may have "MFA" text
+    // in their Success page HTML body, which would cause false positives
+    QString pageTitle;
     QRegularExpression titleRegex("<title>(.+?)</title>");
     QRegularExpressionMatch titleMatch = titleRegex.match(response);
     if (titleMatch.hasMatch()) {
-        QString title = titleMatch.captured(1);
-        qDebug() << "GarminConnect: Page title:" << title;
-        if (title == "Success") {
-            qDebug() << "GarminConnect: Login successful (Success page detected)";
+        pageTitle = titleMatch.captured(1);
+        qDebug() << "GarminConnect: Page title:" << pageTitle;
+    }
+
+    // Check if MFA is required by looking at the TITLE (garth approach)
+    // This is more reliable than checking the body which may contain "MFA" in scripts/URLs
+    if (pageTitle.contains("MFA", Qt::CaseInsensitive)) {
+        m_lastError = "MFA Required";
+        qDebug() << "GarminConnect: MFA detected in page title";
+
+        // Extract new CSRF token from MFA page - try multiple patterns
+        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+
+        QRegularExpressionMatch match = csrfRegex1.match(response);
+        if (!match.hasMatch()) {
+            match = csrfRegex2.match(response);
         }
+        if (match.hasMatch()) {
+            m_csrfToken = match.captured(1);
+            qDebug() << "GarminConnect: CSRF token from MFA page:" << m_csrfToken.left(20) << "...";
+        }
+
+        // Update cookies
+        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
+
+        if (!suppressMfaSignal) {
+            qDebug() << "GarminConnect: Emitting mfaRequired signal";
+            emit mfaRequired();
+        } else {
+            qDebug() << "GarminConnect: MFA required but signal suppressed (retrying with MFA code)";
+        }
+        reply->deleteLater();
+        return false;
+    }
+
+    // Check if login was successful (title is "Success")
+    if (pageTitle == "Success") {
+        qDebug() << "GarminConnect: Login successful (Success page detected)";
+        // Continue to extract ticket below
     }
 
     // Check for error messages in response
@@ -535,37 +695,15 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
         return false;
     }
 
-    // Check if MFA is required (legacy check for non-redirect MFA)
-    if (response.contains("MFA", Qt::CaseInsensitive) ||
-        response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
-        m_lastError = "MFA Required";
-        qDebug() << "GarminConnect: MFA content detected in response";
-
-        // Extract new CSRF token from MFA page - try multiple patterns
-        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
-        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
-
-        QRegularExpressionMatch match = csrfRegex1.match(response);
-        if (!match.hasMatch()) {
-            match = csrfRegex2.match(response);
-        }
-        if (match.hasMatch()) {
-            m_csrfToken = match.captured(1);
-        }
-
-        // Update cookies
-        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
-
-        if (!suppressMfaSignal) {
-            emit mfaRequired();
-        }
-        reply->deleteLater();
-        return false;
-    }
-
     // Extract ticket from response URL (already declared above)
     if (responseUrl.isEmpty()) {
         responseUrl = reply->url();
+    }
+
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: Response URL:" << responseUrl.toString();
+        qDebug() << "GarminConnect: Response length:" << response.length();
+        qDebug() << "GarminConnect: Full response body:" << response;
     }
 
     QUrlQuery responseQuery(responseUrl);
@@ -585,6 +723,8 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket with fallback pattern:" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No ticket patterns matched in response body";
             }
         }
     }
@@ -594,6 +734,9 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket from login response";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         return false;
     }
 
@@ -694,8 +837,12 @@ void GarminConnect::handleMfaReplyFinished()
     qDebug() << "GarminConnect: MFA response status code:" << statusCode;
     qDebug() << "GarminConnect: MFA response redirect URL:" << responseUrl.toString();
 
-    // If no redirect, log response body to understand what happened
-    if (responseUrl.isEmpty()) {
+    // Log detailed response information
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: MFA response length:" << response.length();
+        qDebug() << "GarminConnect: Full MFA response body:" << response;
+    } else if (responseUrl.isEmpty()) {
+        // If no redirect, log response body to understand what happened (non-verbose)
         qDebug() << "GarminConnect: MFA response body (first 500 chars):" << response.left(500);
     }
 
@@ -734,6 +881,9 @@ void GarminConnect::handleMfaReplyFinished()
 
     // If not found in redirect URL, try response body
     if (ticket.isEmpty() && !response.isEmpty()) {
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Attempting to extract ticket from MFA response body";
+        }
         // Try multiple patterns for ticket extraction
         QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
         QRegularExpression ticketRegex2("ticket=([^&\"']+)");
@@ -747,6 +897,16 @@ void GarminConnect::handleMfaReplyFinished()
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket in response body (pattern 2):" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No MFA ticket patterns matched. Checking for other patterns...";
+                // Check for JSON format
+                if (response.contains("ticket")) {
+                    qDebug() << "GarminConnect: Response contains 'ticket' keyword, may be JSON or different format";
+                }
+                // Check for common response patterns
+                if (response.contains("\"")) {
+                    qDebug() << "GarminConnect: Response contains quoted strings (may be JSON)";
+                }
             }
         }
     }
@@ -756,6 +916,9 @@ void GarminConnect::handleMfaReplyFinished()
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         emit authenticationFailed(m_lastError);
         return;
     }
@@ -1325,6 +1488,12 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
     QUrl url(connectApiUrl() + "/upload-service/upload");
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", "GCM-iOS-5.7.2.1");
+
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
 
     // Perform upload
@@ -1381,6 +1550,7 @@ void GarminConnect::loadTokensFromSettings()
     m_oauth1Token.oauth_token = settings.value(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
     m_oauth1Token.oauth_token_secret = settings.value(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
+    qDebug() << "GarminConnect: Loaded Garmin domain from settings:" << m_domain;
 
     if (!m_oauth2Token.access_token.isEmpty()) {
         qDebug() << "GarminConnect: Loaded tokens from settings (OAuth1 + OAuth2)";
@@ -1565,7 +1735,7 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
         consumerSecret,
         oauth_token_secret
     );
-    qDebug() << "GarminConnect: Final signature:" << signature;
+    //qDebug() << "GarminConnect: Final signature:" << signature;
 
     // 6. Build authorization header
     QString authHeader = "OAuth ";
@@ -1598,9 +1768,9 @@ QString GarminConnect::generateOAuth1Signature(
 
     qDebug() << "GarminConnect: ========== SIGNATURE GENERATION ==========";
     qDebug() << "GarminConnect: Signing key (consumer_secret&token_secret):";
-    qDebug() << "  Consumer secret (encoded):" << percentEncode(consumerSecret);
-    qDebug() << "  Token secret (encoded):" << (oauth_token_secret.isEmpty() ? "(empty)" : percentEncode(oauth_token_secret));
-    qDebug() << "  Full key length:" << key.length();
+    //qDebug() << "  Consumer secret (encoded):" << percentEncode(consumerSecret);
+    //qDebug() << "  Token secret (encoded):" << (oauth_token_secret.isEmpty() ? "(empty)" : percentEncode(oauth_token_secret));
+    //qDebug() << "  Full key length:" << key.length();
 
     // Build base string: METHOD&baseUrl&params
     QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +
@@ -1640,3 +1810,805 @@ QString GarminConnect::generateTimestamp()
 {
     return QString::number(QDateTime::currentSecsSinceEpoch());
 }
+
+// ========== Daily Workout Download ==========
+
+static QString garminSecondsToTime(int seconds) {
+    int h = seconds / 3600;
+    int m = (seconds % 3600) / 60;
+    int s = seconds % 60;
+    return QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
+}
+
+static QString garminTrainingSubdirFromSportTypeKey(const QString &sportTypeKey) {
+    const QString key = sportTypeKey.trimmed().toLower();
+    if (key.contains("cycl")) {
+        return "ride";
+    }
+    if (key.contains("run") || key.contains("tread")) {
+        return "run";
+    }
+    if (key.contains("row")) {
+        return "row";
+    }
+    return "workout";
+}
+
+static QString garminSportSuffixFromSportTypeKey(const QString &sportTypeKey) {
+    const QString key = sportTypeKey.trimmed().toLower();
+    if (key.contains("cycl") || key.contains("bike") || key.contains("ride")) {
+        return QStringLiteral("Ride");
+    }
+    if (key.contains("run") || key.contains("tread") || key.contains("walk")) {
+        return QStringLiteral("Run");
+    }
+    if (key.contains("row")) {
+        return QStringLiteral("Row");
+    }
+    if (key.contains("swim")) {
+        return QStringLiteral("Swim");
+    }
+    return QStringLiteral("Workout");
+}
+
+static QString garminSafeFilenamePart(QString value, const QString &fallback) {
+    value = value.trimmed();
+    if (value.isEmpty()) {
+        value = fallback;
+    }
+    value.replace(QRegularExpression("[\\\\/:*?\"<>|]"), QStringLiteral("_"));
+    return value;
+}
+
+QString garminConnectWorkoutFileName(const QString &date, const QString &workoutName, const QString &sportTypeKey) {
+    const QString safeDate = garminSafeFilenamePart(
+        date.trimmed().isEmpty() ? QDate::currentDate().toString(Qt::ISODate) : date.trimmed(),
+        QDate::currentDate().toString(Qt::ISODate));
+    const QString safeName = garminSafeFilenamePart(workoutName, QStringLiteral("Workout"));
+    const QString sportSuffix = garminSportSuffixFromSportTypeKey(sportTypeKey);
+    return safeDate + QStringLiteral(" - ") + safeName + QStringLiteral("_") + sportSuffix + QStringLiteral(".xml");
+}
+
+static int garminPowerFromZone(double zoneValue) {
+    QSettings settings;
+    const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    return bike::powerZoneValueToWatts(zoneValue, ftp);
+}
+
+static int garminPowerFromFtpScale(double scalePercent) {
+    QSettings settings;
+    const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    const double scale = scalePercent > 0.0 ? scalePercent : 100.0;
+    return qRound(ftp * scale / 100.0);
+}
+
+static bool garminStepUsesPowerCurve(const QJsonObject &step) {
+    if (step.value(QStringLiteral("targetType")).isObject()) {
+        const QString targetTypeKey =
+            step.value(QStringLiteral("targetType")).toObject()
+                .value(QStringLiteral("workoutTargetTypeKey")).toString();
+        if (targetTypeKey == QStringLiteral("power.curve"))
+            return true;
+    }
+
+    const QJsonArray childSteps = step.value(QStringLiteral("workoutSteps")).toArray();
+    for (const QJsonValue &childStepVal : childSteps) {
+        if (garminStepUsesPowerCurve(childStepVal.toObject()))
+            return true;
+    }
+    return false;
+}
+
+static bool garminWorkoutUsesPowerCurve(const QJsonObject &workoutJson) {
+    const QJsonArray segments = workoutJson.value(QStringLiteral("workoutSegments")).toArray();
+    for (const QJsonValue &segmentVal : segments) {
+        const QJsonArray steps = segmentVal.toObject().value(QStringLiteral("workoutSteps")).toArray();
+        for (const QJsonValue &stepVal : steps) {
+            if (garminStepUsesPowerCurve(stepVal.toObject()))
+                return true;
+        }
+    }
+    return false;
+}
+
+static QMap<int, double> garminPowerCurveFromJson(const QJsonDocument &doc) {
+    QMap<int, double> powerCurve;
+    if (!doc.isObject())
+        return powerCurve;
+
+    const QJsonArray entries = doc.object().value(QStringLiteral("entries")).toArray();
+    for (const QJsonValue &entryVal : entries) {
+        const QJsonObject entry = entryVal.toObject();
+        const int duration = entry.value(QStringLiteral("duration")).toInt();
+        const double power = entry.value(QStringLiteral("power")).toDouble();
+        if (duration > 0 && power > 0.0)
+            powerCurve.insert(duration, power);
+    }
+    return powerCurve;
+}
+
+static double garminSpeedMpsToKph(double speedMps) {
+    return speedMps * 3.6;
+}
+
+static QString garminXmlAttributeEscape(const QString &value) {
+    return value.toHtmlEscaped().replace(QStringLiteral("'"), QStringLiteral("&apos;"));
+}
+
+static bool garminStringIndicatesAbove(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized == QStringLiteral("gt") ||
+           normalized == QStringLiteral(">") ||
+           normalized.contains(QStringLiteral("above")) ||
+           normalized.contains(QStringLiteral("greater")) ||
+           normalized.contains(QStringLiteral("more")) ||
+           normalized.contains(QStringLiteral("over"));
+}
+
+static bool garminStringIndicatesBelow(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized == QStringLiteral("lt") ||
+           normalized == QStringLiteral("<") ||
+           normalized.contains(QStringLiteral("below")) ||
+           normalized.contains(QStringLiteral("less")) ||
+           normalized.contains(QStringLiteral("under"));
+}
+
+static QString garminEndConditionCompareKey(const QJsonObject &step) {
+    const QJsonValue compare = step.value(QStringLiteral("endConditionCompare"));
+    if (compare.isObject()) {
+        const QJsonObject compareObj = compare.toObject();
+        const QStringList candidateKeys = {
+            QStringLiteral("conditionTypeKey"),
+            QStringLiteral("endConditionCompareKey"),
+            QStringLiteral("compareKey"),
+            QStringLiteral("workoutStepCompareKey")
+        };
+        for (const QString &key : candidateKeys) {
+            const QString value = compareObj.value(key).toString();
+            if (!value.isEmpty())
+                return value;
+        }
+    }
+    return compare.toString();
+}
+
+static double garminSpeedFromPaceSetting(const QString &settingKey, double defaultPaceSecPerKm) {
+    QSettings settings;
+    const double paceSecPerKm = settings.value(settingKey, defaultPaceSecPerKm).toDouble();
+    if (paceSecPerKm <= 0) {
+        return 0.0;
+    }
+    return 3600.0 / paceSecPerKm;
+}
+
+// Applies Garmin's SECONDARY step target (e.g. a heart-rate or cadence target riding
+// alongside a primary power/cadence target) to the XML attribute string. Garmin exposes
+// primary and secondary targets independently on the same step (see issue #4805), so this
+// must run in addition to, not instead of, the primary targetType handling below.
+static void appendGarminSecondaryTarget(QString &attrs, const QJsonObject &step) {
+    QString secondaryTargetTypeKey;
+    if (step["secondaryTargetType"].isObject() && !step["secondaryTargetType"].isNull()) {
+        secondaryTargetTypeKey = step["secondaryTargetType"].toObject()["workoutTargetTypeKey"].toString();
+    }
+    if (secondaryTargetTypeKey.isEmpty()) {
+        return;
+    }
+
+    const bool hasSecondaryOne =
+        step.contains("secondaryTargetValueOne") && !step["secondaryTargetValueOne"].isNull();
+    const bool hasSecondaryTwo =
+        step.contains("secondaryTargetValueTwo") && !step["secondaryTargetValueTwo"].isNull();
+    const double secondaryOne = step["secondaryTargetValueOne"].toDouble();
+    const double secondaryTwo = step["secondaryTargetValueTwo"].toDouble();
+
+    if (secondaryTargetTypeKey == "heart.rate.zone") {
+        const int secondaryZoneNumber = step["secondaryZoneNumber"].toInt();
+        int hrMin = hasSecondaryOne ? static_cast<int>(secondaryOne) : 0;
+        int hrMax = hasSecondaryTwo ? static_cast<int>(secondaryTwo) : 0;
+        // Garmin may express the secondary HR target purely as a zone index, with no
+        // explicit bpm bounds (secondaryTargetValueOne/Two both null).
+        if (secondaryZoneNumber > 0) attrs += QString(" zonehr=\"%1\"").arg(secondaryZoneNumber);
+        if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
+        if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
+        const int loopTimeHr = trainrow().loopTimeHR;
+        attrs += QString(" looptimehr=\"%1\"").arg(loopTimeHr);
+    } else if (secondaryTargetTypeKey.contains("cadence", Qt::CaseInsensitive)) {
+        const double low = (hasSecondaryOne && secondaryOne > 0) ? secondaryOne : 0.0;
+        const double high = (hasSecondaryTwo && secondaryTwo > 0) ? secondaryTwo : 0.0;
+        if (low > 0.0 && high > 0.0) {
+            const int lowerCadence = qRound(qMin(low, high));
+            const int upperCadence = qRound(qMax(low, high));
+            attrs += QString(" lower_cadence=\"%1\"").arg(lowerCadence);
+            attrs += QString(" upper_cadence=\"%1\"").arg(upperCadence);
+            attrs += QString(" cadence=\"%1\"").arg(qRound((lowerCadence + upperCadence) / 2.0));
+        } else {
+            const double single = (low > 0.0) ? low : high;
+            if (single > 0.0) {
+                attrs += QString(" cadence=\"%1\"").arg(qRound(single));
+            }
+        }
+    }
+}
+
+static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
+                             const QMap<int, double> &powerCurve) {
+    QString pad(indent * 4, QChar(' '));
+    QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
+    const QString condCompareKey = garminEndConditionCompareKey(step);
+    double endConditionValue = step["endConditionValue"].toDouble();
+    const bool waitForLap = condTypeKey == QStringLiteral("lap.button");
+    const bool heartRateEndCondition = condTypeKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive) ||
+                                       condCompareKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive);
+    const bool heartRateAboveEndCondition =
+        heartRateEndCondition && (garminStringIndicatesAbove(condTypeKey) ||
+                                  garminStringIndicatesAbove(condCompareKey));
+    const bool heartRateBelowEndCondition =
+        heartRateEndCondition && (garminStringIndicatesBelow(condTypeKey) ||
+                                  garminStringIndicatesBelow(condCompareKey));
+    QString stepTypeKey;
+    if (step["stepType"].isObject() && !step["stepType"].isNull()) {
+        stepTypeKey = step["stepType"].toObject()["stepTypeKey"].toString();
+    }
+
+    QString targetTypeKey;
+    if (step["targetType"].isObject() && !step["targetType"].isNull()) {
+        targetTypeKey = step["targetType"].toObject()["workoutTargetTypeKey"].toString();
+    }
+
+    const bool hasTargetOne = step.contains("targetValueOne") && !step["targetValueOne"].isNull();
+    const bool hasTargetTwo = step.contains("targetValueTwo") && !step["targetValueTwo"].isNull();
+    const double targetOne = step["targetValueOne"].toDouble();
+    const double targetTwo = step["targetValueTwo"].toDouble();
+
+    QString attrs;
+    if (condTypeKey == "time" && endConditionValue > 0) {
+        attrs += QString(" duration=\"%1\"").arg(garminSecondsToTime(static_cast<int>(endConditionValue)));
+    } else if (condTypeKey == "distance" && endConditionValue > 0) {
+        // Garmin provides distance in meters, QZ XML uses kilometers.
+        attrs += QString(" distance=\"%1\"").arg(endConditionValue / 1000.0, 0, 'f', 6);
+    } else if (waitForLap) {
+        attrs += QStringLiteral(" lapbutton=\"1\"");
+    } else if (heartRateAboveEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrabove=\"%1\"").arg(static_cast<int>(endConditionValue));
+    } else if (heartRateBelowEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrbelow=\"%1\"").arg(static_cast<int>(endConditionValue));
+    }
+    if (targetTypeKey == "heart.rate.zone") {
+        int hrMin = static_cast<int>(step["targetValueOne"].toDouble());
+        int hrMax = static_cast<int>(step["targetValueTwo"].toDouble());
+        const int zoneNumber = step["zoneNumber"].toInt();
+        if (zoneNumber > 0) attrs += QString(" zonehr=\"%1\"").arg(zoneNumber);
+        if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
+        if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
+        const int loopTimeHr = trainrow().loopTimeHR;
+        attrs += QString(" looptimehr=\"%1\"").arg(loopTimeHr);
+    } else if (targetTypeKey.contains("power", Qt::CaseInsensitive)) {
+        int power = -1;
+        const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
+        const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
+        const bool hasRange = (low > 0.0 && high > 0.0);
+        const bool zoneLikeRange = hasRange && low <= 10.0 && high <= 10.0;
+        const bool zoneLikeSingle =
+            (!hasRange) &&
+            (((low > 0.0) && low <= 10.0) || ((high > 0.0) && high <= 10.0));
+
+        // Garmin may report targetType "power.zone" while values are already watts.
+        // Prefer direct watt targets, and only convert when values clearly look like zone numbers.
+        if (targetTypeKey == QStringLiteral("power.curve")) {
+            const int curveDuration =
+                static_cast<int>(step.value(QStringLiteral("powerCurveDuration")).toDouble());
+            const double curveScale = step.value(QStringLiteral("powerCurveScale")).toDouble();
+            if (powerCurve.contains(curveDuration)) {
+                const double scale = curveScale > 0.0 ? curveScale : 100.0;
+                power = qRound(powerCurve.value(curveDuration) * scale / 100.0);
+            } else {
+                power = garminPowerFromFtpScale(curveScale);
+            }
+        } else if (zoneLikeRange) {
+            power = garminPowerFromZone((low + high) / 2.0);
+        } else if (zoneLikeSingle) {
+            const double zone = (low > 0.0) ? low : high;
+            power = garminPowerFromZone(zone);
+        } else if (hasRange) {
+            power = qRound((low + high) / 2.0);
+        } else if (low > 0.0) {
+            power = qRound(low);
+        } else if (high > 0.0) {
+            power = qRound(high);
+        } else if (targetTypeKey == "power.zone") {
+            const int zoneNumber = step["zoneNumber"].toInt();
+            if (zoneNumber > 0) {
+                power = garminPowerFromZone(zoneNumber);
+            }
+        }
+
+        if (power > 0) {
+            attrs += QString(" power=\"%1\"").arg(power);
+        }
+    } else if (targetTypeKey.contains("cadence", Qt::CaseInsensitive)) {
+        const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
+        const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
+        if (low > 0.0 && high > 0.0) {
+            const int lowerCadence = qRound(qMin(low, high));
+            const int upperCadence = qRound(qMax(low, high));
+            attrs += QString(" lower_cadence=\"%1\"").arg(lowerCadence);
+            attrs += QString(" upper_cadence=\"%1\"").arg(upperCadence);
+            attrs += QString(" cadence=\"%1\"").arg(qRound((lowerCadence + upperCadence) / 2.0));
+        } else {
+            const double single = (low > 0.0) ? low : high;
+            if (single > 0.0) {
+                attrs += QString(" cadence=\"%1\"").arg(qRound(single));
+            }
+        }
+    } else if (targetTypeKey.contains("pace", Qt::CaseInsensitive) ||
+               targetTypeKey.contains("speed", Qt::CaseInsensitive)) {
+        const double first = (hasTargetOne && targetOne > 0.0) ? targetOne : 0.0;
+        const double second = (hasTargetTwo && targetTwo > 0.0) ? targetTwo : 0.0;
+
+        if (first > 0.0 && second > 0.0) {
+            const double lowerMps = qMin(first, second);
+            const double upperMps = qMax(first, second);
+            const double lowerKph = garminSpeedMpsToKph(lowerMps);
+            const double upperKph = garminSpeedMpsToKph(upperMps);
+            const double avgKph = (lowerKph + upperKph) / 2.0;
+
+            attrs += QString(" lower_speed=\"%1\"").arg(lowerKph, 0, 'f', 3);
+            attrs += QString(" average_speed=\"%1\"").arg(avgKph, 0, 'f', 3);
+            attrs += QString(" upper_speed=\"%1\"").arg(upperKph, 0, 'f', 3);
+            attrs += QString(" speed=\"%1\"").arg(avgKph, 0, 'f', 3);
+            attrs += QStringLiteral(" forcespeed=\"1\"");
+        } else {
+            const double singleMps = (first > 0.0) ? first : second;
+            if (singleMps > 0.0) {
+                attrs += QString(" speed=\"%1\"").arg(garminSpeedMpsToKph(singleMps), 0, 'f', 3);
+                attrs += QStringLiteral(" forcespeed=\"1\"");
+            }
+        }
+    } else {
+        double fallbackSpeed = 0.0;
+        if (stepTypeKey.compare(QStringLiteral("warmup"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_warmup_speed,
+                                                       QZSettings::default_trainprogram_warmup_speed);
+        } else if (stepTypeKey.compare(QStringLiteral("cooldown"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_cooldown_speed,
+                                                       QZSettings::default_trainprogram_cooldown_speed);
+        } else if (stepTypeKey.compare(QStringLiteral("rest"), Qt::CaseInsensitive) == 0 ||
+                   stepTypeKey.compare(QStringLiteral("recovery"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_rest_speed,
+                                                       QZSettings::default_trainprogram_rest_speed);
+        }
+        if (fallbackSpeed > 0.0) {
+            attrs += QString(" speed=\"%1\"").arg(fallbackSpeed, 0, 'f', 3);
+            attrs += QStringLiteral(" forcespeed=\"1\"");
+        }
+    }
+    appendGarminSecondaryTarget(attrs, step);
+    if (waitForLap) {
+        QString message = step["description"].toString().trimmed();
+        if (message.isEmpty()) {
+            message = QStringLiteral("Press Lap to continue the workout");
+        }
+        xml += pad + "<row" + attrs + ">\n";
+        xml += pad + QStringLiteral("    <textevent timeoffset=\"0\" message=\"%1\"/>\n")
+                         .arg(garminXmlAttributeEscape(message));
+        xml += pad + "</row>\n";
+    } else {
+        xml += pad + "<row" + attrs + "/>\n";
+    }
+}
+
+static void appendGarminSteps(QString &xml, const QJsonArray &steps, int indent,
+                              const QMap<int, double> &powerCurve) {
+    for (const QJsonValue &stepVal : steps) {
+        const QJsonObject step = stepVal.toObject();
+        if (step[QStringLiteral("type")].toString() != QStringLiteral("RepeatGroupDTO")) {
+            appendGarminStep(xml, step, indent, powerCurve);
+            continue;
+        }
+
+        int iterations = static_cast<int>(step[QStringLiteral("numberOfIterations")].toDouble());
+        if (iterations < 1)
+            iterations = 1;
+
+        const QJsonArray innerSteps = step[QStringLiteral("workoutSteps")].toArray();
+
+        // Check whether any inner step is itself a RepeatGroupDTO. If so we
+        // must unroll this level because loadXML does not support nested
+        // <repeat> blocks.
+        bool hasNestedRepeat = false;
+        for (const QJsonValue &inner : innerSteps) {
+            if (inner.toObject()[QStringLiteral("type")].toString() == QStringLiteral("RepeatGroupDTO")) {
+                hasNestedRepeat = true;
+                break;
+            }
+        }
+
+        if (hasNestedRepeat) {
+            // Unroll: emit the inner steps N times instead of wrapping in <repeat>
+            for (int i = 0; i < iterations; i++) {
+                appendGarminSteps(xml, innerSteps, indent, powerCurve);
+            }
+        } else {
+            // All inner steps are leaf ExecutableStepDTOs — safe to emit <repeat>
+            QString pad(indent * 4, QChar(QLatin1Char(' ')));
+            xml += pad + QString("<repeat times=\"%1\">\n").arg(iterations);
+            for (const QJsonValue &inner : innerSteps) {
+                appendGarminStep(xml, inner.toObject(), indent + 1, powerCurve);
+            }
+            xml += pad + QStringLiteral("</repeat>\n");
+        }
+    }
+}
+
+QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson,
+                                        const QMap<int, double> &powerCurve) {
+    QString xml;
+    xml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    xml += "<rows>\n";
+
+    const QJsonArray segments = workoutJson[QStringLiteral("workoutSegments")].toArray();
+    for (const QJsonValue &segVal : segments) {
+        const QJsonArray steps = segVal.toObject()[QStringLiteral("workoutSteps")].toArray();
+        appendGarminSteps(xml, steps, 1, powerCurve);
+    }
+
+    xml += "</rows>\n";
+    return xml;
+}
+
+void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
+    if (m_oauth2Token.access_token.isEmpty()) {
+        qDebug() << "GarminConnect: No access token for workout download";
+        emit workoutDownloadFailed("Not authenticated");
+        return;
+    }
+
+    QDate today = QDate::currentDate();
+    int year = today.year();
+    int month = today.month() - 1; // Garmin calendar API uses 0-indexed months
+    int day = today.day();
+    const QString todayStr = today.toString(Qt::ISODate);
+
+    QString urlString =
+        QString("%1/calendar-service/year/%2/month/%3/day/%4/start/1")
+            .arg(connectApiUrl()).arg(year).arg(month).arg(day);
+
+    QUrl url(urlString);
+    QNetworkRequest request(url);
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request.setRawHeader("User-Agent", USER_AGENT);
+    request.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager, todayStr, saveDir]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        qDebug() << "GarminConnect: Calendar API status:" << statusCode;
+        const QJsonDocument calendarRawDoc = QJsonDocument::fromJson(response);
+        if (!calendarRawDoc.isNull()) {
+            qDebug().noquote() << "GarminConnect: Calendar API JSON response:"
+                               << QString::fromUtf8(calendarRawDoc.toJson(QJsonDocument::Compact));
+        } else {
+            qDebug().noquote() << "GarminConnect: Calendar API raw response:"
+                               << QString::fromUtf8(response);
+        }
+
+        if (statusCode != 200) {
+            emit workoutDownloadFailed(QString("Calendar API failed (HTTP %1)").arg(statusCode));
+            return;
+        }
+
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        if (!jsonDoc.isObject()) {
+            emit workoutDownloadFailed("Invalid calendar response");
+            return;
+        }
+
+        const QJsonArray items = jsonDoc.object()["calendarItems"].toArray();
+        bool foundWorkout = false;
+
+        for (const QJsonValue &itemVal : items) {
+            QJsonObject item = itemVal.toObject();
+            if (item["date"].toString() != todayStr) continue;
+
+            const QString itemType = item["itemType"].toString();
+            if (itemType != "fbtAdaptiveWorkout" && itemType != "workout") continue;
+
+            QString workoutName = item["title"].toString();
+            if (workoutName.isEmpty()) workoutName = "Workout";
+            const QString sportTypeKey = item["sportTypeKey"].toString();
+
+            if (itemType == "workout") {
+                const qint64 scheduleId = item["id"].toVariant().toLongLong();
+                if (scheduleId <= 0) continue;
+
+                qDebug() << "GarminConnect: Found scheduled workout for today:"
+                         << workoutName << "scheduleId:" << scheduleId;
+                downloadWorkoutDetails(QString::number(scheduleId), todayStr, workoutName,
+                                       itemType, sportTypeKey, saveDir, true);
+            } else {
+                const QString workoutUuid = item["workoutUuid"].toString();
+                if (workoutUuid.trimmed().isEmpty()) continue;
+
+                qDebug() << "GarminConnect: Found adaptive workout for today:"
+                         << workoutName << "UUID:" << workoutUuid;
+                downloadWorkoutDetails(workoutUuid, todayStr, workoutName,
+                                       itemType, sportTypeKey, saveDir, false);
+            }
+            foundWorkout = true;
+        }
+
+        if (!foundWorkout) {
+            qDebug() << "GarminConnect: No workouts found in daily calendar, trying monthly fallback";
+
+            const QDate today = QDate::fromString(todayStr, Qt::ISODate);
+            if (!today.isValid()) {
+                emit noWorkoutFoundToday();
+                return;
+            }
+
+            const int year = today.year();
+            const int month = today.month() - 1; // Garmin calendar API uses 0-indexed months
+            const QString fallbackUrlString =
+                QString("%1/calendar-service/year/%2/month/%3")
+                    .arg(connectApiUrl()).arg(year).arg(month);
+
+            QNetworkRequest fallbackRequest{QUrl(fallbackUrlString)};
+            fallbackRequest.setRawHeader("Authorization",
+                                         QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+            fallbackRequest.setRawHeader("User-Agent", USER_AGENT);
+            fallbackRequest.setRawHeader("Accept", "application/json");
+
+            QNetworkAccessManager *fallbackManager = new QNetworkAccessManager(this);
+            QNetworkReply *fallbackReply = fallbackManager->get(fallbackRequest);
+            connect(fallbackReply, &QNetworkReply::finished, this,
+                    [this, fallbackReply, fallbackManager, todayStr, saveDir]() {
+                const int fallbackStatusCode =
+                    fallbackReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                const QByteArray fallbackResponse = fallbackReply->readAll();
+                fallbackReply->deleteLater();
+                fallbackManager->deleteLater();
+
+                qDebug() << "GarminConnect: Monthly fallback status:" << fallbackStatusCode;
+                if (fallbackStatusCode != 200) {
+                    emit workoutDownloadFailed(QString("Monthly calendar fallback failed (HTTP %1)")
+                                               .arg(fallbackStatusCode));
+                    return;
+                }
+
+                qDebug() << fallbackResponse;
+                const QJsonDocument fallbackDoc = QJsonDocument::fromJson(fallbackResponse);
+                if (!fallbackDoc.isObject()) {
+                    emit workoutDownloadFailed("Invalid monthly calendar fallback response");
+                    return;
+                }
+
+                const QDate anchorDate = QDate::fromString(todayStr, Qt::ISODate);
+                if (!anchorDate.isValid()) {
+                    emit noWorkoutFoundToday();
+                    return;
+                }
+
+                const QJsonArray fallbackItems = fallbackDoc.object()["calendarItems"].toArray();
+                int bestDaysAhead = 4; // allowed window: 0..3
+                QJsonArray bestItems;
+
+                for (const QJsonValue &itemVal : fallbackItems) {
+                    const QJsonObject item = itemVal.toObject();
+                    const QString itemType = item["itemType"].toString();
+                    if (itemType != "workout" && itemType != "fbtAdaptiveWorkout") continue;
+                    if (itemType == "workout") {
+                        const qint64 scheduleId = item["id"].toVariant().toLongLong();
+                        if (scheduleId <= 0) continue;
+                    } else {
+                        const QString workoutUuid = item["workoutUuid"].toString();
+                        if (workoutUuid.trimmed().isEmpty()) continue;
+                    }
+
+                    const QDate itemDate = QDate::fromString(item["date"].toString(), Qt::ISODate);
+                    if (!itemDate.isValid()) continue;
+
+                    const int daysAhead = anchorDate.daysTo(itemDate);
+                    if (daysAhead < 0 || daysAhead > 3) continue;
+                    if (daysAhead > bestDaysAhead) continue;
+
+                    if (daysAhead < bestDaysAhead) {
+                        bestDaysAhead = daysAhead;
+                        bestItems = QJsonArray();
+                    }
+                    bestItems.append(item);
+                }
+
+                if (!bestItems.isEmpty()) {
+                    for (const QJsonValue &bestItemValue : bestItems) {
+                        const QJsonObject bestItem = bestItemValue.toObject();
+                        QString workoutName = bestItem["title"].toString();
+                        if (workoutName.isEmpty()) workoutName = "Workout";
+                        const QString sportTypeKey = bestItem["sportTypeKey"].toString();
+                        const QString selectedDate = bestItem["date"].toString();
+                        const QString selectedItemType = bestItem["itemType"].toString();
+
+                        qDebug() << "GarminConnect: Found workout in monthly fallback:"
+                                 << workoutName << "itemType:" << selectedItemType
+                                 << "date:" << selectedDate << "days ahead:" << bestDaysAhead;
+                        if (selectedItemType == "workout") {
+                            const qint64 scheduleId = bestItem["id"].toVariant().toLongLong();
+                            downloadWorkoutDetails(QString::number(scheduleId), selectedDate, workoutName,
+                                                   selectedItemType, sportTypeKey, saveDir, true);
+                        } else {
+                            const QString workoutUuid = bestItem["workoutUuid"].toString();
+                            downloadWorkoutDetails(workoutUuid, selectedDate, workoutName,
+                                                   selectedItemType, sportTypeKey, saveDir, false);
+                        }
+                    }
+                } else {
+                    qDebug() << "GarminConnect: No workouts scheduled for today";
+                    emit noWorkoutFoundToday();
+                }
+            });
+        }
+    });
+
+    qDebug() << "GarminConnect: Fetching calendar for" << todayStr;
+}
+
+void GarminConnect::downloadWorkoutDetails(const QString &workoutIdentifier, const QString &date,
+                                           const QString &workoutName, const QString &itemType,
+                                           const QString &sportTypeKey,
+                                           const QString &saveDir,
+                                           bool useScheduleEndpoint) {
+    QString detailsPath = "workout-service/workout";
+    if (useScheduleEndpoint) {
+        detailsPath = QString("workout-service/schedule/%1?includeAudioNotes=true")
+                          .arg(workoutIdentifier);
+    } else if (itemType == "fbtAdaptiveWorkout") {
+        detailsPath = "workout-service/fbt-adaptive";
+    }
+
+    const QString urlString =
+        useScheduleEndpoint ? QString("%1/%2").arg(connectApiUrl(), detailsPath)
+                            : QString("%1/%2/%3").arg(connectApiUrl(), detailsPath, workoutIdentifier);
+
+    QUrl url2(urlString);
+    QNetworkRequest request2(url2);
+    request2.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request2.setRawHeader("User-Agent", USER_AGENT);
+    request2.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request2);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager, date, workoutName, sportTypeKey, saveDir]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        qDebug() << "GarminConnect: Workout details status:" << statusCode;
+        const QJsonDocument workoutRawDoc = QJsonDocument::fromJson(response);
+        if (!workoutRawDoc.isNull()) {
+            qDebug().noquote() << "GarminConnect: Workout details JSON response:"
+                               << QString::fromUtf8(workoutRawDoc.toJson(QJsonDocument::Compact));
+        } else {
+            qDebug().noquote() << "GarminConnect: Workout details raw response:"
+                               << QString::fromUtf8(response);
+        }
+
+        if (statusCode != 200) {
+            emit workoutDownloadFailed(QString("Workout details failed (HTTP %1)").arg(statusCode));
+            return;
+        }
+
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        if (!jsonDoc.isObject()) {
+            emit workoutDownloadFailed("Invalid workout details response");
+            return;
+        }
+
+        const QJsonObject root = jsonDoc.object();
+        const QJsonObject workoutPayload =
+            root["workout"].isObject() ? root["workout"].toObject() : root;
+        if (workoutPayload.isEmpty()) {
+            emit workoutDownloadFailed("Workout payload missing in workout details response");
+            return;
+        }
+
+        QString resolvedWorkoutName = workoutName;
+        if (resolvedWorkoutName.trimmed().isEmpty()) {
+            resolvedWorkoutName = workoutPayload["workoutName"].toString();
+        }
+        if (resolvedWorkoutName.trimmed().isEmpty()) {
+            resolvedWorkoutName = "Workout";
+        }
+
+        QString resolvedSportTypeKey = sportTypeKey;
+        if (resolvedSportTypeKey.trimmed().isEmpty() && workoutPayload["sportType"].isObject()) {
+            resolvedSportTypeKey = workoutPayload["sportType"].toObject()["sportTypeKey"].toString();
+        }
+
+        if (resolvedSportTypeKey == QStringLiteral("cycling") &&
+            garminWorkoutUsesPowerCurve(workoutPayload)) {
+            downloadPowerCurveAndSaveWorkout(workoutPayload, date, resolvedWorkoutName,
+                                             resolvedSportTypeKey, saveDir);
+        } else {
+            saveWorkoutXml(workoutPayload, date, resolvedWorkoutName, resolvedSportTypeKey,
+                           saveDir, QMap<int, double>());
+        }
+    });
+
+    qDebug() << "GarminConnect: Fetching workout details identifier:" << workoutIdentifier
+             << "using" << detailsPath;
+}
+
+void GarminConnect::downloadPowerCurveAndSaveWorkout(const QJsonObject &workoutPayload, const QString &date,
+                                                     const QString &workoutName,
+                                                     const QString &sportTypeKey,
+                                                     const QString &saveDir) {
+    const QString urlString =
+        QString("%1/fitnessstats-service/powerCurve?sport=cycling").arg(connectApiUrl());
+    QNetworkRequest request{QUrl(urlString)};
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request.setRawHeader("User-Agent", USER_AGENT);
+    request.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this,
+            [this, reply, manager, workoutPayload, date, workoutName, sportTypeKey, saveDir]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        QMap<int, double> powerCurve;
+        if (statusCode == 200) {
+            const QJsonDocument doc = QJsonDocument::fromJson(response);
+            powerCurve = garminPowerCurveFromJson(doc);
+            qDebug() << "GarminConnect: Power curve status:" << statusCode
+                     << "entries:" << powerCurve.size();
+        } else {
+            qDebug() << "GarminConnect: Power curve failed (HTTP" << statusCode
+                     << "), falling back to FTP for power curve targets:"
+                     << QString::fromUtf8(response).left(300);
+        }
+
+        saveWorkoutXml(workoutPayload, date, workoutName, sportTypeKey, saveDir, powerCurve);
+    });
+
+    qDebug() << "GarminConnect: Fetching cycling power curve";
+}
+
+void GarminConnect::saveWorkoutXml(const QJsonObject &workoutPayload, const QString &date,
+                                   const QString &workoutName, const QString &sportTypeKey,
+                                   const QString &saveDir,
+                                   const QMap<int, double> &powerCurve) {
+    const QString xmlContent = garminConnectGenerateWorkoutXml(workoutPayload, powerCurve);
+
+    const QString subdir = garminTrainingSubdirFromSportTypeKey(sportTypeKey);
+    const QString workoutRootDir = saveDir + "/" + subdir + "/Garmin";
+    QDir dir;
+    if (!dir.exists(workoutRootDir)) {
+        dir.mkpath(workoutRootDir);
+    }
+
+    const QString filename = workoutRootDir + "/" + garminConnectWorkoutFileName(date, workoutName, sportTypeKey);
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        file.write(xmlContent.toUtf8());
+        file.close();
+        qDebug() << "GarminConnect: Workout saved to" << filename;
+        emit workoutDownloaded(filename, workoutName);
+    } else {
+        qDebug() << "GarminConnect: Failed to write" << filename;
+        emit workoutDownloadFailed(QString("Cannot write file: %1").arg(filename));
+    }
+}
+
+// ========== End Daily Workout Download ==========

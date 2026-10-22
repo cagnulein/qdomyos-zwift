@@ -142,6 +142,11 @@ void soleelliptical::update() {
         bool sole_elliptical_inclination =
             settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
                 .toBool();
+        // XE88 reports no incline capability and uses F1 level commands for
+        // resistance. Keep this model on the shared class' resistance path
+        // even if the generic Sole incline setting is enabled.
+        if (m_isXterraXe88)
+            sole_elliptical_inclination = false;
 
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
@@ -248,8 +253,9 @@ void soleelliptical::update() {
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
-            if (requestResistance > 20) {
-                requestResistance = 20;
+            const resistance_t maximumResistance = m_isXterraXe88 ? 32 : 20;
+            if (requestResistance > maximumResistance) {
+                requestResistance = maximumResistance;
             } else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -370,7 +376,8 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
-            Heart = ((uint8_t)newValue.at(18));
+            const int heartRateOffset = m_isXterraXe88 ? 9 : 18;
+            Heart = ((uint8_t)newValue.at(heartRateOffset));
         } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
         }
@@ -566,6 +573,7 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
 
     {
+        m_isXterraXe88 = device.name().startsWith(QStringLiteral("XE88"), Qt::CaseInsensitive);
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -609,6 +617,14 @@ bool soleelliptical::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+resistance_t soleelliptical::maxResistance() {
+    return m_isXterraXe88 ? 32 : 100;
+}
+
+bool soleelliptical::inclinationAvailableByHardware() {
+    return !m_isXterraXe88;
 }
 
 uint16_t soleelliptical::watts() {

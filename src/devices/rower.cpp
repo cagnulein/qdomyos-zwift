@@ -12,7 +12,18 @@ void rower::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 void rower::changeResistance(resistance_t resistance) {
+    // Target Resistance changes the difficulty multiplier and then feeds the current
+    // hardware resistance back into this method. If telemetry changes at the same
+    // time, keep the previous raw request as the stable base instead of multiplying
+    // the new telemetry value by the new difficulty.
+    if (lastRawRequestedResistanceValue != -1 &&
+        lastRawRequestedResistanceDifficult != m_difficult &&
+        resistance == currentResistance().value()) {
+        resistance = lastRawRequestedResistanceValue;
+    }
+
     lastRawRequestedResistanceValue = resistance;
+    lastRawRequestedResistanceDifficult = m_difficult;
     if (autoResistanceEnable) {
         requestResistance = (resistance * m_difficult) + gears();;
         emit resistanceChanged(requestResistance);
@@ -56,6 +67,16 @@ resistance_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 double rower::requestedSpeed() { return requestSpeed; }
+
+double rower::calculateWattsFromPace(double paceSeconds) {
+    // Concept2 Rowing Power Formula: Watts = 2.8 / (pace_in_seconds / 500)^3
+    // Which simplifies to: Watts = 2.8 * (500 / pace_in_seconds)^3
+    if (paceSeconds <= 0)
+        return 0;
+
+    double velocity = 500.0 / paceSeconds;  // meters per second for 500m split
+    return 2.8 * velocity * velocity * velocity;
+}
 
 BLUETOOTH_TYPE rower::deviceType() { return ROWING; }
 

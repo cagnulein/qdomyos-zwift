@@ -42,11 +42,27 @@ class PathController : public QObject {
 
     void centerChanged() W_SIGNAL(centerChanged)
 
+    double distance() const {
+        return mDistance;
+    }
+
+    void setDistance(double distance) {
+        if (qFuzzyCompare(distance, mDistance)) {
+            return;
+        }
+        mDistance = distance;
+        emit distanceChanged();
+    }
+
+    void distanceChanged() W_SIGNAL(distanceChanged)
+
         private : QGeoPath mGeoPath;
     QGeoCoordinate mCenter;
+    double mDistance = 0.0;
 
     W_PROPERTY(QGeoPath, geopath READ geoPath WRITE setGeoPath NOTIFY geopathChanged)
     W_PROPERTY(QGeoCoordinate, center READ center WRITE setCenter NOTIFY centerChanged)
+    W_PROPERTY(double, distance READ distance WRITE setDistance NOTIFY distanceChanged)
 };
 
 #endif // APPLICATION_PATHCONTROLLER_H

@@ -65,6 +65,8 @@ class proformtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    double maxSpeed = 22;
+    double cachedSpeedRequest = -1;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -73,6 +75,7 @@ class proformtreadmill : public treadmill {
     bool nordictrackt70 = false;
     bool nordictrack_t65s_treadmill = false;
     bool nordictrack_treadmill_ultra_le = false;
+    bool nordictrack_treadmill_commercial_le = false;
     bool proform_treadmill_carbon_tls = false;
     bool nordictrack_s30_treadmill = false;
     bool proform_treadmill_1800i = false;
@@ -84,6 +87,8 @@ class proformtreadmill : public treadmill {
     bool norditrack_s25_treadmill = false;
     bool nordictrack_t65s_83_treadmill = false;
     bool nordictrack_incline_trainer_x7i = false;
+    bool nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+    bool nordictrack_incline_trainer_x7i_netl18716_0 = false;
     bool proform_treadmill_z1300i = false;
     bool proform_pro_1000_treadmill = false;
     bool nordictrack_s20_treadmill = false;
@@ -101,6 +106,7 @@ class proformtreadmill : public treadmill {
     bool proform_treadmill_705_cst_V78_239 = false;
     bool nordictrack_treadmill_exp_5i = false;
     bool proform_carbon_tl_PFTL59720 = false;
+    bool freemotion_t10_9b_hci = false;
     bool proform_treadmill_sport_70 = false;
     bool proform_treadmill_575i = false;
     bool proform_performance_300i = false;
@@ -112,12 +118,20 @@ class proformtreadmill : public treadmill {
     bool proform_treadmill_1500_pro = false;
     bool proform_505_cst_80_44 = false;
     bool proform_trainer_8_0 = false;
+    bool proform_trainer_8_0_pftl59721_int_0 = false;
+    bool proform_trainer_8_0_pftl59721_0 = false;
     bool proform_treadmill_705_cst_V80_44 = false;
     bool nordictrack_t65s_treadmill_81_miles = false;
     bool nordictrack_elite_800 = false;
     bool proform_treadmill_995i = false;
     bool nordictrack_series_7 = false;
     bool proform_treadmill_sport_3_0 = false;
+    bool proform_carbon_tlx_treadmill = false;
+    bool proform_carbon_tlx_v84_314_treadmill = false;
+    bool proform_carbon_tl_PFTL59723_6 = false;
+    bool proform_treadmill_cst_505_pftl59420_0 = false;
+    bool proform_treadmill_105_cst = false;
+    bool proform_treadmill_305_cst = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

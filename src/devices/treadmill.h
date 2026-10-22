@@ -1,8 +1,10 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
+#include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
+#include "runnclosedloopcontroller.h"
 
 class treadmill : public bluetoothdevice {
     Q_OBJECT
@@ -50,12 +52,15 @@ class treadmill : public bluetoothdevice {
     virtual bool canHandleInclineChange() { return true; }
     double runningStressScore();
     QTime speedToPace(double Speed);
+    double gradeAdjustedSpeed(double speed, double inclination);
 
   public slots:
     virtual void changeSpeed(double speed);
     void changeInclination(double grade, double percentage) override;
     void changePower(int32_t power) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
+    void onTrainingProgramTransition();
+    void stop(bool pause) override;
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
@@ -66,6 +71,9 @@ class treadmill : public bluetoothdevice {
 
   signals:
     void tapeStarted();
+    void buttonHWStart();   // Physical start button pressed on hardware
+    void buttonHWPause();   // Physical pause button pressed on hardware
+    void buttonHWStop();    // Physical stop button pressed on hardware
 
   protected:
     volatile double requestSpeed = -1;
@@ -80,6 +88,11 @@ class treadmill : public bluetoothdevice {
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
     metric VerticalOscillationMM;    
+    // Drivers using delayed sensor feedback can opt out of the legacy one-shot correction.
+    // Shared closed-loop policy. Only activates when true independent machine
+    // telemetry is available via parseSpeed() and Runn is selected.
+    TreadmillRunnClosedLoopController m_runnController;
+    void updateRunnClosedLoop();
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
@@ -88,6 +101,9 @@ class treadmill : public bluetoothdevice {
     // Power following logic
     bool callingFromFollowPower = false;  // Flag to track if change comes from followPowerBySpeed
     double targetWatts = -1;              // Target watts to maintain during power following
+    double m_followPowerLastInclination = 0;
+    double m_followPowerLastSpeedWhenTargetSet = -1;
+    QDateTime m_followPowerSuppressedUntil;
 
     void parseSpeed(double speed);
     void parseInclination(double speed);

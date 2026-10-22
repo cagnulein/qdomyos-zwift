@@ -86,23 +86,6 @@ void skandikawiribike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         update_metrics(true, watts());
 
-        // updating the treadmill console every second
-        if (sec1Update++ == (1000 / refresh->interval())) {
-            sec1Update = 0;
-            // updateDisplay(elapsed.value());
-        } else {
-            noOpData[1] = 0x01;
-            noOpData[2] = lastRequestedResistance().value(); // + ((lastRequestedResistance().value() / 10) * 6);
-            if (noOpData[2] == 0)
-                noOpData[2] = 1;
-
-            for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
-                noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
-            }
-
-            writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
-        }
-
         if (requestResistance != -1) {
             if (requestResistance > 32) {
                 requestResistance = 32;
@@ -110,12 +93,39 @@ void skandikawiribike::update() {
                 requestResistance = 1;
             }
 
+            // requestResistance already contains the filters applied by bike::changeResistance().
+            // Keep a copy because requestResistance is transient and is reset after this update.
+            lastEffectiveResistance = requestResistance;
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
+
+        // updating the treadmill console every second
+        if (sec1Update++ == (1000 / refresh->interval())) {
+            sec1Update = 0;
+            // updateDisplay(elapsed.value());
+        } else {
+            noOpData[1] = 0x01;
+            resistance_t resistanceToSend = autoResistance() && lastEffectiveResistance != -1
+                                                  ? lastEffectiveResistance
+                                                  : lastRequestedResistance().value();
+            if (resistanceToSend < 1)
+                resistanceToSend = 1;
+            noOpData[2] = resistanceToSend;
+
+            for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+                noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
+            }
+
+            writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
+
+            // this bike can take a long time to update the resistance, so we are refreshing the UI with this value
+            Resistance = resistanceToSend;
+        }
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             requestStart = -1;
@@ -249,11 +259,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (X2000 || delightechBike) {
-                Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
-            } else {
-                Heart = 0;
-            }
+            Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
         }
     }
 
@@ -409,7 +415,7 @@ void skandikawiribike::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (!gattCommunicationChannelService) {
         homeform::singleton()->setToastRequested(
-            "no service found, contact me to roberto.viola83@gmail.com!");
+            QObject::tr("no service found, contact me to roberto.viola83@gmail.com!"));
         return;
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);

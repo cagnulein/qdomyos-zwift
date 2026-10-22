@@ -2,19 +2,74 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "UIKit/UIKit.h"
 #import "UserNotifications/UserNotifications.h"
+#import <objc/runtime.h>
+#include <QDebug>
+#include <QMetaObject>
+#include "homeform.h"
 #include "lockscreen.h"
+#include "authutils.h"
 
-@interface QIOSApplicationDelegate <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
+// Qt defines QIOSApplicationDelegate internally as a UIResponder-backed
+// UIApplicationDelegate.  Keep the local declaration aligned with that shape
+// so category methods can legally forward unhandled events to super.
+@interface QIOSApplicationDelegate : UIResponder <UIApplicationDelegate, IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
 
 @interface QIOSApplicationDelegate (QZApplicationDelegate) <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
+@end
+
+@interface UIApplication (QZKeyboardShortcuts)
+- (void)qz_sendEvent:(UIEvent *)event;
+@end
+
+@implementation UIApplication (QZKeyboardShortcuts)
+
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Method originalMethod = class_getInstanceMethod(self, @selector(sendEvent:));
+        Method swizzledMethod = class_getInstanceMethod(self, @selector(qz_sendEvent:));
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+    });
+}
+
+- (void)qz_sendEvent:(UIEvent *)event {
+    bool didHandleShortcut = false;
+
+    if (@available(iOS 13.4, *)) {
+        if ([event isKindOfClass:[UIPressesEvent class]]) {
+            UIPressesEvent *pressesEvent = (UIPressesEvent *)event;
+            for (UIPress *press in pressesEvent.allPresses) {
+                if (press.phase != UIPressPhaseBegan) {
+                    continue;
+                }
+
+                UIKey *key = press.key;
+                if (key == nil || key.charactersIgnoringModifiers.length == 0) {
+                    continue;
+                }
+
+                const QString sequence =
+                    QString::fromUtf8(key.charactersIgnoringModifiers.UTF8String).trimmed().toUpper();
+                if (homeform::singleton() && homeform::singleton()->handleKeyboardShortcut(sequence)) {
+                    didHandleShortcut = true;
+                }
+            }
+        }
+    }
+
+    if (!didHandleShortcut) {
+        [self qz_sendEvent:event];
+    }
+}
+
 @end
 
 @implementation QIOSApplicationDelegate (QZApplicationDelegate)
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    NSLog(@"launch!");
+    qDebug() << "QZ iOS launch";
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge
       completionHandler:^(BOOL granted, NSError *error){
@@ -29,6 +84,39 @@
     return YES;
 }
 
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    Q_UNUSED(application)
+    qDebug() << "QZ iOS lifecycle: applicationWillEnterForeground";
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    Q_UNUSED(application)
+    qDebug() << "QZ iOS lifecycle: applicationDidBecomeActive";
+}
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    bool didHandleShortcut = false;
+
+    if (@available(iOS 13.4, *)) {
+        for (UIPress *press in presses) {
+            UIKey *key = press.key;
+            if (key == nil || key.charactersIgnoringModifiers.length == 0) {
+                continue;
+            }
+
+            const QString sequence =
+                QString::fromUtf8(key.charactersIgnoringModifiers.UTF8String).trimmed().toUpper();
+            if (homeform::singleton() && homeform::singleton()->handleKeyboardShortcut(sequence)) {
+                didHandleShortcut = true;
+            }
+        }
+    }
+
+    if (!didHandleShortcut) {
+        [super pressesBegan:presses withEvent:event];
+    }
+}
+
 - (void)setupDynamicQuickActions {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
@@ -37,7 +125,7 @@
     NSError *error = nil;
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:profilesDirectory error:&error];
     if (error) {
-        NSLog(@"Error reading files: %@", error.localizedDescription);
+        qWarning() << "Error reading files:" << QString::fromUtf8(error.localizedDescription.UTF8String);
         return;
     }
     
@@ -64,12 +152,12 @@
 	if (@available(iOS 13.0, *)) {
     UIApplicationShortcutItem *shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
     if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
-        NSLog(@"performActionForShortcutItem");
+        qDebug() << "performActionForShortcutItem";
         NSString *fileName = [shortcutItem.type stringByReplacingOccurrencesOfString:@"org.cagnulein.qdomyoszwift." withString:@""];
         NSString *fileNameWithExtension = [fileName stringByAppendingString:@".qzs"];
         //self.selectedShortcutItem = fileNameWithExtension;
         lockscreen::set_action_profile([fileNameWithExtension UTF8String]);
-        NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
+        qDebug() << "performActionForShortcutItem" << QString::fromUtf8(lockscreen::get_action_profile());
     }
 	}
 
@@ -79,6 +167,39 @@
 - (void)application:(UIApplication *)application
 performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
+}
+
+- (BOOL)application:(UIApplication *)application
+ continueUserActivity:(NSUserActivity *)userActivity
+   restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+{
+    Q_UNUSED(application)
+    Q_UNUSED(restorationHandler)
+
+    qDebug() << "QZ iOS continueUserActivity called: activityType="
+             << QString::fromUtf8(userActivity.activityType.UTF8String);
+
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSURL *url = userActivity.webpageURL;
+        qDebug() << "QZ iOS continueUserActivity webpageURL="
+                 << (url ? sanitizedOAuthCallbackUrl(QString::fromUtf8(url.absoluteString.UTF8String))
+                         : QStringLiteral("(null)"));
+        if (url != nil && homeform::singleton()) {
+            const QString callbackUrl = QString::fromUtf8(url.absoluteString.UTF8String);
+            const QUrl qUrl(callbackUrl);
+            if (qUrl.isValid() && qUrl.host() == QStringLiteral("www.qzfitness.com") &&
+                qUrl.path().startsWith(QStringLiteral("/peloton/callback"))) {
+                qDebug() << "QZ iOS continueUserActivity matched Peloton callback";
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, callbackUrl));
+                return YES;
+            }
+            qDebug() << "QZ iOS continueUserActivity ignored URL";
+        }
+    }
+
+    qDebug() << "QZ iOS continueUserActivity returning NO";
+    return NO;
 }
 @end
 #endif

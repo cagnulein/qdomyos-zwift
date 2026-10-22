@@ -9,6 +9,8 @@
 #endif
 #endif
 #include <QQmlContext>
+#include <QTranslator>
+#include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
@@ -18,6 +20,9 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
+#include <QFileOpenEvent>
+#include <QEvent>
+#include <QLoggingCategory>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -30,9 +35,13 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "filesearcher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAccessible>
+#include <QAndroidJniObject>
+#include <QTimer>
 #include <QtAndroid>
 #endif
 
@@ -47,6 +56,34 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "mywhooshlink.h"
+#include "authutils.h"
+
+class OAuthCallbackEventFilter : public QObject {
+  public:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+#ifdef Q_OS_IOS
+        Q_UNUSED(watched)
+        if (event->type() == QEvent::FileOpen) {
+            auto *fileEvent = static_cast<QFileOpenEvent *>(event);
+            const QUrl url = fileEvent->url();
+            qDebug() << "QZ iOS FileOpen event received" << sanitizedOAuthCallbackUrl(url);
+            if (url.isValid() && url.host() == QStringLiteral("www.qzfitness.com") &&
+                url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
+                qDebug() << "QZ iOS FileOpen matched Peloton callback";
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, url.toString()));
+            } else {
+                qDebug() << "QZ iOS FileOpen ignored";
+            }
+        }
+#else
+        Q_UNUSED(watched)
+        Q_UNUSED(event)
+#endif
+        return false;
+    }
+};
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -95,6 +132,7 @@ int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
+bool smokeTest = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -107,6 +145,10 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 // Function to display help information and exit
 void displayHelp() {
+    // Test string for translation workflow - will be extracted by lupdate
+    QString testTranslation = QCoreApplication::translate("main", "QDomyos-Zwift - Fitness Equipment Bridge");
+    Q_UNUSED(testTranslation); // Suppress unused variable warning
+
     printf("qDomyos-Zwift Usage:\n");
     printf("General options:\n");
     printf("  -h, --help                    Display this help message and exit\n");
@@ -159,6 +201,7 @@ void displayHelp() {
     printf("  -test-peloton                 Enable Peloton test mode\n");
     printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
     printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -smoke-test                   Run smoke test (verify Qt loads, print SMOKE_OK, exit)\n");
     printf("  -train <program>              Specify training program\n");
 
     printf("\nPeloton options:\n");
@@ -323,6 +366,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-test-pzp"))
             testPowerZonePack = true;
+        if (!qstrcmp(argv[i], "-smoke-test")) {
+            smokeTest = true;
+            nogui = true;
+        }
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -462,7 +509,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #else
     if (logdebug == false)
 #endif
+    {
+        // Qt aborts after a fatal message: print it even with the log off
+        if (type == QtFatalMsg)
+            (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         return;
+    }
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -484,6 +536,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
+        // the log thread would not get to this line before the abort: write it here
+        if (logs == true || logdebug == true)
+            LogWriter().writeLog(homeform::getWritableAppDir() + logfilename, txt);
+        (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         abort();
     }
 
@@ -503,6 +559,29 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
+
+#ifdef Q_OS_ANDROID
+// Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
+// Android UI thread, and when it comes before Qt published its platform integration (a service
+// such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
+// stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in later Qt the same way:
+// keep the report and apply it once the integration exists). Qt publishes the integration from an
+// event it posts while QApplication is constructed, so a call queued after that runs once it is
+// published: either Qt has got the report by then, or Android already says accessibility is on
+// and one setActive() is enough.
+static void restoreLostAccessibility() {
+    if (QAccessible::isActive())
+        return;
+    if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityOn", "(Landroid/content/Context;)Z",
+                                                      QtAndroid::androidContext().object())) {
+        QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
+                                                  "setActive", "(Z)V", jboolean(true));
+        qDebug() << "accessibility: Qt lost Android's report at launch, active after setActive:" << QAccessible::isActive();
+    }
+}
+#endif
 
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
@@ -524,13 +603,16 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+
+    OAuthCallbackEventFilter oauthCallbackEventFilter;
+    app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
     QtWebView::initialize();
 #endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -538,6 +620,11 @@ int main(int argc, char *argv[]) {
         printf("%s", "OK, you are root.\n");
 #endif
 #endif
+
+    if (smokeTest) {
+        printf("SMOKE_OK\n");
+        return 0;
+    }
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -656,10 +743,30 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
-    foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+    // Foreground/background switches: Android may throttle or kill QZ in the background, and without this the
+    // log can't tell whether a lost connection to Zwift happened while QZ was on screen
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(app.data())) {
+        QObject::connect(guiApp, &QGuiApplication::applicationStateChanged,
+                         [](Qt::ApplicationState state) { qDebug() << "applicationStateChanged" << state; });
+        // the signal only reports changes: log the state QZ starts in (background when Android restarts it)
+        qDebug() << "applicationState at start" << guiApp->applicationState();
+    }
 
-            qDebug() << s << settings.value(s);
+    // myMessageOutput() drops every message when the log is off (same condition as there), so don't
+    // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
+    // which Qt formats for every packet once its category is enabled
+    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
+    const bool logEnabled = forceQml ? logdebug : logs;
+#else
+    const bool logEnabled = logdebug;
+#endif
+    if (logEnabled) {
+        QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+        foreach (QString s, settings.allKeys()) {
+            if (!QZSettings::isSensitiveSettingKey(s)) {
+                qDebug() << s << settings.value(s);
+            }
         }
     }
 
@@ -829,12 +936,18 @@ int main(int argc, char *argv[]) {
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
-        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+        new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
     }
 
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
     if(OSC_ip.length() > 0) {
         OSC* osc = new OSC(&bl);
+    }
+
+    // MyWhoosh Link integration
+    bool mywhoosh_link_enabled = settings.value(QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled).toBool();
+    if(mywhoosh_link_enabled) {
+        MyWhooshLink* mywhooshLink = new MyWhooshLink(&bl);
     }
 
 #ifdef Q_OS_IOS
@@ -849,11 +962,76 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Standard dialog buttons (MessageDialog Yes/No/Abort...) are labelled by the Qt platform
+        // theme, and Qt's own translations are not shipped with the app. Listing the theme's
+        // strings here lets lupdate put them into our .ts files, so the app translator covers them.
+        static const char *const qtStandardButtonTexts[] = {
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes to All"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "OK"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Open"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&No"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Abort"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Retry"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Close"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Discard"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Help"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Apply"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Reset"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults"),
+        };
+        Q_UNUSED(qtStandardButtonTexts);
+
+        // Load translations based on explicit app setting or system locale.
+        QTranslator *translator = new QTranslator(app.data());
+        QString configuredLanguage =
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
+        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                                 configuredLanguage.isEmpty()
+                             ? QLocale::system().name()
+                             : configuredLanguage;
+        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
+
+        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+            if (localeKey.isEmpty()) {
+                return false;
+            }
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+                app->installTranslator(translator);
+                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+                return true;
+            }
+            return false;
+        };
+
+        // "en" is the built-in source language, so we don't load any translator for it.
+        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+            qDebug() << "Language setting resolves to English. Using built-in source strings.";
+        } else {
+            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+            if (!loaded && locale.contains(QLatin1Char('_'))) {
+                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+            }
+            if (!loaded) {
+                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+            }
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -879,7 +1057,14 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        // Expose FileSearcher for fast recursive file searching
+        FileSearcher fileSearcher;
+        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
+
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, [] { restoreLostAccessibility(); });
+#endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast

@@ -412,6 +412,38 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     }
     if (lastRunState != runState) {
         lastRunState = runState;
+
+        // Only handle hardware buttons if setting is enabled
+        QSettings settingsForHW;
+        if (settingsForHW.value(QZSettings::kingsmith_r2_enable_hw_buttons,
+                               QZSettings::default_kingsmith_r2_enable_hw_buttons).toBool()) {
+
+            // Connection packet check: runState=0 + controlMode=1
+            bool isConnectionPacket = (runState == STOP) && (controlMode == MANUAL) && !initDone;
+
+            if (runState == START) {
+                emit debug(QStringLiteral("start button pressed on treadmill!"));
+                emit buttonHWStart();
+            } else if (runState == STOP && !isConnectionPacket) {
+                emit debug(QStringLiteral("pause button pressed on treadmill!"));
+                emit buttonHWPause();
+            }
+        }
+    }
+
+    // Check for real stop: paused (from bluetoothdevice) + metrics reset + has distance
+    // Only if setting is enabled
+    QSettings settingsForStopCheck;
+    if (settingsForStopCheck.value(QZSettings::kingsmith_r2_enable_hw_buttons,
+                                   QZSettings::default_kingsmith_r2_enable_hw_buttons).toBool() &&
+        paused) {
+
+        if (props.value("RunningTotalTime", -1) == 0 &&
+            props.value("RunningSteps", -1) == 0 &&
+            Distance.value() > 0) {
+            emit debug(QStringLiteral("stop button pressed on treadmill!"));
+            emit buttonHWStop();
+        }
     }
     firstCharacteristicChanged = false;
 }
@@ -517,6 +549,12 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         qDebug() << "KS_NACH_X21C default service id not found";
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if(gattCommunicationChannelService == nullptr) {
+            KS_NACH_X21C_2 = false;
+            qDebug() << "KS_NACH_X21C fallback service id not found";
+            _gattCommunicationChannelServiceId = QBluetoothUuid((quint16)0x1234);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        }
     } else if(gattCommunicationChannelService == nullptr && KS_HDSY_X21C) {
         KS_HDSY_X21C_2 = true;
         KS_HDSY_X21C = false;

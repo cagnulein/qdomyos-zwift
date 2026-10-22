@@ -168,7 +168,7 @@ void technogymbike::update() {
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
-                    forceResistance(requestResistance + (gears() * 5));
+                    forceResistance(requestResistance + (gearsModifier() * 5));
                 }
             }
             requestResistance = -1;
@@ -569,8 +569,8 @@ void technogymbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &ch
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             slope /= 100;
-            if (gears() != 0) {
-                slope += (gears());
+            if (gearsModifier() != 0) {
+                slope += (gearsModifier());
             }
 
             if(min_inclination > (((double)slope))) {
@@ -578,7 +578,7 @@ void technogymbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &ch
                 qDebug() << "grade override due to min_inclination " << min_inclination;
             }         
 
-            qDebug() << "applying gears mod" << gears() << slope;
+            qDebug() << "applying gears mod" << gears() << gearsModifier() << slope;
 
             uint8_t write[] = {0xf9, 0x01, 0x00, 0x00, 0xe4, 0x02, 0x18, 0x01, 0x03, 0x19, 0x00};
 
@@ -593,11 +593,11 @@ void technogymbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &ch
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t power = (((uint8_t)b.at(1)) + (b.at(2) << 8));
-            if (gears() != 0) {
-                power += (gears() * 10);
+            if (gearsModifier() != 0) {
+                power += (gearsModifier() * 10);
             }
 
-            qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
+            qDebug() << "applying gears mod" << gears() << gearsModifier() << gearsZwiftRatio() << power;
 
             uint8_t write[] = {0xf8, 0x01, 0x55, 0x00, 0xe4, 0x02, 0x18, 0x01, 0x03, 0x19, 0x00};
 

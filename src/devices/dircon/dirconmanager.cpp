@@ -42,7 +42,9 @@ using namespace std::chrono_literals;
 #define DM_BT(A) QByteArrayLiteral(A)
 
 #define DM_CHAR_OP(OP, P1, P2, P3, ZWIFT_ENABLED)                                                                     \
-    OP(FITNESS_MACHINE_CYCLE, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x83\x14\x00\x00\x0C\xE0\x00\x00"),             \
+    /* 0x5483 adds bit 14, power measurement. 0x2AD2 always carried power (flags bit 6); \
+       clients that trust this field - MyWhoosh does, Rouvy does not - saw 0 W. */       \
+    OP(FITNESS_MACHINE_CYCLE, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x83\x54\x00\x00\x0C\xE0\x00\x00"),             \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                     \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
@@ -130,8 +132,12 @@ enum {
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
-            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), rouvy_compatibility ? 5 : 4, 10, QChar('0'));                     \
+            int dircon_id_int = settings.value(QZSettings::dircon_id,                                                  \
+            QZSettings::default_dircon_id).toInt();                                                                    \
+            if (rouvy_compatibility && dircon_id_int == 0) {                                                           \
+                dircon_id_int = 1234;                                                                                  \
+            }                                                                                                          \
+            QString dircon_id = QString("%1").arg(dircon_id_int, rouvy_compatibility ? 5 : 4, 10, QChar('0'));         \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
@@ -152,6 +158,11 @@ QString DirconManager::getMacAddress() {
     QSettings settings;
     bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled and dircon_id is 0, use 1234 instead
+    if (rouvy_compatibility && dircon_id == 0) {
+        dircon_id = 1234;
+    }
 
     // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
     if (rouvy_compatibility) {
@@ -247,6 +258,16 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    QSettings settings;
+    bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+
+    // If no hub riding frame has been produced for >=1s, force one on the Zwift Play channel.
+    if (writeP0003 && notif0004 && writeP0003->hubRidingDataIdleMs() >= 100 && zwift_play_emulator) {
+        const QByteArray hubData = writeP0003->buildCurrentHubRidingData();
+        notif0004->addAnswer(hubData);
+        qDebug() << "Dircon 0003 forced push after idle (0004 notify):" << hubData.toHex(' ');
+    }
+
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF1_OP, 0, 0, 0)
     foreach (DirconProcessor *processor, processors) {
         DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0)

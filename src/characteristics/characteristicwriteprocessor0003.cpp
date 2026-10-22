@@ -1,6 +1,7 @@
 #include "characteristicwriteprocessor0003.h"
 #include <QDebug>
 #include "bike.h"
+#include <limits>
 
 CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeResistanceGain,
                                                                  int8_t bikeResistanceOffset,
@@ -9,6 +10,7 @@ CharacteristicWriteProcessor0003::CharacteristicWriteProcessor0003(double bikeRe
                                                                  CharacteristicNotifier0004 *notifier0004,
                                                                  QObject *parent)
     : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent), notifier0002(notifier0002), notifier0004(notifier0004) {
+    lastHubRidingDataTimer.start();
 }
 
 CharacteristicWriteProcessor0003::VarintResult CharacteristicWriteProcessor0003::decodeVarint(const QByteArray& bytes, int startIndex) {
@@ -178,6 +180,18 @@ uint32_t CharacteristicWriteProcessor0003::calculateUnknown1(uint16_t power) {
     return lastUnknown1;
 }
 
+qint64 CharacteristicWriteProcessor0003::hubRidingDataIdleMs() const {
+    return lastHubRidingDataTimer.isValid() ? lastHubRidingDataTimer.elapsed() : std::numeric_limits<qint64>::max();
+}
+
+QByteArray CharacteristicWriteProcessor0003::buildCurrentHubRidingData() {
+    const uint32_t power = Bike ? static_cast<uint32_t>(Bike->wattsMetric().value()) : 0U;
+    const uint32_t cadence = Bike ? static_cast<uint32_t>(Bike->currentCadence().value()) : 0U;
+    QByteArray payload = encodeHubRidingData(power, cadence, 0, power, calculateUnknown1(power), 0);
+    lastHubRidingDataTimer.restart();
+    return payload;
+}
+
 int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
     static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
@@ -238,14 +252,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     
         changeSlope(slopefloat, 0 /* TODO */, 0 /* TODO */);
         
-        reply = encodeHubRidingData(
-                               Bike->wattsMetricforUI(),
-                               Bike->currentCadence().value(),
-                               0,
-                               Bike->wattsMetricforUI(),
-                               calculateUnknown1(Bike->wattsMetricforUI()),
-                               0
-                           );
+        reply = buildCurrentHubRidingData();
         notifier0002->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray6)) {
@@ -283,14 +290,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                      QByteArray::fromHex("05") + power);
 
-        reply = encodeHubRidingData(
-                               Bike->wattsMetricforUI(),
-                               Bike->currentCadence().value(),
-                               0,
-                               Bike->wattsMetricforUI(),
-                               calculateUnknown1(Bike->wattsMetricforUI()),
-                               0
-                           );
+        reply = buildCurrentHubRidingData();
         notifier0002->addAnswer(reply);
 
         changePower(Power.value);

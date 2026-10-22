@@ -48,7 +48,7 @@ class proformbike : public bike {
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+    void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
@@ -85,6 +85,7 @@ class proformbike : public bike {
     bool proform_hybrid_trainer_PFEL03815 = false;
     bool proform_bike_sb = false;
     bool proform_cycle_trainer_300_ci =false;
+    bool nordictrack_gx_4_5_pro = false;
     bool proform_bike_225_csx = false;
     bool proform_bike_325_csx = false;
     bool proform_tour_de_france_clc = false;
@@ -97,6 +98,9 @@ class proformbike : public bike {
     bool proform_xbike = false;
     bool proform_225_csx_PFEX32925_INT_0 = false;
     bool proform_csx210 = false;
+    bool nordictrack_vr21 = false;
+    bool proform_bike_325_csx_PFEX439210INT_0 = false;
+    bool nordictrack_gx_le = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

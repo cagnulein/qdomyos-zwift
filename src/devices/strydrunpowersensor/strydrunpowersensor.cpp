@@ -15,6 +15,7 @@
 #endif
 
 #include <chrono>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
@@ -79,12 +80,27 @@ void strydrunpowersensor::update() {
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
         QSettings settings;
+        bool cadence_as_treadmill = settings
+                                        .value(QZSettings::cadence_sensor_as_treadmill,
+                                               QZSettings::default_cadence_sensor_as_treadmill)
+                                        .toBool();
         bool power_as_treadmill =
-            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
-        update_metrics(false, watts(), !power_as_treadmill);
+            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
+                .toBool();
+        update_metrics(false, watts(), !(power_as_treadmill || cadence_as_treadmill));
+
+        if (lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
+            readMethod = true;
+            qDebug() << "no cadence for 5 secs, switching to reading method";
+        }
+
+        if (readMethod && cadenceService) {
+            cadenceService->readCharacteristic(cadenceChar);
+        }
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
+            emit inclinationChanged(Inclination.value(), Inclination.value());
             qDebug() << QStringLiteral("writing incline ") << requestInclination;
             requestInclination = -100;
         }
@@ -94,7 +110,24 @@ void strydrunpowersensor::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
+
+        if (strydIndoorModeRequested && !strydIndoorModeConfirmed && strydIndoorModeRetries < 3 &&
+            strydIndoorModeRequestedAt.msecsTo(QDateTime::currentDateTime()) > 1000) {
+            qDebug() << QStringLiteral("Stryd5: no ack for Indoor mode switch, retrying");
+            requestStrydIndoorMode();
+        }
     }
+}
+
+void strydrunpowersensor::requestStrydIndoorMode() {
+    if (!strydIndoorModeService || !strydIndoorModeChar.isValid())
+        return;
+
+    qDebug() << QStringLiteral("Stryd5: switching power mode to Indoor");
+    strydIndoorModeService->writeCharacteristic(strydIndoorModeChar, QByteArray::fromHex("1500"));
+    strydIndoorModeRequested = true;
+    strydIndoorModeRequestedAt = QDateTime::currentDateTime();
+    strydIndoorModeRetries++;
 }
 
 void strydrunpowersensor::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -107,10 +140,31 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
+    bool cadence_as_treadmill = settings
+                                    .value(QZSettings::cadence_sensor_as_treadmill,
+                                           QZSettings::default_cadence_sensor_as_treadmill)
+                                    .toBool();
     bool power_as_treadmill =
-        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
+            .toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool treadmill_from_sensor = power_as_treadmill || cadence_as_treadmill;
+
+    charNotified = true;
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
+        uint8_t battery = newValue.at(0);
+        if (battery != battery_level) {
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(
+                    QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
+            }
+        }
+        battery_level = battery;
+        qDebug() << QStringLiteral("battery: ") << battery;
+        return;
+    }
 
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -360,7 +414,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         Cadence = cadence;
         emit cadenceChanged(cadence);
-        if (power_as_treadmill) {
+        if (treadmill_from_sensor) {
             Speed = speed;
 
             emit speedChanged(speed);
@@ -425,7 +479,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         if (CrankRevs != oldCrankRevs && deltaT) {
             double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-            if ((cadence >= 0 && cadence < 256 && CrankPresent) || (!CrankPresent && WheelPresent))
+
+            if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) ||
+                (!CrankPresent && WheelPresent))
                 Cadence = cadence;
             lastGoodCadence = now;
         } else if (lastGoodCadence.msecsTo(now) > 2000) {
@@ -436,7 +492,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
-        if (power_as_treadmill) {
+        if (treadmill_from_sensor) {
             Speed =
                 Cadence.value() *
                 settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
@@ -467,6 +523,18 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             //emit verticalOscillationChanged(VerticalOscillationMM.value());
             qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+        } else if (strydIndoorModeRequested && newValue.length() >= 3 && (uint8_t)newValue.at(0) == 0x15 &&
+                   (uint8_t)newValue.at(1) == 0x00) {
+            // ack of the 15 00/15 01 mode switch written to 7e78aa20: byte 2 echoes back the confirmed
+            // mode (0x00 = Indoor, 0x01 = Outdoor)
+            uint8_t confirmedMode = (uint8_t)newValue.at(2);
+            if (confirmedMode == 0x00) {
+                strydIndoorModeConfirmed = true;
+                qDebug() << QStringLiteral("Stryd5: Indoor mode confirmed by the pod");
+            } else {
+                qDebug() << QStringLiteral("Stryd5: pod acked mode ") << confirmedMode
+                          << QStringLiteral(" instead of Indoor, will retry");
+            }
         }
     }
 
@@ -535,10 +603,30 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 continue;
             }
 
+            if (s->serviceUuid() == QBluetoothUuid::CyclingSpeedAndCadence) {
+                cadenceService = s;
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                if (c.uuid() == QBluetoothUuid::CSCMeasurement) {
+                    cadenceChar = c;
+                }
+
+                // Stryd 5 broadcasts a power value that already reacts to the incline it detects on its own
+                // (confirmed via BLE sniffing, see #4480), which conflicts with QZ's own inclination gain
+                // formula. Switching the pod to Indoor mode makes it stop compensating for incline on its
+                // own, leaving QZ's formula as the only source of the incline adjustment.
+                if (bluetoothDevice.name().startsWith(QStringLiteral("Stryd5"), Qt::CaseInsensitive) &&
+                    c.uuid() == QBluetoothUuid(QStringLiteral("7e78aa20-72cd-d3b8-a81f-5b7e589bea0f")) &&
+                    (c.properties() & QLowEnergyCharacteristic::Write)) {
+                    strydIndoorModeService = s;
+                    strydIndoorModeChar = c;
+                    requestStrydIndoorMode();
+                }
+
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
@@ -648,13 +736,23 @@ void strydrunpowersensor::characteristicWritten(const QLowEnergyCharacteristic &
 void strydrunpowersensor::characteristicRead(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    characteristicChanged(characteristic, newValue);
 }
 
 void strydrunpowersensor::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
+    bool isZwiftPod = bluetoothDevice.name().contains(QStringLiteral("Zwift RunPod"), Qt::CaseInsensitive);
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        // For Zwift RunPod, skip both fff0 and ffc0 services that cause discovery issues
+        if (isZwiftPod && (s.toString() == QStringLiteral("{0000fff0-0000-1000-8000-00805f9b34fb}") ||
+                           s.toString() == QStringLiteral("{f000ffc0-0451-4000-b000-000000000000}"))) {
+            qDebug() << QStringLiteral("Skipping problematic services for Zwift RunPod:") << s.toString();
+            continue;
+        }
+
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &strydrunpowersensor::stateChanged);

@@ -16,6 +16,8 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+    // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
+    property string searchStatus: ""
 
     Settings {
 	     id: settings
@@ -79,6 +81,12 @@ Page {
                             anchors.fill: treadmill_connection
                             source: treadmill_connection
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                        }
+                        // No device yet: a tap searches right away instead of waiting for the next search
+                        // (with a device connected bluetoothSearchNow() does nothing)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: rootItem.bluetoothSearchNow()
                         }
                     }
                     Image {
@@ -194,16 +202,22 @@ Page {
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: rootItem.info
+                // the search status may have two lines ("<device> found" and the countdown): the line
+                // grows upwards, so they are set closer to keep the first one off the buttons
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
+                text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
             }
         }
 
         Label {
             id: lblHelp
             width: parent.width
+            leftPadding: window.contentSideMargin
+            rightPadding: window.contentSideMargin
             anchors.top: row1.bottom
             anchors.topMargin: 30
-            text: "This app should automatically connect to your bike/treadmill/rower. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) both Bluetooth and Bluetooth permissions MUST be enabled<br>3) your bike/treadmill/rower should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issues, please feel free to contact me at roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola"
+            text: qsTr("This app should automatically connect to your bike/treadmill/rower. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) both Bluetooth and Bluetooth permissions MUST be enabled<br>3) your bike/treadmill/rower should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issues, please feel free to contact me at roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola")
             wrapMode: Label.WordWrap
             visible: rootItem.labelHelp
         }

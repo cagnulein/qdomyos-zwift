@@ -7,6 +7,11 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The page height from the column itself, as on the settings page: after a turn of the screen
+    // ScrollView stopped following the height of its only child on a phone
+    contentHeight: tilesColumn.implicitHeight
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -14,8 +19,23 @@ ScrollView {
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTilesPane
 
+    readonly property real speedPresetMilesConversion: 0.621371
+
+    function formatPresetSpeedValue(speedKmh) {
+        var visibleValue = settings.miles_unit ? speedKmh * speedPresetMilesConversion : speedKmh
+        return Number(visibleValue).toFixed(1).replace(/\.0$/, "")
+    }
+
+    function parsePresetSpeedValue(speedText) {
+        var parsedValue = parseFloat(speedText)
+        if (isNaN(parsedValue))
+            return 0
+        return settings.miles_unit ? parsedValue / speedPresetMilesConversion : parsedValue
+    }
+
     Settings {
         id: settings
+        property bool miles_unit: false
         property bool tile_speed_enabled: true
         property int  tile_speed_order: 0
         property bool tile_inclination_enabled: true
@@ -276,12 +296,103 @@ ScrollView {
         property int  tile_avg_pace_order: 76
         property bool tile_power_avg_enabled: false
         property int  tile_power_avg_order: 77
+
+        property bool tile_heart_show_as_percent: false
+
+        property bool tile_hrv_enabled: false
+        property int  tile_hrv_order: 78        
+    
+        property bool tile_grade_adjusted_pace_enabled: false
+        property int  tile_grade_adjusted_pace_order: 79
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""            
+        property bool tile_watt_color_enabled: true
+        property bool tile_pace_color_enabled: true
     }
 
 
     ColumnLayout {
+        id: tilesColumn
         spacing: 0
-        anchors.fill: parent
+        // Not tied to the bottom: the height of the column is the content height of the page, so
+        // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+        // as it was - a section opened after it could not be scrolled to its end
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        NewPageElement {
+            id: labelShortcutsSettings
+            title: qsTr("Keyboard Shortcuts ⌨️")
+            indicatRectColor: Material.color(Material.Grey)
+            textColor: Material.color(Material.Grey)
+            color: Material.backgroundColor
+            accordionContent: "settings-shortcuts.qml"
+        }
 
         AccordionCheckElement {
             id: speedEnabledAccordion
@@ -296,8 +407,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: speedOrderTextField
+                    Accessible.name: speedEnabledAccordion.title + ", " + labelSpeedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_speed_order
                     Layout.fillHeight: false
@@ -308,9 +420,9 @@ ScrollView {
                 }
                 Button {
                     id: okSpeedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -341,8 +453,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: inclinationOrderTextField
+                    Accessible.name: inclinationEnabledAccordion.title + ", " + labelinclinationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_inclination_order
                     Layout.fillHeight: false
@@ -353,9 +466,9 @@ ScrollView {
                 }
                 Button {
                     id: okinclinationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -402,8 +515,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: cadenceOrderTextField
+                        Accessible.name: cadenceEnabledAccordion.title + ", " + labelcadenceOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_cadence_order
                         Layout.fillHeight: false
@@ -414,9 +528,9 @@ ScrollView {
                     }
                     Button {
                         id: okcadenceOrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -448,8 +562,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elevationOrderTextField
+                    Accessible.name: elevationEnabledAccordion.title + ", " + labelelevationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_elevation_order
                     Layout.fillHeight: false
@@ -460,9 +575,9 @@ ScrollView {
                 }
                 Button {
                     id: okelevationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }            
@@ -479,8 +594,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: negativeInclinationOrderTextField
+                    Accessible.name: negativeInclinationEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_negative_inclination_order
                     Layout.fillHeight: false
@@ -490,9 +606,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -523,8 +639,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: caloriesOrderTextField
+                    Accessible.name: caloriesEnabledAccordion.title + ", " + labelcaloriesOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_calories_order
                     Layout.fillHeight: false
@@ -535,9 +652,9 @@ ScrollView {
                 }
                 Button {
                     id: okcaloriesOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -568,8 +685,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: odometerOrderTextField
+                    Accessible.name: odometerEnabledAccordion.title + ", " + labelodometerOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_odometer_order
                     Layout.fillHeight: false
@@ -580,9 +698,9 @@ ScrollView {
                 }
                 Button {
                     id: okodometerOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -605,29 +723,47 @@ ScrollView {
             title: qsTr("Pace")
             linkedBoolSetting: "tile_pace_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelpaceOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: paceColorEnabled
+                    text: qsTr("Enable Pace color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_pace_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_pace_color_enabled = checked
                 }
-                ComboBox {
-                    id: paceOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_pace_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = paceOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okpaceOrderButton
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show("Setting saved!"); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelpaceOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: paceOrderTextField
+                        Accessible.name: paceEnabledAccordion.title + ", " + labelpaceOrder.text
+                        model: rootItem.tile_order
+                        displayText: settings.tile_pace_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = paceOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okpaceOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -645,8 +781,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgpaceOrderTextField
+                    Accessible.name: avgPaceEnabledAccordion.title + ", " + labelavgpaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_avg_pace_order
                     Layout.fillHeight: false
@@ -657,15 +794,61 @@ ScrollView {
                 }
                 Button {
                     id: okavgpaceOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: gradeAdjustedPaceEnabledAccordion
+            title: qsTr("Grade Adjusted Pace")
+            linkedBoolSetting: "tile_grade_adjusted_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelgradeAdjustedPaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: gradeAdjustedPaceOrderTextField
+                    Accessible.name: gradeAdjustedPaceEnabledAccordion.title + ", " + labelgradeAdjustedPaceOrder.text
+                    model: rootItem.tile_order
+                    displayText: settings.tile_grade_adjusted_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = gradeAdjustedPaceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okgradeAdjustedPaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
 
         Label {
             text: qsTr("Current pace per mile or kilometer (Treadmill, Elliptical and Rower)")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        Label {
+            text: qsTr("Flat-equivalent pace computed from treadmill incline using the Minetti cost model.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
@@ -690,8 +873,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: resistanceOrderTextField
+                    Accessible.name: resistanceEnabledAccordion.title + ", " + labelresistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_resistance_order
                     Layout.fillHeight: false
@@ -702,9 +886,9 @@ ScrollView {
                 }
                 Button {
                     id: okresistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -727,29 +911,47 @@ ScrollView {
             title: qsTr("Watt")
             linkedBoolSetting: "tile_watt_enabled"
             settings: settings
-            accordionContent:  RowLayout {
-                spacing: 10
-                Label {
-                    id: labelwattOrder
-                    text: qsTr("order index:")
+            accordionContent:  ColumnLayout {
+                SwitchDelegate {
+                    id: wattColorEnabled
+                    text: qsTr("Enable Watt color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_watt_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_watt_color_enabled = checked
                 }
-                ComboBox {
-                    id: wattOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_watt_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = wattOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okwattOrderButton
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show("Setting saved!"); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelwattOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: wattOrderTextField
+                        Accessible.name: wattEnabledAccordion.title + ", " + labelwattOrder.text
+                        model: rootItem.tile_order
+                        displayText: settings.tile_watt_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = wattOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okwattOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -780,8 +982,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: weightLossOrderTextField
+                    Accessible.name: weightLossEnabledAccordion.title + ", " + labelweightLossOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_weight_loss_order
                     Layout.fillHeight: false
@@ -792,9 +995,9 @@ ScrollView {
                 }
                 Button {
                     id: okweightLossOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -826,8 +1029,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgwattOrderTextField
+                    Accessible.name: avgwattEnabledAccordion.title + ", " + labelavgwattOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_avgwatt_order
                     Layout.fillHeight: false
@@ -838,9 +1042,9 @@ ScrollView {
                 }
                 Button {
                     id: okavgwattOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -872,8 +1076,9 @@ ScrollView {
 						  Layout.fillWidth: true
 						  horizontalAlignment: Text.AlignRight
 						}
-					 ComboBox {
+					 UiComboBox {
 					     id: avgwattLapOrderTextField
+					     Accessible.name: avgwattLapEnabledAccordion.title + ", " + labelavgwattLapOrder.text
 						  model: rootItem.tile_order
 						  displayText: settings.tile_avg_watt_lap_order
 						  Layout.fillHeight: false
@@ -884,16 +1089,16 @@ ScrollView {
 							}
 					 Button {
 					     id: okavgwattLapOrderButton
-						  text: "OK"
+						  text: qsTr("OK")
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show("Setting saved!"); }
+						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
 					}
 				}
 
         AccordionCheckElement {
             id: ftpEnabledAccordion
-            title: qsTr("FTP %")
+            title: "FTP %"
             linkedBoolSetting: "tile_ftp_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -904,8 +1109,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ftpOrderTextField
+                    Accessible.name: ftpEnabledAccordion.title + ", " + labelftpOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ftp_order
                     Layout.fillHeight: false
@@ -916,9 +1122,9 @@ ScrollView {
                 }
                 Button {
                     id: okftpOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -941,29 +1147,60 @@ ScrollView {
             title: qsTr("Heart")
             linkedBoolSetting: "tile_heart_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelheartrateOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: heartShowAsPercentSwitch
+                    text: qsTr("Show as %FC Max")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_heart_show_as_percent
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_heart_show_as_percent = checked
                 }
-                ComboBox {
-                    id: heartrateOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_heart_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = heartrateOrderTextField.currentValue
-                     }
+
+                Label {
+                    text: qsTr("When enabled, displays heart rate as percentage of maximum heart rate (%FC Max) instead of BPM. AVG and MAX values will also show percentages.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
-                Button {
-                    id: okheartrateOrderButton
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelheartrateOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: heartrateOrderTextField
+                        Accessible.name: heartEnabledAccordion.title + ", " + labelheartrateOrder.text
+                        model: rootItem.tile_order
+                        displayText: settings.tile_heart_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = heartrateOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okheartrateOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -981,8 +1218,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: fanOrderTextField
+                    Accessible.name: fanEnabledAccordion.title + ", " + labelfanOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_fan_order
                     Layout.fillHeight: false
@@ -993,9 +1231,9 @@ ScrollView {
                 }
                 Button {
                     id: okfanOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1026,8 +1264,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: joulsOrderTextField
+                    Accessible.name: joulsEnabledAccordion.title + ", " + labeljoulsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_jouls_order
                     Layout.fillHeight: false
@@ -1038,9 +1277,9 @@ ScrollView {
                 }
                 Button {
                     id: okjoulsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1071,8 +1310,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elapsedOrderTextField
+                    Accessible.name: elapsedEnabledAccordion.title + ", " + labelelapsedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_elapsed_order
                     Layout.fillHeight: false
@@ -1083,9 +1323,9 @@ ScrollView {
                 }
                 Button {
                     id: okelapsedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1116,8 +1356,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: movingTimeOrderTextField
+                    Accessible.name: movingTimeEnabledAccordion.title + ", " + labelmovingTimeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_moving_time_order
                     Layout.fillHeight: false
@@ -1128,9 +1369,9 @@ ScrollView {
                 }
                 Button {
                     id: okmovingTimeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1161,8 +1402,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonOffsetOrderTextField
+                    Accessible.name: pelotonOffsetEnabledAccordion.title + ", " + labelpelotonOffsetOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_offset_order
                     Layout.fillHeight: false
@@ -1173,9 +1415,9 @@ ScrollView {
                 }
                 Button {
                     id: okpelotonOffsetOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1206,8 +1448,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonRemainingOrderTextField
+                    Accessible.name: pelotonRemainingEnabledAccordion.title + ", " + labelPelotonRemainingOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_remaining_order
                     Layout.fillHeight: false
@@ -1218,9 +1461,9 @@ ScrollView {
                 }
                 Button {
                     id: okPelotonRemainingOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1252,7 +1495,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonDifficultyOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_difficulty_order
@@ -1264,9 +1507,9 @@ ScrollView {
                 }
                 Button {
                     id: okpelotonDifficultyOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }*/
@@ -1284,8 +1527,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: lapElapsedOrderTextField
+                    Accessible.name: lapElapsedEnabledAccordion.title + ", " + labellapElapsedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_lapelapsed_order
                     Layout.fillHeight: false
@@ -1296,9 +1540,9 @@ ScrollView {
                 }
                 Button {
                     id: oklapElapsedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1331,8 +1575,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: peloton_resistanceOrderTextField
+                        Accessible.name: pelotonResistanceEnabledAccordion.title + ", " + labelpeloton_resistanceOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_peloton_resistance_order
                         Layout.fillHeight: false
@@ -1343,9 +1588,9 @@ ScrollView {
                     }
                     Button {
                         id: okpeloton_resistanceOrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -1377,8 +1622,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_resistanceOrderTextField
+                    Accessible.name: targetResistanceEnabledAccordion.title + ", " + labeltarget_resistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_resistance_order
                     Layout.fillHeight: false
@@ -1389,15 +1635,15 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_resistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
 
         Label {
-            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.")
+            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class's resistance target up or down for the rest of the ride.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
@@ -1423,8 +1669,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_peloton_resistanceOrderTextField
+                    Accessible.name: targetPelotonResistanceEnabledAccordion.title + ", " + labeltarget_peloton_resistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_peloton_resistance_order
                     Layout.fillHeight: false
@@ -1435,9 +1682,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_peloton_resistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1468,8 +1715,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_cadenceOrderTextField
+                    Accessible.name: targetCadenceEnabledAccordion.title + ", " + labeltarget_cadenceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_cadence_order
                     Layout.fillHeight: false
@@ -1480,9 +1728,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_cadenceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1513,8 +1761,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_powerOrderTextField
+                    Accessible.name: targetPowerEnabledAccordion.title + ", " + labeltarget_powerOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_power_order
                     Layout.fillHeight: false
@@ -1525,9 +1774,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_powerOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1559,8 +1808,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_zoneOrderTextField
+                    Accessible.name: targetZoneEnabledAccordion.title + ", " + labeltarget_zoneOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_zone_order
                     Layout.fillHeight: false
@@ -1571,9 +1821,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_zoneOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1604,8 +1854,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_speedOrderTextField
+                    Accessible.name: targetSpeedEnabledAccordion.title + ", " + labeltargetspeedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_speed_order
                     Layout.fillHeight: false
@@ -1616,9 +1867,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_speedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1636,8 +1887,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_paceOrderTextField
+                    Accessible.name: targetPaceEnabledAccordion.title + ", " + labeltargetpaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_pace_order
                     Layout.fillHeight: false
@@ -1648,9 +1900,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_paceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1668,8 +1920,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_inclineOrderTextField
+                    Accessible.name: targetInclineEnabledAccordion.title + ", " + labeltarget_inclineOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_incline_order
                     Layout.fillHeight: false
@@ -1680,9 +1933,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_inclineOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1699,8 +1952,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: watt_kgOrderTextField
+                    Accessible.name: wattKgEnabledAccordion.title + ", " + labelwatt_kgOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_watt_kg_order
                     Layout.fillHeight: false
@@ -1711,9 +1965,9 @@ ScrollView {
                 }
                 Button {
                     id: okwatt_kgOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1744,8 +1998,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: gearsOrderTextField
+                    Accessible.name: gearsEnabledAccordion.title + ", " + labelgearsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_gears_order
                     Layout.fillHeight: false
@@ -1756,9 +2011,9 @@ ScrollView {
                 }
                 Button {
                     id: okgearsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1788,8 +2043,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: biggearsOrderTextField
+                        Accessible.name: qsTr("Gears Big Buttons") + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_biggears_order
                         Layout.fillHeight: false
@@ -1799,9 +2055,9 @@ ScrollView {
                          }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 SwitchDelegate {
@@ -1835,6 +2091,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: remainingTimeTrainingProgramRowEnabledAccordion
+            //: Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.
             title: qsTr("Remaining Time/Row")
             linkedBoolSetting: "tile_remainingtimetrainprogramrow_enabled"
             settings: settings
@@ -1846,8 +2103,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: remainingTimeTrainingProgramRowOrderTextField
+                    Accessible.name: remainingTimeTrainingProgramRowEnabledAccordion.title + ", " + labelremainingTimeTrainingProgramRowOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_remainingtimetrainprogramrow_order
                     Layout.fillHeight: false
@@ -1858,9 +2116,9 @@ ScrollView {
                 }
                 Button {
                     id: okremainingTimeTrainingProgramRowOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1880,6 +2138,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: nextRowsTrainingProgramRowEnabledAccordion
+            //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
             title: qsTr("Next Rows")
             linkedBoolSetting: "tile_nextrowstrainprogram_enabled"
             settings: settings
@@ -1891,8 +2150,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: nextRowsTrainingProgramOrderTextField
+                    Accessible.name: nextRowsTrainingProgramRowEnabledAccordion.title + ", " + labelnextRowsTrainingProgramOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_nextrowstrainprogram_order
                     Layout.fillHeight: false
@@ -1903,9 +2163,9 @@ ScrollView {
                 }
                 Button {
                     id: oknextRowsTrainingProgramOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1936,8 +2196,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: metsOrderTextField
+                    Accessible.name: metsEnabledAccordion.title + ", " + labelmetsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_mets_order
                     Layout.fillHeight: false
@@ -1948,9 +2209,9 @@ ScrollView {
                 }
                 Button {
                     id: okmetsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1981,8 +2242,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: targetmetsOrderTextField
+                    Accessible.name: targetMetsEnabledAccordion.title + ", " + labeltargetmetsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_targetmets_order
                     Layout.fillHeight: false
@@ -1993,9 +2255,9 @@ ScrollView {
                 }
                 Button {
                     id: oktargetmetsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2013,8 +2275,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: datetimeOrderTextField
+                    Accessible.name: datetimeEnabledAccordion.title + ", " + labeldatetimeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_datetime_order
                     Layout.fillHeight: false
@@ -2025,9 +2288,9 @@ ScrollView {
                 }
                 Button {
                     id: okdatetimeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2058,8 +2321,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_countOrderTextField
+                    Accessible.name: targetStrokesCountAccordion.title + ", " + labelstrokes_countOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_count_order
                     Layout.fillHeight: false
@@ -2070,9 +2334,9 @@ ScrollView {
                 }
                 Button {
                     id: okstrokes_countOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2092,7 +2356,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: targetStrokesLengthAccordion
-            title: qsTr("Strokes Length")
+            title: qsTr("Stroke Length")
             linkedBoolSetting: "tile_strokes_length_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -2103,8 +2367,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_lengthOrderTextField
+                    Accessible.name: targetStrokesLengthAccordion.title + ", " + labelstrokes_lengthOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_length_order
                     Layout.fillHeight: false
@@ -2115,9 +2380,9 @@ ScrollView {
                 }
                 Button {
                     id: okstrokes_lengthOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2148,8 +2413,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: steeringAngleOrderTextField
+                    Accessible.name: targetSteeringAngleEnabledAccordion.title + ", " + labelsteeringAngleOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_steering_angle_order
                     Layout.fillHeight: false
@@ -2160,9 +2426,9 @@ ScrollView {
                 }
                 Button {
                     id: oksteeringAngleOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2193,8 +2459,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pidHROrderTextField
+                    Accessible.name: targetPIDHrAccordion.title + ", " + labelPIDHROrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_pid_hr_order
                     Layout.fillHeight: false
@@ -2205,9 +2472,9 @@ ScrollView {
                 }
                 Button {
                     id: okpidHROrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2238,8 +2505,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: extInclineOrderTextField
+                    Accessible.name: extInclineAccordion.title + ", " + labelExtInclineOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ext_incline_order
                     Layout.fillHeight: false
@@ -2250,9 +2518,9 @@ ScrollView {
                 }
                 Button {
                     id: okextInclineOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2283,8 +2551,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strideLengthOrderTextField
+                    Accessible.name: strideLength.title + ", " + labelStrideLengthOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_instantaneous_stride_length_order
                     Layout.fillHeight: false
@@ -2295,9 +2564,9 @@ ScrollView {
                 }
                 Button {
                     id: okStrideLengthOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2328,8 +2597,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: groundContactOrderTextField
+                    Accessible.name: groundContact.title + ", " + labelGroundContactOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ground_contact_order
                     Layout.fillHeight: false
@@ -2340,9 +2610,9 @@ ScrollView {
                 }
                 Button {
                     id: okGroundContactOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2373,8 +2643,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: verticalOscillationOrderTextField
+                    Accessible.name: verticalOscillation.title + ", " + labelVerticalOscillationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_vertical_oscillation_order
                     Layout.fillHeight: false
@@ -2385,9 +2656,9 @@ ScrollView {
                 }
                 Button {
                     id: okVerticalOscillationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2418,8 +2689,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pacelast500mOrderTextField
+                    Accessible.name: paceLast500mEnabledAccordion.title + ", " + labelPacelast500mOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_pace_last500m_order
                     Layout.fillHeight: false
@@ -2430,9 +2702,9 @@ ScrollView {
                 }
                 Button {
                     id: okPacelast500mOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2450,8 +2722,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: stepCountOrderTextField
+                    Accessible.name: stepCountEnabledAccordion.title + ", " + labelStepCountOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_step_count_order
                     Layout.fillHeight: false
@@ -2462,9 +2735,9 @@ ScrollView {
                 }
                 Button {
                     id: okStepCountOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2482,8 +2755,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ergModeOrderTextField
+                    Accessible.name: ergModeEnabledAccordion.title + ", " + labelErgModeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_erg_mode_order
                     Layout.fillHeight: false
@@ -2494,9 +2768,9 @@ ScrollView {
                 }
                 Button {
                     id: okErgModeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2512,8 +2786,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: rssOrderTextField
+                    Accessible.name: qsTr("Running Stress Score") + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_rss_order
                     Layout.fillHeight: false
@@ -2523,9 +2798,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }        
@@ -2544,8 +2819,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance1TextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_1_order
                         Layout.fillHeight: false
@@ -2556,9 +2832,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2570,6 +2846,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance1ValueTextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Value.text
                         text: settings.tile_preset_resistance_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2577,9 +2854,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2591,6 +2868,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance1LabelTextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Label.text
                         text: settings.tile_preset_resistance_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2598,9 +2876,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2612,7 +2890,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance1ColorTextField.text = colorPresetResistance1.color
 									}
@@ -2622,6 +2900,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance1ColorTextField
+						      Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Color.text
 								text: settings.tile_preset_resistance_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2632,9 +2911,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2653,8 +2932,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance2TextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_2_order
                         Layout.fillHeight: false
@@ -2665,9 +2945,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2679,6 +2959,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance2ValueTextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Value.text
                         text: settings.tile_preset_resistance_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2686,9 +2967,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2700,6 +2981,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance2LabelTextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Label.text
                         text: settings.tile_preset_resistance_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2707,9 +2989,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2721,7 +3003,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance2
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance2ColorTextField.text = colorPresetResistance2.color
 									}
@@ -2731,6 +3013,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance2ColorTextField
+						      Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Color.text
 								text: settings.tile_preset_resistance_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2741,9 +3024,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance2ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2762,8 +3045,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance3TextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_3_order
                         Layout.fillHeight: false
@@ -2774,9 +3058,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2788,6 +3072,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance3ValueTextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Value.text
                         text: settings.tile_preset_resistance_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2795,9 +3080,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2809,6 +3094,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance3LabelTextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Label.text
                         text: settings.tile_preset_resistance_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2816,9 +3102,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2830,7 +3116,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance3ColorTextField.text = colorPresetResistance3.color
 									}
@@ -2840,6 +3126,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance3ColorTextField
+						      Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Color.text
 								text: settings.tile_preset_resistance_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2850,9 +3137,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2871,8 +3158,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance4TextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_4_order
                         Layout.fillHeight: false
@@ -2883,9 +3171,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2897,6 +3185,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance4ValueTextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Value.text
                         text: settings.tile_preset_resistance_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2904,9 +3193,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2918,6 +3207,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance4LabelTextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Label.text
                         text: settings.tile_preset_resistance_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2925,9 +3215,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2939,7 +3229,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance4ColorTextField.text = colorPresetResistance4.color
 									}
@@ -2949,6 +3239,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance4ColorTextField
+						      Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Color.text
 								text: settings.tile_preset_resistance_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2959,9 +3250,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2980,8 +3271,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance5TextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_5_order
                         Layout.fillHeight: false
@@ -2992,9 +3284,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3006,6 +3298,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance5ValueTextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Value.text
                         text: settings.tile_preset_resistance_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3013,9 +3306,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3027,6 +3320,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance5LabelTextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Label.text
                         text: settings.tile_preset_resistance_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3034,9 +3328,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3048,7 +3342,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance5ColorTextField.text = colorPresetResistance5.color
 									}
@@ -3058,6 +3352,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance5ColorTextField
+						      Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Color.text
 								text: settings.tile_preset_resistance_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3068,9 +3363,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3089,8 +3384,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed1TextField
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_1_order
                         Layout.fillHeight: false
@@ -3101,30 +3397,35 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
                     Label {
                         id: labelPresetSpeed1Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed1ValueTextField
-                        text: settings.tile_preset_speed_1_value
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Value.text
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okPresetSpeed1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_value = presetSpeed1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_1_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed1ValueTextField.displayText);
+                            presetSpeed1ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
                     }
                 }
                 RowLayout {
@@ -3136,6 +3437,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed1LabelTextField
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Label.text
                         text: settings.tile_preset_speed_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3143,9 +3445,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3157,7 +3459,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed1ColorTextField.text = colorPresetSpeed1.color
 									}
@@ -3167,6 +3469,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed1ColorTextField
+						      Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Color.text
 								text: settings.tile_preset_speed_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3177,9 +3480,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3198,8 +3501,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed2TextField
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_2_order
                         Layout.fillHeight: false
@@ -3210,30 +3514,35 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
                     Label {
                         id: labelPresetSpeed2Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed2ValueTextField
-                        text: settings.tile_preset_speed_2_value
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Value.text
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okPresetSpeed2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_value = presetSpeed2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_2_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed2ValueTextField.displayText);
+                            presetSpeed2ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
                     }
                 }
                 RowLayout {
@@ -3245,6 +3554,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed2LabelTextField
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Label.text
                         text: settings.tile_preset_speed_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3252,9 +3562,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3266,7 +3576,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed2
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed2ColorTextField.text = colorPresetSpeed2.color
 									}
@@ -3276,6 +3586,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed2ColorTextField
+						      Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Color.text
 								text: settings.tile_preset_speed_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3286,9 +3597,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed2ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3307,8 +3618,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed3TextField
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_3_order
                         Layout.fillHeight: false
@@ -3319,30 +3631,35 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
                     Label {
                         id: labelPresetSpeed3Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed3ValueTextField
-                        text: settings.tile_preset_speed_3_value
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Value.text
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okPresetSpeed3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_value = presetSpeed3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_3_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed3ValueTextField.displayText);
+                            presetSpeed3ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
                     }
                 }
                 RowLayout {
@@ -3354,6 +3671,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed3LabelTextField
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Label.text
                         text: settings.tile_preset_speed_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3361,9 +3679,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3375,7 +3693,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed3ColorTextField.text = colorPresetSpeed3.color
 									}
@@ -3385,6 +3703,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed3ColorTextField
+						      Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Color.text
 								text: settings.tile_preset_speed_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3395,9 +3714,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3416,8 +3735,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed4TextField
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_4_order
                         Layout.fillHeight: false
@@ -3428,30 +3748,35 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
                     Label {
                         id: labelPresetSpeed4Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed4ValueTextField
-                        text: settings.tile_preset_speed_4_value
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Value.text
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okPresetSpeed4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_value = presetSpeed4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_4_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed4ValueTextField.displayText);
+                            presetSpeed4ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
                     }
                 }
                 RowLayout {
@@ -3463,6 +3788,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed4LabelTextField
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Label.text
                         text: settings.tile_preset_speed_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3470,9 +3796,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3484,7 +3810,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed4ColorTextField.text = colorPresetSpeed4.color
 									}
@@ -3494,6 +3820,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed4ColorTextField
+						      Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Color.text
 								text: settings.tile_preset_speed_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3504,9 +3831,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3525,8 +3852,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed5TextField
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_5_order
                         Layout.fillHeight: false
@@ -3537,30 +3865,35 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
                     Label {
                         id: labelPresetSpeed5Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed5ValueTextField
-                        text: settings.tile_preset_speed_5_value
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Value.text
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okPresetSpeed5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_value = presetSpeed5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_5_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed5ValueTextField.displayText);
+                            presetSpeed5ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
                     }
                 }
                 RowLayout {
@@ -3572,6 +3905,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed5LabelTextField
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Label.text
                         text: settings.tile_preset_speed_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3579,9 +3913,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3593,7 +3927,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed5ColorTextField.text = colorPresetSpeed5.color
 									}
@@ -3603,6 +3937,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed5ColorTextField
+						      Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Color.text
 								text: settings.tile_preset_speed_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3613,9 +3948,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3634,8 +3969,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination1TextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_1_order
                         Layout.fillHeight: false
@@ -3646,9 +3982,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3660,6 +3996,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination1ValueTextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Value.text
                         text: settings.tile_preset_inclination_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3667,9 +4004,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3681,6 +4018,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination1LabelTextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Label.text
                         text: settings.tile_preset_inclination_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3688,9 +4026,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3702,7 +4040,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination1ColorTextField.text = colorPresetInclination1.color
 									}
@@ -3712,6 +4050,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination1ColorTextField
+						      Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Color.text
 								text: settings.tile_preset_inclination_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3722,9 +4061,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3743,8 +4082,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination2TextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_2_order
                         Layout.fillHeight: false
@@ -3755,9 +4095,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3769,6 +4109,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination2ValueTextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Value.text
                         text: settings.tile_preset_inclination_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3776,9 +4117,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3790,6 +4131,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination2LabelTextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Label.text
                         text: settings.tile_preset_inclination_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3797,9 +4139,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -3812,7 +4154,7 @@ ScrollView {
 						  }
 						ColorDialog {
 						  id: colorPresetInclination2
-						  title: "Please choose a color"
+						  title: qsTr("Please choose a color")
 						  onAccepted: {
 						      presetInclination2ColorTextField.text = colorPresetInclination2.color
 							  }
@@ -3822,6 +4164,7 @@ ScrollView {
 						}
 					 TextField {
 					     id: presetInclination2ColorTextField
+					     Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Color.text
 						  text: settings.tile_preset_inclination_2_color
 						  Layout.fillHeight: false
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3832,9 +4175,9 @@ ScrollView {
 						}
 					 Button {
 					     id: okPresetInclination2ColorButton
-						  text: "OK"
+						  text: qsTr("OK")
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show("Setting saved!"); }
+						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
 					}
         }
@@ -3852,8 +4195,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination3TextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_3_order
                         Layout.fillHeight: false
@@ -3864,9 +4208,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3878,6 +4222,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination3ValueTextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Value.text
                         text: settings.tile_preset_inclination_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3885,9 +4230,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3899,6 +4244,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination3LabelTextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Label.text
                         text: settings.tile_preset_inclination_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3906,9 +4252,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3920,7 +4266,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination3ColorTextField.text = colorPresetInclination3.color
 									}
@@ -3930,6 +4276,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination3ColorTextField
+						      Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Color.text
 								text: settings.tile_preset_inclination_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3940,9 +4287,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3961,8 +4308,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination4TextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_4_order
                         Layout.fillHeight: false
@@ -3973,9 +4321,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3987,6 +4335,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination4ValueTextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Value.text
                         text: settings.tile_preset_inclination_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3994,9 +4343,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4008,6 +4357,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination4LabelTextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Label.text
                         text: settings.tile_preset_inclination_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4015,9 +4365,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
 						}
 					 RowLayout {
@@ -4029,7 +4379,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination4ColorTextField.text = colorPresetInclination4.color
 									}
@@ -4039,6 +4389,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination4ColorTextField
+						      Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Color.text
 								text: settings.tile_preset_inclination_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4049,9 +4400,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -4070,8 +4421,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination5TextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_5_order
                         Layout.fillHeight: false
@@ -4082,9 +4434,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4096,6 +4448,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination5ValueTextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Value.text
                         text: settings.tile_preset_inclination_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4103,9 +4456,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4117,6 +4470,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination5LabelTextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Label.text
                         text: settings.tile_preset_inclination_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4124,9 +4478,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -4138,7 +4492,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination5ColorTextField.text = colorPresetInclination5.color
 									}
@@ -4148,6 +4502,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination5ColorTextField
+						      Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Color.text
 								text: settings.tile_preset_inclination_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4158,9 +4513,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -4178,8 +4533,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone1OrderTextField
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_1_order
                         Layout.fillHeight: false
@@ -4189,9 +4545,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_order = presetPowerZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_order = presetPowerZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4202,15 +4558,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone1Value
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_value = parseFloat(presetPowerZone1Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_value = parseFloat(presetPowerZone1Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4221,14 +4578,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone1Label
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_label = presetPowerZone1Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_label = presetPowerZone1Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4240,7 +4598,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone1
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone1ColorTextField.text = colorPresetPowerzone1.color
                         }
@@ -4248,6 +4606,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone1ColorTextField
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + labelPresetPowerzone1Color.text
                         text: settings.tile_preset_powerzone_1_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4258,9 +4617,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone1ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_color = presetPowerzone1ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_color = presetPowerzone1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4279,8 +4638,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone2OrderTextField
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_2_order
                         Layout.fillHeight: false
@@ -4290,9 +4650,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_order = presetPowerZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_order = presetPowerZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4303,15 +4663,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone2Value
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_value = parseFloat(presetPowerZone2Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_value = parseFloat(presetPowerZone2Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4322,14 +4683,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone2Label
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_label = presetPowerZone2Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_label = presetPowerZone2Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4341,7 +4703,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone2
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone2ColorTextField.text = colorPresetPowerzone2.color
                         }
@@ -4349,6 +4711,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone2ColorTextField
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + labelPresetPowerzone2Color.text
                         text: settings.tile_preset_powerzone_2_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4359,9 +4722,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone2ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_color = presetPowerzone2ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_color = presetPowerzone2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4380,8 +4743,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone3OrderTextField
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_3_order
                         Layout.fillHeight: false
@@ -4391,9 +4755,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_order = presetPowerZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_order = presetPowerZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4404,15 +4768,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone3Value
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_value = parseFloat(presetPowerZone3Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_value = parseFloat(presetPowerZone3Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4423,14 +4788,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone3Label
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_label = presetPowerZone3Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_label = presetPowerZone3Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4442,7 +4808,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone3
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone3ColorTextField.text = colorPresetPowerzone3.color
                         }
@@ -4450,6 +4816,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone3ColorTextField
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + labelPresetPowerzone3Color.text
                         text: settings.tile_preset_powerzone_3_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4460,9 +4827,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone3ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_color = presetPowerzone3ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_color = presetPowerzone3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4481,8 +4848,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone4OrderTextField
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_4_order
                         Layout.fillHeight: false
@@ -4492,9 +4860,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_order = presetPowerZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_order = presetPowerZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4505,15 +4873,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone4Value
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_value = parseFloat(presetPowerZone4Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_value = parseFloat(presetPowerZone4Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4524,14 +4893,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone4Label
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_label = presetPowerZone4Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_label = presetPowerZone4Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4543,7 +4913,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone4
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone4ColorTextField.text = colorPresetPowerzone4.color
                         }
@@ -4551,6 +4921,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone4ColorTextField
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + labelPresetPowerzone4Color.text
                         text: settings.tile_preset_powerzone_4_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4561,9 +4932,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone4ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_color = presetPowerzone4ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_color = presetPowerzone4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4582,8 +4953,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone5OrderTextField
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_5_order
                         Layout.fillHeight: false
@@ -4593,9 +4965,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_order = presetPowerZone5OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_order = presetPowerZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4606,15 +4978,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone5Value
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_value = parseFloat(presetPowerZone5Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_value = parseFloat(presetPowerZone5Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4625,14 +4998,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone5Label
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_label = presetPowerZone5Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_label = presetPowerZone5Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4644,7 +5018,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone5
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone5ColorTextField.text = colorPresetPowerzone5.color
                         }
@@ -4652,6 +5026,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone5ColorTextField
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + labelPresetPowerzone5Color.text
                         text: settings.tile_preset_powerzone_5_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4662,9 +5037,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone5ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_color = presetPowerzone5ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_color = presetPowerzone5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4683,8 +5058,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone6OrderTextField
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_6_order
                         Layout.fillHeight: false
@@ -4694,9 +5070,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_order = presetPowerZone6OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_order = presetPowerZone6OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4707,15 +5083,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone6Value
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_6_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_value = parseFloat(presetPowerZone6Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_value = parseFloat(presetPowerZone6Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4726,14 +5103,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone6Label
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_6_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_label = presetPowerZone6Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_label = presetPowerZone6Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4745,7 +5123,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone6
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone6ColorTextField.text = colorPresetPowerzone6.color
                         }
@@ -4753,6 +5131,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone6ColorTextField
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + labelPresetPowerzone6Color.text
                         text: settings.tile_preset_powerzone_6_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4763,9 +5142,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone6ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_color = presetPowerzone6ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_color = presetPowerzone6ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4784,8 +5163,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone7OrderTextField
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_7_order
                         Layout.fillHeight: false
@@ -4795,9 +5175,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_order = presetPowerZone7OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_order = presetPowerZone7OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4808,15 +5188,16 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone7Value
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_7_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_value = parseFloat(presetPowerZone7Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_value = parseFloat(presetPowerZone7Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4827,14 +5208,15 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone7Label
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_7_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_label = presetPowerZone7Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_label = presetPowerZone7Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4846,7 +5228,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone7
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone7ColorTextField.text = colorPresetPowerzone7.color
                         }
@@ -4854,6 +5236,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone7ColorTextField
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + labelPresetPowerzone7Color.text
                         text: settings.tile_preset_powerzone_7_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4864,9 +5247,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone7ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_color = presetPowerzone7ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_color = presetPowerzone7ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4898,8 +5281,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone1OrderTextField
+                    Accessible.name: hrTimeInZone1EnabledAccordion.title + ", " + labelHrTimeInZone1Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_1_order
                     Layout.fillHeight: false
@@ -4910,9 +5294,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone1OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -4943,8 +5327,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone2OrderTextField
+                    Accessible.name: hrTimeInZone2EnabledAccordion.title + ", " + labelHrTimeInZone2Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_2_order
                     Layout.fillHeight: false
@@ -4955,9 +5340,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone2OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -4988,8 +5373,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone3OrderTextField
+                    Accessible.name: hrTimeInZone3EnabledAccordion.title + ", " + labelHrTimeInZone3Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_3_order
                     Layout.fillHeight: false
@@ -5000,9 +5386,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone3OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5033,8 +5419,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone4OrderTextField
+                    Accessible.name: hrTimeInZone4EnabledAccordion.title + ", " + labelHrTimeInZone4Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_4_order
                     Layout.fillHeight: false
@@ -5045,9 +5432,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone4OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5078,8 +5465,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone5OrderTextField
+                    Accessible.name: hrTimeInZone5EnabledAccordion.title + ", " + labelHrTimeInZone5Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_5_order
                     Layout.fillHeight: false
@@ -5090,9 +5478,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone5OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5121,7 +5509,7 @@ ScrollView {
                 checked: settings.tile_hr_time_in_zone_individual_mode
                 onClicked: {
                     settings.tile_hr_time_in_zone_individual_mode = checked
-                    toast.show("Setting saved!")
+                    toast.show(qsTr("Setting saved!"))
                 }
             }
         }
@@ -5152,8 +5540,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: coretemperatureOrderTextField
+                    Accessible.name: coreTemperatureAccordion.title + ", " + labelcoretemperatureOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_coretemperature_order
                     Layout.fillHeight: false
@@ -5164,9 +5553,9 @@ ScrollView {
                 }
                 Button {
                     id: okcoretemperatureOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5197,8 +5586,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone1OrderTextField
+                    Accessible.name: heatTimeInZone1EnabledAccordion.title + ", " + labelHeatTimeInZone1Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_1_order
                     Layout.fillHeight: false
@@ -5209,9 +5599,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone1OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5242,8 +5632,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone2OrderTextField
+                    Accessible.name: heatTimeInZone2EnabledAccordion.title + ", " + labelHeatTimeInZone2Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_2_order
                     Layout.fillHeight: false
@@ -5254,9 +5645,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone2OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5287,8 +5678,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone3OrderTextField
+                    Accessible.name: heatTimeInZone3EnabledAccordion.title + ", " + labelHeatTimeInZone3Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_3_order
                     Layout.fillHeight: false
@@ -5299,9 +5691,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone3OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5332,8 +5724,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone4OrderTextField
+                    Accessible.name: heatTimeInZone4EnabledAccordion.title + ", " + labelHeatTimeInZone4Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_4_order
                     Layout.fillHeight: false
@@ -5344,9 +5737,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone4OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5376,8 +5769,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingCruiseOrderTextField
+                    Accessible.name: autoVirtualShiftingCruiseEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_cruise_order
                     Layout.fillHeight: false
@@ -5387,9 +5781,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5419,8 +5813,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingClimbOrderTextField
+                    Accessible.name: autoVirtualShiftingClimbEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_climb_order
                     Layout.fillHeight: false
@@ -5430,9 +5825,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5462,8 +5857,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingSprintOrderTextField
+                    Accessible.name: autoVirtualShiftingSprintEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_sprint_order
                     Layout.fillHeight: false
@@ -5473,9 +5869,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5505,8 +5901,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: powerAvgOrderTextField
+                    Accessible.name: powerAvgEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_power_avg_order
                     Layout.fillHeight: false
@@ -5516,15 +5913,61 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
 
         Label {
             text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrvEnabledAccordion
+            title: qsTr("HRV (Heart Rate Variability)")
+            linkedBoolSetting: "tile_hrv_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelhrvOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: hrvOrderTextField
+                    Accessible.name: hrvEnabledAccordion.title + ", " + labelhrvOrder.text
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hrv_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrvOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okhrvOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows Heart Rate Variability (HRV) from a compatible heart rate belt. Displays RMSSD value in milliseconds.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
