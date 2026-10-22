@@ -37,8 +37,29 @@ HomeForm {
         property bool theme_tile_shadow_enabled: true
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
-        property bool skipLocationServicesDialog: false
         property bool trainprogram_sound_on_segment: false
+    }
+
+    // A copy of its own: the copy above is written back whole when the settings page sends a new
+    // tile look, and that would put back the value homeform.cpp resets when the GPS is on
+    Settings {
+        id: locationSettings
+        property bool skipLocationServicesDialog: false
+    }
+
+    // The settings page writes through its own Settings copy, and a copy reads the stored values
+    // only when it is created, so the tile size and the tile colors waited for a restart (#466).
+    // The settings page sends each new value here (settings.qml), and it is set in both copies.
+    // Assigning one key makes Qt.labs.settings write the whole copy back, so every key of these
+    // copies that the settings page can change is sent, and none of them is left stale.
+    Connections {
+        target: window
+        function onTileSettingChanged(key, value) {
+            if (settings[key] !== undefined && settings[key] !== value)
+                settings[key] = value
+            if (homeFormSettings[key] !== undefined && homeFormSettings[key] !== value)
+                homeFormSettings[key] = value
+        }
     }
 
     SoundEffect {
@@ -245,7 +266,7 @@ HomeForm {
             locationServicesDeclined = true
             remindLocationServicesDialog.visible = true
         }
-        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
+        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !locationSettings.skipLocationServicesDialog
     }
 
     MessageDialog {
@@ -253,8 +274,8 @@ HomeForm {
         text: qsTr("Reminder Preference")
         informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: settings.skipLocationServicesDialog = false
-        onNoClicked: settings.skipLocationServicesDialog = true
+        onYesClicked: locationSettings.skipLocationServicesDialog = false
+        onNoClicked: locationSettings.skipLocationServicesDialog = true
         visible: false
     }
 
