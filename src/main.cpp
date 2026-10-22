@@ -42,9 +42,10 @@
 #include <QAccessible>
 #include <QAndroidJniObject>
 #include <QKeyEvent>
-#include <QPointer>
 #include <QQuickItem>
 #include <QQuickWindow>
+#include <QSemaphore>
+#include <QSharedPointer>
 #include <QThread>
 #include <QTimer>
 #include <QtAndroid>
@@ -624,23 +625,38 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(J
 // false, after which TalkBack taps the middle of the node: that misses the indicator of a switch
 // with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page. A
 // button gets the space key a keyboard presses it with instead (nextCheckState() with exclusive
-// groups, clicked(), its Action), on the Qt thread, and true is answered. For anything else false
-// is answered and Qt's own press runs, as before. The object is looked at on this thread, as Qt's
-// own accessibility calls of 5.15 do.
+// groups, clicked(), its Action), and true is answered. For anything else, and for a button that
+// is disabled, hidden or gone, false is answered and Qt's own press runs, as before.
+// The object is looked up and pressed on the Qt thread, where QML items are created and destroyed
+// (as Qt 6 does with runInObjectContext()); this thread waits only for the lookup, not for what the
+// press runs. Qt 5.15 has no guard against a Qt thread that waits for this one, so the wait is
+// limited: when the Qt thread is busy that long, false is answered and this press is not made;
+// Qt's own press and TalkBack's tap run instead, as for anything else.
+// 2 s: the Qt thread can be busy for well over a second while a device connects, and Android
+// waits 5 s for the answer to an accessibility action.
 extern "C" JNIEXPORT jboolean JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
     Q_UNUSED(env)
     Q_UNUSED(clazz)
     if (!QCoreApplication::instance())
         return false;
-    QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
-    if (!iface || !iface->isValid() || !iface->object() || !iface->object()->inherits("QQuickAbstractButton"))
-        return false;
-    QPointer<QObject> button = iface->object();
+    struct Click {
+        QSemaphore found;
+        QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
+        bool button = false;
+    };
+    const QSharedPointer<Click> click = QSharedPointer<Click>::create();
     QMetaObject::invokeMethod(
         QCoreApplication::instance(),
-        [button] {
-            if (!button || !button->property("enabled").toBool())
+        [click, id] {
+            if (!click->state.testAndSetOrdered(0, 1))
+                return;
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            QQuickItem *button = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
+            click->button = button && button->inherits("QQuickAbstractButton") && button->isVisible() &&
+                            button->isEnabled();
+            click->found.release();
+            if (!click->button)
                 return;
             QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
             QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
@@ -648,7 +664,13 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
             QCoreApplication::sendEvent(button, &release);
         },
         Qt::QueuedConnection);
-    return true;
+    if (!click->found.tryAcquire(1, 2000)) {
+        if (click->state.testAndSetOrdered(0, 2))
+            return false;
+        // started just now: the lookup does not wait for this thread
+        click->found.acquire();
+    }
+    return click->button;
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)

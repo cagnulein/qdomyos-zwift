@@ -1023,9 +1023,12 @@ jobs:
             sh .github/scripts/android_back_button_test.sh
 
             # Accessibility test: a screen reader's focus, scroll and press, without TalkBack.
-            # Last, on a new start of the app: its press must not change what the tests above see
+            # Last, on a new start of the app: its press must not change what the tests above see.
+            # Without a device Start opens the help popup and its first button the wizard; on the
+            # fake bike each + of the resistance tile adds exactly one step
             sh .github/scripts/android_app_start_test.sh
-            sh .github/scripts/android_accessibility_test.sh Start
+            sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
+            sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
