@@ -290,7 +290,10 @@ def writes_text(code):
 def check_page(path):
     text = open(path, encoding="utf-8").read()
     lines = text.split("\n")
-    props = props_of(text)
+    # The other pages have no Settings of their own: they use the object of settings.qml, so
+    # their settings are declared there
+    props = dict(SETTINGS_PROPS)
+    props.update(props_of(text))
     count = 0
     for i, line in enumerate(lines):
         kind = opens(line, FIELDS)
@@ -387,6 +390,7 @@ def check_page(path):
     return count
 
 
+SETTINGS_PROPS = props_of(open(PAGES[0], encoding="utf-8").read())
 total = sum(check_page(p) for p in PAGES)
 for e in errors:
     print("ERROR: " + e)

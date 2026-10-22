@@ -2,7 +2,6 @@ import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     id: customInclinationResistanceWindow
@@ -16,11 +15,10 @@ ScrollView {
     property int rowHeight: 55
     property int controlHeight: 43
 
-    Settings {
-        id: settings
-        property bool custom_inclination_resistance_table_enabled: false
-        property string custom_inclination_resistance_table: defaultInclinationResistanceTable
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     ListModel {
         id: pointListModel

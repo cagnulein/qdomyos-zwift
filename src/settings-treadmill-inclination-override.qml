@@ -2,7 +2,6 @@ import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -15,43 +14,10 @@ ScrollView {
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsInclinationPane
 
-    Settings {
-        id: settings
-        property double treadmill_inclination_override_0: 0.0
-        property double treadmill_inclination_override_05: 0.5
-        property double treadmill_inclination_override_10: 1.0
-        property double treadmill_inclination_override_15: 1.5
-        property double treadmill_inclination_override_20: 2.0
-        property double treadmill_inclination_override_25: 2.5
-        property double treadmill_inclination_override_30: 3.0
-        property double treadmill_inclination_override_35: 3.5
-        property double treadmill_inclination_override_40: 4.0
-        property double treadmill_inclination_override_45: 4.5
-        property double treadmill_inclination_override_50: 5.0
-        property double treadmill_inclination_override_55: 5.5
-        property double treadmill_inclination_override_60: 6.0
-        property double treadmill_inclination_override_65: 6.5
-        property double treadmill_inclination_override_70: 7.0
-        property double treadmill_inclination_override_75: 7.5
-        property double treadmill_inclination_override_80: 8.0
-        property double treadmill_inclination_override_85: 8.5
-        property double treadmill_inclination_override_90: 9.0
-        property double treadmill_inclination_override_95: 9.5
-        property double treadmill_inclination_override_100: 10.0
-        property double treadmill_inclination_override_105: 10.5
-        property double treadmill_inclination_override_110: 11.0
-        property double treadmill_inclination_override_115: 11.5
-        property double treadmill_inclination_override_120: 12.0
-        property double treadmill_inclination_override_125: 12.5
-        property double treadmill_inclination_override_130: 13.0
-        property double treadmill_inclination_override_135: 13.5
-        property double treadmill_inclination_override_140: 14.0
-        property double treadmill_inclination_override_145: 14.5
-        property double treadmill_inclination_override_150: 15.0
-
-        property double treadmill_inclination_ovveride_gain: 1.0
-        property double treadmill_inclination_ovveride_offset: 0.0
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
 
     ColumnLayout {
