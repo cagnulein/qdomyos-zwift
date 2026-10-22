@@ -259,8 +259,9 @@ void DeviceTestDataIndex::Initialize() {
     // DomyosElliptical
     RegisterNewDeviceTestData(DeviceIndex::DomyosElliptical)
         ->expectDevice<domyoselliptical>()        
-        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWith)
-        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWith);
+        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("DOMYOS-EL-4071", DeviceNameComparison::Exact)
+        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Domyos rower
