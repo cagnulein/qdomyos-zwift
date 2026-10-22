@@ -5230,6 +5230,22 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Obecné možnosti rozhraní</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Velikost textu podle systému</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Text aplikace má velikost nastavenou v telefonu nebo tabletu, nejvýše 150%. Vypněte, chcete-li zvolit velikost níže – například pro obrazovku, kterou během tréninku čtete z dálky. Výchozí: zapnuto.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Velikost textu:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Velikost textu aplikace (nastavení, nabídky, dialogová okna) v procentech, od 80 do 170. Výchozí: 100. Dlaždice mají vlastní nastavení velikosti.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Zobrazit horní lištu</translation>
     </message>

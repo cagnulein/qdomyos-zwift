@@ -1331,8 +1331,10 @@ const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("andr
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
+const QString QZSettings::ui_text_scale = QStringLiteral("ui_text_scale");
+const QString QZSettings::ui_text_scale_system = QStringLiteral("ui_text_scale_system");
 
-const uint32_t allSettingsCount = 1028;
+const uint32_t allSettingsCount = 1030;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2387,6 +2389,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::android_notification_prompt_disabled, QZSettings::default_android_notification_prompt_disabled},
     {QZSettings::android_notification_v2, QZSettings::default_android_notification_v2},
     {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
+    {QZSettings::ui_text_scale, QZSettings::default_ui_text_scale},
+    {QZSettings::ui_text_scale_system, QZSettings::default_ui_text_scale_system},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

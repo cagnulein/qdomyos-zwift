@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -24,8 +25,10 @@ ScrollView {
     }
 
     property var gearRows: []
-    property int rowHeight: 55
-    property int offsetControlHeight: 43
+    // the rows, the fields and their -/+ grow with the text like the Wahoo gear table
+    // (from 40 and 30), never below their size at 100 %
+    property int rowHeight: window.textScale !== 1 ? Math.max(55, window.fontPx(40)) : 55
+    property int offsetControlHeight: window.textScale !== 1 ? Math.max(43, window.fontPx(30)) : 43
 
     Component.onCompleted: {
         loadGearRows()
@@ -128,14 +131,15 @@ ScrollView {
             text: qsTr("Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             color: Material.accent
         }
 
         Button {
             text: qsTr("Reset to Linear Defaults")
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: window.fontPx(40)
             onClicked: {
                 gearRows = defaultGearRows()
                 updateGearListModel()
@@ -161,6 +165,8 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Gear")
                         font.bold: true
@@ -176,6 +182,7 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Offset")
                         font.bold: true
@@ -216,6 +223,7 @@ ScrollView {
                         color: "transparent"
 
                         Text {
+                            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                             anchors.centerIn: parent
                             text: gear
                             color: "black"
@@ -237,7 +245,7 @@ ScrollView {
 
                             Button {
                                 text: "-"
-                                Layout.preferredWidth: 34
+                                Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
                                 onClicked: {
                                     gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) - 0.5)
@@ -255,6 +263,10 @@ ScrollView {
                                 selectedTextColor: "white"
                                 selectionColor: Material.accent
                                 horizontalAlignment: Text.AlignHCenter
+                                // Material pads 8 above and 16 below: with a bigger text the number sat
+                                // well over the middle of the field
+                                topPadding: window.textScale !== 1 ? 0 : 8
+                                bottomPadding: window.textScale !== 1 ? 0 : 16
                                 background: Rectangle {
                                     color: "white"
                                     border.color: "#cccccc"
@@ -272,7 +284,7 @@ ScrollView {
 
                             Button {
                                 text: "+"
-                                Layout.preferredWidth: 34
+                                Layout.preferredWidth: window.fontPx(34)
                                 Layout.fillHeight: true
                                 onClicked: {
                                     gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + 0.5)

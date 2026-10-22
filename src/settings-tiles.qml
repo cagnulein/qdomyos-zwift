@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -404,6 +405,7 @@ ScrollView {
                 Label {
                     id: labelSpeedOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -431,7 +433,8 @@ ScrollView {
             text: qsTr("Speed in kilometers per hour. (To set your speed units to miles, go to Settings > General Options > Use Miles unit in UI).")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -450,6 +453,7 @@ ScrollView {
                 Label {
                     id: labelinclinationOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -480,6 +484,8 @@ ScrollView {
             settings: settings
             accordionContent:  ColumnLayout {
                 SwitchDelegate {
+                    // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: cadenceColorEnabled
                     text: qsTr("Enable Cadence color")
                     spacing: 0
@@ -498,7 +504,8 @@ ScrollView {
                     text: qsTr("Bike pedal cadence changes color to indicate how your cadence compares to the cadence called out in Peloton classes. The tile displays the following colors: white if there is no target cadence in the program, red if your cadence is lower than the target, green if your cadence matches the target, and orange if your cadence is higher than the target.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -512,6 +519,7 @@ ScrollView {
                     Label {
                         id: labelcadenceOrder
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -540,7 +548,8 @@ ScrollView {
             text: qsTr("Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -559,6 +568,7 @@ ScrollView {
                 Label {
                     id: labelelevationOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -591,6 +601,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -617,7 +628,8 @@ ScrollView {
             text: qsTr("Displays the total negative elevation gain (descent) in meters or feet accumulated during the workout.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -636,6 +648,7 @@ ScrollView {
                 Label {
                     id: labelcaloriesOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -663,7 +676,8 @@ ScrollView {
             text: qsTr("Estimated calories burned during session, calculated on weight, age, and watts.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -682,6 +696,7 @@ ScrollView {
                 Label {
                     id: labelodometerOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -709,7 +724,8 @@ ScrollView {
             text: qsTr("Estimated distance traveled during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -725,6 +741,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: paceColorEnabled
                     text: qsTr("Enable Pace color")
                     spacing: 0
@@ -744,6 +761,7 @@ ScrollView {
                     Label {
                         id: labelpaceOrder
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -778,6 +796,7 @@ ScrollView {
                 Label {
                     id: labelavgpaceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -811,6 +830,7 @@ ScrollView {
                 Label {
                     id: labelgradeAdjustedPaceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -838,7 +858,8 @@ ScrollView {
             text: qsTr("Current pace per mile or kilometer (Treadmill, Elliptical and Rower)")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -851,7 +872,8 @@ ScrollView {
             text: qsTr("Flat-equivalent pace computed from treadmill incline using the Minetti cost model.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -870,6 +892,7 @@ ScrollView {
                 Label {
                     id: labelresistanceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -897,7 +920,8 @@ ScrollView {
             text: qsTr("Displays your bike’s resistance. The +/- buttons can be used to change resistance, if your bike is compatible.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -913,6 +937,7 @@ ScrollView {
             settings: settings
             accordionContent:  ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: wattColorEnabled
                     text: qsTr("Enable Watt color")
                     spacing: 0
@@ -932,6 +957,7 @@ ScrollView {
                     Label {
                         id: labelwattOrder
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -960,7 +986,8 @@ ScrollView {
             text: qsTr("Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -979,6 +1006,7 @@ ScrollView {
                 Label {
                     id: labelweightLossOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1006,7 +1034,8 @@ ScrollView {
             text: qsTr("Estimation of weight loss during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1026,6 +1055,7 @@ ScrollView {
                 Label {
                     id: labelavgwattOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1053,7 +1083,8 @@ ScrollView {
             text: qsTr("Average watts produced for the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1073,6 +1104,7 @@ ScrollView {
 					 Label {
 					     id: labelavgwattLapOrder
 						  text: qsTr("order index:")
+        wrapMode: window.labelWrap
 						  Layout.fillWidth: true
 						  horizontalAlignment: Text.AlignRight
 						}
@@ -1106,6 +1138,7 @@ ScrollView {
                 Label {
                     id: labelftpOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1133,7 +1166,8 @@ ScrollView {
             text: qsTr("Percentage of current FTP and current FTP zone.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1149,6 +1183,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: heartShowAsPercentSwitch
                     text: qsTr("Show as %FC Max")
                     spacing: 0
@@ -1167,7 +1202,8 @@ ScrollView {
                     text: qsTr("When enabled, displays heart rate as percentage of maximum heart rate (%FC Max) instead of BPM. AVG and MAX values will also show percentages.")
                     font.bold: true
                     font.italic: true
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -1181,6 +1217,7 @@ ScrollView {
                     Label {
                         id: labelheartrateOrder
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -1215,6 +1252,7 @@ ScrollView {
                 Label {
                     id: labelfanOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1242,7 +1280,8 @@ ScrollView {
             text: qsTr("Built-in treadmill fan speed (Treadmill only)")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1261,6 +1300,7 @@ ScrollView {
                 Label {
                     id: labeljoulsOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1288,7 +1328,8 @@ ScrollView {
             text: qsTr("Cumulative power produced during the session in kilojoules.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1307,6 +1348,7 @@ ScrollView {
                 Label {
                     id: labelelapsedOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1334,7 +1376,8 @@ ScrollView {
             text: qsTr("Total time from start of the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1353,6 +1396,7 @@ ScrollView {
                 Label {
                     id: labelmovingTimeOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1380,7 +1424,8 @@ ScrollView {
             text: qsTr("Total time moving during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1399,6 +1444,7 @@ ScrollView {
                 Label {
                     id: labelpelotonOffsetOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1426,7 +1472,8 @@ ScrollView {
             text: qsTr("Allows you to sync resistance and cadence target changes with the Peloton coach’s callouts. If the targets are changing in QZ after the coach’s callouts, use the ‘+’ button to add seconds (essentially speeding QZ up). Use the ‘-’ button to slow QZ down. Use this tile in conjunction with the Remaining Time/Row tile (see below).")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1445,6 +1492,7 @@ ScrollView {
                 Label {
                     id: labelPelotonRemainingOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1472,7 +1520,8 @@ ScrollView {
             text: qsTr("Displays time remaining in Peloton class.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1492,6 +1541,7 @@ ScrollView {
                 Label {
                     id: labelpelotonDifficultyOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1524,6 +1574,7 @@ ScrollView {
                 Label {
                     id: labellapElapsedOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1554,6 +1605,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: pelotonResistanceColorEnabled
                     text: qsTr("Enable Peloton Resistance color")
                     spacing: 0
@@ -1572,6 +1624,7 @@ ScrollView {
                     Label {
                         id: labelpeloton_resistanceOrder
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -1600,7 +1653,8 @@ ScrollView {
             text: qsTr("Resistance of your bike converted to the Peloton bike scale of 1 to 100.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1619,6 +1673,7 @@ ScrollView {
                 Label {
                     id: labeltarget_resistanceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1646,7 +1701,8 @@ ScrollView {
             text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class's resistance target up or down for the rest of the ride.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1666,6 +1722,7 @@ ScrollView {
                 Label {
                     id: labeltarget_peloton_resistanceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1693,7 +1750,8 @@ ScrollView {
             text: qsTr("Displays target resistance converted to the Peloton bike scale of 1 to 100. For example, during a Peloton class, you want the resistance displayed in this tile to match the Peloton Resistance Tile.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1712,6 +1770,7 @@ ScrollView {
                 Label {
                     id: labeltarget_cadenceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1739,7 +1798,8 @@ ScrollView {
             text: qsTr("Displays target cadence.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1758,6 +1818,7 @@ ScrollView {
                 Label {
                     id: labeltarget_powerOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1785,7 +1846,8 @@ ScrollView {
             text: qsTr("Displays target output (watts) when this information is provided by third-party apps.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1805,6 +1867,7 @@ ScrollView {
                 Label {
                     id: labeltarget_zoneOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1832,7 +1895,8 @@ ScrollView {
             text: qsTr("Displays the target power zone when this information is provided by third-party apps.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1851,6 +1915,7 @@ ScrollView {
                 Label {
                     id: labeltargetspeedOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1884,6 +1949,7 @@ ScrollView {
                 Label {
                     id: labeltargetpaceOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1917,6 +1983,7 @@ ScrollView {
                 Label {
                     id: labeltarget_inclineOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1949,6 +2016,7 @@ ScrollView {
                 Label {
                     id: labelwatt_kgOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -1976,7 +2044,8 @@ ScrollView {
             text: qsTr("Calculates your output (watts) divided by your weight. This is the primary metric used by Zwift and similar apps to calculate your virtual speed. NOTE: This is a much better metric to use than Output/Watts when comparing your effort to other users. This is why Peloton’s leaderboard, which uses only Output, is flawed.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1995,6 +2064,7 @@ ScrollView {
                 Label {
                     id: labelgearsOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2022,7 +2092,8 @@ ScrollView {
             text: qsTr("Allows you to change resistance while in Auto-Follow Mode.This tile allows you override the target resistance sent by third-party apps. For example, you would use the Gears Tile to increase resistance and generate more watts for sprinting in Zwift.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2040,6 +2111,7 @@ ScrollView {
                     spacing: 10
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2061,6 +2133,7 @@ ScrollView {
                     }
                 }
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     text: qsTr("Swap Buttons")
                     spacing: 0
                     bottomPadding: 0
@@ -2080,7 +2153,8 @@ ScrollView {
             text: qsTr("It shows 2 big gear buttons on the UI")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2100,6 +2174,7 @@ ScrollView {
                 Label {
                     id: labelremainingTimeTrainingProgramRowOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2127,7 +2202,8 @@ ScrollView {
             text: qsTr("Displays the time remaining until the next cadence and/or resistance interval.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2147,6 +2223,7 @@ ScrollView {
                 Label {
                     id: labelnextRowsTrainingProgramOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2174,7 +2251,8 @@ ScrollView {
             text: qsTr("Displays the next Peloton interval with duration and FTP Zone (in Power Zone classes) or Peloton Resistance (non–Power Zone classes).")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2193,6 +2271,7 @@ ScrollView {
                 Label {
                     id: labelmetsOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2220,7 +2299,8 @@ ScrollView {
             text: qsTr("Displays metabolic equivalents (METs), a measurement of energy expenditure and amount of oxygen used by the body compared to the body at rest. (e.g., 4 METS requires the body to use 4 times as much oxygen than when at rest, which means it requires more energy and burns more calories).")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2239,6 +2319,7 @@ ScrollView {
                 Label {
                     id: labeltargetmetsOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2272,6 +2353,7 @@ ScrollView {
                 Label {
                     id: labeldatetimeOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2299,7 +2381,8 @@ ScrollView {
             text: qsTr("Displays the current time.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2318,6 +2401,7 @@ ScrollView {
                 Label {
                     id: labelstrokes_countOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2345,7 +2429,8 @@ ScrollView {
             text: qsTr("(Rower only) Displays the number of strokes rowed.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2364,6 +2449,7 @@ ScrollView {
                 Label {
                     id: labelstrokes_lengthOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2391,7 +2477,8 @@ ScrollView {
             text: qsTr("(Rower only) Displays the stroke length.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2410,6 +2497,7 @@ ScrollView {
                 Label {
                     id: labelsteeringAngleOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2437,7 +2525,8 @@ ScrollView {
             text: qsTr("(Elite Rizer only) Displays steering angle.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2456,6 +2545,7 @@ ScrollView {
                 Label {
                     id: labelPIDHROrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2483,7 +2573,8 @@ ScrollView {
             text: qsTr("Use this tile to display the target heart rate zone in which you’ve chosen to work out in Settings > Training Program Options.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2502,6 +2593,7 @@ ScrollView {
                 Label {
                     id: labelExtInclineOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2529,7 +2621,8 @@ ScrollView {
             text: qsTr("(Elite Rizer only) Allows control of the incline of external inclination equipment.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2548,6 +2641,7 @@ ScrollView {
                 Label {
                     id: labelStrideLengthOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2575,7 +2669,8 @@ ScrollView {
             text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays stride while walking or running.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2594,6 +2689,7 @@ ScrollView {
                 Label {
                     id: labelGroundContactOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2621,7 +2717,8 @@ ScrollView {
             text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays time foot is on contact with ground while walking or running.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2640,6 +2737,7 @@ ScrollView {
                 Label {
                     id: labelVerticalOscillationOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2667,7 +2765,8 @@ ScrollView {
             text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays the up and down movement while walking or running.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2686,6 +2785,7 @@ ScrollView {
                 Label {
                     id: labelPacelast500mOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2719,6 +2819,7 @@ ScrollView {
                 Label {
                     id: labelStepCountOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2752,6 +2853,7 @@ ScrollView {
                 Label {
                     id: labelErgModeOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2783,6 +2885,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -2816,6 +2919,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance1Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2841,6 +2945,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance1Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2863,6 +2968,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance1Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2885,6 +2991,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance1Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -2929,6 +3036,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance2Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2954,6 +3062,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance2Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2976,6 +3085,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance2Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -2998,6 +3108,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance2Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3042,6 +3153,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance3Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3067,6 +3179,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance3Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3089,6 +3202,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance3Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3111,6 +3225,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance3Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3155,6 +3270,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance4Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3180,6 +3296,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance4Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3202,6 +3319,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance4Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3224,6 +3342,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance4Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3268,6 +3387,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance5Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3293,6 +3413,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance5Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3315,6 +3436,7 @@ ScrollView {
                     Label {
                         id: labelPresetResistance5Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3337,6 +3459,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetResistance5Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3381,6 +3504,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed1Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3406,6 +3530,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed1Value
                         text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3432,6 +3557,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed1Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3454,6 +3580,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed1Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3498,6 +3625,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed2Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3523,6 +3651,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed2Value
                         text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3549,6 +3678,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed2Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3571,6 +3701,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed2Color
 								text: qsTr("color:")
+								wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3615,6 +3746,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed3Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3640,6 +3772,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed3Value
                         text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3666,6 +3799,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed3Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3688,6 +3822,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed3Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3732,6 +3867,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed4Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3757,6 +3893,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed4Value
                         text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3783,6 +3920,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed4Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3805,6 +3943,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed4Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3849,6 +3988,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed5Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3874,6 +4014,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed5Value
                         text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3900,6 +4041,7 @@ ScrollView {
                     Label {
                         id: labelPresetSpeed5Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3922,6 +4064,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetSpeed5Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -3966,6 +4109,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination1Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3991,6 +4135,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination1Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4013,6 +4158,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination1Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4035,6 +4181,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetInclination1Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -4079,6 +4226,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination2Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4104,6 +4252,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination2Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4126,6 +4275,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination2Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4149,6 +4299,7 @@ ScrollView {
 				    Label {
 					     id: labelPresetInclination2Color
 						  text: qsTr("color:")
+        wrapMode: window.labelWrap
 						  Layout.fillWidth: true
 						  horizontalAlignment: Text.AlignRight
 						  }
@@ -4192,6 +4343,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination3Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4217,6 +4369,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination3Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4239,6 +4392,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination3Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4261,6 +4415,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetInclination3Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -4305,6 +4460,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination4Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4330,6 +4486,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination4Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4352,6 +4509,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination4Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4374,6 +4532,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetInclination4Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -4418,6 +4577,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination5Order
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4443,6 +4603,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination5Value
                         text: qsTr("value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4465,6 +4626,7 @@ ScrollView {
                     Label {
                         id: labelPresetInclination5Label
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4487,6 +4649,7 @@ ScrollView {
 					     Label {
 						      id: labelPresetInclination5Color
 								text: qsTr("color:")
+        wrapMode: window.labelWrap
 								Layout.fillWidth: true
 								horizontalAlignment: Text.AlignRight
 								}
@@ -4530,6 +4693,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4553,6 +4717,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4573,6 +4738,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4635,6 +4801,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4658,6 +4825,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4678,6 +4846,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4740,6 +4909,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4763,6 +4933,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4783,6 +4954,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4845,6 +5017,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4868,6 +5041,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4888,6 +5062,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4950,6 +5125,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4973,6 +5149,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -4993,6 +5170,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5055,6 +5233,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5078,6 +5257,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5098,6 +5278,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5160,6 +5341,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("order index:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5183,6 +5365,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("zone value:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5203,6 +5386,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         text: qsTr("label:")
+                        wrapMode: window.labelWrap
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -5259,7 +5443,8 @@ ScrollView {
             text: qsTr("Power zone presets allow quick access to specific training zones with customizable labels and values.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5278,6 +5463,7 @@ ScrollView {
                 Label {
                     id: labelHrTimeInZone1Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5305,7 +5491,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heart rate Zone 1 or higher during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5324,6 +5511,7 @@ ScrollView {
                 Label {
                     id: labelHrTimeInZone2Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5351,7 +5539,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heart rate Zone 2 or higher during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5370,6 +5559,7 @@ ScrollView {
                 Label {
                     id: labelHrTimeInZone3Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5397,7 +5587,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heart rate Zone 3 or higher during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5416,6 +5607,7 @@ ScrollView {
                 Label {
                     id: labelHrTimeInZone4Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5443,7 +5635,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heart rate Zone 4 or higher during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5462,6 +5655,7 @@ ScrollView {
                 Label {
                     id: labelHrTimeInZone5Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5489,7 +5683,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heart rate Zone 5 or higher during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5518,7 +5713,8 @@ ScrollView {
             text: qsTr("When enabled, each zone shows only the time spent in that specific zone. When disabled (default), each zone shows cumulative time spent in that zone or higher.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5537,6 +5733,7 @@ ScrollView {
                 Label {
                     id: labelcoretemperatureOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5564,7 +5761,8 @@ ScrollView {
             text: qsTr("Shows Core, Body Temperature and Heat Strain Index from a Core Temperature sensor.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5583,6 +5781,7 @@ ScrollView {
                 Label {
                     id: labelHeatTimeInZone1Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5610,7 +5809,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heat Zone 1 during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5629,6 +5829,7 @@ ScrollView {
                 Label {
                     id: labelHeatTimeInZone2Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5656,7 +5857,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heat Zone 2 during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5675,6 +5877,7 @@ ScrollView {
                 Label {
                     id: labelHeatTimeInZone3Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5702,7 +5905,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heat Zone 3 during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5721,6 +5925,7 @@ ScrollView {
                 Label {
                     id: labelHeatTimeInZone4Order
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5748,7 +5953,8 @@ ScrollView {
             text: qsTr("Displays total time spent in heat Zone 4 during the session.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5766,6 +5972,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5792,7 +5999,8 @@ ScrollView {
             text: qsTr("Button tile to switch automatic virtual shifting to Cruise profile.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5810,6 +6018,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5836,7 +6045,8 @@ ScrollView {
             text: qsTr("Button tile to switch automatic virtual shifting to Climb profile.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5854,6 +6064,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5880,7 +6091,8 @@ ScrollView {
             text: qsTr("Button tile to switch automatic virtual shifting to Sprint profile.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5898,6 +6110,7 @@ ScrollView {
                 spacing: 10
                 Label {
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5924,7 +6137,8 @@ ScrollView {
             text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5943,6 +6157,7 @@ ScrollView {
                 Label {
                     id: labelhrvOrder
                     text: qsTr("order index:")
+                    wrapMode: window.labelWrap
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
@@ -5970,7 +6185,8 @@ ScrollView {
             text: qsTr("Shows Heart Rate Variability (HRV) from a compatible heart rate belt. Displays RMSSD value in milliseconds.")
             font.bold: true
             font.italic: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter

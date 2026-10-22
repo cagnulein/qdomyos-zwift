@@ -5230,6 +5230,22 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Algemene interface-opties</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Tekstgrootte van het systeem gebruiken</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>De tekst van de app volgt de tekstgrootte uit de instellingen van je telefoon of tablet, tot maximaal 150%. Schakel dit uit om hieronder zelf de grootte te kiezen, bijvoorbeeld voor een scherm dat je tijdens een training van een afstand leest. Standaard: aan.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tekstgrootte:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Grootte van de tekst van de app (instellingen, menu&apos;s, dialoogvensters) in procenten, van 80 tot 170. Standaard: 100. De tegels hebben een eigen instelling voor hun grootte.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Bovenste balk tonen</translation>
     </message>

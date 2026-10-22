@@ -5142,6 +5142,22 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Allgemeine UI-Optionen</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Systemtextgröße verwenden</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Die Textgröße der App folgt den Einstellungen des Telefons oder Tablets, höchstens 150 %. Ausschalten, um die Größe unten festzulegen, z. B. für einen Bildschirm, den Sie beim Training aus der Entfernung lesen. Standard: an.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Textgröße:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Textgröße der App (Einstellungen, Menüs, Dialoge) in Prozent, von 80 bis 170. Standard ist 100. Die Kacheln haben eine eigene Größeneinstellung.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Obere Leiste aktiviert</translation>
     </message>

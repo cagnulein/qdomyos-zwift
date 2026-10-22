@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.15
+import QtQuick.Layouts 1.15
 
 // ComboBox of the settings pages and the wizard. On Android 12+ the window runs under the
 // status and navigation bars (edge to edge), and with the default 12 px margins a long list
@@ -26,6 +27,11 @@ ComboBox {
     popup.bottomMargin: 12 + window.getBottomPadding()
     popup.leftMargin: 12
     popup.rightMargin: 12
+
+    // With a bigger text the label left of the box wraps, but the row still shared its width as
+    // if the label were one line, and squeezed the box: the shown item was cut in the middle of
+    // a word. The box keeps the width of its text (at most half the window); 0 is the default
+    Layout.minimumWidth: window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
 
     // The stock list takes its height from the ListView, which creates its items only as
     // they come into view: a long list opened short over its field and a moment later grew
