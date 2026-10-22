@@ -1193,13 +1193,14 @@ public:
     void update();
     void ten_hz();
     void checkClipboardForWorkout();
+    bool trainingProgramHeartRatePidSuppressed(int windowSeconds);
     double heartRateMax();
     bool adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
                                      const QString &reason);
     void backup();
     bool getDevice();
     bool getLap();
-    void Start_inner(bool send_event_to_device);
+    void Start_inner(bool send_event_to_device, bool force_start = false);
 
     QTextToSpeech m_speech;
     int tts_summary_count = 0;

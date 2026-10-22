@@ -137,6 +137,9 @@ class trainprogram : public QObject {
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static bool isBlockingTransitionRow(const trainrow &row);
+    static bool isHeartRatePidSuppressed(bool trainingProgramStarted, bool rowForcesSpeed,
+                                         int rowRemainingSeconds, bool transitionActive,
+                                         int transitionWindowSeconds = 10);
     static QString pidHrModeToString(treadmill_pid_hr_mode mode);
     static treadmill_pid_hr_mode pidHrModeFromString(const QString &value);
     static treadmill_pid_hr_mode effectivePidHrMode(const trainrow &row, treadmill_pid_hr_mode globalMode);

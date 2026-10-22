@@ -1,4 +1,6 @@
 #include "treadmill.h"
+#include "trainprogram.h"
+#include <QPointer>
 #include <algorithm>
 #include <cmath>
 #ifdef Q_OS_ANDROID
@@ -9,6 +11,8 @@
 #endif
 #include <QSettings>
 #include <cmath>
+
+static QPointer<trainprogram> activeTrainingProgram;
 
 static double gradeAdjustedCost(double gradePercent) {
     const double i = gradePercent / 100.0;
@@ -78,14 +82,21 @@ void treadmill::changeSpeed(double speed) {
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
-    if (autoResistanceEnable)
+    if (autoResistanceEnable && manualSpeedOverrideActive()) {
+        qDebug() << "Manual speed override active - suppressing requested speed" << RequestedSpeed.value();
+        requestSpeed = -1;
+    } else if (autoResistanceEnable) {
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
-    if (closedLoopEnabled && autoResistanceEnable && requestSpeed >= 5.0 &&
-        m_lastRawSpeedRequested >= 5.0) {
-        m_runnController.start(RequestedSpeed.value(), requestSpeed, QDateTime::currentMSecsSinceEpoch());
-        qDebug() << "Runn closed-loop: requested" << m_lastRawSpeedRequested
-                 << "motor target" << m_runnController.target()
-                 << "initial motor command" << requestSpeed;
+        m_lastQzSpeedCommand = RequestedSpeed.value();
+        m_lastQzSpeedCommandTimer.start();
+        if (closedLoopEnabled && requestSpeed >= 5.0 && m_lastRawSpeedRequested >= 5.0) {
+            m_runnController.start(RequestedSpeed.value(), requestSpeed, QDateTime::currentMSecsSinceEpoch());
+            qDebug() << "Runn closed-loop: requested" << m_lastRawSpeedRequested
+                     << "motor target" << m_runnController.target()
+                     << "initial motor command" << requestSpeed;
+        } else {
+            m_runnController.reset();
+        }
     } else {
         m_runnController.reset();
     }
@@ -133,6 +144,25 @@ void treadmill::changeInclination(double grade, double inclination) {
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
+    if (activeTrainingProgram && activeTrainingProgram->isStarted()) {
+        const trainrow row = activeTrainingProgram->currentRow();
+        const bool heartRateControlled = row.zoneHR >= 0 || (row.HRmin > 0 && row.HRmax > 0);
+        const bool fixedProgramSpeed = row.forcespeed && row.speed > 0 && !heartRateControlled;
+
+        if (fixedProgramSpeed) {
+            qDebug() << "Training program fixed-speed row: ignoring combined speed/inclination adjustment"
+                     << speed << inclination;
+            return;
+        }
+
+        if (heartRateControlled) {
+            qDebug() << "Training program HR row: applying speed adjustment without re-sending inclination"
+                     << speed << inclination;
+            changeSpeed(speed);
+            return;
+        }
+    }
+
     changeSpeed(speed);
     changeInclination(inclination, inclination);
 }
@@ -189,6 +219,14 @@ void treadmill::updateRunnClosedLoop() {
 }
 
 void treadmill::onTrainingProgramTransition() {
+    if (auto *program = qobject_cast<trainprogram *>(sender())) {
+        activeTrainingProgram = program;
+    }
+    m_trainingProgramTransitionAt = QDateTime::currentDateTime();
+    // Drop commands queued before the row transition. The new row writes its own targets
+    // immediately after this callback; stale HR/manual requests must not arrive afterward.
+    requestSpeed = -1;
+    requestInclination = -100;
     targetWatts = -1;
     m_followPowerLastSpeedWhenTargetSet = -1;
     m_followPowerSuppressedUntil = QDateTime::currentDateTime().addMSecs(5000);
@@ -197,6 +235,21 @@ void treadmill::onTrainingProgramTransition() {
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
 BLUETOOTH_TYPE treadmill::deviceType() { return TREADMILL; }
+
+bool treadmill::manualSpeedOverrideActive() const {
+    return supportsManualSpeedOverride() && m_manualSpeedOverrideTimer.isValid() &&
+           m_manualSpeedOverrideTimer.elapsed() < manualSpeedOverrideDurationMs;
+}
+
+bool treadmill::isLikelyManualSpeedChange(double previousSpeed, double observedSpeed, double expectedSpeed,
+                                          bool expectedSpeedValid) {
+    if (previousSpeed <= 0 || observedSpeed < 0 ||
+        std::abs(observedSpeed - previousSpeed) < manualSpeedChangeThresholdKmh) {
+        return false;
+    }
+
+    return !expectedSpeedValid || std::abs(observedSpeed - expectedSpeed) > expectedSpeedToleranceKmh;
+}
 
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }
@@ -405,6 +458,18 @@ void treadmill::powerSensor(uint16_t power) {
 }
 
 void treadmill::speedSensor(double speed) {
+    const double previousSpeed = Speed.value();
+    const bool expectedSpeedValid = m_lastQzSpeedCommandTimer.isValid() &&
+                                    m_lastQzSpeedCommandTimer.elapsed() < expectedSpeedObservationWindowMs &&
+                                    m_lastQzSpeedCommand >= 0;
+    if (supportsManualSpeedOverride() &&
+        isLikelyManualSpeedChange(previousSpeed, speed, m_lastQzSpeedCommand, expectedSpeedValid)) {
+        m_manualSpeedOverrideTimer.start();
+        requestSpeed = -1;
+        clearPendingSpeedCommands();
+        qDebug() << "Manual treadmill speed change detected - suppressing QZ speed commands for"
+                 << manualSpeedOverrideDurationMs << "ms" << previousSpeed << speed;
+    }
     Speed.setValue(speed);
     qDebug() << "Current speed: " << speed;
 }
@@ -972,7 +1037,6 @@ void treadmill::changePower(int32_t power) {
     /*
     double erg_filter_upper =
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
