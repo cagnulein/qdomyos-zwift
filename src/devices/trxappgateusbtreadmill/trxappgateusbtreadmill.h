@@ -50,6 +50,11 @@ class trxappgateusbtreadmill : public treadmill {
     static QByteArray flowFitnessStopPacket();
     static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
     static bool isFlowFitnessDeviceName(const QString &deviceName);
+    static QByteArray iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds);
+    static bool buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
+                                           QString *error = nullptr);
+
+    void setTrainingProgram(const QList<trainrow> &rows) override;
 
   private:
     static double GetSpeedFromPacket(const QByteArray &packet);
@@ -60,6 +65,7 @@ class trxappgateusbtreadmill : public treadmill {
     static uint16_t GetElapsedFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    void uploadPendingIconsoleWorkout();
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -82,6 +88,8 @@ class trxappgateusbtreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    bool iconsoleTreadmill = false;
+    QList<QByteArray> pendingIconsoleWorkoutFrames;
 
     typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7, DKN_3 = 8, FLOW_FITNESS = 9 } TYPE;
     TYPE treadmill_type = TRXAPPGATE;

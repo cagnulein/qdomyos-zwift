@@ -4,6 +4,7 @@
 #include <QByteArray>
 
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
+#include "trainprogram.h"
 
 TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedFlowFitnessStartCommand) {
     EXPECT_EQ(trxappgateusbtreadmill::flowFitnessStartPacket(),
@@ -115,4 +116,41 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsGenericTreadmillDeviceNames) {
     EXPECT_FALSE(trxappgateusbtreadmill::isFlowFitnessDeviceName(QStringLiteral("TREADMILL")));
     EXPECT_FALSE(trxappgateusbtreadmill::isFlowFitnessDeviceName(QStringLiteral("TREADMILLABC")));
     EXPECT_FALSE(trxappgateusbtreadmill::isFlowFitnessDeviceName(QStringLiteral("OTHER00028")));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedIconsoleSpeedProgramFrames) {
+    const QList<double> speeds = {4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 12.0, 10.0, 8.0, 6.0};
+
+    EXPECT_EQ(trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds),
+              QByteArray::fromHex("f0a601d30129013d0151020102150229021502010151013d13"));
+    EXPECT_EQ(trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds),
+              QByteArray::fromHex("f0a701d30129013d0151020102150229021502010151013d14"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithWrongRowCount) {
+    QList<trainrow> rows;
+    QList<QByteArray> frames;
+    QString error;
+
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("exactly 10 rows")));
+    EXPECT_TRUE(frames.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsIconsoleWorkoutFromTenOneMinuteRows) {
+    const QList<double> speeds = {4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 12.0, 10.0, 8.0, 6.0};
+    QList<trainrow> rows;
+    for (const double speed : speeds) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = speed;
+        rows.append(row);
+    }
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 2);
+    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
+    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
 }
