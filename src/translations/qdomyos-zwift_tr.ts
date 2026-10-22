@@ -5230,6 +5230,22 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Genel arayüz seçenekleri</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Sistem yazı boyutunu kullan</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Uygulamanın yazıları, telefon veya tablet ayarlarındaki yazı boyutunu izler (en fazla 150%). Aşağıdan boyut seçmek için kapatın; örneğin antrenman sırasında uzaktan okuduğunuz bir ekran için. Varsayılan: açık.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Yazı boyutu:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Uygulama yazılarının (ayarlar, menüler, iletişim kutuları) yüzde olarak boyutu, 80 ile 170 arası. Varsayılan: 100. Kutucukların kendi boyut ayarı vardır.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Üst çubuğu göster</translation>
     </message>

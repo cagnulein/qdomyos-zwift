@@ -5230,6 +5230,22 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>일반 UI 옵션</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>시스템 글자 크기 사용</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>앱의 글자 크기가 휴대폰 또는 태블릿 설정의 글자 크기를 따릅니다(최대 150%). 운동 중 멀리서 보는 화면처럼 아래에서 크기를 직접 정하려면 끄세요. 기본값: 켜짐.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>글자 크기:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>앱(설정, 메뉴, 대화 상자)의 글자 크기를 퍼센트로 지정합니다(80–170). 기본값: 100. 타일 크기는 별도 설정으로 조정합니다.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>상단 바 표시</translation>
     </message>
