@@ -33,3 +33,16 @@ If MyWhoosh does not discover the OpenBikeControl service at all, verify local-n
 **Confirmed result:** In one support case, QZ connected to the Rizer and could send incline commands, but the MyWhoosh log contained only nearly flat requests (0%, +0.2%, 0%) during much steeper route sections. The user found MyWhoosh **Gradient = 0%**, changed it to **100%**, and explicitly confirmed that QZ began following the course and the Rizer responded correctly.
 
 QZ's current Elite Rizer driver multiplies the requested incline by **Elite Rizer Gain**, whose default is **1.0**; it cannot reconstruct grades that MyWhoosh never sends. **Downhill range and steering** are separate features and were not validated by this fix.
+
+## Can QZ and MyWhoosh run on the same phone or tablet?
+
+**For the usual QZ virtual-trainer bridge, use two devices.** Running QZ and MyWhoosh on one phone/tablet is not a supported or reliable way for MyWhoosh to discover and connect to QZ's own virtual Bluetooth trainer. QZ connecting to the *physical* trainer does not mean MyWhoosh on that same device can discover QZ as another trainer.
+
+1. Run **QZ** on a phone/tablet and let it connect to the physical bike or trainer. Confirm that live power and cadence appear in QZ.
+2. Enable QZ's normal virtual-device/virtual Bluetooth connection. Restart QZ if the settings change requires it.
+3. Run **MyWhoosh on a different device** (another phone/tablet or a PC) and select QZ's advertised virtual trainer, often named **Wahoo KICKR 0000**, rather than the physical trainer, as the power source and controllable trainer.
+4. Keep the devices on the same local network if using QZ's Wi-Fi/DIRCON or MyWhoosh Link/OpenBikeControl features. For Bluetooth virtual-trainer pairing, use the receiving device's Bluetooth scan.
+
+A support user running both apps on **one iPad** could connect QZ to a KICKR CORE but MyWhoosh only found the physical trainer, not QZ. The **separate-iPhone-and-iPad** setup worked for the same user, including virtual shifting. A separate Android-phone support conversation also established that the same-phone MyWhoosh bridge was not available for that workflow.
+
+This limitation is specific to **MyWhoosh discovering QZ on the same device**; it does not mean QZ and every other training app have identical same-device capabilities.

@@ -59,3 +59,44 @@
 
 - Comparing manual and hands-off runs distinguishes competing speed requests from the normal heart-rate controller.
 - Workout row transitions, commands sent by QZ, and the treadmill's physical response must be checked separately. Manual console inputs may not be recorded as distinct QZ events.
+
+## Heart-rate-controlled treadmill speed repeatedly overshoots and slows down
+
+### Provide first
+
+- Treadmill model, QZ build, selected HR source, workout type, target HR zone, and a short example of speed/HR oscillation over time.
+- Screenshot of HR-control settings, especially whether **PID Pushy** is enabled, and the configured maximum HR plus whether an HR-max override is enabled.
+- Confirm whether the issue occurs during a programmed workout, HR-controlled mode, or both.
+
+### If still unclear
+
+- Repeat a comparable short workout with PID Pushy disabled, changing no other settings, and note whether speed still oscillates around the target zone.
+- Provide a time-aligned QZ debug log showing target HR, measured HR, speed commands, and the periods of overshoot.
+- Compare against a manual steady-speed segment to separate normal delayed heart-rate response from unexpected command spikes.
+
+### Why it matters
+
+- Heart rate responds later than treadmill speed changes, so frequent adjustments can produce oscillation without a Bluetooth fault.
+- PID Pushy can deliberately increase effort within the target zone, while a disabled HR-max override may change the calculated zone boundaries.
+- In a reviewed test, abnormal speed spikes disappeared but the HR-control oscillation remained, showing these are separate symptoms.
+
+## A treadmill training program ignores a manual speed change or continues after an interval
+
+### Provide first
+
+- Treadmill model, QZ build, and the exact training program or XML interval configuration (remove personal data).
+- State whether the problem concerns **speed**, **incline**, or the program ending, and whether it occurs at an interval transition or during an interval.
+- Give a short timeline: programmed speed/incline, manual treadmill speed change, what QZ displayed, and what the treadmill did after the change.
+- For HR-controlled rows, include the row's `looptimehr` value and whether the HR controller was active.
+
+### If still unclear
+
+- Reproduce a short interval transition and record separately whether speed control resumes after a manual adjustment and whether incline still follows the next interval.
+- Compare the actual interval completion condition with the intended end of the workout; provide the program file and a screenshot of the running program if the workout does not stop.
+- Capture a QZ debug log spanning the manual change and the next interval, with approximate timestamps. If testing a build with a manual-speed holdoff, note its configured duration and whether speed commands are suppressed during that window.
+
+### Why it matters
+
+- A manual-speed holdoff and programmed incline changes are independent: a confirmed test showed speed commands paused for 20 seconds while the next interval's incline still changed.
+- The per-row `looptimehr` controls how frequently HR-based speed corrections are evaluated; changing it affects command timing rather than the size of the speed step.
+- Separating interval completion from speed/incline control avoids treating a program-definition issue as a treadmill communication failure.

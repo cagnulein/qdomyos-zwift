@@ -77,6 +77,7 @@ void tacxneo2::changePower(int32_t power) {
     }
 
     writeCharacteristic(p, sizeof(p), QStringLiteral("changePower"), false, false);
+    lastCommandErgMode = power > 0;
 }
 
 void tacxneo2::forceInclination(double inclination) {
@@ -103,6 +104,7 @@ void tacxneo2::forceInclination(double inclination) {
     inc[12]++;
 
     writeCharacteristic(inc, sizeof(inc), QStringLiteral("changeInclination"), false, false);
+    lastCommandErgMode = false;
 }
 
 // The reason of this function is: "The only weird part is that when the offset in QZ is below 0 my Tacx Neo 2T thinks I am going down hill. And it keeps the flywheel motor moving."
@@ -161,10 +163,13 @@ void tacxneo2::update() {
             forceInclination(gearsFlywheelCheck(requestInclination, gearsModifier())); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
-            // in order to send the new gear value ASAP
-            forceInclination(gearsFlywheelCheck(lastRawRequestedInclinationValue, gearsModifier()));   // since this bike doesn't have the concept of resistance,
-                                                            // i'm using the gears in the inclination
+        } else if (lastGearValue >= 0 && lastGearValue != gears() &&
+                   requestPower <= 0 && !lastCommandErgMode) {
+            // Reapply the last grade on a gear change, even without an FTMS client.
+            // Until a grade is received, use flat ground as the base inclination.
+            const double grade = lastRawRequestedInclinationValue == -100 ? 0.0 : lastRawRequestedInclinationValue;
+            emit debug(QStringLiteral("reapplying inclination after gear change ") + QString::number(grade));
+            forceInclination(gearsFlywheelCheck(grade, gearsModifier()));
         }
 
         lastGearValue = gears();

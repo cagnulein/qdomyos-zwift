@@ -57,6 +57,8 @@ public:
     DEFINE_DEVICE(Concept2SkiErg, "Concept2 Ski Erg");
     DEFINE_DEVICE(CyclopsPhantomBike, "Cyclops Phantom Bike");
     DEFINE_DEVICE(DeerRunTreadmill, "DeerRun Treadmill");
+    DEFINE_DEVICE(DynamaxSprintFTMSBike, "Dynamax Sprint FTMS Bike");
+    DEFINE_DEVICE(DynamaxTreadmillOtherFTMSBike, "Dynamax Treadmill (other FTMS bike selected)");
     DEFINE_DEVICE(DomyosBike, "Domyos Bike");
     DEFINE_DEVICE(DomyosElliptical, "Domyos Elliptical");
     DEFINE_DEVICE(DomyosRower, "Domyos Rower");
@@ -93,6 +95,7 @@ public:
     DEFINE_DEVICE(FlywheelLifeFitnessIC8, "Flywheel Life Fitness IC8");
     DEFINE_DEVICE(FocusTreadmill, "Focus Treadmill");
     DEFINE_DEVICE(HorizonGR7Bike, "Horizon GR7 Bike");
+    DEFINE_DEVICE(HorizonTreadmill_AdidasFTMS, "Horizon Treadmill (Adidas FTMS)");
     DEFINE_DEVICE(HorizonTreadmill_Bodytone, "Horizon Treadmill (Bodytone)");
     DEFINE_DEVICE(HorizonTreadmill_DomyosTC, "Horizon Treadmill (Domyos TC)");
     DEFINE_DEVICE(HorizonTreadmill_Toorx, "Horizon Treadmill (Toorx)");
