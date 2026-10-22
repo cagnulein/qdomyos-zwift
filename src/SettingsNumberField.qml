@@ -89,7 +89,7 @@ TextField {
         y: field.height - implicitHeight - 2
         wrapMode: Text.WordWrap
         horizontalAlignment: field.horizontalAlignment
-        font.pixelSize: Qt.application.font.pixelSize - 3
+        font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize - 3 : window.fontPx(window.appFontPx - 3)
         color: Material.color(Material.Red)
     }
 }

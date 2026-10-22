@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -150,6 +151,8 @@ ColumnLayout {
                     spacing: 5
 
                     Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         text: qsTr("Filter")
                         color: "white"
                         verticalAlignment: Text.AlignVCenter
@@ -158,6 +161,13 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        // in a Row fillWidth does nothing: the field kept its 120 of Material and
+                        // showed less of the hint as the text grew. It grows with the text, but
+                        // leaves room for the back button on a narrow screen
+                        width: window.textScale !== 1
+                               ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth),
+                                     parent.width - x - (filterBackButton.visible ? filterBackButton.width + parent.spacing : 0)))
+                               : implicitWidth
                         placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
@@ -186,6 +196,7 @@ ColumnLayout {
                     }
 
                     Button {
+                        id: filterBackButton
                         text: "←"
                         visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
@@ -213,7 +224,8 @@ ColumnLayout {
                     delegate: ItemDelegate {
                         id: workoutDelegate
                         width: ListView.view.width
-                        height: 50
+                        // a bigger text: the row grows with the name and the path of a search result
+                        height: window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -236,7 +248,7 @@ ColumnLayout {
                             Text {
                                 id: fileIcon
                                 text: isItemFolder ? "📁" : "📄"
-                                font.pixelSize: 24
+                                font.pixelSize: window.fontPx(24)
                             }
 
                             ColumnLayout {
@@ -250,7 +262,7 @@ ColumnLayout {
                                           itemFileName.substring(0, itemFileName.length-4) :
                                           itemFileName
                                     color: isItemFolder ? Material.color(Material.Orange) : "white"
-                                    font.pixelSize: 16
+                                    font.pixelSize: window.fontPx(16)
                                     elide: Text.ElideRight
                                 }
 
@@ -258,7 +270,7 @@ ColumnLayout {
                                     Layout.fillWidth: true
                                     text: itemRelativePath
                                     color: Material.color(Material.Grey)
-                                    font.pixelSize: 12
+                                    font.pixelSize: window.fontPx(12)
                                     elide: Text.ElideMiddle
                                     visible: isSearching && itemRelativePath !== ""
                                 }
@@ -266,7 +278,7 @@ ColumnLayout {
 
                             Text {
                                 text: "›"
-                                font.pixelSize: 24
+                                font.pixelSize: window.fontPx(24)
                                 color: Material.color(Material.Grey)
                                 visible: !ListView.isCurrentItem
                             }
@@ -353,7 +365,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.margins: 10
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     font.bold: true
                     color: "white"
                     wrapMode: Text.WordWrap
@@ -365,7 +377,7 @@ ColumnLayout {
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 12
+                    font.pixelSize: window.fontPx(12)
                     wrapMode: Text.WordWrap
                     color: Material.color(Material.Grey, Material.Shade400)
                     horizontalAlignment: Text.AlignHCenter
