@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Controls 2.15
 import org.cagnulein.qdomyoszwift 1.0
 
@@ -66,6 +67,8 @@ Rectangle {
     height: titleText.contentHeight + descriptionText.contentHeight +  2
     // ![0]
     Text {
+        // a plain Text does not inherit the window font: the text size while it is not 100 %
+        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
         id: titleText
         text: product.title
         font.bold: true
@@ -75,6 +78,7 @@ Rectangle {
     }
 
     Text {
+        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
         id: descriptionText
         text: product.description
         anchors.right: priceText.left
@@ -84,6 +88,7 @@ Rectangle {
     }
 
     Text {
+        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
         id: priceText
         text: product.price
         anchors.right: parent.right
@@ -115,6 +120,7 @@ Rectangle {
         color: "white"
         radius: parent.radius
         Text {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: statusText
             anchors.top: parent.top
             anchors.bottom: parent.bottom

@@ -25,6 +25,7 @@ SOURCES += \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
+        TrainingProgram/trainingprogrampathtests.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
@@ -47,6 +48,8 @@ SOURCES += \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
+        Devices/TestLifeFitness95TParser.cpp \
+        Devices/TestLifeFitnessWorkout.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
@@ -96,6 +99,8 @@ HEADERS += \
     Devices/TestKeepBikeParser.h \
     Devices/TestSportsPlusBikeParser.h \
     Devices/TestWahooKickrRunParser.h \
+    Devices/TestLifeFitness95TParser.h \
+    Devices/TestLifeFitnessWorkout.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \

@@ -183,6 +183,7 @@ devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
+devices/lifefitnesstreadmill/lifefitnessworkout.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
 devices/mepanelbike/mepanelbike.cpp \
 devices/nautilusbike/nautilusbike.cpp \
@@ -515,6 +516,7 @@ devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
+devices/lifefitnesstreadmill/lifefitnessworkout.h \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.h \
 devices/mepanelbike/mepanelbike.h \
 devices/nautilusbike/nautilusbike.h \

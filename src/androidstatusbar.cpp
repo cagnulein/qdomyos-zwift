@@ -6,6 +6,9 @@
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 AndroidStatusBar* AndroidStatusBar::m_instance = nullptr;
 
@@ -35,6 +38,32 @@ int AndroidStatusBar::apiLevel() const
     return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CustomQtActivity", "getApiLevel", "()I");
 #else
     return 0;
+#endif
+}
+
+double AndroidStatusBar::systemFontScale() const
+{
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject context = QtAndroid::androidContext();
+    if (!context.isValid())
+        return 1.0;
+    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QAndroidJniObject configuration = resources.isValid()
+        ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
+        : QAndroidJniObject();
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return 1.0;
+    }
+    if (!configuration.isValid())
+        return 1.0;
+    const jfloat scale = configuration.getField<jfloat>("fontScale");
+    return scale > 0 ? scale : 1.0;
+#elif defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return lockscreen::systemFontScale();
+#else
+    return 1.0;
 #endif
 }
 

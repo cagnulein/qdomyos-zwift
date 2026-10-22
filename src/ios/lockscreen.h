@@ -127,6 +127,9 @@ class lockscreen {
 
     // web view cache
     static void clearWebViewCache();
+
+    // system text size (Dynamic Type): 1.0 at the default size
+    static double systemFontScale();
 };
 
 #endif // LOCKSCREEN_H

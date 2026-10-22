@@ -4226,7 +4226,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom da UI:</translation>
+        <translation type="vanished">Zoom da UI:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4238,7 +4238,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
+        <translation type="vanished">Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5178,6 +5178,22 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Opções gerais da interface</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar o tamanho de texto do sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>O tamanho do texto do aplicativo segue as configurações do telefone ou tablet, até 150%. Desative para escolher o tamanho abaixo, por exemplo para uma tela lida de longe durante o treino. Padrão é ligado.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamanho do texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamanho do texto do aplicativo (configurações, menus, diálogos), em porcentagem, de 80 a 170. O padrão é 100. Os blocos têm sua própria configuração de tamanho.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra Superior Ativada</translation>
     </message>
@@ -5532,6 +5548,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Open</source>
         <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamanho dos blocos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem. Antes chamado “Zoom da UI” (UI Zoom).</translation>
     </message>
     <message>
         <source>App Language:</source>
