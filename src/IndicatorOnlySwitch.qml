@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -51,6 +52,17 @@ SwitchDelegate {
                                  ? Math.max(implicitBackgroundHeight + topInset + bottomInset + 1,
                                             titleText.contentHeight + topPadding + bottomPadding + 12)
                                  : 0)
+
+    // On iOS the title kept the size of the style while the text around it grew (the hint under it
+    // too): with a size other than 100 % it takes the one of the window font, family, weight and
+    // style stay those of the style. At 100 % the size of the style, as before
+    Binding {
+        target: root.titleText
+        property: "font.pixelSize"
+        value: window.scaledFontPx
+        when: root.titleText !== null && window.scaledFontPx > 0
+        restoreMode: Binding.RestoreBindingOrValue
+    }
 
     Component.onCompleted: Qt.callLater(configureContentItem)
     onContentItemChanged: Qt.callLater(configureContentItem)

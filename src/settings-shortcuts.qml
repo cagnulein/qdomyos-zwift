@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -110,6 +111,8 @@ ScrollView {
         }
 
         SwitchDelegate {
+            // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: shortcutsEnabledDelegate
             text: qsTr("Enable Keyboard Shortcuts")
             checked: settings.shortcuts_enabled

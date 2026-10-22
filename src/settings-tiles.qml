@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -483,6 +484,8 @@ ScrollView {
             settings: settings
             accordionContent:  ColumnLayout {
                 SwitchDelegate {
+                    // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: cadenceColorEnabled
                     text: qsTr("Enable Cadence color")
                     spacing: 0
@@ -738,6 +741,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: paceColorEnabled
                     text: qsTr("Enable Pace color")
                     spacing: 0
@@ -933,6 +937,7 @@ ScrollView {
             settings: settings
             accordionContent:  ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: wattColorEnabled
                     text: qsTr("Enable Watt color")
                     spacing: 0
@@ -1178,6 +1183,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: heartShowAsPercentSwitch
                     text: qsTr("Show as %FC Max")
                     spacing: 0
@@ -1599,6 +1605,7 @@ ScrollView {
             settings: settings
             accordionContent: ColumnLayout {
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: pelotonResistanceColorEnabled
                     text: qsTr("Enable Peloton Resistance color")
                     spacing: 0
@@ -2126,6 +2133,7 @@ ScrollView {
                     }
                 }
                 SwitchDelegate {
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     text: qsTr("Swap Buttons")
                     spacing: 0
                     bottomPadding: 0

@@ -17570,6 +17570,8 @@ import AndroidStatusBar 1.0
                                     }
 
                                     SwitchDelegate {
+                                        // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                         text: qsTr("Virtual Tacx")
                                         spacing: 0
                                         bottomPadding: 0
