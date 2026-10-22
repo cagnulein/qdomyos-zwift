@@ -12225,7 +12225,7 @@ import AndroidStatusBar 1.0
 
                             RowLayout {
                                 spacing: 10
-                                Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
+                                Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 TextField {
                                     id: lifeFitnessUsernameTextField
                                     text: settings.life_fitness_username
@@ -12239,7 +12239,7 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
+                                Label { text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 TextField {
                                     id: lifeFitnessPasswordTextField
                                     text: settings.life_fitness_password
@@ -12272,7 +12272,8 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.")
                                 font.bold: true
                                 font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
