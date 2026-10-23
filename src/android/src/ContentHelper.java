@@ -206,7 +206,8 @@ public class ContentHelper {
                     projection,
                     MediaStore.MediaColumns.RELATIVE_PATH + "=?",
                     new String[] {relativePath},
-                    MediaStore.MediaColumns.DISPLAY_NAME + " COLLATE NOCASE DESC");
+                    MediaStore.MediaColumns.DISPLAY_NAME + " COLLATE NOCASE DESC, "
+                            + MediaStore.MediaColumns._ID + " DESC");
             if (cursor != null) {
                 int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
                 int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
