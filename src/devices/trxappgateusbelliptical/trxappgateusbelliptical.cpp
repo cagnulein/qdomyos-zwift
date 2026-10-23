@@ -556,7 +556,7 @@ void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &devic
     if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) {
         elliptical_type = DCT2000I;
         qDebug() << "DCT2000I workaround activacted!";
-    } else if (device.name().compare(QStringLiteral("FAL-SPORTS0187"), Qt::CaseInsensitive) == 0) {
+    } else if (device.name().compare(QStringLiteral("FAL-SPORTS"), Qt::CaseInsensitive) == 0) {
         elliptical_type = FAL_SPORTS_0187;
         qDebug() << "FAL-SPORTS0187 iConsole 0x35 profile activated";
     } else if (device.name().toUpper().startsWith(QStringLiteral("TOORX"))) {
