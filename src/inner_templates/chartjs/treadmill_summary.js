@@ -16,6 +16,13 @@
         return Number.isFinite(parsed) ? parsed : fallback;
     }
 
+    // Keep this in sync with treadmill::gradeAdjustedSpeed() (Minetti et al.).
+    function gradeAdjustedCost(gradePercent) {
+        const i = gradePercent / 100.0;
+        return 155.4 * Math.pow(i, 5) - 30.4 * Math.pow(i, 4) - 43.3 * Math.pow(i, 3) +
+            46.3 * Math.pow(i, 2) + 19.5 * i + 3.6;
+    }
+
     function formatPace(secondsPerUnit, unit) {
         if (!Number.isFinite(secondsPerUnit) || secondsPerUnit <= 0) {
             return '--:-- /' + unit;
@@ -198,6 +205,7 @@
         let weightedIncline = 0;
         let inclineWeight = 0;
         let elevationGainMeters = 0;
+        let gradeAdjustedDistanceKm = 0;
 
         for (let i = 1; i < arr.length; i++) {
             const previous = arr[i - 1];
@@ -213,6 +221,13 @@
             const previousIncline = finiteNumber(previous.inclination, 0);
             const currentIncline = finiteNumber(current.inclination, previousIncline);
             const averageIncline = (previousIncline + currentIncline) / 2;
+
+            // Convert each distance segment to a flat-equivalent distance;
+            // using just the average grade would be inaccurate on hilly runs.
+            const gradeCost = gradeAdjustedCost(averageIncline);
+            if (Number.isFinite(gradeCost) && gradeCost > 0) {
+                gradeAdjustedDistanceKm += deltaDistanceKm * gradeCost / gradeAdjustedCost(0);
+            }
 
             weightedIncline += averageIncline * deltaDistanceKm;
             inclineWeight += deltaDistanceKm;
@@ -247,6 +262,8 @@
             }
         }
 
+        const gapSeconds = gradeAdjustedDistanceKm > 0 && unitFactor > 0
+            ? lastElapsed / (gradeAdjustedDistanceKm * unitFactor) : 0;
         const heartAverage = Math.max(0, finiteNumber(last.heart_avg, 0));
         const displayElevation = unitFactor === 1 ? elevationGainMeters : elevationGainMeters * 3.28084;
 
@@ -259,6 +276,9 @@
         $('.summary_jouls').text(averageIncline.toFixed(1) + ' %');
         $('.summary_cadence_avg').text(Math.round(displayElevation) + ' ' + elevationUnit);
         $('.summary_resistance_avg').text(Math.round(heartAverage) + ' bpm');
+        $('.treadmill_gap_label').text(t('chart.avgGap', 'Avg GAP'));
+        $('.summary_gap_avg').text(formatPace(gapSeconds, paceUnit));
+        $('.treadmill_gap_row').show();
     }
 
     function hideFollowingBreaks(element) {
@@ -374,6 +394,10 @@
         // Establish the final DOM location before Chart.js measures/creates canvases.
         if (treadmill) {
             configureTreadmillCharts();
+        }
+
+        if (!treadmill) {
+            $('.treadmill_gap_row').hide();
         }
 
         // Keep the original session samples untouched, preserving bike behaviour.
