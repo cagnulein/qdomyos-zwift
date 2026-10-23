@@ -17,6 +17,26 @@ Use as many steps as needed for the smoothness you want and for what your treadm
 
 For the full XML attribute reference and speed-ramp behavior, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
 
+## My custom QZ XML workout loads but does not run the programmed steps. What basic XML structure should I check?
+
+For QZ's native XML training format, the workout must use a top-level `<rows>` element and each normal workout step must be a `<row>` element. Do not use a generic `<workout>` root or `<segment>` elements.
+
+A minimal valid structure is:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1" zonehr="0"/>
+    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1" zonehr="0"/>
+</rows>
+```
+
+If the file is accepted but the treadmill only starts at its minimum speed or the programmed steps do not execute, check these element names before troubleshooting the treadmill connection itself.
+
+This exact correction was confirmed to restore a custom treadmill workout that initially used both `<segment>` and an incorrect top-level `<workout>` element.
+
+For the complete native XML reference, including repeats, heart-rate zones, ramps, and supported row attributes, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
+
 ## Can QZ control treadmill incline instead of speed to keep me in a target heart-rate zone?
 
 Yes. QZ's HR PID controller can use treadmill **incline** as its actuator, so the treadmill speed can remain fixed while QZ raises or lowers incline according to your heart rate.
@@ -28,3 +48,22 @@ When incline is the active actuator, QZ adjusts incline according to the HR PID 
 If you are testing this with a real treadmill, make sure **Fake Device** is disabled. Fake Device is intended for simulation/testing and can prevent QZ from connecting to the real treadmill.
 
 Both the global Inclination actuator and the workout-editor Inclination override have been confirmed working with a real treadmill.
+
+
+## How do I open an existing XML workout in QZ?
+
+Use **Open Train Program** in QZ's main menu to load and run an existing training file. **Workout Editor** is a separate interface for creating and editing workouts, not the required import step.
+
+On Android, use **Open Train Program > Other folders** to select an XML file in Download or another folder. A user confirmed that opening their XML workout through **Open Train Program** resolved confusion about the Workout Editor. Both menu entries and the file picker are present in current QZ code.
+
+## How do I show the remaining time and next workout interval on the QZ dashboard?
+
+In **QZ Settings > Tiles Options**, enable **Remaining Time/Row** and **Next Rows**. The first shows the time left in the current training step; the second previews the upcoming step and its available target and duration.
+
+These tiles are implemented in QZ's current tile settings and training-program display code. The support user had not yet confirmed trying them.
+
+## How often does a heart-rate-controlled XML workout adjust treadmill speed?
+
+Set the `looptimehr` attribute, in seconds, on each HR-controlled XML row. For example, `looptimehr="3"` evaluates the heart-rate target about every three seconds, rather than every two seconds with `looptimehr="2"`. Less frequent updates can reduce competing commands but also slow the HR response; this setting does not change the speed step size.
+
+The XML parser and [training-program authoring guide](../../train-programs-examples/README.md) verify this setting (default: 10 seconds). A support user asked about increasing it from two to three seconds; that adjustment was not separately confirmed to fix command overlap.

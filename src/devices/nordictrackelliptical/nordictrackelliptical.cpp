@@ -682,7 +682,7 @@ void nordictrackelliptical::se7i_send_next_frame() {
             // Initialization complete!
             emit debug(QStringLiteral("se7i: Initialization completed successfully!"));
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("SE7i init completed!");
+                homeform::singleton()->setToastRequested(QObject::tr("SE7i init completed!"));
             initDone = true;
             se7i_waiting_for_response = false;
             break;

@@ -67,6 +67,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
     item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("maxInclination")] = row.maxInclination; \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     if (row.inclination >= -50) {\
         item[QStringLiteral("inclination")] = row.inclination;\
@@ -92,6 +93,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("pidHRMode")] = trainprogram::pidHrModeToString(row.pidHrMode);\
     item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
     item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
@@ -101,14 +103,7 @@ QString openEndedRowLabel(const trainrow &row) {
 
 namespace {
 QString sanitizeTrainingProgramName(const QString &input) {
-    QString trimmed = input.trimmed();
-    if (trimmed.isEmpty()) {
-        trimmed = QStringLiteral("Workout");
-    }
-    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
-    trimmed.replace(invalid, QStringLiteral("_"));
-    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
-    return trimmed;
+    return homeform::safeFileName(input, QStringLiteral("Workout"));
 }
 
 QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {
@@ -341,10 +336,12 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
                 outObj.insert(key, 1);
                 QRegExp regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
-                    if (regex.indexIn(keypresent) >= 0) {
+                    if (regex.indexIn(keypresent) >= 0 && !QZSettings::isSensitiveSettingKey(keypresent)) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }
+            } else if (QZSettings::isSensitiveSettingKey(key)) {
+                continue;
             } else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
             } else {
@@ -353,7 +350,9 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
         }
     } else {
         for (auto &key : settings.allKeys()) {
-            outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            if (!QZSettings::isSensitiveSettingKey(key)) {
+                outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
         }
     }
     QJsonObject main;
@@ -493,6 +492,9 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QJsonObject outObj;
     QSettings settings;
     for (auto &key : keys) {
+        if (QZSettings::isSensitiveSettingKey(key)) {
+            continue;
+        }
         val = obj[key];
         valConv = val.toVariant();
         if (settings.contains(key)) {
@@ -1145,6 +1147,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toDouble();
             }
+            if (row.contains(QStringLiteral("maxInclination"))) {
+                tR.maxInclination = row[QStringLiteral("maxInclination")].toDouble();
+            }
             if (row.contains(QStringLiteral("fanspeed"))) {
                 tR.fanspeed = row[QStringLiteral("fanspeed")].toInt();
             }
@@ -1201,6 +1206,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
+            }
+            if (row.contains(QStringLiteral("pidHRMode"))) {
+                tR.pidHrMode = trainprogram::pidHrModeFromString(row[QStringLiteral("pidHRMode")].toString());
             }
             if (row.contains(QStringLiteral("HRabove"))) {
                 tR.HRabove = row[QStringLiteral("HRabove")].toInt();
