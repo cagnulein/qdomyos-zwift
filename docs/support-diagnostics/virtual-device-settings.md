@@ -42,3 +42,22 @@
 
 - A repeatable disconnection only while virtual advertising is enabled distinguishes an interaction with the Bluetooth stack from a failed bike authentication or a general sensor problem.
 - In a confirmed comparison on an older Android tablet, physical-bike connectivity remained stable with virtual advertising disabled, while direct bike authentication worked in both configurations.
+
+## Rower metrics work in QZ but Zwift reports no signal
+
+### Provide first
+
+- Rower and console model, QZ version, and the devices running QZ and Zwift.
+- Confirm whether QZ displays live rowing metrics before Zwift starts.
+- Screenshot the virtual-device options, especially **Virtual Rower** under Experimental Settings, and the device or pairing role visible in Zwift.
+
+### If still unclear
+
+- Check whether Zwift sees QZ's virtual trainer advertisement rather than the physical rower or only the phone name.
+- If the intended Zwift pairing mode uses QZ's virtual bike, disable **Virtual Rower**, restart QZ, and retry the same pairing sequence.
+- If the device is still not usable, provide a short QZ debug log from the failed pairing and the exact Zwift message.
+
+### Why it matters
+
+- The selected virtual profile determines what Zwift can pair with, even when QZ receives correct data from the rower.
+- In a confirmed rower setup, disabling Virtual Rower and restarting QZ resolved Zwift's no-signal pairing problem.
