@@ -808,6 +808,12 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Kettler Classic / MyHomeFIT RFCOMM
+    RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
+        ->expectDevice<kettlerclassicbike>()
+        ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
+
 
     // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
     RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)

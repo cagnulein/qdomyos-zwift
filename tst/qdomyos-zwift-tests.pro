@@ -53,6 +53,7 @@ SOURCES += \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
         main.cpp
 
