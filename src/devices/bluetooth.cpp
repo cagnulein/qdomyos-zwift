@@ -4905,7 +4905,9 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (xcxBike) {
         return xcxBike;
-    } else if (ypooTreadmill) {
+    }
+    // Earlier matches return; split the lookup chain to avoid MSVC 2019's nesting limit.
+    if (ypooTreadmill) {
         return ypooTreadmill;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
