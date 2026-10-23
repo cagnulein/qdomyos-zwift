@@ -723,12 +723,15 @@ jobs:
       - name: Build QZ for Android (4 ABIs)
         run: |
           lrelease src/qdomyos-zwift.pri
+          # qmake reads defaults.pri after command-line assignments; force all ABIs
+          # required by the Android emulator and customer x86_64 target.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
           # CONFIG+=debug matches the real reference build validated against the Mac-built
           # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
           # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
           # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
           # below); Qt's own QtNetwork already has openssl linked in.
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j1 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -824,8 +827,8 @@ jobs:
             arch: x86
             android-version: "Android 9.0"
           - api-level: 29
-            target: default
-            arch: x86
+            target: google_apis
+            arch: x86_64
             android-version: "Android 10"
           - api-level: 30
             target: google_apis
@@ -911,6 +914,11 @@ jobs:
 
             echo "All permissions granted successfully"
 
+            # Older emulator images expose no usable Bluetooth GATT server.
+            # Disable only the virtual-device Bluetooth setting in this test sandbox;
+            # do not change the production default or the APK sources.
+            if [ "${{ matrix.api-level }}" -le 29 ]; then adb shell "run-as org.cagnulen.qdomyoszwift sh -c 'mkdir -p \"files/.config/Roberto Viola\" && printf \"[General]\\nvirtual_device_bluetooth=false\\n\" > \"files/.config/Roberto Viola/qDomyos-Zwift.conf\"'"; adb shell "run-as org.cagnulen.qdomyoszwift sh -c 'grep -n \"virtual_device_bluetooth\" \"files/.config/Roberto Viola/qDomyos-Zwift.conf\"'"; fi
+
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
 
@@ -919,14 +927,14 @@ jobs:
 
             # Verify the app is running
             echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+            # Keep each command self-contained: the emulator runner executes script lines separately.
+            adb shell "ps -A" > process_list.txt 2>&1 || adb shell ps > process_list.txt 2>&1 || true
             # Debug: show all processes to understand the format
             echo "=== All running processes ==="
             cat process_list.txt | head -20
             echo "=== Looking for our app ==="
 
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list"; echo "TEST FAILED: App process not running"; echo "=== Activity state ==="; adb shell dumpsys activity activities > activity_state.txt 2>&1 || true; cat activity_state.txt | tail -n 80; echo "=== Package state ==="; adb shell dumpsys package org.cagnulen.qdomyoszwift > package_state.txt 2>&1 || true; cat package_state.txt | tail -n 80; echo "=== Full logcat ==="; adb logcat -d > full_logcat.txt 2>&1 || true; adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal\|linker" | tail -n 100 || true; adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal\|linker" > qdomyos_logcat.txt 2>&1 || true; exit 1)
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             echo "=== Checking app info ==="
             adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
@@ -969,6 +977,8 @@ jobs:
             screenshot.png
             screenshot_orientation_*.png
             process_list.txt
+            activity_state.txt
+            package_state.txt
             full_logcat.txt
             qdomyos_logcat.txt
           if-no-files-found: warn                

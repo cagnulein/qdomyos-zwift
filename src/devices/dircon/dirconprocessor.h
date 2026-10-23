@@ -82,6 +82,12 @@ class DirconProcessor : public QObject {
     QMdnsEngine::Hostname *mdnsHostname = 0;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool rouvy_compatibility = false;
+    // Last 0x2AD2 payload CharacteristicNotifier2AD2 produced, replayed to a client the
+    // moment it connects. Empty until the notifier has run at least once, which is the
+    // signal that no device is attached yet and there is nothing truthful to say.
+    QByteArray last2AD2Notification;
+    // Set when a client subscribes to 0x2AD2, flushed once its enable-response is written.
+    bool pending2AD2Greeting = false;
     bool initServer();
     void initAdvertising();
     DirconPacket processPacket(DirconProcessorClient *client, const DirconPacket &pkt);

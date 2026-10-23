@@ -9,6 +9,7 @@
 #include "OAuth2.h"
 #include "peloton.h"
 #include "garminconnect.h"
+#include "profiletokenstore.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -681,6 +682,7 @@ public:
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
+    Q_INVOKABLE static QVariantList getProfileFiles();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
     Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
@@ -1093,6 +1095,19 @@ public:
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    void saveStravaTokensForAthlete(const QString &accessToken, const QString &refreshToken,
+                                    const QVariant &expiresAt, bool showPopup);
+
+    // Strava per-user token management helper functions
+    void saveStravaTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
+        QSettings settings;
+        ProfileTokenStore::save(settings, baseKey, value, userId, true);
+    }
+    QVariant getStravaTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+        QSettings settings;
+        return ProfileTokenStore::value(settings, baseKey, userId, defaultValue);
+    }
+
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
 
@@ -1112,6 +1127,7 @@ public:
 
     int16_t fanOverride = 0;
     const float powerJog = 5.0;
+    const int32_t resistanceOffsetJog = 1;
 
     void update();
     void ten_hz();
@@ -1157,11 +1173,15 @@ public:
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
+    static bool loadSettingsChecked(const QUrl &filename);
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
+    Q_INVOKABLE void deleteProfileByUri(const QString &fileUri);
     void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
+    Q_INVOKABLE void restartWithProfile(const QString &profileName, const QString &profileUri);
+    void restartWithProfileSource(const QUrl &profileSource);
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void Minus(const QString &);
     void Plus(const QString &);

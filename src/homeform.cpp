@@ -36,6 +36,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkInterface>
@@ -63,6 +64,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+#ifdef Q_OS_ANDROID
+bool usePublicDocumentsStorage() {
+    QSettings settings;
+    return settings.value(QZSettings::android_documents_folder,
+                          QZSettings::default_android_documents_folder).toBool() ||
+           QOperatingSystemVersion::current() >=
+               QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+}
+#endif
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -1086,16 +1097,82 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
     
     // Android 14 restrics access to /Android/data folder
-    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
+    const bool android_documents_folder = settings.value(QZSettings::android_documents_folder,
+                                                         QZSettings::default_android_documents_folder).toBool();
     if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
-        QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
-        QDir().mkdir(getWritableAppDir());
-        QDir().mkdir(getProfileDir());
+        const QString sourceRoot = QDir::cleanPath(getAndroidDataAppDir());
+        const QString destinationRoot = QDir::cleanPath(getWritableAppDir());
+        QDir().mkpath(destinationRoot);
+        QDir().mkpath(getProfileDir());
+        qDebug() << "Android storage migration source" << sourceRoot
+                 << "destination" << destinationRoot;
+
+        QDirIterator itAndroid(sourceRoot, QDir::Files, QDirIterator::Subdirectories);
+        const QDir sourceDirectory(sourceRoot);
         while (itAndroid.hasNext()) {
-            qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
-            if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
-                if(QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), "")))
-                       QFile::remove(itAndroid.filePath());
+            const QString sourcePath = itAndroid.next();
+            const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
+            const QString destinationPath = QDir(destinationRoot).filePath(relativePath);
+            QDir().mkpath(QFileInfo(destinationPath).path());
+
+            const QFileInfo sourceInfo(sourcePath);
+            const QFileInfo destinationInfo(destinationPath);
+            const bool destinationIsNewer = destinationInfo.exists() &&
+                                             destinationInfo.lastModified() >= sourceInfo.lastModified();
+            bool destinationReady = destinationInfo.exists();
+            bool copied = false;
+            if (!destinationIsNewer) {
+                const QString stagingPath = destinationPath + QStringLiteral(".migrating");
+                const QString backupPath = destinationPath + QStringLiteral(".backup");
+                QFile::remove(stagingPath);
+                QFile::remove(backupPath);
+                QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(sourcePath);
+                QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
+                copied = QAndroidJniObject::callStaticMethod<jboolean>(
+                    "org/cagnulen/qdomyoszwift/ContentHelper",
+                    "copyFileToPublicDocuments",
+                    "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
+                    QtAndroid::androidActivity().object(),
+                    javaSourcePath.object<jstring>(),
+                    javaRelativePath.object<jstring>());
+                if (clearAndroidJniException("ContentHelper.copyFileToPublicDocuments")) {
+                    copied = false;
+                }
+                destinationReady = copied;
+                qDebug() << "Android storage migration MediaStore copy" << sourcePath
+                         << "->" << relativePath << copied;
+                if (copied && !destinationReady) {
+                    const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
+                                                  QFileInfo(stagingPath).size() == sourceInfo.size();
+
+                    bool movedOldDestination = true;
+                    if (stagedFileReady && QFile::exists(destinationPath)) {
+                        movedOldDestination = QFile::rename(destinationPath, backupPath);
+                    }
+                    destinationReady = stagedFileReady && movedOldDestination &&
+                                       QFile::rename(stagingPath, destinationPath);
+                    if (destinationReady) {
+                        QFile::remove(backupPath);
+                    } else {
+                        QFile::remove(stagingPath);
+                        if (movedOldDestination && QFile::exists(backupPath)) {
+                            QFile::rename(backupPath, destinationPath);
+                        }
+                    }
+                }
+                if (!destinationReady) {
+                    QFile::remove(stagingPath);
+                }
+            }
+
+            qDebug() << "Android storage migration file" << sourcePath
+                     << "->" << destinationPath
+                     << "destinationWasNewer" << destinationIsNewer
+                     << "copied" << copied
+                     << "ready" << destinationReady;
+            if (destinationReady) {
+                const bool removedSource = QFile::remove(sourcePath);
+                qDebug() << "Android storage migration remove source" << sourcePath << removedSource;
             }
         }
     }
@@ -1666,9 +1743,7 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    QSettings settings;
-    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (usePublicDocumentsStorage()) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -1684,7 +1759,7 @@ QString homeform::getWritableAppDir() {
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#elif defined(Q_OS_WINDOWS)
+#elif defined(Q_OS_WINDOWS) || defined(Q_OS_LINUX)
     path = QDir::currentPath() + "/";
 #endif
     return path;
@@ -5359,7 +5434,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -5664,7 +5742,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(-resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -6942,15 +7023,23 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-            this->target_resistance->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(
-                    bluetoothManager->device()->difficult() *
-                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() +
-                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                            .toDouble(),
-                    'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
+                this->target_resistance->setSecondLine(
+                    QStringLiteral("%1%2")
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                                    : QStringLiteral(""))
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram()));
+            } else {
+                this->target_resistance->setSecondLine(
+                    QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                    QString::number(
+                        bluetoothManager->device()->difficult() *
+                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                .toDouble() +
+                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                .toDouble(),
+                        'f', 0));
+            }
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -8749,21 +8838,21 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 }
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
-#ifdef Q_OS_ANDROID        
+#ifdef Q_OS_ANDROID
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
-    const QString destinationDir = getWritableAppDir() + subfolder + "/";
-    QDir().mkpath(destinationDir);
-
-    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
-        qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
+    if (!file.toString().startsWith(QStringLiteral("content://"))) {
         return sourcePath;
     }
 
-    QString filename;
-    if (file.toString().startsWith(QStringLiteral("content"))) {
-        filename = getFileNameFromContentUri(file.toString());
+    QString destinationDir;
+    if (subfolder == QStringLiteral("settings")) {
+        destinationDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/settings/");
+    } else {
+        destinationDir = getWritableAppDir() + subfolder + QStringLiteral("/");
     }
+    QDir().mkpath(destinationDir);
+    QString filename = getFileNameFromContentUri(file.toString());
     if (filename.isEmpty() && !sourcePath.isEmpty()) {
         filename = QFileInfo(sourcePath).fileName();
     }
@@ -8820,7 +8909,7 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 #ifdef Q_OS_ANDROID
     const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
     if (!copiedFile.isEmpty()) {
-        loadSettings(QUrl::fromLocalFile(copiedFile));
+        restartWithProfileSource(QUrl::fromLocalFile(copiedFile));
     }
 #else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
@@ -9395,9 +9484,7 @@ void homeform::fit_save_clicked() {
 #endif
 
         QSettings settings;
-        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
-                 .toString()
-                 .isEmpty()) {
+        if (isStravaLoggedIn()) {
 
             QString mode = settings.value(QZSettings::strava_upload_mode, QZSettings::default_strava_upload_mode).toString();
             if(mode.startsWith("Always")) { // always
@@ -9611,8 +9698,19 @@ void homeform::strava_refreshtoken() {
     QSettings settings;
     // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
 
-    if (settings.value(QZSettings::strava_refreshtoken).toString().isEmpty()) {
+    // Get the current user ID
+    QString currentUserId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
 
+    QString refreshToken;
+    if (!currentUserId.isEmpty()) {
+        // Use per-user token storage
+        refreshToken = getStravaTokenForUser(QZSettings::strava_refreshtoken, currentUserId).toString();
+    } else {
+        // Fallback to legacy storage
+        refreshToken = settings.value(QZSettings::strava_refreshtoken).toString();
+    }
+
+    if (refreshToken.isEmpty()) {
         strava_connect();
         return;
     }
@@ -9627,7 +9725,7 @@ void homeform::strava_refreshtoken() {
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
 #endif
-    data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::strava_refreshtoken).toString();
+    data += QStringLiteral("&refresh_token=") + refreshToken;
     data += QStringLiteral("&grant_type=refresh_token");
 
     // make request
@@ -9669,9 +9767,27 @@ void homeform::strava_refreshtoken() {
     QString access_token = document[QStringLiteral("access_token")].toString();
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
-    settings.setValue(QZSettings::strava_accesstoken, access_token);
-    settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
-    settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+    if (access_token.isEmpty()) {
+        setToastRequested("Strava Auth Failed!");
+        return;
+    }
+    if (refresh_token.isEmpty())
+        refresh_token = refreshToken;
+
+    // Save tokens using per-user storage if user ID is available
+    if (!currentUserId.isEmpty()) {
+        saveStravaTokenForUser(QZSettings::strava_accesstoken, access_token, currentUserId);
+        saveStravaTokenForUser(QZSettings::strava_refreshtoken, refresh_token, currentUserId);
+        saveStravaTokenForUser(QZSettings::strava_lastrefresh, QDateTime::currentDateTime(), currentUserId);
+        saveStravaTokenForUser(QZSettings::strava_expires,
+                               document[QStringLiteral("expires_at")], currentUserId);
+    } else {
+        // Fallback to legacy storage
+        settings.setValue(QZSettings::strava_accesstoken, access_token);
+        settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
+        settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+        settings.setValue(QZSettings::strava_expires, document[QStringLiteral("expires_at")]);
+    }
 
     setToastRequested("Strava Login OK!");
 }
@@ -9681,7 +9797,21 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     strava_refreshtoken();
 
     QSettings settings;
-    QString token = settings.value(QZSettings::strava_accesstoken).toString();
+
+    // Get the current user ID and retrieve the access token
+    QString currentUserId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
+    QString token;
+    if (!currentUserId.isEmpty()) {
+        token = getStravaTokenForUser(QZSettings::strava_accesstoken, currentUserId).toString();
+    } else {
+        // Fallback to legacy storage
+        token = settings.value(QZSettings::strava_accesstoken).toString();
+    }
+
+    if (token.isEmpty()) {
+        setToastRequested("Strava Auth Required");
+        return false;
+    }
 
     qDebug() << "File size to upload:" << data.size() << "bytes";
     qDebug() << "Remote filename:" << remotename;
@@ -9835,17 +9965,76 @@ void homeform::writeFileCompleted() {
     setToastRequested("Strava Upload Completed!");
 }
 
+void homeform::saveStravaTokensForAthlete(const QString &accessToken, const QString &refreshToken,
+                                          const QVariant &expiresAt, bool showPopup)
+{
+    if (accessToken.isEmpty() || refreshToken.isEmpty()) {
+        qDebug() << "Strava authentication did not return both access and refresh tokens";
+        setToastRequested("Strava Auth Failed!");
+        if (showPopup)
+            setGeneralPopupVisible(true);
+        return;
+    }
+
+    QNetworkAccessManager *athleteManager = new QNetworkAccessManager(this);
+    QNetworkRequest athleteRequest(QUrl(QStringLiteral("https://www.strava.com/api/v3/athlete")));
+    athleteRequest.setRawHeader("Authorization", (QStringLiteral("Bearer ") + accessToken).toUtf8());
+    QNetworkReply *athleteReply = athleteManager->get(athleteRequest);
+
+    connect(athleteReply, &QNetworkReply::finished, this,
+            [this, athleteReply, athleteManager, accessToken, refreshToken, expiresAt, showPopup]() {
+        QSettings settings;
+        bool saved = false;
+
+        if (athleteReply->error() == QNetworkReply::NoError) {
+            const QJsonDocument document = QJsonDocument::fromJson(athleteReply->readAll());
+            const QJsonValue idValue = document.object().value(QStringLiteral("id"));
+            QString athleteId;
+            if (idValue.isString()) {
+                athleteId = idValue.toString();
+            } else if (idValue.isDouble()) {
+                athleteId = QString::number(static_cast<qint64>(idValue.toDouble()));
+            }
+
+            if (!athleteId.isEmpty() && athleteId != QStringLiteral("0")) {
+                settings.setValue(QZSettings::strava_current_user_id, athleteId);
+                saveStravaTokenForUser(QZSettings::strava_accesstoken, accessToken, athleteId);
+                saveStravaTokenForUser(QZSettings::strava_refreshtoken, refreshToken, athleteId);
+                saveStravaTokenForUser(QZSettings::strava_lastrefresh, QDateTime::currentDateTime(), athleteId);
+                saveStravaTokenForUser(QZSettings::strava_expires, expiresAt, athleteId);
+                qDebug() << "Strava authenticated successfully for user" << athleteId;
+                setToastRequested("Strava Login OK!");
+                saved = true;
+            }
+        }
+
+        if (!saved) {
+            const QString currentUserId = settings.value(QZSettings::strava_current_user_id,
+                                                          QZSettings::default_strava_current_user_id).toString();
+            qDebug() << "Unable to identify the Strava athlete:" << athleteReply->errorString();
+            // Only use legacy storage when there is no active profile account. Never overwrite
+            // the active account with a token whose athlete ID could not be verified.
+            if (currentUserId.isEmpty()) {
+                settings.setValue(QZSettings::strava_accesstoken, accessToken);
+                settings.setValue(QZSettings::strava_refreshtoken, refreshToken);
+                settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+                settings.setValue(QZSettings::strava_expires, expiresAt);
+            }
+            setToastRequested("Strava Auth Failed!");
+        }
+
+        athleteReply->deleteLater();
+        athleteManager->deleteLater();
+        if (showPopup)
+            setGeneralPopupVisible(true);
+    });
+}
+
 void homeform::onStravaGranted() {
 
     stravaAuthWebVisible = false;
     stravaWebVisibleChanged(stravaAuthWebVisible);
-    QSettings settings;
-    settings.setValue(QZSettings::strava_accesstoken, strava->token());
-    settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
-    settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
-    qDebug() << QStringLiteral("strava authenticated successfully");
-    strava_refreshtoken();
-    setGeneralPopupVisible(true);
+    saveStravaTokensForAthlete(strava->token(), strava->refreshToken(), strava->expirationAt(), true);
 }
 
 void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
@@ -9874,14 +10063,6 @@ void homeform::replyDataReceived(const QByteArray &v) {
     qDebug() << v;
 
     QByteArray data;
-    QSettings settings;
-    QString s(v);
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
-    settings.setValue(QZSettings::strava_accesstoken, jsonResponse[QStringLiteral("access_token")]);
-    settings.setValue(QZSettings::strava_refreshtoken, jsonResponse[QStringLiteral("refresh_token")]);
-    settings.setValue(QZSettings::strava_expires, jsonResponse[QStringLiteral("expires_at")]);
-
-    qDebug() << "Strava tokens received successfully, expires at:" << jsonResponse[QStringLiteral("expires_at")];
 
     QString urlstr = QStringLiteral("https://www.strava.com/oauth/token?");
     QUrlQuery params;
@@ -9921,9 +10102,6 @@ void homeform::onSslErrors(QNetworkReply *reply, const QList<QSslError> &error) 
 }
 
 void homeform::networkRequestFinished(QNetworkReply *reply) {
-
-    QSettings settings;
-
     // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
     if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
 
@@ -9940,11 +10118,8 @@ void homeform::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        settings.setValue(QZSettings::strava_accesstoken, access_token);
-        settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
-        settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
-
-        qDebug() << "Strava tokens refreshed successfully";
+        saveStravaTokensForAthlete(access_token, refresh_token,
+                                   document[QStringLiteral("expires_at")], false);
 
     } else {
 
@@ -10349,6 +10524,12 @@ void homeform::echelon_dismiss_enable_prompt() {
 
 bool homeform::isStravaLoggedIn() {
     QSettings settings;
+    QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        QString key = QStringLiteral("strava_accesstoken_") + userId;
+        if (!settings.value(key).toString().isEmpty())
+            return true;
+    }
     return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
 }
 
@@ -10431,10 +10612,18 @@ void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
 void homeform::strava_logout() {
     qDebug() << "Strava logout requested";
     QSettings settings;
+    QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
     settings.setValue(QZSettings::strava_accesstoken, QStringLiteral(""));
     settings.setValue(QZSettings::strava_refreshtoken, QStringLiteral(""));
     settings.setValue(QZSettings::strava_lastrefresh, QStringLiteral(""));
     settings.setValue(QZSettings::strava_expires, QStringLiteral(""));
+    if (!userId.isEmpty()) {
+        settings.remove(QStringLiteral("strava_accesstoken_") + userId);
+        settings.remove(QStringLiteral("strava_refreshtoken_") + userId);
+        settings.remove(QStringLiteral("strava_lastrefresh_") + userId);
+        settings.remove(QStringLiteral("strava_expires_") + userId);
+    }
+    settings.setValue(QZSettings::strava_current_user_id, QStringLiteral(""));
     if (strava) {
         strava->setToken(QStringLiteral(""));
         strava->setRefreshToken(QStringLiteral(""));
@@ -11092,6 +11281,9 @@ void homeform::saveSettings(const QUrl &filename) {
                             QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
@@ -11104,26 +11296,186 @@ void homeform::saveSettings(const QUrl &filename) {
     }
 }
 
-void homeform::loadSettings(const QUrl &filename) {
+bool homeform::loadSettingsChecked(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
     QString settingsFile = file.fileName();
 #ifdef Q_OS_ANDROID
-    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
-    if (!copiedSettingsFile.isEmpty()) {
+    const bool isContentUri = filename.toString().startsWith(QStringLiteral("content://"));
+    if (isContentUri) {
+        const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+        if (copiedSettingsFile.isEmpty() || !QFileInfo::exists(copiedSettingsFile)) {
+            qWarning() << "Cannot load profile content URI" << filename;
+            return false;
+        }
         settingsFile = copiedSettingsFile;
     }
 #endif
 
-    qDebug() << "homeform::loadSettings" << file.fileName();
+    if (settingsFile.isEmpty() || !QFileInfo::exists(settingsFile) ||
+        !QFileInfo(settingsFile).isReadable()) {
+        qWarning() << "Cannot load missing or unreadable profile" << filename << settingsFile;
+        return false;
+    }
+
+    qDebug() << "homeform::loadSettings" << settingsFile;
 
     QSettings settings;
     QSettings settings2Load(settingsFile, QSettings::IniFormat);
+    if (settings2Load.status() != QSettings::NoError) {
+        qWarning() << "Cannot parse profile" << settingsFile << settings2Load.status();
+        return false;
+    }
+    // A legacy profile has no Strava account ID. Clear the previous active ID first,
+    // otherwise loading it after another profile could silently reuse that account.
+    settings.remove(QZSettings::strava_current_user_id);
     auto settings2LoadAllKeys = settings2Load.allKeys();
+    const QString garminEmail =
+        settings2Load.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().trimmed().toLower();
+    QString garminDomain =
+        settings2Load.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString().trimmed().toLower();
+    if (garminDomain.isEmpty()) {
+        garminDomain = QZSettings::default_garmin_domain;
+    }
+    QString garminUserId;
+    if (!garminEmail.isEmpty()) {
+        garminUserId = garminDomain + QStringLiteral("_") + garminEmail;
+        garminUserId.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9_.@-]")), QStringLiteral("_"));
+    }
+    const QStringList garminTokenKeys = {
+        QZSettings::garmin_access_token,
+        QZSettings::garmin_refresh_token,
+        QZSettings::garmin_token_type,
+        QZSettings::garmin_expires_at,
+        QZSettings::garmin_refresh_token_expires_at,
+        QZSettings::garmin_oauth1_token,
+        QZSettings::garmin_oauth1_token_secret,
+        QZSettings::garmin_last_refresh
+    };
+    auto isGarminTokenKey = [&garminTokenKeys](const QString &key) {
+        for (const QString &baseKey : garminTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+    const QString stravaUserId = settings2Load.value(QZSettings::strava_current_user_id,
+                                                      QZSettings::default_strava_current_user_id).toString().trimmed();
+    const QStringList stravaTokenKeys = {
+        QZSettings::strava_accesstoken,
+        QZSettings::strava_refreshtoken,
+        QZSettings::strava_lastrefresh,
+        QZSettings::strava_expires
+    };
+    auto isStravaTokenKey = [&stravaTokenKeys](const QString &key) {
+        for (const QString &baseKey : stravaTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+    auto readProfileValue = [&settings2Load](const QString &key) {
+        if (!key.contains(QStringLiteral("password")) && !key.contains(QStringLiteral("token"))) {
+            return settings2Load.value(key);
+        }
+        SimpleCrypt crypt;
+        crypt.setKey(homeform::cryptoKeySettingsProfiles());
+        return QVariant(crypt.decryptToString(settings2Load.value(key).toString()));
+    };
+    auto isGarminCredentialKey = [](const QString &baseKey) {
+        return baseKey == QZSettings::garmin_access_token ||
+               baseKey == QZSettings::garmin_refresh_token ||
+               baseKey == QZSettings::garmin_oauth1_token ||
+               baseKey == QZSettings::garmin_oauth1_token_secret;
+    };
+
+    auto isPreservedGlobalKey = [](const QString &key) {
+        if (key == QZSettings::android_documents_folder ||
+            key == QZSettings::cryptoKeySettingsProfiles) {
+            return true;
+        }
+        for (const QString &baseKey : {QZSettings::strava_accesstoken,
+                                       QZSettings::strava_refreshtoken,
+                                       QZSettings::strava_lastrefresh,
+                                       QZSettings::strava_expires,
+                                       QZSettings::garmin_access_token,
+                                       QZSettings::garmin_refresh_token,
+                                       QZSettings::garmin_token_type,
+                                       QZSettings::garmin_expires_at,
+                                       QZSettings::garmin_refresh_token_expires_at,
+                                       QZSettings::garmin_oauth1_token,
+                                       QZSettings::garmin_oauth1_token_secret,
+                                       QZSettings::garmin_last_refresh}) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // A profile is a snapshot, not an overlay. Remove settings owned by the
+    // active profile before importing the new snapshot so keys absent from
+    // the selected file cannot survive from the previous profile. Storage
+    // routing, the profile encryption key, and account-scoped token records
+    // remain outside the profile snapshot.
+    const QStringList activeKeys = settings.allKeys();
+    for (const QString &key : activeKeys) {
+        if (!isPreservedGlobalKey(key)) {
+            settings.remove(key);
+        }
+    }
+
+    bool importedGarminTokenForProfile = false;
+
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
-            // peloton refresh token must not be changed because it has one refresh token for peloton user saved locally on the device
-            if(!s.contains(QStringLiteral("peloton_refreshtoken"))) {
+            // Peloton, Strava and Garmin refresh tokens are profile/account scoped locally on the device.
+            if (isGarminTokenKey(s)) {
+                if (!garminUserId.isEmpty()) {
+                    for (const QString &baseKey : garminTokenKeys) {
+                        if (s == baseKey) {
+                            const QVariant tokenValue = readProfileValue(s);
+                            settings.setValue(baseKey + QStringLiteral("_") + garminUserId, tokenValue);
+                            if (isGarminCredentialKey(baseKey) && !tokenValue.toString().isEmpty()) {
+                                importedGarminTokenForProfile = true;
+                            }
+                            break;
+                        }
+                        if (s == baseKey + QStringLiteral("_") + garminUserId) {
+                            const QVariant tokenValue = readProfileValue(s);
+                            settings.setValue(s, tokenValue);
+                            if (isGarminCredentialKey(baseKey) && !tokenValue.toString().isEmpty()) {
+                                importedGarminTokenForProfile = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else if (isStravaTokenKey(s)) {
+                if (!stravaUserId.isEmpty()) {
+                    for (const QString &baseKey : stravaTokenKeys) {
+                        const bool isActiveScopedKey = s == baseKey + QStringLiteral("_") + stravaUserId;
+                        const bool isLegacyRefreshKey = s == QZSettings::strava_refreshtoken;
+                        const bool isLegacyNonRefreshKey = s == baseKey && !isLegacyRefreshKey;
+                        if (isActiveScopedKey || isLegacyNonRefreshKey) {
+                            settings.setValue(s, readProfileValue(s));
+                            break;
+                        }
+                    }
+                } else {
+                    for (const QString &baseKey : stravaTokenKeys) {
+                        if (s == baseKey && s != QZSettings::strava_refreshtoken) {
+                            settings.setValue(s, readProfileValue(s));
+                            break;
+                        }
+                    }
+                }
+            } else if(!s.contains(QStringLiteral("peloton_refreshtoken")) && !s.contains(QStringLiteral("strava_refreshtoken"))) {
                 if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                     settings.setValue(s, settings2Load.value(s));
                 } else {
@@ -11134,16 +11486,63 @@ void homeform::loadSettings(const QUrl &filename) {
             }
         }
     }
-    
+    if (!garminUserId.isEmpty() && !importedGarminTokenForProfile) {
+        for (const QString &baseKey : garminTokenKeys) {
+            settings.remove(baseKey);
+        }
+    }
+
+    // The profile dialog can quit the Android process immediately after
+    // loadSettings(). Flush the selected profile before that quit so the next
+    // process reads the loaded profile instead of the previous QSettings state.
+    settings.sync();
+
     // Emit signal when settings are loaded as they might contain user profile changes
     if (homeform::singleton()) {
+        if (homeform::singleton()->garminConnect) {
+            homeform::singleton()->garminConnect->deleteLater();
+            homeform::singleton()->garminConnect = nullptr;
+        }
         emit homeform::singleton()->userProfileChanged();
     }
+    return true;
 }
 
-void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
+void homeform::loadSettings(const QUrl &filename) {
+    loadSettingsChecked(filename);
+}
+
+void homeform::deleteProfileByUri(const QString &fileUri) {
+    if (fileUri.trimmed().isEmpty()) {
+        qWarning() << "Cannot delete profile with empty URI";
+        return;
+    }
+    deleteSettings(QUrl::fromEncoded(fileUri.toUtf8()));
+}
+
+void homeform::deleteSettings(const QUrl &filename) {
+#ifdef Q_OS_ANDROID
+    if (filename.toString().startsWith(QStringLiteral("content://"))) {
+        QAndroidJniObject uriString = QAndroidJniObject::fromString(filename.toString());
+        const jboolean deleted = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "deleteContentUri",
+            "(Landroid/content/Context;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            uriString.object<jstring>());
+        clearAndroidJniException("ContentHelper.deleteContentUri");
+        qDebug() << "delete profile content URI" << filename << static_cast<bool>(deleted);
+        return;
+    }
+#endif
+    QFile(filename.toLocalFile()).remove();
+}
 void homeform::restoreSettings() { 
     QZSettings::restoreAll(); 
+    if (garminConnect) {
+        garminConnect->deleteLater();
+        garminConnect = nullptr;
+    }
     // Emit signal when settings are restored as this might affect user profiles
     emit userProfileChanged();
 }
@@ -11154,16 +11553,181 @@ QString homeform::getProfileDir() {
     return path;
 }
 
+QVariantList homeform::getProfileFiles() {
+    QVariantList profiles;
+
+    auto appendProfile = [&profiles](const QString &fileName, const QUrl &fileUrl) {
+        if (fileName.isEmpty() || !fileName.endsWith(QStringLiteral(".qzs"), Qt::CaseInsensitive)) {
+            return;
+        }
+        for (const QVariant &existing : profiles) {
+            if (existing.toMap().value(QStringLiteral("fileName")).toString() == fileName) {
+                return;
+            }
+        }
+        QVariantMap profile;
+        profile.insert(QStringLiteral("fileName"), fileName);
+        profile.insert(QStringLiteral("fileBaseName"), QFileInfo(fileName).completeBaseName());
+        profile.insert(QStringLiteral("fileUrl"), fileUrl);
+        profile.insert(QStringLiteral("fileUri"), fileUrl.toString(QUrl::FullyEncoded));
+        profiles.append(profile);
+    };
+
+#ifdef Q_OS_ANDROID
+    // Android 10+ public profiles remain discoverable even when the
+    // migration/write-routing toggle is false. The chooser must reflect files
+    // already present in Documents/QZ/profiles; legacy storage is retained as
+    // a fallback and exact filenames are deduplicated below.
+    const bool canUsePublicDocuments =
+        QOperatingSystemVersion::current() >=
+        QOperatingSystemVersion(QOperatingSystemVersion::Android, 10);
+
+    if (canUsePublicDocuments) {
+        QAndroidJniObject relativeDirectory = QAndroidJniObject::fromString(QStringLiteral("profiles"));
+        QAndroidJniObject files = QAndroidJniObject::callStaticObjectMethod(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "listPublicDocumentsFiles",
+            "(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;",
+            QtAndroid::androidContext().object(),
+            relativeDirectory.object<jstring>());
+        if (!clearAndroidJniException("ContentHelper.listPublicDocumentsFiles") && files.isValid()) {
+            jobjectArray fileArray = files.object<jobjectArray>();
+            if (fileArray) {
+                QAndroidJniEnvironment env;
+                const jsize fileCount = env->GetArrayLength(fileArray);
+                for (jsize i = 0; i < fileCount; ++i) {
+                    QAndroidJniObject uriObject = env->GetObjectArrayElement(fileArray, i);
+                    if (!uriObject.isValid()) {
+                        continue;
+                    }
+                    const QString uri = uriObject.toString();
+                    appendProfile(getFileNameFromContentUri(uri), QUrl(uri));
+                }
+            }
+        }
+    }
+#endif
+
+    // Keep the filesystem path as a fallback for desktop, legacy Android
+    // storage, and files which predate MediaStore indexing.
+    const QFileInfoList files = QDir(getProfileDir()).entryInfoList(
+        QStringList() << QStringLiteral("*.qzs"),
+        QDir::Files,
+        QDir::Name | QDir::Reversed);
+    for (const QFileInfo &file : files) {
+        appendProfile(file.fileName(), QUrl::fromLocalFile(file.absoluteFilePath()));
+    }
+
+    return profiles;
+}
+
 void homeform::saveProfile(QString profilename) {
     qDebug() << "homeform::saveProfile";
+    const QString profileName = profilename.trimmed();
+    if (profileName.isEmpty() || QFileInfo(profileName).fileName() != profileName ||
+        profileName.contains(QLatin1Char('/')) || profileName.contains(QLatin1Char('\\'))) {
+        qWarning() << "Invalid profile name" << profilename;
+        return;
+    }
+
     QString path = getProfileDir();
+    QString profilePath = path + "/" + profileName + QStringLiteral(".qzs");
+#ifdef Q_OS_ANDROID
+    const bool publicProfileStorage = usePublicDocumentsStorage();
+    QString temporaryProfilePath;
+    if (publicProfileStorage) {
+        temporaryProfilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+                               QStringLiteral("/profile-write-") +
+                               QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral(".qzs");
+        QDir().mkpath(QFileInfo(temporaryProfilePath).path());
+        profilePath = temporaryProfilePath;
+    }
+#endif
 
     QSettings settings;
-    settings.setValue(QZSettings::profile_name, profilename);
-    QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
+    settings.setValue(QZSettings::profile_name, profileName);
+    QSettings settings2Save(profilePath, QSettings::IniFormat);
+    // Rewriting a profile must remove keys that were deleted from the active settings.
+    settings2Save.clear();
+
+    const QStringList stravaTokenKeys = {
+        QZSettings::strava_accesstoken,
+        QZSettings::strava_refreshtoken,
+        QZSettings::strava_lastrefresh,
+        QZSettings::strava_expires
+    };
+    const QString activeStravaUserId = settings.value(QZSettings::strava_current_user_id,
+                                                       QZSettings::default_strava_current_user_id).toString().trimmed();
+    auto isStravaTokenKey = [&stravaTokenKeys](const QString &key) {
+        for (const QString &baseKey : stravaTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    QString activeGarminEmail = settings.value(QZSettings::garmin_email,
+                                               QZSettings::default_garmin_email).toString().trimmed().toLower();
+    QString activeGarminDomain = settings.value(QZSettings::garmin_domain,
+                                                QZSettings::default_garmin_domain).toString().trimmed().toLower();
+    if (activeGarminDomain.isEmpty()) {
+        activeGarminDomain = QZSettings::default_garmin_domain;
+    }
+    QString activeGarminUserId;
+    if (!activeGarminEmail.isEmpty()) {
+        activeGarminUserId = activeGarminDomain + QStringLiteral("_") + activeGarminEmail;
+        activeGarminUserId.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9_.@-]")), QStringLiteral("_"));
+    }
+    const QStringList garminTokenKeys = {
+        QZSettings::garmin_access_token,
+        QZSettings::garmin_refresh_token,
+        QZSettings::garmin_token_type,
+        QZSettings::garmin_expires_at,
+        QZSettings::garmin_refresh_token_expires_at,
+        QZSettings::garmin_oauth1_token,
+        QZSettings::garmin_oauth1_token_secret,
+        QZSettings::garmin_last_refresh
+    };
+    auto isGarminTokenKey = [&garminTokenKeys](const QString &key) {
+        for (const QString &baseKey : garminTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
+            if (isStravaTokenKey(s) && !activeStravaUserId.isEmpty()) {
+                bool belongsToActiveStravaAccount = false;
+                for (const QString &baseKey : stravaTokenKeys) {
+                    if (s == baseKey || s == baseKey + QStringLiteral("_") + activeStravaUserId) {
+                        belongsToActiveStravaAccount = true;
+                        break;
+                    }
+                }
+                if (!belongsToActiveStravaAccount) {
+                    continue;
+                }
+            }
+            if (isGarminTokenKey(s) && !activeGarminUserId.isEmpty()) {
+                bool belongsToActiveGarminAccount = false;
+                for (const QString &baseKey : garminTokenKeys) {
+                    if (s == baseKey || s == baseKey + QStringLiteral("_") + activeGarminUserId) {
+                        belongsToActiveGarminAccount = true;
+                        break;
+                    }
+                }
+                if (!belongsToActiveGarminAccount) {
+                    continue;
+                }
+            }
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {
@@ -11173,12 +11737,99 @@ void homeform::saveProfile(QString profilename) {
             }
         }
     }
+    settings2Save.sync();
+    qDebug() << "homeform::saveProfile path" << settings2Save.fileName()
+             << "status" << settings2Save.status();
+    if (settings2Save.status() != QSettings::NoError) {
+#ifdef Q_OS_ANDROID
+        if (publicProfileStorage) {
+            QFile::remove(temporaryProfilePath);
+        }
+#endif
+        qWarning() << "Cannot write profile" << settings2Save.fileName();
+        return;
+    }
+#ifdef Q_OS_ANDROID
+    if (publicProfileStorage) {
+        const QString relativePath = QStringLiteral("profiles/") + profileName + QStringLiteral(".qzs");
+        QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(temporaryProfilePath);
+        QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
+        const jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyFileToPublicDocuments",
+            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            javaSourcePath.object<jstring>(),
+            javaRelativePath.object<jstring>());
+        const bool javaFailed = clearAndroidJniException("ContentHelper.copyFileToPublicDocuments");
+        QFile::remove(temporaryProfilePath);
+        if (javaFailed || !copied) {
+            qWarning() << "Cannot save public profile" << relativePath;
+        }
+    }
+#endif
 }
 
 void homeform::restart() {
     qApp->quit();
 #if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
+}
+
+void homeform::restartWithProfile(const QString &profileName, const QString &profileUri) {
+    const QString requestedName = profileName.trimmed();
+    const QString requestedUri = profileUri.trimmed();
+    if (requestedName.isEmpty() || requestedUri.isEmpty()) {
+        qWarning() << "Cannot restart without an exact profile identity" << requestedName << requestedUri;
+        return;
+    }
+
+    const QVariantList profiles = getProfileFiles();
+    for (const QVariant &entry : profiles) {
+        const QVariantMap profile = entry.toMap();
+        if (profile.value(QStringLiteral("fileBaseName")).toString() == requestedName &&
+            profile.value(QStringLiteral("fileUri")).toString() == requestedUri) {
+            restartWithProfileSource(QUrl::fromEncoded(requestedUri.toUtf8()));
+            return;
+        }
+    }
+
+    qWarning() << "Cannot find exact profile for restart" << requestedName << requestedUri;
+}
+
+void homeform::restartWithProfileSource(const QUrl &profileSource) {
+    QUrl sourceUrl = profileSource;
+    if (sourceUrl.isEmpty() || !sourceUrl.isValid()) {
+        qWarning() << "Cannot restart with invalid profile source" << profileSource;
+        return;
+    }
+
+#ifdef Q_OS_ANDROID
+    const QString markerDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(markerDir);
+    QFile marker(markerDir + QStringLiteral("/qz-pending-profile"));
+    if (!marker.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qWarning() << "Cannot persist pending profile" << marker.fileName();
+        return;
+    }
+    if (marker.write(sourceUrl.toString(QUrl::FullyEncoded).toUtf8()) < 0) {
+        qWarning() << "Cannot write pending profile" << marker.fileName();
+        marker.close();
+        return;
+    }
+    marker.close();
+
+    qDebug() << "Profile selected for next restart" << sourceUrl;
+    // The next normal Android launch consumes the marker before QML Settings
+    // objects are created. A failed load leaves the marker for retry.
+    qApp->quit();
+#else
+    if (loadSettingsChecked(sourceUrl)) {
+        restart();
+    } else {
+        qWarning() << "Profile restart cancelled because loading failed" << sourceUrl;
+    }
 #endif
 }
 
