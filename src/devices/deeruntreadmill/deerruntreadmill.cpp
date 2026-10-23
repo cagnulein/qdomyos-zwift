@@ -390,6 +390,7 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if(pitpat) {
         speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
+
     double incline = 0.0;
     if(pitpat) {
         incline = (double)(value[11] & 0xFF);
@@ -444,6 +445,29 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit speedChanged(speed);
     }
     Speed = speed;
+
+    if (pitpat) {
+        const bool garminCompanion =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+        const bool hasPowerSensor =
+            !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+        const bool hasCadenceSensor =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+
+        if (!cadenceFromAppleWatch() && !garminCompanion && !hasPowerSensor && !hasCadenceSensor) {
+            const double estimatedCadence = calculateCadenceFromSpeed(speed);
+            if (Cadence.value() > 0 || estimatedCadence > 0)
+                evaluateStepCount(false);
+            parseCadence(estimatedCadence);
+            emit debug(QStringLiteral("PitPat cadence calculated from speed: ") +
+                       QString::number(Cadence.value()));
+        }
+    }
+
     if (Inclination.value() != incline) {
 
         emit inclinationChanged(0, incline);
