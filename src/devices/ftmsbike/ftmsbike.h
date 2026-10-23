@@ -214,6 +214,7 @@ class ftmsbike : public bike {
     bool HAMMER = false;
     bool HS_5000L = false;
     bool H9115 = false;
+    bool DRUMFIT = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
