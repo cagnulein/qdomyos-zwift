@@ -95,6 +95,23 @@ ApplicationWindow {
         return deviceName.replace(/ \(\d+%\)$/, "")
     }
 
+    // A Settings object that loads a store without one of its keys snapshots its properties for
+    // the write in the middle of the load (Qt.labs.settings): the properties declared after that
+    // key still have their defaults, and 500 ms later the defaults are written over their values.
+    // The change signal of that key, emitted once the load is over, takes the snapshot again
+    // without changing a value
+    function retakeSettingsSnapshot(copy) {
+        for (var key in copy) {
+            var type = typeof copy[key]
+            if (type !== "boolean" && type !== "number" && type !== "string")
+                continue
+            if (key === "objectName" || key === "category" || key === "fileName" || copy.value(key) !== undefined)
+                continue
+            copy[key + "Changed"]()
+            return
+        }
+    }
+
     function maybeOpenGymModePopup() {
         if (typeof rootItem === "undefined" || !rootItem) {
             return
@@ -147,6 +164,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        Component.onCompleted: retakeSettingsSnapshot(settings)
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false

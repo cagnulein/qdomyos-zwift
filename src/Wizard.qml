@@ -27,6 +27,7 @@ Page {
 
     Settings {
         id: settings
+        Component.onCompleted: window.retakeSettingsSnapshot(settings)
         property string peloton_username: "username"
         property string peloton_password: "password"
         property string peloton_difficulty: "lower"

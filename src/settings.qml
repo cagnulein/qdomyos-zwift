@@ -823,6 +823,7 @@ import AndroidStatusBar 1.0
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
         Settings {
             id: settings
+            Component.onCompleted: window.retakeSettingsSnapshot(settings)
             property real ui_zoom: 100.0
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
