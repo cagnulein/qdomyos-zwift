@@ -145,6 +145,8 @@ ApplicationWindow {
     signal restoreSettings()
     signal saveProfile(string profilename)
     signal restart()
+    // Sent by the settings page when a key of the home page copy changes (Home.qml)
+    signal tileSettingChanged(string key, var value)
     signal volumeUp()
     signal volumeDown()
     signal keyMediaPrevious()

@@ -2266,6 +2266,20 @@ import AndroidStatusBar 1.0
             property bool ui_text_scale_system: true
         }
 
+        // The home page has its own Settings copy, read once when it is created: hand it every new
+        // value of that copy right away, so the tile look shows without a restart (#466)
+        Connections {
+            target: settings
+            function onUi_zoomChanged() { window.tileSettingChanged("ui_zoom", settings.ui_zoom) }
+            function onTheme_tile_icon_enabledChanged() { window.tileSettingChanged("theme_tile_icon_enabled", settings.theme_tile_icon_enabled) }
+            function onTheme_tile_background_colorChanged() { window.tileSettingChanged("theme_tile_background_color", settings.theme_tile_background_color) }
+            function onTheme_background_colorChanged() { window.tileSettingChanged("theme_background_color", settings.theme_background_color) }
+            function onTheme_tile_shadow_enabledChanged() { window.tileSettingChanged("theme_tile_shadow_enabled", settings.theme_tile_shadow_enabled) }
+            function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
+            function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
+            function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+        }
+
 
         function paddingZeros(text, limit) {
           if (text.length < limit) {
@@ -6972,7 +6986,7 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: if (valid) { settings.ui_zoom = value; window.settings_restart_to_apply = true; }
+                            onAccepted: if (valid) { settings.ui_zoom = value; }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6980,7 +6994,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: uiZoomTextField.valid && uiZoomTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ui_zoom = uiZoomTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ui_zoom = uiZoomTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -7644,14 +7658,14 @@ import AndroidStatusBar 1.0
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; window.settings_restart_to_apply = true; }
+                                    onAccepted: if (valid) { settings.theme_tile_secondline_textsize = value; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     enabled: secondLineTextSizeField.valid && secondLineTextSizeField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.value; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
