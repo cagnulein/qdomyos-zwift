@@ -582,7 +582,6 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     {
         m_isXterraXe88 = device.name().startsWith(QStringLiteral("XE88"), Qt::CaseInsensitive);
-        serviceDiscoveryFailed = false;
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -658,7 +657,7 @@ uint16_t soleelliptical::watts() {
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control && !serviceDiscoveryFailed) {
+    if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
