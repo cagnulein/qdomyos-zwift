@@ -549,6 +549,9 @@ class homeform : public QObject {
     bool autoResistance() { return m_autoresistance; }
     void setAutoResistance(bool value) {
         m_autoresistance = value;
+        if (!value) {
+            m_overridePower = false;
+        }
         emit autoResistanceChanged(value);
         if (bluetoothManager->device()) {
             bluetoothManager->device()->setAutoResistance(value);
