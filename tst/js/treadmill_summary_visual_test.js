@@ -136,6 +136,7 @@ const fixture = [
     heartElapsedMatchesFixture: JSON.stringify(heartPoints.map(p => p.x)) === JSON.stringify([0, 10, 20]),
     movedInsideBadge: inspection.speedContainerInsideBadge,
     summaryAdaptedForTreadmill: inspection.summaryText.includes('Avg Pace') && inspection.summaryText.includes('Avg Incline') && inspection.summaryText.includes('Elevation Gain') && inspection.summaryText.includes('Avg Heart Rate'),
+    avgGapVisible: inspection.summaryText.includes('Avg GAP') && inspection.summaryText.includes('4:23 /km'),
     noPageErrors: pageErrors.length === 0
   };
 
