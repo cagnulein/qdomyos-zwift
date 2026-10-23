@@ -704,7 +704,7 @@ int main(int argc, char *argv[]) {
         pollDeviceTime = settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-    else {
+    else if (configFilePath.isEmpty()) {
         settings.setValue(QZSettings::miles_unit, miles);
         settings.setValue(QZSettings::bluetooth_no_reconnection, bluetooth_no_reconnection);
         settings.setValue(QZSettings::bluetooth_relaxed, bluetooth_relaxed);
