@@ -639,6 +639,10 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        ->acceptDeviceName("07250DrumFit", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234DrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCDDrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("07250DrumFitX", DeviceNameComparison::IgnoreCase)
 
 
         // Starts with DT- and is 14+ characters long.
