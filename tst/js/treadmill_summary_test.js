@@ -9,6 +9,7 @@ fs.mkdirSync(artifactDir, { recursive: true });
 
 const results = [];
 const events = [];
+const renderedText = new Map();
 function check(name, condition, details) {
     const ok = Boolean(condition);
     results.push({ name, ok, details });
@@ -21,7 +22,7 @@ class JQueryMock {
         this.selector = selector;
         this.length = 1;
     }
-    text() { return this; }
+    text(value) { if (arguments.length) renderedText.set(this.selector, value); return this; }
     attr() { return this; }
     on() { return this; }
     ready() { return this; }
@@ -165,6 +166,26 @@ try {
     check('Runtime diagnostics retain 20 second duration', diagnostics && diagnostics.durationSeconds === 20,
         diagnostics ? `duration=${diagnostics.durationSeconds}` : 'missing diagnostics');
     check('Treadmill presentation does not mutate session samples', JSON.stringify(fixture) === fixtureBefore);
+    check('Average GAP uses the Minetti model per segment', renderedText.get('.summary_gap_avg') === '4:23 /km',
+        'avgGAP=' + renderedText.get('.summary_gap_avg'));
+    check('Average GAP label is present', renderedText.get('.treadmill_gap_label') === 'Avg GAP');
+
+    window.miles = 0.621371;
+    window.process_arr(fixture);
+    check('Average GAP converts to min/mile', renderedText.get('.summary_gap_avg') === '7:04 /mi',
+        'avgGAP=' + renderedText.get('.summary_gap_avg'));
+
+    window.miles = 1;
+    const flatFixture = fixture.map(s => Object.assign({}, s, { inclination: 0 }));
+    window.process_arr(flatFixture);
+    check('Flat average GAP matches average pace',
+        renderedText.get('.summary_gap_avg') === renderedText.get('.summary_watts_avg'),
+        'gap=' + renderedText.get('.summary_gap_avg') + ' pace=' + renderedText.get('.summary_watts_avg'));
+
+    const stationaryFixture = fixture.map(s => Object.assign({}, s, { distance: 0 }));
+    window.process_arr(stationaryFixture);
+    check('Zero distance returns unavailable GAP', renderedText.get('.summary_gap_avg') === '--:-- /km',
+        'avgGAP=' + renderedText.get('.summary_gap_avg'));
 } catch (err) {
     fatalError = err && err.stack ? err.stack : String(err);
     console.error(fatalError);
