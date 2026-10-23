@@ -660,18 +660,21 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
     return Inclination;
 }
 
-void treadmill::evaluateStepCount() {
-    // Auto-detect cadence format: if per-leg, needs doubling for step count
-    // Running (>6 km/h): double if cadence < 120
-    // Walking (<6 km/h): double if cadence < 60
+void treadmill::evaluateStepCount(bool cadenceIsPerLeg) {
     double effectiveCadence = Cadence.value();
 
-    if (Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
-        // Running: likely per-leg cadence, double it
-        effectiveCadence = Cadence.value() * 2;
-    } else if (Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
-        // Walking: likely per-leg cadence, double it
-        effectiveCadence = Cadence.value() * 2;
+    // Speed-derived cadence is already expressed as complete steps per minute.
+    if (cadenceIsPerLeg) {
+        // Auto-detect cadence format: if per-leg, needs doubling for step count
+        // Running (>6 km/h): double if cadence < 120
+        // Walking (<6 km/h): double if cadence < 60
+        if (Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
+            // Running: likely per-leg cadence, double it
+            effectiveCadence = Cadence.value() * 2;
+        } else if (Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
+            // Walking: likely per-leg cadence, double it
+            effectiveCadence = Cadence.value() * 2;
+        }
     }
 
     QSettings settings;
