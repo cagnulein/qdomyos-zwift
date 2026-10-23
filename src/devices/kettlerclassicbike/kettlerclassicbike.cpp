@@ -32,6 +32,8 @@ kettlerclassicbike::kettlerclassicbike(bool noWriteResistance, bool noHeartServi
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &kettlerclassicbike::update);
     refresh->start(POLL_INTERVAL_MS);
+    // Each request gets one deadline; timed-out requests must not keep firing.
+    requestTimeoutTimer.setSingleShot(true);
     connect(&requestTimeoutTimer, &QTimer::timeout, this, &kettlerclassicbike::requestTimeout);
 }
 
@@ -79,8 +81,12 @@ void kettlerclassicbike::createSocket() {
     connect(socket, &QBluetoothSocket::readyRead, this, &kettlerclassicbike::readSocket);
     connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&kettlerclassicbike::rfCommConnected));
     connect(socket, &QBluetoothSocket::disconnected, this, &kettlerclassicbike::socketDisconnected);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    connect(socket, &QBluetoothSocket::errorOccurred, this, &kettlerclassicbike::onSocketErrorOccurred);
+#else
     connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
             &kettlerclassicbike::onSocketErrorOccurred);
+#endif
 #ifdef Q_OS_ANDROID
     socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
 #endif
