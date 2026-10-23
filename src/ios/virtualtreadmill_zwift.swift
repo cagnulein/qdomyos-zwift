@@ -8,10 +8,7 @@ let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
-let ypooM5FTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
-let ypooM5SpeedRange = Data([0x64, 0x00, 0x58, 0x07, 0x0a, 0x00])
-let ypooM5InclineRange = Data([0xc4, 0xff, 0x96, 0x00, 0x0a, 0x00])
-let ypM1552InclineRange = Data([0x00, 0x00, 0x78, 0x00, 0x0a, 0x00])
+let forwardedTreadmillFTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
 
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
@@ -51,8 +48,10 @@ let ypM1552InclineRange = Data([0x00, 0x00, 0x78, 0x00, 0x0a, 0x00])
         return peripheralManager.lastRequestedSpeed;
     }
 
-    @objc(enableControlPointForwardingWithYpM1552:) public func enableControlPointForwarding(ypM1552: Bool) {
-        peripheralManager.ypM1552 = ypM1552
+    @objc(enableControlPointForwardingWithSpeedRange:inclineRange:)
+    public func enableControlPointForwarding(speedRange: Data, inclineRange: Data) {
+        peripheralManager.supportedSpeedRange = speedRange
+        peripheralManager.supportedInclineRange = inclineRange
         peripheralManager.forwardControlPointWrites = true
     }
 
@@ -116,7 +115,8 @@ final class TreadmillControlPointWriteQueue {
 
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
   var forwardControlPointWrites = false
-  var ypM1552 = false
+  var supportedSpeedRange = Data()
+  var supportedInclineRange = Data()
   let controlPointWrites = TreadmillControlPointWriteQueue()
 
   func takeControlPointWrite() -> Data? {
@@ -195,7 +195,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
             let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
             self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
                                                                                properties: FitnessMachineFeatureProperties,
-                                                                               value: forwardControlPointWrites ? ypooM5FTMSFeatures : Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
+                                                                               value: forwardControlPointWrites ? forwardedTreadmillFTMSFeatures : Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
                                                                                permissions: FitnessMachineFeaturePermissions)
             
             let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
@@ -249,9 +249,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                      TrainingStatusCharacteristic ]
             if forwardControlPointWrites {
                 let speedRange = CBMutableCharacteristic(type: CBUUID(string: "2AD4"), properties: [.read],
-                                                        value: ypooM5SpeedRange, permissions: [.readable])
+                                                        value: supportedSpeedRange, permissions: [.readable])
                 let inclineRange = CBMutableCharacteristic(type: CBUUID(string: "2AD5"), properties: [.read],
-                                                          value: ypM1552 ? ypM1552InclineRange : ypooM5InclineRange, permissions: [.readable])
+                                                          value: supportedInclineRange, permissions: [.readable])
                 FitnessMachineService.characteristics?.append(contentsOf: [speedRange, inclineRange])
             }
             

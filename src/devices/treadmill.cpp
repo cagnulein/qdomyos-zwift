@@ -142,11 +142,6 @@ void treadmill::stop(bool pause) {
     bluetoothdevice::stop(pause);
 }
 
-bool treadmill::shouldIgnoreStopRequest(bool workoutStopped) {
-    return workoutStopped || (currentSpeed().value() == 0.0 &&
-                              QTime(0, 0, 0, 0).secsTo(elapsedTime()) == 0);
-}
-
 void treadmill::updateRunnClosedLoop() {
     if (!m_runnController.active()) return;
     QSettings settings;

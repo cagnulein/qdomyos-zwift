@@ -1,6 +1,5 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
-#include "devices/ypootreadmill/ypootreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -41,8 +40,8 @@ void virtualtreadmill::clearControlPointWrites() {
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
-    const auto ypoo = qobject_cast<ypootreadmill *>(t);
-    forwardControlPointWrites = ypoo != nullptr;
+    const auto control = t->virtualTreadmillControl();
+    forwardControlPointWrites = control.enabled;
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -85,7 +84,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         h = new lockscreen();
         h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
         if (forwardControlPointWrites)
-            h->virtualtreadmill_enableControlPointForwarding(ypoo->isYpM1552());
+            h->virtualtreadmill_enableControlPointForwarding(control.speedRange, control.inclineRange);
     } else
 #endif
 #endif
@@ -333,12 +332,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                    QLowEnergyCharacteristicData speedRange;
                    speedRange.setUuid(QBluetoothUuid((quint16)0x2AD4));
                    speedRange.setProperties(QLowEnergyCharacteristic::Read);
-                   speedRange.setValue(QByteArray::fromHex("640058070a00"));
+                   speedRange.setValue(control.speedRange);
                    serviceDataFTMS.addCharacteristic(speedRange);
                    QLowEnergyCharacteristicData inclineRange;
                    inclineRange.setUuid(QBluetoothUuid((quint16)0x2AD5));
                    inclineRange.setProperties(QLowEnergyCharacteristic::Read);
-                   inclineRange.setValue(QByteArray::fromHex(ypoo->isYpM1552() ? "000078000a00" : "c4ff96000a00"));
+                   inclineRange.setValue(control.inclineRange);
                    serviceDataFTMS.addCharacteristic(inclineRange);
                }
            }

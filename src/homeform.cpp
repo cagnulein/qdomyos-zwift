@@ -6145,11 +6145,23 @@ void homeform::Stop() {
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     const auto device = bluetoothManager ? bluetoothManager->device() : nullptr;
-    const bool ignoreStop = device && device->deviceType() == TREADMILL
-        ? static_cast<treadmill *>(device)->shouldIgnoreStopRequest(stopped) : stopped;
-    if (ignoreStop) {
-        qDebug() << QStringLiteral("Stop pressed - already stopped or idle, ignoring...");
+    auto treadmillDevice = device && device->deviceType() == TREADMILL
+        ? static_cast<treadmill *>(device) : nullptr;
+    if (stopped) {
+        if (treadmillDevice)
+            treadmillDevice->stopWhenIdle();
+        qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
         return;
+    }
+
+    if (treadmillDevice) {
+        QTime zero(0, 0, 0, 0);
+        if (treadmillDevice->currentSpeed().value() == 0.0 &&
+            zero.secsTo(treadmillDevice->elapsedTime()) == 0) {
+            treadmillDevice->stopWhenIdle();
+            qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+            return;
+        }
     }
 
 #ifdef Q_OS_IOS

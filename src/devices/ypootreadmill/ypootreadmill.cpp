@@ -306,11 +306,17 @@ bool ypootreadmill::connected() {
     return m_control && m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-bool ypootreadmill::shouldIgnoreStopRequest(bool workoutStopped) {
-    Q_UNUSED(workoutStopped);
-    // The countdown still reports zero speed and may precede QZ recording.
-    // Always pass explicit Stop to the controller so it can cancel pending motion.
-    return false;
+void ypootreadmill::stopWhenIdle() {
+    // Cancel physical countdown/motion without repeating the UI's workout finalization.
+    stop(false);
+}
+
+bluetoothdevice::VirtualTreadmillControl ypootreadmill::virtualTreadmillControl() const {
+    VirtualTreadmillControl control;
+    control.enabled = true;
+    control.speedRange = QByteArray::fromHex("640058070a00");
+    control.inclineRange = QByteArray::fromHex(YP_M1552 ? "000078000a00" : "c4ff96000a00");
+    return control;
 }
 
 void ypootreadmill::changeInclinationRequested(double grade, double percentage) {

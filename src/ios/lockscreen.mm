@@ -519,8 +519,11 @@ uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
     return 0;
 }
 
-void lockscreen::virtualtreadmill_enableControlPointForwarding(bool ypM1552) {
-    [_virtualtreadmill_zwift enableControlPointForwardingWithYpM1552:ypM1552];
+void lockscreen::virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange,
+                                                             const QByteArray &inclineRange) {
+    [_virtualtreadmill_zwift
+        enableControlPointForwardingWithSpeedRange:[NSData dataWithBytes:speedRange.constData() length:speedRange.size()]
+        inclineRange:[NSData dataWithBytes:inclineRange.constData() length:inclineRange.size()]];
 }
 
 QByteArray lockscreen::virtualtreadmill_takeControlPointWrite() {

@@ -5,10 +5,10 @@ import Foundation
 @main
 struct TestYpooM5ControlPointQueue {
     static func main() {
-        precondition(ypooM5FTMSFeatures[4] == 0x03) // Speed and incline target support.
-        precondition(ypooM5SpeedRange == Data([0x64, 0, 0x58, 7, 0x0a, 0]))
-        precondition(ypooM5InclineRange == Data([0xc4, 0xff, 0x96, 0, 0x0a, 0]))
-        precondition(ypM1552InclineRange == Data([0, 0, 0x78, 0, 0x0a, 0]))
+        precondition(forwardedTreadmillFTMSFeatures[4] == 0x03) // Speed and incline target support.
+        // Keep the Objective-C selector used by lockscreen.mm aligned with Swift.
+        let forwarding = #selector(virtualtreadmill_zwift.enableControlPointForwarding(speedRange:inclineRange:))
+        precondition(NSStringFromSelector(forwarding) == "enableControlPointForwardingWithSpeedRange:inclineRange:")
         let queue = TreadmillControlPointWriteQueue()
         let start = Data([0x07])
         let speed = Data([0x02, 0x78, 0x00])

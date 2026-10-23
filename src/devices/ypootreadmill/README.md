@@ -77,6 +77,9 @@ zero speed without a telemetry gap longer than two seconds. A new start still
 requires an explicit request. Stop/physical disconnect discard pending targets;
 target changes never implicitly start the belt.
 An unconfirmed stop disables new starts/targets until reconnection.
+The UI retains its existing already-stopped and zero-speed/zero-time guards.
+The `stopWhenIdle()` hook queues a physical YPOO Stop before those guards return,
+without repeating workout finalization or saving the finished session again.
 Confirmation means that the treadmill reports the requested value; it is not an
 independent measurement of belt speed or deck position. The virtual FTMS success
 response acknowledges acceptance by QZ, not completed physical actuation. Actual
@@ -100,7 +103,9 @@ with identifiers removed. Replay tests check the full 6.658622 km speed integral
 and a stopped-to-recording transition with the independent one-second UI poll.
 
 The Qt and opt-in native iOS virtual treadmill paths advertise speed/incline
-control and the supported ranges. Native iOS commands are queued without
+control and the supported ranges. The driver supplies these through
+`virtualTreadmillControl()`; shared Qt/iOS code does not identify YPOO models.
+Native iOS commands are queued without
 second-resolution timestamps; stop supersedes pending motion requests. Existing
 QZ auto-control settings still apply. An app must send the relevant FTMS control
 requests; application-specific workflows remain subject to end-to-end testing.

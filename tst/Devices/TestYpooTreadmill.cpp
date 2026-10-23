@@ -10,6 +10,19 @@ class YpooTreadmillTestPeer {
         device.processTelemetry(packet, time);
     }
     static void model(ypootreadmill &device, bool ypM1552) { device.YP_M1552 = ypM1552; }
+    static bool stopPending(const ypootreadmill &device) { return device.requestStop != -1; }
+    static YpooM5Control::Action beginCountdown(ypootreadmill &device) {
+        device.ypooM5Control.telemetry(0, 0, device.ypooM5Clock.elapsed());
+        device.ypooM5Control.requestStart();
+        device.ypooM5Control.requestSpeed(1.2);
+        device.ypooM5Control.requestIncline(1);
+        return device.ypooM5Control.next(device.ypooM5Clock.elapsed()).action;
+    }
+    static void processRequests(ypootreadmill &device) {
+        device.initDone = true;
+        device.updateYpooM5Control();
+    }
+    static qint64 now(const ypootreadmill &device) { return device.ypooM5Clock.elapsed(); }
     static YpooM5Control::Command next(ypootreadmill &device, qint64 time) {
         return device.ypooM5Control.next(time, device.YP_M1552);
     }
@@ -21,10 +34,11 @@ class YpooTreadmillTestPeer {
 namespace {
 class StopPolicyTestTreadmill : public treadmill {
   public:
-    void report(double speed, double elapsedSeconds) {
-        Speed = speed;
-        elapsed = elapsedSeconds;
+    void stop(bool pause) override {
+        ++stopCalls;
+        treadmill::stop(pause);
     }
+    unsigned stopCalls = 0;
 };
 
 QByteArray telemetryPacket(int speed, int incline) {
@@ -110,35 +124,49 @@ TEST_F(YpooTreadmillTest, PausedDriverDoesNotCountDistanceAcrossPauseOrTelemetry
     EXPECT_NEAR(device.odometer(), 20.0 / 3600.0, 1e-9);
 }
 
-TEST_F(YpooTreadmillTest, DefaultTreadmillPreservesExistingStopGuards) {
+TEST_F(YpooTreadmillTest, DefaultDriverDoesNotOptIntoIdleStopOrVirtualControl) {
     StopPolicyTestTreadmill otherTreadmill;
     treadmill &base = otherTreadmill;
-    const struct {
-        double speed;
-        double elapsedSeconds;
-        bool workoutStopped;
-        bool ignoreStop;
-    } cases[] = {
-        {0, 0, true, true}, {0, 0, false, true}, {0, 0.5, false, true},
-        {0, 1, false, false}, {1, 0, false, false}, {1, 1, false, false},
-        {0, 1, true, true}, {1, 0, true, true}, {1, 1, true, true}
-    };
-    for (const auto &entry : cases) {
-        otherTreadmill.report(entry.speed, entry.elapsedSeconds);
-        EXPECT_EQ(base.shouldIgnoreStopRequest(entry.workoutStopped), entry.ignoreStop)
-            << "speed=" << entry.speed << "; elapsed=" << entry.elapsedSeconds
-            << "; stopped=" << entry.workoutStopped;
+    base.stopWhenIdle();
+    EXPECT_EQ(otherTreadmill.stopCalls, 0u);
+    const auto control = base.virtualTreadmillControl();
+    EXPECT_FALSE(control.enabled);
+    EXPECT_TRUE(control.speedRange.isEmpty());
+    EXPECT_TRUE(control.inclineRange.isEmpty());
+}
+
+TEST_F(YpooTreadmillTest, BothYpooModelsQueuePhysicalStopBeforeMotionOrRecording) {
+    for (bool ypM1552 : {false, true}) {
+        ypootreadmill modelDevice{false, false};
+        YpooTreadmillTestPeer::model(modelDevice, ypM1552);
+        treadmill &base = modelDevice;
+        ASSERT_FALSE(YpooTreadmillTestPeer::stopPending(modelDevice));
+        base.stopWhenIdle();
+        EXPECT_TRUE(YpooTreadmillTestPeer::stopPending(modelDevice));
     }
 }
 
-TEST_F(YpooTreadmillTest, BothYpooModelsAcceptStopBeforeMotionOrRecording) {
+TEST_F(YpooTreadmillTest, IdleStopHookCancelsPhysicalCountdownWithTargetsQueued) {
+    ASSERT_EQ(YpooTreadmillTestPeer::beginCountdown(device), YpooM5Control::Action::Start);
+    EXPECT_DOUBLE_EQ(device.currentSpeed().value(), 0);
+    EXPECT_EQ(device.elapsedTime(), QTime(0, 0, 0));
+    device.setPaused(true); // The UI's stopped guard must retain this recording state.
     treadmill &base = device;
+    base.stopWhenIdle();
+    YpooTreadmillTestPeer::processRequests(device);
+    EXPECT_EQ(YpooTreadmillTestPeer::next(device, YpooTreadmillTestPeer::now(device) + 1100).action,
+              YpooM5Control::Action::Stop);
+    EXPECT_TRUE(device.isPaused());
+    EXPECT_DOUBLE_EQ(device.odometer(), 0);
+}
+
+TEST_F(YpooTreadmillTest, AdvertisesModelRangesThroughGenericDeviceInterface) {
+    bluetoothdevice &base = device;
     for (bool ypM1552 : {false, true}) {
         YpooTreadmillTestPeer::model(device, ypM1552);
-        for (int speed : {0, 100}) {
-            YpooTreadmillTestPeer::telemetry(device, telemetryPacket(speed, 0), 0);
-            EXPECT_FALSE(base.shouldIgnoreStopRequest(true));
-            EXPECT_FALSE(base.shouldIgnoreStopRequest(false));
-        }
+        const auto control = base.virtualTreadmillControl();
+        EXPECT_TRUE(control.enabled);
+        EXPECT_EQ(control.speedRange, QByteArray::fromHex("640058070a00"));
+        EXPECT_EQ(control.inclineRange, QByteArray::fromHex(ypM1552 ? "000078000a00" : "c4ff96000a00"));
     }
 }
