@@ -142,10 +142,12 @@ public class AccessibilityTest {
         // the scroll runs on the Qt thread, which can be busy for seconds after a start while a
         // device connects (7 s seen on the API 36 emulator): wait for it up to 15 s
         AccessibilityNodeInfo moved = null;
-        for (int i = 0; i < 30; i++) {
+        boolean inView = false;
+        for (int i = 0; i < 30 && !inView; i++) {
             Thread.sleep(500);
             // the same node, or, when the view made its item anew while scrolling (a GridView
-            // does), the node with the same whole description
+            // does), the node with the same whole description; a read between the old item and
+            // the new one finds neither, so a miss is only a miss once the 15 s are over
             moved = null;
             for (AccessibilityNodeInfo node : appNodes()) {
                 if (node.equals(lowest)) {
@@ -156,16 +158,21 @@ public class AccessibilityTest {
                     moved = node;
                 }
             }
-            if (moved == null) {
-                System.out.println("FAIL '" + description + "' is gone after the focus");
-                return false;
-            }
-            moved.getBoundsInScreen(bounds);
-            if (bounds.top >= screen.top && bounds.bottom <= screen.bottom) {
-                break;
+            if (moved != null) {
+                moved.getBoundsInScreen(bounds);
+                inView = bounds.top >= screen.top && bounds.bottom <= screen.bottom;
             }
         }
-        if (bounds.top < screen.top || bounds.bottom > screen.bottom) {
+        if (moved == null) {
+            AccessibilityNodeInfo active = automation.getRootInActiveWindow();
+            System.out.println("FAIL '" + description + "' is gone after the focus, the active window is "
+                    + (active == null ? null : active.getPackageName()));
+            for (AccessibilityNodeInfo node : appNodes()) {
+                System.out.println("INFO node " + describe(node));
+            }
+            return false;
+        }
+        if (!inView) {
             System.out.println("FAIL not scrolled into view: " + describe(moved) + " " + bounds.toShortString()
                     + ", screen " + screen.toShortString());
             return false;
