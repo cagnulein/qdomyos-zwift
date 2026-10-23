@@ -5198,6 +5198,22 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Opciones generales de la interfaz</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar el tamaño de texto del sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>El tamaño del texto de la aplicación sigue los ajustes del teléfono o la tableta, hasta un 150%. Desactívalo para elegir el tamaño abajo, por ejemplo para una pantalla que lees de lejos durante el entrenamiento. Activado por defecto.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamaño del texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamaño del texto de la aplicación (ajustes, menús, diálogos), en porcentaje, de 80 a 170. El valor predeterminado es 100. Los mosaicos tienen su propio ajuste de tamaño.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra superior habilitada</translation>
     </message>
