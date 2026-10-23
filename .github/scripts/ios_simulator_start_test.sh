@@ -14,7 +14,6 @@ mkdir -p "$OUT"
 collect() {
   if [ -n "$UDID" ]; then
     xcrun simctl io "$UDID" screenshot "$OUT/screenshot-end.png"
-    xcrun simctl spawn "$UDID" log show --last 15m --style compact --predicate "process == \"$EXE\"" > "$OUT/syslog.txt" 2>&1
   fi
   ls ~/Library/Logs/DiagnosticReports/ > "$OUT/crash-list.txt" 2>&1
   cp ~/Library/Logs/DiagnosticReports/"$EXE"* "$OUT/" 2>/dev/null
