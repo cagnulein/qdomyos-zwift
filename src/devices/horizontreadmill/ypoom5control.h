@@ -42,6 +42,9 @@ class YpooM5Control {
         return true;
     }
 
+    static double percentToLevel(double percent) { return std::round(percent * 17.5) / 10.0; }
+    static double levelToPercent(double level) { return level * 12.0 / 21.0; }
+
     void requestStart() {
         if (!stopRequested && !faulted && !starting)
             startRequested = true;

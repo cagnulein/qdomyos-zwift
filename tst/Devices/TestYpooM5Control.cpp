@@ -33,6 +33,14 @@ TEST(YpooM5ControlTest, RejectsTruncatedTelemetryAndSupportsSignedIncline) {
     EXPECT_FALSE(YpooM5Control::readTelemetry(moreData, sizeof(moreData), speed, incline));
 }
 
+TEST(YpooM5ControlTest, ConvertsYpooM5InclinationLevelsToRealPercentages) {
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(1), 1.8);
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(6), 10.5);
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(12), 21);
+    EXPECT_DOUBLE_EQ(YpooM5Control::levelToPercent(10.5), 6);
+    EXPECT_DOUBLE_EQ(YpooM5Control::levelToPercent(21), 12);
+}
+
 TEST(YpooM5ControlTest, TargetsNeverStartAStoppedBelt) {
     YpooM5Control control;
     control.telemetry(0, 0, 0);
