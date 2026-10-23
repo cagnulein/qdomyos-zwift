@@ -480,7 +480,7 @@
       "defaultValue": 100.0,
       "defaultExpression": "100.0",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "bike_heartrate_service",
@@ -8366,7 +8366,7 @@
       "defaultValue": 12,
       "defaultExpression": "12",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "fakedevice_rower",

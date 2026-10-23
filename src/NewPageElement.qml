@@ -11,6 +11,9 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     property string accordionContent: ""
+    // The Settings object of the settings page, given to the page this element opens: the
+    // pages share one object, so none of them writes back an old copy of what another changed
+    property var pageSettings: null
     spacing: 0
 
     Layout.fillWidth: true;
@@ -62,7 +65,7 @@ ColumnLayout {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: {
-                stackView.push(accordionContent)
+                stackView.push(accordionContent, { settings: pageSettings })
             }
         }
     }

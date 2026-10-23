@@ -3,7 +3,6 @@ import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -16,52 +15,10 @@ ScrollView {
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTTLPane
 
-    Settings {
-        id: settings
-        property bool tts_enabled: false
-        property int tts_summary_sec: 120
-        property bool tts_act_speed: false
-        property bool tts_avg_speed: true
-        property bool tts_max_speed: false
-        property bool tts_act_inclination: false
-        property bool tts_act_cadence: false
-        property bool tts_avg_cadence: true
-        property bool tts_max_cadence: false
-        property bool tts_act_elevation: true
-        property bool tts_act_calories: true
-        property bool tts_act_odometer: true
-        property bool tts_act_pace: false
-        property bool tts_avg_pace: true
-        property bool tts_max_pace: false
-        property bool tts_act_resistance: true
-        property bool tts_avg_resistance: true
-        property bool tts_max_resistance: false
-        property bool tts_act_watt: false
-        property bool tts_avg_watt: true
-        property bool tts_max_watt: true
-        property bool tts_act_ftp: true
-        property bool tts_avg_ftp: true
-        property bool tts_max_ftp: false
-        property bool tts_act_heart: true
-        property bool tts_avg_heart: true
-        property bool tts_max_heart: false
-        property bool tts_act_jouls: true
-        property bool tts_act_elapsed: true
-        property bool tts_act_peloton_resistance: false
-        property bool tts_avg_peloton_resistance: false
-        property bool tts_max_peloton_resistance: false
-        property bool tts_act_target_peloton_resistance: true
-        property bool tts_act_target_cadence: true
-        property bool tts_act_target_power: true
-        property bool tts_act_target_zone: true
-        property bool tts_act_target_speed: true
-        property bool tts_act_target_incline: true
-        property bool tts_act_watt_kg: false
-        property bool tts_avg_watt_kg: false
-        property bool tts_max_watt_kg: false
-        property bool tts_description_enabled: true
-        property bool tts_act_target_pace: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
 
     ColumnLayout {
@@ -104,7 +61,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: ttsSummarySecTextField
-                text: settings.tts_summary_sec
+                savedText: settings.tts_summary_sec
                 decimals: 0
                 minimum: 1
                 horizontalAlignment: Text.AlignRight
@@ -116,7 +73,7 @@ ScrollView {
             Button {
                 id: okTTSSummarySec
                 text: qsTr("OK")
-                enabled: ttsSummarySecTextField.valid
+                enabled: ttsSummarySecTextField.valid && ttsSummarySecTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.value; toast.show(qsTr("Setting saved!")); }
             }

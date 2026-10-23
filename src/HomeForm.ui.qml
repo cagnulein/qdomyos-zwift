@@ -19,9 +19,12 @@ Page {
     property alias row: row
     // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
     property string searchStatus: ""
+    // Home.qml sets the new values from the settings page in it (the background color of the top bar)
+    property alias homeFormSettings: settings
 
     Settings {
 	     id: settings
+	     Component.onCompleted: window.retakeSettingsSnapshot(settings)
 		  property real ui_zoom: 100.0
 		  property bool theme_tile_icon_enabled: true
 		  property string theme_background_color: "#303030"

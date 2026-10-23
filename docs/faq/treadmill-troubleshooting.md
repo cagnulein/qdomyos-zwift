@@ -162,3 +162,11 @@ The QZ settings UI exposes `treadmill_step_speed`; the speed-control code uses t
 This capability is **verified in QZ code**: `settings-tiles.qml` defines the five preset-speed values/labels and `homeform.cpp` routes a pressed preset to the treadmill's `changeSpeed()` function. It was discussed in support as an alternative to customizing the treadmill's physical buttons, but it was **not separately validated on that customer's specific device**.
 
 **Safety:** Preset buttons can request a substantial speed change. Start with modest targets and test with the belt clear of people before using them while running. Actual behavior depends on whether the treadmill supports speed commands from QZ and on its acceleration behavior.
+
+## Why does Garmin Connect label my QZ treadmill workout as Walking instead of Running?
+
+QZ's workout export distinguishes **Walking** from **Running** using the treadmill session's average speed. By default, a treadmill activity averaging **6.5 km/h or less** (with a nonzero average) is classified as Walking in the generated FIT activity. This is independent of whether a Garmin watch is in **Virtual Run** mode.
+
+If you want future treadmill activities classified as **Running** regardless of that speed threshold, enable **Force Running Activity** under **QZ Settings > Treadmill Options**, save the setting, and record a new workout. This changes the activity type exported by QZ; it does not retroactively reclassify activities already uploaded to Garmin Connect.
+
+This behavior is verified in QZ's FIT export code (`qfit.cpp`) and the `treadmill_force_running_activity` setting. It is capability/setup guidance, not a customer-confirmed fix for every Garmin Connect display issue.

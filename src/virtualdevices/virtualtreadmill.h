@@ -36,6 +36,7 @@ class virtualtreadmill : public virtualdevice {
     bool connected() override;
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
     void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
+    void clearControlPointWrites();
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -84,6 +85,7 @@ class virtualtreadmill : public virtualdevice {
     bool noHeartService = false;
 
     bool m_autoInclinationEnabled = false;
+    bool forwardControlPointWrites = false;
     bool echelonInitDone = false;
     bool echelonLastRunning = false;
     qint32 echelonLastSpeed = -1;

@@ -3,7 +3,6 @@ import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -15,15 +14,10 @@ ScrollView {
     clip: true
 
     // Properties
-    Settings {
-        id: settings
-        property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-        property int gear_crankset_size: 42
-        property int gear_cog_size: 14
-        property string gear_wheel_size: "700 x 18C"
-        property real gear_circumference: 2070
-        property bool wahoo_without_wheel_diameter: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     property int selectedCranksetSize: settings.gear_crankset_size
     property int selectedCogSize: settings.gear_cog_size
@@ -87,8 +81,8 @@ ScrollView {
         settings.gear_configuration = gearRowsToString(gearRows)
     }
 
-    onSettingsChanged: {
-        console.log("onSettingsChanged")
+    onGearSettingsChanged: {
+        console.log("onGearSettingsChanged")
         updateSettings()
     }
 
@@ -314,8 +308,9 @@ ScrollView {
         gearRows = temp
     }
 
-    // Signals to notify when values change
-    signal settingsChanged()
+    // Signals to notify when values change (not settingsChanged: that is the change signal of
+    // the settings property)
+    signal gearSettingsChanged()
     signal gearConfigurationChanged(var gearRows)
     signal restoreDefaultWheelDiameter()
 
@@ -378,7 +373,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCranksetSize = value
                         console.log("Crankset Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -403,7 +398,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCogSize = value
                         console.log("Cog Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -518,7 +513,7 @@ ScrollView {
                           selectedWheelSize = model.get(currentIndex).text
                           selectedCircumference = model.get(currentIndex).circumference
                           console.log("wheelSizeCombo changed");
-                          settingsChanged()
+                          gearSettingsChanged()
                       }
                   }
                 }
