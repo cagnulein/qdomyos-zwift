@@ -25,7 +25,8 @@ ColumnLayout {
 
         Rectangle{
            id:indicatRect
-           x: 16; y: 20
+           // Centred on the first line of the title: a fixed y sat below it with a smaller or bigger font
+           x: 16; y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
            width: 8; height: 8
            radius: 8
            color: "white"
