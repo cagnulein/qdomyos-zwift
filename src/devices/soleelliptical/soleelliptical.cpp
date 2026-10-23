@@ -551,6 +551,14 @@ void soleelliptical::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        emit debug(QStringLiteral("Sole communication service not found"));
+        serviceDiscoveryFailed = true;
+        refresh->stop();
+        m_control->disconnectFromDevice();
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &soleelliptical::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
