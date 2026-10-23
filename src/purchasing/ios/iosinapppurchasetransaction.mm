@@ -131,5 +131,3 @@ QDateTime IosInAppPurchaseTransaction::timestamp() const
 }
 
 QT_END_NAMESPACE
-
-#include "moc_iosinapppurchasetransaction.cpp"

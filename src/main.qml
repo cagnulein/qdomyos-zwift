@@ -40,6 +40,9 @@ ApplicationWindow {
             if (isMultiWindow) {
                 return 15;  // Space for window control buttons
             }
+            if (isIPhoneDuoDisplay()) {
+                return getIPhoneDuoTopInset();
+            }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         // AndroidStatusBar.height is always the top inset in the current orientation
@@ -53,13 +56,47 @@ ApplicationWindow {
         return AndroidStatusBar.navigationBarHeight;
     }
 
+    function getContentBottomMargin() {
+        // The Duo Qt view covers the full UIKit window. Let the page stack
+        // extend through the dynamic bottom safe-area strip; pages that keep
+        // controls safe from the home indicator already reserve this inset.
+        if (isIPhoneDuoDisplay()) return -getIPhoneDuoBottomInset();
+        return getBottomPadding();
+    }
+
+    function isIPhoneDuoDisplay() {
+        return Qt.platform.os === "ios" && typeof IOSLayout !== "undefined" && IOSLayout.isIPhoneDuo === true;
+    }
+
+    function getIPhoneDuoRightInset() {
+        if (!isIPhoneDuoDisplay() || typeof IOSLayout === "undefined") return 0;
+        return Math.max(0, Number(IOSLayout.rightInset) || 0);
+    }
+
+    function getIPhoneDuoLeftInset() {
+        if (!isIPhoneDuoDisplay() || typeof IOSLayout === "undefined") return 0;
+        return Math.max(0, Number(IOSLayout.leftInset) || 0);
+    }
+
+    function getIPhoneDuoTopInset() {
+        if (!isIPhoneDuoDisplay() || typeof IOSLayout === "undefined") return 0;
+        return Math.max(0, Number(IOSLayout.topInset) || 0);
+    }
+
+    function getIPhoneDuoBottomInset() {
+        if (!isIPhoneDuoDisplay() || typeof IOSLayout === "undefined") return 0;
+        return Math.max(0, Number(IOSLayout.bottomInset) || 0);
+    }
+
     function getLeftPadding() {
+        if (isIPhoneDuoDisplay()) return getIPhoneDuoLeftInset();
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
 
     function getRightPadding() {
+        if (isIPhoneDuoDisplay()) return getIPhoneDuoRightInset();
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
@@ -1254,7 +1291,7 @@ ApplicationWindow {
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
         // Opacity, not visible: some pages set headerToolbar.visible themselves
-        opacity: window.rootReady ? 1 : 0
+        opacity: Qt.platform.os === "ios" ? 1 : (window.rootReady ? 1 : 0)
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
         // Clear of the side system bar and the cutout held sideways, as the page stack: with
@@ -1850,16 +1887,13 @@ ApplicationWindow {
     Item {
         anchors.fill: parent
         Accessible.ignored: true
-        opacity: window.rootReady ? 1 : 0
+        opacity: Qt.platform.os === "ios" ? 1 : (window.rootReady ? 1 : 0)
 
         StackView {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
-            // Clear of the bottom system bar in any orientation: held sideways with gesture
-            // navigation the bar stays at the bottom (with buttons it moves to the side, and the
-            // bottom inset is 0 then)
-            anchors.bottomMargin: getBottomPadding()
+            anchors.bottomMargin: getContentBottomMargin()
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
