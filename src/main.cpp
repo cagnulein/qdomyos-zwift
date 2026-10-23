@@ -19,6 +19,7 @@
 #include "qfit.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
@@ -141,6 +142,7 @@ QString logfilename = QStringLiteral("debug-") +
                           .replace(QStringLiteral("."), QStringLiteral("_")) +
                       QStringLiteral(".log");
 QUrl profileToLoad;
+QString configFilePath;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 // Function to display help information and exit
@@ -158,6 +160,7 @@ void displayHelp() {
     printf("  -miles                        Use miles instead of kilometers\n");
     printf("  -no-console                   Disable console output\n");
     printf("  -no-log                       Disable logging\n");
+    printf("  -config <path>                Load settings from the specified .conf file\n");
     printf("  -profile <name>               Load specific profile\n");
 
     printf("\nDevice configuration:\n");
@@ -292,7 +295,15 @@ int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int li
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
 
-    QSettings settings;
+    for (int i = 1; i < argc; ++i) {
+        if (!qstrcmp(argv[i], "-config") && i + 1 < argc) {
+            configFilePath = QFileInfo(QString::fromLocal8Bit(argv[++i])).absoluteFilePath();
+            QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
+                               QFileInfo(configFilePath).absolutePath());
+            break;
+        }
+    }
+
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
@@ -626,9 +637,14 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    app->setOrganizationName(QStringLiteral("Roberto Viola"));
-    app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
-    app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
+    if (configFilePath.isEmpty()) {
+        app->setOrganizationName(QStringLiteral("Roberto Viola"));
+        app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
+        app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
+    } else {
+        app->setOrganizationName(QStringLiteral("."));
+        app->setApplicationName(QFileInfo(configFilePath).completeBaseName());
+    }
 
     QSettings settings;
 
