@@ -124,6 +124,7 @@ class horizontreadmill : public treadmill {
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool YPOO_M5 = false;
+    bool YP_M1552 = false;
     bool ypooM5WritePending = false;
     bool ypooM5ControlGranted = false;
     QElapsedTimer ypooM5Clock;

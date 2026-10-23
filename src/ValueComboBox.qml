@@ -20,6 +20,13 @@ UiComboBox {
     displayText: labelFor(value)
     onActivated: value = currentValue
 
+    // savedText (see UiComboBox) is the raw saved value: shown through `value`, compared raw
+    dirty: savedText !== undefined && value !== String(savedText)
+    function showSaved() {
+        if (savedText !== undefined)
+            value = savedText
+    }
+
     // Same as the Material style's default delegate; only the text goes through labelFor()
     delegate: MenuItem {
         width: ListView.view.width

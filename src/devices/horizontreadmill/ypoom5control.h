@@ -46,6 +46,9 @@ class YpooM5Control {
         return true;
     }
 
+    static double percentToLevel(double percent) { return std::round(percent * 17.5) / 10.0; }
+    static double levelToPercent(double level) { return level * 12.0 / 21.0; }
+
     void requestStart() {
         if (!stopRequested && !faulted && !starting)
             startRequested = true;
@@ -120,7 +123,7 @@ class YpooM5Control {
             stopAcknowledged = success;
     }
 
-    Command next(int64_t now) {
+    Command next(int64_t now, bool ypM1552 = false) {
         // The M5 cannot overlap procedures; leave margin above its 200 ms minimum.
         if (lastCommandSent >= 0 && now - lastCommandSent < 250)
             return {Action::None, 0};
@@ -167,7 +170,7 @@ class YpooM5Control {
             lastCommandSent = now;
             return speedCommand;
         }
-        const Command inclineCommand = nextTarget(inclineTarget, incline, Action::Incline, now);
+        const Command inclineCommand = nextTarget(inclineTarget, incline, Action::Incline, now, ypM1552);
         if (inclineCommand.action != Action::None)
             lastCommandSent = now;
         return inclineCommand;
@@ -200,10 +203,17 @@ class YpooM5Control {
         return true;
     }
 
-    Command nextTarget(Target &target, double actual, Action action, int64_t now) {
+    Command nextTarget(Target &target, double actual, Action action, int64_t now, bool ypM1552 = false) {
         if (!target.pending)
             return {Action::None, 0};
-        if (std::fabs(actual - target.value) < 0.05) {
+        double expected = target.value;
+        if (ypM1552 && action == Action::Incline) {
+            // This firmware truncates the requested level to an integer in its FTMS telemetry.
+            // E.g. target 2% sends level 3.5, but the console reports level 3 (about 1.71%).
+            const double reportedLevel = std::floor(percentToLevel(target.value) + 1e-6);
+            expected = levelToPercent(reportedLevel);
+        }
+        if (std::fabs(actual - expected) < 0.05) {
             target = Target();
             return {Action::None, 0};
         }

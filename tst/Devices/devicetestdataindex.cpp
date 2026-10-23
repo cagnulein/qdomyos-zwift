@@ -259,8 +259,9 @@ void DeviceTestDataIndex::Initialize() {
     // DomyosElliptical
     RegisterNewDeviceTestData(DeviceIndex::DomyosElliptical)
         ->expectDevice<domyoselliptical>()        
-        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWith)
-        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWith);
+        ->acceptDeviceName("Domyos-EL", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("DOMYOS-EL-4071", DeviceNameComparison::Exact)
+        ->rejectDeviceName("DomyosBridge",DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Domyos rower
@@ -721,7 +722,7 @@ void DeviceTestDataIndex::Initialize() {
             // FTMS
             {"T318_", "T218_", "TRX3500", "JFTMPARAGON", "PARAGON X", "JFTM", "CT800",
              "MOBVOI TM", "DK202000725", "CTM780102C6BB32D62", "MX-TM ", "MATRIXTF50", "MOBVOI TM",
-             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-U012A6B", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
+             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-", "YPTM-U012A6B", "YP-M1552-0081BA", "YPOO-MINI PRO-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
@@ -807,6 +808,28 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Kettler Classic / MyHomeFIT RFCOMM
+    RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
+        ->expectDevice<kettlerclassicbike>()
+        ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
+        ->configureSettingsWith(QZSettings::bh_spada_2);
+
+
+    // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxSprintFTMSBike)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? info.DeviceName() : QStringLiteral("OTHER BIKE"));
+        });
+
+    // Selecting an unrelated FTMS bike must not stop a DYNAMAX treadmill from being detected.
+    RegisterNewDeviceTestData(DeviceIndex::DynamaxTreadmillOtherFTMSBike)
+        ->expectDevice<kingsmithr1protreadmill>()
+        ->acceptDeviceName("DYNAMAX", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_bike, enable ? QStringLiteral("OTHER BIKE") : info.DeviceName());
+        });
 
     // Kingsmith R1 Pro Treadmill
     RegisterNewDeviceTestData(DeviceIndex::KingsmithR1ProTreadmill)

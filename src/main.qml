@@ -95,6 +95,23 @@ ApplicationWindow {
         return deviceName.replace(/ \(\d+%\)$/, "")
     }
 
+    // A Settings object that loads a store without one of its keys snapshots its properties for
+    // the write in the middle of the load (Qt.labs.settings): the properties declared after that
+    // key still have their defaults, and 500 ms later the defaults are written over their values.
+    // The change signal of that key, emitted once the load is over, takes the snapshot again
+    // without changing a value
+    function retakeSettingsSnapshot(copy) {
+        for (var key in copy) {
+            var type = typeof copy[key]
+            if (type !== "boolean" && type !== "number" && type !== "string")
+                continue
+            if (key === "objectName" || key === "category" || key === "fileName" || copy.value(key) !== undefined)
+                continue
+            copy[key + "Changed"]()
+            return
+        }
+    }
+
     function maybeOpenGymModePopup() {
         if (typeof rootItem === "undefined" || !rootItem) {
             return
@@ -147,6 +164,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        Component.onCompleted: retakeSettingsSnapshot(settings)
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
@@ -223,6 +241,70 @@ ApplicationWindow {
         property string shortcut_stop: ""
         property bool android_landscape_cutout_margin: true
         property bool android_landscape_cutout_prompt_shown: false
+        property int ui_text_scale: 100
+        property bool ui_text_scale_system: true
+    }
+
+    // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
+    // system text size by default, capped so the fixed-height rows still fit; otherwise ui_text_scale.
+    // Qt 5.15 applies neither by itself, and Qt.application.font is constant, so the size goes
+    // through the window font, which the labels, fields, buttons, lists and menus inherit
+    readonly property bool systemTextScaleAvailable: Qt.platform.os === "android" || Qt.platform.os === "ios"
+    readonly property real systemTextScaleCap: 1.5
+    property real systemTextScale: AndroidStatusBar.systemFontScale()
+    readonly property real textScale: systemTextScaleAvailable && settings.ui_text_scale_system
+        ? Math.max(0.8, Math.min(systemTextScaleCap, systemTextScale))
+        : Math.max(0.8, Math.min(1.7, settings.ui_text_scale / 100))
+    // At 100 % every size stays exactly as before
+    function fontPx(base) { return textScale === 1 ? base : Math.round(base * textScale) }
+    readonly property int appFontPx: Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
+    // Size of the hints under the settings. Where the app font has no pixel size (iOS, desktop)
+    // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
+    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+        : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
+    // The window font is set only for a size other than 100 % and reset otherwise
+    readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
+    // the app font has a pixel size, the one of the controls. On iOS and desktop it has a point
+    // size of its own (17 on iOS, already scaled by the system text size QZ started with), so a
+    // Text is scaled from that, in pixels, and the start-up system size is taken out of it when
+    // the size follows the system
+    readonly property real startupSystemTextScale: AndroidStatusBar.systemFontScale()
+    readonly property int plainFontPx: textScale === 1 ? 0
+        : Qt.application.font.pixelSize > 0 || Qt.application.font.pointSizeF <= 0 ? scaledFontPx
+        : Math.round(Qt.application.font.pointSizeF * Screen.logicalPixelDensity * 25.4 / 72 * textScale
+            / (systemTextScaleAvailable && settings.ui_text_scale_system && startupSystemTextScale > 0 ? startupSystemTextScale : 1))
+    // Font of the section headers of the settings: a plain Text, which does not inherit the window
+    // font. At 100 % the app font, the one a Text takes by itself
+    readonly property font headerFont: textScale === 1 ? Qt.application.font
+        : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
+    // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
+    // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
+    // and then take the width of the screen and the height of the text
+    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // Space under the hint of a setting: a wrapped label of the next one fills its row and
+    // touched the hint above it, the two read as one block
+    readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
+    function applyTextScale() {
+        if (scaledFontPx > 0)
+            font.pixelSize = scaledFontPx
+        else
+            font = undefined
+    }
+    onScaledFontPxChanged: applyTextScale()
+    Component.onCompleted: applyTextScale()
+    // The settings page has its own Settings object, which this one does not hear about until a
+    // restart: the text size options are written through here, so the size changes at once
+    function setTextScaleOption(key, value) {
+        settings[key] = value
+    }
+    // The system text size is changed in the phone settings, while QZ is in the background
+    Connections {
+        target: Qt.application
+        function onStateChanged() {
+            if (Qt.application.state === Qt.ApplicationActive)
+                window.systemTextScale = AndroidStatusBar.systemFontScale()
+        }
     }
 
 
@@ -301,7 +383,7 @@ ApplicationWindow {
             text: window.lapPromptText
             color: "white"
             font.bold: true
-            font.pixelSize: 26
+            font.pixelSize: window.fontPx(26)
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
@@ -442,8 +524,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
 		 y: Math.round((parent.height - height) / 2)
-		 width: 380
-         height: 60
+		 width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupText.height + topPadding + bottomPadding) : 60
 		 modal: true
 		 focus: true
 		 palette.text: "white"
@@ -459,8 +541,11 @@ ApplicationWindow {
 		 Column {
              anchors.horizontalCenter: parent.horizontalCenter
 		 Label {
+		     id: popupText
              anchors.horizontalCenter: parent.horizontalCenter
 		     text: qsTr("Program has been loaded correctly. Press start to begin!")
+		     width: window.textScale !== 1 ? popup.availableWidth : implicitWidth
+		     wrapMode: window.labelWrap
 		 }
 		 }
 	}
@@ -498,8 +583,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupClassificaHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -516,8 +601,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupClassificaHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
+             width: window.textScale !== 1 ? popupClassificaHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -528,13 +616,17 @@ ApplicationWindow {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        height: Math.min(parent.height - 40, 260)
+        // with a bigger text the content is taller: Skip fell out
+        height: window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+            : Math.min(parent.height - 40, 260)
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
         onOpened: refresh_bluetooth_devices_clicked()
 
         Column {
+            id: gymModeColumn
             anchors.fill: parent
             anchors.margins: 18
             spacing: 14
@@ -542,7 +634,7 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 text: qsTr("Select Your Gym Device")
-                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 10)
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
@@ -562,7 +654,7 @@ ApplicationWindow {
                 labels: ({ "Disabled": qsTr("Disabled") })
                 displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
-                font.pixelSize: Qt.application.font.pixelSize + 8
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
                     var selectedDevice = stripBluetoothDeviceName(currentValue)
@@ -607,8 +699,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupWhatsOnZwiftHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -633,8 +725,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupWhatsOnZwiftHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
+             width: window.textScale !== 1 ? popupWhatsOnZwiftHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -645,8 +740,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupLoadSettingsText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -662,8 +757,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLoadSettingsText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Settings has been loaded correctly. Restart the app!")
+             width: window.textScale !== 1 ? popupLoadSettings.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -674,8 +772,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupSaveFileText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -691,8 +789,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupSaveFileText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+             width: window.textScale !== 1 ? popupSaveFile.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -706,8 +807,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupStravaConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -723,10 +824,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupStravaConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupStravaConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -740,8 +843,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupPelotonConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -757,10 +860,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupPelotonConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupPelotonConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -780,8 +885,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 580
-         height: 230
+         width: window.textScale !== 1 ? Math.min(580, parent.width - 32) : 580
+         height: window.textScale !== 1 ? Math.max(230, popupLicenseText.height + topPadding + bottomPadding) : 230
          modal: true
          focus: true
          palette.text: "white"
@@ -797,10 +902,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLicenseText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 570
-             height: 220
+             width: window.textScale !== 1 ? popupLicense.availableWidth : 570
+             height: window.textScale !== 1 ? undefined : 220
              text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -980,16 +1087,20 @@ ApplicationWindow {
             spacing: 12
 
             Label {
+                id: echelonEnableTitle
                 width: parent.width
                 text: qsTr("Echelon Locked Bike")
                 font.bold: true
-                font.pixelSize: 20
+                font.pixelSize: window.fontPx(20)
                 wrapMode: Text.WordWrap
             }
 
             ScrollView {
                 width: parent.width
-                height: parent.height - buttonsRow.height - 52
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - buttonsRow.height - echelonEnableTitle.height - 2 * parent.spacing
+                    : parent.height - buttonsRow.height - 52
                 clip: true
 
                 TextArea {
@@ -1049,16 +1160,20 @@ ApplicationWindow {
             spacing: 12
 
             Label {
+                id: androidNotificationTitle
                 width: parent.width
                 text: qsTr("Connection lost in the background")
                 font.bold: true
-                font.pixelSize: 20
+                font.pixelSize: window.fontPx(20)
                 wrapMode: Text.WordWrap
             }
 
             ScrollView {
                 width: parent.width
-                height: parent.height - androidNotificationButtons.height - 52
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - androidNotificationButtons.height - androidNotificationTitle.height - 2 * parent.spacing
+                    : parent.height - androidNotificationButtons.height - 52
                 clip: true
 
                 TextArea {
@@ -1169,8 +1284,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popupAutoResistanceText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -1186,8 +1301,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popupAutoResistanceText
                  anchors.horizontalCenter: parent.horizontalCenter
                  text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
+                 width: window.textScale !== 1 ? popupAutoResistance.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -1204,8 +1322,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popuplockTilesText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -1221,8 +1339,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popuplockTilesText
                  anchors.horizontalCenter: parent.horizontalCenter
                  text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
+                 width: window.textScale !== 1 ? popuplockTiles.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -1370,6 +1491,32 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
+            // Grows with the text size, but no wider than the room between the nearest shown
+            // buttons, centred: a title that does not fit takes a smaller font down to its size at
+            // 100 %, and only then an ellipsis. At 100 % it stays as it was
+            width: window.textScale !== 1 ? Math.min(implicitWidth, titleRoom) : implicitWidth
+            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
+            minimumPixelSize: window.appFontPx
+            // The line keeps the height of the full size: a smaller font in its middle, not at its top
+            verticalAlignment: window.textScale !== 1 ? Text.AlignVCenter : Text.AlignTop
+            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
+            readonly property real titleRoom: {
+                var c = parent.width / 2, room = c
+                var left = [toolButton, toolButtonFloating]
+                var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
+                             toolButtonVideo, toolButtonChart, toolButtonLockTiles, toolButtonAutoResistance]
+                for (var i = 0; i < left.length; i++)
+                    if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
+                        room = Math.min(room, c - (left[i].x + left[i].width))
+                // The search of the settings comes and goes with the scroll: its place is kept on the
+                // settings page all the time, or the title grew and shrank with it
+                for (var j = 0; j < right.length; j++) {
+                    var held = right[j] === toolButtonSettingsSearch && headerToolbar.settingsPageActive
+                    if ((held || (right[j].visible && right[j].opacity > 0)) && right[j].width > 0)
+                        room = Math.min(room, right[j].x - c)
+                }
+                return Math.max(0, 2 * (room - 4))
+            }
         }
     }
 

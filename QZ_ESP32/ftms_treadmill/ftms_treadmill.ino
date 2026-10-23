@@ -25,6 +25,8 @@ static const NimBLEUUID RSC_CONTROL_POINT_UUID("2A55");
 // Change them before flashing if the bridge is used by another person.
 static constexpr float USER_HEIGHT_CM = 170.0f;
 static constexpr bool USER_IS_MALE = true;
+// Use -1 to derive cadence from speed and stride length instead.
+static constexpr int FIXED_CADENCE_SPM = 60;
 
 static constexpr uint32_t SCAN_TIME_MS = 5000;
 static constexpr uint32_t SAMPLE_TIMEOUT_MS = 3000;
@@ -58,6 +60,10 @@ static float strideLengthMeters() {
 static uint8_t cadenceFromSpeed(float speedKph) {
     if (speedKph < 0.1f) {
         return 0;
+    }
+
+    if (FIXED_CADENCE_SPM >= 0) {
+        return static_cast<uint8_t>(constrain(FIXED_CADENCE_SPM, 0, 255));
     }
 
     const float speedMetersPerSecond = speedKph / 3.6f;

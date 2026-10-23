@@ -973,9 +973,11 @@ void horizontreadmill::btinit() {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
-        QThread::msleep(500);
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
+        if (!YPOO_M5) {
+            QThread::msleep(500);
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+        }
     }
 
     initDone = true;
@@ -1319,13 +1321,17 @@ void horizontreadmill::updateYpooM5Control() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!ypooM5Control.requestIncline(treadmillInclinationOverrideReverse(requestInclination)))
+            const double target = treadmillInclinationOverrideReverse(requestInclination);
+            if (YP_M1552 && (target < 0.0 || target > 12.0)) {
+                emit debug(QStringLiteral("YP-M1552: incline target outside 0-12% range"));
+            } else if (!ypooM5Control.requestIncline(target)) {
                 emit debug(QStringLiteral("YPOO M5: incline target rejected (range or treadmill stopped)"));
+            }
             requestInclination = -100;
         }
     }
 
-    const auto command = ypooM5Control.next(ypooM5Clock.elapsed());
+    const auto command = ypooM5Control.next(ypooM5Clock.elapsed(), YP_M1552);
     const auto failure = ypooM5Control.takeFailure();
     if (failure != YpooM5Control::Action::None)
         emit debug(QStringLiteral("YPOO M5: command %1 not confirmed by telemetry; retries stopped")
@@ -1684,8 +1690,17 @@ void horizontreadmill::forceIncline(double requestIncline) {
                 writeS[2] = 0x00;
             }
         } else {
-            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
-            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+            if (YP_M1552) {
+                // YP-M1552 firmware uses a 0-21 level scale for 0-12% grade.
+                const double level = YpooM5Control::percentToLevel(requestIncline);
+                const int16_t raw = static_cast<int16_t>(std::lround(level * 10.0));
+                writeS[1] = raw & 0xFF;
+                writeS[2] = raw >> 8;
+            } else {
+                // Preserve the pre-PR encoding for every other Horizon treadmill, including YPTM-U0.
+                writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+                writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+            }
         }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
@@ -1738,7 +1753,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                          newValue.size(), reportedSpeed, reportedIncline))
             return;
         const bool wasRunning = ypooM5Control.running();
-        ypooM5Control.telemetry(reportedSpeed, reportedIncline, ypooM5Clock.elapsed());
+        ypooM5Control.telemetry(reportedSpeed,
+                                YP_M1552 ? YpooM5Control::levelToPercent(reportedIncline) : reportedIncline,
+                                ypooM5Clock.elapsed());
         if (!wasRunning && ypooM5Control.running())
             emit tapeStarted();
     }
@@ -2123,15 +2140,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if(domyos_treadmill_ts100) {
                 // Domyos TS100 has a fixed 15° inclination
                 Inclination = 15;
-            } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
-                parseInclination(treadmillInclinationOverride((double)(
-                                  (int16_t)(
-                                      ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
-                                      (uint8_t)newValue.at(index)
-                                      )
-                                  ) /
-                                                              10.0));
-            else if(ICONCEPT_FTMS_treadmill || T01) {
+            } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01) {
+                double reportedInclination = (double)(
+                                                  (int16_t)(
+                                                      ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
+                                                      (uint8_t)newValue.at(index)
+                                                      )
+                                                  ) /
+                                              10.0;
+                if (YP_M1552)
+                    reportedInclination = YpooM5Control::levelToPercent(reportedInclination);
+                parseInclination(treadmillInclinationOverride(reportedInclination));
+            } else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
                 if(val1 == 0x3C && val2 == 0x00) {
@@ -2593,7 +2613,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattFTMSService = s;
                 } else if(c.uuid() == _YpooMiniProCharId && (YPOO_MINI_PRO ||
                           (YPOO_M5 && s->serviceUuid() == QBluetoothUuid((quint16)0x1826) &&
-                           (c.properties() & QLowEnergyCharacteristic::WriteNoResponse)))) {
+                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
+                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))))) {
                     qDebug() << QStringLiteral("YPOO unlock characteristic found");
                     gattWriteCharControlPointIdYpooMiniPro = c;
                 }
@@ -2966,6 +2987,12 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("YPOO M5 FTMS unlock mode found");
             YPOO_M5 = true;
             minInclination = -6.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
+            qDebug() << QStringLiteral("YPOO M5 YP-M1552 FTMS unlock mode found");
+            YPOO_M5 = true;
+            YP_M1552 = true;
+            minInclination = 0.0;
+            maxInclination = 12.0;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;

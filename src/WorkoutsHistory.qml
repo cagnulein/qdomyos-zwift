@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQml 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtCharts 2.15
@@ -111,6 +112,9 @@ Page {
         Rectangle {
             Layout.fillWidth: true
             height: 60
+            // a bigger text: the title and the filter line keep inside the header (the layout reads
+            // the height only once, a preferred height it follows)
+            Layout.preferredHeight: window.textScale !== 1 ? Math.max(60, headerTitle.height + 12) : -1
             color: "#f5f5f5"
 
             // Calendar Icon Button - positioned absolutely on the left
@@ -190,6 +194,7 @@ Page {
 
             // Title with filter status - between the buttons, shrinking on narrow screens
             Column {
+                id: headerTitle
                 anchors.left: clearFilterButton.visible ? clearFilterButton.right : calendarButton.right
                 anchors.right: importButton.left
                 anchors.leftMargin: 8
@@ -200,7 +205,7 @@ Page {
                     width: parent.width
                     horizontalAlignment: Text.AlignHCenter
                     text: qsTr("Workout History")
-                    font.pixelSize: 24
+                    font.pixelSize: window.fontPx(24)
                     font.bold: true
                     fontSizeMode: Text.HorizontalFit
                     minimumPixelSize: 14
@@ -212,7 +217,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                     text: workoutModel && workoutModel.isDateFiltered ?
                           qsTr("Filtered: %1").arg(workoutModel.filteredDate.toLocaleDateString()) : ""
-                    font.pixelSize: 12
+                    font.pixelSize: window.fontPx(12)
                     color: "#666666"
                     elide: Text.ElideRight
                     visible: workoutModel && workoutModel.isDateFiltered
@@ -279,7 +284,7 @@ Page {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#666666"
-            font.pixelSize: 16
+            font.pixelSize: window.fontPx(16)
         }
 
         // Database processing message
@@ -292,7 +297,7 @@ Page {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#666666"
-            font.pixelSize: 16
+            font.pixelSize: window.fontPx(16)
         }
 
         // Workout List
@@ -319,7 +324,8 @@ Page {
                 // inside it, which cannot be pressed, and the workout cannot be opened
                 Accessible.name: title + ", " + date + ", " + duration
                 width: parent.width
-                height: 135
+                // a bigger text: the card grows with its lines (margins 8 + 12 on each side)
+                height: window.textScale !== 1 ? Math.max(135, workoutInfo.implicitHeight + 40) : 135
 
                 Component.onCompleted: {
                     console.log("Delegate data:", JSON.stringify({
@@ -356,7 +362,7 @@ Page {
                         Text {
                             text: Qt.platform.os === "android" ? qsTr("Delete") : "🗑️ " + qsTr("Delete")
                             color: "white"
-                            font.pixelSize: 16
+                            font.pixelSize: window.fontPx(16)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
@@ -505,14 +511,15 @@ Page {
 
                         // Workout info
                         ColumnLayout {
+                            id: workoutInfo
                             Layout.fillWidth: true
                             spacing: 4
 
                             // Title row (without tag) with auto-scrolling
                             Rectangle {
                                 Layout.fillWidth: true
-                                Layout.rightMargin: 80 // Reserve space for tag
-                                Layout.preferredHeight: 24
+                                Layout.rightMargin: window.fontPx(80) // Reserve space for tag
+                                Layout.preferredHeight: window.textScale !== 1 ? Math.max(24, titleText.implicitHeight) : 24
                                 clip: true
                                 color: "transparent"
                                 
@@ -520,7 +527,7 @@ Page {
                                     id: titleText
                                     text: title
                                     font.bold: true
-                                    font.pixelSize: 18
+                                    font.pixelSize: window.fontPx(18)
                                     anchors.verticalCenter: parent.verticalCenter
                                     
                                     // Auto-scroll animation for long titles.
@@ -568,20 +575,27 @@ Page {
                             }
 
                             Text {
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 text: date
                                 color: "#666666"
                             }
 
-                            // Stats row
-                            RowLayout {
-                                spacing: 16
+                            // Stats row; with a bigger text one under the other, clear of the action
+                            // buttons in the bottom-right corner
+                            GridLayout {
+                                columns: window.textScale > 1 ? 1 : 2
+                                columnSpacing: 16
+                                rowSpacing: 4
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: wrapEmoji("⏱ ") + duration
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: {
                                         var useMiles = settings && settings.miles_unit
                                         var displayDistance = useMiles ? (distance / 1.60934) : distance
@@ -595,6 +609,7 @@ Page {
                                 spacing: 16
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: Qt.platform.os === "android" ? 
                                           wrapEmoji("🔥 ") + Math.round(calories) + " " + qsTr("kcal") :
                                           "🔥 " + Math.round(calories) + " " + qsTr("kcal")
@@ -747,7 +762,13 @@ Page {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
 
+        // a bigger text: the dialog keeps inside the screen and the question wraps
+        width: window.textScale !== 1 ? Math.min(implicitWidth, parent.width - 32) : implicitWidth
+
         Text {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+            width: window.textScale !== 1 ? confirmDialog.availableWidth : implicitWidth
+            wrapMode: window.labelWrap
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
@@ -789,7 +810,7 @@ Page {
                 anchors.centerIn: parent
                 text: trainingProgramDialog.title
                 color: "white"
-                font.pixelSize: 18
+                font.pixelSize: window.fontPx(18)
                 font.bold: true
             }
         }
@@ -800,7 +821,7 @@ Page {
             Text {
                 Layout.margins: 20
                 Layout.preferredWidth: 300
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: window.textScale !== 1 ? Math.max(120, implicitHeight) : 120
                 text: Qt.platform.os === "android" ? 
                       wrapEmoji("🔥 ") +
                       wrapEmoji(trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') +
@@ -809,7 +830,7 @@ Page {
                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 14
+                font.pixelSize: window.fontPx(14)
             }
         }
     }
@@ -820,7 +841,7 @@ Page {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: 80
+        height: window.textScale !== 1 ? Math.max(80, streakColumn.implicitHeight + 16) : 80
         visible: workoutModel
         
         Behavior on visible {
@@ -867,6 +888,7 @@ Page {
         }
         
         ColumnLayout {
+            id: streakColumn
             anchors.centerIn: parent
             spacing: 4
 
@@ -921,7 +943,7 @@ Page {
                 // Current streak count
                 Text {
                     text: workoutModel ? (workoutModel.currentStreak !== 1 ? qsTr("%1 days streak") : qsTr("%1 day streak")).arg(workoutModel.currentStreak) : ""
-                    font.pixelSize: 18
+                    font.pixelSize: window.fontPx(18)
                     font.bold: true
                     color: "white"
                     visible: workoutModel
@@ -975,7 +997,7 @@ Page {
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: workoutModel ? workoutModel.streakMessage : ""
-                font.pixelSize: 14
+                font.pixelSize: window.fontPx(14)
                 font.italic: true
                 color: "white"
                 visible: workoutModel && workoutModel.streakMessage !== ""
@@ -986,7 +1008,7 @@ Page {
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: workoutModel ? (workoutModel.longestStreak !== 1 ? qsTr("Personal best: %1 days") : qsTr("Personal best: %1 day")).arg(workoutModel.longestStreak) : ""
-                font.pixelSize: 12
+                font.pixelSize: window.fontPx(12)
                 color: "white"
                 visible: workoutModel && workoutModel.longestStreak > workoutModel.currentStreak && workoutModel.longestStreak > 0
                 opacity: 0.7
@@ -1060,7 +1082,7 @@ Page {
                 Text {
                     Layout.fillWidth: true
                     text: calendar.selectedDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
-                    font.pixelSize: 18
+                    font.pixelSize: window.fontPx(18)
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -1091,6 +1113,7 @@ Page {
                 Repeater {
                     model: [qsTr("Sun"), qsTr("Mon"), qsTr("Tue"), qsTr("Wed"), qsTr("Thu"), qsTr("Fri"), qsTr("Sat")]
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
                         text: modelData
@@ -1153,7 +1176,7 @@ Page {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: dayDate.getDate()
                                 color: isCurrentMonth ? "black" : "#cccccc"
-                                font.pixelSize: 14
+                                font.pixelSize: window.fontPx(14)
                             }
                             
                             // Workout indicator dot
