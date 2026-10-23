@@ -139,13 +139,17 @@ public class ContentHelper {
             ContentValues ready = new ContentValues();
             ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
             if (!matches.isEmpty()) {
-                for (Uri existing : matches) {
-                    resolver.delete(existing, null, null);
-                }
                 ready.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
             }
             if (resolver.update(uri, ready, null, null) <= 0) {
                 throw new IllegalStateException("Unable to publish profile replacement");
+            }
+            if (!matches.isEmpty()) {
+                for (Uri existing : matches) {
+                    if (resolver.delete(existing, null, null) <= 0) {
+                        Log.w("ContentHelper", "Unable to remove superseded profile row " + existing);
+                    }
+                }
             }
             return true;
         } catch (Exception e) {

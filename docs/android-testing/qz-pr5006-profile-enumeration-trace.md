@@ -84,4 +84,14 @@ The external review identified these blocking defects in b2:
 - Public profile writes bypassed MediaStore and did not check write status.
 - MediaStore replacement could truncate the existing row before a replacement was complete.
 
-The follow-up iteration addresses those cases by enumerating Android 10+ public profiles independently of the routing toggle, carrying an explicit encoded URI through QML/C++, retaining the pending marker until a successful load, staging public writes through MediaStore, restoring the desktop restart path, and using a temporary MediaStore row for replacements. Local verification after the iteration: forced C++ build passed; `qmllint` and `git diff --check` passed; the profile suite passed 19/21 with the two opt-in process tests skipped; with `QZ_PROFILE_RUN_PROCESS_RESTART=1`, 20 tests passed; and `FailedLoadPreservesActiveSettings` passed. Android artifact/runtime verification for this iteration is still required.
+The follow-up iteration addresses those cases by enumerating Android 10+ public profiles independently of the routing toggle, carrying an explicit encoded URI through QML/C++, retaining the pending marker until a successful load, staging public writes through MediaStore, restoring the desktop restart path, and using a temporary MediaStore row for replacements. Local verification after the iteration: forced C++ build passed; `qmllint` and `git diff --check` passed; the profile suite passed 19/21 with the two opt-in process tests skipped; with `QZ_PROFILE_RUN_PROCESS_RESTART=1`, 20 tests passed; and `FailedLoadPreservesActiveSettings` passed.
+
+## Current review iteration
+
+- Head before the MediaStore ordering correction: `1ddd8f44a99c02e83e90d968cfc0cb50064df11c`.
+- CI run `39964082082` checked out PR merge commit `225e10ac64d220f01eb08ab4be0268d9471ae30f`, whose first parent is the base and whose second parent is the head above. The Android build job `120449264432` passed and the Android emulator jobs passed, but the aggregate workflow was red for unrelated jobs.
+- Artifact `peloton-v1-grupetto` was downloaded and verified with SHA-256 `b531a56caa1ff09ce8d42adf2d9436d5e497554c676de2013aec024a2fbac9c2`; package `org.cagnulen.qdomyoszwift`, version code `1404`, with `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64` libraries.
+- The API 29 emulator job used `x86_64`, not `arm64-v8a`, and only installed/launched the app, checked the process, captured the legal disclaimer/orientation screenshots, and collected logcat. It did not enumerate or select profiles, restart, or verify persisted settings. No current-run `Jan`/`Jay` or profile-flow evidence exists.
+- The current head was therefore not validated end to end. The remaining gates are a real profile-flow run on the exact artifact, public/legacy-root coverage, complete setting round trips, and API 29 ARM64 runtime provenance.
+
+The latest source-only correction publishes the MediaStore replacement row before deleting superseded rows, so a publish failure leaves the previous public profile intact. It is locally verified but still requires a fresh Android artifact and runtime test.
