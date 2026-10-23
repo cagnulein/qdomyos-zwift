@@ -553,7 +553,6 @@ void soleelliptical::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (!gattCommunicationChannelService) {
         emit debug(QStringLiteral("Sole communication service not found"));
-        serviceDiscoveryFailed = true;
         refresh->stop();
         m_control->disconnectFromDevice();
         return;
