@@ -1,9 +1,17 @@
-# YPOO M5 (YPTM-U0)
+# YPOO treadmills (YPTM-U0 and YP-M1552)
 
 The M5 advertises FTMS telemetry but requires a vendor handshake before control.
-QZ detects the `YPTM-U0` name prefix and uses the existing Horizon/FTMS driver.
-No model selection or new setting is required. Other YPTM models retain their
-existing behavior.
+QZ detects `YPTM-U0` and `YP-M1552-` prefixes and uses the dedicated
+`ypootreadmill` driver. No model selection or new setting is required. Other
+YPTM models and YPOO Mini Pro remain on their existing Horizon path.
+
+YP-M1552 support was merged upstream in PR #5408 and is preserved here:
+its 0–12% incline range uses levels 0–21 on the wire. Firmware truncates
+feedback to integer levels (a 2% target sends level 3.5 and reports level 3,
+about 1.71%). Confirmation accounts for this quantization only on YP-M1552.
+The M5 keeps signed percentages directly, including −6% decline; no level
+conversion is applied to `YPTM-U0`. The protocol observations below refer
+to the owner-tested M5 unless explicitly stated otherwise.
 
 ## Protocol verified on hardware
 
@@ -100,8 +108,8 @@ requests; application-specific workflows remain subject to end-to-end testing.
 ## Regression checks
 
 - Google Test: `YpooM5ControlTest.*`, `YpooM5DistanceTest.*`,
-  `YpooM5DistanceClockTest.*`, `FtmsTreadmillControlTest.*`, and Horizon
-  device discovery cases in `tst/qdomyos-zwift-tests.pro`.
+  `YpooM5DistanceClockTest.*`, `YpooTreadmillTest.*`, `FtmsTreadmillControlTest.*`,
+  and YPOO/Horizon device discovery cases in `tst/qdomyos-zwift-tests.pro`.
 - Native iOS queue and bridge compilation on macOS:
   `python3 tools/test_ypoo_m5_ios_control.py`.
 

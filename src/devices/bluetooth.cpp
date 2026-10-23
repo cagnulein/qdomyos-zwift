@@ -1819,6 +1819,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
+            } else if ((b.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive) ||
+                        b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive)) &&
+                       !ypooTreadmill && !horizonTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                ypooTreadmill = new ypootreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(ypooTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(ypooTreadmill, &ypootreadmill::debug, this, &bluetooth::debug);
+                ypooTreadmill->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(ypooTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
@@ -1859,7 +1876,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TM55-")) || // LifeSmart TM55
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("YP-M1552-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T")) ||
                         (b.name().toUpper().startsWith("3G PRO ")) ||
@@ -4128,6 +4144,10 @@ void bluetooth::restart() {
         delete focusTreadmill;
         focusTreadmill = nullptr;
     }
+    if (ypooTreadmill) {
+        delete ypooTreadmill;
+        ypooTreadmill = nullptr;
+    }
     if (horizonTreadmill) {
 
         delete horizonTreadmill;
@@ -4885,6 +4905,8 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (xcxBike) {
         return xcxBike;
+    } else if (ypooTreadmill) {
+        return ypooTreadmill;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (wahooKickRunTreadmill) {

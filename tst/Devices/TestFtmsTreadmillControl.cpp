@@ -5,7 +5,7 @@
 #include "characteristics/characteristicnotifier2acd.h"
 #include "characteristics/characteristicwriteprocessor2ad9.h"
 #include "devices/elliptical.h"
-#include "devices/horizontreadmill/ypoom5control.h"
+#include "devices/ypootreadmill/ypoom5control.h"
 #include "devices/treadmill.h"
 
 namespace {

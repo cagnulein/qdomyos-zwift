@@ -64,7 +64,7 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
     uint64_t virtualtreadmill_lastChangeRequestedSpeed();
-    void virtualtreadmill_enableControlPointForwarding();
+    void virtualtreadmill_enableControlPointForwarding(bool ypM1552 = false);
     QByteArray virtualtreadmill_takeControlPointWrite();
     void virtualtreadmill_clearControlPointWrites();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,

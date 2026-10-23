@@ -2,8 +2,8 @@
 #include <QFile>
 #include <vector>
 
-#include "devices/horizontreadmill/ypoom5control.h"
-#include "devices/horizontreadmill/ypoom5distance.h"
+#include "devices/ypootreadmill/ypoom5control.h"
+#include "devices/ypootreadmill/ypoom5distance.h"
 
 namespace {
 class YpooM5DistanceTest : public ::testing::Test {

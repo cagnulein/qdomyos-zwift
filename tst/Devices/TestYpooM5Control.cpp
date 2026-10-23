@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <limits>
 
-#include "devices/horizontreadmill/ypoom5control.h"
+#include "devices/ypootreadmill/ypoom5control.h"
 
 using Action = YpooM5Control::Action;
 

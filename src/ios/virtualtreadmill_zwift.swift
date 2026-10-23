@@ -11,6 +11,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 let ypooM5FTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
 let ypooM5SpeedRange = Data([0x64, 0x00, 0x58, 0x07, 0x0a, 0x00])
 let ypooM5InclineRange = Data([0xc4, 0xff, 0x96, 0x00, 0x0a, 0x00])
+let ypM1552InclineRange = Data([0x00, 0x00, 0x78, 0x00, 0x0a, 0x00])
 
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
@@ -50,7 +51,8 @@ let ypooM5InclineRange = Data([0xc4, 0xff, 0x96, 0x00, 0x0a, 0x00])
         return peripheralManager.lastRequestedSpeed;
     }
 
-    @objc public func enableControlPointForwarding() {
+    @objc(enableControlPointForwardingWithYpM1552:) public func enableControlPointForwarding(ypM1552: Bool) {
+        peripheralManager.ypM1552 = ypM1552
         peripheralManager.forwardControlPointWrites = true
     }
 
@@ -114,6 +116,7 @@ final class TreadmillControlPointWriteQueue {
 
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
   var forwardControlPointWrites = false
+  var ypM1552 = false
   let controlPointWrites = TreadmillControlPointWriteQueue()
 
   func takeControlPointWrite() -> Data? {
@@ -248,7 +251,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                 let speedRange = CBMutableCharacteristic(type: CBUUID(string: "2AD4"), properties: [.read],
                                                         value: ypooM5SpeedRange, permissions: [.readable])
                 let inclineRange = CBMutableCharacteristic(type: CBUUID(string: "2AD5"), properties: [.read],
-                                                          value: ypooM5InclineRange, permissions: [.readable])
+                                                          value: ypM1552 ? ypM1552InclineRange : ypooM5InclineRange, permissions: [.readable])
                 FitnessMachineService.characteristics?.append(contentsOf: [speedRange, inclineRange])
             }
             

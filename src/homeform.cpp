@@ -6130,10 +6130,9 @@ void homeform::StopFromTrainProgram(bool paused) {
 
 void homeform::Stop() {
     QSettings settings;
-    const auto horizon = bluetoothManager ? qobject_cast<horizontreadmill *>(bluetoothManager->device()) : nullptr;
     // The M5 may still report idle during its startup countdown. Always deliver
     // an explicit Stop; its controller handles an already-stopped belt safely.
-    const bool ypooM5 = horizon && horizon->isYpooM5();
+    const bool ypooM5 = bluetoothManager && qobject_cast<ypootreadmill *>(bluetoothManager->device());
 
     m_startRequested = false;
 

@@ -1,6 +1,6 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
-#include "devices/horizontreadmill/horizontreadmill.h"
+#include "devices/ypootreadmill/ypootreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -41,8 +41,8 @@ void virtualtreadmill::clearControlPointWrites() {
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
-    const auto horizon = qobject_cast<horizontreadmill *>(t);
-    forwardControlPointWrites = horizon && horizon->isYpooM5();
+    const auto ypoo = qobject_cast<ypootreadmill *>(t);
+    forwardControlPointWrites = ypoo != nullptr;
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -85,7 +85,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         h = new lockscreen();
         h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
         if (forwardControlPointWrites)
-            h->virtualtreadmill_enableControlPointForwarding();
+            h->virtualtreadmill_enableControlPointForwarding(ypoo->isYpM1552());
     } else
 #endif
 #endif
@@ -338,7 +338,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                    QLowEnergyCharacteristicData inclineRange;
                    inclineRange.setUuid(QBluetoothUuid((quint16)0x2AD5));
                    inclineRange.setProperties(QLowEnergyCharacteristic::Read);
-                   inclineRange.setValue(QByteArray::fromHex("c4ff96000a00"));
+                   inclineRange.setValue(QByteArray::fromHex(ypoo->isYpM1552() ? "000078000a00" : "c4ff96000a00"));
                    serviceDataFTMS.addCharacteristic(inclineRange);
                }
            }
