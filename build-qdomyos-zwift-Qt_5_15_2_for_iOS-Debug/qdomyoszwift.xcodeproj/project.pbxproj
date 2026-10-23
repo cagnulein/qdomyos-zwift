@@ -619,6 +619,8 @@
 		87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */; };
 		87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */; };
 		87E5D2C625E69F3100BDBE6C /* horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */; };
+		C05403000000000000000006 /* ypootreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = C05403000000000000000001 /* ypootreadmill.cpp */; settings = {ATTRIBUTES = (); }; };
+		C05403000000000000000007 /* moc_ypootreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = C05403000000000000000005 /* moc_ypootreadmill.cpp */; settings = {ATTRIBUTES = (); }; };
 		87E5D2C825E69F4700BDBE6C /* moc_horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */; };
 		87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */; };
 		87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85925B5C8B900371D28 /* flywheelbike.cpp */; };
@@ -1796,6 +1798,11 @@
 		87E5D2C425E69F3100BDBE6C /* horizontreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = horizontreadmill.h; path = ../src/devices/horizontreadmill/horizontreadmill.h; sourceTree = "<group>"; };
 		87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = horizontreadmill.cpp; path = ../src/devices/horizontreadmill/horizontreadmill.cpp; sourceTree = "<group>"; };
 		87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_horizontreadmill.cpp; sourceTree = "<group>"; };
+		C05403000000000000000002 /* ypootreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypootreadmill.h; path = ../src/devices/ypootreadmill/ypootreadmill.h; sourceTree = "<group>"; };
+		C05403000000000000000001 /* ypootreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ypootreadmill.cpp; path = ../src/devices/ypootreadmill/ypootreadmill.cpp; sourceTree = "<group>"; };
+		C05403000000000000000003 /* ypoom5control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypoom5control.h; path = ../src/devices/ypootreadmill/ypoom5control.h; sourceTree = "<group>"; };
+		C05403000000000000000004 /* ypoom5distance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypoom5distance.h; path = ../src/devices/ypootreadmill/ypoom5distance.h; sourceTree = "<group>"; };
+		C05403000000000000000005 /* moc_ypootreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ypootreadmill.cpp; sourceTree = "<group>"; };
 		87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85925B5C8B900371D28 /* flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flywheelbike.cpp; path = ../src/devices/flywheelbike/flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85A25B5C8B900371D28 /* flywheelbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flywheelbike.h; path = ../src/devices/flywheelbike/flywheelbike.h; sourceTree = "<group>"; };
@@ -2412,6 +2419,7 @@
 				87B617F025F260140094A1CB /* moc_snodebike.cpp */,
 				8783153A25E8D81E0007817C /* moc_sportstechbike.cpp */,
 				87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */,
+				C05403000000000000000005 /* moc_ypootreadmill.cpp */,
 				8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */,
 				87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */,
 				87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */,
@@ -2964,6 +2972,10 @@
 				87B617E925F25FED0094A1CB /* snodebike.h */,
 				87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */,
 				87E5D2C425E69F3100BDBE6C /* horizontreadmill.h */,
+				C05403000000000000000001 /* ypootreadmill.cpp */,
+				C05403000000000000000002 /* ypootreadmill.h */,
+				C05403000000000000000003 /* ypoom5control.h */,
+				C05403000000000000000004 /* ypoom5distance.h */,
 				8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */,
 				8772A0E425E43AD90080718C /* trxappgateusbbike.h */,
 				87DF68B625E2673600FCDA46 /* eslinkertreadmill.cpp */,
@@ -3926,6 +3938,8 @@
 				873824E927E647A8004F1B46 /* mdns.cpp in Compile Sources */,
 				87E5D2C625E69F3100BDBE6C /* horizontreadmill.cpp in Compile Sources */,
 				87E5D2C825E69F4700BDBE6C /* moc_horizontreadmill.cpp in Compile Sources */,
+				C05403000000000000000006 /* ypootreadmill.cpp in Compile Sources */,
+				C05403000000000000000007 /* moc_ypootreadmill.cpp in Compile Sources */,
 				87FFA13927BBE40A00924E4E /* moc_solebike.cpp in Compile Sources */,
 				F1F4043967BC815770C8BEEA /* domyostreadmill.cpp in Compile Sources */,
 				87C5F0BF26285E5F0067A1B5 /* smtpclient.cpp in Compile Sources */,
