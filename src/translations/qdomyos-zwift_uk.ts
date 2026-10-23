@@ -4386,7 +4386,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Масштаб інтерфейсу:</translation>
+        <translation type="vanished">Масштаб інтерфейсу:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,7 +4398,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте</translation>
+        <translation type="vanished">Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -6351,6 +6351,30 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>Нахил</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Розмір плиток:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте. Раніше називалася «Масштаб інтерфейсу» (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Розмір тексту як у системі</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Розмір тексту застосунку береться з налаштувань телефона чи планшета, але не більше за 150%. Вимкніть, щоб задати розмір нижче – наприклад, для екрана, який читають здалеку під час тренування. Типово ввімкнено.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Розмір тексту:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Розмір тексту застосунку (налаштування, меню, діалоги) у відсотках, від 80 до 170. Типово – 100. Для плиток – окреме налаштування розміру.</translation>
     </message>
     <message>
         <source>Speed</source>

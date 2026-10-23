@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtQml 2.15
 
 Page {
 
@@ -112,6 +113,8 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.startText
+                    // fixed width: keep the size it had before the Text size setting
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: start
                     width: 120
@@ -142,6 +145,7 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.stopText
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: stop
                     width: 120
@@ -197,9 +201,11 @@ Page {
             id: row1
             width: parent.width
             anchors.bottom: row.bottom
-            anchors.bottomMargin: -10
+            // a bigger text grows down into the gap above the tiles, not up into the buttons
+            anchors.bottomMargin: window.textScale !== 1 ? -10 - Math.round(statusLabel.height * (1 - 1 / window.textScale)) : -10
 
             Label {
+                id: statusLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 // the search status may have two lines ("<device> found" and the countdown): the line

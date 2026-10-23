@@ -4230,7 +4230,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>画面表示（タイル）サイズ:</translation>
+        <translation type="vanished">画面表示（タイル）サイズ:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4242,7 +4242,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください</translation>
+        <translation type="vanished">メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5634,6 +5634,22 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Toputure TEB1バイクの場合のみ、特別なSPORT01瞬間パワー計算式を有効にします。デバイスが報告する標準のFTMS瞬間パワーを使用する場合はオフのままにしてください。</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>システムの文字サイズを使用</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>アプリの文字サイズをスマートフォンやタブレットの設定に合わせます（最大 150%）。オフにすると下で文字サイズを選べます。トレーニング中に離れた位置から見る画面などに便利です。既定はオンです。</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>文字サイズ:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>アプリ（設定、メニュー、ダイアログ）の文字サイズ（パーセント、80～170）。既定値は 100 です。タイルのサイズは別の設定で変更します。</translation>
+    </message>
+    <message>
         <source>Classic</source>
         <translation>クラシック</translation>
     </message>
@@ -6387,6 +6403,14 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>傾斜（斜度）</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>画面表示（タイル）サイズ:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください。以前の名称は「UI Zoom」です。</translation>
     </message>
     <message>
         <source>Speed</source>

@@ -4226,7 +4226,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom de la interfaz:</translation>
+        <translation type="vanished">Zoom de la interfaz:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4238,7 +4238,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
+        <translation type="vanished">Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5196,6 +5196,22 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     <message>
         <source>General UI Options</source>
         <translation>Opciones generales de la interfaz</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Usar el tamaño de texto del sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>El tamaño del texto de la aplicación sigue los ajustes del teléfono o la tableta, hasta un 150%. Desactívalo para elegir el tamaño abajo, por ejemplo para una pantalla que lees de lejos durante el entrenamiento. Activado por defecto.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamaño del texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamaño del texto de la aplicación (ajustes, menús, diálogos), en porcentaje, de 80 a 170. El valor predeterminado es 100. Los mosaicos tienen su propio ajuste de tamaño.</translation>
     </message>
     <message>
         <source>Top Bar Enabled</source>
@@ -6359,6 +6375,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinación</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamaño de los mosaicos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje. Antes se llamaba «Zoom de la interfaz» (UI Zoom).</translation>
     </message>
     <message>
         <source>Speed</source>

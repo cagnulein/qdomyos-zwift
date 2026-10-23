@@ -54,3 +54,21 @@ For the confirmed setup:
 3. If the console is not discovered, scan it with **nRF Connect** and provide the advertised **Bluetooth name and services**, together with the IC5 console model/firmware. Different console versions can expose different Bluetooth behavior.
 
 QZ's current driver sends the IC5-specific initialization packets when this option is enabled. This is **code-verified setup guidance**, not confirmation that every IC5 console variant supports all metrics or resistance commands. In particular, a console that advertises unexpected services needs verification before compatibility can be promised.
+
+## Does QZ support the Dynamax Sprint Bike, and why might it be detected as a treadmill?
+
+Yes. QZ supports a Dynamax Sprint Bike advertising a Bluetooth name beginning with **DYNAMAX** through its FTMS bike driver. Because some Dynamax treadmills use a similar name, **select the bike explicitly**:
+
+1. Open **QZ Settings > Bike Options > FTMS Bike** and choose the exact Bluetooth name of the Dynamax bike.
+2. Fully restart QZ and pedal to check whether power and cadence update.
+3. If the readings remain wrong, capture a debug log and compare the Bluetooth name with the selected FTMS Bike.
+
+QZ's current discovery tests explicitly distinguish a DYNAMAX FTMS bike selected under **FTMS Bike** from a DYNAMAX treadmill using the same name prefix. A support user subsequently reported that the bike appeared to be working. Earlier unusual speed/distance values were not independently confirmed fixed, so check those readings before relying on them.
+
+## Does QZ recognize the Van Rysel D100 trainer and work with Zwift Click?
+
+QZ has specific FTMS support for the Van Rysel D100 when it advertises as **VANRYSEL-HT**. Connect the trainer to QZ first and confirm that the live power reading changes while pedalling.
+
+For **Zwift**, let Zwift pair directly with Click and enable **Get Gears from Zwift** in QZ; disable QZ's own **Zwift Click** and **Zwift Play** accessory connections. Pair QZ's virtual trainer in Zwift as Power Source and Controllable. For use with other training apps, QZ can instead own the Click controller: disable **Get Gears from Zwift** and enable **Zwift Click**. See [Zwift and virtual gearing](zwift.md) for the full pairing sequence and the Click V2 handshake procedure.
+
+This is **code-verified setup guidance**: the current QZ FTMS driver explicitly recognizes `VANRYSEL-HT`. Successful D100 plus Click operation on the support user's particular hardware was not yet confirmed.

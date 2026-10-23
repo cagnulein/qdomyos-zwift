@@ -149,3 +149,22 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Seeing a virtual trainer in a device list does not prove the receiving app can connect to it or expose it for the required sensor/control role.
 - Same-device integration is app-specific; instructions intended for a second phone, PC, or tablet can be inapplicable when both apps run on one Android device.
 - Separating discovery, pairing, and controllable-role selection avoids treating a transport limitation as a physical-bike or virtual-gearing failure.
+
+## Virtual gears affect resistance only after the training app connects
+
+### Provide first
+
+- Trainer model, QZ build, receiving app, and whether the gear tile changes before and after pairing the receiving app.
+- Exact startup sequence: controller unlock/pairing, QZ launch, receiving-app pairing, ride start, and the first Gear + / Gear - press.
+- Whether the physical resistance changes on a flat route when shifting **only after** the receiving app has fully connected.
+
+### If still unclear
+
+- Repeat one short ride without pressing any gear buttons until the receiving app has connected to QZ and started the activity. Compare with a separate ride where shifting occurs before that connection.
+- Record whether the receiving app needed a cached trainer entry removed and paired again, and whether the result survives the next launch.
+- Capture a QZ debug log of each sequence with the first shift timestamp, and note whether the virtual gear tile changes while physical resistance stays constant.
+
+### Why it matters
+
+- A confirmed comparison restored physical gear response when shifts were delayed until after Kinomap had connected. This distinguishes controller input failure from a timing/state problem in the virtual-trainer control path.
+- Cached trainer pairings and early gear changes can produce similar symptoms but should be tested independently.

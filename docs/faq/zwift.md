@@ -113,3 +113,13 @@ A support user reported much lower virtual speed after reducing Watt Gain, then 
 The **Gears Big Buttons** setting and local gear up/down paths are present in the QZ settings and bike-control code. A support user explicitly confirmed successfully exposing the relevant controls, but this is **code-verified usage guidance**, not a claim that the user's particular trainer's resistance behavior was fully fixed.
 
 If you prefer the **physical Zwift Click / Click V2 controller**, that is a separate Bluetooth pairing flow: enable **Zwift Click** under QZ Accessories, leave **Get Gears from Zwift** disabled when QZ owns shifting, and follow the official Zwift handshake procedure if required for Click V2. The physical **Zwift Cog** itself is a fixed sprocket, not a source of gear-button events.
+
+## Zwift reads QZ power but does not change resistance on climbs. Can resetting its pairing help?
+
+When QZ shows correct bike metrics and Zwift receives power and cadence but does not control resistance, check Zwift's **Controllable** pairing separately from its **Power Source** pairing.
+
+1. Keep QZ connected to the physical bike and pair **QZ's virtual trainer** in Zwift as both Power Source and Controllable.
+2. Remove and re-pair the saved Controllable device in Zwift, then test a short climb.
+3. If Zwift still receives data but sends no gradient commands, reinstalling Zwift on the receiving iPad can be a last-resort reset. Re-pair QZ after reinstalling. You may need to restore local app settings or downloads.
+
+**Confirmed workaround:** In one support case, QZ received normal bike data and Zwift read the metrics, but no new FTMS control commands arrived from Zwift on climbs. Reinstalling Zwift on the iPad restored gradient-based resistance changes. A stale pairing or app state is plausible, but the exact root cause was not proven. This does not address a separate failure of QZ to control the physical bike.
