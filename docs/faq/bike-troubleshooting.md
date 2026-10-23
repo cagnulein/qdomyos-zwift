@@ -172,3 +172,14 @@ The Schwinn IC4 is supported by QZ. Its QZ driver receives cadence and power ove
 Under **Bike Options**, QZ offers Schwinn resistance conversion variants and a resistance smoothing setting. Compare the QZ and console values at a steady cadence before adjusting the mapping. These settings change the reported resistance representation, not the physical knob calibration.
 
 **Watt Gain** and **Watt Offset** can adjust power reported by QZ but cannot calibrate the bike's own power sensor. The **speed calculated from power** setting can also make QZ speed and distance differ from the console. These behaviors are verified in QZ's Schwinn IC4 driver and metric settings; no customer-specific calibration fix was confirmed.
+
+## My ERG target power keeps falling by about 5 W while I pedal. Could Automatic Virtual Shifting be responsible?
+
+Yes. **Automatic Virtual Shifting** can change QZ's virtual gear when cadence crosses its configured thresholds. In a standalone ERG/power-target setup, repeated downshifts can also reduce the **target power** in small steps. This is different from normal instantaneous power fluctuations while pedalling.
+
+1. In **QZ Settings**, find **Automatic Virtual Shifting** and temporarily disable it. Restart QZ if needed.
+2. Enable the **Target Watt / Target Power** dashboard tile under **Tiles Options**. Set a target (for example, 100 W), then compare the displayed target while stopped and while pedalling.
+3. If the target previously fell repeatedly during pedalling but now stays at the requested value, review the automatic-shifting cadence thresholds before turning the feature back on.
+4. Test third-party ERG or terrain control separately; fixing local automatic shifts does not prove that MyWhoosh or another app is sending power/resistance commands.
+
+**Confirmed result:** One rider's low cadence (about 40–55 RPM) stayed below an automatic downshift threshold of 65 RPM, triggering repeated downshifts and roughly 5 W reductions until the target reached zero. After correcting the unwanted Automatic Virtual Shifting configuration, the rider reported QZ working. The cadence thresholds and feature enablement are also present in QZ's settings code.
