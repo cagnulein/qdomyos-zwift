@@ -43,3 +43,43 @@
 - A live reading on the watch proves local measurement, not delivery to the phone.
 - Distinguishing watch-session startup, watch-to-phone connectivity, and phone-side reception helps isolate the failed stage without confusing it with the bike connection.
 - Exact OS and QZ versions are important when the watch and phone communication path changes between platform releases.
+
+## Apple Watch shows heart rate but the iPhone app does not
+
+### Provide first
+
+- iPhone and watch models, operating system versions, and QZ build numbers.
+- Confirm that heart rate changes on the watch while the iPhone QZ display remains at zero.
+- Confirm that other machine metrics update in QZ before starting the watch session.
+- Screenshot the selected heart-rate source in QZ.
+
+### If still unclear
+
+- Run a short test with QZ open on iPhone before starting the watch app.
+- Note the time of the test and whether any heart-rate value reaches the phone.
+- Share a fresh QZ debug log and screenshots showing both readings.
+
+### Why it matters
+
+- A live watch reading does not confirm delivery to the phone.
+- Working machine metrics distinguish watch communication from machine discovery.
+- Exact installed builds help determine whether a newer test version needs verification.
+
+## A selected Bluetooth heart-rate strap does not supply live readings
+
+### Provide first
+
+- Strap model, phone operating system, and the exact **Heart Rate Belt Name** selected in QZ.
+- Confirm that the strap is being worn and its electrodes are moist or otherwise activated before QZ starts.
+- State whether the strap appears only in the settings list or whether QZ displays a changing heart-rate value during exercise.
+
+### If still unclear
+
+- Scan with nRF Connect while the strap is worn and awake; share a screenshot with the advertised device name.
+- Check whether the strap broadcasts consistently and whether another app can read live heart rate. Note recent battery replacement if relevant.
+- If advertising is confirmed but QZ still receives no readings, collect a QZ debug log from a fresh connection attempt.
+
+### Why it matters
+
+- A previously discovered name in QZ's selection list does not prove that the sensor is currently advertising.
+- Checking current advertising before collecting logs distinguishes a sleeping or intermittent strap from a QZ pairing or source-selection problem.

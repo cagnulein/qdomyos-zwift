@@ -97,6 +97,14 @@ TEST(YpooM5ControlTest, RejectsTruncatedTelemetryAndSupportsSignedIncline) {
     EXPECT_FALSE(YpooM5Control::readTelemetry(moreData, sizeof(moreData), speed, incline));
 }
 
+TEST(YpooM5ControlTest, ConvertsYpooM5InclinationLevelsToRealPercentages) {
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(1), 1.8);
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(6), 10.5);
+    EXPECT_DOUBLE_EQ(YpooM5Control::percentToLevel(12), 21);
+    EXPECT_DOUBLE_EQ(YpooM5Control::levelToPercent(10.5), 6);
+    EXPECT_DOUBLE_EQ(YpooM5Control::levelToPercent(21), 12);
+}
+
 TEST(YpooM5ControlTest, TargetsNeverStartAStoppedBelt) {
     YpooM5Control control;
     control.telemetry(0, 0, 0);
@@ -329,6 +337,43 @@ TEST(YpooM5ControlTest, FailedStopDoesNotPermitUnexpectedRestarts) {
     control.telemetry(1, 0, 6500);
     EXPECT_FALSE(control.requestSpeed(1.2));
     EXPECT_EQ(control.next(6500).action, Action::None);
+}
+
+TEST(YpooM5ControlTest, YpM1552ConfirmsQuantizedInclineFromCapturedFirmware) {
+    YpooM5Control control;
+    control.telemetry(1.2, 0, 0);
+    // Percent targets and the corresponding integer levels reported by YP-M1552 firmware.
+    const struct { double target; double reportedLevel; } cases[] = {
+        {1, 1}, {2, 3}, {3, 5}, {4, 7}, {5, 8}, {6, 10}, {8, 14}, {12, 21}
+    };
+    int64_t now = 0;
+    for (const auto &entry : cases) {
+        ASSERT_TRUE(control.requestIncline(entry.target));
+        const auto command = control.next(now, true);
+        ASSERT_EQ(command.action, Action::Incline);
+        EXPECT_DOUBLE_EQ(command.value, entry.target);
+
+        const double feedback = YpooM5Control::levelToPercent(entry.reportedLevel);
+        control.telemetry(1.2, feedback, now + 500);
+        EXPECT_EQ(control.next(now + 500, true).action, Action::None);
+        control.telemetry(1.2, feedback, now + 2600);
+        EXPECT_EQ(control.next(now + 2600, true).action, Action::None);
+        EXPECT_EQ(control.takeFailure(), Action::None);
+        now += 3000;
+    }
+}
+
+TEST(YpooM5ControlTest, StandardYptmU0InclineConfirmationRemainsUnchanged) {
+    YpooM5Control control;
+    control.telemetry(1.2, 0, 0);
+    ASSERT_TRUE(control.requestIncline(2));
+    EXPECT_EQ(control.next(0).action, Action::Incline);
+    const double ypM1552Feedback = YpooM5Control::levelToPercent(3);
+    control.telemetry(1.2, ypM1552Feedback, 500);
+    EXPECT_EQ(control.next(500).action, Action::None);
+    control.telemetry(1.2, ypM1552Feedback, 2600);
+    // Without the YP-M1552 flag, the target must not be mistaken for a confirmed 2%.
+    EXPECT_EQ(control.next(2600).action, Action::Incline);
 }
 
 TEST(YpooM5ControlTest, EnforcesAdvertisedRangesAndResolution) {

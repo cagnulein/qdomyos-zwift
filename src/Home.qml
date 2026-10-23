@@ -30,6 +30,7 @@ HomeForm {
 
     Settings {
         id: settings
+        Component.onCompleted: window.retakeSettingsSnapshot(settings)
         property real ui_zoom: 100.0
         property bool theme_tile_icon_enabled: true
         property string theme_tile_background_color: "#303030"
@@ -39,6 +40,26 @@ HomeForm {
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
         property bool trainprogram_sound_on_segment: false
+    }
+
+    // The settings page writes through its own Settings copy, and a copy reads the stored values
+    // only when it is created, so the tile size and the tile colors waited for a restart (#466).
+    // The settings page sends each new value here (settings.qml), and it is set in both copies.
+    // Assigning one key makes Qt.labs.settings write the whole copy back, so every key of these
+    // copies that the settings page can change is sent, and none of them is left stale.
+    Connections {
+        target: window
+        function onTileSettingChanged(key, value) {
+            if (settings[key] !== undefined && settings[key] !== value) {
+                // skipLocationServicesDialog is written back too. homeform.cpp resets it when the
+                // GPS is on (Android), after this copy has read it: apply the same rule here
+                if (Qt.platform.os === "android" && typeof rootItem !== "undefined" && rootItem.locationServices())
+                    settings.skipLocationServicesDialog = false
+                settings[key] = value
+            }
+            if (homeFormSettings[key] !== undefined && homeFormSettings[key] !== value)
+                homeFormSettings[key] = value
+        }
     }
 
     SoundEffect {
@@ -112,8 +133,11 @@ HomeForm {
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        width: 420
-        height: 340
+        // with a bigger text: as wide as the screen allows, as tall as the content (Skip/Save fell out)
+        width: window.textScale !== 1 ? Math.min(420, parent.width - 32) : 420
+        height: window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(340, rpeColumn.implicitHeight + 32 + topPadding + bottomPadding))
+            : 340
         modal: true
         focus: true
         palette.text: "white"
@@ -128,6 +152,7 @@ HomeForm {
         ]
 
         Column {
+            id: rpeColumn
             anchors.fill: parent
             anchors.margins: 16
             spacing: 14
@@ -135,7 +160,7 @@ HomeForm {
             Label {
                 text: qsTr("How was this workout?")
                 font.bold: true
-                font.pixelSize: 18
+                font.pixelSize: window.fontPx(18)
                 width: parent.width
                 wrapMode: Text.WordWrap
             }
@@ -487,7 +512,10 @@ HomeForm {
             RoundButton {
                 objectName: minusName
                 autoRepeat: true
-                text: "-"
+                // the minus sign, not a hyphen: as wide as the "+" and on the same line
+                text: "−"
+                // the sign is a share of the button, so it grows with Tile size
+                font.pixelSize: Math.round(height * 0.45)
                 onClicked: minus_clicked(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
@@ -507,6 +535,7 @@ HomeForm {
                 autoRepeat: true
                 objectName: plusName
                 text: "+"
+                font.pixelSize: Math.round(height * 0.45)
                 onClicked: plus_clicked(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top

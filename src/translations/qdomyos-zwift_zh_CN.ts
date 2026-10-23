@@ -4234,7 +4234,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI 缩放：</translation>
+        <translation type="vanished">UI 缩放：</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4246,7 +4246,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
+        <translation type="vanished">这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5206,6 +5206,22 @@ In the next window, allow access to the QZ folder.</source>
         <translation>通用 UI 选项</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>使用系统文字大小</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>应用的文字大小跟随手机或平板电脑的设置，最大 150%。关闭后可在下方自行选择大小，例如用于训练时从远处查看的屏幕。默认开启。</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>文字大小：</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>应用（设置、菜单、对话框）的文字大小（百分比，80～170）。默认值为 100。卡片有单独的大小设置。</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>顶部栏已启用</translation>
     </message>
@@ -5572,6 +5588,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Open</source>
         <translation>打开</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>卡片大小：</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号。原名“UI 缩放”（UI Zoom）。</translation>
     </message>
     <message>
         <source>App Language:</source>

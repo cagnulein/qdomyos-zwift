@@ -1,8 +1,8 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -15,52 +15,10 @@ ScrollView {
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTTLPane
 
-    Settings {
-        id: settings
-        property bool tts_enabled: false
-        property int tts_summary_sec: 120
-        property bool tts_act_speed: false
-        property bool tts_avg_speed: true
-        property bool tts_max_speed: false
-        property bool tts_act_inclination: false
-        property bool tts_act_cadence: false
-        property bool tts_avg_cadence: true
-        property bool tts_max_cadence: false
-        property bool tts_act_elevation: true
-        property bool tts_act_calories: true
-        property bool tts_act_odometer: true
-        property bool tts_act_pace: false
-        property bool tts_avg_pace: true
-        property bool tts_max_pace: false
-        property bool tts_act_resistance: true
-        property bool tts_avg_resistance: true
-        property bool tts_max_resistance: false
-        property bool tts_act_watt: false
-        property bool tts_avg_watt: true
-        property bool tts_max_watt: true
-        property bool tts_act_ftp: true
-        property bool tts_avg_ftp: true
-        property bool tts_max_ftp: false
-        property bool tts_act_heart: true
-        property bool tts_avg_heart: true
-        property bool tts_max_heart: false
-        property bool tts_act_jouls: true
-        property bool tts_act_elapsed: true
-        property bool tts_act_peloton_resistance: false
-        property bool tts_avg_peloton_resistance: false
-        property bool tts_max_peloton_resistance: false
-        property bool tts_act_target_peloton_resistance: true
-        property bool tts_act_target_cadence: true
-        property bool tts_act_target_power: true
-        property bool tts_act_target_zone: true
-        property bool tts_act_target_speed: true
-        property bool tts_act_target_incline: true
-        property bool tts_act_watt_kg: false
-        property bool tts_avg_watt_kg: false
-        property bool tts_max_watt_kg: false
-        property bool tts_description_enabled: true
-        property bool tts_act_target_pace: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
 
     ColumnLayout {
@@ -78,6 +36,8 @@ ScrollView {
             color: Material.color(Material.Red)
         }
         SwitchDelegate {
+            // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsEnableDelegate
             text: qsTr("TTS Enabled")
             spacing: 0
@@ -96,11 +56,12 @@ ScrollView {
             Label {
                 id: labelTTSSummarySec
                 text: qsTr("Summary Each Seconds:")
+                wrapMode: window.labelWrap
                 Layout.fillWidth: true
             }
             SettingsNumberField {
                 id: ttsSummarySecTextField
-                text: settings.tts_summary_sec
+                savedText: settings.tts_summary_sec
                 decimals: 0
                 minimum: 1
                 horizontalAlignment: Text.AlignRight
@@ -112,12 +73,13 @@ ScrollView {
             Button {
                 id: okTTSSummarySec
                 text: qsTr("OK")
-                enabled: ttsSummarySecTextField.valid
+                enabled: ttsSummarySecTextField.valid && ttsSummarySecTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.value; toast.show(qsTr("Setting saved!")); }
             }
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsDescriptionEnableDelegate
             text: qsTr("TTS Description Enabled")
             spacing: 0
@@ -132,6 +94,7 @@ ScrollView {
             onClicked: settings.tts_description_enabled = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualSpeedDelegate
             text: qsTr("Actual Speed")
             spacing: 0
@@ -146,6 +109,7 @@ ScrollView {
             onClicked: settings.tts_act_speed = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAverageSpeedDelegate
             text: qsTr("Average Speed")
             spacing: 0
@@ -160,6 +124,7 @@ ScrollView {
             onClicked: settings.tts_avg_speed = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxSpeedDelegate
             text: qsTr("Max Speed")
             spacing: 0
@@ -174,6 +139,7 @@ ScrollView {
             onClicked: settings.tts_max_speed = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualInclinationDelegate
             text: qsTr("Actual Inclination")
             spacing: 0
@@ -188,6 +154,7 @@ ScrollView {
             onClicked: settings.tts_act_inclination = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualCadenceDelegate
             text: qsTr("Actual Cadence")
             spacing: 0
@@ -202,6 +169,7 @@ ScrollView {
             onClicked: settings.tts_act_cadence = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAverageCadenceDelegate
             text: qsTr("Average Cadence")
             spacing: 0
@@ -216,6 +184,7 @@ ScrollView {
             onClicked: settings.tts_avg_cadence = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxCadenceDelegate
             text: qsTr("Max Cadence")
             spacing: 0
@@ -230,6 +199,7 @@ ScrollView {
             onClicked: settings.tts_max_cadence = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualElevationDelegate
             text: qsTr("Actual Elevation")
             spacing: 0
@@ -244,6 +214,7 @@ ScrollView {
             onClicked: settings.tts_act_elevation = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualCaloriesDelegate
             text: qsTr("Actual Calories")
             spacing: 0
@@ -258,6 +229,7 @@ ScrollView {
             onClicked: settings.tts_act_calories = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualOdometerDelegate
             text: qsTr("Actual Odometer")
             spacing: 0
@@ -272,6 +244,7 @@ ScrollView {
             onClicked: settings.tts_act_odometer = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualpaceDelegate
             text: qsTr("Actual Pace")
             spacing: 0
@@ -286,6 +259,7 @@ ScrollView {
             onClicked: settings.tts_act_pace = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgpaceDelegate
             text: qsTr("Average Pace")
             spacing: 0
@@ -300,6 +274,7 @@ ScrollView {
             onClicked: settings.tts_avg_pace = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxpaceDelegate
             text: qsTr("Max Pace")
             spacing: 0
@@ -314,6 +289,7 @@ ScrollView {
             onClicked: settings.tts_max_pace = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualresDelegate
             text: qsTr("Actual Resistance")
             spacing: 0
@@ -328,6 +304,7 @@ ScrollView {
             onClicked: settings.tts_act_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgResistanceDelegate
             text: qsTr("Average Resistance")
             spacing: 0
@@ -342,6 +319,7 @@ ScrollView {
             onClicked: settings.tts_avg_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxResistanceDelegate
             text: qsTr("Max Resistance")
             spacing: 0
@@ -356,6 +334,7 @@ ScrollView {
             onClicked: settings.tts_max_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualWattDelegate
             text: qsTr("Actual Watt")
             spacing: 0
@@ -370,6 +349,7 @@ ScrollView {
             onClicked: settings.tts_act_watt = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgWattDelegate
             text: qsTr("Average Watt")
             spacing: 0
@@ -384,6 +364,7 @@ ScrollView {
             onClicked: settings.tts_avg_watt = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxWattDelegate
             text: qsTr("Max Watt")
             spacing: 0
@@ -398,6 +379,7 @@ ScrollView {
             onClicked: settings.tts_max_watt = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualFTPDelegate
             text: qsTr("Actual FTP")
             spacing: 0
@@ -440,6 +422,7 @@ ScrollView {
             onClicked: settings.tts_max_ftp = checked
         }*/
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualHeartDelegate
             text: qsTr("Actual Heart")
             spacing: 0
@@ -454,6 +437,7 @@ ScrollView {
             onClicked: settings.tts_act_heart = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgHeartDelegate
             text: qsTr("Average Heart")
             spacing: 0
@@ -468,6 +452,7 @@ ScrollView {
             onClicked: settings.tts_avg_heart = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxHeartDelegate
             text: qsTr("Max Heart")
             spacing: 0
@@ -482,6 +467,7 @@ ScrollView {
             onClicked: settings.tts_max_heart = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualJoulsDelegate
             text: qsTr("Actual Jouls")
             spacing: 0
@@ -496,6 +482,7 @@ ScrollView {
             onClicked: settings.tts_act_jouls = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualElapsedDelegate
             text: qsTr("Actual Elapsed")
             spacing: 0
@@ -510,6 +497,7 @@ ScrollView {
             onClicked: settings.tts_act_elapsed = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualPelotonResistanceDelegate
             text: qsTr("Actual Peloton Resistance")
             spacing: 0
@@ -524,6 +512,7 @@ ScrollView {
             onClicked: settings.tts_act_peloton_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgPelotonResistanceDelegate
             text: qsTr("Average Peloton Resistance")
             spacing: 0
@@ -538,6 +527,7 @@ ScrollView {
             onClicked: settings.tts_avg_peloton_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxPelotonResistanceDelegate
             text: qsTr("Max Peloton Resistance")
             spacing: 0
@@ -552,6 +542,7 @@ ScrollView {
             onClicked: settings.tts_max_peloton_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetPelotonResistanceDelegate
             text: qsTr("Actual Target Peloton Resistance")
             spacing: 0
@@ -566,6 +557,7 @@ ScrollView {
             onClicked: settings.tts_act_target_peloton_resistance = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetCadenceDelegate
             text: qsTr("Actual Target Cadence")
             spacing: 0
@@ -580,6 +572,7 @@ ScrollView {
             onClicked: settings.tts_act_target_cadence = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetPowerDelegate
             text: qsTr("Actual Target Power")
             spacing: 0
@@ -594,6 +587,7 @@ ScrollView {
             onClicked: settings.tts_act_target_power = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetZoneDelegate
             text: qsTr("Actual Target Zone")
             spacing: 0
@@ -608,6 +602,7 @@ ScrollView {
             onClicked: settings.tts_act_target_zone = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetSpeedDelegate
             text: qsTr("Actual Target Speed")
             spacing: 0
@@ -622,6 +617,7 @@ ScrollView {
             onClicked: settings.tts_act_target_speed = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetPaceDelegate
             text: qsTr("Actual Target Pace")
             spacing: 0
@@ -636,6 +632,7 @@ ScrollView {
             onClicked: settings.tts_act_target_pace = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualTargetInclineDelegate
             text: qsTr("Actual Target Incline")
             spacing: 0
@@ -650,6 +647,7 @@ ScrollView {
             onClicked: settings.tts_act_target_incline = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsActualWattKGDelegate
             text: qsTr("Actual Watt/KG")
             spacing: 0
@@ -664,6 +662,7 @@ ScrollView {
             onClicked: settings.tts_act_watt_kg = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsAvgWattKGDelegate
             text: qsTr("Average Watt/KG")
             spacing: 0
@@ -678,6 +677,7 @@ ScrollView {
             onClicked: settings.tts_avg_watt_kg = checked
         }
         SwitchDelegate {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
             id: ttsMaxWattKGDelegate
             text: qsTr("Max Watt/KG")
             spacing: 0
