@@ -23,6 +23,7 @@ class AndroidStatusBar : public QObject
 
 public:
     explicit AndroidStatusBar(QObject *parent = nullptr);
+    ~AndroidStatusBar() override;
 
     static void registerQmlType();
     static AndroidStatusBar* instance();
