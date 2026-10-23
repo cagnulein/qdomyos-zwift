@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import org.cagnulen.qdomyoszwift.QLog;
 
 public class ContentHelper {
@@ -108,13 +109,17 @@ public class ContentHelper {
                 uri = resolver.insert(collection, values);
                 created = true;
             } else {
-                uri = matches.get(0);
-                ContentValues pending = new ContentValues();
-                pending.put(MediaStore.MediaColumns.IS_PENDING, 1);
-                resolver.update(uri, pending, null, null);
-                for (int i = 1; i < matches.size(); ++i) {
-                    resolver.delete(matches.get(i), null, null);
-                }
+                // Never truncate the existing canonical row before the replacement
+                // has been fully written. A pending temporary row keeps failures
+                // from exposing a partial profile.
+                String temporaryName = ".qz-profile-" + UUID.randomUUID().toString() + ".tmp";
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, temporaryName);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDirectory);
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                uri = resolver.insert(collection, values);
+                created = true;
             }
             if (uri == null) {
                 return false;
@@ -122,7 +127,7 @@ public class ContentHelper {
 
             try (OutputStream output = resolver.openOutputStream(uri, "wt")) {
                 if (output == null) {
-                    return false;
+                    throw new IOException("Unable to open MediaStore output stream");
                 }
                 byte[] buffer = new byte[64 * 1024];
                 int count;
@@ -132,7 +137,15 @@ public class ContentHelper {
             }
             ContentValues ready = new ContentValues();
             ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
-            resolver.update(uri, ready, null, null);
+            if (!matches.isEmpty()) {
+                for (Uri existing : matches) {
+                    resolver.delete(existing, null, null);
+                }
+                ready.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+            }
+            if (resolver.update(uri, ready, null, null) <= 0) {
+                throw new IllegalStateException("Unable to publish profile replacement");
+            }
             return true;
         } catch (Exception e) {
             if (uri != null) {

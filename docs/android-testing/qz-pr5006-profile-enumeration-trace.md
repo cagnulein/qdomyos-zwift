@@ -20,9 +20,9 @@ The user reported that `Jan.qzs` and `Jay.qzs` were visible in Android's `Docume
 - MediaStore contained `Jay.qzs` and `Jan.qzs` under `Documents/QZ/profiles/`.
 - The installed QZ configuration contained `android_documents_folder=false`, so the active root was the legacy app-data directory.
 - The same names also existed in `/storage/emulated/0/Android/data/org.cagnulen.qdomyoszwift/files/profiles/`.
-- The chooser nevertheless listed the public MediaStore copies because `getProfileFiles()` queried public storage independently of the routing setting.
+- Before the global fix, the chooser's storage selection and the persisted routing setting could disagree, so the visible source and the load source were not guaranteed to be the same.
 - The old `loadSettings()` path also staged every Android input in `files/settings/`, including already-local profiles. That staging was unnecessary for local files and obscured which file was canonical.
-- The runtime path therefore had two independent problems: selecting the wrong physical root and creating an unnecessary staging copy for an already-local file.
+- The runtime path therefore had two independent problems: inconsistent root selection and unnecessary staging of already-local files.
 
 ## Verification completed locally
 
@@ -59,4 +59,29 @@ The exact artifact showed the chooser correctly listing `Jay` and `Jan`, while t
 
 The pending restart now carries only the selected profile base name from QML. C++ resolves that name through `getProfileFiles()` in the active canonical root and writes the resolved `QUrl` to the marker. The Android import path uses the same source-marker helper directly. This avoids both the lossy JavaScript string conversion that created `file:[object%20Object]` and unreliable QML-to-`QUrl` QVariant conversion.
 
-The URI correction is locally built and tested; its exact Android artifact and simulator verification are pending. No production Bluetooth workaround was added, and no profile files or app data were deleted during testing.
+## Final Android verification
+
+- Final commit: `b2aa08198e678eee7e84bb258e313de7c5913e78`.
+- Exact GitHub Actions run: `38569634375`; Android build job `115871110989` passed and produced artifact `11899214353` (`peloton-v1-grupetto`).
+- Exact artifact SHA-256: `22dcd59e7f5780a57b8655c70003a95eacb02f13c33fc285b26840907e10fc87`.
+- CI Android API 29 job `115895160867` passed for the same head SHA; all nine Android emulator matrix jobs in the run passed. The aggregate run remained red because unrelated Windows/Linux/Raspberry Pi jobs failed.
+- The artifact was installed on `qz_arm64_api29` without clearing app data. The observed target was API 29, `arm64-v8a`.
+- MediaStore read-back showed exactly `Jay.qzs` and `Jan.qzs` under `Documents/QZ/profiles/`, with no `(1)` duplicate rows in the QZ chooser.
+- The chooser UI dump exposed separate `Jan` and `Jay` rows. Selecting Jan, confirming the restart dialog, and launching QZ again produced `content-desc="Profile: Jan"`.
+- The QZ log recorded `Loading pending profile QUrl("content://media/external_primary/file/39")`; MediaStore read-back mapped ID 39 to `Jan.qzs`.
+- Persisted Jan settings read back after restart were `weight=75`, `height=175`, `age=35`, `sex=Male`, and `ftp=200`; the stored routing setting remained `android_documents_folder=true` and was not copied into the profile snapshot.
+
+This is historical evidence from the b2 artifact, not a final validation: the independent review found that the public-storage routing, exact URI identity, failure handling, and non-Android restart behavior still required correction. The b2 artifact must therefore not be treated as validated.
+
+## Review iteration after b2
+
+The external review identified these blocking defects in b2:
+
+- API 29 public profiles were skipped when `android_documents_folder=false`.
+- Restart re-resolved by base name instead of carrying the selected URI identity.
+- A missing or unreadable source could clear active settings before the failure was known.
+- The QML restart path regressed on non-Android platforms.
+- Public profile writes bypassed MediaStore and did not check write status.
+- MediaStore replacement could truncate the existing row before a replacement was complete.
+
+The follow-up iteration addresses those cases by enumerating Android 10+ public profiles independently of the routing toggle, carrying an explicit encoded URI through QML/C++, retaining the pending marker until a successful load, staging public writes through MediaStore, restoring the desktop restart path, and using a temporary MediaStore row for replacements. Local verification after the iteration: forced C++ build passed; `qmllint` and `git diff --check` passed; the profile suite passed 19/21 with the two opt-in process tests skipped; with `QZ_PROFILE_RUN_PROCESS_RESTART=1`, 20 tests passed; and `FailedLoadPreservesActiveSettings` passed. Android artifact/runtime verification for this iteration is still required.

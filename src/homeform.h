@@ -1173,12 +1173,14 @@ public:
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
+    static bool loadSettingsChecked(const QUrl &filename);
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
+    Q_INVOKABLE void deleteProfileByUri(const QString &fileUri);
     void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
-    Q_INVOKABLE void restartWithProfile(const QString &profileName);
+    Q_INVOKABLE void restartWithProfile(const QString &profileName, const QString &profileUri);
     void restartWithProfileSource(const QUrl &profileSource);
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void Minus(const QString &);

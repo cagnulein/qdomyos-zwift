@@ -292,6 +292,22 @@ TEST_F(ProfileRegressionTestSuite, ProfileFileListContainsBothProfiles)
     EXPECT_TRUE(names.contains(QStringLiteral("Jay")));
 }
 
+TEST_F(ProfileRegressionTestSuite, FailedLoadPreservesActiveSettings)
+{
+    QSettings settings;
+    settings.setValue(QZSettings::profile_name, QStringLiteral("Jay"));
+    settings.setValue(QZSettings::weight, 88);
+    settings.sync();
+
+    const QString missingProfile = root->path() + QStringLiteral("/profiles/missing.qzs");
+    EXPECT_FALSE(homeform::loadSettingsChecked(QUrl::fromLocalFile(missingProfile)));
+
+    QSettings after;
+    EXPECT_EQ(after.value(QZSettings::profile_name).toString(), QStringLiteral("Jay"));
+    EXPECT_EQ(after.value(QZSettings::weight).toInt(), 88);
+}
+
+
 TEST_F(ProfileRegressionTestSuite, ChildProcessLoadsProfilesAfterRestart)
 {
     if (qgetenv("QZ_PROFILE_TEST_CHILD") != "1")

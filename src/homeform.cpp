@@ -11296,21 +11296,36 @@ void homeform::saveSettings(const QUrl &filename) {
     }
 }
 
-void homeform::loadSettings(const QUrl &filename) {
+bool homeform::loadSettingsChecked(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
     QString settingsFile = file.fileName();
 #ifdef Q_OS_ANDROID
-    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
-    if (!copiedSettingsFile.isEmpty()) {
+    const bool isContentUri = filename.toString().startsWith(QStringLiteral("content://"));
+    if (isContentUri) {
+        const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+        if (copiedSettingsFile.isEmpty() || !QFileInfo::exists(copiedSettingsFile)) {
+            qWarning() << "Cannot load profile content URI" << filename;
+            return false;
+        }
         settingsFile = copiedSettingsFile;
     }
 #endif
 
-    qDebug() << "homeform::loadSettings" << file.fileName();
+    if (settingsFile.isEmpty() || !QFileInfo::exists(settingsFile) ||
+        !QFileInfo(settingsFile).isReadable()) {
+        qWarning() << "Cannot load missing or unreadable profile" << filename << settingsFile;
+        return false;
+    }
+
+    qDebug() << "homeform::loadSettings" << settingsFile;
 
     QSettings settings;
     QSettings settings2Load(settingsFile, QSettings::IniFormat);
+    if (settings2Load.status() != QSettings::NoError) {
+        qWarning() << "Cannot parse profile" << settingsFile << settings2Load.status();
+        return false;
+    }
     // A legacy profile has no Strava account ID. Clear the previous active ID first,
     // otherwise loading it after another profile could silently reuse that account.
     settings.remove(QZSettings::strava_current_user_id);
@@ -11490,6 +11505,19 @@ void homeform::loadSettings(const QUrl &filename) {
         }
         emit homeform::singleton()->userProfileChanged();
     }
+    return true;
+}
+
+void homeform::loadSettings(const QUrl &filename) {
+    loadSettingsChecked(filename);
+}
+
+void homeform::deleteProfileByUri(const QString &fileUri) {
+    if (fileUri.trimmed().isEmpty()) {
+        qWarning() << "Cannot delete profile with empty URI";
+        return;
+    }
+    deleteSettings(QUrl::fromEncoded(fileUri.toUtf8()));
 }
 
 void homeform::deleteSettings(const QUrl &filename) {
@@ -11541,15 +11569,20 @@ QVariantList homeform::getProfileFiles() {
         profile.insert(QStringLiteral("fileName"), fileName);
         profile.insert(QStringLiteral("fileBaseName"), QFileInfo(fileName).completeBaseName());
         profile.insert(QStringLiteral("fileUrl"), fileUrl);
+        profile.insert(QStringLiteral("fileUri"), fileUrl.toString(QUrl::FullyEncoded));
         profiles.append(profile);
     };
 
 #ifdef Q_OS_ANDROID
-    // Enumerate the same storage root that getWritableAppDir() uses. A
-    // disabled Documents setting must not make stale public copies visible,
-    // and an enabled/mandatory Documents setting must not fall back to the
-    // legacy directory.
-    if (usePublicDocumentsStorage()) {
+    // Android 10+ public profiles remain discoverable even when the
+    // migration/write-routing toggle is false. The chooser must reflect files
+    // already present in Documents/QZ/profiles; legacy storage is retained as
+    // a fallback and exact filenames are deduplicated below.
+    const bool canUsePublicDocuments =
+        QOperatingSystemVersion::current() >=
+        QOperatingSystemVersion(QOperatingSystemVersion::Android, 10);
+
+    if (canUsePublicDocuments) {
         QAndroidJniObject relativeDirectory = QAndroidJniObject::fromString(QStringLiteral("profiles"));
         QAndroidJniObject files = QAndroidJniObject::callStaticObjectMethod(
             "org/cagnulen/qdomyoszwift/ContentHelper",
@@ -11590,11 +11623,30 @@ QVariantList homeform::getProfileFiles() {
 
 void homeform::saveProfile(QString profilename) {
     qDebug() << "homeform::saveProfile";
+    const QString profileName = profilename.trimmed();
+    if (profileName.isEmpty() || QFileInfo(profileName).fileName() != profileName ||
+        profileName.contains(QLatin1Char('/')) || profileName.contains(QLatin1Char('\\'))) {
+        qWarning() << "Invalid profile name" << profilename;
+        return;
+    }
+
     QString path = getProfileDir();
+    QString profilePath = path + "/" + profileName + QStringLiteral(".qzs");
+#ifdef Q_OS_ANDROID
+    const bool publicProfileStorage = usePublicDocumentsStorage();
+    QString temporaryProfilePath;
+    if (publicProfileStorage) {
+        temporaryProfilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+                               QStringLiteral("/profile-write-") +
+                               QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral(".qzs");
+        QDir().mkpath(QFileInfo(temporaryProfilePath).path());
+        profilePath = temporaryProfilePath;
+    }
+#endif
 
     QSettings settings;
-    settings.setValue(QZSettings::profile_name, profilename);
-    QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
+    settings.setValue(QZSettings::profile_name, profileName);
+    QSettings settings2Save(profilePath, QSettings::IniFormat);
     // Rewriting a profile must remove keys that were deleted from the active settings.
     settings2Save.clear();
 
@@ -11688,6 +11740,34 @@ void homeform::saveProfile(QString profilename) {
     settings2Save.sync();
     qDebug() << "homeform::saveProfile path" << settings2Save.fileName()
              << "status" << settings2Save.status();
+    if (settings2Save.status() != QSettings::NoError) {
+#ifdef Q_OS_ANDROID
+        if (publicProfileStorage) {
+            QFile::remove(temporaryProfilePath);
+        }
+#endif
+        qWarning() << "Cannot write profile" << settings2Save.fileName();
+        return;
+    }
+#ifdef Q_OS_ANDROID
+    if (publicProfileStorage) {
+        const QString relativePath = QStringLiteral("profiles/") + profileName + QStringLiteral(".qzs");
+        QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(temporaryProfilePath);
+        QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
+        const jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyFileToPublicDocuments",
+            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            javaSourcePath.object<jstring>(),
+            javaRelativePath.object<jstring>());
+        const bool javaFailed = clearAndroidJniException("ContentHelper.copyFileToPublicDocuments");
+        QFile::remove(temporaryProfilePath);
+        if (javaFailed || !copied) {
+            qWarning() << "Cannot save public profile" << relativePath;
+        }
+    }
+#endif
 }
 
 void homeform::restart() {
@@ -11697,24 +11777,25 @@ void homeform::restart() {
 #endif
 }
 
-void homeform::restartWithProfile(const QString &profileName) {
+void homeform::restartWithProfile(const QString &profileName, const QString &profileUri) {
     const QString requestedName = profileName.trimmed();
-    if (requestedName.isEmpty()) {
-        qWarning() << "Cannot restart without a profile name";
+    const QString requestedUri = profileUri.trimmed();
+    if (requestedName.isEmpty() || requestedUri.isEmpty()) {
+        qWarning() << "Cannot restart without an exact profile identity" << requestedName << requestedUri;
         return;
     }
 
     const QVariantList profiles = getProfileFiles();
     for (const QVariant &entry : profiles) {
         const QVariantMap profile = entry.toMap();
-        if (profile.value(QStringLiteral("fileBaseName")).toString() == requestedName) {
-            const QUrl sourceUrl = profile.value(QStringLiteral("fileUrl")).toUrl();
-            restartWithProfileSource(sourceUrl);
+        if (profile.value(QStringLiteral("fileBaseName")).toString() == requestedName &&
+            profile.value(QStringLiteral("fileUri")).toString() == requestedUri) {
+            restartWithProfileSource(QUrl::fromEncoded(requestedUri.toUtf8()));
             return;
         }
     }
 
-    qWarning() << "Cannot find profile for restart" << requestedName;
+    qWarning() << "Cannot find exact profile for restart" << requestedName << requestedUri;
 }
 
 void homeform::restartWithProfileSource(const QUrl &profileSource) {
@@ -11724,6 +11805,7 @@ void homeform::restartWithProfileSource(const QUrl &profileSource) {
         return;
     }
 
+#ifdef Q_OS_ANDROID
     const QString markerDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(markerDir);
     QFile marker(markerDir + QStringLiteral("/qz-pending-profile"));
@@ -11731,14 +11813,24 @@ void homeform::restartWithProfileSource(const QUrl &profileSource) {
         qWarning() << "Cannot persist pending profile" << marker.fileName();
         return;
     }
-    marker.write(sourceUrl.toString(QUrl::FullyEncoded).toUtf8());
+    if (marker.write(sourceUrl.toString(QUrl::FullyEncoded).toUtf8()) < 0) {
+        qWarning() << "Cannot write pending profile" << marker.fileName();
+        marker.close();
+        return;
+    }
     marker.close();
 
     qDebug() << "Profile selected for next restart" << sourceUrl;
-    // The user is explicitly asked to restart. Do not spawn a second Qt
-    // process from the Android activity; the next normal launch consumes the
-    // marker before any QML Settings objects are created.
+    // The next normal Android launch consumes the marker before QML Settings
+    // objects are created. A failed load leaves the marker for retry.
     qApp->quit();
+#else
+    if (loadSettingsChecked(sourceUrl)) {
+        restart();
+    } else {
+        qWarning() << "Profile restart cancelled because loading failed" << sourceUrl;
+    }
+#endif
 }
 
 double homeform::heartRateMax() {

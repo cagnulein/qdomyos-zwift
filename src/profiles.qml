@@ -13,6 +13,7 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
     property string pendingProfileName: ""
+    property string pendingProfileSource: ""
 
     Connections {
         target: rootItem
@@ -60,7 +61,7 @@ ColumnLayout {
         informativeText: qsTr("You must quit and restart for changes to take effect.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
-            rootItem.restartWithProfile(pendingProfileName)
+            rootItem.restartWithProfile(pendingProfileName, pendingProfileSource)
         }
         onNoClicked: {
             quitDialog.close()
@@ -69,12 +70,12 @@ ColumnLayout {
 
     MessageDialog {
         id: deleteDialog
-        property string fileUrl
+        property string fileUri
         title: qsTr("Delete profile")
         text: qsTr("Would you like to delete this profile?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
-            deleteSettings(fileUrl)
+            rootItem.deleteProfileByUri(deleteDialog.fileUri)
             list.refreshProfiles()
             deleteDialog.close()
         }
@@ -219,16 +220,12 @@ ColumnLayout {
                     if (selectedFileName)
                         profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4)
                     if (profileIndex == list.currentIndex) {
-                        settings.profile_name = profileNameTextField.text
-                        const fileUrl = profileModel.get(profileIndex).fileUrl
-                        if (fileUrl) {
-                            // Load the snapshot before QML Settings objects are
-                            // created in the restarted process. Loading here
-                            // would let cached values from the old profile be
-                            // written back during teardown.
-                            pendingProfileName = profileNameTextField.text
-                            quitDialog.visible = true
-                        }
+                            const fileUri = profileModel.get(profileIndex).fileUri
+                            if (fileUri) {
+                                pendingProfileName = profileNameTextField.text
+                                pendingProfileSource = fileUri
+                                quitDialog.visible = true
+                            }
                     } else {
                         list.currentIndex = profileIndex
                     }
@@ -237,7 +234,7 @@ ColumnLayout {
                     list.clicked = true
                     const selectedFileName = profileModel.get(profileIndex).fileName
                     deleteDialog.informativeText = selectedFileName.substring(0, selectedFileName.length - 4)
-                    deleteDialog.fileUrl = profileModel.get(profileIndex).fileUrl
+                    deleteDialog.fileUri = profileModel.get(profileIndex).fileUri
                     deleteDialog.visible = true
                 }
                 Component.onCompleted: refreshProfiles()

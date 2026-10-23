@@ -600,23 +600,28 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
     const QString pendingMarkerPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
                                       QStringLiteral("/qz-pending-profile");
+    bool pendingMarkerPresent = false;
     QFile pendingMarker(pendingMarkerPath);
     if (pendingMarker.open(QIODevice::ReadOnly)) {
         const QString pendingProfilePath = QString::fromUtf8(pendingMarker.readAll()).trimmed();
         pendingMarker.close();
-        pendingMarker.remove();
-        if (!pendingProfilePath.isEmpty()) {
-            const QUrl pendingUrl(pendingProfilePath);
-            if ((pendingUrl.scheme() == QStringLiteral("content")) ||
-                (pendingUrl.isLocalFile() && QFile::exists(pendingUrl.toLocalFile()))) {
-                profileToLoad = pendingUrl;
-                qDebug() << "Loading pending profile" << pendingUrl;
-            } else if (pendingUrl.scheme().isEmpty() && QFile::exists(pendingProfilePath)) {
-                profileToLoad = QUrl::fromLocalFile(pendingProfilePath);
-                qDebug() << "Loading pending profile" << profileToLoad;
-            }
+        const QUrl pendingUrl(pendingProfilePath);
+        if ((pendingUrl.scheme() == QStringLiteral("content")) ||
+            (pendingUrl.isLocalFile() && QFile::exists(pendingUrl.toLocalFile()))) {
+            profileToLoad = pendingUrl;
+            pendingMarkerPresent = true;
+            qDebug() << "Loading pending profile" << pendingUrl;
+        } else if (pendingUrl.scheme().isEmpty() && QFile::exists(pendingProfilePath)) {
+            profileToLoad = QUrl::fromLocalFile(pendingProfilePath);
+            pendingMarkerPresent = true;
+            qDebug() << "Loading pending profile" << profileToLoad;
+        } else {
+            qWarning() << "Pending profile is not currently readable" << pendingProfilePath;
         }
     }
+#else
+    const bool pendingMarkerPresent = false;
+    const QString pendingMarkerPath;
 #endif
     if (profileToLoad.isEmpty()) {
         QString profileName = "";
@@ -653,7 +658,12 @@ int main(int argc, char *argv[]) {
 #endif
 
     if (!profileToLoad.isEmpty()) {
-        homeform::loadSettings(profileToLoad);
+        const bool loaded = homeform::loadSettingsChecked(profileToLoad);
+#ifdef Q_OS_ANDROID
+        if (loaded && pendingMarkerPresent) {
+            QFile::remove(pendingMarkerPath);
+        }
+#endif
     }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
