@@ -64,3 +64,22 @@
 - A live watch reading does not confirm delivery to the phone.
 - Working machine metrics distinguish watch communication from machine discovery.
 - Exact installed builds help determine whether a newer test version needs verification.
+
+## A selected Bluetooth heart-rate strap does not supply live readings
+
+### Provide first
+
+- Strap model, phone operating system, and the exact **Heart Rate Belt Name** selected in QZ.
+- Confirm that the strap is being worn and its electrodes are moist or otherwise activated before QZ starts.
+- State whether the strap appears only in the settings list or whether QZ displays a changing heart-rate value during exercise.
+
+### If still unclear
+
+- Scan with nRF Connect while the strap is worn and awake; share a screenshot with the advertised device name.
+- Check whether the strap broadcasts consistently and whether another app can read live heart rate. Note recent battery replacement if relevant.
+- If advertising is confirmed but QZ still receives no readings, collect a QZ debug log from a fresh connection attempt.
+
+### Why it matters
+
+- A previously discovered name in QZ's selection list does not prove that the sensor is currently advertising.
+- Checking current advertising before collecting logs distinguishes a sleeping or intermittent strap from a QZ pairing or source-selection problem.
