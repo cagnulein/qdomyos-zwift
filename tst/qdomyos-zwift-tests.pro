@@ -40,6 +40,8 @@ SOURCES += \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
+        Devices/TestYpooM5Control.cpp \
+        Devices/TestFtmsTreadmillControl.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestKeepBikeParser.cpp \

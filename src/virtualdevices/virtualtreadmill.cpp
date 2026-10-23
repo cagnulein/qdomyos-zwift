@@ -1,5 +1,6 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
+#include "devices/horizontreadmill/horizontreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -28,9 +29,20 @@ QByteArray echelonPacket(std::initializer_list<uint8_t> bytes) {
 }
 }
 
+void virtualtreadmill::clearControlPointWrites() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (h && forwardControlPointWrites)
+        h->virtualtreadmill_clearControlPointWrites();
+#endif
+#endif
+}
+
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
+    const auto horizon = qobject_cast<horizontreadmill *>(t);
+    forwardControlPointWrites = horizon && horizon->isYpooM5();
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -72,6 +84,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
         h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
+        if (forwardControlPointWrites)
+            h->virtualtreadmill_enableControlPointForwarding();
     } else
 #endif
 #endif
@@ -225,6 +239,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             value.append((char)0x00);
             value.append((char)0x00);
             value.append((char)0x00);
+            if (forwardControlPointWrites) {
+                value = QByteArray::fromHex("0d14000003000000");
+                if (bike_cadence_sensor)
+                    value[0] = 0x0c;
+            }
             charData.setValue(value);
             charData.setProperties(QLowEnergyCharacteristic::Read);
 
@@ -310,6 +329,18 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                serviceDataFTMS.addCharacteristic(charDataFIT6);
                serviceDataFTMS.addCharacteristic(charDataFIT7);
                serviceDataFTMS.addCharacteristic(charDataFIT2);
+               if (forwardControlPointWrites) {
+                   QLowEnergyCharacteristicData speedRange;
+                   speedRange.setUuid(QBluetoothUuid((quint16)0x2AD4));
+                   speedRange.setProperties(QLowEnergyCharacteristic::Read);
+                   speedRange.setValue(QByteArray::fromHex("640058070a00"));
+                   serviceDataFTMS.addCharacteristic(speedRange);
+                   QLowEnergyCharacteristicData inclineRange;
+                   inclineRange.setUuid(QBluetoothUuid((quint16)0x2AD5));
+                   inclineRange.setProperties(QLowEnergyCharacteristic::Read);
+                   inclineRange.setValue(QByteArray::fromHex("c4ff96000a00"));
+                   serviceDataFTMS.addCharacteristic(inclineRange);
+               }
            }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
@@ -891,7 +922,9 @@ void virtualtreadmill::treadmillProvider() {
     uint16_t swiftCadence = (uint16_t)(((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier);
     uint8_t swiftResistance = 0;
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
-    uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
+    uint16_t swiftInclination = forwardControlPointWrites
+        ? static_cast<uint16_t>(static_cast<int16_t>(qRound(inclination * 10.0)))
+        : (uint16_t)(inclination * 10.0);
     uint64_t swiftDistance = bike_cadence_sensor ?
         (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0) :  // old behavior
         (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);  // new behavior
@@ -906,19 +939,26 @@ void virtualtreadmill::treadmillProvider() {
                                           (double)swift_elapsed.msec() / 1000.0;
     uint16_t swiftElapsedTimeSeconds = (uint16_t)qRound(swift_elapsed_seconds_double);
 
-    if (h->virtualtreadmill_updateFTMS(  // uses @objc public func updateFTMS in virtualtreadmill_zwift.swift
-            swiftSpeed,
-            swiftResistance,
-            swiftCadence,
-            swiftWatt,
-            swiftInclination,
-            swiftDistance,
-            ((treadmill *)treadMill)->elevationGain().value(),  // Use QZ's calculated elevation gain
-            swiftCalories,
-            swiftSteps,
-            swiftElapsedTimeSeconds,
-            static_cast<uint8_t>(treadMill->deviceType())
-            )) {
+    const bool nativeClientConnected = h->virtualtreadmill_updateFTMS(
+        swiftSpeed, swiftResistance, swiftCadence, swiftWatt, swiftInclination, swiftDistance,
+        ((treadmill *)treadMill)->elevationGain().value(), swiftCalories, swiftSteps,
+        swiftElapsedTimeSeconds, static_cast<uint8_t>(treadMill->deviceType()));
+
+    if (forwardControlPointWrites) {
+        h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+        if (!treadMill->connected()) {
+            clearControlPointWrites();
+            return;
+        }
+        for (QByteArray command = h->virtualtreadmill_takeControlPointWrite(); !command.isEmpty();
+             command = h->virtualtreadmill_takeControlPointWrite()) {
+            QByteArray reply;
+            writeP2AD9->writeProcess(0x2AD9, command, reply);
+        }
+        return;
+    }
+
+    if (nativeClientConnected) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
 
         lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();

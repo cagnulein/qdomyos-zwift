@@ -519,6 +519,19 @@ uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
     return 0;
 }
 
+void lockscreen::virtualtreadmill_enableControlPointForwarding() {
+    [_virtualtreadmill_zwift enableControlPointForwarding];
+}
+
+QByteArray lockscreen::virtualtreadmill_takeControlPointWrite() {
+    NSData *data = [_virtualtreadmill_zwift takeControlPointWrite];
+    return data ? QByteArray(static_cast<const char *>(data.bytes), static_cast<int>(data.length)) : QByteArray();
+}
+
+void lockscreen::virtualtreadmill_clearControlPointWrites() {
+    [_virtualtreadmill_zwift clearControlPointWrites];
+}
+
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
     if(_virtualtreadmill_zwift != nil)

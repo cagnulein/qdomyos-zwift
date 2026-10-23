@@ -25,10 +25,12 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 
 #include "treadmill.h"
+#include "ypoom5control.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -46,6 +48,7 @@ class horizontreadmill : public treadmill {
 
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool isYpooM5() const { return YPOO_M5; }
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
@@ -53,6 +56,7 @@ class horizontreadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void updateYpooM5Control();
 
     QTimer *refresh;
 
@@ -118,6 +122,12 @@ class horizontreadmill : public treadmill {
     bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
+    bool YPOO_M5 = false;
+    bool YP_M1552 = false;
+    bool ypooM5WritePending = false;
+    bool ypooM5ControlGranted = false;
+    QElapsedTimer ypooM5Clock;
+    YpooM5Control ypooM5Control;
     bool MX_TM = false;
     bool FIT = false;
     bool FIT_TM = false;
