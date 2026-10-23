@@ -520,6 +520,9 @@
 		87C5F0B826285E5F0067A1B5 /* stagesbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F09C26285E5B0067A1B5 /* stagesbike.cpp */; };
 		877486F02FA8E80000A02AFD /* moc_kettlerc12bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877486F12FA8E80000A02AFD /* moc_kettlerc12bike.cpp */; };
 		877486F22FA8E80000A02AFD /* kettlerc12bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877486F32FA8E80000A02AFD /* kettlerc12bike.cpp */; };
+		E5147F000000000000000006 /* kettlerclassicbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E5147F000000000000000001 /* kettlerclassicbike.cpp */; };
+		E5147F000000000000000007 /* kettlerclassicprotocol.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E5147F000000000000000003 /* kettlerclassicprotocol.cpp */; };
+		E5147F000000000000000008 /* moc_kettlerclassicbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E5147F000000000000000005 /* moc_kettlerclassicbike.cpp */; };
 		87C5F0B926285E5F0067A1B5 /* mimehtml.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0A026285E5C0067A1B5 /* mimehtml.cpp */; };
 		87C5F0BA26285E5F0067A1B5 /* mimefile.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0A126285E5C0067A1B5 /* mimefile.cpp */; };
 		87C5F0BB26285E5F0067A1B5 /* mimetext.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0A426285E5C0067A1B5 /* mimetext.cpp */; };
@@ -1666,6 +1669,11 @@
 		877486F12FA8E80000A02AFD /* moc_kettlerc12bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kettlerc12bike.cpp; sourceTree = "<group>"; };
 		877486F32FA8E80000A02AFD /* kettlerc12bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerc12bike.cpp; path = ../src/devices/kettlerc12bike/kettlerc12bike.cpp; sourceTree = SOURCE_ROOT; };
 		877486F42FA8E80000A02AFD /* kettlerc12bike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = kettlerc12bike.h; path = ../src/devices/kettlerc12bike/kettlerc12bike.h; sourceTree = SOURCE_ROOT; };
+		E5147F000000000000000001 /* kettlerclassicbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerclassicbike.cpp; path = ../src/devices/kettlerclassicbike/kettlerclassicbike.cpp; sourceTree = SOURCE_ROOT; };
+		E5147F000000000000000002 /* kettlerclassicbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerclassicbike.h; path = ../src/devices/kettlerclassicbike/kettlerclassicbike.h; sourceTree = SOURCE_ROOT; };
+		E5147F000000000000000003 /* kettlerclassicprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerclassicprotocol.cpp; path = ../src/devices/kettlerclassicbike/kettlerclassicprotocol.cpp; sourceTree = SOURCE_ROOT; };
+		E5147F000000000000000004 /* kettlerclassicprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerclassicprotocol.h; path = ../src/devices/kettlerclassicbike/kettlerclassicprotocol.h; sourceTree = SOURCE_ROOT; };
+		E5147F000000000000000005 /* moc_kettlerclassicbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kettlerclassicbike.cpp; sourceTree = "<group>"; };
 		87C5F0C726285E7D0067A1B5 /* moc_mimemultipart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mimemultipart.cpp; sourceTree = "<group>"; };
 		87C5F0C826285E7D0067A1B5 /* moc_mimecontentformatter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mimecontentformatter.cpp; sourceTree = "<group>"; };
 		87C5F0C926285E7D0067A1B5 /* moc_chronobike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_chronobike.cpp; sourceTree = "<group>"; };
@@ -2373,6 +2381,7 @@
 				87C5F0C526285E7D0067A1B5 /* moc_smtpclient.cpp */,
 				87C5F0C626285E7D0067A1B5 /* moc_stagesbike.cpp */,
 				877486F12FA8E80000A02AFD /* moc_kettlerc12bike.cpp */,
+				E5147F000000000000000005 /* moc_kettlerclassicbike.cpp */,
 				87A0C4BD262329B500121A76 /* moc_cscbike.cpp */,
 				87A0C4BE262329B500121A76 /* moc_npecablebike.cpp */,
 				8781907F261508B10085E656 /* moc_peloton.cpp */,
@@ -2899,6 +2908,10 @@
 				87C5F09C26285E5B0067A1B5 /* stagesbike.cpp */,
 				877486F32FA8E80000A02AFD /* kettlerc12bike.cpp */,
 				877486F42FA8E80000A02AFD /* kettlerc12bike.h */,
+				E5147F000000000000000001 /* kettlerclassicbike.cpp */,
+				E5147F000000000000000002 /* kettlerclassicbike.h */,
+				E5147F000000000000000003 /* kettlerclassicprotocol.cpp */,
+				E5147F000000000000000004 /* kettlerclassicprotocol.h */,
 				87C5F09D26285E5B0067A1B5 /* stagesbike.h */,
 				87A0C4B9262329A600121A76 /* cscbike.cpp */,
 				87A0C4B8262329A600121A76 /* cscbike.h */,
@@ -4381,6 +4394,9 @@
 				87083D9626678EFA0072410D /* zwiftworkout.cpp in Compile Sources */,
 				87C5F0B826285E5F0067A1B5 /* stagesbike.cpp in Compile Sources */,
 				877486F22FA8E80000A02AFD /* kettlerc12bike.cpp in Compile Sources */,
+				E5147F000000000000000006 /* kettlerclassicbike.cpp in Compile Sources */,
+				E5147F000000000000000007 /* kettlerclassicprotocol.cpp in Compile Sources */,
+				E5147F000000000000000008 /* moc_kettlerclassicbike.cpp in Compile Sources */,
 				87FC40BC2D2E74F9008BA736 /* cycleopsphantombike.cpp in Compile Sources */,
 				87FC40BD2D2E74F9008BA736 /* moc_cycleopsphantombike.cpp in Compile Sources */,
 				87C5F0D526285E7E0067A1B5 /* moc_mimehtml.cpp in Compile Sources */,
