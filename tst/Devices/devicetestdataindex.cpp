@@ -812,15 +812,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
         ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
-        ->configureSettingsWith([](const DeviceDiscoveryInfo &info, bool enable,
-                                   std::vector<DeviceDiscoveryInfo> &configurations) {
-            DeviceDiscoveryInfo config(info);
-            config.DeviceInfo()->setCoreConfigurations(
-                enable ? QBluetoothDeviceInfo::BaseRateCoreConfiguration
-                       : QBluetoothDeviceInfo::LowEnergyCoreConfiguration);
-            config.setValue(QZSettings::bh_spada_2, enable);
-            configurations.push_back(config);
-        });
+        ->configureSettingsWith(QZSettings::bh_spada_2);
 
 
     // A DYNAMAX is an FTMS bike only when this specific device is selected as the FTMS bike.
