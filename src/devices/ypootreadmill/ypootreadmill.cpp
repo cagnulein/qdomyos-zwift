@@ -306,6 +306,13 @@ bool ypootreadmill::connected() {
     return m_control && m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+bool ypootreadmill::shouldIgnoreStopRequest(bool workoutStopped) {
+    Q_UNUSED(workoutStopped);
+    // The countdown still reports zero speed and may precede QZ recording.
+    // Always pass explicit Stop to the controller so it can cancel pending motion.
+    return false;
+}
+
 void ypootreadmill::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, qMax(percentage, YP_M1552 ? 0.0 : -6.0));
 }

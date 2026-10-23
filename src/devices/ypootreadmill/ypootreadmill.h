@@ -15,6 +15,7 @@ class ypootreadmill : public treadmill {
   public:
     ypootreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    bool shouldIgnoreStopRequest(bool workoutStopped) override;
     double minStepInclination() override { return 1.0; }
     double minStepSpeed() override { return 0.1; }
     bool autoPauseWhenSpeedIsZero() override;

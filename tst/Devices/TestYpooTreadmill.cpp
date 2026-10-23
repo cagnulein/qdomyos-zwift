@@ -19,6 +19,14 @@ class YpooTreadmillTestPeer {
 };
 
 namespace {
+class StopPolicyTestTreadmill : public treadmill {
+  public:
+    void report(double speed, double elapsedSeconds) {
+        Speed = speed;
+        elapsed = elapsedSeconds;
+    }
+};
+
 QByteArray telemetryPacket(int speed, int incline) {
     const uint16_t rawIncline = static_cast<uint16_t>(incline);
     // FTMS: instantaneous speed, signed incline, ramp angle.
@@ -100,4 +108,37 @@ TEST_F(YpooTreadmillTest, PausedDriverDoesNotCountDistanceAcrossPauseOrTelemetry
     YpooTreadmillTestPeer::telemetry(device, telemetryPacket(1000, 0), 10000);
     YpooTreadmillTestPeer::telemetry(device, telemetryPacket(1000, 0), 11000);
     EXPECT_NEAR(device.odometer(), 20.0 / 3600.0, 1e-9);
+}
+
+TEST_F(YpooTreadmillTest, DefaultTreadmillPreservesExistingStopGuards) {
+    StopPolicyTestTreadmill otherTreadmill;
+    treadmill &base = otherTreadmill;
+    const struct {
+        double speed;
+        double elapsedSeconds;
+        bool workoutStopped;
+        bool ignoreStop;
+    } cases[] = {
+        {0, 0, true, true}, {0, 0, false, true}, {0, 0.5, false, true},
+        {0, 1, false, false}, {1, 0, false, false}, {1, 1, false, false},
+        {0, 1, true, true}, {1, 0, true, true}, {1, 1, true, true}
+    };
+    for (const auto &entry : cases) {
+        otherTreadmill.report(entry.speed, entry.elapsedSeconds);
+        EXPECT_EQ(base.shouldIgnoreStopRequest(entry.workoutStopped), entry.ignoreStop)
+            << "speed=" << entry.speed << "; elapsed=" << entry.elapsedSeconds
+            << "; stopped=" << entry.workoutStopped;
+    }
+}
+
+TEST_F(YpooTreadmillTest, BothYpooModelsAcceptStopBeforeMotionOrRecording) {
+    treadmill &base = device;
+    for (bool ypM1552 : {false, true}) {
+        YpooTreadmillTestPeer::model(device, ypM1552);
+        for (int speed : {0, 100}) {
+            YpooTreadmillTestPeer::telemetry(device, telemetryPacket(speed, 0), 0);
+            EXPECT_FALSE(base.shouldIgnoreStopRequest(true));
+            EXPECT_FALSE(base.shouldIgnoreStopRequest(false));
+        }
+    }
 }

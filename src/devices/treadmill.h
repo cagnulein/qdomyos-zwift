@@ -24,6 +24,7 @@ class treadmill : public bluetoothdevice {
     virtual double minStepInclination();
     virtual double minStepSpeed();
     virtual bool canStartStop() { return true; }
+    virtual bool shouldIgnoreStopRequest(bool workoutStopped);
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }

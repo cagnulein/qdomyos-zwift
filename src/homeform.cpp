@@ -6130,9 +6130,6 @@ void homeform::StopFromTrainProgram(bool paused) {
 
 void homeform::Stop() {
     QSettings settings;
-    // The M5 may still report idle during its startup countdown. Always deliver
-    // an explicit Stop; its controller handles an already-stopped belt safely.
-    const bool ypooM5 = bluetoothManager && qobject_cast<ypootreadmill *>(bluetoothManager->device());
 
     m_startRequested = false;
 
@@ -6147,20 +6144,12 @@ void homeform::Stop() {
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
-    if (stopped && !ypooM5) {
-        qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
+    const auto device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    const bool ignoreStop = device && device->deviceType() == TREADMILL
+        ? static_cast<treadmill *>(device)->shouldIgnoreStopRequest(stopped) : stopped;
+    if (ignoreStop) {
+        qDebug() << QStringLiteral("Stop pressed - already stopped or idle, ignoring...");
         return;
-    }
-
-    if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            QTime zero(0, 0, 0, 0);
-            if (!ypooM5 && bluetoothManager->device()->currentSpeed().value() == 0.0 &&
-                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
-                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
-                return;
-            }
-        }
     }
 
 #ifdef Q_OS_IOS
