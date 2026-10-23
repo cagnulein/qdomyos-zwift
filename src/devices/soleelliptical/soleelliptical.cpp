@@ -551,6 +551,14 @@ void soleelliptical::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        emit debug(QStringLiteral("Sole communication service not found"));
+        serviceDiscoveryFailed = true;
+        refresh->stop();
+        m_control->disconnectFromDevice();
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &soleelliptical::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -574,6 +582,7 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     {
         m_isXterraXe88 = device.name().startsWith(QStringLiteral("XE88"), Qt::CaseInsensitive);
+        serviceDiscoveryFailed = false;
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -649,7 +658,7 @@ uint16_t soleelliptical::watts() {
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState && m_control && !serviceDiscoveryFailed) {
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;

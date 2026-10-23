@@ -62,6 +62,7 @@ class soleelliptical : public elliptical {
 
     bool initDone = false;
     bool initRequest = false;
+    bool serviceDiscoveryFailed = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
