@@ -933,9 +933,11 @@ void horizontreadmill::btinit() {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                             false);
-        QThread::msleep(500);
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
+        if (!YPOO_M5) {
+            QThread::msleep(500);
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+        }
     }
 
     if (YPOO_M5 && !ypooM5ControlGranted) {
