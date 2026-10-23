@@ -945,6 +945,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # The accessibility test runs on the emulator through app_process: compile it to a dex jar
+      - name: Build the accessibility test
+        run: |
+          SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
+          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          JAR=$SDK/platforms/android-35/android.jar
+          mkdir -p a11y-test-classes
+          javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
@@ -1012,6 +1022,14 @@ jobs:
             # Back button test (single presses navigate back, a double press on the home page exits)
             sh .github/scripts/android_back_button_test.sh
 
+            # Accessibility test: a screen reader's focus, scroll and press, without TalkBack.
+            # Last, on a new start of the app: its press must not change what the tests above see.
+            # Without a device Start opens the help popup and its first button the wizard; on the
+            # fake bike each + of the resistance tile adds exactly one step
+            sh .github/scripts/android_app_start_test.sh
+            sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
+            sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -1030,6 +1048,7 @@ jobs:
             screenshot_orientation_*.png
             screenshot_back_*.png
             process_list.txt
+            accessibility_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
           if-no-files-found: warn                

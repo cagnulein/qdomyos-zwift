@@ -41,8 +41,15 @@
 #include "keepawakehelper.h"
 #include <QAccessible>
 #include <QAndroidJniObject>
+#include <QKeyEvent>
+#include <QQuickItem>
+#include <QQuickWindow>
+#include <QSemaphore>
+#include <QSharedPointer>
+#include <QThread>
 #include <QTimer>
 #include <QtAndroid>
+#include <jni.h>
 #endif
 
 #ifdef Q_OS_MACOS
@@ -561,6 +568,189 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 #ifdef Q_OS_ANDROID
+// Android scrolls its own lists to the item TalkBack moves to, Qt 5.15 does not: TalkBack would
+// stop on an item below the screen, draw its frame there and miss it with a double tap. Each
+// Flickable around the item (a ScrollView, a ListView in it) is scrolled just enough to show it.
+static bool scrollItemIntoView(QQuickItem *item) {
+    bool scrolled = false;
+    for (QQuickItem *flickable = item->parentItem(); flickable; flickable = flickable->parentItem()) {
+        if (!flickable->inherits("QQuickFlickable") || !flickable->property("interactive").toBool())
+            continue;
+        const QRectF rect = item->mapRectToItem(flickable, QRectF(0, 0, item->width(), item->height()));
+        const qreal height = flickable->height();
+        // as Android's ScrollView: an item that already covers the whole view stays where it is,
+        // one taller than the view is shown from its top
+        qreal delta = 0;
+        if (rect.top() < 0 && rect.bottom() <= height)
+            delta = rect.top();
+        else if (rect.top() > 0 && rect.bottom() > height)
+            delta = qMin(rect.bottom() - height, rect.top());
+        if (delta == 0)
+            continue;
+        const qreal contentY = flickable->property("contentY").toReal();
+        const qreal originY = flickable->property("originY").toReal();
+        const qreal top = originY - flickable->property("topMargin").toReal();
+        const qreal bottom = originY + flickable->property("contentHeight").toReal() +
+                             flickable->property("bottomMargin").toReal() - height;
+        const qreal target = qMax(top, qMin(contentY + delta, bottom));
+        if (target != contentY) {
+            flickable->setProperty("contentY", target);
+            scrolled = true;
+        }
+    }
+    return scrolled;
+}
+
+// CustomQtActivity: TalkBack put its focus on this accessible object (Android UI thread)
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return;
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [id] {
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            QQuickItem *item = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
+            if (item && item->isVisible() && scrollItemIntoView(item))
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                          "accessibilityTreeChanged", "()V");
+        },
+        Qt::QueuedConnection);
+}
+
+// CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15
+// does nothing for a button there (QQuickAbstractButton has no accessible press yet) and answers
+// false, after which TalkBack taps the middle of the node: that misses the indicator of a switch
+// with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page. A
+// button gets the space key a keyboard presses it with instead (nextCheckState() with exclusive
+// groups, clicked(), its Action), and true is answered. For anything else, and for a button that
+// is disabled, hidden or gone, false is answered and Qt's own press runs, as before.
+// The object is looked up and pressed on the Qt thread, where QML items are created and destroyed
+// (as Qt 6 does with runInObjectContext()); this thread waits only for the lookup, not for what the
+// press runs. Qt 5.15 has no guard against a Qt thread that waits for this one, so the wait is
+// limited: when the Qt thread is busy that long, false is answered and this press is not made;
+// Qt's own press and TalkBack's tap run instead, as for anything else.
+// 2 s: the Qt thread can be busy for well over a second while a device connects, and Android
+// waits 5 s for the answer to an accessibility action.
+extern "C" JNIEXPORT jboolean JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return false;
+    struct Click {
+        QSemaphore found;
+        QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
+        bool button = false;
+    };
+    const QSharedPointer<Click> click = QSharedPointer<Click>::create();
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [click, id] {
+            if (!click->state.testAndSetOrdered(0, 1))
+                return;
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            QQuickItem *button = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
+            click->button = button && button->inherits("QQuickAbstractButton") && button->isVisible() &&
+                            button->isEnabled();
+            click->found.release();
+            if (!click->button)
+                return;
+            QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+            QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+            QCoreApplication::sendEvent(button, &press);
+            QCoreApplication::sendEvent(button, &release);
+        },
+        Qt::QueuedConnection);
+    if (!click->found.tryAcquire(1, 2000)) {
+        if (click->state.testAndSetOrdered(0, 2))
+            return false;
+        // started just now: the lookup does not wait for this thread
+        click->found.acquire();
+    }
+    return click->button;
+}
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
+// Before 5.15.3 Qt sends a screen reader on Android no event at all (its notifyAccessibilityUpdate()
+// is a FIXME), so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
+// under it, after a scroll it still has the rows where they were. Two things change what TalkBack
+// should see. A page or a popup that shows or hides: Qt reports ObjectShow/ObjectHide for its items
+// to the update handler below, which replaces Qt's own (empty) one. A list that stops scrolling: a
+// Flickable reports nothing, but emits movementEnded(), so when a finger is lifted each Flickable
+// that is moving is connected to it. Both start one zero timer, so the many items a page shows at
+// once give CustomQtActivity a single call. None of this runs while accessibility is off.
+// The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
+// Android UI thread, so a show or hide that comes from there starts it through a queued call.
+static QTimer *accessibilityRefreshTimer() {
+    static QTimer *timer = nullptr;
+    if (!timer) {
+        timer = new QTimer(QCoreApplication::instance());
+        timer->setSingleShot(true);
+        timer->setInterval(0);
+        QObject::connect(timer, &QTimer::timeout, [] {
+            if (QAccessible::isActive())
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                          "accessibilityTreeChanged", "()V");
+        });
+    }
+    return timer;
+}
+
+// Accessible.ignored: a decorative item, e.g. a tile icon that blinks every 500 ms on the home page
+static bool accessibleIgnored(QObject *object) {
+    const QObjectList children = object->children();
+    for (QObject *child : children) {
+        if (child->inherits("QQuickAccessibleAttached"))
+            return child->property("ignored").toBool();
+    }
+    return false;
+}
+
+static void androidAccessibilityUpdate(QAccessibleEvent *event) {
+    if (event->type() != QAccessible::ObjectShow && event->type() != QAccessible::ObjectHide)
+        return;
+    if (!event->object() || accessibleIgnored(event->object()))
+        return;
+    QTimer *timer = accessibilityRefreshTimer();
+    if (QThread::currentThread() == timer->thread())
+        timer->start();
+    else
+        QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection);
+}
+
+static void watchMovingFlickables(QQuickItem *item) {
+    // a hidden page of a StackView cannot be scrolling
+    if (!item->isVisible())
+        return;
+    if (item->inherits("QQuickFlickable") && item->property("moving").toBool())
+        QObject::connect(item, SIGNAL(movementEnded()), accessibilityRefreshTimer(), SLOT(start()),
+                         Qt::UniqueConnection);
+    const QList<QQuickItem *> children = item->childItems();
+    for (QQuickItem *child : children)
+        watchMovingFlickables(child);
+}
+
+// Sees a finger lifted from the window before its items do, while a dragged Flickable still moves
+class ScrollEndWatcher : public QObject {
+  public:
+    using QObject::QObject;
+
+  protected:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+        if ((event->type() == QEvent::TouchEnd || event->type() == QEvent::MouseButtonRelease) &&
+            QAccessible::isActive()) {
+            QQuickWindow *window = qobject_cast<QQuickWindow *>(watched);
+            if (window && window->contentItem())
+                watchMovingFlickables(window->contentItem());
+        }
+        return false;
+    }
+};
+#endif
+
 // Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
 // Android UI thread, and when it comes before Qt published its platform integration (a service
 // such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
@@ -1064,6 +1254,14 @@ int main(int argc, char *argv[]) {
         engine.load(url);
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, [] { restoreLostAccessibility(); });
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
+        accessibilityRefreshTimer();
+        QAccessible::installUpdateHandler(androidAccessibilityUpdate);
+        if (!engine.rootObjects().isEmpty()) {
+            if (QQuickWindow *window = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst()))
+                window->installEventFilter(new ScrollEndWatcher(window));
+        }
+#endif
 #endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
