@@ -52,7 +52,8 @@ ColumnLayout {
         }
 
         Image {
-            y: 13
+            // Centred on the first line of the title, like the dot
+            y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
             anchors.right: parent.right
             anchors.rightMargin: 20
             width: 30; height: 30
