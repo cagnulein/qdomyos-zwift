@@ -135,6 +135,10 @@ class YpooM5Control {
             if (lastStopSent >= 0 && now - lastStopSent < 1000)
                 return {Action::None, 0};
             if (stopAttempts == 6) {
+                // An accepted Stop can take longer than all six write attempts to decelerate.
+                // Observe live telemetry for up to 15 s after the last write, without more commands.
+                if (stopAcknowledged && hasFreshTelemetry(now) && now - lastStopSent < 15000)
+                    return {Action::None, 0};
                 if (starting && (now - startSent < 10000 || (hasFreshTelemetry(now) && !running())))
                     return {Action::None, 0}; // Observe cancellation without unbounded Stop writes.
                 failure = Action::Stop;

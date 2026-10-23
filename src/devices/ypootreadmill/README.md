@@ -69,7 +69,13 @@ discarded; motor commands are never part of initialization. Wait for the
 QZ waits for fresh treadmill-reported telemetry before applying queued speed/incline
 targets. It confirms targets with telemetry, allows at most three target writes,
 and prioritizes stop. Once motion has been reported, stop confirmation requires
-a successful stop response followed by a zero-speed sample. If startup is
+a successful stop response followed by a zero-speed sample. Stop writes remain
+limited to six attempts. If Stop was acknowledged and telemetry stays fresh,
+QZ allows up to 15 seconds after the final write for physical deceleration,
+without additional Stop writes or automatic restarts. The captured Runna stop
+took 7.44 seconds to reach zero, longer than the original six-write retry window.
+Missing telemetry or a stop that outlasts this bounded settling window still
+blocks new starts until reconnection. If startup is
 cancelled before any motion, the firmware may reject every stop despite staying
 at rest. That cancellation can instead complete after the ten-second startup
 window expires and live telemetry confirms at least two seconds of continuous

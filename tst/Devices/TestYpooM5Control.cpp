@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <QFile>
 #include <limits>
 
 #include "devices/ypootreadmill/ypoom5control.h"
@@ -470,4 +471,81 @@ TEST(YpooM5ControlTest, StopAndDisconnectDiscardPendingHalfStepTargets) {
         ASSERT_TRUE(control.requestIncline(2.5));
         EXPECT_DOUBLE_EQ(control.next(2000).value, 3);
     }
+}
+
+TEST(YpooM5ControlTest, CapturedStopsAllowAnExplicitRestartAfterAcknowledgedDeceleration) {
+    for (const char *capture : {":/ypoo-m5/runna-stop.csv", ":/ypoo-m5/kinomap-stop.csv"}) {
+        SCOPED_TRACE(capture);
+        QFile file(QString::fromLatin1(capture));
+        ASSERT_TRUE(file.open(QIODevice::ReadOnly));
+        ASSERT_EQ(file.readLine().trimmed(), QByteArray("elapsed_ms,event,value"));
+        YpooM5Control control;
+        bool stopping = false;
+        int64_t now = 0;
+        while (!file.atEnd()) {
+            const auto fields = file.readLine().trimmed().split(',');
+            ASSERT_EQ(fields.size(), 3);
+            now = fields[0].toLongLong();
+            SCOPED_TRACE(now);
+            if (fields[1] == "telemetry") {
+                control.telemetry(fields[2].toDouble(), 0, now);
+            } else if (fields[1] == "ack") {
+                control.stopResponse(fields[2].toInt() == 1);
+            } else {
+                if (!stopping) {
+                    control.requestStop();
+                    stopping = true;
+                }
+                EXPECT_EQ(control.next(now).action, fields[1] == "stop" ? Action::Stop : Action::None);
+            }
+            EXPECT_EQ(control.takeFailure(), Action::None);
+        }
+        EXPECT_FALSE(control.running());
+        EXPECT_EQ(control.next(now + 300).action, Action::None); // Never restart automatically.
+        control.requestStart();
+        EXPECT_EQ(control.next(now + 600).action, Action::Start);
+    }
+}
+
+TEST(YpooM5ControlTest, AcknowledgedStopStillFaultsWhenLiveMotionOutlastsTheSettlingWindow) {
+    YpooM5Control control;
+    control.telemetry(18.8, 0, 0);
+    control.requestStop();
+    for (int64_t now = 0; now <= 5000; now += 1000) {
+        control.telemetry(18.8, 0, now);
+        ASSERT_EQ(control.next(now).action, Action::Stop);
+        control.stopResponse(true);
+    }
+    for (int64_t now = 6000; now < 20000; now += 1000) {
+        control.telemetry(18.8, 0, now);
+        control.requestStop(); // Repeated user requests must not extend the deadline.
+        control.requestStart(); // Nor queue a delayed restart.
+        EXPECT_EQ(control.next(now).action, Action::None);
+        EXPECT_EQ(control.takeFailure(), Action::None);
+        EXPECT_FALSE(control.canResumeRecording(now));
+    }
+    control.telemetry(18.8, 0, 20000);
+    EXPECT_EQ(control.next(20000).action, Action::None);
+    EXPECT_EQ(control.takeFailure(), Action::Stop);
+    control.telemetry(0, 0, 21000);
+    control.requestStart();
+    EXPECT_EQ(control.next(21300).action, Action::None); // A real timeout still requires reconnect.
+}
+
+TEST(YpooM5ControlTest, StaleTelemetryCannotExtendAnAcknowledgedStopSettlingWindow) {
+    YpooM5Control control;
+    control.telemetry(10, 0, 0);
+    control.requestStop();
+    for (int64_t now = 0; now <= 5000; now += 1000) {
+        control.telemetry(10, 0, now);
+        ASSERT_EQ(control.next(now).action, Action::Stop);
+        control.stopResponse(true);
+    }
+    EXPECT_EQ(control.next(6000).action, Action::None);
+    EXPECT_EQ(control.takeFailure(), Action::None);
+    EXPECT_EQ(control.next(7001).action, Action::None);
+    EXPECT_EQ(control.takeFailure(), Action::Stop);
+    control.telemetry(0, 0, 7500);
+    control.requestStart();
+    EXPECT_EQ(control.next(7800).action, Action::None);
 }
