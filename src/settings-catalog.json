@@ -16219,7 +16219,8 @@
       "options": null,
       "restartRequired": false
     },
-      "key": "trixter_xdream_bike_enabled",
+	{
+	  "key": "trixter_xdream_bike_enabled",
       "name": "Trixter X-Dream Enabled",
       "description": null,
       "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
@@ -16230,7 +16231,7 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": false	
+      "restartRequired": false
 	},
 	{
       "key": "trixter_xdream_bike_connection_timeout_ms",
