@@ -16330,6 +16330,20 @@
       "defaultExpression": "45",
       "options": null,
       "restartRequired": false	
+	},
+	{
+      "key": "trixter_xdream_bike_steering_max",
+      "name": "Maximum steering value.",
+      "description": null,
+      "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
+      "type": "integer",
+      "qmlType": "int",
+      "control": null,
+      "visible": false,
+      "defaultValue": 45,
+      "defaultExpression": "45",
+      "options": null,
+      "restartRequired": false	
 	}
   ],
   "legacyHierarchy": {
