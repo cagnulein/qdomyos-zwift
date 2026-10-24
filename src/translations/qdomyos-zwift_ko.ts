@@ -4405,8 +4405,8 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>앱 언어:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요. 다시 시작해야 합니다.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>
     <message>
         <source>Player Weight</source>

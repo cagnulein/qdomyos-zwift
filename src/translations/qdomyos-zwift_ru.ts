@@ -4405,8 +4405,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Язык приложения:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную. Требуется перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную.</translation>
     </message>
     <message>
         <source>Player Weight</source>

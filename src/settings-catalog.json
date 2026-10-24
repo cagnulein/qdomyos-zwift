@@ -14867,7 +14867,7 @@
     {
       "key": "app_language",
       "name": "App Language",
-      "description": "Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.",
+      "description": "Choose Auto to follow your device language, or pick a specific language for QZ.",
       "parent": "General Options",
       "type": "string",
       "qmlType": "string",
@@ -14943,7 +14943,7 @@
           "Catalan"
         ]
       },
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "treadmill_force_running_activity",

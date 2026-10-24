@@ -5522,8 +5522,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>アプリ言語:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。再起動が必要です。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
