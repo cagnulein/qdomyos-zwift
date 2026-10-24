@@ -24,6 +24,8 @@ class treadmill : public bluetoothdevice {
     virtual double minStepInclination();
     virtual double minStepSpeed();
     virtual bool canStartStop() { return true; }
+    // Called when the UI ignores Stop because recording is already stopped or idle.
+    virtual void stopWhenIdle() {}
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }

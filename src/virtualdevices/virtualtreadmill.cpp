@@ -1,6 +1,5 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
-#include "devices/horizontreadmill/horizontreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -41,8 +40,8 @@ void virtualtreadmill::clearControlPointWrites() {
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
-    const auto horizon = qobject_cast<horizontreadmill *>(t);
-    forwardControlPointWrites = horizon && horizon->isYpooM5();
+    const auto control = t->virtualTreadmillControl();
+    forwardControlPointWrites = control.enabled;
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -85,7 +84,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         h = new lockscreen();
         h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
         if (forwardControlPointWrites)
-            h->virtualtreadmill_enableControlPointForwarding();
+            h->virtualtreadmill_enableControlPointForwarding(control.speedRange, control.inclineRange);
     } else
 #endif
 #endif
@@ -333,12 +332,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                    QLowEnergyCharacteristicData speedRange;
                    speedRange.setUuid(QBluetoothUuid((quint16)0x2AD4));
                    speedRange.setProperties(QLowEnergyCharacteristic::Read);
-                   speedRange.setValue(QByteArray::fromHex("640058070a00"));
+                   speedRange.setValue(control.speedRange);
                    serviceDataFTMS.addCharacteristic(speedRange);
                    QLowEnergyCharacteristicData inclineRange;
                    inclineRange.setUuid(QBluetoothUuid((quint16)0x2AD5));
                    inclineRange.setProperties(QLowEnergyCharacteristic::Read);
-                   inclineRange.setValue(QByteArray::fromHex("c4ff96000a00"));
+                   inclineRange.setValue(control.inclineRange);
                    serviceDataFTMS.addCharacteristic(inclineRange);
                }
            }
@@ -457,7 +456,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             serviceRSC = leController->addService(serviceDataRSC);
         QThread::msleep(100);
         
-        serviceDIS = leController->addService(serviceDataDIS);
+#if defined(Q_OS_MACOS)
+        // CoreBluetooth reserves Device Information (180A); adding it prevents
+        // the M5 virtual peripheral from starting advertising on macOS.
+        if (!forwardControlPointWrites)
+#endif
+            serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
         if (!echelon) {
@@ -810,6 +814,15 @@ void virtualtreadmill::reconnect() {
     if (bluetooth_relaxed) {
         return;
     }
+
+#if defined(Q_OS_MACOS)
+    if (forwardControlPointWrites) {
+        // Qt's CoreBluetooth backend retains local services and handles when a
+        // central unsubscribes. Re-adding them breaks subsequent notifications.
+        leController->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData, advertisingData);
+        return;
+    }
+#endif
 
     qDebug() << "virtualtreadmill reconnect " << treadMill->connected();
     

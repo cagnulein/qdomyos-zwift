@@ -1127,6 +1127,62 @@ jobs:
         if: always()
         run: ccache --show-stats
 
+  ios-simulator-test:
+    # Builds the app the way Xcode Cloud builds the App Store version (the scripts in
+    # build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ci_scripts, the committed Xcode project, Release),
+    # but for the iOS simulator; then starts it there and keeps screenshots and logs
+    runs-on: macos-26
+    timeout-minutes: 120
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Newest Xcode as /Applications/Xcode.app (the path of the Xcode Cloud scripts)
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)
+          if [ ! -e /Applications/Xcode.app ]; then sudo ln -s "$XCODE" /Applications/Xcode.app; fi
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Xcode Cloud scripts
+        run: |
+          # what Xcode Cloud gives them: the repository path, also as /Volumes/workspace/repository
+          export CI_PRIMARY_REPOSITORY_PATH="$GITHUB_WORKSPACE"
+          sudo mkdir -p /Volumes/workspace
+          sudo ln -sfn "$GITHUB_WORKSPACE" /Volumes/workspace/repository
+          cd build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ci_scripts
+          bash ci_post_clone.sh
+          bash ci_pre_xcodebuild.sh
+
+      - name: Build for the simulator
+        run: |
+          mkdir -p ios-test
+          # the watch app has no product types for the iOS simulator: the app is built without it
+          python3 .github/scripts/ios_simulator_project.py build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+          # the Qt libraries of the App Store build also have an x86_64 slice, the one for the simulator
+          xcodebuild -project src/qdomyoszwift.xcodeproj -scheme qdomyoszwift -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath dd \
+            ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            build > ios-test/xcodebuild.log 2>&1 || { grep -F -e "error:" -e "** BUILD" ios-test/xcodebuild.log | tail -n 50; exit 1; }
+          grep -F "** BUILD" ios-test/xcodebuild.log
+
+      - name: Start test on the simulator
+        run: |
+          # the simulator build is x86_64, the runner is Apple Silicon
+          softwareupdate --install-rosetta --agree-to-license || true
+          sh .github/scripts/ios_simulator_start_test.sh dd
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-test-evidence
+          path: ios-test/
+          if-no-files-found: warn
+
   window-msvc2019-build:
     runs-on: windows-2022
     continue-on-error: true

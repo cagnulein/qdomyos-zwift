@@ -170,3 +170,17 @@ QZ's workout export distinguishes **Walking** from **Running** using the treadmi
 If you want future treadmill activities classified as **Running** regardless of that speed threshold, enable **Force Running Activity** under **QZ Settings > Treadmill Options**, save the setting, and record a new workout. This changes the activity type exported by QZ; it does not retroactively reclassify activities already uploaded to Garmin Connect.
 
 This behavior is verified in QZ's FIT export code (`qfit.cpp`) and the `treadmill_force_running_activity` setting. It is capability/setup guidance, not a customer-confirmed fix for every Garmin Connect display issue.
+
+
+## My treadmill speed in QZ is consistently a little high or low. Can I correct it for future workouts?
+
+Yes. Under **QZ Settings > Advanced Settings**, **Speed Offset** corrects a fixed difference, while **Speed Gain** corrects a proportional difference. QZ's speed-metric code applies the adjustment to positive readings as:
+
+`adjusted speed = reported speed × Speed Gain + Speed Offset`
+
+- If the treadmill displays **10.0 km/h** but QZ reads **9.5 km/h**, try **Speed Offset = +0.5** with **Speed Gain = 1**.
+- If the treadmill displays **10.0 km/h** but QZ reads **9.0 km/h**, try **Speed Gain = 10 / 9 ≈ 1.111** with **Speed Offset = 0**.
+
+First check that the treadmill and QZ use the **same speed units** (km/h or mph). Save the setting, restart QZ and compare readings at a **safe, steady belt speed**. The correction affects **future** QZ readings and recordings; it does not rewrite already-saved workouts. Because these settings can also affect QZ's treadmill control calculations, carefully verify any automatic speed commands after changing them.
+
+This is a code-verified capability that was requested after a **Hammer Fly Run 4.0** owner confirmed QZ connectivity. The owner did not yet report back after applying the speed correction, so it is not presented as a confirmed calibration outcome.

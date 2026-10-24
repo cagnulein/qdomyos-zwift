@@ -58,6 +58,14 @@ class bluetoothdevice : public QObject {
 
     ~bluetoothdevice() override;
 
+    struct VirtualTreadmillControl {
+        bool enabled = false;
+        QByteArray speedRange;
+        QByteArray inclineRange;
+    };
+    // Opt-in FTMS forwarding and six-byte FTMS range values; disabled for existing drivers.
+    virtual VirtualTreadmillControl virtualTreadmillControl() const { return {}; }
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */

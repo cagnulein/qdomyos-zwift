@@ -9,6 +9,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Crashes and unexpected exits](crashes.md)
 - [Heart rate source diagnostics](heart-rate.md)
 - [Android installation and embedded consoles](android-installation.md)
+- [USB and serial-connected machines](usb-serial.md)
 - [External speed and cadence sensors](external-sensors.md)
 - [Test and beta build verification](test-builds.md)
 - [Profiles and settings storage](profiles.md)

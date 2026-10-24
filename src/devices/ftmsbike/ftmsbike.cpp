@@ -2321,6 +2321,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("FS-SB-RCR")) {
             qDebug() << QStringLiteral("FS-SB-RCR found - keeping native resistance levels");
             FS_SB_RCR = true;
+        } else if (device.name().toUpper().startsWith("GB3.0-")) {
+            // GB3.0 advertises target power, but 0x05 does not change resistance.
+            // Its tested 0x04 commands use the generic two-byte resistance-level format.
+            qDebug() << QStringLiteral("Gymstick GB3.0 found - using FTMS resistance-level control");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;

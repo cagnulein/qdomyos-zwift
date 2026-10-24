@@ -11,3 +11,12 @@ This transfers configuration, not the entire workout history or all separate pro
 Yes. Open **QZ Settings > General Options > App Language**, select German, Italian, or another available language, press **OK**, and restart QZ. Choose **Auto (System)** to follow your device's language.
 
 This selector and restart requirement are verified in QZ's current settings UI; the customer had not yet confirmed the change.
+
+
+## Can I use my QZ purchase on a replacement phone, or transfer it between iPhone and Android?
+
+A QZ purchase can be used again on a replacement phone **within the same app store**, using the same Apple account for iPhone/iPad or the same Google Play account for Android. Install QZ from the store associated with the original purchase.
+
+**Apple App Store and Google Play are separate marketplaces.** A purchase made on iPhone does **not** transfer to an Android phone (or vice versa), even if you use the same email address for both accounts; purchasing on the new platform is required.
+
+The app purchase and your saved QZ configuration are separate. To move your settings between phones, use the [QZ settings export/import instructions](#how-can-i-transfer-qz-settings-to-a-new-phone).
