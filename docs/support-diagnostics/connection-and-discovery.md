@@ -5,7 +5,7 @@
 ### Provide first
 
 - The exact machine make and model.
-- A screenshot from **nRF Connect** showing the machine in the Bluetooth scan, including the advertised Bluetooth device name.
+- For a **BLE** machine, a screenshot from **nRF Connect** showing its advertised Bluetooth name. For older **Bluetooth Classic** equipment, state the module/model and whether the device appears in Android's Bluetooth device list instead: nRF Connect's BLE scan does not establish Classic discoverability.
 - Confirm whether the machine is already powered on or awake and actively advertising over Bluetooth **before QZ is opened**. For intermittent cases, report whether the expected Bluetooth name is visible in nRF Connect immediately before launching QZ.
 - The phone/tablet/computer running QZ and its operating system.
 - Whether the manufacturer's app or another fitness app is currently open or connected to the machine.
@@ -103,3 +103,44 @@
 
 - Bluetooth discovery does not establish that QZ selected a telemetry source.
 - Testing the trainer without other apps distinguishes incoming metric failures from downstream virtual-device pairing.
+
+## QZ discovers a different nearby fitness machine instead of the intended one
+
+### Provide first
+
+- Exact model and advertised Bluetooth name of the machine you intend to use, plus the other powered-on fitness devices nearby.
+- State which machine QZ actually names or attempts to connect to, and whether the failure occurs during startup, discovery, or after a connection.
+- Screenshot **Settings > Advanced Settings > Manual Device**, including the selected value, and report the QZ version.
+
+### If still unclear
+
+- For one short test, power off the unrelated fitness machine and select the intended device explicitly under **Manual Device**; restart QZ and confirm which machine supplies changing metrics.
+- If discovery remains wrong, provide a QZ debug log from startup showing the device names found and the connection attempts.
+- Re-enable other machines only after confirming that QZ reliably connects to the intended one.
+
+### Why it matters
+
+- A crash, empty dashboard, or endless search can originate from QZ selecting a different supported machine, not from the intended machine's protocol.
+- The **Manual Device** filter isolates the intended device from other Bluetooth advertisements. In a confirmed case, selecting the intended bike instead of an adjacent elliptical restored operation.
+- This is distinct from selecting an FTMS Bike profile or pairing a virtual trainer in a third-party app.
+
+## Life Fitness treadmill is visible over Bluetooth but does not stream workout metrics
+
+### Provide first
+
+- Exact Life Fitness treadmill **and console** model, QZ platform and installed build, and the Bluetooth name advertised by the console.
+- State whether the console has completed its workout/profile login, or is still at a Bluetooth/audio/heart-rate pairing screen. If possible, report whether the workout screen shows a logged-in state (for example, **Logout**).
+- Report whether QZ displays any live treadmill speed during an active belt session and whether it stops receiving data after a short time.
+- Screenshot **Settings > Treadmill Options > Life Fitness Options** showing the guest-login selection (if supported by that build). Do **not** share passwords, authentication tokens, or account details.
+
+### If still unclear
+
+- Verify the exact QZ build first, especially if support provided a TestFlight build; send a new log captured **after** installing that build.
+- Capture a short debug log covering console discovery, the profile/login handshake, and the beginning of a workout. Report whether the console itself entered the logged-in workout state.
+- Compare guest and account login only when the specific console and QZ build support those modes; change one mode at a time and restart QZ.
+
+### Why it matters
+
+- On the supported Life Fitness login-based treadmill path, Bluetooth discovery and audio/HR pairing do not establish an authenticated workout session. Telemetry may be unavailable until the console's profile exchange completes.
+- Distinguishing an incomplete login handshake from a failed FTMS data parser prevents troubleshooting the wrong layer. A production-build log also cannot validate a handshake change present only in a test build.
+- This is model-specific: see the [Life Fitness protocol scope](../../src/devices/lifefitnesstreadmill/LIFE_FITNESS_95T_PROTOCOL.md); do not assume every Life Fitness console requires the same exchange.
