@@ -63,6 +63,7 @@ SOURCES += \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestSoleB94ProfileDetector.cpp \
         Devices/b94resistanceprotocoltestsuite.cpp \
+        Devices/soleb94logreplaytestsuite.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -108,6 +109,7 @@ HEADERS += \
     Devices/TestXcxBikeParser.h \
     Devices/TestSoleB94ProfileDetector.h \
     Devices/b94resistanceprotocoltestsuite.h \
+    Devices/soleb94logreplaytestsuite.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
