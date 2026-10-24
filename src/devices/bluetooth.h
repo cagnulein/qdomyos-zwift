@@ -463,7 +463,7 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
-    void reconnectHeartRateBelt();
+    void reconnectHeartRateBelt(const QString &name = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);
