@@ -16,6 +16,7 @@
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
+#include <QTimer>
 
 #include "devices/discoveryoptions.h"
 #include "qzsettings.h"
@@ -174,6 +175,7 @@
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/ios_connected_peripherals.h"
 #endif
 
 class bluetooth : public QObject, public SignalHandler {
@@ -412,6 +414,7 @@ class bluetooth : public QObject, public SignalHandler {
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
+    QTimer iosConnectedFtmsTimer;
 #endif
 
     /**

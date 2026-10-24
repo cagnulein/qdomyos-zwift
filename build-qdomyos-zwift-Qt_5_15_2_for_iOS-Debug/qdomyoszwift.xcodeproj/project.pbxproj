@@ -133,6 +133,7 @@
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
 		870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */; };
 		870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB42CEF8FD200839641 /* technogymbike.cpp */; };
+		D4E5F60718293A4B5C6D7E8F /* ios_connected_peripherals.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F60718293A4B5C6D80 /* ios_connected_peripherals.mm */; };
 		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
 		870F72D62FDEC0FD00181280 /* webtranslation.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870F72D52FDEC0FD00181280 /* webtranslation.cpp */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
@@ -1049,6 +1050,8 @@
 		87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusbike.cpp; sourceTree = "<group>"; };
 		870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymbike.cpp; sourceTree = "<group>"; };
 		870A5DB42CEF8FD200839641 /* technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = technogymbike.cpp; path = ../src/devices/technogymbike/technogymbike.cpp; sourceTree = SOURCE_ROOT; };
+		C3D4E5F60718293A4B5C6D7F /* ios_connected_peripherals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_connected_peripherals.h; path = ../src/ios/ios_connected_peripherals.h; sourceTree = SOURCE_ROOT; };
+		C3D4E5F60718293A4B5C6D80 /* ios_connected_peripherals.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_connected_peripherals.mm; path = ../src/ios/ios_connected_peripherals.mm; sourceTree = SOURCE_ROOT; };
 		870C72622E91565E00DC8A84 /* ios_liveactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_liveactivity.h; path = ../src/ios/ios_liveactivity.h; sourceTree = SOURCE_ROOT; };
 		870C72632E91565E00DC8A84 /* ios_liveactivity.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_liveactivity.mm; path = ../src/ios/ios_liveactivity.mm; sourceTree = SOURCE_ROOT; };
 		870F72D52FDEC0FD00181280 /* webtranslation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = webtranslation.cpp; path = ../src/webtranslation.cpp; sourceTree = SOURCE_ROOT; };
@@ -2495,6 +2498,8 @@
 				87CBCF112EFAA2F8004F5ECE /* moc_garminconnect.cpp */,
 				87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */,
 				87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */,
+				C3D4E5F60718293A4B5C6D7F /* ios_connected_peripherals.h */,
+				C3D4E5F60718293A4B5C6D80 /* ios_connected_peripherals.mm */,
 				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
 				870C72632E91565E00DC8A84 /* ios_liveactivity.mm */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
@@ -3891,6 +3896,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4E5F60718293A4B5C6D7E8F /* ios_connected_peripherals.mm in Compile Sources */,
 				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,

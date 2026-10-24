@@ -774,6 +774,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
              .toString()
              .startsWith(QStringLiteral("Disabled"));
     bool useMachineCadence = !externalCadenceSensorEnabled && !externalPowerSensorEnabled;
+    const bool lifeFitnessFtmsBike = bluetoothDevice.name().startsWith(QStringLiteral("LF-"));
 
     qDebug() << characteristic.uuid() << newValue.length() << QStringLiteral(" << ") << newValue.toHex(' ');
 
@@ -979,6 +980,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     emit debug(QStringLiteral("Current Cadence (from average): ") + QString::number(Cadence.value()));
                 }
             }
+        }
+
+        // Life Fitness sends cadence as one unsigned byte at packet index 4.
+        // Keep the standard FTMS decoding unchanged for every other device.
+        if (lifeFitnessFtmsBike && useMachineCadence && newValue.length() > 4) {
+            Cadence = static_cast<double>(static_cast<uint8_t>(newValue.at(4)));
+            emit debug(QStringLiteral("Current Cadence (Life Fitness override): ") + QString::number(Cadence.value()));
         }
 
         if (Flags.totDistance) {
