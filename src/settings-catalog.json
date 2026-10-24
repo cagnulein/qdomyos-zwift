@@ -16441,18 +16441,18 @@
         "sourceLine": 6658
       },
       {
-        "key": "historyChartsAccordion",
-        "name": "Workout History Charts",
-        "parent": null,
-        "depth": 0,
-        "sourceLine": 6965
-      },
-      {
         "key": "uiGeneralOptionsAccordion",
         "name": "General UI Options",
         "parent": null,
         "depth": 0,
         "sourceLine": 6889
+      },
+      {
+        "key": "historyChartsAccordion",
+        "name": "Workout History Charts",
+        "parent": "uiGeneralOptionsAccordion",
+        "depth": 1,
+        "sourceLine": 6977
       },
       {
         "key": "themesOptionsAccordion",
@@ -19259,7 +19259,7 @@
       "zwiftplay_gear_rs1": 16024,
       "zwiftplay_gear_rs2": 16036,
       "zwiftplay_swap": 15926,
-      "history_chart_order": 7040
+      "history_chart_order": 7051
     },
     "externalEntryOrderByKey": {
       "miles_unit": 20,
