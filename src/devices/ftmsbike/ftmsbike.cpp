@@ -365,6 +365,39 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         return;
     }
 
+    if (SOLE_B94) {
+        if (requestResistance < 0) {
+            qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+            requestResistance = 1;
+        }
+        if (max_resistance > 0 && requestResistance > max_resistance) {
+            qDebug() << "Resistance" << requestResistance << "exceeds max_resistance" << max_resistance << "- clamping";
+            requestResistance = max_resistance;
+        }
+
+        const SoleB94Protocol protocol = soleB94Protocol == SoleB94Protocol::TargetResistanceTenths
+                                              ? SoleB94Protocol::TargetResistanceTenths
+                                              : SoleB94Protocol::LegacySimulationParameters;
+        QByteArray write = soleb94profiledetector::buildResistanceCommand(
+            protocol, requestResistance, bikeResistanceGain, bikeResistanceOffset);
+        const char *protocolName = protocol == SoleB94Protocol::TargetResistanceTenths
+                                        ? "target_resistance_tenths"
+                                        : "legacy_simulation";
+        qDebug() << "SOLE B94 resistance protocol:" << protocolName << "resistance:" << requestResistance
+                 << "command:" << write.toHex();
+        if (protocol == SoleB94Protocol::LegacySimulationParameters) {
+            soleB94LegacyTarget = requestResistance;
+            soleB94LegacyTargetActive = true;
+            Resistance = requestResistance;
+            emit resistanceRead(Resistance.value());
+        } else {
+            soleB94LegacyTargetActive = false;
+        }
+        writeCharacteristic(reinterpret_cast<uint8_t *>(write.data()), static_cast<uint8_t>(write.size()),
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        return;
+    }
+
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
@@ -416,7 +449,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK || SOLE_B94)
+            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -1005,8 +1038,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(d > 0) {
                 if(BIKE_)
                     d = d / 10.0;
-                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK && !isManualResistanceBike()) {
+                if (SOLE_B94) {
+                    const resistance_t reportedResistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
+                    Resistance = soleb94profiledetector::resistanceFromTelemetry(
+                        soleB94Protocol, soleB94LegacyTargetActive, soleB94LegacyTarget, reportedResistance);
+                    native_resistance_received = true;
+                    calculatedResistanceFallbackSince = QDateTime();
+                    if (soleB94Protocol == SoleB94Protocol::LegacySimulationParameters &&
+                        soleB94LegacyTargetActive) {
+                        emit debug(QStringLiteral("Ignoring stale B94 legacy resistance: ") +
+                                   QString::number(reportedResistance));
+                    }
+                } else if (!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK &&
+                           !isManualResistanceBike()) {
                     Resistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
@@ -1507,7 +1551,22 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
-            if(!TITAN_7000 && !FS_YK && !isManualResistanceBike()) {
+            if (SOLE_B94) {
+                const resistance_t reportedResistance =
+                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index))));
+                Resistance = soleb94profiledetector::resistanceFromTelemetry(
+                    soleB94Protocol, soleB94LegacyTargetActive, soleB94LegacyTarget, reportedResistance);
+                emit resistanceRead(Resistance.value());
+                resistance_received = true;
+                native_resistance_received = true;
+                calculatedResistanceFallbackSince = QDateTime();
+                if (soleB94Protocol == SoleB94Protocol::LegacySimulationParameters &&
+                    soleB94LegacyTargetActive) {
+                    emit debug(QStringLiteral("Ignoring stale B94 legacy resistance: ") +
+                               QString::number(reportedResistance));
+                }
+            } else if (!TITAN_7000 && !FS_YK && !isManualResistanceBike()) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
@@ -1835,6 +1894,48 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                     gattMokFitnessService = s;
                 }
             }
+        }
+    }
+
+    if (SOLE_B94) {
+        QList<QBluetoothUuid> characteristicUuids;
+        const QBluetoothUuid ftmsService((quint16)0x1826);
+        for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+            if (!s || s->state() != QLowEnergyService::ServiceDiscovered || s->serviceUuid() != ftmsService) {
+                continue;
+            }
+            const QList<QLowEnergyCharacteristic> characteristics = s->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics)) {
+                characteristicUuids.append(c.uuid());
+            }
+        }
+
+        soleB94Protocol = soleb94profiledetector::detect(characteristicUuids);
+        QStringList characteristicUuidStrings;
+        for (const QBluetoothUuid &uuid : qAsConst(characteristicUuids)) {
+            characteristicUuidStrings.append(uuid.toString());
+        }
+        emit debug(QStringLiteral("B94 GATT profile for ") + bluetoothDevice.name() + QStringLiteral(": ") +
+                   characteristicUuidStrings.join(QStringLiteral(",")));
+        switch (soleB94Protocol) {
+        case SoleB94Protocol::TargetResistanceTenths:
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 20;
+            emit debug(QStringLiteral("B94 resistance protocol selected: target_resistance_tenths"));
+            break;
+        case SoleB94Protocol::LegacySimulationParameters:
+            resistance_lvl_mode = false;
+            ergModeSupported = false;
+            max_resistance = 20;
+            emit debug(QStringLiteral("B94 resistance protocol selected: legacy_simulation"));
+            break;
+        case SoleB94Protocol::Unknown:
+            resistance_lvl_mode = false;
+            ergModeSupported = false;
+            max_resistance = 20;
+            emit debug(QStringLiteral("B94 resistance protocol unknown; using legacy fallback"));
+            break;
         }
     }
 
@@ -2363,11 +2464,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             max_resistance = 48;
         } else if (device.name().toUpper().startsWith(QStringLiteral("B94"))) {
-            qDebug() << QStringLiteral("SOLE B94 found - sending resistance level in 0.1 units");
+            qDebug() << QStringLiteral("SOLE B94 candidate found - selecting resistance protocol after GATT discovery");
             SOLE_B94 = true;
-            resistance_lvl_mode = true;
-            ergModeSupported = false;
-            max_resistance = 20;
+            soleB94Protocol = SoleB94Protocol::Unknown;
+            soleB94LegacyTargetActive = false;
+            soleB94LegacyTarget = -1;
         } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
             qDebug() << QStringLiteral("VIFHTR found - using 32-level resistance control in 0.1 units");
             VIFHTR = true;
@@ -2448,6 +2549,11 @@ uint16_t ftmsbike::watts() {
 void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        if (SOLE_B94) {
+            soleB94Protocol = SoleB94Protocol::Unknown;
+            soleB94LegacyTargetActive = false;
+            soleB94LegacyTarget = -1;
+        }
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         gearInclinationSent = false;
