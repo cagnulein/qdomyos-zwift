@@ -1286,6 +1286,9 @@ ApplicationWindow {
             icon.source: "icons/icons/mini-display.png"
             onClicked: { console.log("floating!"); floatingOpen(); }
             anchors.left: toolButton.right
+            // The header is as tall as the back arrow, which grows with the text size (iOS):
+            // the icon buttons stay in its middle, in line with the arrow and the title
+            anchors.verticalCenter: parent.verticalCenter
             visible: OS_VERSION === "Android" ? true : false
         }
 
@@ -1381,6 +1384,7 @@ ApplicationWindow {
                 drawer.close()
             }
             anchors.right: toolButtonSaveSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
@@ -1414,6 +1418,7 @@ ApplicationWindow {
                     stackView.currentItem.showSettingsSearch()
             }
             anchors.right: toolButtonLoadSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: headerToolbar.settingsPageActive
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
@@ -1427,6 +1432,7 @@ ApplicationWindow {
                 popupSaveFile.open()
             }
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
@@ -1454,6 +1460,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.mapsVisible
         }      
 
@@ -1471,6 +1478,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.videoIconVisible
         }
 
@@ -1479,6 +1487,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/chart.png" )
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.chartIconVisible
         }
 
@@ -1487,6 +1496,7 @@ ApplicationWindow {
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
             anchors.right: toolButtonAutoResistance.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: !toolButtonSaveSettings.visible
         }
 
@@ -1495,6 +1505,7 @@ ApplicationWindow {
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
             visible: !headerToolbar.settingsPageActive
             width: visible ? implicitWidth : 0
         }
