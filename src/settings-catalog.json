@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1026,
+  "settingCount": 1027,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -477,7 +477,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100.0",
       "options": null,
       "restartRequired": false
@@ -519,7 +519,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -547,7 +547,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": false
@@ -561,7 +561,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": false
@@ -589,7 +589,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -603,7 +603,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -617,7 +617,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -631,7 +631,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -687,7 +687,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 75.0,
+      "defaultValue": 75,
       "defaultExpression": "75.0",
       "options": null,
       "restartRequired": false
@@ -701,7 +701,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 200.0,
+      "defaultValue": 200,
       "defaultExpression": "200.0",
       "options": null,
       "restartRequired": false
@@ -2291,7 +2291,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 70.0,
+      "defaultValue": 70,
       "defaultExpression": "70.0",
       "options": null,
       "restartRequired": false
@@ -2305,7 +2305,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 80.0,
+      "defaultValue": 80,
       "defaultExpression": "80.0",
       "options": null,
       "restartRequired": false
@@ -2319,7 +2319,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 90.0,
+      "defaultValue": 90,
       "defaultExpression": "90.0",
       "options": null,
       "restartRequired": false
@@ -2333,7 +2333,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100.0",
       "options": null,
       "restartRequired": false
@@ -2361,7 +2361,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 195.0,
+      "defaultValue": 195,
       "defaultExpression": "195.0",
       "options": null,
       "restartRequired": false
@@ -2389,7 +2389,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -2403,7 +2403,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -2461,7 +2461,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 250.0,
+      "defaultValue": 250,
       "defaultExpression": "250",
       "options": null,
       "restartRequired": false
@@ -2475,7 +2475,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 300.0,
+      "defaultValue": 300,
       "defaultExpression": "300",
       "options": null,
       "restartRequired": false
@@ -2489,7 +2489,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 320.0,
+      "defaultValue": 320,
       "defaultExpression": "320",
       "options": null,
       "restartRequired": false
@@ -2503,7 +2503,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 340.0,
+      "defaultValue": 340,
       "defaultExpression": "340",
       "options": null,
       "restartRequired": false
@@ -2517,7 +2517,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 360.0,
+      "defaultValue": 360,
       "defaultExpression": "360",
       "options": null,
       "restartRequired": false
@@ -2596,7 +2596,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -2624,7 +2624,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -2745,7 +2745,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -3321,7 +3321,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 60.0,
+      "defaultValue": 60,
       "defaultExpression": "60",
       "options": null,
       "restartRequired": false
@@ -3335,7 +3335,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 8.0,
+      "defaultValue": 8,
       "defaultExpression": "8",
       "options": null,
       "restartRequired": false
@@ -3349,7 +3349,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 16.0,
+      "defaultValue": 16,
       "defaultExpression": "16",
       "options": null,
       "restartRequired": false
@@ -3363,7 +3363,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -3377,7 +3377,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 15.0,
+      "defaultValue": 15,
       "defaultExpression": "15",
       "options": null,
       "restartRequired": false
@@ -3391,7 +3391,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -3405,7 +3405,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 32.0,
+      "defaultValue": 32,
       "defaultExpression": "32",
       "options": null,
       "restartRequired": false
@@ -3419,7 +3419,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -3433,7 +3433,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -3482,7 +3482,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -3496,7 +3496,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -3586,7 +3586,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 200.0,
+      "defaultValue": 200,
       "defaultExpression": "200",
       "options": null,
       "restartRequired": false
@@ -3600,7 +3600,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 150.0,
+      "defaultValue": 150,
       "defaultExpression": "150",
       "options": null,
       "restartRequired": false
@@ -3614,7 +3614,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 230.0,
+      "defaultValue": 230,
       "defaultExpression": "230",
       "options": null,
       "restartRequired": false
@@ -3628,7 +3628,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 170.0,
+      "defaultValue": 170,
       "defaultExpression": "170",
       "options": null,
       "restartRequired": false
@@ -3687,7 +3687,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 20.0,
+      "defaultValue": 20,
       "defaultExpression": "20.0",
       "options": null,
       "restartRequired": false
@@ -3766,7 +3766,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 900.0,
+      "defaultValue": 900,
       "defaultExpression": "900",
       "options": null,
       "restartRequired": false
@@ -3815,7 +3815,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -3829,7 +3829,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100",
       "options": null,
       "restartRequired": false
@@ -4067,7 +4067,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -4081,7 +4081,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 999.0,
+      "defaultValue": 999,
       "defaultExpression": "999.0",
       "options": null,
       "restartRequired": false
@@ -4194,7 +4194,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 20.0,
+      "defaultValue": 20,
       "defaultExpression": "20",
       "options": null,
       "restartRequired": true
@@ -4208,7 +4208,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": true
@@ -4222,7 +4222,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 30.0,
+      "defaultValue": 30,
       "defaultExpression": "30",
       "options": null,
       "restartRequired": true
@@ -4236,7 +4236,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": true
@@ -4250,7 +4250,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 40.0,
+      "defaultValue": 40,
       "defaultExpression": "40",
       "options": null,
       "restartRequired": true
@@ -4264,7 +4264,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": true
@@ -4278,7 +4278,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 50.0,
+      "defaultValue": 50,
       "defaultExpression": "50",
       "options": null,
       "restartRequired": true
@@ -4292,7 +4292,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": true
@@ -4320,7 +4320,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -4578,7 +4578,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -4636,7 +4636,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -4650,7 +4650,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -5427,7 +5427,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100",
       "options": null,
       "restartRequired": false
@@ -5441,7 +5441,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -5712,7 +5712,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -5771,7 +5771,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": false
@@ -5830,7 +5830,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 20.0,
+      "defaultValue": 20,
       "defaultExpression": "20.0",
       "options": null,
       "restartRequired": false
@@ -5889,7 +5889,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 25.0,
+      "defaultValue": 25,
       "defaultExpression": "25.0",
       "options": null,
       "restartRequired": false
@@ -5948,7 +5948,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 30.0,
+      "defaultValue": 30,
       "defaultExpression": "30.0",
       "options": null,
       "restartRequired": false
@@ -6007,7 +6007,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 5.0,
+      "defaultValue": 5,
       "defaultExpression": "5.0",
       "options": null,
       "restartRequired": false
@@ -6066,7 +6066,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 7.0,
+      "defaultValue": 7,
       "defaultExpression": "7.0",
       "options": null,
       "restartRequired": false
@@ -6125,7 +6125,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": false
@@ -6184,7 +6184,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 11.0,
+      "defaultValue": 11,
       "defaultExpression": "11.0",
       "options": null,
       "restartRequired": false
@@ -6243,7 +6243,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 12.0,
+      "defaultValue": 12,
       "defaultExpression": "12.0",
       "options": null,
       "restartRequired": false
@@ -6302,7 +6302,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -6361,7 +6361,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -6420,7 +6420,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -6479,7 +6479,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 3.0,
+      "defaultValue": 3,
       "defaultExpression": "3.0",
       "options": null,
       "restartRequired": false
@@ -6538,7 +6538,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 4.0,
+      "defaultValue": 4,
       "defaultExpression": "4.0",
       "options": null,
       "restartRequired": false
@@ -6822,7 +6822,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -6836,7 +6836,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -7347,7 +7347,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -7375,7 +7375,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -7403,7 +7403,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -7431,7 +7431,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 3.0,
+      "defaultValue": 3,
       "defaultExpression": "3.0",
       "options": null,
       "restartRequired": false
@@ -7459,7 +7459,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 4.0,
+      "defaultValue": 4,
       "defaultExpression": "4.0",
       "options": null,
       "restartRequired": false
@@ -7487,7 +7487,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 5.0,
+      "defaultValue": 5,
       "defaultExpression": "5.0",
       "options": null,
       "restartRequired": false
@@ -7515,7 +7515,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 6.0,
+      "defaultValue": 6,
       "defaultExpression": "6.0",
       "options": null,
       "restartRequired": false
@@ -7543,7 +7543,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 7.0,
+      "defaultValue": 7,
       "defaultExpression": "7.0",
       "options": null,
       "restartRequired": false
@@ -7571,7 +7571,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 8.0,
+      "defaultValue": 8,
       "defaultExpression": "8.0",
       "options": null,
       "restartRequired": false
@@ -7599,7 +7599,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 9.0,
+      "defaultValue": 9,
       "defaultExpression": "9.0",
       "options": null,
       "restartRequired": false
@@ -7627,7 +7627,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": false
@@ -7655,7 +7655,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 11.0,
+      "defaultValue": 11,
       "defaultExpression": "11.0",
       "options": null,
       "restartRequired": false
@@ -7683,7 +7683,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 12.0,
+      "defaultValue": 12,
       "defaultExpression": "12.0",
       "options": null,
       "restartRequired": false
@@ -7711,7 +7711,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 13.0,
+      "defaultValue": 13,
       "defaultExpression": "13.0",
       "options": null,
       "restartRequired": false
@@ -7739,7 +7739,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 14.0,
+      "defaultValue": 14,
       "defaultExpression": "14.0",
       "options": null,
       "restartRequired": false
@@ -7767,7 +7767,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 15.0,
+      "defaultValue": 15,
       "defaultExpression": "15.0",
       "options": null,
       "restartRequired": false
@@ -7950,7 +7950,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -7964,7 +7964,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -8188,7 +8188,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -8202,7 +8202,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -8540,7 +8540,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -8554,7 +8554,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -8683,7 +8683,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -8872,7 +8872,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": -100.0,
+      "defaultValue": -100,
       "defaultExpression": "-100",
       "options": null,
       "restartRequired": false
@@ -8886,7 +8886,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100",
       "options": null,
       "restartRequired": false
@@ -8943,7 +8943,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 5.0,
+      "defaultValue": 5,
       "defaultExpression": "5.0",
       "options": null,
       "restartRequired": true
@@ -8957,7 +8957,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 10.0,
+      "defaultValue": 10,
       "defaultExpression": "10.0",
       "options": null,
       "restartRequired": true
@@ -8971,7 +8971,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 16.0,
+      "defaultValue": 16,
       "defaultExpression": "16.0",
       "options": null,
       "restartRequired": true
@@ -8985,7 +8985,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 22.0,
+      "defaultValue": 22,
       "defaultExpression": "22.0",
       "options": null,
       "restartRequired": true
@@ -9234,7 +9234,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -9322,7 +9322,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 200.0,
+      "defaultValue": 200,
       "defaultExpression": "200.0",
       "options": null,
       "restartRequired": false
@@ -9762,7 +9762,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -9925,7 +9925,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": false,
-      "defaultValue": 2070.0,
+      "defaultValue": 2070,
       "defaultExpression": "2070",
       "options": null,
       "restartRequired": false
@@ -9981,7 +9981,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 60.0,
+      "defaultValue": 60,
       "defaultExpression": "60.0",
       "options": null,
       "restartRequired": false
@@ -10023,7 +10023,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": -999.0,
+      "defaultValue": -999,
       "defaultExpression": "-999",
       "options": null,
       "restartRequired": false
@@ -10527,7 +10527,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -10600,7 +10600,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -10673,7 +10673,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 3.0,
+      "defaultValue": 3,
       "defaultExpression": "3.0",
       "options": null,
       "restartRequired": false
@@ -10746,7 +10746,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 4.0,
+      "defaultValue": 4,
       "defaultExpression": "4.0",
       "options": null,
       "restartRequired": false
@@ -10819,7 +10819,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 5.0,
+      "defaultValue": 5,
       "defaultExpression": "5.0",
       "options": null,
       "restartRequired": false
@@ -10892,7 +10892,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 6.0,
+      "defaultValue": 6,
       "defaultExpression": "6.0",
       "options": null,
       "restartRequired": false
@@ -10965,7 +10965,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 7.0,
+      "defaultValue": 7,
       "defaultExpression": "7.0",
       "options": null,
       "restartRequired": false
@@ -11927,7 +11927,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -11955,7 +11955,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -12008,7 +12008,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -12036,7 +12036,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -12064,7 +12064,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -12092,7 +12092,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "defaultExpression": "2.0",
       "options": null,
       "restartRequired": false
@@ -12286,7 +12286,7 @@
       "qmlType": "real",
       "control": "button",
       "visible": true,
-      "defaultValue": 175.0,
+      "defaultValue": 175,
       "defaultExpression": "175.0",
       "options": null,
       "restartRequired": false
@@ -12558,7 +12558,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100",
       "options": null,
       "restartRequired": false
@@ -12949,7 +12949,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0",
       "options": null,
       "restartRequired": false
@@ -12963,7 +12963,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -12977,7 +12977,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -13327,7 +13327,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1.0",
       "options": null,
       "restartRequired": false
@@ -13623,7 +13623,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -13637,7 +13637,7 @@
       "qmlType": "double",
       "control": "text",
       "visible": true,
-      "defaultValue": 0.0,
+      "defaultValue": 0,
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
@@ -13680,7 +13680,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "defaultExpression": "1",
       "options": null,
       "restartRequired": false
@@ -13694,7 +13694,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 100.0,
+      "defaultValue": 100,
       "defaultExpression": "100",
       "options": null,
       "restartRequired": false
@@ -13708,7 +13708,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 15.0,
+      "defaultValue": 15,
       "defaultExpression": "15",
       "options": null,
       "restartRequired": false
@@ -13722,7 +13722,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 300.0,
+      "defaultValue": 300,
       "defaultExpression": "300",
       "options": null,
       "restartRequired": false
@@ -14775,7 +14775,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 420.0,
+      "defaultValue": 420,
       "defaultExpression": "420",
       "options": null,
       "restartRequired": false
@@ -14789,7 +14789,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 420.0,
+      "defaultValue": 420,
       "defaultExpression": "420",
       "options": null,
       "restartRequired": false
@@ -14803,7 +14803,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 420.0,
+      "defaultValue": 420,
       "defaultExpression": "420",
       "options": null,
       "restartRequired": false
@@ -16058,7 +16058,7 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-      "defaultValue": 9999.0,
+      "defaultValue": 9999,
       "defaultExpression": "9999",
       "options": null,
       "restartRequired": false
@@ -16216,6 +16216,20 @@
       "visible": true,
       "defaultValue": true,
       "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "history_chart_order",
+      "name": "Workout History Chart Order",
+      "description": "Choose the order of charts in the Workout History preview using the up and down buttons. Saved automatically; use Restore default order to reset.",
+      "parent": "Workout History Charts",
+      "type": "string",
+      "qmlType": "string",
+      "control": "button",
+      "visible": true,
+      "defaultValue": "power,heart,resistance,pelotonResistance,cadence,powerDistribution,speedInclination",
+      "defaultExpression": "\"power,heart,resistance,pelotonResistance,cadence,powerDistribution,speedInclination\"",
       "options": null,
       "restartRequired": false
     }
@@ -16425,6 +16439,13 @@
         "parent": null,
         "depth": 0,
         "sourceLine": 6658
+      },
+      {
+        "key": "historyChartsAccordion",
+        "name": "Workout History Charts",
+        "parent": null,
+        "depth": 0,
+        "sourceLine": 6965
       },
       {
         "key": "uiGeneralOptionsAccordion",
@@ -17329,7 +17350,8 @@
       "zwiftplay_gear_rb": "zwiftDevPollTimeTextField",
       "zwiftplay_gear_rs1": "zwiftDevPollTimeTextField",
       "zwiftplay_gear_rs2": "zwiftDevPollTimeTextField",
-      "zwiftplay_swap": "zwiftDevPollTimeTextField"
+      "zwiftplay_swap": "zwiftDevPollTimeTextField",
+      "history_chart_order": "historyChartsAccordion"
     },
     "virtualNodeByKey": {
       "nordictrack_bike_model": "proformBikeAccordion",
@@ -18362,7 +18384,8 @@
       "zwiftplay_gear_rb": "settings.qml",
       "zwiftplay_gear_rs1": "settings.qml",
       "zwiftplay_gear_rs2": "settings.qml",
-      "zwiftplay_swap": "settings.qml"
+      "zwiftplay_swap": "settings.qml",
+      "history_chart_order": "settings.qml"
     },
     "itemOrderByKey": {
       "age": 3044,
@@ -19235,7 +19258,8 @@
       "zwiftplay_gear_rb": 16084,
       "zwiftplay_gear_rs1": 16024,
       "zwiftplay_gear_rs2": 16036,
-      "zwiftplay_swap": 15926
+      "zwiftplay_swap": 15926,
+      "history_chart_order": 7040
     },
     "externalEntryOrderByKey": {
       "miles_unit": 20,
