@@ -503,6 +503,18 @@ Uruchomić ją ponownie teraz?</translation>
         <translation>Połączono: %1 (pulsometr)!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Wyszukiwanie: %1 (pulsometr)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nie znaleziono: %1 (pulsometr). Sprawdź, czy jest włączony i transmituje tętno.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (pulsometr): brak tętna. Sprawdź, czy transmituje tętno.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Połączono: %1 (czujnik kadencji)!</translation>
     </message>
