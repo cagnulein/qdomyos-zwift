@@ -1266,7 +1266,10 @@ ApplicationWindow {
             id: toolButton
             icon.source: "icons/icons/icon.png"
             text: stackView.depth > 1 ? "◄" : "◄"
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            // The header is as tall as this button. On iOS the app font already carries the system
+            // text size (53 px at the largest one), so the arrow is scaled from the body size, as
+            // the rest of the text, and keeps the same cap
+            font.pixelSize: window.iosTextSize ? window.fontPx(Math.round(window.iosBodyPx * 1.6)) : Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
                     // Back to the settings search results after one of them was opened, as the
