@@ -28,8 +28,9 @@ ColumnLayout {
 
         Accessible.role: Accessible.Button 
         Accessible.name: title 
-        Accessible.description: expanded ? "Expanded" : "Collapsed"
-        Accessible.onPressAction: toggle()
+        // The section opens a page, there is nothing to expand: no state, and the press action of a
+        // screen reader opens the page like a tap on the header
+        Accessible.onPressAction: stackView.push(accordionContent, { settings: pageSettings })
 
         Rectangle{
            id:indicatRect

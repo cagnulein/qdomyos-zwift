@@ -28,8 +28,10 @@ ColumnLayout {
 
         Accessible.role: Accessible.Button         
         Accessible.name: title 
-        Accessible.description: expanded ? "Expanded" : "Collapsed"
-        Accessible.onPressAction: toggle()
+        // The state follows isOpen; the press action of a screen reader opens or closes the section
+        // like a tap on the header
+        Accessible.description: rootElement.isOpen ? "Expanded" : "Collapsed"
+        Accessible.onPressAction: rootElement.isOpen = !rootElement.isOpen
 
         Rectangle {
             id: indicatRect
