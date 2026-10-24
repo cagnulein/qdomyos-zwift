@@ -1069,8 +1069,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(d > 0) {
                 if(BIKE_)
                     d = d / 10.0;
-                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK && !isManualResistanceBike()) {
+                if (SOLE_B94) {
                     const resistance_t reportedResistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
                     Resistance = b94ResistanceValueFromTelemetry(soleB94Protocol, soleB94LegacyTargetActive,
                                                                   soleB94LegacyTarget, reportedResistance);
@@ -1081,6 +1080,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                         emit debug(QStringLiteral("Ignoring stale B94 legacy resistance: ") +
                                    QString::number(reportedResistance));
                     }
+                } else if (!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK &&
+                           !isManualResistanceBike()) {
+                    Resistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
+                    native_resistance_received = true;
+                    calculatedResistanceFallbackSince = QDateTime();
                 }
                 if (isManualResistanceBike()) {
                     emit debug(QStringLiteral("Ignoring native resistance for manual resistance mode: ") +
@@ -1578,7 +1582,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
-            if(!TITAN_7000 && !FS_YK && !isManualResistanceBike()) {
+            if (SOLE_B94) {
                 const resistance_t reportedResistance =
                     ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index))));
@@ -1593,6 +1597,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     emit debug(QStringLiteral("Ignoring stale B94 legacy resistance: ") +
                                QString::number(reportedResistance));
                 }
+            } else if (!TITAN_7000 && !FS_YK && !isManualResistanceBike()) {
+                Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)newValue.at(index))));
+                emit resistanceRead(Resistance.value());
+                resistance_received = true;
+                native_resistance_received = true;
+                calculatedResistanceFallbackSince = QDateTime();
             } else if (isManualResistanceBike()) {
                 const double ignoredResistance =
                     ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
