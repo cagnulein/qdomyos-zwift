@@ -574,6 +574,7 @@ void DeviceTestDataIndex::Initialize() {
         "YS_G1_", // Yesoul S3
         "YS_G1MPLUS", // Yesoul G1M Plus
         "DS25-", // Bodytone DS25
+        "GB3.0-", // Gymstick GB3.0: generic FTMS bike using resistance levels
         "SCHWINN 510T",
         "3G CARDIO ",
         "ZWIFT HUB",
@@ -648,6 +649,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", DeviceNameComparison::IgnoreCase) // Sole SB700
         ->rejectDeviceName("DT-0123456789", DeviceNameComparison::IgnoreCase) // too short for Sole SB700
         ->rejectDeviceName("DBF13", DeviceNameComparison::IgnoreCase) // too short for DBF135
+        ->rejectDeviceName("GB3.0X", DeviceNameComparison::IgnoreCase) // do not match unrelated names
         ->rejectDeviceName("DBF1355", DeviceNameComparison::IgnoreCase) // too long for DBF135
         ->rejectDeviceName("XQ020111814", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XQ02ABC18141", DeviceNameComparison::IgnoreCase)
