@@ -378,6 +378,7 @@
 		876E50F52B701C050080FAAF /* moc_zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50F22B701C040080FAAF /* moc_zwiftclickremote.cpp */; };
 		876E51002B701C1E0080FAAF /* zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50FB2B701C1E0080FAAF /* zwiftclickremote.cpp */; };
 		876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */; };
+		A5B94C010000000000000001 /* soleb94profiledetector.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = A5B94C020000000000000002 /* soleb94profiledetector.cpp */; };
 		876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */; };
 		7699B9BE90C2928032D047B3 /* kettlerc12bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 3558A90E62897A3F7A543871 /* kettlerc12bike.cpp */; };
 		876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */; };
@@ -1436,6 +1437,8 @@
 		876E50FF2B701C1E0080FAAF /* zwiftclickremote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftclickremote.h; path = ../src/zwift_play/zwiftclickremote.h; sourceTree = "<group>"; };
 		876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsbike.cpp; path = ../src/devices/ftmsbike/ftmsbike.cpp; sourceTree = "<group>"; };
 		876ED21125C3E8DD0065F3DC /* ftmsbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsbike.h; path = ../src/devices/ftmsbike/ftmsbike.h; sourceTree = "<group>"; };
+		A5B94C020000000000000002 /* soleb94profiledetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = soleb94profiledetector.cpp; path = ../src/devices/ftmsbike/soleb94profiledetector.cpp; sourceTree = "<group>"; };
+		A5B94C030000000000000003 /* soleb94profiledetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soleb94profiledetector.h; path = ../src/devices/ftmsbike/soleb94profiledetector.h; sourceTree = "<group>"; };
 		876ED21225C3E8DD0065F3DC /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material.h; path = ../src/material.h; sourceTree = "<group>"; };
 		876ED21325C3E8DE0065F3DC /* schwinnic4bike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = schwinnic4bike.h; path = ../src/devices/schwinnic4bike/schwinnic4bike.h; sourceTree = "<group>"; };
 		876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = schwinnic4bike.cpp; path = ../src/devices/schwinnic4bike/schwinnic4bike.cpp; sourceTree = "<group>"; };
@@ -2986,6 +2989,8 @@
 				8791A8A725C8602A003B50B2 /* inspirebike.h */,
 				876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */,
 				876ED21125C3E8DD0065F3DC /* ftmsbike.h */,
+				A5B94C020000000000000002 /* soleb94profiledetector.cpp */,
+				A5B94C030000000000000003 /* soleb94profiledetector.h */,
 				876ED21225C3E8DD0065F3DC /* material.h */,
 				876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */,
 				876ED21325C3E8DE0065F3DC /* schwinnic4bike.h */,
@@ -4030,6 +4035,7 @@
 				871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */,
 				873824B427E64707004F1B46 /* moc_prober.cpp in Compile Sources */,
 				876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */,
+				A5B94C010000000000000001 /* soleb94profiledetector.cpp in Compile Sources */,
 				876F9B61275385D8006AE6FA /* moc_fitmetria_fanfit.cpp in Compile Sources */,
 				87318AAD2683799100770F13 /* echelonstride.cpp in Compile Sources */,
 				87C5F0C326285E5F0067A1B5 /* mimeinlinefile.cpp in Compile Sources */,

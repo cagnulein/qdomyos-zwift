@@ -30,10 +30,15 @@
 #include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "inclinationresistancetable.h"
+#include "soleb94profiledetector.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+QByteArray buildB94ResistanceCommand(SoleB94Protocol protocol, resistance_t resistance, double gain, double offset);
+resistance_t b94ResistanceValueFromTelemetry(SoleB94Protocol protocol, bool localTargetActive,
+                                              resistance_t localTarget, resistance_t reportedResistance);
 
 enum FtmsControlPointCommand {
     FTMS_REQUEST_CONTROL = 0x00,
@@ -229,6 +234,9 @@ class ftmsbike : public bike {
     bool MOK_FITNESS = false;
     bool TUNTURI_E50_168 = false;
     bool SOLE_B94 = false;
+    SoleB94Protocol soleB94Protocol = SoleB94Protocol::Unknown;
+    bool soleB94LegacyTargetActive = false;
+    resistance_t soleB94LegacyTarget = -1;
     bool VIFHTR = false;
 
     uint8_t secondsToResetTimer = 5;
