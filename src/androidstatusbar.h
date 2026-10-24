@@ -42,6 +42,8 @@ public:
     int apiLevel() const;
     // System text size: Android font scale, iOS Dynamic Type; 1.0 elsewhere.
     // Read again when the app comes back to the foreground, the user changes it in the system settings.
+    // In the iOS qmake build (IO_UNDER_QT) it comes from the app font Qt sets at start-up, so a change
+    // there needs a restart.
     Q_INVOKABLE double systemFontScale() const;
 
 public slots:
