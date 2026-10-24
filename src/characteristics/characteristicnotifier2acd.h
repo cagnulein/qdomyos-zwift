@@ -4,7 +4,6 @@
 #include "characteristicnotifier.h"
 
 class CharacteristicNotifier2ACD : public CharacteristicNotifier {
-    bluetoothdevice *Bike;
 
   public:
     explicit CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent = nullptr);
