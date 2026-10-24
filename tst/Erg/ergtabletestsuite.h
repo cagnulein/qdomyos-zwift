@@ -27,6 +27,7 @@ public:
     void test_pairedPowerTableRejectsDistantResistance();
     void test_pairedPowerTableUsesPairedDeltaMedian();
     void test_pairedPowerTableWaitsForStableTarget();
+    void test_pairedPowerTableRejectsRudyInstability();
 
 };
 
@@ -56,5 +57,9 @@ TEST_F(ErgTableTestSuite, TestPairedPowerTableUsesPairedDeltaMedian) {
 
 TEST_F(ErgTableTestSuite, TestPairedPowerTableWaitsForStableTarget) {
     this->test_pairedPowerTableWaitsForStableTarget();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableRejectsRudyInstability) {
+    this->test_pairedPowerTableRejectsRudyInstability();
 }
 

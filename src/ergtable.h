@@ -40,6 +40,7 @@ class WattageStats {
   public:
     static const int MAX_SAMPLES = 100;
     static const int MIN_SAMPLES_REQUIRED = 10;
+    static constexpr int MAX_STABLE_PAIRED_DELTA_RANGE = 20;
 
     void addSample(uint16_t wattage, uint16_t trainerWattage = 0) {
         samples.append(wattage);
@@ -121,6 +122,13 @@ class WattageStats {
 
         pairedDeltaMedianNeedsUpdate = false;
         return cachedPairedDeltaMedian;
+    }
+
+    bool hasStablePairedDelta() const {
+        if (pairedDeltas.size() < MIN_SAMPLES_REQUIRED) return false;
+
+        const auto minmax = std::minmax_element(pairedDeltas.cbegin(), pairedDeltas.cend());
+        return (*minmax.second - *minmax.first) <= MAX_STABLE_PAIRED_DELTA_RANGE;
     }
 
     void clear() {
@@ -461,7 +469,8 @@ class ergTable : public QObject {
         WattageStats& stats = wattageData[pair];
         uint16_t medianWattage = stats.getMedian();
         uint16_t medianTrainerWattage = 0;
-        if (stats.trainerSampleCount() >= WattageStats::MIN_SAMPLES_REQUIRED) {
+        if (stats.trainerSampleCount() >= WattageStats::MIN_SAMPLES_REQUIRED &&
+            stats.hasStablePairedDelta()) {
             const int pairedTrainerWattage = static_cast<int>(medianWattage) + stats.getPairedDeltaMedian();
             medianTrainerWattage = static_cast<uint16_t>(qBound(0, pairedTrainerWattage, static_cast<int>(UINT16_MAX)));
         }

@@ -660,14 +660,11 @@ void ErgTableTestSuite::test_pairedPowerTableUsesPairedDeltaMedian() {
     testSettings.qsettings.remove("ergDataPoints");
 
     ergTable erg;
-    for (int i = 0; i < 5; ++i) {
-        erg.collectData(80, 10, 7, i == 0 ? 10 : 110, true);
-    }
-    for (int i = 0; i < 5; ++i) {
-        erg.collectData(80, 110, 7, 110, true);
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, i == 0 ? 195 : 180, true);
     }
 
-    EXPECT_EQ(60, erg.trainerPowerForPedalTarget(60, 80, 7));
+    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(150, 80, 7));
 }
 
 void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
@@ -681,4 +678,20 @@ void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
     }
 
     EXPECT_TRUE(erg.getConsolidatedData().isEmpty());
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsRudyInstability() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Representative samples from Rudy's FI9117 C91/R42-R43 region while the pedal target was 168 W:
+    // pedal power was about 172 W, but trainer power oscillated between roughly 206 W and 241 W.
+    const QList<uint16_t> trainerSamples{209, 241, 209, 225, 241, 218, 206, 230, 213, 241};
+    ergTable erg;
+    for (const uint16_t trainerWattage : trainerSamples) {
+        erg.collectData(91, 172, 43, trainerWattage, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 91, 43));
 }
