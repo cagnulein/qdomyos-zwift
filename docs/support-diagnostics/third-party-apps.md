@@ -74,19 +74,24 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 ### Provide first
 
-- Bike model, QZ version, and the number of physical resistance levels.
-- Minimum and maximum resistance displayed in QZ, with one example of a jump.
-- Whether changes originate from the bike, QZ, or the external training app.
+- Bike model, QZ version, physical console resistance range, and the minimum/maximum **Resistance** reported by QZ.
+- One simultaneous example of the **Gears** tile, **Resistance** tile, bike console level, and how the pedals actually feel. Do not assume virtual gears and physical resistance are the same scale.
+- Whether changes originate from the bike, QZ, or the external training app, and whether the bike starts reporting metrics immediately or only after the first Gear+ / resistance command.
+- Screenshot relevant FTMS Bike and model-specific resistance settings before changing any options.
 
 ### If still unclear
 
-- Close training apps, turn off Auto Resistance, and slowly sweep the bike's physical resistance levels. Note the values shown in QZ.
-- Share a short debug log or video of the sweep. Test automatic control separately.
+- Close training apps and turn off Auto Resistance. Compare a few **safe, comfortable** physical resistance levels with the values QZ displays; stop rather than forcing high resistance.
+- If telemetry stays at zero until a control action, record one QZ-only startup test: pedal briefly without touching the gear buttons, then press Gear+ once. Note when metrics begin and collect a log covering both stages.
+- If physical resistance stops increasing while Gears continues upward, capture a separate short log of two or three safe resistance requests. Where FTMS is used, compare the machine's advertised resistance range, the control-point responses, the reported Resistance tile, and actual physical response.
+- Test automatic control from Zwift/MyWhoosh/ROUVY only after the QZ-only test, recording the app's Controllable pairing role separately.
 
 ### Why it matters
 
-- The physical scale can differ from values reported over Bluetooth.
-- Separating manual and automatic tests distinguishes telemetry mapping from control commands.
+- A bike may advertise fewer FTMS resistance levels than its console provides; the Gears number is not proof of the Bluetooth-controlled physical level.
+- A successful FTMS command response confirms protocol acceptance, not that the motor moved through the console's entire range.
+- Metrics beginning only after the first control command can distinguish startup/control initialization timing from an incorrect resistance scale.
+- Separating local QZ control from third-party commands distinguishes telemetry mapping, initialization, and downstream trainer-control problems.
 
 ## Virtual gear numbers update but trainer resistance does not follow
 
