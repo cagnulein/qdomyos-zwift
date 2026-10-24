@@ -12,7 +12,7 @@ CATALOG_PATH = Path("src/settings-catalog.json")
 SETTINGS_PATH = Path("src/settings.qml")
 EXPECTED_FORMAT = "qdomyos-zwift-settings-catalog"
 SUPPORTED_TYPES = {"boolean", "integer", "number", "string", "enum", "page"}
-SUPPORTED_CONTROLS = {"button", "internal", "select", "switch", "text", "textfield", "virtualOption", "page"}
+SUPPORTED_CONTROLS = {"button", "internal", "select", "switch", "text", "textfield", "virtualOption", "page", "spinbox"}
 EXPECTED_QML_TYPES = {
     "boolean": {"bool"},
     "integer": {"int"},

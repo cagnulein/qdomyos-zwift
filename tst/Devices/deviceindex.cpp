@@ -158,6 +158,7 @@ DEFINE_DEVICE(BodySculpture203, "Body Sculpture BC7330G");
 DEFINE_DEVICE(ToorxAppGateUSBBike_EnabledInSettings, "Toorx AppGate USB Bike (Enabled in settings)");
 DEFINE_DEVICE(ToorxAppGateUSBBike, "Toorx AppGate USB Bike");
 DEFINE_DEVICE(ToorxAppGateUSBTreadmill, "Toorx AppGate USB Treadmill");
+DEFINE_DEVICE(TrixterXDreambike, "Trixter X-Dream Bike");
 DEFINE_DEVICE(TrxAppGateUSBEllipticalIConsole, "Toorx AppGate USB Elliptical IConsole+");
 DEFINE_DEVICE(ToorxTreadmill, "Toorx Treadmill");
 DEFINE_DEVICE(TrueTreadmill, "True Treadmill");
