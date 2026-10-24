@@ -36,10 +36,6 @@
 #include "ios/lockscreen.h"
 #endif
 
-QByteArray buildB94ResistanceCommand(SoleB94Protocol protocol, resistance_t resistance, double gain, double offset);
-resistance_t b94ResistanceValueFromTelemetry(SoleB94Protocol protocol, bool localTargetActive,
-                                              resistance_t localTarget, resistance_t reportedResistance);
-
 enum FtmsControlPointCommand {
     FTMS_REQUEST_CONTROL = 0x00,
     FTMS_RESET,

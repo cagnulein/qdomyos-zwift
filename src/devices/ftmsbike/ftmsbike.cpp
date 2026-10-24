@@ -27,42 +27,6 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 
 using namespace std::chrono_literals;
 
-QByteArray buildB94ResistanceCommand(SoleB94Protocol protocol, resistance_t resistance, double gain, double offset) {
-    if (protocol == SoleB94Protocol::Unknown) {
-        return QByteArray();
-    }
-
-    const resistance_t nonNegativeResistance = qMax<resistance_t>(0, resistance);
-    if (protocol == SoleB94Protocol::LegacySimulationParameters) {
-        const int32_t encodedResistance = qBound<int32_t>(
-            0, static_cast<int32_t>((static_cast<double>(nonNegativeResistance) * gain + offset) * 10.0), 0xFFFF);
-        QByteArray command;
-        command.append(static_cast<char>(FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS));
-        command.append(static_cast<char>(0x00));
-        command.append(static_cast<char>(0x00));
-        command.append(static_cast<char>(encodedResistance & 0xFF));
-        command.append(static_cast<char>((encodedResistance >> 8) & 0xFF));
-        command.append(static_cast<char>(0x28));
-        command.append(static_cast<char>(0x19));
-        return command;
-    }
-
-    const int32_t encodedResistance = qBound<int32_t>(
-        0, static_cast<int32_t>(static_cast<double>(nonNegativeResistance) * 10.0), 0xFF);
-    QByteArray command;
-    command.append(static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL));
-    command.append(static_cast<char>(encodedResistance));
-    return command;
-}
-
-resistance_t b94ResistanceValueFromTelemetry(SoleB94Protocol protocol, bool localTargetActive,
-                                              resistance_t localTarget, resistance_t reportedResistance) {
-    if (protocol == SoleB94Protocol::LegacySimulationParameters && localTargetActive) {
-        return localTarget;
-    }
-    return reportedResistance;
-}
-
 namespace {
 bool isSmartBikeThreeDigitName(const QString &name) {
     const QString upperName = name.toUpper();
@@ -414,8 +378,13 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         const SoleB94Protocol protocol = soleB94Protocol == SoleB94Protocol::TargetResistanceTenths
                                               ? SoleB94Protocol::TargetResistanceTenths
                                               : SoleB94Protocol::LegacySimulationParameters;
-        QByteArray write = buildB94ResistanceCommand(protocol, requestResistance, bikeResistanceGain,
-                                                      bikeResistanceOffset);
+        QByteArray write = soleb94profiledetector::buildResistanceCommand(
+            protocol, requestResistance, bikeResistanceGain, bikeResistanceOffset);
+        const char *protocolName = protocol == SoleB94Protocol::TargetResistanceTenths
+                                        ? "target_resistance_tenths"
+                                        : "legacy_simulation";
+        qDebug() << "SOLE B94 resistance protocol:" << protocolName << "resistance:" << requestResistance
+                 << "command:" << write.toHex();
         if (protocol == SoleB94Protocol::LegacySimulationParameters) {
             soleB94LegacyTarget = requestResistance;
             soleB94LegacyTargetActive = true;
@@ -1071,8 +1040,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     d = d / 10.0;
                 if (SOLE_B94) {
                     const resistance_t reportedResistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
-                    Resistance = b94ResistanceValueFromTelemetry(soleB94Protocol, soleB94LegacyTargetActive,
-                                                                  soleB94LegacyTarget, reportedResistance);
+                    Resistance = soleb94profiledetector::resistanceFromTelemetry(
+                        soleB94Protocol, soleB94LegacyTargetActive, soleB94LegacyTarget, reportedResistance);
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
                     if (soleB94Protocol == SoleB94Protocol::LegacySimulationParameters &&
@@ -1586,8 +1555,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 const resistance_t reportedResistance =
                     ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index))));
-                Resistance = b94ResistanceValueFromTelemetry(soleB94Protocol, soleB94LegacyTargetActive,
-                                                              soleB94LegacyTarget, reportedResistance);
+                Resistance = soleb94profiledetector::resistanceFromTelemetry(
+                    soleB94Protocol, soleB94LegacyTargetActive, soleB94LegacyTarget, reportedResistance);
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
                 native_resistance_received = true;
