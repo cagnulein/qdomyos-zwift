@@ -61,7 +61,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: ttsSummarySecTextField
-                text: settings.tts_summary_sec
+                savedText: settings.tts_summary_sec
                 decimals: 0
                 minimum: 1
                 horizontalAlignment: Text.AlignRight
@@ -73,7 +73,7 @@ ScrollView {
             Button {
                 id: okTTSSummarySec
                 text: qsTr("OK")
-                enabled: ttsSummarySecTextField.valid
+                enabled: ttsSummarySecTextField.valid && ttsSummarySecTextField.dirty
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.value; toast.show(qsTr("Setting saved!")); }
             }

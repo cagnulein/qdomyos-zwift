@@ -14,6 +14,21 @@ Yes. QZ includes a dedicated BKOOL bike implementation, and a confirmed support 
 
 This confirms the basic bike-to-QZ and QZ-to-training-app path. It does not imply that MyWhoosh virtual gear difficulty will feel identical to the bike's previous native integration; gear-range or resistance-feel tuning should be treated separately if needed.
 
+## My older Kettler bike is missing from nRF Connect or uses Bluetooth 2.0. How can QZ discover it?
+
+Some older Kettler bikes, including **RACER S** models that connect through **MyHomeFIT**, communicate over **Bluetooth Classic (Bluetooth 2.0 / SPP)** rather than Bluetooth Low Energy (BLE). **nRF Connect for Mobile scans BLE devices**, so a Bluetooth Classic-only bike may not appear there. Not appearing in nRF Connect is a clue, **not proof**, that the bike uses Bluetooth Classic.
+
+On **Android**, try the following:
+
+1. Close **MyHomeFIT** and any other app or phone that might already be connected to the bike.
+2. Open **QZ Settings > Bike Options > iConsole Bike Options** and enable **BH SPADA Compatibility**. This allows QZ to search for Bluetooth Classic devices as well as BLE devices on Android.
+3. Fully close and restart QZ. Ensure the Kettler console is powered on and ready to pair.
+4. Check whether QZ discovers the bike and whether **power (watts)** and **cadence** update while pedaling.
+
+If QZ detects the Kettler but all metrics stay at zero, discovery alone is not enough: the bike may need a matching protocol driver. For older **RACER S** bikes using MyHomeFIT's Bluetooth Classic protocol, use a QZ build that includes the [Kettler Classic driver](https://github.com/cagnulein/qdomyos-zwift/pull/5147), and repeat the test with **BH SPADA Compatibility** enabled. If it still fails, share the exact Bluetooth device name, model/year, and a QZ debug log.
+
+**Note:** The Bluetooth Classic workaround is different from support for newer Kettler models that use BLE. Do not assume every Kettler bike uses the same protocol.
+
 ## Is a Bodytone DS60 advertising as SMB1 compatible with QZ and MyWhoosh?
 
 Yes. QZ recognizes Bluetooth fitness bikes advertising with an **SMB1** name through its FTMS bike support. A confirmed Bodytone DS60/SMB1 setup connected to QZ and supported automatic resistance control from MyWhoosh through QZ.
@@ -49,11 +64,13 @@ For the confirmed setup:
 
 **Yes.** QZ includes a **Life Fitness IC5** option in its bike settings and a dedicated initialization path for the IC5 in the Flywheel bike driver. This is distinct from the IC7/IC8 handling.
 
-1. Under **QZ Settings > Bike Options**, enable **Life Fitness IC5** and restart QZ before connecting to the bike.
+1. Under **QZ Settings > Bike Options > Flywheel Bike Options**, enable **Life Fitness IC5** and restart QZ before connecting to the bike.
 2. Power on the IC5 console, then scan and check whether QZ receives live bike metrics.
 3. If the console is not discovered, scan it with **nRF Connect** and provide the advertised **Bluetooth name and services**, together with the IC5 console model/firmware. Different console versions can expose different Bluetooth behavior.
 
 QZ's current driver sends the IC5-specific initialization packets when this option is enabled. This is **code-verified setup guidance**, not confirmation that every IC5 console variant supports all metrics or resistance commands. In particular, a console that advertises unexpected services needs verification before compatibility can be promised.
+
+**Confirmed IC5 discovery workaround:** In one case the bike initially connected without RPM and then stopped connecting after a forced **FTMS Bike** selection was disabled. The console was advertising as `BIKE 76`. After shortening its advertised Bluetooth name to `BIKE 7` (while using the dedicated IC5/Flywheel setup), the user confirmed QZ worked. If your console supports changing its Bluetooth name, this is worth testing for a similarly named IC5, but it is **not a universal IC5 requirement**. The sequence involved more than one configuration change, so the precise cause was not isolated. Confirm the advertised name with nRF Connect before changing anything.
 
 ## Does QZ support the Dynamax Sprint Bike, and why might it be detected as a treadmill?
 
@@ -71,4 +88,14 @@ QZ has specific FTMS support for the Van Rysel D100 when it advertises as **VANR
 
 For **Zwift**, let Zwift pair directly with Click and enable **Get Gears from Zwift** in QZ; disable QZ's own **Zwift Click** and **Zwift Play** accessory connections. Pair QZ's virtual trainer in Zwift as Power Source and Controllable. For use with other training apps, QZ can instead own the Click controller: disable **Get Gears from Zwift** and enable **Zwift Click**. See [Zwift and virtual gearing](zwift.md) for the full pairing sequence and the Click V2 handshake procedure.
 
-This is **code-verified setup guidance**: the current QZ FTMS driver explicitly recognizes `VANRYSEL-HT`. Successful D100 plus Click operation on the support user's particular hardware was not yet confirmed.
+This is **code-verified setup guidance**: the current QZ FTMS driver explicitly recognizes `VANRYSEL-HT`.
+
+**Confirmed D100 + Click V2 resistance fix:** If QZ shows Click V2 gear changes but the D100's **physical resistance does not change**, go to **QZ Settings > Bike Options > FTMS Bike** and select the trainer's **exact advertised `VANRYSEL-HT-...` name** instead of leaving that selector at **Disabled**. Fully restart QZ, reconnect the trainer and Click V2, and test QZ's **local shifting without Zwift running** first. One rider explicitly confirmed resistance control worked after this change. This confirms that particular local-shifting setup, not every possible Zwift-controlled pairing mode.
+
+## Can I use a ProForm Carbon TLX treadmill with QZ and a training app?
+
+QZ has dedicated **ProForm Carbon TLX** support, including a separate treadmill profile for firmware **84.314**. Select the profile that matches the treadmill's firmware under **QZ Settings > Treadmill Options > NordicTrack Treadmill Options**; use the **84.314** variant only if the installed firmware matches. Restart QZ and first confirm that the treadmill's live speed/incline values appear. Test any manual incline adjustment cautiously before relying on route-driven incline changes.
+
+For a typical Zwift setup, run QZ on one phone/tablet and the training app on another device, and pair the app to QZ's virtual device. Zwift route-based incline also requires QZ's separate **Zwift auto-inclination** configuration.
+
+A Carbon TLX owner reported that the setup was working after receiving these instructions, and QZ's treadmill driver contains both Carbon TLX profiles. The reply did **not** separately identify the firmware or prove that **automatic incline in both Zwift and Kinomap** worked, so do not assume those individual capabilities without testing.

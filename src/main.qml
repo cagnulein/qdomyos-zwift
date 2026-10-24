@@ -95,6 +95,23 @@ ApplicationWindow {
         return deviceName.replace(/ \(\d+%\)$/, "")
     }
 
+    // A Settings object that loads a store without one of its keys snapshots its properties for
+    // the write in the middle of the load (Qt.labs.settings): the properties declared after that
+    // key still have their defaults, and 500 ms later the defaults are written over their values.
+    // The change signal of that key, emitted once the load is over, takes the snapshot again
+    // without changing a value
+    function retakeSettingsSnapshot(copy) {
+        for (var key in copy) {
+            var type = typeof copy[key]
+            if (type !== "boolean" && type !== "number" && type !== "string")
+                continue
+            if (key === "objectName" || key === "category" || key === "fileName" || copy.value(key) !== undefined)
+                continue
+            copy[key + "Changed"]()
+            return
+        }
+    }
+
     function maybeOpenGymModePopup() {
         if (typeof rootItem === "undefined" || !rootItem) {
             return
@@ -128,6 +145,8 @@ ApplicationWindow {
     signal restoreSettings()
     signal saveProfile(string profilename)
     signal restart()
+    // Sent by the settings page when a key of the home page copy changes (Home.qml)
+    signal tileSettingChanged(string key, var value)
     signal volumeUp()
     signal volumeDown()
     signal keyMediaPrevious()
@@ -147,6 +166,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        Component.onCompleted: retakeSettingsSnapshot(settings)
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
@@ -239,23 +259,29 @@ ApplicationWindow {
         : Math.max(0.8, Math.min(1.7, settings.ui_text_scale / 100))
     // At 100 % every size stays exactly as before
     function fontPx(base) { return textScale === 1 ? base : Math.round(base * textScale) }
-    readonly property int appFontPx: Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
-    // Size of the hints under the settings. Where the app font has no pixel size (iOS, desktop)
+    // On iOS the app font is not the one of the controls: Qt gives it the size of the body text,
+    // 17 px at the default system text size and more with a bigger one (Dynamic Type), while the
+    // controls keep 14 px. So the controls are scaled from 14 and a plain Text from 17
+    readonly property bool iosTextSize: Qt.platform.os === "ios"
+    readonly property int iosBodyPx: 17
+    readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
+    // Size of the hints under the settings. Where the app font has no pixel size (desktop)
     // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
     readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+        : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
     // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
-    // the app font has a pixel size, the one of the controls. On iOS and desktop it has a point
-    // size of its own (17 on iOS, already scaled by the system text size QZ started with), so a
-    // Text is scaled from that, in pixels, and the start-up system size is taken out of it when
-    // the size follows the system
-    readonly property real startupSystemTextScale: AndroidStatusBar.systemFontScale()
+    // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
+    // size (above); on desktop the app font has a point size (in QML "pointSize": there is no
+    // "pointSizeF"), so a Text is scaled from that, in pixels
     readonly property int plainFontPx: textScale === 1 ? 0
-        : Qt.application.font.pixelSize > 0 || Qt.application.font.pointSizeF <= 0 ? scaledFontPx
-        : Math.round(Qt.application.font.pointSizeF * Screen.logicalPixelDensity * 25.4 / 72 * textScale
-            / (systemTextScaleAvailable && settings.ui_text_scale_system && startupSystemTextScale > 0 ? startupSystemTextScale : 1))
+        : iosTextSize ? Math.round(iosBodyPx * textScale)
+        : Qt.application.font.pixelSize > 0 || !(Qt.application.font.pointSize > 0) ? scaledFontPx
+        : Math.round(Qt.application.font.pointSize * Screen.logicalPixelDensity * 25.4 / 72 * textScale)
+    // Base of a plain Text that is a multiple of the text size (the file names in profiles)
+    readonly property int plainBasePx: iosTextSize ? iosBodyPx : appFontPx
     // Font of the section headers of the settings: a plain Text, which does not inherit the window
     // font. At 100 % the app font, the one a Text takes by itself
     readonly property font headerFont: textScale === 1 ? Qt.application.font
