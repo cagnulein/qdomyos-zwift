@@ -75,11 +75,8 @@ Page {
                             enabled: rootItem.device
                             smooth: true
 
-                            // VoiceOver accessibility
-                            Accessible.role: Accessible.Indicator
-                            Accessible.name: qsTr("Bluetooth connection")
-                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
-                            Accessible.focusable: true
+                            // VoiceOver accessibility: the MouseArea below is the button, read once
+                            Accessible.ignored: true
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -92,6 +89,13 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
+
+                            // VoiceOver/TalkBack: a button that searches, with the connection state
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Bluetooth connection")
+                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
+                            Accessible.focusable: true
+                            Accessible.onPressAction: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                         }
                     }
                     Image {
