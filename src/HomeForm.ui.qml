@@ -90,9 +90,10 @@ Page {
                             anchors.fill: parent
                             onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
 
-                            // VoiceOver/TalkBack: a button that searches, with the connection state
+                            // VoiceOver/TalkBack: a button that searches. The state is in the name: TalkBack (Qt 5.15)
+                            // reads no description when the name is set
                             Accessible.role: Accessible.Button
-                            Accessible.name: qsTr("Bluetooth connection")
+                            Accessible.name: qsTr("Bluetooth connection") + ": " + (rootItem.device ? qsTr("Device connected") : qsTr("Device not connected"))
                             Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
                             Accessible.focusable: true
                             Accessible.onPressAction: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }

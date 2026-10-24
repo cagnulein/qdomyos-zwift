@@ -4207,8 +4207,9 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
             notFound);
     hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(30000);
 
-    // This scan counts in the Android limit too (5 starts in 30 s, see searchNow()): with the window full, a
-    // start now would be ignored and end in "not found", so it starts when the oldest start leaves the window
+    // This scan counts in the Android limit too (5 starts in 30 s): like searchNow() it leaves room for an
+    // automatic search (a trainer lost meanwhile), so with 4 starts in the window it waits for one to leave it
+    // instead of a start that would be ignored and end in "not found"
     QBluetoothDeviceDiscoveryAgent *agent = hrmDiscoveryAgent;
     auto startScan = [this, agent]() {
         const qint64 startedMs = QDateTime::currentMSecsSinceEpoch();
@@ -4218,8 +4219,8 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     };
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     pruneScanStarts(now);
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 5) {
-        const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 5)) + 500;
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 4)) + 500;
         debug(QStringLiteral("HR sensor scan postponed by the Android limit"));
         QTimer::singleShot(int(waitMs), agent, startScan);
     } else {
