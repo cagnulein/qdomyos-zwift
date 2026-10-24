@@ -21,6 +21,25 @@
         -webkit-user-select: none;
         -ms-user-select: none;
     }
+
+    #chart-order-toolbar { margin: 10px 0; text-align: right; }
+    #chart-order-toolbar button, #chart-order-controls button {
+        min-height: 44px; padding: 8px 12px; border: 1px solid #76849c;
+        border-radius: 7px; background: #e9edf5; color: #192436;
+        font-size: 15px; cursor: pointer;
+    }
+    #chart-order-controls { margin-bottom: 16px; border: 1px solid #6c7891;
+        border-radius: 10px; padding: 12px; color: white; font-family: sans-serif; }
+    #chart-order-controls[hidden] { display: none; }
+    #chart-order-controls h3 { margin: 0 0 8px; }
+    #chart-order-controls p { font-size: 13px; }
+    .chart-order-row { display: flex; align-items: center; gap: 8px;
+        min-height: 48px; border-bottom: 1px solid #455268; }
+    .chart-order-row span { flex: 1; }
+    .chart-order-row button { min-width: 44px; }
+    .chart-order-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    #chart-order-controls button:disabled { opacity: 0.4; cursor: default; }
+    #chart-order-error { color: #ffb3b3; }
     </style>
 </head>
 
@@ -92,7 +111,24 @@
         </tr>
     </table>
     </br>
-    <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    
+<div id="chart-order-toolbar">
+    <button type="button" id="chart-order-open" disabled>Customize charts</button>
+</div>
+<div id="chart-order-controls" hidden>
+    <h3>Chart order</h3>
+    <p>Use the arrows to move each chart. This order will apply to all workouts in History.</p>
+    <div id="chart-order-list"></div>
+    <div class="chart-order-actions">
+        <button type="button" id="chart-order-reset">Default order</button>
+        <button type="button" id="chart-order-cancel">Cancel</button>
+        <button type="button" id="chart-order-save">Save order</button>
+    </div>
+    <p id="chart-order-error" role="alert" aria-live="polite"></p>
+</div>
+<div id="history-charts">
+<section class="history-chart-section" data-chart-id="power">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvas"></canvas>
 		</div>
 		<div style="width: 100%; overflow: hidden;">
@@ -102,7 +138,10 @@
 '></div>
 </div>
                 </br></br>
-         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+         
+</section>
+<section class="history-chart-section" data-chart-id="heart">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvasHeart"></canvas>
     </div>
 	 <div style="width: 100%; overflow: hidden;">
@@ -112,26 +151,43 @@
 '></div>
 </div>
          </br></br>
-         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+         
+</section>
+<section class="history-chart-section" data-chart-id="resistance">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvasResistance"></canvas>
 		</div>
                 </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+        
+</section>
+<section class="history-chart-section" data-chart-id="pelotonResistance">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasPelotonResistance"></canvas>
                </div>
                </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+        
+</section>
+<section class="history-chart-section" data-chart-id="cadence">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasCadence"></canvas>
                </div>
                 </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+        
+</section>
+<section class="history-chart-section" data-chart-id="powerDistribution">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasPowerDistribution"></canvas>
                </div>
                </br></br>
-       <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+       
+</section>
+<section class="history-chart-section" data-chart-id="speedInclination">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
            <canvas id="canvasSpeedInclination"></canvas>
               </div>
 
+</section>
+</div>
 <style>#loading {
 width: 100%;
 height: 100%;
@@ -157,6 +213,138 @@ z-index: 100;
 <div id="loading">
      <img src="ajax-loader.gif" id="loading-image" title="working..." />
 </div>
+
+<script>
+(function () {
+    "use strict";
+    // Saved through QZ's existing WebSocket -> QSettings service.
+    var settingKey = "history_chart_order";
+    var defaultOrder = ["power", "heart", "resistance", "pelotonResistance",
+                        "cadence", "powerDistribution", "speedInclination"];
+    var labels = {
+        power: ["metric.watt", "Power"],
+        heart: ["chart.heartRate", "Heart Rate"],
+        resistance: ["chart.resistanceVsTarget", "Resistance vs Target Resistance"],
+        pelotonResistance: ["chart.pelotonResistanceVsTarget", "Peloton Resistance"],
+        cadence: ["chart.cadenceVsTarget", "Cadence"],
+        powerDistribution: ["chart.powerDistribution", "Power Distribution"],
+        speedInclination: ["chart.speedAndInclination", "Speed and Inclination"]
+    };
+    var charts = document.getElementById("history-charts");
+    var panel = document.getElementById("chart-order-controls");
+    var list = document.getElementById("chart-order-list");
+    var openButton = document.getElementById("chart-order-open");
+    var saveButton = document.getElementById("chart-order-save");
+    var errorLabel = document.getElementById("chart-order-error");
+    var savedOrder = defaultOrder.slice();
+    var currentOrder = defaultOrder.slice();
+
+    function caption(id) {
+        var label = labels[id];
+        return t(label[0], label[1]);
+    }
+
+    function normalizeOrder(value) {
+        var items = typeof value === "string" ? value.split(",") : [];
+        var result = [];
+        items.forEach(function (id) {
+            if (defaultOrder.indexOf(id) !== -1 && result.indexOf(id) === -1)
+                result.push(id);
+        });
+        defaultOrder.forEach(function (id) {
+            if (result.indexOf(id) === -1) result.push(id);
+        });
+        return result;
+    }
+
+    function applyOrder(order) {
+        order.forEach(function (id) {
+            var section = charts.querySelector('[data-chart-id="' + id + '"]');
+            if (section) charts.appendChild(section);
+        });
+        currentOrder = order.slice();
+    }
+
+    function renderList() {
+        list.textContent = "";
+        currentOrder.forEach(function (id, index) {
+            var row = document.createElement("div");
+            row.className = "chart-order-row";
+            var name = document.createElement("span");
+            name.textContent = caption(id);
+            row.appendChild(name);
+
+            [-1, 1].forEach(function (direction) {
+                var button = document.createElement("button");
+                button.type = "button";
+                button.textContent = direction === -1 ? "↑" : "↓";
+                button.setAttribute("aria-label", (direction === -1 ? "Move up: " : "Move down: ") + caption(id));
+                button.disabled = index + direction < 0 || index + direction >= currentOrder.length;
+                button.addEventListener("click", function () {
+                    var next = currentOrder.slice();
+                    var destination = index + direction;
+                    var item = next[index];
+                    next[index] = next[destination];
+                    next[destination] = item;
+                    applyOrder(next);
+                    renderList();
+                });
+                row.appendChild(button);
+            });
+            list.appendChild(row);
+        });
+    }
+
+    openButton.addEventListener("click", function () {
+        errorLabel.textContent = "";
+        panel.hidden = false;
+        renderList();
+    });
+    document.getElementById("chart-order-cancel").addEventListener("click", function () {
+        applyOrder(savedOrder);
+        panel.hidden = true;
+    });
+    document.getElementById("chart-order-reset").addEventListener("click", function () {
+        applyOrder(defaultOrder);
+        renderList();
+    });
+    saveButton.addEventListener("click", function () {
+        errorLabel.textContent = "";
+        saveButton.disabled = true;
+        var orderToSave = currentOrder.slice();
+        var values = {};
+        values[settingKey] = orderToSave.join(",");
+        var request = new MainWSQueueElement({
+            msg: "setsettings", content: values
+        }, function (msg) {
+            return msg.msg === "R_setsettings" ? msg.content : null;
+        }, 5000, 3);
+        request.enqueue().then(function () {
+            savedOrder = orderToSave;
+            panel.hidden = true;
+            saveButton.disabled = false;
+        }).catch(function (err) {
+            errorLabel.textContent = "Could not save chart order. Please try again.";
+            console.error("Chart order save failed:", err);
+            saveButton.disabled = false;
+        });
+    });
+
+    var getRequest = new MainWSQueueElement({
+        msg: "getsettings", content: {keys: [settingKey]}
+    }, function (msg) {
+        return msg.msg === "R_getsettings" ? msg.content : null;
+    }, 5000, 3);
+    getRequest.enqueue().then(function (settings) {
+        savedOrder = normalizeOrder(settings ? settings[settingKey] : null);
+        applyOrder(savedOrder);
+        openButton.disabled = false;
+    }).catch(function (err) {
+        console.error("Could not load saved history chart order:", err);
+        openButton.disabled = false;
+    });
+})();
+</script>
 
 </body>
 </html>
