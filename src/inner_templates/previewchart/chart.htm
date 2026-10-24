@@ -92,7 +92,9 @@
         </tr>
     </table>
     </br>
-    <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+        <div id="history-charts">
+    <section data-history-chart="power">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvas"></canvas>
 		</div>
 		<div style="width: 100%; overflow: hidden;">
@@ -102,7 +104,9 @@
 '></div>
 </div>
                 </br></br>
-         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="heart">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvasHeart"></canvas>
     </div>
 	 <div style="width: 100%; overflow: hidden;">
@@ -112,25 +116,37 @@
 '></div>
 </div>
          </br></br>
-         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="resistance">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvasResistance"></canvas>
 		</div>
                 </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="pelotonResistance">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasPelotonResistance"></canvas>
                </div>
                </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="cadence">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasCadence"></canvas>
                </div>
                 </br></br>
-        <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="powerDistribution">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
             <canvas id="canvasPowerDistribution"></canvas>
                </div>
                </br></br>
-       <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    </section>
+    <section data-history-chart="speedInclination">
+<div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
            <canvas id="canvasSpeedInclination"></canvas>
               </div>
+    </section>
+    </div>
 
 <style>#loading {
 width: 100%;
@@ -157,6 +173,46 @@ z-index: 100;
 <div id="loading">
      <img src="ajax-loader.gif" id="loading-image" title="working..." />
 </div>
+
+<script>
+// Read the persistent order from Settings > Workout History Charts.
+(function () {
+    "use strict";
+    var defaultOrder = ["power", "heart", "resistance", "pelotonResistance",
+                        "cadence", "powerDistribution", "speedInclination"];
+    var container = document.getElementById("history-charts");
+
+    function reorder(value) {
+        var items = typeof value === "string" ? value.split(",") : [];
+        var ordered = [];
+        items.forEach(function (id) {
+            if (defaultOrder.indexOf(id) >= 0 && ordered.indexOf(id) < 0)
+                ordered.push(id);
+        });
+        defaultOrder.forEach(function (id) {
+            if (ordered.indexOf(id) < 0)
+                ordered.push(id);
+        });
+        ordered.forEach(function (id) {
+            var item = container.querySelector('[data-history-chart="' + id + '"]');
+            if (item) container.appendChild(item);
+        });
+    }
+
+    var request = new MainWSQueueElement({
+        msg: "getsettings", content: {keys: ["history_chart_order"]}
+    }, function (response) {
+        return response.msg === "R_getsettings" ? response.content : null;
+    }, 5000, 3);
+
+    request.enqueue().then(function (settings) {
+        reorder(settings ? settings.history_chart_order : null);
+    }).catch(function (error) {
+        console.error("Could not load workout history chart order:", error);
+        // The charts stay in their original order if the setting is unavailable.
+    });
+})();
+</script>
 
 </body>
 </html>

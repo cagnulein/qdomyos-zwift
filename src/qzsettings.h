@@ -3407,6 +3407,10 @@ class QZSettings {
     static const QString ui_text_scale_system;
     static constexpr bool default_ui_text_scale_system = true;
 
+    // Order of charts in the Workout History preview.
+    static const QString history_chart_order;
+    static const QString default_history_chart_order;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

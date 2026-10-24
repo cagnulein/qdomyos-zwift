@@ -2264,6 +2264,7 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
+            property string history_chart_order: "power,heart,resistance,pelotonResistance,cadence,powerDistribution,speedInclination"
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -6959,6 +6960,7 @@ import AndroidStatusBar 1.0
                 pageSettings: settings
             }
 
+
             AccordionElement {
                 id: uiGeneralOptionsAccordion
                 title: qsTr("General UI Options")
@@ -6970,6 +6972,126 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Workout History (not the live charts): customize the order of saved workout graphs.
+                    AccordionElement {
+                        id: historyChartsAccordion
+                        title: qsTr("Workout History Charts")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            id: historyChartOrderEditor
+                            spacing: 8
+                            Layout.fillWidth: true
+
+                            readonly property var defaultChartIds: [
+                                "power", "heart", "resistance", "pelotonResistance",
+                                "cadence", "powerDistribution", "speedInclination"
+                            ]
+                            property var chartOrder: []
+
+                            function normalizedChartOrder(value) {
+                                var order = typeof value === "string" ? value.split(",") : []
+                                var result = []
+                                for (var i = 0; i < order.length; ++i) {
+                                    if (defaultChartIds.indexOf(order[i]) >= 0 && result.indexOf(order[i]) < 0)
+                                        result.push(order[i])
+                                }
+                                for (var j = 0; j < defaultChartIds.length; ++j) {
+                                    if (result.indexOf(defaultChartIds[j]) < 0)
+                                        result.push(defaultChartIds[j])
+                                }
+                                return result
+                            }
+
+                            function chartLabel(chartId) {
+                                switch (chartId) {
+                                case "power": return qsTr("Power")
+                                case "heart": return qsTr("Heart Rate")
+                                case "resistance": return qsTr("Resistance vs Target Resistance")
+                                case "pelotonResistance": return qsTr("Peloton Resistance")
+                                case "cadence": return qsTr("Cadence")
+                                case "powerDistribution": return qsTr("Power Distribution")
+                                case "speedInclination": return qsTr("Speed and Inclination")
+                                default: return chartId
+                                }
+                            }
+
+                            function moveChart(index, delta) {
+                                var destination = index + delta
+                                if (destination < 0 || destination >= chartOrder.length)
+                                    return
+                                var updated = chartOrder.slice()
+                                var item = updated[index]
+                                updated[index] = updated[destination]
+                                updated[destination] = item
+                                chartOrder = updated
+                                settings.history_chart_order = updated.join(",")
+                            }
+
+                            Component.onCompleted: {
+                                chartOrder = normalizedChartOrder(settings.history_chart_order)
+                            }
+
+                            Connections {
+                                target: settings
+                                function onHistory_chart_orderChanged() {
+                                    historyChartOrderEditor.chartOrder =
+                                            historyChartOrderEditor.normalizedChartOrder(settings.history_chart_order)
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Repeater {
+                                model: historyChartOrderEditor.chartOrder.length
+                                delegate: RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Label {
+                                        text: historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                    }
+                                    Button {
+                                        text: "↑"
+                                        enabled: index > 0
+                                        Accessible.name: qsTr("Move up") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, -1)
+                                    }
+                                    Button {
+                                        text: "↓"
+                                        enabled: index < historyChartOrderEditor.chartOrder.length - 1
+                                        Accessible.name: qsTr("Move down") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, 1)
+                                    }
+                                }
+                            }
+
+                            Button {
+                                text: qsTr("Restore default order")
+                                Layout.alignment: Qt.AlignRight
+                                enabled: historyChartOrderEditor.chartOrder.join(",") !==
+                                         historyChartOrderEditor.defaultChartIds.join(",")
+                                onClicked: {
+                                    var defaults = historyChartOrderEditor.defaultChartIds.slice()
+                                    historyChartOrderEditor.chartOrder = defaults
+                                    settings.history_chart_order = defaults.join(",")
+                                }
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
