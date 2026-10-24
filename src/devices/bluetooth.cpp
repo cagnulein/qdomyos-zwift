@@ -6,6 +6,7 @@
 #include <QRegularExpression>
 #include <QDateTime>
 #include <QFile>
+#include <memory>
 #include <QMetaEnum>
 
 #include <QtXml>
@@ -3428,22 +3429,7 @@ void bluetooth::connectedAndDiscovered() {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().startsWith(heartRateBeltName))) && !heartRateBelt &&
                 !heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-                settings.setValue(QZSettings::hrm_lastdevice_name, b.name());
-
-#ifndef Q_OS_IOS
-                settings.setValue(QZSettings::hrm_lastdevice_address, b.address().toString());
-#else
-                settings.setValue(QZSettings::hrm_lastdevice_address, b.deviceUuid().toString());
-#endif
-                heartRateBelt = new heartratebelt();
-                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-                connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
-                connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
-                connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
-                heartRateBelt->deviceDiscovered(b);
-                if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(b.name()));
+                connectHeartRateBelt(b);
                 break;
             }
         }
@@ -4100,6 +4086,159 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
     restart();
 }
 
+void bluetooth::connectHeartRateBelt(const QBluetoothDeviceInfo &b) {
+    QSettings settings;
+    settings.setValue(QZSettings::hrm_lastdevice_name, b.name());
+
+#ifndef Q_OS_IOS
+    settings.setValue(QZSettings::hrm_lastdevice_address, b.address().toString());
+#else
+    settings.setValue(QZSettings::hrm_lastdevice_address, b.deviceUuid().toString());
+#endif
+    heartRateBelt = new heartratebelt();
+    // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+    connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
+    connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
+    connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
+    heartRateBelt->deviceDiscovered(b);
+
+    // "connected!" waits for the first heart rate: a watch accepts the connection even when it does not
+    // broadcast. No heart rate in 15 s – say so instead
+    heartratebelt *belt = heartRateBelt;
+    const QString name = b.name();
+    auto firstHeartRate = std::make_shared<QMetaObject::Connection>();
+    *firstHeartRate = connect(belt, &heartratebelt::heartRate, this, [firstHeartRate, name]() {
+        QObject::disconnect(*firstHeartRate);
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(name));
+    });
+    QTimer::singleShot(15000, belt, [belt, name]() {
+        if (!belt->lastHeartRateTime.isValid() && homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.").arg(name));
+    });
+}
+
+// Applies a heart rate sensor chosen while QZ is running, so no restart is needed:
+// drops the old sensor and connects the new one, scanning for it if it was not seen yet.
+// name: the sensor just chosen in the settings page. Its QML Settings object writes the value to QSettings
+// a moment later, so reading it here would still give the old one; empty means take the saved value.
+void bluetooth::reconnectHeartRateBelt(const QString &name) {
+    QSettings settings;
+    QString heartRateBeltName =
+        name.isEmpty()
+            ? settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString()
+            : name;
+    qDebug() << "bluetooth::reconnectHeartRateBelt()" << heartRateBeltName;
+
+    // Already connected only while the heart rate still comes: a watch that stopped broadcasting keeps the
+    // link up, so a silent sensor is dropped and searched for again below
+    if (heartRateBelt && heartRateBelt->connected() && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName) &&
+        heartRateBelt->lastHeartRateTime.isValid() &&
+        heartRateBelt->lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) < 5000) {
+        qDebug() << "heart rate sensor already connected";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor) connected!").arg(heartRateBelt->bluetoothDevice.name()));
+        return;
+    }
+
+    // The same sensor created less than 15 s ago and no heart rate yet: still connecting, a second tap must not
+    // start it over (connectHeartRateBelt() says "connected!" or "no heart rate" by itself)
+    if (heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName) &&
+        !heartRateBelt->lastHeartRateTime.isValid() &&
+        heartRateBelt->createdTime.msecsTo(QDateTime::currentDateTime()) < 15000) {
+        qDebug() << "heart rate sensor still connecting";
+        return;
+    }
+
+    // The same sensor gone silent: the list of seen devices still has it, so connect only after a fresh scan
+    // finds it advertising again
+    const bool silentSameSensor =
+        heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName);
+
+    stopHeartRateBeltDiscovery();
+    if (heartRateBelt) {
+        heartRateBelt->disconnect();
+        heartRateBelt->disconnectBluetooth();
+        heartRateBelt->deleteLater();
+        heartRateBelt = nullptr;
+    }
+
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        settings.setValue(QZSettings::hrm_lastdevice_name, "");
+        settings.setValue(QZSettings::hrm_lastdevice_address, "");
+        return;
+    }
+
+    // without a fitness machine the usual path in connectedAndDiscovered() will connect it
+    if (!this->device())
+        return;
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (!silentSameSensor && b.name().startsWith(heartRateBeltName)) {
+            connectHeartRateBelt(b);
+            return;
+        }
+    }
+
+    hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+            [this, heartRateBeltName](const QBluetoothDeviceInfo &b) {
+                if (heartRateBelt || !this->device() || !b.name().startsWith(heartRateBeltName))
+                    return;
+                stopHeartRateBeltDiscovery();
+                connectHeartRateBelt(b);
+            });
+    auto notFound = [this, heartRateBeltName]() {
+        stopHeartRateBeltDiscovery();
+        if (!heartRateBelt && homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.")
+                    .arg(heartRateBeltName));
+    };
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, notFound);
+    connect(hrmDiscoveryAgent,
+            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+            notFound);
+    hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(30000);
+
+    // This scan counts in the Android limit too (5 starts in 30 s): like searchNow() it leaves room for an
+    // automatic search (a trainer lost meanwhile), so with 4 starts in the window it waits for one to leave it
+    // instead of a start that would be ignored and end in "not found"
+    QBluetoothDeviceDiscoveryAgent *agent = hrmDiscoveryAgent;
+    auto startScan = [this, agent]() {
+        const qint64 startedMs = QDateTime::currentMSecsSinceEpoch();
+        pruneScanStarts(startedMs);
+        scanStartsMs.append(startedMs);
+        agent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    };
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    pruneScanStarts(now);
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 4)) + 500;
+        debug(QStringLiteral("HR sensor scan postponed by the Android limit"));
+        QTimer::singleShot(int(waitMs), agent, startScan);
+    } else {
+        startScan();
+    }
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+}
+
+void bluetooth::stopHeartRateBeltDiscovery() {
+    if (!hrmDiscoveryAgent)
+        return;
+    hrmDiscoveryAgent->disconnect(this);
+    hrmDiscoveryAgent->stop();
+    hrmDiscoveryAgent->deleteLater();
+    hrmDiscoveryAgent = nullptr;
+}
+
 void bluetooth::restart() {
 
     QSettings settings;
@@ -4121,6 +4260,7 @@ void bluetooth::restart() {
         exit(EXIT_SUCCESS);
     }
 
+    stopHeartRateBeltDiscovery();
     devices.clear();
 
     emit this->bluetoothDeviceDisconnected();

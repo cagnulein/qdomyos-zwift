@@ -100,6 +100,9 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
             Heart = (uint8_t)newValue[1];
             index = 2;
         }
+        // 0 is what some chest straps send without skin contact: not a heart rate
+        if (Heart.value() > 0)
+            lastHeartRateTime = QDateTime::currentDateTime();
         emit heartRate((uint8_t)Heart.value());
 
         // Bit 3: Energy Expended Status
@@ -243,8 +246,8 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
 
-    if(homeform::singleton())
-        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
+    // No "connected!" here: nothing is connected yet. bluetooth::connectHeartRateBelt() says it on the first
+    // heart rate
 
     // if(device.name().startsWith(heartRateBeltName))
     {
