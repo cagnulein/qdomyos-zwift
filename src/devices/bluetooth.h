@@ -75,6 +75,7 @@
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
+#include "devices/ypootreadmill/ypootreadmill.h"
 #include "devices/iconceptbike/iconceptbike.h"
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
@@ -271,6 +272,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    ypootreadmill *ypooTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
