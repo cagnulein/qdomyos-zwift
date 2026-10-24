@@ -16338,7 +16338,7 @@
       "parent": "Trixter X-Dream Bike Options (Windows/Linux only)",
       "type": "integer",
       "qmlType": "int",
-      "control": null,
+      "control": "text",
       "visible": false,
       "defaultValue": 45,
       "defaultExpression": "45",
