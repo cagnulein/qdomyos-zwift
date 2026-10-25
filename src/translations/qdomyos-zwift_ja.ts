@@ -1006,6 +1006,14 @@ QZの設定を更新しますか?</translation>
         <source>Android notification enabled</source>
         <translation>Androidバックグラウンド通知保持を有効にしました</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -7807,6 +7815,26 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers ローイングマシン</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
