@@ -140,6 +140,39 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
     qDebug() << "✓ New format developer fields test passed";
 }
 
+void QFitTestSuite::test_recordAltitudeIncludesDescent() {
+    QString filename = tempDir->filePath("test_descent_altitude.fit");
+    QList<SessionLine> session;
+    QDateTime startTime = QDateTime::currentDateTime();
+    const double elevationGain[] = {0.0, 10.0, 10.0, 20.0};
+    const double negativeElevationGain[] = {0.0, 0.0, 5.0, 5.0};
+
+    for (int i = 0; i < 4; ++i) {
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.01;
+        line.speed = 10.0;
+        line.cadence = 60;
+        line.elevationGain = elevationGain[i];
+        line.negativeElevationGain = negativeElevationGain[i];
+        session.append(line);
+    }
+
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING);
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    QList<SessionLine> decoded;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(filename, &decoded, &sport);
+
+    ASSERT_EQ(decoded.size(), 4);
+    const double expectedNetElevation[] = {0.0, 10.0, 5.0, 15.0};
+    for (int i = 0; i < 4; ++i) {
+        EXPECT_NEAR(decoded.at(i).elevationGain, expectedNetElevation[i], 0.25);
+    }
+}
+
 void QFitTestSuite::test_databaseReadability() {
     // Create a FIT file with new format
     QString filename = createNewFormatFitFile();
