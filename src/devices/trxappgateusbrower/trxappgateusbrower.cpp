@@ -304,6 +304,9 @@ void trxappgateusbrower::btinit() {
 }
 
 void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
+    QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff2);
+    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0xfff1);
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
