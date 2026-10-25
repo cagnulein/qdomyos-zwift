@@ -612,6 +612,7 @@ void nordictrackifitadbelliptical::initializeFitProService() {
 #ifdef Q_OS_ANDROID
     if (!fitproInitialized) {
         try {
+            QSettings settings;
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/FitProDeviceService", "setContext",
                 "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
