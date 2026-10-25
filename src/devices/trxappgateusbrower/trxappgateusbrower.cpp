@@ -154,6 +154,28 @@ double trxappgateusbrower::GetWattFromPacket(const QByteArray &packet) {
     return data;
 }
 
+trxappgateusbrower::IConsoleRowerMetrics
+trxappgateusbrower::iConsoleRowerMetricsFromPacket(const QByteArray &packet) {
+    IConsoleRowerMetrics metrics;
+    if (packet.size() != 23 || !packet.startsWith(QByteArray::fromHex("f0b201e7")))
+        return metrics;
+
+    const auto field = [&packet](int index) { return static_cast<uint8_t>(packet.at(index)) - 1; };
+    const auto pair = [&field](int high, int low) { return field(high) * 99 + field(low); };
+    metrics.valid = true;
+    metrics.elapsed = field(4) * 60 + field(5);
+    metrics.strokes = pair(6, 7);
+    metrics.cadence = pair(8, 9);
+    metrics.distanceMeters = pair(10, 11);
+    metrics.calories = pair(12, 13);
+    metrics.heart = pair(14, 15);
+    metrics.watts = pair(16, 17);
+    metrics.paceSeconds = field(18) * 60 + field(19);
+    metrics.resistance = field(20);
+    metrics.speed = (metrics.cadence > 0 && metrics.paceSeconds > 0) ? 1800.0 / metrics.paceSeconds : 0;
+    return metrics;
+}
+
 void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                               const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -180,15 +202,27 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
     const bool iconsoleRower = gattCommunicationChannelService->serviceUuid() ==
                               QBluetoothUuid(QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455"));
 
-    if (mearch_novarow_r50 || iconsoleRower) {
+    if (iconsoleRower) {
+        const auto metrics = iConsoleRowerMetricsFromPacket(newValue);
+        if (!metrics.valid)
+            return;
+        StrokesCount = metrics.strokes;
+        Cadence = metrics.cadence * cadence_gain + cadence_offset;
+        Distance = metrics.distanceMeters / 1000.0;
+        KCal = metrics.calories;
+        deviceHeartRate = metrics.heart;
+        if (!heart_ignore_builtin && deviceHeartRate > 0)
+            Heart = deviceHeartRate;
+        m_watt = metrics.watts;
+        Resistance = metrics.resistance;
+        Speed = metrics.speed;
+    } else if (mearch_novarow_r50) {
         // Mearch NovaRow R50 data format parsing
         // elapsedSecond = (values[4] - 1) * 60 + values[5] - 1
         int elapsedSeconds = (newValue.at(4) - 1) * 60 + (newValue.at(5) - 1);
 
         // strokeCount = (values[6] - 1) * 99 + (values[7] - 1)
         int strokeCount = (newValue.at(6) - 1) * 99 + (newValue.at(7) - 1);
-        if (iconsoleRower)
-            StrokesCount = strokeCount;
 
         // strokePerMinute = (values[8] - 1) * 99 + (values[9] - 1)
         Cadence = ((newValue.at(8) - 1) * 99 + (newValue.at(9) - 1)) * cadence_gain + cadence_offset;
@@ -214,11 +248,8 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
         // gear = values[20] - 1
         Resistance = newValue.at(20) - 1;
 
-        // The iConsole rower reports pace as minutes/seconds per 500m.
-        if (iconsoleRower) {
-            int paceSeconds = (newValue.at(18) - 1) * 60 + (newValue.at(19) - 1);
-            Speed = (Cadence.value() > 0 && paceSeconds > 0) ? 1800.0 / paceSeconds : 0;
-        } else if (elapsedSeconds > 0) {
+        // Speed calculation based on distance/time (approximate)
+        if (elapsedSeconds > 0) {
             Speed = (Distance.value() / elapsedSeconds) * 3.6; // convert m/s to km/h
         }
     } else {
