@@ -214,8 +214,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             }
         } else {
             min_alt = 0;
-            if (max_alt < session.at(i).elevationGain)
-                max_alt = session.at(i).elevationGain;
+            double net_altitude = session.at(i).elevationGain - session.at(i).negativeElevationGain;
+            if (max_alt < net_altitude)
+                max_alt = net_altitude;
         }
 
         if (session.at(i).speed > 0) {
@@ -1091,7 +1092,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
-            newRecord.SetAltitude(sl.elevationGain);
+            // With no GPS track, cumulative ascent/descent form the relative altitude profile.
+            newRecord.SetAltitude(sl.elevationGain - sl.negativeElevationGain);
         }
 
         // using just the start point as reference in order to avoid pause time

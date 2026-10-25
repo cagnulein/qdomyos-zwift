@@ -26,6 +26,11 @@ public:
     void test_newFormatDeveloperFields();
 
     /**
+     * @brief Test that FIT record altitude follows net elevation on descents
+     */
+    void test_recordAltitudeIncludesDescent();
+
+    /**
      * @brief Test that FIT files can be processed by the database
      */
     void test_databaseReadability();
@@ -57,6 +62,10 @@ private:
 
 TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
     this->test_newFormatDeveloperFields();
+}
+
+TEST_F(QFitTestSuite, TestRecordAltitudeIncludesDescent) {
+    this->test_recordAltitudeIncludesDescent();
 }
 
 TEST_F(QFitTestSuite, TestDatabaseReadability) {
