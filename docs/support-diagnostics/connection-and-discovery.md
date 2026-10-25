@@ -54,6 +54,7 @@
 
 - Exact machine model, Bluetooth name, and firmware revision if available.
 - QZ version and screenshots of relevant machine-specific and generic FTMS settings.
+- On Android, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported FTMS bike is detected but power and cadence remain zero.
 - Identify which QZ metrics update during a short workout.
 
 ### If still unclear
@@ -61,11 +62,13 @@
 - Capture a short QZ debug log after restarting QZ.
 - Identify which device handler QZ selected for the machine.
 - Compare only one setting change at a time, restarting between tests.
+- If ANT Bike Garmin is enabled, run a short QZ-only pedaling test with that option disabled and QZ restarted, keeping the selected bike and other settings unchanged. Report whether live power and cadence appear. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the known configuration check.
 
 ### Why it matters
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
+- A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
 
 ## Bike reports metrics but remote resistance support is uncertain
 

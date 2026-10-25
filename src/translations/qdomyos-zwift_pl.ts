@@ -1006,6 +1006,14 @@ Zaktualizować ustawienia QZ?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Urządzenie Zwift: ZAKTUALIZUJ OPROGRAMOWANIE SPRZĘTOWE!</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4386,7 +4394,7 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Skala interfejsu:</translation>
+        <translation type="vanished">Skala interfejsu:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,7 +4406,7 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Zmienia rozmiar kafelków wyświetlających dane. Wartość domyślna to 100%. Aby zmieścić więcej kafelków na ekranie, wybierz mniejszą wartość. Aby je powiększyć, wybierz wartość powyżej 100%. Nie wpisuj znaku procentu.</translation>
+        <translation type="vanished">Zmienia rozmiar kafelków wyświetlających dane. Wartość domyślna to 100%. Aby zmieścić więcej kafelków na ekranie, wybierz mniejszą wartość. Aby je powiększyć, wybierz wartość powyżej 100%. Nie wpisuj znaku procentu.</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -7735,6 +7743,34 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Eksperymentalne: QZ stopniowo koryguje ustawianą przez siebie prędkość bieżni na podstawie danych z Runn/Stryd, jeśli sterownik bieżni przekazuje niezależne pomiary prędkości. Wymaga opcji „Używaj prędkości z czujnika mocy”. Domyślnie: wyłączone.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
