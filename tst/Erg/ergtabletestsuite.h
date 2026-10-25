@@ -28,6 +28,8 @@ public:
     void test_pairedPowerTableUsesPairedDeltaMedian();
     void test_pairedPowerTableWaitsForStableTarget();
     void test_pairedPowerTableRejectsRudyInstability();
+    void test_pairedPowerTableRejectsExcessiveStableDelta();
+    void test_pairedPowerTableIgnoresPersistedExcessiveDelta();
 
 };
 
@@ -61,5 +63,13 @@ TEST_F(ErgTableTestSuite, TestPairedPowerTableWaitsForStableTarget) {
 
 TEST_F(ErgTableTestSuite, TestPairedPowerTableRejectsRudyInstability) {
     this->test_pairedPowerTableRejectsRudyInstability();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableRejectsExcessiveStableDelta) {
+    this->test_pairedPowerTableRejectsExcessiveStableDelta();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableIgnoresPersistedExcessiveDelta) {
+    this->test_pairedPowerTableIgnoresPersistedExcessiveDelta();
 }
 

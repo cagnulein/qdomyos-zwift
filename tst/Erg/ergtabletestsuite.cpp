@@ -618,11 +618,11 @@ void ErgTableTestSuite::test_pairedPowerTable() {
 
     ergTable erg;
     for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
-        erg.collectData(80, 150, 7, 180, true);
+        erg.collectData(80, 150, 7, 170, true);
     }
 
-    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(150, 80, 7));
-    EXPECT_EQ(190, erg.trainerPowerForPedalTarget(160, 80, 7));
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(160, 80, 7));
 }
 
 void ErgTableTestSuite::test_legacyPowerTableLoading() {
@@ -635,10 +635,10 @@ void ErgTableTestSuite::test_legacyPowerTableLoading() {
     EXPECT_EQ(150, legacyTable.estimateWattage(80, 7));
     EXPECT_EQ(0, legacyTable.trainerPowerForPedalTarget(150, 80, 7));
 
-    testSettings.qsettings.setValue("ergDataPoints", "80|150|7|180");
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7|170");
     testSettings.qsettings.sync();
     ergTable pairedTable;
-    EXPECT_EQ(180, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(170, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
 }
 
 void ErgTableTestSuite::test_pairedPowerTableRejectsDistantResistance() {
@@ -661,10 +661,10 @@ void ErgTableTestSuite::test_pairedPowerTableUsesPairedDeltaMedian() {
 
     ergTable erg;
     for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
-        erg.collectData(80, 150, 7, i == 0 ? 195 : 180, true);
+        erg.collectData(80, 150, 7, i == 0 ? 185 : 170, true);
     }
 
-    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(170, erg.trainerPowerForPedalTarget(150, 80, 7));
 }
 
 void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
@@ -694,4 +694,31 @@ void ErgTableTestSuite::test_pairedPowerTableRejectsRudyInstability() {
     }
 
     EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 91, 43));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsExcessiveStableDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    // Rudy's clean-session data included C93/R39: pedal 116 W, trainer 180 W (+64 W).
+    // The delta is stable, but still too large to use as a trainer correction.
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(93, 116, 39, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableIgnoresPersistedExcessiveDelta() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.setValue("ergDataPoints", "93|116|39|180");
+    testSettings.qsettings.sync();
+
+    // A four-field point can come from an older build and must not bypass the
+    // same safety limit applied to points learned during the current session.
+    ergTable erg;
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
 }

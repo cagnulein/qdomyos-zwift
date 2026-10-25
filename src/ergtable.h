@@ -41,6 +41,7 @@ class WattageStats {
     static const int MAX_SAMPLES = 100;
     static const int MIN_SAMPLES_REQUIRED = 10;
     static constexpr int MAX_STABLE_PAIRED_DELTA_RANGE = 20;
+    static constexpr int MAX_ABSOLUTE_PAIRED_DELTA = 20;
 
     void addSample(uint16_t wattage, uint16_t trainerWattage = 0) {
         samples.append(wattage);
@@ -333,7 +334,9 @@ class ergTable : public QObject {
                                        uint16_t givenResistance) const {
         QList<ergDataPoint> pairedPoints;
         for (const auto &point : consolidatedData) {
-            if (point.trainerWattage > 0) {
+            const int pairedDelta = static_cast<int>(point.trainerWattage) - static_cast<int>(point.wattage);
+            if (point.trainerWattage > 0 &&
+                std::abs(pairedDelta) <= WattageStats::MAX_ABSOLUTE_PAIRED_DELTA) {
                 pairedPoints.append(point);
             }
         }
@@ -469,9 +472,11 @@ class ergTable : public QObject {
         WattageStats& stats = wattageData[pair];
         uint16_t medianWattage = stats.getMedian();
         uint16_t medianTrainerWattage = 0;
+        const int pairedDeltaMedian = stats.getPairedDeltaMedian();
         if (stats.trainerSampleCount() >= WattageStats::MIN_SAMPLES_REQUIRED &&
-            stats.hasStablePairedDelta()) {
-            const int pairedTrainerWattage = static_cast<int>(medianWattage) + stats.getPairedDeltaMedian();
+            stats.hasStablePairedDelta() &&
+            std::abs(pairedDeltaMedian) <= WattageStats::MAX_ABSOLUTE_PAIRED_DELTA) {
+            const int pairedTrainerWattage = static_cast<int>(medianWattage) + pairedDeltaMedian;
             medianTrainerWattage = static_cast<uint16_t>(qBound(0, pairedTrainerWattage, static_cast<int>(UINT16_MAX)));
         }
 
