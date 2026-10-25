@@ -177,14 +177,18 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
 
     // Parse data based on device type
     uint8_t deviceHeartRate = 0;  // Used for Mearch NovaRow R50
+    const bool iconsoleRower = gattCommunicationChannelService->serviceUuid() ==
+                              QBluetoothUuid(QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455"));
 
-    if (mearch_novarow_r50) {
+    if (mearch_novarow_r50 || iconsoleRower) {
         // Mearch NovaRow R50 data format parsing
         // elapsedSecond = (values[4] - 1) * 60 + values[5] - 1
         int elapsedSeconds = (newValue.at(4) - 1) * 60 + (newValue.at(5) - 1);
 
         // strokeCount = (values[6] - 1) * 99 + (values[7] - 1)
         int strokeCount = (newValue.at(6) - 1) * 99 + (newValue.at(7) - 1);
+        if (iconsoleRower)
+            StrokesCount = strokeCount;
 
         // strokePerMinute = (values[8] - 1) * 99 + (values[9] - 1)
         Cadence = ((newValue.at(8) - 1) * 99 + (newValue.at(9) - 1)) * cadence_gain + cadence_offset;
@@ -210,8 +214,11 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
         // gear = values[20] - 1
         Resistance = newValue.at(20) - 1;
 
-        // Speed calculation based on distance/time (approximate)
-        if (elapsedSeconds > 0) {
+        // The iConsole rower reports pace as minutes/seconds per 500m.
+        if (iconsoleRower) {
+            int paceSeconds = (newValue.at(18) - 1) * 60 + (newValue.at(19) - 1);
+            Speed = (Cadence.value() > 0 && paceSeconds > 0) ? 1800.0 / paceSeconds : 0;
+        } else if (elapsedSeconds > 0) {
             Speed = (Distance.value() / elapsedSeconds) * 3.6; // convert m/s to km/h
         }
     } else {
