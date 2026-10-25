@@ -51,6 +51,7 @@ SOURCES += \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
+        Devices/TestSoleF63InitRetry.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests

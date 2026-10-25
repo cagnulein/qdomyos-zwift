@@ -30,6 +30,58 @@
 
 #include "treadmill.h"
 
+class SoleF63InitRetryState {
+  public:
+    void begin() {
+        waitingForResponse = true;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    bool beginAfterNotifyCccdWrite(bool f63Model, bool currentNotifyCccd, bool notificationsEnabled) {
+        if (!f63Model || !currentNotifyCccd || !notificationsEnabled)
+            return false;
+
+        begin();
+        return true;
+    }
+
+    bool shouldRetry() const { return waitingForResponse; }
+
+    void recordAttempt() {
+        if (waitingForResponse)
+            ++attempts;
+    }
+
+    bool receiveNotification() {
+        if (!waitingForResponse || attempts == 0)
+            return false;
+
+        waitingForResponse = false;
+        responseReady = true;
+        return true;
+    }
+
+    bool takeResponse() {
+        const bool ready = responseReady;
+        responseReady = false;
+        return ready;
+    }
+
+    void cancel() {
+        waitingForResponse = false;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    quint64 attemptCount() const { return attempts; }
+
+  private:
+    bool waitingForResponse = false;
+    bool responseReady = false;
+    quint64 attempts = 0;
+};
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -51,12 +103,16 @@ class solef80treadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
+    QTimer f63InitRetryTimer;
+    SoleF63InitRetryState f63InitRetryState;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyDescriptor f63NotifyCccdDescriptor;
+    bool f63NotifyCccdWritePending = false;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -109,6 +165,7 @@ class solef80treadmill : public treadmill {
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
+    void retryF63InitHandshake();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
