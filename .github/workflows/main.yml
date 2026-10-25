@@ -1628,7 +1628,7 @@ jobs:
         run: mv src/qdomyos-zwift src/qdomyos-zwift-armv6hf
 
       - name: Verify 32-bit binary targets ARMv6
-          ARCH=$(readelf -A src/qdomyos-zwift-armv6hf | grep 'Tag_CPU_arch:' | awk '{print $2}')
+        run: |
           ARCH=$(readelf -A src/qdomyos-zwift-armv6hf | grep 'Tag_CPU_arch:' | awk '{print $2}')
           echo "Binary CPU architecture: $ARCH"
           if [ "$ARCH" != "v6" ]; then
