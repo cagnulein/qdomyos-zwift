@@ -304,38 +304,38 @@ void trxappgateusbrower::btinit() {
 }
 
 void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff2);
-    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0xfff1);
-
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
-        // qDebug() << gattCommunicationChannelService->characteristics();
+        const QBluetoothUuid standardWriteId((quint16)0xfff2);
+        const QBluetoothUuid standardNotifyId((quint16)0xfff1);
+        const QBluetoothUuid iconsoleServiceId(QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455"));
+        const QBluetoothUuid iconsoleWriteId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
+        const QBluetoothUuid iconsoleNotifyId(QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616"));
 
-        QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");
-        QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
-        QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
+        // The iConsole service uses its own write/notify characteristics, not FFF2/FFF1.
+        const bool iconsoleService = gattCommunicationChannelService->serviceUuid() == iconsoleServiceId;
+        QBluetoothUuid writeId = iconsoleService ? iconsoleWriteId : standardWriteId;
+        QBluetoothUuid notifyId = iconsoleService ? iconsoleNotifyId : standardNotifyId;
+        gattWriteCharacteristic = gattCommunicationChannelService->characteristic(writeId);
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(notifyId);
 
-
-        QBluetoothUuid _gattWriteCharacteristicId(uuidWrite);
-        QBluetoothUuid _gattNotify1CharacteristicId(uuidNotify1);
-        QBluetoothUuid _gattNotify2CharacteristicId(uuidNotify2);
-
-        gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-
-        if (!gattWriteCharacteristic.isValid()) {
-            uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
-            uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
-            uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
-
-            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-            gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        // Some consoles expose the opposite characteristic family; try that pair too.
+        if (!gattWriteCharacteristic.isValid() || !gattNotify1Characteristic.isValid()) {
+            writeId = iconsoleService ? standardWriteId : iconsoleWriteId;
+            notifyId = iconsoleService ? standardNotifyId : iconsoleNotifyId;
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(writeId);
+            gattNotify1Characteristic = gattCommunicationChannelService->characteristic(notifyId);
         }
 
+        if (!gattWriteCharacteristic.isValid() || !gattNotify1Characteristic.isValid()) {
+            emit debug(QStringLiteral("iConsole rower: missing write/notify characteristics on service ") +
+                       gattCommunicationChannelService->serviceUuid().toString());
+            return;
+        }
 
-               // establish hook into notifications
+        // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
                 &trxappgateusbrower::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
@@ -401,17 +401,18 @@ void trxappgateusbrower::characteristicWritten(const QLowEnergyCharacteristic &c
 void trxappgateusbrower::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
-    QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
-    QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
+    const QBluetoothUuid standardServiceId((quint16)0xfff0);
+    const QBluetoothUuid iconsoleServiceId(QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
-    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    gattCommunicationChannelService = m_control->createServiceObject(standardServiceId);
+    if (gattCommunicationChannelService == nullptr) {
+        emit debug(QStringLiteral("iConsole rower: FFF0 service not found, trying ") +
+                   iconsoleServiceId.toString());
+        gattCommunicationChannelService = m_control->createServiceObject(iconsoleServiceId);
+    }
 
     if (gattCommunicationChannelService == nullptr) {
-        qDebug() << QStringLiteral("invalid service") << uuid;
-        uuid = uuid2;
-        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("iConsole rower: neither FFF0 nor iConsole service found"));
         return;
     }
 
