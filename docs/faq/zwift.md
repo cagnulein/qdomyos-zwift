@@ -123,3 +123,15 @@ When QZ shows correct bike metrics and Zwift receives power and cadence but does
 3. If Zwift still receives data but sends no gradient commands, reinstalling Zwift on the receiving iPad can be a last-resort reset. Re-pair QZ after reinstalling. You may need to restore local app settings or downloads.
 
 **Confirmed workaround:** In one support case, QZ received normal bike data and Zwift read the metrics, but no new FTMS control commands arrived from Zwift on climbs. Reinstalling Zwift on the iPad restored gradient-based resistance changes. A stale pairing or app state is plausible, but the exact root cause was not proven. This does not address a separate failure of QZ to control the physical bike.
+
+## Can Zwift Click v2 change QZ's target ERG watts without running Zwift?
+
+**Yes, with a QZ build that includes standalone Click v2 target-power control** (confirmed in the Android Play Store **beta** during support testing). This is separate from virtual shifting in a training app.
+
+1. Connect the physical trainer and the **Zwift Click v2** controllers to QZ. If the controllers need unlocking, complete the full-Zwift-app pairing procedure described in the Click v2 FAQ above, then close Zwift.
+2. Leave other training apps disconnected from QZ's virtual device for this standalone test.
+3. In **Settings > Tiles Options**, enable the **Target Power (T.Power)** tile.
+4. On the QZ dashboard, set a target **above 0 W** using that tile to enter local ERG control.
+5. Press **+** or **−** on the Click controllers. In the confirmed beta, each press increased or decreased the ERG target by **5 W**.
+
+A rider initially found that the buttons did not change the target in the installed release; after updating to the Android beta, **both directions worked**. The **5 W step is fixed** in that tested implementation; there was no user setting for a different step size. Do not assume the same behavior when an external app (such as TrainerDay) owns the ERG target.
