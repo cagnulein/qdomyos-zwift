@@ -173,3 +173,26 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - A confirmed comparison restored physical gear response when shifts were delayed until after Kinomap had connected. This distinguishes controller input failure from a timing/state problem in the virtual-trainer control path.
 - Cached trainer pairings and early gear changes can produce similar symptoms but should be tested independently.
+
+
+## Zwift Click buttons appear connected but do not change gears or the local ERG target
+
+### Provide first
+
+- Identify the controller version (**Click v1 or Click v2**), trainer model, QZ device/OS, and the **installed QZ build** (release, beta, or test build).
+- State **which app owns the Click connection**: QZ directly, or Zwift with QZ receiving gear changes. Include the values of **Accessories > Zwift Click** and **Zwift Options > Get Gears from Zwift**.
+- Before opening QZ, wake the Click and report whether its LEDs blink; after QZ starts, report whether the LEDs become steady or continue blinking. Describe the LED behavior rather than assuming it proves button input.
+- Press a button and state **which QZ value changes**, if any: the **Gears** tile, the **Target Power (T.Power)** tile, or neither. Distinguish an unchanged tile from a changing tile with no physical trainer response.
+- For standalone ERG control, confirm that the target was set above zero in QZ and that no external training app was controlling the target.
+
+### If still unclear
+
+- For Click v2, identify whether the initial pairing/unlock was performed in the **full Zwift app** or only in Zwift Companion, and whether the problem occurs immediately or after about a minute. Refer to the [Zwift/Click FAQ](../faq/zwift.md) for the known handshake procedure; do not repeat the full procedure in intake requests.
+- Repeat a short controlled test with only the intended controller owner connected. Note the LED state and QZ tile values before and after two deliberate presses.
+- If button input still does not reach QZ, provide a debug log from startup through those presses, with approximate timestamps. If QZ changes the gear number but trainer resistance does not follow, continue with the existing **Virtual gear numbers update but trainer resistance does not follow** guide above.
+
+### Why it matters
+
+- The LED transition helps narrow down **discovery/pairing**, but only a changing QZ tile establishes that button input reached the intended control path.
+- Click ownership differs between direct QZ control and **Get Gears from Zwift**; mixing them can obscure whether QZ should receive Bluetooth button events or virtual gear updates.
+- In a confirmed Android test, standalone Click v2 ERG target changes worked in the beta but not in the previously installed release. Checking the exact running build avoids misdiagnosing a missing feature as a controller connection failure.

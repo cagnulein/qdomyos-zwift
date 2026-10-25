@@ -100,3 +100,25 @@
 - A manual-speed holdoff and programmed incline changes are independent: a confirmed test showed speed commands paused for 20 seconds while the next interval's incline still changed.
 - The per-row `looptimehr` controls how frequently HR-based speed corrections are evaluated; changing it affects command timing rather than the size of the speed step.
 - Separating interval completion from speed/incline control avoids treating a program-definition issue as a treadmill communication failure.
+
+
+## A running ZWO workout imports but the interval graph is empty or speed targets seem wrong
+
+### Provide first
+
+- QZ version/platform and the **original anonymized `.zwo` file** (or at least its opening tags and one affected interval).
+- State whether the file was opened using **Open Train Program** or imported into **Workout Editor**; include a screenshot of the interval graph before starting the workout and the number of intervals shown if available.
+- For a running workout, report the `sportType` and `durationType` values in the file and whether the intervals are intended to represent **time** or **distance**.
+- If the graph renders but the **speed targets** are unexpected, provide the affected interval's `pace` and power-percentage attributes plus the corresponding pace setting in QZ **Training Program options**.
+
+### If still unclear
+
+- Compare how the same file renders after verifying its running/time-or-distance metadata, without connecting or commanding a treadmill. The [running ZWO FAQ](../faq/training-programs.md) explains the known `durationType` format requirement.
+- If the graph now renders but the calculated speed is wrong, compare one interval's configured pace and percentage with the displayed QZ target before requesting a Bluetooth log.
+- Request a QZ debug log only if the workout graph and targets are correct **but the connected treadmill does not follow the commands**; include the exact interval and approximate timestamp.
+
+### Why it matters
+
+- The ZWO parser uses `sportType` and `durationType` to interpret running intervals. A confirmed import problem produced an empty graph until the time-based duration metadata was supplied.
+- QZ derives running speed from configured pace values and interval percentages, so an unexpected target can be a **pace-mapping issue** even when the file parses correctly.
+- Separating file parsing, target calculation, and physical treadmill control avoids collecting Bluetooth logs for an import-format problem.
