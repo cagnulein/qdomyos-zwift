@@ -58,6 +58,14 @@ class bluetoothdevice : public QObject {
 
     ~bluetoothdevice() override;
 
+    struct VirtualTreadmillControl {
+        bool enabled = false;
+        QByteArray speedRange;
+        QByteArray inclineRange;
+    };
+    // Opt-in FTMS forwarding and six-byte FTMS range values; disabled for existing drivers.
+    virtual VirtualTreadmillControl virtualTreadmillControl() const { return {}; }
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -235,6 +243,9 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
+            return wattsMetric().value();
+        }
         bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         if (power3s)
@@ -614,6 +625,7 @@ class bluetoothdevice : public QObject {
      */
     metric Heart;
     bool heartRateFromHealthKit = false;
+    quint64 healthKitHeartUpdateSequence = 0;
 
     /**
      * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
@@ -841,6 +853,7 @@ class bluetoothdevice : public QObject {
      * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
      */
     void update_ios_live_activity();
+    bool heartRateIsFromHealthKit();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)

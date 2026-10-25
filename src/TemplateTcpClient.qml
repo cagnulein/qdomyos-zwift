@@ -14,8 +14,9 @@ ColumnLayout {
         id: hostRow
         Label {
             id: labelTcpClientIp
-            text: qsTr(rootElement.templateId + " Host:")
+            text: qsTr("%1 Host:").arg(rootElement.templateId)
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         function doSaveHost(text) {
             let ipHostCheck = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/g;
@@ -47,8 +48,9 @@ ColumnLayout {
         id: portRow
         Label {
             id: labelTcpClientPort
-            text: qsTr(rootElement.templateId + " Port:")
+            text: qsTr("%1 Port:").arg(rootElement.templateId)
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         function doSavePort(text) {
             let port = parseInt(text);

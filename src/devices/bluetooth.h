@@ -29,6 +29,7 @@
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
+#include "devices/freebeatboombike/freebeatboombike.h"
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 #include "devices/chronobike/chronobike.h"
@@ -64,6 +65,7 @@
 #include "devices/faketreadmill/faketreadmill.h"
 #include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
+#include "devices/fitplusrower/fitplusrower.h"
 
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
@@ -73,6 +75,7 @@
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
+#include "devices/ypootreadmill/ypootreadmill.h"
 #include "devices/iconceptbike/iconceptbike.h"
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
@@ -99,6 +102,7 @@
 #include "devices/octaneelliptical/octaneelliptical.h"
 #include "devices/octanetreadmill/octanetreadmill.h"
 #include "devices/pafersbike/pafersbike.h"
+#include "devices/pafersrower/pafersrower.h"
 #include "devices/paferstreadmill/paferstreadmill.h"
 #include "devices/pelotonbike/pelotonbike.h"
 #include "devices/pitpatbike/pitpatbike.h"
@@ -145,6 +149,7 @@
 #include "templateinfosenderbuilder.h"
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#include "devices/kettlerclassicbike/kettlerclassicbike.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -156,6 +161,7 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
 #include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
@@ -187,6 +193,18 @@ class bluetooth : public QObject, public SignalHandler {
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
+    // Search for the equipment, for the status line on the home page
+    bool isSearching() const;
+    qint64 nextSearchMs() const { return nextRescanMs; }
+    bool searchStopped() const { return rescanStopped; }
+    /**
+     * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
+     * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
+     * @return 0 if the search started or there is nothing to do (a device is connected, discovery is off or
+     * already running), otherwise the seconds until the scheduled search.
+     */
+    int searchNow();
+
   private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
@@ -203,6 +221,7 @@ class bluetooth : public QObject, public SignalHandler {
     crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
+    freebeatboombike *freebeatBoomBike = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
@@ -220,6 +239,7 @@ class bluetooth : public QObject, public SignalHandler {
     toorxtreadmill *toorx = nullptr;
     iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
+    kettlerclassicbike *kettlerClassicBike = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
@@ -252,6 +272,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    ypootreadmill *ypooTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
@@ -282,6 +303,7 @@ class bluetooth : public QObject, public SignalHandler {
     schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
+    fitplusrower *fitPlusRower = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
@@ -297,6 +319,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     pafersbike *pafersBike = nullptr;
+    pafersrower *pafersRower = nullptr;
     paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     pitpatbike *pitpatBike = nullptr;
@@ -310,6 +333,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
     xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
@@ -374,6 +398,17 @@ class bluetooth : public QObject, public SignalHandler {
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
+    int rescanCount = 0;
+    qint64 rescanStartedMs = 0;
+    // Android: while Bluetooth is off, asks the adapter every 2 s whether it is on again
+    QTimer bluetoothOffPoll;
+    QTimer rescanTimer;
+    qint64 nextRescanMs = 0;
+    bool rescanStopped = false;
+    // Android 7.0 and later ignore the scan starts after the 5th one in this window
+    static constexpr qint64 scanStartWindowMs = 30000;
+    QList<qint64> scanStartsMs;
+    void pruneScanStarts(qint64 now);
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;

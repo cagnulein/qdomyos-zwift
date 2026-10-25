@@ -1,0 +1,47 @@
+name: PR Reference Check
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    name: PR reference
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR reference
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import sys
+
+          body = os.environ.get("PR_BODY", "") or ""
+
+          # Ignore template comments so an untouched template does not pass.
+          body = re.sub(r"<!--.*?-->", "", body, flags=re.DOTALL)
+
+          # Accept a one-line or multi-line value after `Reference:` and stop
+          # at the next Markdown heading.
+          match = re.search(
+              r"(?ims)^\s*Reference\s*:\s*(.*?)(?=^\s*#{1,6}\s|\Z)",
+              body,
+          )
+
+          if not match or not match.group(1).strip():
+              print("ERROR: this pull request must contain a non-empty 'Reference:' field.")
+              print("Examples:")
+              print("  Reference: #4967")
+              print("  Reference: Discussion #4823")
+              print("  Reference: support request about FTMS bike resistance")
+              print("  Reference: textual description of the source/request")
+              sys.exit(1)
+
+          print("PR reference found:", match.group(1).strip().splitlines()[0])
+          PY

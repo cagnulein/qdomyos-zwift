@@ -20,9 +20,12 @@ class lockscreen {
     void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
+    bool canWriteHistoricalWorkoutToHealthKit(unsigned short sport);
+    bool saveHistoricalWorkoutToHealthKit(unsigned short sport, double startTimestamp, double endTimestamp,
+                                          double distanceMeters, double calories);
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
                                unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
-                               double totalKcal, bool useMiles, unsigned char heartRate,
+                               double totalKcal, double elevationGain, bool useMiles, unsigned char heartRate,
                                int liveActivityHeartRate, const char *compactLeadingMetric, int compactLeadingValue,
                                const char *compactTrailingMetric, int compactTrailingValue);
     bool appleWatchAppInstalled();
@@ -61,6 +64,9 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
     uint64_t virtualtreadmill_lastChangeRequestedSpeed();
+    void virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange, const QByteArray &inclineRange);
+    QByteArray virtualtreadmill_takeControlPointWrite();
+    void virtualtreadmill_clearControlPointWrites();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
@@ -124,6 +130,9 @@ class lockscreen {
 
     // web view cache
     static void clearWebViewCache();
+
+    // system text size (Dynamic Type): 1.0 at the default size
+    static double systemFontScale();
 };
 
 #endif // LOCKSCREEN_H

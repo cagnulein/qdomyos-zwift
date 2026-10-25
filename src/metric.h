@@ -20,10 +20,12 @@ class metric {
 
     metric();
     void setType(_metric_type t, BLUETOOTH_TYPE bt = UNKNOWN);
-    void setValue(double value, bool applyGainAndOffset = true);
+    void setValue(double value, bool applyGainAndOffset = true, bool includeZeroInStats = false);
+    static double capWatt(double value, double maxWatt);
     double value();
     double valueRaw();
     QDateTime lastChanged() { return m_lastChanged; }
+    quint64 updateSequence() const { return m_updateSequence; }
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
@@ -78,6 +80,7 @@ class metric {
     double m_lapMax = 0;
 
     QDateTime m_lastChanged = QDateTime::currentDateTime();
+    quint64 m_updateSequence = 0;
     QDateTime m_valueChanged = QDateTime::currentDateTime();
     double m_rateAtSec = 0;
 
