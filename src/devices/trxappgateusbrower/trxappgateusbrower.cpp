@@ -412,10 +412,13 @@ void trxappgateusbrower::serviceScanDone(void) {
 
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << QStringLiteral("invalid service") << uuid;
+        qDebug() << QStringLiteral("trying alternative service") << uuid2;
         QBluetoothUuid _gattCommunicationChannelServiceId2(uuid2);
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
-        if (gattCommunicationChannelService == nullptr)
+        if (gattCommunicationChannelService == nullptr) {
+            qDebug() << QStringLiteral("invalid alternative service") << uuid2;
             return;
+        }
     }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &trxappgateusbrower::stateChanged);
