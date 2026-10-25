@@ -442,14 +442,12 @@ void nordictrackifitadbrower::onHRM(int hrm) {
 void nordictrackifitadbrower::forceResistance(double resistance) {}
 
 void nordictrackifitadbrower::update() {
-
     QSettings settings;
-    update_metrics(false, 0);
 
     if (initRequest) {
         initRequest = false;
         emit connectedAndDiscovered();
-    }    
+    }
 
     // updating the rower console every second
     if (sec1Update++ == (500 / refresh->interval())) {
@@ -459,16 +457,90 @@ void nordictrackifitadbrower::update() {
 
     if (requestStart != -1) {
         emit debug(QStringLiteral("starting..."));
-
-        // btinit();
-
         requestStart = -1;
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
-        // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
     }
+
+#ifdef Q_OS_ANDROID
+    // The gRPC service polls GlassOS asynchronously. As for the FitPro rower fix
+    // (ad0b539), copy its cached metrics before QZ samples/publishes them.
+    if (grpcInitialized) {
+        const QDateTime now = QDateTime::currentDateTime();
+        const double currentSpeed = getGrpcSpeed();
+        const int currentPaceSeconds = getGrpcPaceSeconds();
+        const int currentLast500mPaceSeconds = getGrpcLast500mPaceSeconds();
+        const double currentResistance = getGrpcResistance();
+        const double currentWatts = getGrpcWatts();
+        // GlassOS CadenceService reports steps/minute, not flywheel RPM.
+        const double currentStrokeRate = getGrpcCadence();
+        const double currentStrokesCount = getGrpcStrokesCount();
+        const double currentStrokesLength = getGrpcStrokesLength();
+
+        // PaceService/GetPace is UNIMPLEMENTED on some GlassOS consoles.
+        // Its cached values will be zero there; prefer the working speed RPC.
+        const int paceSeconds = currentPaceSeconds > 0 ? currentPaceSeconds : currentLast500mPaceSeconds;
+        const double paceSpeed = paceSeconds > 0 ? 1800.0 / paceSeconds : 0.0;
+        const double resolvedSpeed = currentSpeed > 0 ? currentSpeed : paceSpeed;
+
+        if (resolvedSpeed != Speed.value()) {
+            Speed = resolvedSpeed;
+            emit debug(QString("gRPC Rower Speed: %1").arg(resolvedSpeed));
+        }
+        speedReadFromTM = resolvedSpeed > 0;
+        if (currentResistance != Resistance.value()) {
+            Resistance = currentResistance;
+            emit debug(QString("gRPC Rower Resistance: %1").arg(currentResistance));
+        }
+        resistanceReadFromTM = currentResistance > 0;
+        if (currentWatts != m_watt.value()) {
+            m_watt = currentWatts;
+            emit debug(QString("gRPC Rower Watts: %1").arg(currentWatts));
+        }
+        wattReadFromTM = currentWatts > 0;
+        if (currentStrokeRate != Cadence.value()) {
+            Cadence = currentStrokeRate;
+            emit debug(QString("gRPC Rower Stroke Rate: %1").arg(currentStrokeRate));
+        }
+        cadenceReadFromTM = currentStrokeRate > 0;
+        if (currentStrokesCount != StrokesCount.value()) {
+            StrokesCount = currentStrokesCount;
+            emit debug(QString("gRPC Rower Stroke Count: %1").arg(currentStrokesCount));
+        }
+        if (currentStrokesLength != StrokesLength.value()) {
+            StrokesLength = currentStrokesLength;
+        }
+
+        const double elapsedMs = lastRefreshCharacteristicChanged.msecsTo(now);
+        if (elapsedMs > 0 && elapsedMs < 5000) {
+            // No distance getter exists in the GlassOS JNI surface: integrate km/h.
+            Distance += (Speed.value() * elapsedMs / 3600000.0);
+            if (watts() > 0) {
+                const double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+                KCal += (((0.048 * (double)watts() + 1.19) * weight * 3.5) / 200.0) * elapsedMs / 60000.0;
+            }
+        }
+        lastRefreshCharacteristicChanged = now;
+
+        // Respect the existing no-write option; the gRPC setter converts the
+        // requested absolute level to a delta for GlassOS.
+        if (requestResistance != -1) {
+            if (!noWriteResistance && requestResistance != currentResistance) {
+                setGrpcResistance(requestResistance);
+            }
+            requestResistance = -1;
+        }
+
+        const double currentHeartRate = getGrpcHeartRate();
+        if (currentHeartRate > 0 && currentHeartRate != Heart.value()) {
+            onHRM(static_cast<int>(currentHeartRate)); // honors HR source settings
+        }
+    }
+#endif
+
+    update_metrics(false, 0);
 }
 
 uint16_t nordictrackifitadbrower::watts() { 
@@ -696,6 +768,19 @@ int nordictrackifitadbrower::getGrpcLast500mPaceSeconds() {
     }
 #endif
     return 0;
+}
+
+double nordictrackifitadbrower::getGrpcHeartRate() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentHeartRate",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
 }
 
 int nordictrackifitadbrower::getGrpcFanSpeed() {

@@ -116,6 +116,7 @@ class nordictrackifitadbrower : public rower {
     double getGrpcCadence();
     double getGrpcStrokesCount();
     double getGrpcStrokesLength();
+    double getGrpcHeartRate();
     int getGrpcPaceSeconds();
     int getGrpcLast500mPaceSeconds();
     int getGrpcFanSpeed();
