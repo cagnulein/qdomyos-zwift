@@ -529,11 +529,22 @@ void nordictrackifitadbelliptical::update() {
 #ifdef Q_OS_ANDROID
     // Pull metrics from the FitPro USB-HID console link
     if (fitproInitialized) {
+        double currentSpeed = getFitProSpeed();
+        double currentIncline = getFitProIncline();
         double currentResistance = getFitProResistance();
         double currentCadence = getFitProCadence();
         double currentWatts = getFitProWatts();
         double currentHeart = getFitProHeartRate();
+        double currentDistance = getFitProDistance();
+        bool speedPowerBased =
+            settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
 
+        if (!speedPowerBased && currentSpeed != Speed.value()) {
+            Speed = currentSpeed;
+        }
+        if (currentIncline != Inclination.value()) {
+            Inclination = currentIncline;
+        }
         if (currentResistance != Resistance.value()) {
             Resistance = currentResistance;
         }
@@ -547,10 +558,26 @@ void nordictrackifitadbelliptical::update() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         if (currentHeart > 0 && heartRateBeltName.startsWith(QStringLiteral("Disabled")))
             Heart = currentHeart;
+        if (currentDistance != Distance.value()) {
+            Distance = currentDistance;
+        }
+
+        if (speedPowerBased) {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), 20);
+        }
 
         if (requestResistance != -1) {
             setFitProResistance(requestResistance);
             requestResistance = -1;
+        }
+        if (requestInclination != -100) {
+            double incline = qRound(requestInclination / 0.5) * 0.5;
+            if (incline != Inclination.value()) {
+                setFitProIncline(incline);
+            }
+            requestInclination = -100;
         }
     }
 #endif
@@ -592,6 +619,11 @@ void nordictrackifitadbelliptical::initializeFitProService() {
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/FitProDeviceService", "initialize",
                 "(Ljava/lang/String;)V", host.object<jstring>());
+            int maxResistance =
+                settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toInt();
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/FitProDeviceService", "setMaxResistance", "(I)V",
+                static_cast<jint>(maxResistance));
             fitproInitialized = true;
             emit debug(QStringLiteral("FitPro service initialized"));
         } catch (...) {
@@ -632,6 +664,15 @@ double nordictrackifitadbelliptical::getFitProIncline() {
     if (fitproInitialized)
         return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
                                                             "getCurrentIncline", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProDistance() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentDistance", "()D");
 #endif
     return 0.0;
 }
@@ -677,6 +718,14 @@ void nordictrackifitadbelliptical::setFitProResistance(double resistance) {
     if (fitproInitialized)
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
                                                   "adjustResistance", "(D)V", resistance - Resistance.value());
+#endif
+}
+
+void nordictrackifitadbelliptical::setFitProIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                  "adjustIncline", "(D)V", incline - Inclination.value());
 #endif
 }
 // *****************************************************************************************************************
