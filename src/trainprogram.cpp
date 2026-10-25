@@ -1377,7 +1377,7 @@ bool trainprogram::adjustPowerOffsetForTrainingProgram(int32_t delta) {
 
     for (int i = 0; i < rows.length(); i++) {
         if (loadedRows.at(i).power != -1) {
-            rows[i].power = qMax(0, loadedRows.at(i).power + trainingProgramPowerOffset);
+            rows[i].power = loadedRows.at(i).power + trainingProgramPowerOffset;
         }
     }
 
