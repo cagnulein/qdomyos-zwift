@@ -5928,24 +5928,35 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
-            auto *device = bluetoothManager->device();
-            int32_t currentPower;
-            if (device->deviceType() == BIKE)
-                currentPower = qRound(static_cast<bike *>(device)->lastRequestedPower().value());
-            else if (device->deviceType() == TREADMILL)
-                currentPower = qRound(static_cast<treadmill *>(device)->lastRequestedPower().value());
-            else if (device->deviceType() == ROWING)
-                currentPower = qRound(static_cast<rower *>(device)->lastRequestedPower().value());
-            else
-                return;
-
-            // Keep an active ERG target positive; 0 W stays unset.
-            const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
-            if (nextPower != currentPower) {
+            if (bluetoothManager->device()->deviceType() == BIKE) {
+                const int32_t currentPower = qRound(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
                 m_overridePower = true;
-                device->changePower(nextPower);
-                if (trainProgram)
+                ((bike *)bluetoothManager->device())->changePower(nextPower);
+                if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                }
+            }
+            } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
+                const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
+                m_overridePower = true;
+                ((treadmill *)bluetoothManager->device())->changePower(nextPower);
+                if (trainProgram) {
+                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                }
+            }
+            else if (bluetoothManager->device()->deviceType() == ROWING) {
+                const int32_t currentPower = qRound(((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())->changePower(nextPower);
+                if (trainProgram) {
+                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
