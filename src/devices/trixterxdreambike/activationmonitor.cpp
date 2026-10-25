@@ -1,5 +1,7 @@
 #include "activationmonitor.h"
 
+#include <algorithm>
+
 ActivationMonitor::ActivationMonitor(const int64_t samplingPeriod, const double activationThreshold, const double deactivationThreshold) {
     this->samplingPeriod = std::max<int64_t>(samplingPeriod, 1);
 

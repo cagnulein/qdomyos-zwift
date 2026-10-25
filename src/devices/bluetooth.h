@@ -420,9 +420,7 @@ private:
      */
     class trixterxdreambike * findTrixterXDreambike(const QSettings& settings);
 
-#ifdef Q_OS_WIN
     QTimer discoveryTimeout;
-#endif
     bool discoveryFinishedHandled = false;
     int rescanCount = 0;
     qint64 rescanStartedMs = 0;
