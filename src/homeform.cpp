@@ -5928,27 +5928,30 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
+            // Both the target-power tile and standalone Zwift Click ERG use this path.
+            // Keep a positive target above zero so Click remains in ERG control, but
+            // leave an unset (0 W) target unchanged when pressing minus.
+            const auto decreaseTargetPower = [this](auto *device) {
+                const int32_t currentPower = qRound(device->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) {
+                    return;
+                }
+                m_overridePower = true;
+                device->changePower(nextPower);
+                if (trainProgram) {
+                    // At the lower limit, do not keep subtracting the full 5 W
+                    // from the training-program offset.
+                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                }
+            };
+
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                m_overridePower = true;
-                ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
-                if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
-                }
+                decreaseTargetPower(static_cast<bike *>(bluetoothManager->device()));
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
-                m_overridePower = true;
-                ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
-                if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
-                }
+                decreaseTargetPower(static_cast<treadmill *>(bluetoothManager->device()));
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
-                m_overridePower = true;
-                ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
-                if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
-                }
+                decreaseTargetPower(static_cast<rower *>(bluetoothManager->device()));
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
