@@ -5935,7 +5935,7 @@ void homeform::Minus(const QString &name) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
@@ -5944,7 +5944,7 @@ void homeform::Minus(const QString &name) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 const int32_t currentPower = qRound(((rower *)bluetoothManager->device())->lastRequestedPower().value());
@@ -5953,7 +5953,7 @@ void homeform::Minus(const QString &name) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             }
         }
