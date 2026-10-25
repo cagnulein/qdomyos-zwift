@@ -5937,7 +5937,6 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
                 }
-            }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
@@ -5947,8 +5946,7 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(nextPower - currentPower);
                 }
-            }
-            else if (bluetoothManager->device()->deviceType() == ROWING) {
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 const int32_t currentPower = qRound(((rower *)bluetoothManager->device())->lastRequestedPower().value());
                 const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
                 if (nextPower == currentPower) return;
