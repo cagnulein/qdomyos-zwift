@@ -1006,6 +1006,14 @@ Aktualizovat nastavení QZ?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zařízení Zwift: AKTUALIZUJTE FIRMWARE!</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4386,7 +4394,7 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Velikost rozhraní:</translation>
+        <translation type="vanished">Velikost rozhraní:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,7 +4406,7 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Mění velikost dlaždic s údaji. Výchozí: 100%. Chcete-li, aby se na obrazovku vešlo více dlaždic, zvolte menší procento, pro jejich zvětšení zvolte víc než 100%. Znak procenta nezadávejte</translation>
+        <translation type="vanished">Mění velikost dlaždic s údaji. Výchozí: 100%. Chcete-li, aby se na obrazovku vešlo více dlaždic, zvolte menší procento, pro jejich zvětšení zvolte víc než 100%. Znak procenta nezadávejte</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -7735,6 +7743,34 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimentální: QZ postupně upravuje rychlost běžeckého pásu, kterou řídí, podle údajů z Runn/Stryd, pokud ovladač pásu poskytuje vlastní měření rychlosti. Vyžaduje nastavení „Rychlost ze snímače výkonu“. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

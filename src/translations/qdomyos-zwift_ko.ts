@@ -1006,6 +1006,14 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift 기기: 펌웨어를 업데이트하세요!</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4386,7 +4394,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI 확대/축소:</translation>
+        <translation type="vanished">UI 확대/축소:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,7 +4406,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>측정값을 표시하는 타일의 크기를 바꿉니다. 기본값은 100%입니다. 화면에 타일을 더 많이 표시하려면 더 작은 비율을, 타일을 크게 하려면 100%보다 큰 비율을 선택하세요. 퍼센트 기호는 입력하지 마세요</translation>
+        <translation type="vanished">측정값을 표시하는 타일의 크기를 바꿉니다. 기본값은 100%입니다. 화면에 타일을 더 많이 표시하려면 더 작은 비율을, 타일을 크게 하려면 100%보다 큰 비율을 선택하세요. 퍼센트 기호는 입력하지 마세요</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -7735,6 +7743,34 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>실험적 기능: 트레드밀 드라이버가 기기 자체의 속도 측정값을 제공하는 경우, Runn/Stryd 피드백으로 QZ가 제어하는 트레드밀 속도를 점진적으로 보정합니다. [파워 센서의 속도 사용]이 필요합니다. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
