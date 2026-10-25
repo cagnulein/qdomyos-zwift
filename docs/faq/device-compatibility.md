@@ -123,3 +123,9 @@ The USB-data mode plus 57600-baud combination restored an older Kettler ergomete
 Yes. A **Hammer Fly Run 4.0** owner explicitly confirmed that the treadmill worked with QZ after the model's Bluetooth details were checked. QZ also supports exporting completed workouts to **Garmin Connect** through its Garmin integration.
 
 This confirms that the treadmill can be used with QZ; it does **not** independently establish that every firmware version supports automatic speed or incline commands. If QZ does not recognize yours, share the advertised Bluetooth name and a screenshot from **nRF Connect**, then test live speed/incline readings in QZ before testing a third-party app.
+
+## QZ discovers my SmartSpin2K on a Schwinn IC4 but does not connect. How can I select it?
+
+In **QZ Settings > Bike Options**, open **FTMS Bike**, select the SmartSpin2K device (often shown as **SS2K**), and confirm with **OK**. Fully close and restart QZ, then let it connect again.
+
+A rider using a Schwinn IC4 with a SmartSpin2K confirmed that selecting **SS2K** under **FTMS Bike** and restarting QZ resolved the connection problem. Discovery of the device name alone did not mean QZ had connected to its FTMS service.
