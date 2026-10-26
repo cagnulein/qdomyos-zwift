@@ -141,7 +141,12 @@ void paferstreadmill::update() {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
                 QThread::msleep(400);
-                forceIncline(Inclination.value());
+                if (requestInclination != -100 && requestInclination <= 15) {
+                    forceIncline(qMax(0.0, requestInclination));
+                    requestInclination = -100;
+                } else {
+                    forceIncline(Inclination.value());
+                }
             }
             requestSpeed = -1;
         } else if (requestInclination != -100) {
