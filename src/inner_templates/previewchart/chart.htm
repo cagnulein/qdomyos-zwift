@@ -21,6 +21,14 @@
         -webkit-user-select: none;
         -ms-user-select: none;
     }
+    #history-charts {
+        display: flex;
+        flex-direction: column;
+    }
+    #history-charts > section {
+        width: 100%;
+        min-width: 0;
+    }
     </style>
 </head>
 
@@ -201,9 +209,9 @@ z-index: 100;
         sorted.sort(function(a, b) {
             return position(a) - position(b) || a.fallback - b.fallback;
         });
-        sorted.forEach(function(chart) {
+        sorted.forEach(function(chart, index) {
             var section = container.querySelector('[data-history-chart="' + chart.id + '"]');
-            if (section) container.appendChild(section);
+            if (section) section.style.order = index;
         });
     }
 
