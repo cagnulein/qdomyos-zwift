@@ -616,7 +616,6 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
-    QDateTime lastExternalHeartRate;
     bool heartRateFromHealthKit = false;
     quint64 healthKitHeartUpdateSequence = 0;
 
