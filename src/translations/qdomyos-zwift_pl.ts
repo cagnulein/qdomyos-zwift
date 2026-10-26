@@ -1008,11 +1008,11 @@ Zaktualizować ustawienia QZ?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 gotowa</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjalizacja YPOO M5 nie powiodła się; wymagane ponowne połączenie</translation>
     </message>
 </context>
 <context>
@@ -7746,31 +7746,31 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Tile size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar kafelków:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienia rozmiar kafelków wyświetlających dane. Wartość domyślna to 100%. Aby zmieścić więcej kafelków na ekranie, wybierz mniejszą wartość. Aby je powiększyć, wybierz wartość powyżej 100%. Nie wpisuj znaku procentu. Dawniej nazywane „Skala interfejsu” (UI Zoom).</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje Life Fitness</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika/e-mail Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hasło Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Logowanie jako gość Life Fitness (eksperymentalne)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Używa syntetycznego profilu Life Fitness bez konta. Po włączeniu nazwa użytkownika, hasło i zapisane dane konta są ignorowane; używaj tylko do testowania obsługiwanego logowania jako gość.</translation>
     </message>
 </context>
 <context>
