@@ -178,35 +178,38 @@ z-index: 100;
 // Read the persistent order from Settings > Workout History Charts.
 (function () {
     "use strict";
-    var defaultOrder = ["power", "heart", "resistance", "pelotonResistance",
-                        "cadence", "powerDistribution", "speedInclination"];
+    var charts = [
+        { id: "power", key: "history_chart_power_order", fallback: 0 },
+        { id: "heart", key: "history_chart_heart_order", fallback: 1 },
+        { id: "resistance", key: "history_chart_resistance_order", fallback: 2 },
+        { id: "pelotonResistance", key: "history_chart_peloton_resistance_order", fallback: 3 },
+        { id: "cadence", key: "history_chart_cadence_order", fallback: 4 },
+        { id: "powerDistribution", key: "history_chart_power_distribution_order", fallback: 5 },
+        { id: "speedInclination", key: "history_chart_speed_inclination_order", fallback: 6 }
+    ];
     var container = document.getElementById("history-charts");
 
-    function reorder(value) {
-        var items = typeof value === "string" ? value.split(",") : [];
-        var ordered = [];
-        items.forEach(function (id) {
-            if (defaultOrder.indexOf(id) >= 0 && ordered.indexOf(id) < 0)
-                ordered.push(id);
+    function reorder(settings) {
+        var sorted = charts.slice();
+        sorted.sort(function(a, b) {
+            var av = settings && Number.isInteger(settings[a.key]) ? settings[a.key] : a.fallback;
+            var bv = settings && Number.isInteger(settings[b.key]) ? settings[b.key] : b.fallback;
+            return av - bv || a.fallback - b.fallback;
         });
-        defaultOrder.forEach(function (id) {
-            if (ordered.indexOf(id) < 0)
-                ordered.push(id);
-        });
-        ordered.forEach(function (id) {
-            var item = container.querySelector('[data-history-chart="' + id + '"]');
-            if (item) container.appendChild(item);
+        sorted.forEach(function(chart) {
+            var section = container.querySelector('[data-history-chart="' + chart.id + '"]');
+            if (section) container.appendChild(section);
         });
     }
 
     var request = new MainWSQueueElement({
-        msg: "getsettings", content: {keys: ["history_chart_order"]}
+        msg: "getsettings", content: {keys: charts.map(function(chart) { return chart.key; })}
     }, function (response) {
         return response.msg === "R_getsettings" ? response.content : null;
     }, 5000, 3);
 
     request.enqueue().then(function (settings) {
-        reorder(settings ? settings.history_chart_order : null);
+        reorder(settings);
     }).catch(function (error) {
         console.error("Could not load workout history chart order:", error);
         // The charts stay in their original order if the setting is unavailable.
