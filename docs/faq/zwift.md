@@ -135,3 +135,18 @@ When QZ shows correct bike metrics and Zwift receives power and cadence but does
 5. Press **+** or **−** on the Click controllers. In the confirmed beta, each press increased or decreased the ERG target by **5 W**.
 
 A rider initially found that the buttons did not change the target in the installed release; after updating to the Android beta, **both directions worked**. The **5 W step is fixed** in that tested implementation; there was no user setting for a different step size. Do not assume the same behavior when an external app (such as TrainerDay) owns the ERG target.
+
+
+## Why does QZ show only 12 virtual gears when I use Zwift Click with my Wahoo trainer?
+
+If QZ connects to Zwift Click and the buttons change gears but the available range is limited to **12 gears**, try the **Blender** profile under **QZ Settings > Bike Options > Wahoo Options**, then save and restart QZ. Check the displayed gear range and physical resistance response.
+
+If a **single button press skips two gears**, that is a separate issue: enable **Buttons debouncing** in **Settings > Accessories > Zwift controller options** (see the debouncing FAQ above). In a confirmed support conversation, the rider reported the setup was working after receiving these two settings changes. The report did not isolate each setting independently, so verify both the displayed gear range and single-press behavior on your trainer.
+
+## Do I need to install a physical Zwift Cog to use QZ virtual gearing with a Wahoo KICKR?
+
+**No.** QZ's virtual gearing can change the trainer's resistance while your bicycle stays in one fixed **physical gear** on a conventional cassette. A physical Zwift Cog is optional, not a requirement for QZ's virtual gears.
+
+Connect the KICKR to QZ, configure the physical **Chainring Size** and **Cog Size** to match the actual gear you leave the bike in, and configure the virtual gear table or gearing profile you want to use. Shift through QZ's on-screen gear controls or compatible Zwift Click/Play controllers. For apps such as MyWhoosh or ROUVY, let QZ own the controller unless you deliberately use an app-specific direct-controller integration. See the gear-table and controller-pairing FAQs above.
+
+The distinction is between the **physical sprocket/cassette** and the **virtual gear ratio** that QZ applies to the trainer; the latter does not require special physical Zwift hardware.
