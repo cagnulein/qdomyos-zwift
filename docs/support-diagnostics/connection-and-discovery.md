@@ -147,3 +147,23 @@
 - On the supported Life Fitness login-based treadmill path, Bluetooth discovery and audio/HR pairing do not establish an authenticated workout session. Telemetry may be unavailable until the console's profile exchange completes.
 - Distinguishing an incomplete login handshake from a failed FTMS data parser prevents troubleshooting the wrong layer. A production-build log also cannot validate a handshake change present only in a test build.
 - This is model-specific: see the [Life Fitness protocol scope](../../src/devices/lifefitnesstreadmill/LIFE_FITNESS_95T_PROTOCOL.md); do not assume every Life Fitness console requires the same exchange.
+
+## Android Bluetooth scan finds no devices, not even the expected trainer
+
+### Provide first
+
+- Android device model/version and installed QZ build; confirm that the trainer is powered on and advertising its exact Bluetooth name.
+- State whether QZ's discovery list is **completely empty** or shows other devices but not the trainer. If possible, check whether a BLE scanner sees the trainer on the same Android device.
+- Screenshot **Android Settings > Apps > QZ > Permissions** showing Bluetooth/Nearby Devices and **Location**, including whether **Precise location** is allowed where offered. Report whether the phone/tablet's main Bluetooth and Location switches are on; do not share actual location data.
+
+### If still unclear
+
+- After confirming permissions, fully close QZ and repeat discovery with the trainer awake and other fitness apps disconnected. Report whether the Bluetooth name appears and whether QZ then receives live metrics.
+- If scanning is still empty, provide a short QZ debug log from startup through discovery, noting any permission-denied messages (for example, `ACCESS_FINE_LOCATION denied!`) and whether any device advertisements are reported.
+- Only after advertisements appear should support investigate competing device handlers, FTMS selection, or protocol initialization. See the [Android permissions FAQ](../faq/android.md).
+
+### Why it matters
+
+- **No devices found at all** is a different symptom from finding the trainer and choosing an unsuitable driver. A driver change cannot fix a scan that never sees advertisements.
+- QZ requests Android Bluetooth and location permissions. In a confirmed case, enabling **Precise location** restored discovery of a previously invisible trainer.
+- Collecting permission state and scan results first avoids requesting extensive Bluetooth traces for an operating-system permission problem.
