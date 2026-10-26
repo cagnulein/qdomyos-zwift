@@ -48,6 +48,20 @@ void heartratebelt::update() {
             }
         });
     }
+
+    // A watch that stops broadcasting keeps the link up, and a lost link sends nothing more: either way the
+    // last heart rate would stay in the tile, the workout and Zwift. Send 0 once instead, as with no sensor
+    if (!heartRateSilent && lastHeartRateTime.isValid() &&
+        lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) > NO_HEART_RATE_TIMEOUT) {
+        heartRateSilent = true;
+        Heart = 0;
+        emit debug(QStringLiteral("no heart rate for 10 s, heart rate set to 0"));
+        emit heartRate(0);
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.")
+                    .arg(bluetoothDevice.name()));
+    }
 }
 
 void heartratebelt::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -107,8 +121,16 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
             index = 2;
         }
         // 0 is what some chest straps send without skin contact: not a heart rate
-        if (Heart.value() > 0)
+        if (Heart.value() > 0) {
             lastHeartRateTime = QDateTime::currentDateTime();
+            if (heartRateSilent) {
+                heartRateSilent = false;
+                emit debug(QStringLiteral("heart rate is back"));
+                if (homeform::singleton())
+                    homeform::singleton()->setToastRequested(
+                        QObject::tr("%1 (HR sensor) connected!").arg(bluetoothDevice.name()));
+            }
+        }
         emit heartRate((uint8_t)Heart.value());
 
         // Bit 3: Energy Expended Status
