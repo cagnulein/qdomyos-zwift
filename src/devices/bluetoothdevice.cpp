@@ -181,6 +181,7 @@ metric bluetoothdevice::elevationGain() { return elevationAcc; }
 metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
+    lastExternalHeartRate = QDateTime::currentDateTime();
     heartRateFromHealthKit = false;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
