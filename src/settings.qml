@@ -2264,7 +2264,13 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
-            property string history_chart_order: "power,heart,resistance,pelotonResistance,cadence,powerDistribution,speedInclination"
+            property int history_chart_power_order: 0
+            property int history_chart_heart_order: 1
+            property int history_chart_resistance_order: 2
+            property int history_chart_peloton_resistance_order: 3
+            property int history_chart_cadence_order: 4
+            property int history_chart_power_distribution_order: 5
+            property int history_chart_speed_inclination_order: 6
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -6991,18 +6997,33 @@ import AndroidStatusBar 1.0
                             ]
                             property var chartOrder: []
 
-                            function normalizedChartOrder(value) {
-                                var order = typeof value === "string" ? value.split(",") : []
-                                var result = []
-                                for (var i = 0; i < order.length; ++i) {
-                                    if (defaultChartIds.indexOf(order[i]) >= 0 && result.indexOf(order[i]) < 0)
-                                        result.push(order[i])
-                                }
-                                for (var j = 0; j < defaultChartIds.length; ++j) {
-                                    if (result.indexOf(defaultChartIds[j]) < 0)
-                                        result.push(defaultChartIds[j])
-                                }
-                                return result
+                            function currentOrder() {
+                                var positions = [
+                                    settings.history_chart_power_order,
+                                    settings.history_chart_heart_order,
+                                    settings.history_chart_resistance_order,
+                                    settings.history_chart_peloton_resistance_order,
+                                    settings.history_chart_cadence_order,
+                                    settings.history_chart_power_distribution_order,
+                                    settings.history_chart_speed_inclination_order
+                                ]
+                                var order = defaultChartIds.slice()
+                                order.sort(function(a, b) {
+                                    var ai = defaultChartIds.indexOf(a)
+                                    var bi = defaultChartIds.indexOf(b)
+                                    return positions[ai] - positions[bi] || ai - bi
+                                })
+                                return order
+                            }
+
+                            function saveOrder() {
+                                settings.history_chart_power_order = chartOrder.indexOf("power")
+                                settings.history_chart_heart_order = chartOrder.indexOf("heart")
+                                settings.history_chart_resistance_order = chartOrder.indexOf("resistance")
+                                settings.history_chart_peloton_resistance_order = chartOrder.indexOf("pelotonResistance")
+                                settings.history_chart_cadence_order = chartOrder.indexOf("cadence")
+                                settings.history_chart_power_distribution_order = chartOrder.indexOf("powerDistribution")
+                                settings.history_chart_speed_inclination_order = chartOrder.indexOf("speedInclination")
                             }
 
                             function chartLabel(chartId) {
@@ -7027,20 +7048,10 @@ import AndroidStatusBar 1.0
                                 updated[index] = updated[destination]
                                 updated[destination] = item
                                 chartOrder = updated
-                                settings.history_chart_order = updated.join(",")
+                                saveOrder()
                             }
 
-                            Component.onCompleted: {
-                                chartOrder = normalizedChartOrder(settings.history_chart_order)
-                            }
-
-                            Connections {
-                                target: settings
-                                function onHistory_chart_orderChanged() {
-                                    historyChartOrderEditor.chartOrder =
-                                            historyChartOrderEditor.normalizedChartOrder(settings.history_chart_order)
-                                }
-                            }
+                            Component.onCompleted: chartOrder = currentOrder()
 
                             Label {
                                 text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
@@ -7086,7 +7097,7 @@ import AndroidStatusBar 1.0
                                 onClicked: {
                                     var defaults = historyChartOrderEditor.defaultChartIds.slice()
                                     historyChartOrderEditor.chartOrder = defaults
-                                    settings.history_chart_order = defaults.join(",")
+                                    historyChartOrderEditor.saveOrder()
                                 }
                             }
                         }
