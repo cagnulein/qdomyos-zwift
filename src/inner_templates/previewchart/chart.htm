@@ -191,10 +191,15 @@ z-index: 100;
 
     function reorder(settings) {
         var sorted = charts.slice();
+        function position(chart) {
+            var value = settings && settings[chart.key];
+            if (value === null || value === undefined) return chart.fallback;
+            var number = Number(value);
+            return isFinite(number) && Math.floor(number) === number &&
+                   number >= 0 && number < charts.length ? number : chart.fallback;
+        }
         sorted.sort(function(a, b) {
-            var av = settings && Number.isInteger(settings[a.key]) ? settings[a.key] : a.fallback;
-            var bv = settings && Number.isInteger(settings[b.key]) ? settings[b.key] : b.fallback;
-            return av - bv || a.fallback - b.fallback;
+            return position(a) - position(b) || a.fallback - b.fallback;
         });
         sorted.forEach(function(chart) {
             var section = container.querySelector('[data-history-chart="' + chart.id + '"]');
