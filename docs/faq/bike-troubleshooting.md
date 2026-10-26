@@ -99,6 +99,18 @@ The unlock step may need to be repeated after the bike is power-cycled. In a con
 
 If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
 
+## Can a newer QZ build unlock an Echelon EX-7S without opening the Echelon app on a second device?
+
+Yes, on a QZ build that includes **direct Echelon unlock**. If you previously needed the official Echelon app on a second phone or tablet to start an EX-7S session, update QZ to a build with direct unlock support and try this sequence:
+
+1. Open **QZ Settings > Experimental Settings** and **disable Virtual Echelon**.
+2. Save the setting, fully close QZ, and restart it.
+3. Connect QZ to the Echelon bike and check that cadence and resistance update and that the bike responds to resistance changes.
+4. Start Peloton (or your other training app) on the separate device and use the QZ connection as usual.
+
+An EX-7S owner explicitly confirmed that this setup worked after updating QZ, **without reopening the Echelon app**. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
+
+
 ## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
 
 QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP address. If the router assigns the bike a different address through DHCP, QZ can keep trying the old address and no longer connect even though nothing changed in QZ.
