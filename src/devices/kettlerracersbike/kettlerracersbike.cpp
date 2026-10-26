@@ -975,11 +975,26 @@ void kettlerracersbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
-    // The paddle characteristic is intentionally ignored for this diagnostic build.
-    // The previous parser turned repeated 638a1010 notifications into gear changes,
-    // which then fed the gear modifier into the auto-resistance target calculation.
+    // Map the four paddle payloads to the physical sequence reported by Rafał:
+    // 01 00 = left up, 00 01 = right up, 00 ff = right down, ff 00 = left down.
+    // Both levers use the same one-step up/down action; the side is diagnostic only.
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("638a1010-7bde-3e25-ffc5-9de9b2a0197a"))) {
-        emit debug(QStringLiteral("Kettler gear paddle notification ignored (diagnostic build)"));
+        if (newValue.size() >= 6) {
+            const uint8_t byte4 = static_cast<uint8_t>(newValue.at(4));
+            const uint8_t byte5 = static_cast<uint8_t>(newValue.at(5));
+
+            if ((byte4 == 0x01 && byte5 == 0x00) ||
+                (byte4 == 0x00 && byte5 == 0x01)) {
+                emit debug(QStringLiteral("Gear command: UP (left/right paddle)"));
+                gearUp();
+            } else if ((byte4 == 0x00 && byte5 == 0xff) ||
+                       (byte4 == 0xff && byte5 == 0x00)) {
+                emit debug(QStringLiteral("Gear command: DOWN (left/right paddle)"));
+                gearDown();
+            } else if (byte4 == 0xff && byte5 == 0xff) {
+                emit debug(QStringLiteral("Kettler gear paddle notification ambiguous: both paddles active"));
+            }
+        }
         return;
     }
 
