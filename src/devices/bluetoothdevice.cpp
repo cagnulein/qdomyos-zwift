@@ -374,6 +374,11 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #ifdef Q_OS_ANDROID
     if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+        // Keep a live BLE heart rate instead of overwriting it with an absent Wear OS source.
+        const qint64 externalHeartAge = lastExternalHeartRate.msecsTo(QDateTime::currentDateTime());
+        if (Heart.value() > 0 && lastExternalHeartRate.isValid() &&
+            externalHeartAge >= 0 && externalHeartAge < 5000)
+            return;
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
         heartRateFromHealthKit = false;
         qDebug() << "WearOS Companion Heart:" << Heart.value();

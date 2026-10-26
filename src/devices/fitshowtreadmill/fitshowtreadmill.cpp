@@ -592,10 +592,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    // Prefer a recently received BLE heart rate over the treadmill and Wear OS fallback.
-                    const bool recentExternalHeart = Heart.value() > 0 && lastExternalHeartRate.isValid() &&
-                                                     lastExternalHeartRate.msecsTo(QDateTime::currentDateTime()) < 5000;
-                    if (!recentExternalHeart && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
                         bool garminCompanionEnabledForHeart =
                             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
                         if (heart == 0 || disable_hr_frommachinery || garminCompanionEnabledForHeart)
