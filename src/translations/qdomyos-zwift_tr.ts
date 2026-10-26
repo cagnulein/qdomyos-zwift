@@ -4413,8 +4413,8 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin. Yeniden başlatma gerekir.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>
     <message>
         <source>Player Weight</source>

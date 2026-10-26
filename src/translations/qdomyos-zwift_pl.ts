@@ -4413,8 +4413,8 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
         <translation>Język aplikacji:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Wybierz „Automatycznie”, aby używać języka urządzenia, albo wskaż język QZ. Wymagane jest ponowne uruchomienie aplikacji.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Wybierz „Automatycznie”, aby używać języka urządzenia, albo wskaż język QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>

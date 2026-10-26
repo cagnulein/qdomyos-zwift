@@ -5522,8 +5522,8 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Langue de l&apos;application :</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ. Redémarrage requis.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ.</translation>
     </message>
     <message>
         <source>lbs</source>

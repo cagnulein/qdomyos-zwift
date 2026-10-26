@@ -4413,8 +4413,8 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Jazyk aplikace:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ. Vyžaduje restart.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>

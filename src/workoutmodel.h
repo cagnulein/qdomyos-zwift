@@ -144,7 +144,6 @@ class WorkoutModel : public QAbstractListModel {
     QString m_dbPath;
     int m_currentStreak;
     int m_longestStreak;
-    QString m_streakMessage;
     bool m_isDateFiltered;
     QDate m_filteredDate;
 };

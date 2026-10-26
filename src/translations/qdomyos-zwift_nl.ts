@@ -4413,8 +4413,8 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Taal van de app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Kies Auto om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ. Opnieuw starten vereist.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>
