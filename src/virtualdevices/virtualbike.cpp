@@ -55,7 +55,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     } else if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         attachDirconManager(new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this));
     }
-    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
+    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool() ||
+        noBluetoothAdapter())
         return;
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
