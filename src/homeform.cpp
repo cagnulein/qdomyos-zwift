@@ -4813,6 +4813,15 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 
     QSettings settings;
 
+    // Non-BLE equipment (such as a locally running NordicTrack gRPC rower)
+    // may connect with an empty Bluetooth device name. Do not leave the
+    // top bar at its initial "Connecting..." value after connection.
+    if (b.name().trimmed().isEmpty() &&
+        settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+        m_info = tr("Connected");
+        emit infoChanged(m_info);
+    }
+
     if (settings.value(QZSettings::pause_on_start, QZSettings::default_pause_on_start).toBool() &&
         bluetoothManager->device()->deviceType() != TREADMILL) {
         Start();
