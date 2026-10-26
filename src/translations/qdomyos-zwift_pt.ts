@@ -1008,11 +1008,11 @@ Deseja atualizar as configurações do QZ?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 pronta</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
     </message>
 </context>
 <context>
@@ -7778,23 +7778,23 @@ Padrão: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções Life Fitness</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome de usuário/e-mail Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Senha Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Login de convidado Life Fitness (experimental)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa um perfil sintético da Life Fitness sem conta. Quando ativado, o nome de usuário, a senha e os dados da conta em cache são ignorados; use apenas para testar o login de convidado compatível.</translation>
     </message>
 </context>
 <context>
