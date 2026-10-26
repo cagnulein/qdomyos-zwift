@@ -55,7 +55,7 @@ void heartratebelt::update() {
         lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) > NO_HEART_RATE_TIMEOUT) {
         heartRateSilent = true;
         Heart = 0;
-        emit debug(QStringLiteral("no heart rate for 10 s, heart rate set to 0"));
+        emit debug(QStringLiteral("no heart rate for %1 s, heart rate set to 0").arg(NO_HEART_RATE_TIMEOUT / 1000));
         emit heartRate(0);
         if (homeform::singleton())
             homeform::singleton()->setToastRequested(
