@@ -220,6 +220,11 @@ nordictrackifitadbrower::nordictrackifitadbrower(bool noWriteResistance, bool no
 #ifdef Q_OS_ANDROID
     initializeGrpcService();
     if (grpcInitialized) {
+        // The rower has dedicated GlassOS stroke-rate/split RPCs; treadmills
+        // and bikes must keep their existing polling profile.
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setRowerMode", "(Z)V", static_cast<jboolean>(JNI_TRUE));
         startGrpcMetricsUpdates();
     }
 #endif

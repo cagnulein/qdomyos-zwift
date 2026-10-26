@@ -26,6 +26,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 import io.grpc.ManagedChannel;
+import io.grpc.Status;
 import io.grpc.Metadata;
 import io.grpc.okhttp.OkHttpChannelBuilder;
 import io.grpc.stub.MetadataUtils;
@@ -58,6 +59,10 @@ import com.ifit.glassos.workout.WorkoutState;
 import com.ifit.glassos.workout.WorkoutStateMessage;
 import com.ifit.glassos.workout.StrokesMetric;
 import com.ifit.glassos.workout.StrokesServiceGrpc;
+import com.ifit.glassos.workout.StrokesPerMinuteMetric;
+import com.ifit.glassos.workout.StrokesPerMinuteServiceGrpc;
+import com.ifit.glassos.workout.FiveHundredSplitMetric;
+import com.ifit.glassos.workout.FiveHundredSplitServiceGrpc;
 import com.ifit.glassos.workout.PaceMetric;
 import com.ifit.glassos.workout.PaceServiceGrpc;
 import com.ifit.glassos.workout.HeartRateMetric;
@@ -105,11 +110,17 @@ public class GrpcTreadmillService {
     private FanStateServiceGrpc.FanStateServiceBlockingStub fanStub;
     private WorkoutServiceGrpc.WorkoutServiceBlockingStub workoutStub;
     private StrokesServiceGrpc.StrokesServiceBlockingStub strokesStub;
+    private StrokesPerMinuteServiceGrpc.StrokesPerMinuteServiceBlockingStub strokesPerMinuteStub;
+    private FiveHundredSplitServiceGrpc.FiveHundredSplitServiceBlockingStub fiveHundredSplitStub;
     private PaceServiceGrpc.PaceServiceBlockingStub paceStub;
     private HeartRateServiceGrpc.HeartRateServiceBlockingStub heartRateStub;
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
+    private volatile boolean rowerMode = false;
+    private volatile boolean rowerSpmUnsupported = false;
+    private volatile boolean rowerSplitUnsupported = false;
+    private volatile boolean paceServiceUnsupported = false;
     private volatile boolean isMonitoringWorkoutState = false;
     private volatile int currentWorkoutState = 1; // WORKOUT_STATE_IDLE
     private ConcurrentLinkedQueue<StateTransition> stateChangeQueue = new ConcurrentLinkedQueue<>();
@@ -456,6 +467,9 @@ public class GrpcTreadmillService {
     }
 
     private void initializeGrpcConnection() throws Exception {
+        rowerSpmUnsupported = false;
+        rowerSplitUnsupported = false;
+        paceServiceUnsupported = false;
         AssetManager assets = context.getAssets();
         
         String[] requiredFiles = {"client_cert.pem", "client_key.pem"};
@@ -499,6 +513,8 @@ public class GrpcTreadmillService {
         fanStub = FanStateServiceGrpc.newBlockingStub(channel);
         workoutStub = WorkoutServiceGrpc.newBlockingStub(channel);
         strokesStub = StrokesServiceGrpc.newBlockingStub(channel);
+        strokesPerMinuteStub = StrokesPerMinuteServiceGrpc.newBlockingStub(channel);
+        fiveHundredSplitStub = FiveHundredSplitServiceGrpc.newBlockingStub(channel);
         paceStub = PaceServiceGrpc.newBlockingStub(channel);
         heartRateStub = HeartRateServiceGrpc.newBlockingStub(channel);
 
@@ -723,7 +739,9 @@ public class GrpcTreadmillService {
                 }
             }
 
-            // Fetch cadence (for treadmills)
+            // Treadmill cadence is not the rowing stroke rate on GlassOS.
+            if (!rowerMode || rowerSpmUnsupported) {
+            // Fetch cadence (for treadmills or older rowers)
             try {
                 long cadenceStartTime = System.currentTimeMillis();
                 CadenceServiceGrpc.CadenceServiceBlockingStub cadenceStubWithHeaders = cadenceStub.withInterceptors(
@@ -750,6 +768,32 @@ public class GrpcTreadmillService {
                 }
             }
 
+            }
+            if (rowerMode && !rowerSpmUnsupported) {
+                // On GlassOS rowers stroke rate is exposed by StrokesPerMinuteService,
+                // not by CadenceService (which reports zero on these consoles).
+                try {
+                    StrokesPerMinuteMetric spmResponse = strokesPerMinuteStub.withInterceptors(
+                            MetadataUtils.newAttachHeadersInterceptor(headers))
+                            .getStrokesPerMinute(request);
+                    currentCadence = spmResponse.getLastSpm();
+                    QLog.d(TAG, "Rower stroke rate: " + currentCadence + " spm");
+                    if (metricsListener != null) {
+                        mainHandler.post(() -> metricsListener.onCadenceUpdated(currentCadence));
+                    }
+                } catch (Exception e) {
+                    if (Status.fromThrowable(e).getCode() == Status.Code.UNIMPLEMENTED) {
+                        rowerSpmUnsupported = true;
+                        QLog.i(TAG, "StrokesPerMinuteService unsupported; falling back to CadenceService");
+                    } else {
+                        QLog.w(TAG, "Failed to fetch rowing stroke rate", e);
+                    }
+                    if (metricsListener != null) {
+                        mainHandler.post(() -> metricsListener.onError("stroke_rate", "Error"));
+                    }
+                }
+            }
+
             // Fetch strokes (for rowers)
             try {
                 long strokesStartTime = System.currentTimeMillis();
@@ -763,7 +807,10 @@ public class GrpcTreadmillService {
                 long strokesCallTime = System.currentTimeMillis();
                 QLog.d(TAG, "Strokes gRPC call took: " + (strokesCallTime - strokesInterceptorTime) + "ms");
 
-                currentStrokesCount = strokesResponse.getStrokesCount();
+                // On newer GlassOS rowers the running count is field 3 (lastStrokes),
+                // whereas older builds may populate field 4 (strokesCount).
+                currentStrokesCount = rowerMode && strokesResponse.getStrokesCount() == 0
+                        ? strokesResponse.getLastStrokes() : strokesResponse.getStrokesCount();
                 currentStrokesLength = strokesResponse.getStrokesLength();
 
                 if (metricsListener != null) {
@@ -778,7 +825,9 @@ public class GrpcTreadmillService {
                 }
             }
 
-            // Fetch pace (for rowers)
+            // The modern rowing API uses FiveHundredSplitService instead of PaceService.
+            if ((!rowerMode || rowerSplitUnsupported) && !paceServiceUnsupported) {
+            // Fetch pace (for legacy GlassOS versions)
             try {
                 long paceStartTime = System.currentTimeMillis();
                 PaceServiceGrpc.PaceServiceBlockingStub paceStubWithHeaders = paceStub.withInterceptors(
@@ -800,9 +849,40 @@ public class GrpcTreadmillService {
                 long paceEndTime = System.currentTimeMillis();
                 QLog.d(TAG, "Pace total processing took: " + (paceEndTime - paceStartTime) + "ms");
             } catch (Exception e) {
-                QLog.w(TAG, "Failed to fetch pace", e);
+                if (Status.fromThrowable(e).getCode() == Status.Code.UNIMPLEMENTED) {
+                    paceServiceUnsupported = true;
+                    QLog.i(TAG, "PaceService/GetPace unsupported; disabling further calls on this connection");
+                } else {
+                    QLog.w(TAG, "Failed to fetch pace", e);
+                }
                 if (metricsListener != null) {
                     mainHandler.post(() -> metricsListener.onError("pace", "Error"));
+                }
+            }
+
+            }
+            if (rowerMode && !rowerSplitUnsupported) {
+                try {
+                    FiveHundredSplitMetric splitResponse = fiveHundredSplitStub.withInterceptors(
+                            MetadataUtils.newAttachHeadersInterceptor(headers))
+                            .getFiveHundredSplit(request);
+                    // The current split is a double measured in seconds / 500 m.
+                    // avgFiveHundredSplitSeconds is the *average*, not the last split.
+                    currentPaceSeconds = (int) Math.round(splitResponse.getLastFiveHundredSplitSeconds());
+                    if (metricsListener != null) {
+                        mainHandler.post(() -> metricsListener.onPaceUpdated(
+                                currentPaceSeconds, currentLast500mPaceSeconds));
+                    }
+                } catch (Exception e) {
+                    if (Status.fromThrowable(e).getCode() == Status.Code.UNIMPLEMENTED) {
+                        rowerSplitUnsupported = true;
+                        QLog.i(TAG, "FiveHundredSplitService unsupported; falling back to PaceService");
+                    } else {
+                        QLog.w(TAG, "Failed to fetch 500 m split", e);
+                    }
+                    if (metricsListener != null) {
+                        mainHandler.post(() -> metricsListener.onError("split", "Error"));
+                    }
                 }
             }
 
@@ -924,6 +1004,7 @@ public class GrpcTreadmillService {
                 instance = new GrpcTreadmillService(staticContext);
             }
             
+            instance.rowerMode = false; // The rower explicitly enables its own RPC profile.
             instance.initializeInstance();
             QLog.i(TAG, "Static initialize completed with host: " + host);
         } catch (Exception e) {
@@ -935,6 +1016,12 @@ public class GrpcTreadmillService {
         staticContext = context;
     }
     
+    public static void setRowerMode(boolean enabled) {
+        if (instance != null) {
+            instance.rowerMode = enabled;
+        }
+    }
+
     public static void startMetricsUpdates() {
         if (instance != null) {
             instance.startMetricsUpdatesInstance();
