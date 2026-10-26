@@ -1838,6 +1838,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if (SOLE_B94) resistance_lvl_mode = gattFTMSService && gattFTMSService->characteristic(QBluetoothUuid((quint16)0x2AD6)).isValid();
+    if (SOLE_B94) ergModeSupported = false;
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
