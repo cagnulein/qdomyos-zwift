@@ -7097,8 +7097,6 @@ import AndroidStatusBar 1.0
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
-                            // back to the value the field shows for this mode, also after an edit
-                            uiTextScaleTextField.text = uiTextScaleTextField.savedText;
                         }
                     }
 
@@ -7137,6 +7135,10 @@ import AndroidStatusBar 1.0
                             maximum: 170
                             enabled: !followsSystem
                             savedText: shownValue
+                            // back to the value the field shows for this mode, also after an edit and
+                            // whatever turned the mode (this switch, the search card): the same value
+                            // in both modes leaves savedText as it is, and the typed number stayed
+                            onFollowsSystemChanged: text = savedText
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
