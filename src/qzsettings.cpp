@@ -1333,10 +1333,15 @@ const QString QZSettings::android_notification_prompt_disabled = QStringLiteral(
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 const QString QZSettings::ui_text_scale = QStringLiteral("ui_text_scale");
 const QString QZSettings::ui_text_scale_system = QStringLiteral("ui_text_scale_system");
-const QString QZSettings::history_chart_order = QStringLiteral("history_chart_order");
-const QString QZSettings::default_history_chart_order = QStringLiteral("power,heart,resistance,pelotonResistance,cadence,powerDistribution,speedInclination");
+const QString QZSettings::history_chart_power_order = QStringLiteral("history_chart_power_order");
+const QString QZSettings::history_chart_heart_order = QStringLiteral("history_chart_heart_order");
+const QString QZSettings::history_chart_resistance_order = QStringLiteral("history_chart_resistance_order");
+const QString QZSettings::history_chart_peloton_resistance_order = QStringLiteral("history_chart_peloton_resistance_order");
+const QString QZSettings::history_chart_cadence_order = QStringLiteral("history_chart_cadence_order");
+const QString QZSettings::history_chart_power_distribution_order = QStringLiteral("history_chart_power_distribution_order");
+const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral("history_chart_speed_inclination_order");
 
-const uint32_t allSettingsCount = 1031;
+const uint32_t allSettingsCount = 1037;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2393,7 +2398,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
     {QZSettings::ui_text_scale, QZSettings::default_ui_text_scale},
     {QZSettings::ui_text_scale_system, QZSettings::default_ui_text_scale_system},
-    {QZSettings::history_chart_order, QZSettings::default_history_chart_order},
+    {QZSettings::history_chart_power_order, QZSettings::default_history_chart_power_order},
+    {QZSettings::history_chart_heart_order, QZSettings::default_history_chart_heart_order},
+    {QZSettings::history_chart_resistance_order, QZSettings::default_history_chart_resistance_order},
+    {QZSettings::history_chart_peloton_resistance_order, QZSettings::default_history_chart_peloton_resistance_order},
+    {QZSettings::history_chart_cadence_order, QZSettings::default_history_chart_cadence_order},
+    {QZSettings::history_chart_power_distribution_order, QZSettings::default_history_chart_power_distribution_order},
+    {QZSettings::history_chart_speed_inclination_order, QZSettings::default_history_chart_speed_inclination_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
