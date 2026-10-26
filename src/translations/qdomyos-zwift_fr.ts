@@ -1008,11 +1008,11 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 prêt</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de l&apos;initialisation du YPOO M5 ; reconnexion nécessaire</translation>
     </message>
 </context>
 <context>
@@ -5522,8 +5522,8 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Langue de l&apos;application :</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ. Redémarrage requis.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -7794,23 +7794,23 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Options Life Fitness</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;utilisateur/courriel Life Fitness :</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mot de passe Life Fitness :</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Connexion invité Life Fitness (expérimentale)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilise un profil Life Fitness synthétique sans compte. Lorsque cette option est activée, le nom d&apos;utilisateur, le mot de passe et les données de compte en cache sont ignorés ; à utiliser uniquement pour tester la connexion invité prise en charge.</translation>
     </message>
 </context>
 <context>

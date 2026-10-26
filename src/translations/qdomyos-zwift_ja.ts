@@ -1008,11 +1008,11 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5の準備ができました</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
     </message>
 </context>
 <context>
@@ -5530,8 +5530,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>アプリ言語:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。再起動が必要です。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -7818,23 +7818,23 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness連携設定</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessユーザー名/メール:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessパスワード:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitnessゲストログイン（実験的）</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>アカウント不要の合成Life Fitnessプロファイルを使用します。有効にすると、ユーザー名、パスワード、保存済みのアカウントデータは無視されます。サポートされているゲストログインのテストにのみ使用してください。</translation>
     </message>
 </context>
 <context>

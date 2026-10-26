@@ -1008,11 +1008,11 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5가 준비되었습니다</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
 </context>
 <context>
@@ -4413,8 +4413,8 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>앱 언어:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요. 다시 시작해야 합니다.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -7746,31 +7746,31 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Tile size:</source>
-        <translation type="unfinished"></translation>
+        <translation>타일 크기:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation type="unfinished"></translation>
+        <translation>측정값을 표시하는 타일의 크기를 바꿉니다. 기본값은 100%입니다. 화면에 타일을 더 많이 표시하려면 더 작은 비율을, 타일을 크게 하려면 100%보다 큰 비율을 선택하세요. 퍼센트 기호는 입력하지 마세요. 이전 이름은 [UI 확대/축소]입니다.</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 옵션</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 사용자 이름/이메일:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 비밀번호:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 게스트 로그인(실험적)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>계정 없이 쓰는 가상 Life Fitness 프로필을 사용합니다. 켜면 사용자 이름, 비밀번호, 저장된 계정 데이터는 무시됩니다. 지원되는 게스트 로그인을 테스트할 때만 사용하세요.</translation>
     </message>
 </context>
 <context>

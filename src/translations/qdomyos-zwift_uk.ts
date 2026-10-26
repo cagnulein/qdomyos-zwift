@@ -1008,11 +1008,11 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 готова до роботи</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося ініціалізувати YPOO M5, потрібно перепідключитися</translation>
     </message>
 </context>
 <context>
@@ -4413,8 +4413,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Мова застосунку:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну. Потрібен перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -7758,23 +7758,23 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри Life Fitness</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім’я користувача/пошта Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль Life Fitness:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Гостьовий вхід Life Fitness (експериментально)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовує синтетичний профіль Life Fitness без облікового запису. Якщо увімкнено, ім’я користувача, пароль і збережені дані облікового запису не використовуються; вмикайте лише для перевірки підтримуваного гостьового входу.</translation>
     </message>
 </context>
 <context>

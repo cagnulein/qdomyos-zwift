@@ -26,6 +26,14 @@ ColumnLayout {
         }
     }
 
+    // a new app language: the page asks for its texts again
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
     Timer {
         id: chartJscheckStartFromWeb
         interval: 200; running: true; repeat: true

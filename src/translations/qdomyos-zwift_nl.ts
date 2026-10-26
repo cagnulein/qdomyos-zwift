@@ -1008,11 +1008,11 @@ Wil je de QZ-instellingen bijwerken?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 gereed</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
     </message>
 </context>
 <context>
@@ -4413,8 +4413,8 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Taal van de app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Kies Auto om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ. Opnieuw starten vereist.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -7746,31 +7746,31 @@ Standaard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Tile size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tegelgrootte:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee. Heette vroeger ‘Interfacezoom’.</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness-opties</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness-gebruikersnaam/e-mailadres:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness-wachtwoord:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inloggen als gast bij Life Fitness (experimenteel)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruikt een synthetisch Life Fitness-profiel zonder account. Als dit is ingeschakeld, worden gebruikersnaam, wachtwoord en opgeslagen accountgegevens genegeerd; gebruik dit alleen om het ondersteunde inloggen als gast te testen.</translation>
     </message>
 </context>
 <context>

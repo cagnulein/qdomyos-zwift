@@ -1008,11 +1008,11 @@ QZ ayarları güncellensin mi?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 hazır</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 başlatılamadı; yeniden bağlanmak gerekiyor</translation>
     </message>
 </context>
 <context>
@@ -4413,8 +4413,8 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin. Yeniden başlatma gerekir.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -7746,31 +7746,31 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Tile size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk boyutu:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin. Önceki adı: &quot;Arayüz ölçeği&quot; (UI Zoom).</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness seçenekleri</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness kullanıcı adı/e-postası:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness şifresi:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness misafir girişi (deneysel)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hesap gerektirmeyen yapay bir Life Fitness profili kullanır. Açıkken kullanıcı adı, şifre ve önbelleğe alınmış hesap verileri yok sayılır; yalnızca desteklenen misafir girişini test etmek için kullanın.</translation>
     </message>
 </context>
 <context>
