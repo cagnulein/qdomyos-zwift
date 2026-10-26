@@ -43,7 +43,7 @@ ios {
 
     LIBS += -framework StoreKit -framework Foundation
     MACPATH += $$PWD/mac/
-    HEADERS += \
+    OBJECTIVE_HEADERS += \
         $$PWD/ios/iosinapppurchasebackend.h \
         $$PWD/ios/iosinapppurchaseproduct.h \
         $$PWD/ios/iosinapppurchasetransaction.h

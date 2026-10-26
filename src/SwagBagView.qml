@@ -52,6 +52,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
 import org.cagnulein.qdomyoszwift 1.0
+import AndroidStatusBar 1.0
 
 Item {
 
@@ -111,6 +112,9 @@ Item {
     Button {
         id: restoreButton
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: (Qt.platform.os === "ios" &&
+                               typeof IOSLayout !== "undefined" &&
+                               IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width * .5
         text: qsTr("Restore Purchases")
