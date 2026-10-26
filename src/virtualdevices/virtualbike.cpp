@@ -2315,6 +2315,18 @@ bool virtualbike::connected() {
     return leController->state() == QLowEnergyController::ConnectedState;
 }
 
+double virtualbike::currentGear() {
+    if (dirconManager) {
+        return dirconManager->currentGear();
+    }
+    // no Bluetooth part (Virtual Device Bluetooth off, no adapter): no writeP0003, so the bike's own gear,
+    // as writeP0003 gives it before Zwift sends one
+    if (!writeP0003) {
+        return (Bike && Bike->deviceType() == BIKE) ? ((bike *)Bike)->gears() : 0;
+    }
+    return writeP0003->currentGear();
+}
+
 void virtualbike::error(QLowEnergyController::Error newError) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
