@@ -9,6 +9,8 @@ fs.mkdirSync(artifactDir, { recursive: true });
 
 const results = [];
 const events = [];
+const savedChartNames = [];
+const pendingTimers = [];
 const renderedText = new Map();
 function check(name, condition, details) {
     const ok = Boolean(condition);
@@ -46,9 +48,21 @@ class JQueryMock {
 
 global.window = global;
 global.$ = function(selector) { return new JQueryMock(selector); };
-global.setTimeout = function() { return 1; };
+global.setTimeout = function(callback) {
+    pendingTimers.push(callback);
+    return pendingTimers.length;
+};
 global.clearTimeout = function() {};
-global.html2canvas = undefined;
+global.html2canvas = function() {
+    const canvas = { toDataURL: () => 'data:image/png;base64,treadmill-badge' };
+    return {
+        then(callback) {
+            callback(canvas);
+            return { catch() {} };
+        },
+        catch() {}
+    };
+};
 
 const canvases = new Map();
 function canvasFor(id) {
@@ -84,6 +98,12 @@ class FakeChart {
         }
         FakeChart.instances.set(this.canvas, this);
     }
+    static completeAnimations() {
+        for (const chart of FakeChart.instances.values()) {
+            const callback = chart.options.animation && chart.options.animation.onComplete;
+            if (typeof callback === 'function') callback();
+        }
+    }
     update(mode) { this.updateCalls.push(mode); }
     resize() { this.resizeCalls++; }
     toBase64Image() { return this.canvas.toDataURL(); }
@@ -91,7 +111,13 @@ class FakeChart {
 global.Chart = FakeChart;
 
 global.MainWSQueueElement = class {
-    enqueue() { return Promise.resolve(null); }
+    constructor(message) { this.message = message; }
+    enqueue() {
+        if (this.message && this.message.msg === 'savechart') {
+            savedChartNames.push(this.message.content.name);
+        }
+        return Promise.resolve(null);
+    }
 };
 
 function sample(overrides) {
@@ -123,6 +149,11 @@ try {
     vm.runInThisContext(treadmillSource, { filename: 'treadmill_summary.js' });
 
     window.process_arr(fixture);
+    FakeChart.completeAnimations();
+    while (pendingTimers.length > 0) {
+        const callback = pendingTimers.shift();
+        if (typeof callback === 'function') callback();
+    }
     const chart = FakeChart.getChart(canvasFor('canvasSpeedInclination'));
     check('Speed/Inclination chart exists', Boolean(chart));
 
@@ -166,6 +197,12 @@ try {
     check('Runtime diagnostics retain 20 second duration', diagnostics && diagnostics.durationSeconds === 20,
         diagnostics ? `duration=${diagnostics.durationSeconds}` : 'missing diagnostics');
     check('Treadmill presentation does not mutate session samples', JSON.stringify(fixture) === fixtureBefore);
+    check('Treadmill export skips stale legacy captures',
+        !savedChartNames.includes('speedInclination') &&
+        savedChartNames.filter(name => name === 'power').length === 1 &&
+        savedChartNames.filter(name => name === 'power_badge').length === 1,
+        JSON.stringify(savedChartNames));
+
     check('Average GAP uses the Minetti model per segment', renderedText.get('.summary_gap_avg') === '4:23 /km',
         'avgGAP=' + renderedText.get('.summary_gap_avg'));
     check('Average GAP label is present', renderedText.get('.treadmill_gap_label') === 'Avg GAP');
@@ -186,6 +223,21 @@ try {
     window.process_arr(stationaryFixture);
     check('Zero distance returns unavailable GAP', renderedText.get('.summary_gap_avg') === '--:-- /km',
         'avgGAP=' + renderedText.get('.summary_gap_avg'));
+
+    const logFixture = [
+        sample({ elapsed_s: 0, speed: 1, inclination: 0, distance: 0 }),
+        sample({ elapsed_m: 5, speed: 6, inclination: 15, distance: 0.402 }),
+        sample({ elapsed_m: 10, speed: 5.1, inclination: 25, distance: 0.706 }),
+        sample({ elapsed_m: 20, speed: 5.1, inclination: 25, distance: 1.461 }),
+        sample({ elapsed_m: 40, speed: 5.1, inclination: 25, distance: 2.914 }),
+        sample({ elapsed_m: 45, elapsed_s: 50, speed: 0, inclination: 0, distance: 3.305 })
+    ];
+    window.process_arr(logFixture);
+    const logChart = FakeChart.getChart(canvasFor('canvasSpeedInclination'));
+    const logInclination = logChart.data.datasets[1].data.map(point => point.y);
+    check('Log inclination values reach the exported chart unchanged',
+        logInclination.includes(15) && logInclination.includes(25) && logInclination[logInclination.length - 1] === 0,
+        JSON.stringify(logInclination));
 } catch (err) {
     fatalError = err && err.stack ? err.stack : String(err);
     console.error(fatalError);
