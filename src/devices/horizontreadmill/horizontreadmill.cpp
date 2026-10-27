@@ -1555,6 +1555,29 @@ void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+// treadmill_direct_distance: the treadmill counter may already be running when QZ connects and may be
+// reset on the treadmill during the workout, so only its increase is added to Distance. While QZ is paused
+// the counter is followed but nothing is added, as with the distance calculated from speed
+void horizontreadmill::addDirectDistance(double treadmillDistance) {
+    QDateTime now = QDateTime::currentDateTime();
+    if (lastDirectDistance < 0) {
+        qDebug() << "direct distance: first treadmill value" << treadmillDistance;
+    } else if (treadmillDistance < lastDirectDistance) {
+        qDebug() << "direct distance: treadmill counter reset from" << lastDirectDistance << "to" << treadmillDistance;
+    } else {
+        double increase = treadmillDistance - lastDirectDistance;
+        // more than 100 m plus 40 km/h since the last change of the counter is a bad packet
+        double maxIncrease = 0.1 + 40.0 * lastDirectDistanceChanged.msecsTo(now) / 3600000.0;
+        if (increase > maxIncrease)
+            qDebug() << "direct distance: increase ignored" << increase << "max" << maxIncrease;
+        else if (!isPaused())
+            Distance += increase;
+    }
+    if (treadmillDistance != lastDirectDistance)
+        lastDirectDistanceChanged = now;
+    lastDirectDistance = treadmillDistance;
+}
+
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
@@ -1773,10 +1796,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                  1000.0);
             }
             index += 3;
         }
@@ -1935,10 +1958,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totalDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                  1000.0);
             }
             index += 3;
         }
@@ -2150,10 +2173,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance && newValue.length() > index + 2) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                  1000.0);
             } else {
                 if (firstDistanceCalculated)
                     Distance += ((Speed.value() / 3600000.0) *
