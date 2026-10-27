@@ -219,12 +219,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     }
 
     if (directUnlockInProgress && directUnlockActivationSent && newvalue != directUnlockChallenge &&
-        directUnlockTelemetryFrame(newvalue) && static_cast<uint8_t>(newvalue.at(4)) == directUnlockAuth) {
-        directUnlockActivationTimer->stop();
-        directUnlockFallbackTimer->stop();
-        directUnlockInProgress = false;
-        directUnlockSucceeded = true;
-        qDebug() << QStringLiteral("Echelon rower direct unlock acknowledged");
+        directUnlockTelemetryFrame(newvalue)) {
+        confirmDirectUnlock();
     }
 
     if (newvalue.size() == 8 && static_cast<uint8_t>(newvalue.at(0)) == 0xf0 &&
@@ -239,6 +235,12 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << QStringLiteral(" << concatenated ") + lastPacket.toHex(' ');
     } else {
         lastPacket = newvalue;
+    }
+
+    // Rower telemetry can be split across notifications. A complete metrics
+    // packet is also evidence of unlock when the firmware sends no F0 E0 ACK.
+    if (directUnlockInProgress && directUnlockActivationSent && directUnlockTelemetryFrame(lastPacket)) {
+        confirmDirectUnlock();
     }
 
     // resistance value is in another frame
@@ -556,6 +558,14 @@ bool echelonrower::virtualEchelonSessionActive() {
 }
 
 bool echelonrower::directUnlockTelemetryFrame(const QByteArray &frame) const {
+    if (frame.size() == 21 && static_cast<uint8_t>(frame.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(frame.at(1)) == 0xd1) {
+        return true;
+    }
+    if (frame.size() == 5 && static_cast<uint8_t>(frame.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(frame.at(1)) == 0xd2) {
+        return true;
+    }
     if (frame.size() != 8 || static_cast<uint8_t>(frame.at(0)) != 0xf0 ||
         static_cast<uint8_t>(frame.at(1)) != 0xe0) {
         return false;
@@ -565,7 +575,16 @@ bool echelonrower::directUnlockTelemetryFrame(const QByteArray &frame) const {
     for (int i = 0; i < frame.size() - 1; ++i) {
         checksum = static_cast<uint8_t>(checksum + static_cast<uint8_t>(frame.at(i)));
     }
-    return checksum == static_cast<uint8_t>(frame.at(frame.size() - 1));
+    return checksum == static_cast<uint8_t>(frame.at(frame.size() - 1)) &&
+           static_cast<uint8_t>(frame.at(4)) == directUnlockAuth;
+}
+
+void echelonrower::confirmDirectUnlock() {
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockInProgress = false;
+    directUnlockSucceeded = true;
+    qDebug() << QStringLiteral("Echelon rower direct unlock confirmed by post-auth traffic");
 }
 
 void echelonrower::handleDirectUnlockChallenge(const QByteArray &challenge) {
