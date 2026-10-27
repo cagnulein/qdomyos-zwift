@@ -42,7 +42,7 @@ void heartratebelt::update() {
         
         // Reconnect after 1 second
         QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
+            if (m_control && !disconnectingForGood) {
                 emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
                 m_control->connectToDevice();
             }
@@ -60,6 +60,12 @@ void heartratebelt::disconnectBluetooth() {
     if (m_control) {
         m_control->disconnectFromDevice();
     }
+}
+
+void heartratebelt::disconnectForGood() {
+    disconnectingForGood = true;
+    updateTimer->stop();
+    disconnectBluetooth();
 }
 
 void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -301,7 +307,7 @@ void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState
         connectingTime = QDateTime();  // Reset timestamp for other states
     }
     
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState && m_control && !disconnectingForGood) {
         qDebug() << QStringLiteral("trying to connect back again...");
         m_control->connectToDevice();
     }

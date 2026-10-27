@@ -39,8 +39,11 @@ class heartratebelt : public treadmill {
     QDateTime lastHeartRateTime;
     // When this sensor was created: a sensor still connecting has no heart rate yet but is not silent
     QDateTime createdTime = QDateTime::currentDateTime();
+    // Another sensor was chosen: disconnects without the automatic reconnection
+    void disconnectForGood();
 
   private:
+    bool disconnectingForGood = false;
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyService *gattBatteryService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;

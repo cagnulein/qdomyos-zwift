@@ -210,6 +210,7 @@ class bluetooth : public QObject, public SignalHandler {
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
+    QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
@@ -398,6 +399,7 @@ class bluetooth : public QObject, public SignalHandler {
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
     void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
     void stopHeartRateBeltDiscovery();
+    void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;

@@ -3417,10 +3417,12 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 connect(heartRateBelt, SIGNAL(rrIntervalReceived(double)), this->device(), SLOT(rrIntervalReceived(double)));
-                QBluetoothDeviceInfo bt;
-                bt.setDeviceUuid(QBluetoothUuid(
-                    settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
-                        .toString()));
+                // with the name too: reconnectHeartRateBelt() tells the chosen sensor by bluetoothDevice.name()
+                QBluetoothDeviceInfo bt(
+                    QBluetoothUuid(
+                        settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
+                            .toString()),
+                    b, 0);
                 qDebug() << "UUID" << bt.deviceUuid();
                 heartRateBelt->deviceDiscovered(bt);
             }
@@ -4132,6 +4134,15 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
             : name;
     qDebug() << "bluetooth::reconnectHeartRateBelt()" << heartRateBeltName;
 
+    // Already searching for this sensor (or waiting for the Android limit): another tap keeps that scan
+    if (hrmDiscoveryAgent && hrmDiscoveryName == heartRateBeltName) {
+        qDebug() << "heart rate sensor search already running";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+        return;
+    }
+
     // Already connected only while the heart rate still comes: a watch that stopped broadcasting keeps the
     // link up, so a silent sensor is dropped and searched for again below
     if (heartRateBelt && heartRateBelt->connected() && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
@@ -4164,7 +4175,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     stopHeartRateBeltDiscovery();
     if (heartRateBelt) {
         heartRateBelt->disconnect();
-        heartRateBelt->disconnectBluetooth();
+        heartRateBelt->disconnectForGood();
         heartRateBelt->deleteLater();
         heartRateBelt = nullptr;
     }
@@ -4187,6 +4198,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     }
 
     hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    hrmDiscoveryName = heartRateBeltName;
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
             [this, heartRateBeltName](const QBluetoothDeviceInfo &b) {
                 if (heartRateBelt || !this->device() || !b.name().startsWith(heartRateBeltName))
@@ -4206,28 +4218,30 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
             QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
             notFound);
     hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(30000);
+    startHeartRateBeltScan(hrmDiscoveryAgent);
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+}
 
-    // This scan counts in the Android limit too (5 starts in 30 s): like searchNow() it leaves room for an
-    // automatic search (a trainer lost meanwhile), so with 4 starts in the window it waits for one to leave it
-    // instead of a start that would be ignored and end in "not found"
-    QBluetoothDeviceDiscoveryAgent *agent = hrmDiscoveryAgent;
-    auto startScan = [this, agent]() {
-        const qint64 startedMs = QDateTime::currentMSecsSinceEpoch();
-        pruneScanStarts(startedMs);
-        scanStartsMs.append(startedMs);
-        agent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    };
+// This scan counts in the Android limit too (5 starts in 30 s): like searchNow() it leaves room for an
+// automatic search (a trainer lost meanwhile), so with 4 starts in the window it waits for one to leave it
+// instead of a start that would be ignored and end in "not found". The wait is checked again when it ends:
+// other scans may have started meanwhile.
+// agent: the scan to start; a stopped or replaced one (not hrmDiscoveryAgent any more) is left alone
+void bluetooth::startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent) {
+    if (agent != hrmDiscoveryAgent || agent->isActive())
+        return;
+
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     pruneScanStarts(now);
     if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
         const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 4)) + 500;
         debug(QStringLiteral("HR sensor scan postponed by the Android limit"));
-        QTimer::singleShot(int(waitMs), agent, startScan);
-    } else {
-        startScan();
+        QTimer::singleShot(int(waitMs), agent, [this, agent]() { startHeartRateBeltScan(agent); });
+        return;
     }
-    if (homeform::singleton())
-        homeform::singleton()->setToastRequested(QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+    scanStartsMs.append(now);
+    agent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
 void bluetooth::stopHeartRateBeltDiscovery() {
