@@ -381,7 +381,8 @@ void echelonrower::btinit() {
 
     initDone = true;
 
-    if (lastResistanceBeforeDisconnection != -1) {
+    // Avoid restoring resistance while direct authentication is in progress.
+    if (lastResistanceBeforeDisconnection != -1 && !directUnlockInProgress) {
         qDebug() << QStringLiteral("forcing resistance to ") + QString::number(lastResistanceBeforeDisconnection) +
                         QStringLiteral(". It was the last value before the disconnection.");
         forceResistance(lastResistanceBeforeDisconnection);
@@ -585,6 +586,10 @@ void echelonrower::confirmDirectUnlock() {
     directUnlockInProgress = false;
     directUnlockSucceeded = true;
     qDebug() << QStringLiteral("Echelon rower direct unlock confirmed by post-auth traffic");
+    if (lastResistanceBeforeDisconnection != -1) {
+        forceResistance(lastResistanceBeforeDisconnection);
+        lastResistanceBeforeDisconnection = -1;
+    }
 }
 
 void echelonrower::handleDirectUnlockChallenge(const QByteArray &challenge) {
