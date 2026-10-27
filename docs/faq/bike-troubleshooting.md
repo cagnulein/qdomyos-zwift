@@ -60,17 +60,15 @@ To isolate this kind of problem:
 
 If control still drops, note whether the **QZ-to-bike** connection or only the **training-app-to-QZ control path** is affected, check for other devices/apps connecting to the bike, and collect a QZ debug log covering the failure.
 
-## QZ keeps finding or searching for the wrong nearby fitness device. How can I force the intended trainer or bike?
+## QZ keeps searching for the wrong device, or for my old treadmill after I replace it. What should I check?
 
-If several supported Bluetooth fitness devices are nearby and QZ selects or keeps searching for the wrong one, use the **Manual Device** setting to restrict discovery to the device you actually want to use.
+**Manual Device** in **QZ Settings > Advanced Settings** restricts Bluetooth discovery to the selected machine. This is useful when multiple fitness devices are nearby, but a saved selection for an old treadmill or bike can prevent QZ from connecting to its replacement.
 
-1. Open **QZ Settings > Advanced Settings**.
-2. Set **Manual Device** to the Bluetooth name of the intended bike or trainer.
-3. Fully close and restart QZ, then let it reconnect.
+1. Open **QZ Settings > Advanced Settings > Manual Device**.
+2. To allow automatic discovery, change it to **Disabled**. Alternatively, select the **new** machine's advertised Bluetooth name if you want to force that device.
+3. Fully close and restart QZ. Turn on the intended machine and confirm QZ connects to it.
 
-QZ stores this selection as its device filter and uses it instead of unrestricted automatic discovery. To return to automatic device selection later, set **Manual Device** back to **Disabled**.
-
-In a confirmed support case, QZ was searching for a different nearby fitness machine instead of the intended smart trainer. Selecting the trainer under **Manual Device** restored the expected connection.
+A rider replacing a treadmill confirmed that clearing QZ's Android app data restored connection; the previous treadmill was subsequently identified as the saved **Manual Device**. Check and clear that filter **before** resetting app data, since a data reset may remove local settings and profiles. In another confirmed case, selecting the intended trainer under **Manual Device** restored discovery among multiple nearby machines.
 
 ## MyWhoosh connects to QZ for my Echelon bike, but power stays at 0 W. What should I check?
 
@@ -195,3 +193,10 @@ Yes. **Automatic Virtual Shifting** can change QZ's virtual gear when cadence cr
 4. Test third-party ERG or terrain control separately; fixing local automatic shifts does not prove that MyWhoosh or another app is sending power/resistance commands.
 
 **Confirmed result:** One rider's low cadence (about 40–55 RPM) stayed below an automatic downshift threshold of 65 RPM, triggering repeated downshifts and roughly 5 W reductions until the target reached zero. After correcting the unwanted Automatic Virtual Shifting configuration, the rider reported QZ working. The cadence thresholds and feature enablement are also present in QZ's settings code.
+
+## QZ reads my Domyos X12 bike's data, but changing Target Resistance does not move the bike. What can I try?
+
+First confirm QZ receives cadence and power and that the bike has **electronically controlled resistance**. Test the **Resistance** tile's + / − controls while pedalling: if **Target Resistance** changes in QZ but the physical resistance stays unchanged, try **QZ Settings > Bike Options > Domyos Options > Ignore FTMS**. Enable it, fully restart QZ, reconnect, and repeat the manual resistance test.
+
+A Domyos X12 rider explicitly confirmed that enabling **Ignore FTMS** restored physical resistance control. This is a device-specific workaround, **not** a recommendation to disable FTMS on every bike. The same rider also needed to adjust **Zwift Resistance Offset** when a workout immediately requested maximum resistance; see the [resistance baseline guidance](#zwift-auto-resistance-is-working-but-flat-resistance-or-gradient-changes-feel-wrong-which-settings-should-i-adjust) rather than copying someone else's offset value blindly.
+

@@ -80,3 +80,10 @@ For a **time-based running** ZWO workout, include both the running sport type an
 QZ's ZWO parser uses **sportType** together with **durationType** to distinguish timed running intervals from distance-based running intervals. Without `durationType=time`, a running workout may be interpreted incorrectly and fail to render its intended interval graph. A rider confirmed that adding the `durationType` element made the graph render.
 
 For workouts that specify `pace=\"4\"`, QZ uses the **Marathon pace** in **Training Program settings** as the reference and scales it using the interval power percentages (for example, `OnPower` and `OffPower`). Match QZ's configured paces to your Zwift paces before comparing treadmill speed targets. Rendering the graph does **not** by itself confirm that treadmill speed control has been tested.
+
+## Why does bike resistance fall when I pedal faster during a QZ workout?
+
+If the workout has a **target power in watts (ERG mode)**, this is expected: the controller changes resistance to keep power near the target. At a higher cadence it generally needs less resistance; when you slow down it increases resistance. This is different from a workout that holds a specified **resistance level**.
+
+To create intervals that follow resistance levels instead of a watt target, open **QZ > Workout Editor**, select **Bike**, and create a resistance-based workout with the desired resistance for each interval. Save and start that workout. A rider confirmed that switching to a resistance-based workout resolved the confusion after observing cadence-dependent resistance in ERG mode. Actual resistance control still requires a compatible controllable bike and the correct QZ device configuration.
+
