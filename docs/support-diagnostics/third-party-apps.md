@@ -199,3 +199,24 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - The LED transition helps narrow down **discovery/pairing**, but only a changing QZ tile establishes that button input reached the intended control path.
 - Click ownership differs between direct QZ control and **Get Gears from Zwift**; mixing them can obscure whether QZ should receive Bluetooth button events or virtual gear updates.
 - In a confirmed Android test, standalone Click v2 ERG target changes worked in the beta but not in the previously installed release. Checking the exact running build avoids misdiagnosing a missing feature as a controller connection failure.
+
+## A training app disconnects partway through a previously working session
+
+### Provide first
+
+- Fitness machine model, QZ version and platform, receiving app and version, and which device runs each app.
+- At the moment of disconnection, do QZ's live speed/power/cadence tiles also freeze or fall to zero, or do they continue updating while only the receiving app loses the connection?
+- Does the connection recover on its own, after re-pairing in the receiving app, or only after fully restarting QZ?
+- Was QZ in the foreground with the screen awake, or in the background or with the screen locked?
+
+### If still unclear
+
+- Confirm that no manufacturer app or second phone is also connected directly to the physical machine. Record whether the receiving app uses QZ's virtual Bluetooth device or a network connection.
+- Capture one QZ debug log that includes a disconnection, and provide the approximate elapsed time of the failure and whether the QZ metrics stopped. Keep the test configuration unchanged.
+- If QZ continues to receive live metrics, capture the receiving app's pairing/disconnection screen and retry its virtual-device connection separately before changing machine-specific settings.
+
+### Why it matters
+
+- If QZ metrics stop, investigate the physical machine-to-QZ connection; if QZ metrics continue, investigate the QZ-to-training-app link instead.
+- Foreground state, competing connections, recovery behavior, and a timestamped log distinguish intermittent Bluetooth loss from downstream virtual-device or app lifecycle problems.
+- In a reported multi-minute session, resistance and incline worked until intermittent disconnects; checking QZ's own tiles established that the physical machine connection, not just the receiving app's pairing, had dropped.
