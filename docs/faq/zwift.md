@@ -150,3 +150,12 @@ If a **single button press skips two gears**, that is a separate issue: enable *
 Connect the KICKR to QZ, configure the physical **Chainring Size** and **Cog Size** to match the actual gear you leave the bike in, and configure the virtual gear table or gearing profile you want to use. Shift through QZ's on-screen gear controls or compatible Zwift Click/Play controllers. For apps such as MyWhoosh or ROUVY, let QZ own the controller unless you deliberately use an app-specific direct-controller integration. See the gear-table and controller-pairing FAQs above.
 
 The distinction is between the **physical sprocket/cassette** and the **virtual gear ratio** that QZ applies to the trainer; the latter does not require special physical Zwift hardware.
+
+## Can I make the 24 virtual gears non-linear for Zwift Click in ROUVY?
+
+**Yes.** In QZ, open **Custom Gear Table**, enable **Enable Custom Gear Table**, and edit the **Offset** for each of the 24 gears. The default offsets are linear (gear 1 = 1, gear 2 = 2, and so on), but you can make climbing gears closer together and use larger steps for higher gears. Use **Reset to Linear Defaults** to undo your custom progression.
+
+These are **QZ resistance/inclination/slope offsets**, not literal front-chainring and rear-sprocket ratios; tune them gradually to reproduce the *feel* of your bike. When the custom table is enabled, each gear press moves one table row: **Gears Gain does not scale the spacing** between custom rows. With Zwift Click connected **directly to QZ** while riding in ROUVY, leave **Get Gears from Zwift** disabled; that option is for gear events coming from Zwift. You can save a QZ profile before experimenting so you can restore your previous configuration.
+
+The 24 editable offsets, non-linear mapping, and whole-row gear steps are verified in QZ's `customgears.qml` and `bike.h` code. The support conversation established the configuration guidance but did **not** yet confirm the rider's final custom table.
+
