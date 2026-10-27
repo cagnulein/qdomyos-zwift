@@ -1,4 +1,5 @@
 #include "echelonrower.h"
+#include "devices/echelonconnectsport/echelonunlock.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -32,6 +33,14 @@ echelonrower::echelonrower(bool noWriteResistance, bool noHeartService, int8_t b
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    directUnlockActivationTimer = new QTimer(this);
+    directUnlockActivationTimer->setSingleShot(true);
+    directUnlockFallbackTimer = new QTimer(this);
+    directUnlockFallbackTimer->setSingleShot(true);
+    connect(directUnlockActivationTimer, &QTimer::timeout, this, &echelonrower::sendDirectUnlockActivation);
+    connect(directUnlockFallbackTimer, &QTimer::timeout, this, [this]() {
+        directUnlockFailed(QStringLiteral("no rower acknowledgement"));
+    });
     connect(refresh, &QTimer::timeout, this, &echelonrower::update);
     refresh->start(200ms);
 }
@@ -112,6 +121,10 @@ void echelonrower::update() {
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
+        return;
+    }
+
+    if (directUnlockInProgress) {
         return;
     }
 
@@ -203,6 +216,22 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     if (auto *virtualRower = dynamic_cast<virtualrower *>(VirtualDevice())) {
         virtualRower->relayEchelonPacket(characteristic.uuid(), newvalue);
+    }
+
+    if (directUnlockInProgress && directUnlockActivationSent && newvalue != directUnlockChallenge &&
+        directUnlockTelemetryFrame(newvalue) && static_cast<uint8_t>(newvalue.at(4)) == directUnlockAuth) {
+        directUnlockActivationTimer->stop();
+        directUnlockFallbackTimer->stop();
+        directUnlockInProgress = false;
+        directUnlockSucceeded = true;
+        qDebug() << QStringLiteral("Echelon rower direct unlock acknowledged");
+    }
+
+    if (newvalue.size() == 8 && static_cast<uint8_t>(newvalue.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(newvalue.at(1)) == 0xe0) {
+        handleDirectUnlockChallenge(newvalue);
+        // Authentication frames must not be concatenated with rowing metrics.
+        return;
     }
 
     if (lastPacket.count() > 0 && lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
@@ -342,7 +371,11 @@ void echelonrower::btinit() {
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    if (!directUnlockInProgress && !directUnlockSucceeded) {
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    } else {
+        qDebug() << QStringLiteral("deferring normal Echelon rower init until direct unlock completes");
+    }
 
     initDone = true;
 
@@ -474,6 +507,7 @@ void echelonrower::error(QLowEnergyController::Error err) {
 
 void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
+    resetDirectUnlockState();
     bluetoothDevice = device;
 
     m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -500,6 +534,7 @@ void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
         Q_UNUSED(this);
         qDebug() << QStringLiteral("LowEnergy controller disconnected");
+        resetDirectUnlockState();
         emit disconnected();
     });
 
@@ -515,10 +550,96 @@ bool echelonrower::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+bool echelonrower::virtualEchelonSessionActive() {
+    auto *virtualRower = dynamic_cast<virtualrower *>(VirtualDevice());
+    return virtualRower && virtualRower->connected();
+}
+
+bool echelonrower::directUnlockTelemetryFrame(const QByteArray &frame) const {
+    if (frame.size() != 8 || static_cast<uint8_t>(frame.at(0)) != 0xf0 ||
+        static_cast<uint8_t>(frame.at(1)) != 0xe0) {
+        return false;
+    }
+
+    uint8_t checksum = 0;
+    for (int i = 0; i < frame.size() - 1; ++i) {
+        checksum = static_cast<uint8_t>(checksum + static_cast<uint8_t>(frame.at(i)));
+    }
+    return checksum == static_cast<uint8_t>(frame.at(frame.size() - 1));
+}
+
+void echelonrower::handleDirectUnlockChallenge(const QByteArray &challenge) {
+    if (directUnlockAttempted || directUnlockInProgress || directUnlockSucceeded || virtualEchelonSessionActive()) {
+        return;
+    }
+
+    directUnlockAttempted = true;
+    directUnlockChallenge = challenge;
+    const auto result = echelonunlock::responseForChallenge(challenge);
+    if (!result.valid()) {
+        directUnlockFailed(QStringLiteral("invalid challenge (%1)").arg(static_cast<int>(result.error)));
+        return;
+    }
+
+    directUnlockInProgress = true;
+    directUnlockAuth = static_cast<uint8_t>(result.response.at(4));
+    directUnlockActivationSent = false;
+    directUnlockActivationTimer->start(500);
+    directUnlockFallbackTimer->start(2500);
+
+    // Use the bike-proven minimal envelope. The recorded rower challenge validates
+    // the codec, but hardware acknowledgement is still required to confirm unlock.
+    QByteArray response = result.response;
+    writeCharacteristic(reinterpret_cast<uint8_t *>(response.data()), static_cast<uint8_t>(response.size()),
+                        QStringLiteral("direct Echelon rower unlock response"), false, false);
+}
+
+void echelonrower::sendDirectUnlockActivation() {
+    if (!directUnlockInProgress || directUnlockActivationSent) {
+        return;
+    }
+
+    directUnlockActivationSent = true;
+    QByteArray activation = echelonunlock::activationCommand();
+    writeCharacteristic(reinterpret_cast<uint8_t *>(activation.data()), static_cast<uint8_t>(activation.size()),
+                        QStringLiteral("direct Echelon rower unlock activation"), false, false);
+}
+
+void echelonrower::directUnlockFailed(const QString &reason) {
+    if (!directUnlockAttempted && !directUnlockInProgress) {
+        return;
+    }
+
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
+    qDebug() << QStringLiteral("Echelon rower direct unlock failed:") << reason
+             << QStringLiteral("; keeping Virtual Echelon fallback available");
+}
+
+void echelonrower::resetDirectUnlockState() {
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockChallenge.clear();
+    directUnlockAuth = 0;
+    directUnlockAttempted = false;
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
+}
+
 void echelonrower::proxyVirtualRowerCommand(const QByteArray &value) {
     if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("proxyVirtualRowerCommand ignored because the Echelon rower is not ready");
+        return;
+    }
+
+    if (directUnlockSucceeded && value.size() == 8 && static_cast<uint8_t>(value.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(value.at(1)) == 0xe0) {
+        qDebug() << QStringLiteral("ignoring duplicate Virtual Echelon rower unlock response");
         return;
     }
 
@@ -600,6 +721,7 @@ void echelonrower::controllerStateChanged(QLowEnergyController::ControllerState 
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
+        resetDirectUnlockState();
         initDone = false;
         m_control->connectToDevice();
     }
