@@ -3407,6 +3407,12 @@ class QZSettings {
     static const QString ui_text_scale_system;
     static constexpr bool default_ui_text_scale_system = true;
 
+    // With treadmill_direct_distance: add only the increase of the treadmill distance counter, so a counter
+    // already running when QZ connects, or reset on the treadmill during the workout, does not change the
+    // workout distance. Off: the counter is the workout distance, as before
+    static const QString treadmill_direct_distance_increment;
+    static constexpr bool default_treadmill_direct_distance_increment = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

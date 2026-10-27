@@ -1555,12 +1555,16 @@ void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-// treadmill_direct_distance: the treadmill counter may already be running when QZ connects and may be
-// reset on the treadmill during the workout, so only its increase is added to Distance. While QZ is paused
-// the counter is followed but nothing is added, as with the distance calculated from speed
-void horizontreadmill::addDirectDistance(double treadmillDistance) {
+// treadmill_direct_distance: Distance is the treadmill counter. With treadmill_direct_distance_increment
+// only its increase is added instead: the counter may already be running when QZ connects and may be
+// reset on the treadmill during the workout. While QZ is paused the counter is followed but nothing is
+// added, as with the distance calculated from speed. The counter is followed in both modes, so turning
+// the option on during a workout adds nothing twice
+void horizontreadmill::setDirectDistance(double treadmillDistance, bool increment) {
     QDateTime now = QDateTime::currentDateTime();
-    if (lastDirectDistance < 0) {
+    if (!increment) {
+        Distance = treadmillDistance;
+    } else if (lastDirectDistance < 0) {
         qDebug() << "direct distance: first treadmill value" << treadmillDistance;
     } else if (treadmillDistance < lastDirectDistance) {
         qDebug() << "direct distance: treadmill counter reset from" << lastDirectDistance << "to" << treadmillDistance;
@@ -1595,6 +1599,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
         settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+    bool treadmill_direct_distance_increment =
+        settings.value(QZSettings::treadmill_direct_distance_increment,
+                       QZSettings::default_treadmill_direct_distance_increment).toBool();
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -1796,10 +1803,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance) {
             if (treadmill_direct_distance) {
-                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                                  1000.0);
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -1958,10 +1966,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totalDistance) {
             if (treadmill_direct_distance) {
-                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                                  1000.0);
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -2173,10 +2182,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance && newValue.length() > index + 2) {
             if (treadmill_direct_distance) {
-                addDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                                  1000.0);
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             } else {
                 if (firstDistanceCalculated)
                     Distance += ((Speed.value() / 3600000.0) *

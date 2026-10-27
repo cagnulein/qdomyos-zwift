@@ -53,7 +53,7 @@ class horizontreadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
-    void addDirectDistance(double treadmillDistance);
+    void setDirectDistance(double treadmillDistance, bool increment);
 
     QTimer *refresh;
 
