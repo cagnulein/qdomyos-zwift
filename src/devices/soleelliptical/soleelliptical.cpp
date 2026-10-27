@@ -660,6 +660,6 @@ void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerStat
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

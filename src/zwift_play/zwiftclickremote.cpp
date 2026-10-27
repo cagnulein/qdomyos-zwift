@@ -348,7 +348,7 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         initDone = false;
 
         if(m_control)
-            m_control->connectToDevice();
+            connectBackLater();
     }
 }
 

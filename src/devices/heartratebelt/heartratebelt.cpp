@@ -331,6 +331,6 @@ void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState
     
     if (state == QLowEnergyController::UnconnectedState && m_control && !disconnectingForGood) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

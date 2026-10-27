@@ -217,6 +217,6 @@ void moxy5sensor::controllerStateChanged(QLowEnergyController::ControllerState s
     
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
