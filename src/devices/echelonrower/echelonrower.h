@@ -106,6 +106,7 @@ class echelonrower : public rower {
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
     void handleDirectUnlockChallenge(const QByteArray &challenge);
+    void confirmDirectUnlock();
     void sendDirectUnlockActivation();
     void directUnlockFailed(const QString &reason);
     bool directUnlockTelemetryFrame(const QByteArray &frame) const;
