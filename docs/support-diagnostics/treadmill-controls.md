@@ -4,7 +4,7 @@
 
 ### Provide first
 
-- The full treadmill model number, advertised Bluetooth name, QZ platform/version, and selected Specific Model option.
+- The full treadmill model number, advertised Bluetooth name, QZ platform/version, and selected Specific Model option. If the model has had multiple hardware revisions, also report its manufacture date or console firmware version when available.
 - Which actions work from the treadmill's physical controls, from QZ, and from the third-party training app? Check start, stop, speed, and incline separately.
 - One concrete expected-versus-observed example for a failing command, including any delay.
 - Confirm that QZ manual control was tested before troubleshooting commands from a training app.
@@ -12,6 +12,8 @@
 ### If still unclear
 
 - Record a short QZ debug log with one clearly identified control action at a time and note the approximate time.
+- For an FTMS treadmill, distinguish a **successful Bluetooth write** to the Fitness Machine Control Point (`0x2AD9`) from an actual **Control Point response indication** and a physical speed/incline change. If the write is acknowledged but the treadmill does nothing, preserve the raw command and any indication/response in the log.
+- If QZ control fails but another app controls the treadmill, record **which action** that app actually performs (start, speed, or incline), not just whether it connects. When requested by support, an isolated nRF Connect control-point test can help identify missing responses; use a stationary, unoccupied treadmill with its safety stop available. Do not assume a write acknowledgment means the command was accepted.
 - For a proprietary treadmill model whose control commands remain unknown, support may request a separate Bluetooth capture from the manufacturer's app. Keep QZ closed during that capture and perform distinct start, stop, speed, and incline actions.
 - On iOS, a Bluetooth logging profile and a sysdiagnose may be required for the manufacturer-app capture. Collect this only when requested; diagnostic archives can contain sensitive device data.
 
@@ -20,6 +22,7 @@
 - Receiving speed and incline telemetry does not prove that QZ has the correct command sequence for that exact treadmill revision.
 - A physical start or stop button is not equivalent to a remote command from QZ or the manufacturer's app.
 - Separating individual actions and comparing QZ logs with native-app captures helps identify missing model-specific commands without confusing the data path with the control path.
+- A working manufacturer-app incline command alongside an ignored standard FTMS control-point write points to a possible protocol or initialization difference. Device revision and the actual response indications are needed before changing a model-specific workaround or guessing proprietary command bytes.
 
 ## Zwift automatic incline stops while local treadmill control still works
 

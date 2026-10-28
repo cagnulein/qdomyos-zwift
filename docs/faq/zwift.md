@@ -159,3 +159,25 @@ These are **QZ resistance/inclination/slope offsets**, not literal front-chainri
 
 The 24 editable offsets, non-linear mapping, and whole-row gear steps are verified in QZ's `customgears.qml` and `bike.h` code. The support conversation established the configuration guidance but did **not** yet confirm the rider's final custom table.
 
+## Where is the Gears tile in Spanish, and does its default value of 26 mean 26 gears?
+
+In a Spanish-language QZ interface, the **Gears** tile is named **Marchas**. It is **not** the **Resistencia** (Resistance) tile.
+
+1. Open **Settings > Tiles Options** (in Spanish, **Ajustes > Opciones de mosaicos**).
+2. Scroll down past **Watt/Kg** (**Vatios/kg**) to **Gears** (**Marchas**) and enable it.
+3. The number shown in that setting (normally **26**) is the **tile's display-order index**, **not** the number of available virtual or physical gears. You do not need to change it to match a bike with ten gears.
+4. Return to QZ's dashboard, find the **Marchas** tile, pedal gently and use **+ / −** to test whether the bike's physical effort changes. If you cannot see the tile, scroll down on the dashboard.
+
+The tile-order meaning and default value of 26 are verified in QZ's `settings-tiles.qml` and `qzsettings.h`; the Spanish translation **Marchas** is in the app's translation file. A BKOOL Smart Bike rider explicitly confirmed that the on-screen gear controls changed the gears after enabling the correct tile.
+
+## Can I use Zwift Ride handlebars and a Wahoo KICKR CORE 2 in QZ without another Zwift subscription?
+
+**Yes.** QZ supports the Zwift Ride handlebar button protocol through its **Zwift Play** controller path, so it can handle local virtual shifting without a second Zwift account or a separate cycling app.
+
+1. Connect the **KICKR CORE 2** to QZ and check that power and cadence update.
+2. In **QZ Settings > Accessories**, enable **Zwift Play** for the Zwift Ride handlebars.
+3. Disable **Get Gears from Zwift**, because QZ must handle the shifts locally rather than wait for commands from Zwift.
+4. Restart QZ with the handlebar controls awake. Enable the **Gears** dashboard tile under **Tiles Options** if it is hidden.
+5. Press the handlebar shift buttons and confirm that QZ's gear number changes and the trainer's resistance responds.
+
+QZ alone can show and record workout metrics and control the trainer; a virtual-world app is optional. If you later use MyWhoosh or another training app, follow its separate pairing guidance. **This is code-verified setup guidance**, not a claim that the particular rider's final test was already confirmed.

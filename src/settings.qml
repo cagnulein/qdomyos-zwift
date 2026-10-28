@@ -2326,6 +2326,7 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
+            property bool ios_background_keepalive: false
             property bool treadmill_direct_distance_increment: false
         }
 
@@ -7098,8 +7099,6 @@ import AndroidStatusBar 1.0
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
-                            // back to the value the field shows for this mode, also after an edit
-                            uiTextScaleTextField.text = uiTextScaleTextField.savedText;
                         }
                     }
 
@@ -7138,6 +7137,10 @@ import AndroidStatusBar 1.0
                             maximum: 170
                             enabled: !followsSystem
                             savedText: shownValue
+                            // back to the value the field shows for this mode, also after an edit and
+                            // whatever turned the mode (this switch, the search card): the same value
+                            // in both modes leaves savedText as it is, and the typed number stayed
+                            onFollowsSystemChanged: text = savedText
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -18349,6 +18352,33 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         font.pixelSize: window.fontHint
                         bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Background Keep Alive")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_background_keepalive
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_background_keepalive = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
