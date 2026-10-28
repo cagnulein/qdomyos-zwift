@@ -2326,6 +2326,7 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
+            property bool ios_background_keepalive: false
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -18318,6 +18319,33 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         font.pixelSize: window.fontHint
                         bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Background Keep Alive")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_background_keepalive
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_background_keepalive = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
