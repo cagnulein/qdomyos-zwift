@@ -64,6 +64,9 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
     uint64_t virtualtreadmill_lastChangeRequestedSpeed();
+    void virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange, const QByteArray &inclineRange);
+    QByteArray virtualtreadmill_takeControlPointWrite();
+    void virtualtreadmill_clearControlPointWrites();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
@@ -127,6 +130,9 @@ class lockscreen {
 
     // web view cache
     static void clearWebViewCache();
+
+    // system text size (Dynamic Type): 1.0 at the default size
+    static double systemFontScale();
 };
 
 #endif // LOCKSCREEN_H

@@ -28,6 +28,7 @@
 ### Provide first
 
 - Confirm that resistance/incline commands issued manually in QZ work as expected.
+- If a bike responds to QZ controls but not to external ERG/controllable commands, report whether QZ identifies it as a **bike or elliptical**, and screenshot **Bike Options > FTMS Bike** plus any competing model-specific selection.
 - Identify which device is selected as the third-party app's **Controllable/Resistance** device.
 - Identify separately which device is selected for power, cadence, speed, and heart rate.
 - Give one concrete example with expected and observed values, rather than only describing the behavior as too high, too low, or delayed.
@@ -35,11 +36,13 @@
 ### If still unclear
 
 - Temporarily remove unnecessary direct machine pairings from the third-party app and retest with a single control path.
+- If the selected device class appears wrong, verify the advertised name and the actual QZ device handler before changing settings; for a confirmed FTMS bike, compare one restart with the correct FTMS Bike selection and record whether external ERG control changes.
 - Provide a QZ debug log covering a short reproduction, including the approximate time and the command that produced the unexpected result.
 
 ### Why it matters
 
 - Data sources and control sources are independent in many training apps. Correct metrics do not prove that commands are being sent through QZ.
+- A bike misclassified as an elliptical can still respond to some local controls while external ERG control fails. A confirmed FTMS bike case recovered ERG response after selecting the bike profile; see the [device-compatibility FAQ](../faq/device-compatibility.md).
 - A single numerical example makes scaling, rounding, lag, and conflicting-control problems much easier to distinguish in a log.
 
 ## A debug log does not show the reported control or pairing failure
@@ -74,19 +77,24 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 ### Provide first
 
-- Bike model, QZ version, and the number of physical resistance levels.
-- Minimum and maximum resistance displayed in QZ, with one example of a jump.
-- Whether changes originate from the bike, QZ, or the external training app.
+- Bike model, QZ version, physical console resistance range, and the minimum/maximum **Resistance** reported by QZ.
+- One simultaneous example of the **Gears** tile, **Resistance** tile, bike console level, and how the pedals actually feel. Do not assume virtual gears and physical resistance are the same scale.
+- Whether changes originate from the bike, QZ, or the external training app, and whether the bike starts reporting metrics immediately or only after the first Gear+ / resistance command.
+- Screenshot relevant FTMS Bike and model-specific resistance settings before changing any options.
 
 ### If still unclear
 
-- Close training apps, turn off Auto Resistance, and slowly sweep the bike's physical resistance levels. Note the values shown in QZ.
-- Share a short debug log or video of the sweep. Test automatic control separately.
+- Close training apps and turn off Auto Resistance. Compare a few **safe, comfortable** physical resistance levels with the values QZ displays; stop rather than forcing high resistance.
+- If telemetry stays at zero until a control action, record one QZ-only startup test: pedal briefly without touching the gear buttons, then press Gear+ once. Note when metrics begin and collect a log covering both stages.
+- If physical resistance stops increasing while Gears continues upward, capture a separate short log of two or three safe resistance requests. Where FTMS is used, compare the machine's advertised resistance range, the control-point responses, the reported Resistance tile, and actual physical response.
+- Test automatic control from Zwift/MyWhoosh/ROUVY only after the QZ-only test, recording the app's Controllable pairing role separately.
 
 ### Why it matters
 
-- The physical scale can differ from values reported over Bluetooth.
-- Separating manual and automatic tests distinguishes telemetry mapping from control commands.
+- A bike may advertise fewer FTMS resistance levels than its console provides; the Gears number is not proof of the Bluetooth-controlled physical level.
+- A successful FTMS command response confirms protocol acceptance, not that the motor moved through the console's entire range.
+- Metrics beginning only after the first control command can distinguish startup/control initialization timing from an incorrect resistance scale.
+- Separating local QZ control from third-party commands distinguishes telemetry mapping, initialization, and downstream trainer-control problems.
 
 ## Virtual gear numbers update but trainer resistance does not follow
 
@@ -149,3 +157,66 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Seeing a virtual trainer in a device list does not prove the receiving app can connect to it or expose it for the required sensor/control role.
 - Same-device integration is app-specific; instructions intended for a second phone, PC, or tablet can be inapplicable when both apps run on one Android device.
 - Separating discovery, pairing, and controllable-role selection avoids treating a transport limitation as a physical-bike or virtual-gearing failure.
+
+## Virtual gears affect resistance only after the training app connects
+
+### Provide first
+
+- Trainer model, QZ build, receiving app, and whether the gear tile changes before and after pairing the receiving app.
+- Exact startup sequence: controller unlock/pairing, QZ launch, receiving-app pairing, ride start, and the first Gear + / Gear - press.
+- Whether the physical resistance changes on a flat route when shifting **only after** the receiving app has fully connected.
+
+### If still unclear
+
+- Repeat one short ride without pressing any gear buttons until the receiving app has connected to QZ and started the activity. Compare with a separate ride where shifting occurs before that connection.
+- Record whether the receiving app needed a cached trainer entry removed and paired again, and whether the result survives the next launch.
+- Capture a QZ debug log of each sequence with the first shift timestamp, and note whether the virtual gear tile changes while physical resistance stays constant.
+
+### Why it matters
+
+- A confirmed comparison restored physical gear response when shifts were delayed until after Kinomap had connected. This distinguishes controller input failure from a timing/state problem in the virtual-trainer control path.
+- Cached trainer pairings and early gear changes can produce similar symptoms but should be tested independently.
+
+
+## Zwift Click buttons appear connected but do not change gears or the local ERG target
+
+### Provide first
+
+- Identify the controller version (**Click v1 or Click v2**), trainer model, QZ device/OS, and the **installed QZ build** (release, beta, or test build).
+- State **which app owns the Click connection**: QZ directly, or Zwift with QZ receiving gear changes. Include the values of **Accessories > Zwift Click** and **Zwift Options > Get Gears from Zwift**.
+- Before opening QZ, wake the Click and report whether its LEDs blink; after QZ starts, report whether the LEDs become steady or continue blinking. Describe the LED behavior rather than assuming it proves button input.
+- Press a button and state **which QZ value changes**, if any: the **Gears** tile, the **Target Power (T.Power)** tile, or neither. Distinguish an unchanged tile from a changing tile with no physical trainer response.
+- For standalone ERG control, confirm that the target was set above zero in QZ and that no external training app was controlling the target.
+
+### If still unclear
+
+- For Click v2, identify whether the initial pairing/unlock was performed in the **full Zwift app** or only in Zwift Companion, and whether the problem occurs immediately or after about a minute. Refer to the [Zwift/Click FAQ](../faq/zwift.md) for the known handshake procedure; do not repeat the full procedure in intake requests.
+- Repeat a short controlled test with only the intended controller owner connected. Note the LED state and QZ tile values before and after two deliberate presses.
+- If button input still does not reach QZ, provide a debug log from startup through those presses, with approximate timestamps. If QZ changes the gear number but trainer resistance does not follow, continue with the existing **Virtual gear numbers update but trainer resistance does not follow** guide above.
+
+### Why it matters
+
+- The LED transition helps narrow down **discovery/pairing**, but only a changing QZ tile establishes that button input reached the intended control path.
+- Click ownership differs between direct QZ control and **Get Gears from Zwift**; mixing them can obscure whether QZ should receive Bluetooth button events or virtual gear updates.
+- In a confirmed Android test, standalone Click v2 ERG target changes worked in the beta but not in the previously installed release. Checking the exact running build avoids misdiagnosing a missing feature as a controller connection failure.
+
+## A training app disconnects partway through a previously working session
+
+### Provide first
+
+- Fitness machine model, QZ version and platform, receiving app and version, and which device runs each app.
+- At the moment of disconnection, do QZ's live speed/power/cadence tiles also freeze or fall to zero, or do they continue updating while only the receiving app loses the connection?
+- Does the connection recover on its own, after re-pairing in the receiving app, or only after fully restarting QZ?
+- Was QZ in the foreground with the screen awake, or in the background or with the screen locked?
+
+### If still unclear
+
+- Confirm that no manufacturer app or second phone is also connected directly to the physical machine. Record whether the receiving app uses QZ's virtual Bluetooth device or a network connection.
+- Capture one QZ debug log that includes a disconnection, and provide the approximate elapsed time of the failure and whether the QZ metrics stopped. Keep the test configuration unchanged.
+- If QZ continues to receive live metrics, capture the receiving app's pairing/disconnection screen and retry its virtual-device connection separately before changing machine-specific settings.
+
+### Why it matters
+
+- If QZ metrics stop, investigate the physical machine-to-QZ connection; if QZ metrics continue, investigate the QZ-to-training-app link instead.
+- Foreground state, competing connections, recovery behavior, and a timestamped log distinguish intermittent Bluetooth loss from downstream virtual-device or app lifecycle problems.
+- In a reported multi-minute session, resistance and incline worked until intermittent disconnects; checking QZ's own tiles established that the physical machine connection, not just the receiving app's pairing, had dropped.

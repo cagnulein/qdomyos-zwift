@@ -40,6 +40,39 @@ TEST(EchelonUnlockTest, MatchesStrideChallengeVectors) {
     EXPECT_EQ(second.response, QByteArray::fromHex("f0e0000066000036"));
 }
 
+TEST(EchelonUnlockTest, MatchesRecordedTreadmillChallengeVectors) {
+    struct Vector {
+        const char *challenge;
+        int authValue;
+        const char *response;
+    };
+
+    const Vector vectors[] = {
+        {"f0e0270093865060", 22, "f0e00000220000f2"},
+        {"f0e0671654870129", 0, "f0e00000000000d0"},
+        {"f0e062976153017e", 0, "f0e00000000000d0"},
+        {"f0e07445488583d9", 38, "f0e0000038000008"},
+    };
+
+    for (const auto &vector : vectors) {
+        const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex(vector.challenge));
+        ASSERT_TRUE(result.valid()) << vector.challenge;
+        EXPECT_EQ(result.authValue, vector.authValue) << vector.challenge;
+        EXPECT_EQ(result.response, QByteArray::fromHex(vector.response)) << vector.challenge;
+    }
+}
+
+TEST(EchelonUnlockTest, UsesTheCandidateTreadmillEnvelope) {
+    const auto result = echelonunlock::responseForChallenge(QByteArray::fromHex("f0e0270093865060"));
+
+    ASSERT_TRUE(result.valid());
+    ASSERT_EQ(result.response.size(), 8);
+    EXPECT_EQ(result.response.left(4), QByteArray::fromHex("f0e00000"));
+    EXPECT_EQ(static_cast<uint8_t>(result.response.at(4)), 0x22);
+    EXPECT_EQ(result.response.mid(5, 2), QByteArray::fromHex("0000"));
+    EXPECT_EQ(static_cast<uint8_t>(result.response.at(7)), 0xf2);
+}
+
 TEST(EchelonUnlockTest, RejectsMalformedChallenges) {
     EXPECT_EQ(echelonunlock::responseForChallenge(QByteArray::fromHex("f0e03544124681" )).error,
               echelonunlock::Error::InvalidLength);

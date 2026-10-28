@@ -877,6 +877,30 @@ class QZSettings {
     static const QString life_fitness_ic5;
     static constexpr bool default_life_fitness_ic5 = false;
 
+    static const QString life_fitness_first_name;
+    static const QString default_life_fitness_first_name;
+
+    static const QString life_fitness_last_name;
+    static const QString default_life_fitness_last_name;
+
+    static const QString life_fitness_username;
+    static const QString default_life_fitness_username;
+
+    static const QString life_fitness_password;
+    static const QString default_life_fitness_password;
+
+    static const QString life_fitness_api_key;
+    static const QString default_life_fitness_api_key;
+
+    static const QString life_fitness_token;
+    static const QString default_life_fitness_token;
+
+    static const QString life_fitness_preset_summary;
+    static const QString default_life_fitness_preset_summary;
+
+    static const QString life_fitness_guest_login;
+    static constexpr bool default_life_fitness_guest_login = false;
+
     static const QString technogym_bike;
     static constexpr bool default_technogym_bike = false;
 
@@ -3376,6 +3400,14 @@ class QZSettings {
     // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
     static const QString android_notification_v2;
     static constexpr bool default_android_notification_v2 = true;
+
+    // Size of the text of the app (not the tiles), in percent (80-170), used when ui_text_scale_system is off
+    static const QString ui_text_scale;
+    static constexpr int default_ui_text_scale = 100;
+
+    // Android and iOS: the text of the app follows the system text size instead of ui_text_scale
+    static const QString ui_text_scale_system;
+    static constexpr bool default_ui_text_scale_system = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -1006,6 +1006,14 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <source>Android notification enabled</source>
         <translation>Benachrichtigung von Android aktiviert</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 bereit</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Initialisierung des YPOO M5 fehlgeschlagen; erneute Verbindung erforderlich</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4234,7 +4242,7 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
+        <translation type="vanished">Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5142,6 +5150,22 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Allgemeine UI-Optionen</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Systemtextgröße verwenden</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Die Textgröße der App folgt den Einstellungen des Telefons oder Tablets, höchstens 150 %. Ausschalten, um die Größe unten festzulegen, z. B. für einen Bildschirm, den Sie beim Training aus der Entfernung lesen. Standard: an.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Textgröße:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Textgröße der App (Einstellungen, Menüs, Dialoge) in Prozent, von 80 bis 170. Standard ist 100. Die Kacheln haben eine eigene Größeneinstellung.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Obere Leiste aktiviert</translation>
     </message>
@@ -5499,15 +5523,15 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI-Zoom:</translation>
+        <translation type="vanished">UI-Zoom:</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Sprache der App:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6355,6 +6379,14 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Inclination</source>
         <translation>Neigung</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Kachelgröße:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein. Früher „UI-Zoom“.</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7739,6 +7771,26 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers Rudergerät</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness Optionen</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness Benutzername/E-Mail:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness Passwort:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness Gastanmeldung (experimentell)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Verwendet ein synthetisches Life-Fitness-Profil ohne Konto. Wenn aktiviert, werden Benutzername, Passwort und zwischengespeicherte Kontodaten ignoriert; nur zum Testen der unterstützten Gastanmeldung verwenden.</translation>
     </message>
 </context>
 <context>

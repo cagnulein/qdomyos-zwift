@@ -37,6 +37,8 @@ When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **
 
 In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
 
+If QZ receives cadence and calculates speed but MyWhoosh cannot discover its virtual trainer, verify **Enable Virtual Device** and **Virtual Device Bluetooth** are both enabled in QZ's virtual-device settings. Save and restart QZ, then look for QZ under **Power Source** in MyWhoosh rather than **Speed Sensor**. In a confirmed support case, enabling the previously disabled virtual device restored the connection.
+
 ## Can I use a Bluetooth power meter or trainer power service as the bike source in QZ?
 
 Yes. If the Bluetooth device is fundamentally being detected as an external power sensor rather than as a complete bike, QZ can promote that sensor to the bike data source.

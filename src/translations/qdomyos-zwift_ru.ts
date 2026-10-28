@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Уведомление Android включено</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 готова к работе</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Не удалось инициализировать YPOO M5, нужно переподключиться</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4386,7 +4394,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Масштаб интерфейса:</translation>
+        <translation type="vanished">Масштаб интерфейса:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,15 +4406,15 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите</translation>
+        <translation type="vanished">Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Язык приложения:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную. Требуется перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6353,6 +6361,30 @@ Please enter it below:</source>
         <translation>Наклон</translation>
     </message>
     <message>
+        <source>Tile size:</source>
+        <translation>Размер плиток:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите. Раньше называлась «Масштаб интерфейса» (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Размер текста как в системе</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Размер текста приложения берётся из настроек телефона или планшета, но не больше 150%. Выключите, чтобы задать размер ниже – например, для экрана, который читают издалека во время тренировки. По умолчанию включено.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Размер текста:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Размер текста приложения (настройки, меню, диалоги) в процентах, от 80 до 170. По умолчанию – 100. У плиток своя настройка размера.</translation>
+    </message>
+    <message>
         <source>Speed</source>
         <translation>Скорость</translation>
     </message>
@@ -7723,6 +7755,26 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Гребной тренажёр Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Параметры Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Имя пользователя/почта Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Пароль Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Гостевой вход Life Fitness (экспериментально)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Использует синтетический профиль Life Fitness без учётной записи. Если включено, имя пользователя, пароль и сохранённые данные учётной записи не используются; включайте только для проверки поддерживаемого гостевого входа.</translation>
     </message>
 </context>
 <context>

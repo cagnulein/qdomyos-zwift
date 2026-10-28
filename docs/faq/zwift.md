@@ -113,3 +113,49 @@ A support user reported much lower virtual speed after reducing Watt Gain, then 
 The **Gears Big Buttons** setting and local gear up/down paths are present in the QZ settings and bike-control code. A support user explicitly confirmed successfully exposing the relevant controls, but this is **code-verified usage guidance**, not a claim that the user's particular trainer's resistance behavior was fully fixed.
 
 If you prefer the **physical Zwift Click / Click V2 controller**, that is a separate Bluetooth pairing flow: enable **Zwift Click** under QZ Accessories, leave **Get Gears from Zwift** disabled when QZ owns shifting, and follow the official Zwift handshake procedure if required for Click V2. The physical **Zwift Cog** itself is a fixed sprocket, not a source of gear-button events.
+
+## Zwift reads QZ power but does not change resistance on climbs. Can resetting its pairing help?
+
+When QZ shows correct bike metrics and Zwift receives power and cadence but does not control resistance, check Zwift's **Controllable** pairing separately from its **Power Source** pairing.
+
+1. Keep QZ connected to the physical bike and pair **QZ's virtual trainer** in Zwift as both Power Source and Controllable.
+2. Remove and re-pair the saved Controllable device in Zwift, then test a short climb.
+3. If Zwift still receives data but sends no gradient commands, reinstalling Zwift on the receiving iPad can be a last-resort reset. Re-pair QZ after reinstalling. You may need to restore local app settings or downloads.
+
+**Confirmed workaround:** In one support case, QZ received normal bike data and Zwift read the metrics, but no new FTMS control commands arrived from Zwift on climbs. Reinstalling Zwift on the iPad restored gradient-based resistance changes. A stale pairing or app state is plausible, but the exact root cause was not proven. This does not address a separate failure of QZ to control the physical bike.
+
+## Can Zwift Click v2 change QZ's target ERG watts without running Zwift?
+
+**Yes, with a QZ build that includes standalone Click v2 target-power control** (confirmed in the Android Play Store **beta** during support testing). This is separate from virtual shifting in a training app.
+
+1. Connect the physical trainer and the **Zwift Click v2** controllers to QZ. If the controllers need unlocking, complete the full-Zwift-app pairing procedure described in the Click v2 FAQ above, then close Zwift.
+2. Leave other training apps disconnected from QZ's virtual device for this standalone test.
+3. In **Settings > Tiles Options**, enable the **Target Power (T.Power)** tile.
+4. On the QZ dashboard, set a target **above 0 W** using that tile to enter local ERG control.
+5. Press **+** or **−** on the Click controllers. In the confirmed beta, each press increased or decreased the ERG target by **5 W**.
+
+A rider initially found that the buttons did not change the target in the installed release; after updating to the Android beta, **both directions worked**. The **5 W step is fixed** in that tested implementation; there was no user setting for a different step size. Do not assume the same behavior when an external app (such as TrainerDay) owns the ERG target.
+
+
+## Why does QZ show only 12 virtual gears when I use Zwift Click with my Wahoo trainer?
+
+If QZ connects to Zwift Click and the buttons change gears but the available range is limited to **12 gears**, try the **Blender** profile under **QZ Settings > Bike Options > Wahoo Options**, then save and restart QZ. Check the displayed gear range and physical resistance response.
+
+If a **single button press skips two gears**, that is a separate issue: enable **Buttons debouncing** in **Settings > Accessories > Zwift controller options** (see the debouncing FAQ above). In a confirmed support conversation, the rider reported the setup was working after receiving these two settings changes. The report did not isolate each setting independently, so verify both the displayed gear range and single-press behavior on your trainer.
+
+## Do I need to install a physical Zwift Cog to use QZ virtual gearing with a Wahoo KICKR?
+
+**No.** QZ's virtual gearing can change the trainer's resistance while your bicycle stays in one fixed **physical gear** on a conventional cassette. A physical Zwift Cog is optional, not a requirement for QZ's virtual gears.
+
+Connect the KICKR to QZ, configure the physical **Chainring Size** and **Cog Size** to match the actual gear you leave the bike in, and configure the virtual gear table or gearing profile you want to use. Shift through QZ's on-screen gear controls or compatible Zwift Click/Play controllers. For apps such as MyWhoosh or ROUVY, let QZ own the controller unless you deliberately use an app-specific direct-controller integration. See the gear-table and controller-pairing FAQs above.
+
+The distinction is between the **physical sprocket/cassette** and the **virtual gear ratio** that QZ applies to the trainer; the latter does not require special physical Zwift hardware.
+
+## Can I make the 24 virtual gears non-linear for Zwift Click in ROUVY?
+
+**Yes.** In QZ, open **Custom Gear Table**, enable **Enable Custom Gear Table**, and edit the **Offset** for each of the 24 gears. The default offsets are linear (gear 1 = 1, gear 2 = 2, and so on), but you can make climbing gears closer together and use larger steps for higher gears. Use **Reset to Linear Defaults** to undo your custom progression.
+
+These are **QZ resistance/inclination/slope offsets**, not literal front-chainring and rear-sprocket ratios; tune them gradually to reproduce the *feel* of your bike. When the custom table is enabled, each gear press moves one table row: **Gears Gain does not scale the spacing** between custom rows. With Zwift Click connected **directly to QZ** while riding in ROUVY, leave **Get Gears from Zwift** disabled; that option is for gear events coming from Zwift. You can save a QZ profile before experimenting so you can restore your previous configuration.
+
+The 24 editable offsets, non-linear mapping, and whole-row gear steps are verified in QZ's `customgears.qml` and `bike.h` code. The support conversation established the configuration guidance but did **not** yet confirm the rider's final custom table.
+

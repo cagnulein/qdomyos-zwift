@@ -5,7 +5,7 @@
 ### Provide first
 
 - The exact machine make and model.
-- A screenshot from **nRF Connect** showing the machine in the Bluetooth scan, including the advertised Bluetooth device name.
+- For a **BLE** machine, a screenshot from **nRF Connect** showing its advertised Bluetooth name. For older **Bluetooth Classic** equipment, state the module/model and whether the device appears in Android's Bluetooth device list instead: nRF Connect's BLE scan does not establish Classic discoverability.
 - Confirm whether the machine is already powered on or awake and actively advertising over Bluetooth **before QZ is opened**. For intermittent cases, report whether the expected Bluetooth name is visible in nRF Connect immediately before launching QZ.
 - The phone/tablet/computer running QZ and its operating system.
 - Whether the manufacturer's app or another fitness app is currently open or connected to the machine.
@@ -54,6 +54,7 @@
 
 - Exact machine model, Bluetooth name, and firmware revision if available.
 - QZ version and screenshots of relevant machine-specific and generic FTMS settings.
+- On Android, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported FTMS bike is detected but power and cadence remain zero.
 - Identify which QZ metrics update during a short workout.
 
 ### If still unclear
@@ -61,11 +62,13 @@
 - Capture a short QZ debug log after restarting QZ.
 - Identify which device handler QZ selected for the machine.
 - Compare only one setting change at a time, restarting between tests.
+- If ANT Bike Garmin is enabled, run a short QZ-only pedaling test with that option disabled and QZ restarted, keeping the selected bike and other settings unchanged. Report whether live power and cadence appear. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the known configuration check.
 
 ### Why it matters
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
+- A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
 
 ## Bike reports metrics but remote resistance support is uncertain
 
@@ -84,3 +87,103 @@
 
 - Working telemetry does not prove remote resistance control is available.
 - Electronic buttons and FTMS service discovery do not by themselves establish which remote commands are accepted.
+
+## Trainer detected but workout metrics remain unavailable
+
+### Provide first
+
+- Trainer model, Bluetooth device name, QZ version, operating system, and whether workout tiles are absent or show zero.
+- Screenshot of the FTMS Bike selection in Bike Options.
+- Confirm whether live power and cadence appear in QZ before opening a receiving training app.
+
+### If still unclear
+
+- Select the trainer explicitly under FTMS Bike, restart QZ, and test QZ alone.
+- Compare the behavior before and after connecting any external controllers.
+- Provide a debug log beginning before device discovery if the dashboard still has no live values.
+
+### Why it matters
+
+- Bluetooth discovery does not establish that QZ selected a telemetry source.
+- Testing the trainer without other apps distinguishes incoming metric failures from downstream virtual-device pairing.
+
+## QZ discovers a different nearby fitness machine instead of the intended one
+
+### Provide first
+
+- Exact model and advertised Bluetooth name of the machine you intend to use, plus the other powered-on fitness devices nearby.
+- State which machine QZ actually names or attempts to connect to, and whether the failure occurs during startup, discovery, or after a connection.
+- Screenshot **Settings > Advanced Settings > Manual Device**, including the selected value, and report the QZ version.
+
+### If still unclear
+
+- For one short test, power off the unrelated fitness machine and select the intended device explicitly under **Manual Device**; restart QZ and confirm which machine supplies changing metrics.
+- If discovery remains wrong, provide a QZ debug log from startup showing the device names found and the connection attempts.
+- Re-enable other machines only after confirming that QZ reliably connects to the intended one.
+
+### Why it matters
+
+- A crash, empty dashboard, or endless search can originate from QZ selecting a different supported machine, not from the intended machine's protocol.
+- The **Manual Device** filter isolates the intended device from other Bluetooth advertisements. In a confirmed case, selecting the intended bike instead of an adjacent elliptical restored operation.
+- This is distinct from selecting an FTMS Bike profile or pairing a virtual trainer in a third-party app.
+
+## Life Fitness treadmill is visible over Bluetooth but does not stream workout metrics
+
+### Provide first
+
+- Exact Life Fitness treadmill **and console** model, QZ platform and installed build, and the Bluetooth name advertised by the console.
+- State whether the console has completed its workout/profile login, or is still at a Bluetooth/audio/heart-rate pairing screen. If possible, report whether the workout screen shows a logged-in state (for example, **Logout**).
+- Report whether QZ displays any live treadmill speed during an active belt session and whether it stops receiving data after a short time.
+- Screenshot **Settings > Treadmill Options > Life Fitness Options** showing the guest-login selection (if supported by that build). Do **not** share passwords, authentication tokens, or account details.
+
+### If still unclear
+
+- Verify the exact QZ build first, especially if support provided a TestFlight build; send a new log captured **after** installing that build.
+- Capture a short debug log covering console discovery, the profile/login handshake, and the beginning of a workout. Report whether the console itself entered the logged-in workout state.
+- Compare guest and account login only when the specific console and QZ build support those modes; change one mode at a time and restart QZ.
+
+### Why it matters
+
+- On the supported Life Fitness login-based treadmill path, Bluetooth discovery and audio/HR pairing do not establish an authenticated workout session. Telemetry may be unavailable until the console's profile exchange completes.
+- Distinguishing an incomplete login handshake from a failed FTMS data parser prevents troubleshooting the wrong layer. A production-build log also cannot validate a handshake change present only in a test build.
+- This is model-specific: see the [Life Fitness protocol scope](../../src/devices/lifefitnesstreadmill/LIFE_FITNESS_95T_PROTOCOL.md); do not assume every Life Fitness console requires the same exchange.
+
+## Android Bluetooth scan finds no devices, not even the expected trainer
+
+### Provide first
+
+- Android device model/version and installed QZ build; confirm that the trainer is powered on and advertising its exact Bluetooth name.
+- State whether QZ's discovery list is **completely empty** or shows other devices but not the trainer. If possible, check whether a BLE scanner sees the trainer on the same Android device.
+- Screenshot **Android Settings > Apps > QZ > Permissions** showing Bluetooth/Nearby Devices and **Location**, including whether **Precise location** is allowed where offered. Report whether the phone/tablet's main Bluetooth and Location switches are on; do not share actual location data.
+
+### If still unclear
+
+- After confirming permissions, fully close QZ and repeat discovery with the trainer awake and other fitness apps disconnected. Report whether the Bluetooth name appears and whether QZ then receives live metrics.
+- If scanning is still empty, provide a short QZ debug log from startup through discovery, noting any permission-denied messages (for example, `ACCESS_FINE_LOCATION denied!`) and whether any device advertisements are reported.
+- Only after advertisements appear should support investigate competing device handlers, FTMS selection, or protocol initialization. See the [Android permissions FAQ](../faq/android.md).
+
+### Why it matters
+
+- **No devices found at all** is a different symptom from finding the trainer and choosing an unsuitable driver. A driver change cannot fix a scan that never sees advertisements.
+- QZ requests Android Bluetooth and location permissions. In a confirmed case, enabling **Precise location** restored discovery of a previously invisible trainer.
+- Collecting permission state and scan results first avoids requesting extensive Bluetooth traces for an operating-system permission problem.
+
+## A replacement machine appears in discovery, but QZ never opens its workout tiles
+
+### Provide first
+
+- The old and new machine models and the new machine's exact advertised Bluetooth name.
+- Whether QZ lists the new machine during discovery but stays on the initial screen, or opens workout tiles that remain at zero.
+- Screenshot **Settings > Advanced Settings > Manual Device**, showing whether the previous machine is still selected.
+
+### If still unclear
+
+- Clear the old **Manual Device** selection or select the new machine explicitly, then fully restart QZ and confirm that its speed, cadence, or power tiles change before launching Zwift or ROUVY.
+- If the new machine still does not connect, provide a QZ debug log starting before discovery, plus an nRF Connect screenshot showing its advertised name and services.
+- Avoid clearing all application data as a first diagnostic step; preserve other settings while testing the device filter.
+
+### Why it matters
+
+- QZ's manual-device filter compares discovered Bluetooth names against the configured name. A saved selection for an earlier machine can exclude a replacement even when its advertisement is visible.
+- In a confirmed treadmill replacement case, clearing stale app configuration restored the connection; checking the old manual-device selection first would have isolated the cause without resetting unrelated settings.
+- Distinguishing discovery from active workout telemetry prevents troubleshooting the receiving app before QZ has connected to the machine.

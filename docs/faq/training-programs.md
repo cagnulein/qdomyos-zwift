@@ -48,3 +48,42 @@ When incline is the active actuator, QZ adjusts incline according to the HR PID 
 If you are testing this with a real treadmill, make sure **Fake Device** is disabled. Fake Device is intended for simulation/testing and can prevent QZ from connecting to the real treadmill.
 
 Both the global Inclination actuator and the workout-editor Inclination override have been confirmed working with a real treadmill.
+
+
+## How do I open an existing XML workout in QZ?
+
+Use **Open Train Program** in QZ's main menu to load and run an existing training file. **Workout Editor** is a separate interface for creating and editing workouts, not the required import step.
+
+On Android, use **Open Train Program > Other folders** to select an XML file in Download or another folder. A user confirmed that opening their XML workout through **Open Train Program** resolved confusion about the Workout Editor. Both menu entries and the file picker are present in current QZ code.
+
+## How do I show the remaining time and next workout interval on the QZ dashboard?
+
+In **QZ Settings > Tiles Options**, enable **Remaining Time/Row** and **Next Rows**. The first shows the time left in the current training step; the second previews the upcoming step and its available target and duration.
+
+These tiles are implemented in QZ's current tile settings and training-program display code. The support user had not yet confirmed trying them.
+
+## How often does a heart-rate-controlled XML workout adjust treadmill speed?
+
+Set the `looptimehr` attribute, in seconds, on each HR-controlled XML row. For example, `looptimehr="3"` evaluates the heart-rate target about every three seconds, rather than every two seconds with `looptimehr="2"`. Less frequent updates can reduce competing commands but also slow the HR response; this setting does not change the speed step size.
+
+The XML parser and [training-program authoring guide](../../train-programs-examples/README.md) verify this setting (default: 10 seconds). A support user asked about increasing it from two to three seconds; that adjustment was not separately confirmed to fix command overlap.
+
+## My running ZWO workout imports into QZ but its interval graph is empty. What should I check?
+
+For a **time-based running** ZWO workout, include both the running sport type and a time duration type near the beginning of the `.zwo` file, for example:
+
+```xml
+<sportType>run</sportType>
+<durationType>time</durationType>
+```
+
+QZ's ZWO parser uses **sportType** together with **durationType** to distinguish timed running intervals from distance-based running intervals. Without `durationType=time`, a running workout may be interpreted incorrectly and fail to render its intended interval graph. A rider confirmed that adding the `durationType` element made the graph render.
+
+For workouts that specify `pace=\"4\"`, QZ uses the **Marathon pace** in **Training Program settings** as the reference and scales it using the interval power percentages (for example, `OnPower` and `OffPower`). Match QZ's configured paces to your Zwift paces before comparing treadmill speed targets. Rendering the graph does **not** by itself confirm that treadmill speed control has been tested.
+
+## Why does bike resistance fall when I pedal faster during a QZ workout?
+
+If the workout has a **target power in watts (ERG mode)**, this is expected: the controller changes resistance to keep power near the target. At a higher cadence it generally needs less resistance; when you slow down it increases resistance. This is different from a workout that holds a specified **resistance level**.
+
+To create intervals that follow resistance levels instead of a watt target, open **QZ > Workout Editor**, select **Bike**, and create a resistance-based workout with the desired resistance for each interval. Save and start that workout. A rider confirmed that switching to a resistance-based workout resolved the confusion after observing cadence-dependent resistance in ERG mode. Actual resistance control still requires a compatible controllable bike and the correct QZ device configuration.
+

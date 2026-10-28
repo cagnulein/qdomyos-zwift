@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>已启用 Android 通知</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 已就绪</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 初始化失败，需要重新连接</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4234,7 +4242,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI 缩放：</translation>
+        <translation type="vanished">UI 缩放：</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4246,7 +4254,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
+        <translation type="vanished">这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5206,6 +5214,22 @@ In the next window, allow access to the QZ folder.</source>
         <translation>通用 UI 选项</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>使用系统文字大小</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>应用的文字大小跟随手机或平板电脑的设置，最大 150%。关闭后可在下方自行选择大小，例如用于训练时从远处查看的屏幕。默认开启。</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>文字大小：</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>应用（设置、菜单、对话框）的文字大小（百分比，80～170）。默认值为 100。卡片有单独的大小设置。</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>顶部栏已启用</translation>
     </message>
@@ -5574,12 +5598,20 @@ In the next window, allow access to the QZ folder.</source>
         <translation>打开</translation>
     </message>
     <message>
+        <source>Tile size:</source>
+        <translation>卡片大小：</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号。原名“UI 缩放”（UI Zoom）。</translation>
+    </message>
+    <message>
         <source>App Language:</source>
         <translation>应用语言:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。需要重启。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -7779,6 +7811,26 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers 划船机</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness 选项</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness 用户名/邮箱:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness 密码:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness 访客登录 (实验性)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>使用无需账户的合成 Life Fitness 配置文件。启用后将忽略用户名、密码和缓存的账户数据；仅用于测试受支持的访客登录。</translation>
     </message>
 </context>
 <context>

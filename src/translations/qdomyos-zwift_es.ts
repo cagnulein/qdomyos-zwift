@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Notificación de Android activada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 lista</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4226,7 +4234,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom de la interfaz:</translation>
+        <translation type="vanished">Zoom de la interfaz:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4238,7 +4246,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
+        <translation type="vanished">Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5198,6 +5206,22 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Opciones generales de la interfaz</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar el tamaño de texto del sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>El tamaño del texto de la aplicación sigue los ajustes del teléfono o la tableta, hasta un 150%. Desactívalo para elegir el tamaño abajo, por ejemplo para una pantalla que lees de lejos durante el entrenamiento. Activado por defecto.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamaño del texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamaño del texto de la aplicación (ajustes, menús, diálogos), en porcentaje, de 80 a 170. El valor predeterminado es 100. Los mosaicos tienen su propio ajuste de tamaño.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra superior habilitada</translation>
     </message>
@@ -5558,8 +5582,8 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ. Se requiere reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6359,6 +6383,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinación</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamaño de los mosaicos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje. Antes se llamaba «Zoom de la interfaz» (UI Zoom).</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7747,6 +7779,26 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opciones de Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nombre de usuario/correo electrónico de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Contraseña de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inicio de sesión como invitado de Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un perfil sintético de Life Fitness sin cuenta. Si se activa, se ignoran el nombre de usuario, la contraseña y los datos de cuenta guardados; úsalo solo para probar el inicio de sesión como invitado compatible.</translation>
     </message>
 </context>
 <context>

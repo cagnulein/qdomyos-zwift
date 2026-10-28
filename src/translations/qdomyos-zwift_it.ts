@@ -1006,6 +1006,14 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <source>Android notification enabled</source>
         <translation>Notifica Android attivata</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 pronto</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Inizializzazione di YPOO M5 non riuscita; è necessario riconnettersi</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4226,11 +4234,11 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom interfaccia:</translation>
+        <translation type="vanished">Zoom interfaccia:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Questa opzione cambia la dimensione dei riquadri che mostrano le metriche. Il valore predefinito è 100%. Per far stare più riquadri sullo schermo, scegli una percentuale più bassa. Per ingrandirli, scegli una percentuale superiore al 100%. Non inserire il simbolo %.</translation>
+        <translation type="vanished">Questa opzione cambia la dimensione dei riquadri che mostrano le metriche. Il valore predefinito è 100%. Per far stare più riquadri sullo schermo, scegli una percentuale più bassa. Per ingrandirli, scegli una percentuale superiore al 100%. Non inserire il simbolo %.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6557,12 +6565,20 @@ NOTE IMPORTANTI:
         <translation>Apri</translation>
     </message>
     <message>
+        <source>Tile size:</source>
+        <translation>Dimensione riquadri:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Questa opzione cambia la dimensione dei riquadri che mostrano le metriche. Il valore predefinito è 100%. Per far stare più riquadri sullo schermo, scegli una percentuale più bassa. Per ingrandirli, scegli una percentuale superiore al 100%. Non inserire il simbolo %. In precedenza «Zoom interfaccia» (UI Zoom).</translation>
+    </message>
+    <message>
         <source>App Language:</source>
         <translation>Lingua dell&apos;app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ. Riavvio richiesto.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6611,6 +6627,22 @@ NOTE IMPORTANTI:
     <message>
         <source>Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.</source>
         <translation>Abilita la formula speciale di potenza istantanea SPORT01 solo per la bici Toputure TEB1. Lascia disabilitato per utilizzare la potenza istantanea standard FTMS riportata dal dispositivo.</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Usa la dimensione del testo di sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>La dimensione del testo dell&apos;app segue le impostazioni del telefono o del tablet, fino al 150%. Disattiva per scegliere la dimensione qui sotto, ad esempio per uno schermo che leggi da lontano durante l&apos;allenamento. Attivo per impostazione predefinita.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Dimensione del testo:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Dimensione del testo dell&apos;app (impostazioni, menu, finestre di dialogo), in percentuale, da 80 a 170. Il valore predefinito è 100. I riquadri hanno una propria impostazione di dimensione.</translation>
     </message>
     <message>
         <source>iOS Live Activity Left Metric:</source>
@@ -7735,6 +7767,26 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers Vogatore</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opzioni Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nome utente/email Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Password Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Accesso ospite Life Fitness (sperimentale)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un profilo Life Fitness sintetico senza account. Se attivo, nome utente, password e dati dell&apos;account in cache vengono ignorati; usare solo per testare l&apos;accesso ospite supportato.</translation>
     </message>
 </context>
 <context>

@@ -57,6 +57,8 @@ public:
     DEFINE_DEVICE(Concept2SkiErg, "Concept2 Ski Erg");
     DEFINE_DEVICE(CyclopsPhantomBike, "Cyclops Phantom Bike");
     DEFINE_DEVICE(DeerRunTreadmill, "DeerRun Treadmill");
+    DEFINE_DEVICE(DynamaxSprintFTMSBike, "Dynamax Sprint FTMS Bike");
+    DEFINE_DEVICE(DynamaxTreadmillOtherFTMSBike, "Dynamax Treadmill (other FTMS bike selected)");
     DEFINE_DEVICE(DomyosBike, "Domyos Bike");
     DEFINE_DEVICE(DomyosElliptical, "Domyos Elliptical");
     DEFINE_DEVICE(DomyosRower, "Domyos Rower");
@@ -100,6 +102,7 @@ public:
     DEFINE_DEVICE(HorizonTreadmill, "Horizon Treadmill");
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
+    DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
     DEFINE_DEVICE(KingsmithR1ProTreadmill, "Kingsmith R1 Pro Treadmill");
     DEFINE_DEVICE(KingsmithR2Treadmill, "Kingsmith R2 Treadmill");
     DEFINE_DEVICE(LifeFitnessTreadmill, "Life Fitness Treadmill");
@@ -171,6 +174,7 @@ public:
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
     DEFINE_DEVICE(YesoulBike, "Yesoul Bike");
+    DEFINE_DEVICE(YpooTreadmill, "Ypoo Treadmill");
     DEFINE_DEVICE(YpooElliptical, "Ypoo Elliptical");
     DEFINE_DEVICE(YpooElliptical2, "Ypoo Elliptical 2");
     DEFINE_DEVICE(YpooElliptical3, "Ypoo Elliptical 3");
