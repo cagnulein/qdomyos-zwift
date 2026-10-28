@@ -995,6 +995,10 @@ void horizontreadmill::update() {
                 settings.value(QZSettings::stryd_speed_instead_treadmill,
                                QZSettings::default_stryd_speed_instead_treadmill).toBool();
             const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
+            if (moovio_lynx_konect_2_0) {
+                requestSpeed = requestSpeed > speedForControl ? qCeil(requestSpeed) : qFloor(requestSpeed);
+                qDebug() << "requestSpeed after Moovio whole-km/h rounding=" << requestSpeed;
+            }
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
