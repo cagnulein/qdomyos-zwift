@@ -13857,45 +13857,48 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelDomyosEllipticalSpeedRatio
-                                text: qsTr("Speed Ratio:")
-                                wrapMode: window.labelWrap
-                                Layout.fillWidth: true
-                            }
-                            SettingsNumberField {
-                                id: domyosEllipticalSpeedRatioTextField
-                                savedText: settings.domyos_elliptical_speed_ratio
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_elliptical_speed_ratio = value
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                            }
-                            Button {
-                                id: okDomyosEllipticalRatioButton
-                                text: qsTr("OK")
-                                enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
-                            }
-                        }
-                        IndicatorOnlySwitch {
-                            id: domyosEllipticalInclinationDelegate
-                            text: qsTr("Inclination Supported")
+                        accordionContent: ColumnLayout {
                             spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_elliptical_inclination
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.domyos_elliptical_inclination = checked
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDomyosEllipticalSpeedRatio
+                                    text: qsTr("Speed Ratio:")
+                                    wrapMode: window.labelWrap
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: domyosEllipticalSpeedRatioTextField
+                                    savedText: settings.domyos_elliptical_speed_ratio
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.domyos_elliptical_speed_ratio = value
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDomyosEllipticalRatioButton
+                                    text: qsTr("OK")
+                                    enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                id: domyosEllipticalInclinationDelegate
+                                text: qsTr("Inclination Supported")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_elliptical_inclination
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_elliptical_inclination = checked
+                            }
                         }
                     }
                     AccordionElement {
