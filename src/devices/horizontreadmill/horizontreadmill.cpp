@@ -2403,6 +2403,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    QBluetoothUuid _swalk845ServiceId((quint16)0xAE00);
+    QBluetoothUuid _swalk845WriteCharacteristicId((quint16)0xAE01);
+    QBluetoothUuid _swalk845NotifyCharacteristicId((quint16)0xAE02);
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -2444,6 +2447,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+
+                if (SWALK_845_TREADMILL && s->serviceUuid() == _swalk845ServiceId &&
+                    c.uuid() == _swalk845WriteCharacteristicId) {
+                    qDebug() << QStringLiteral("SWALK-845 AE01 write characteristic found");
+                }
+                if (SWALK_845_TREADMILL && s->serviceUuid() == _swalk845ServiceId &&
+                    c.uuid() == _swalk845NotifyCharacteristicId) {
+                    qDebug() << QStringLiteral("SWALK-845 AE02 notify characteristic found");
+                }
 
                 if (c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
@@ -2495,12 +2507,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
+                const bool swalk845Notify =
+                    SWALK_845_TREADMILL && s->serviceUuid() == _swalk845ServiceId &&
+                    c.uuid() == _swalk845NotifyCharacteristicId;
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()) || swalk845Notify)) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -2515,6 +2530,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                    if (swalk845Notify) {
+                        qDebug() << QStringLiteral("SWALK-845 AE02 notifications enabled");
+                    }
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
                            // FTMS indications, plus the Merach unlock indication characteristic.
                            (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
@@ -2708,6 +2726,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
         SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
+        SWALK_845_TREADMILL = device.name().compare(QStringLiteral("sWalk-845"), Qt::CaseInsensitive) == 0;
+        if (SWALK_845_TREADMILL) {
+            qDebug() << QStringLiteral("SWALK-845 AE00 probe enabled");
+        }
         if (SW3925EAI_TREADMILL) {
             qDebug() << QStringLiteral("SW3925EAI FTMS speed workaround ON!");
         }
