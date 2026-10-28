@@ -1078,7 +1078,7 @@ ios {
     ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
-	 QMAKE_ASSET_CATALOGS = $PWD/ios/Images.xcassets
+	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 	 QMAKE_ASSET_CATALOGS_BUILD_PATH = $$PWD/ios/ 
 
