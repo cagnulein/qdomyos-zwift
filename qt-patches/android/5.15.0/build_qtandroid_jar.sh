@@ -6,7 +6,9 @@
 #
 # Usage: build_qtandroid_jar.sh <original QtAndroid.jar> <android.jar, API 34 or newer> <output jar>
 # Needs a JDK (javac, jar, javap). In CI the original jar is
-# output/android/Qt/5.15.0/android/jar/QtAndroid.jar after the page16k overlay step.
+# output/android/Qt/5.15.0/android/jar/QtAndroid.jar after the page16k overlay step and before
+# the "patching qt for bluetooth" step (that step puts this patched jar there), or jar/QtAndroid.jar
+# from the page16k release zip; android.jar is in the Android SDK, platforms/android-35/android.jar.
 set -euo pipefail
 
 if [ $# -ne 3 ]; then
