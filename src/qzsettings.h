@@ -3409,6 +3409,9 @@ class QZSettings {
     static const QString ui_text_scale_system;
     static constexpr bool default_ui_text_scale_system = true;
 
+    static const QString anplus_18136_treadmill;
+    static constexpr bool default_anplus_18136_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

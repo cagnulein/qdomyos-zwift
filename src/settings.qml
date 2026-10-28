@@ -2327,6 +2327,7 @@ import AndroidStatusBar 1.0
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
             property bool ios_background_keepalive: false
+            property bool anplus_18136_treadmill: false
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -11367,7 +11368,36 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                 
+
+                    IndicatorOnlySwitch {
+                        id: anplus18136TreadmillDelegate
+                        text: qsTr("ANPLUS-18136 Request Control")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.anplus_18136_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.anplus_18136_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable the standard FTMS Request Control command for ANPLUS-18136 treadmills. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
                         text: qsTr("Difficulty offset based")

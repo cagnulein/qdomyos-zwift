@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1027,
+  "settingCount": 1028,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -16232,6 +16232,20 @@
       "defaultExpression": "true",
       "options": null,
       "restartRequired": false
+    },
+    {
+      "key": "anplus_18136_treadmill",
+      "name": "ANPLUS-18136 Request Control",
+      "description": "Enable the standard FTMS Request Control command for ANPLUS-18136 treadmills. Default is off.",
+      "parent": "Treadmill Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -16783,6 +16797,7 @@
       "android_documents_folder": "experimentalFeatureAccordion",
       "android_notification_v2": "zwiftUsernameTextField",
       "android_wakelock": "experimentalFeatureAccordion",
+      "anplus_18136_treadmill": "treadmillAccordion",
       "ant_bike_device_number": "technogymBikeAccordion",
       "ant_cadence": "uiAntOptionsAccordion",
       "ant_garmin": "garminOptionsAccordion",
@@ -17364,6 +17379,7 @@
       "android_documents_folder": "settings.qml",
       "android_notification_v2": "settings.qml",
       "android_wakelock": "settings.qml",
+      "anplus_18136_treadmill": "settings.qml",
       "ant_bike_device_number": "settings.qml",
       "ant_cadence": "settings.qml",
       "ant_garmin": "settings.qml",
@@ -18384,6 +18400,7 @@
       "android_documents_folder": 17371,
       "android_notification_v2": 756,
       "android_wakelock": 17094,
+      "anplus_18136_treadmill": 11372,
       "ant_bike_device_number": 6600,
       "ant_cadence": 6692,
       "ant_heart": 6793,

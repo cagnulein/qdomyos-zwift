@@ -894,6 +894,17 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
+    if(anplus_treadmill) {
+        QSettings settings;
+        const bool anplus_18136_treadmill =
+            settings.value(QZSettings::anplus_18136_treadmill, QZSettings::default_anplus_18136_treadmill).toBool();
+        if (anplus_18136_treadmill) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+        }
+    }
+
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
