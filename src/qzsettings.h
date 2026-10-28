@@ -3409,8 +3409,8 @@ class QZSettings {
     static const QString ui_text_scale_system;
     static constexpr bool default_ui_text_scale_system = true;
 
-    static const QString anplus_18136_treadmill;
-    static constexpr bool default_anplus_18136_treadmill = false;
+    static const QString moovio_lynx_konect_2_0;
+    static constexpr bool default_moovio_lynx_konect_2_0 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

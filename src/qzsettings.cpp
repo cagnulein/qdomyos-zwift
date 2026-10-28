@@ -1334,7 +1334,7 @@ const QString QZSettings::android_notification_prompt_disabled = QStringLiteral(
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 const QString QZSettings::ui_text_scale = QStringLiteral("ui_text_scale");
 const QString QZSettings::ui_text_scale_system = QStringLiteral("ui_text_scale_system");
-const QString QZSettings::anplus_18136_treadmill = QStringLiteral("anplus_18136_treadmill");
+const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
 const uint32_t allSettingsCount = 1032;
 
@@ -2394,7 +2394,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
     {QZSettings::ui_text_scale, QZSettings::default_ui_text_scale},
     {QZSettings::ui_text_scale_system, QZSettings::default_ui_text_scale_system},
-    {QZSettings::anplus_18136_treadmill, QZSettings::default_anplus_18136_treadmill},
+    {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

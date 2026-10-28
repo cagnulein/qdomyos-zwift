@@ -896,9 +896,9 @@ void horizontreadmill::btinit() {
 
     if(anplus_treadmill) {
         QSettings settings;
-        const bool anplus_18136_treadmill =
-            settings.value(QZSettings::anplus_18136_treadmill, QZSettings::default_anplus_18136_treadmill).toBool();
-        if (anplus_18136_treadmill) {
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
+        if (moovio_lynx_konect_2_0) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
