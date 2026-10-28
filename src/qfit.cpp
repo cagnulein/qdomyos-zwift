@@ -49,6 +49,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
                    QZSettings::default_powr_sensor_running_cadence_half_on_strava)
             .toBool();
+    // Apply the same cadence conversion to FIT records and session summaries.
+    const auto cadenceForFit = [powr_sensor_running_cadence_half_on_strava](uint8_t cadence) -> uint8_t {
+        return powr_sensor_running_cadence_half_on_strava ? cadence / 2 : cadence;
+    };
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -245,12 +249,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         }
         np_power_samples.push_back(session.at(i).watt > 0 ? session.at(i).watt : 0.0);
 
-        // Collect cadence data (all device types)
-        if (session.at(i).cadence > 0) {
-            cadence_sum += session.at(i).cadence;
+        // Collect the values actually written to FIT records.
+        const uint8_t cadence = cadenceForFit(session.at(i).cadence);
+        if (cadence > 0) {
+            cadence_sum += cadence;
             cadence_count++;
-            if (session.at(i).cadence > max_cadence)
-                max_cadence = session.at(i).cadence;
+            if (cadence > max_cadence)
+                max_cadence = cadence;
         }
 
         // Max speed (m/s — session.speed is in km/h)
@@ -1032,10 +1037,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
-        uint8_t cad = sl.cadence;
-        if (powr_sensor_running_cadence_half_on_strava)
-            cad = cad / 2;
-        newRecord.SetCadence(cad);
+        newRecord.SetCadence(cadenceForFit(sl.cadence));
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
         newRecord.SetSpeed(sl.speed / 3.6);                                     // meter per second
         newRecord.SetPower(sl.watt);
