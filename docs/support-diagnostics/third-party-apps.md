@@ -31,17 +31,19 @@
 - If a bike responds to QZ controls but not to external ERG/controllable commands, report whether QZ identifies it as a **bike or elliptical**, and screenshot **Bike Options > FTMS Bike** plus any competing model-specific selection.
 - Identify which device is selected as the third-party app's **Controllable/Resistance** device.
 - Identify separately which device is selected for power, cadence, speed, and heart rate.
+- If virtual shifts unexpectedly change the effort during a **MyWhoosh ERG interval**, screenshot **Power Source** and **Controllable** selections and state whether the physical trainer is also paired directly as a separate power source alongside QZ.
 - Give one concrete example with expected and observed values, rather than only describing the behavior as too high, too low, or delayed.
 
 ### If still unclear
 
-- Temporarily remove unnecessary direct machine pairings from the third-party app and retest with a single control path.
+- Temporarily remove unnecessary direct machine pairings from the third-party app and retest with a single control path. For the MyWhoosh ERG/gear symptom, compare one short steady ERG segment with the physical trainer removed from the extra **Power Source** role, leaving the QZ virtual trainer paired; keep QZ gain and gear settings unchanged.
 - If the selected device class appears wrong, verify the advertised name and the actual QZ device handler before changing settings; for a confirmed FTMS bike, compare one restart with the correct FTMS Bike selection and record whether external ERG control changes.
 - Provide a QZ debug log covering a short reproduction, including the approximate time and the command that produced the unexpected result.
 
 ### Why it matters
 
 - Data sources and control sources are independent in many training apps. Correct metrics do not prove that commands are being sent through QZ.
+- In a confirmed MyWhoosh comparison, removing the physical trainer as a separate power sensor stopped gear changes from disturbing ERG mode. Recording both pairing roles identifies a conflicting path before investigating resistance scaling.
 - A bike misclassified as an elliptical can still respond to some local controls while external ERG control fails. A confirmed FTMS bike case recovered ERG response after selecting the bike profile; see the [device-compatibility FAQ](../faq/device-compatibility.md).
 - A single numerical example makes scaling, rounding, lag, and conflicting-control problems much easier to distinguish in a log.
 
