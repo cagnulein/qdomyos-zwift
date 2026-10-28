@@ -143,6 +143,7 @@
 #include "devices/tacxneo2/tacxneo2.h"
 #include "devices/technogymmyruntreadmill/technogymmyruntreadmill.h"
 #include "devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h"
+#include "devices/jkfitness10800treadmill/jkfitness10800treadmill.h"
 
 #include "devices/echelonstride/echelonstride.h"
 
@@ -276,6 +277,7 @@ class bluetooth : public QObject, public SignalHandler {
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
+    jkfitness10800treadmill *jkFitness10800Treadmill = nullptr;
 #endif
     truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
