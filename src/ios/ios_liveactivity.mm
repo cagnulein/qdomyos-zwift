@@ -7,14 +7,15 @@
 #import <ActivityKit/ActivityKit.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/ios_liveactivity.h"
+#include "ios/ios_background_keepalive.h"
 #include <QDebug>
 
 @class LiveActivityBridge;
 
 static LiveActivityBridge* _liveActivityManager = nil;
 
-// minimum delay between two Live Activity updates while the app is in background,
-// must stay well below the inactivity timeout of LiveActivityBridge.swift
+// Minimum delay between Live Activity updates while the app is in background.
+// The Swift bridge extends the timeout only when opt-in keepalive is running.
 static const NSTimeInterval QZLiveActivityBackgroundInterval = 5.0;
 
 static bool liveActivitiesSupportedOnCurrentRuntime() {
@@ -79,6 +80,12 @@ void ios_liveactivity::updateLiveActivity(double speed, double cadence, double p
     }
 
     if (_liveActivityManager != nil) {
+        // Keep the original 10-second timeout in foreground and when the
+        // experimental background keepalive is off. Only extend it while
+        // playback is running and iOS is actually backgrounded.
+        const bool extendedBackgroundTimeout =
+            [UIApplication sharedApplication].applicationState != UIApplicationStateActive &&
+            iosBackgroundKeepAlive::isRunning();
         NSString *leadingMetric = [NSString stringWithCString:compactLeadingMetric encoding:NSUTF8StringEncoding];
         NSString *trailingMetric = [NSString stringWithCString:compactTrailingMetric encoding:NSUTF8StringEncoding];
         [_liveActivityManager updateActivityWithSpeed:speed
@@ -91,7 +98,8 @@ void ios_liveactivity::updateLiveActivity(double speed, double cadence, double p
                                     compactLeadingValue:compactLeadingValue
                                   compactTrailingMetric:trailingMetric
                                    compactTrailingValue:compactTrailingValue
-                                             useMiles:useMiles];
+                                             useMiles:useMiles
+                            extendedBackgroundTimeout:extendedBackgroundTimeout];
     }
 }
 
