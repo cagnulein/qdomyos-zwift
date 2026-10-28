@@ -316,13 +316,20 @@ uint16_t trixterxdreambike::calculatePowerFromInclination(double inclination, do
 
     double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double bikeMass = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
+    double Crr = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
+
     double totalMass = riderMass+bikeMass;
-    double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
+    double angleOfInclination = atan(0.01 * inclination);
 
-    uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
+    constexpr double g = 9.8067;
+    double p = g*totalMass*speedMetresPerSecond*(sin(angleOfInclination) + Crr*cos(angleOfInclination));
 
-    qDebug() << "Inclination:" << inclination
+    uint16_t power = (uint16_t)(p+0.5);
+
+    qDebug() << "Inclination%:" << inclination
+             << " Angle of Inclination:" << angleOfInclination
              << " Speed:" << speedMetresPerSecond << "m/s "
+             << " Crr: " << Crr
              << " Total Mass:"<< totalMass << "kg "
              << "= Power:" << power << "W ";
 
