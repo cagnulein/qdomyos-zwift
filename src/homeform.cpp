@@ -11307,6 +11307,12 @@ void homeform::sendMail() {
                 QStringLiteral(" https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
         }
+        if (!pelotonHandler->current_spotify_tracks.isEmpty()) {
+            textMessage += QStringLiteral("\n") + tr("Spotify songs:") + QStringLiteral("\n");
+            for (const QString &track : qAsConst(pelotonHandler->current_spotify_tracks)) {
+                textMessage += QStringLiteral("- ") + track + QStringLiteral("\n");
+            }
+        }
     }
 
     textMessage += '\n';
