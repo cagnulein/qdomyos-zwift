@@ -336,6 +336,8 @@ devices/tacxneo2/tacxneo2.cpp \
 tcpclientinfosender.cpp \
 devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
+devices/jkfitness10800treadmill/jkfitness10800protocol.cpp \
+devices/jkfitness10800treadmill/jkfitness10800treadmill.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 webtranslation.cpp \
@@ -881,6 +883,8 @@ devices/tacxneo2/tacxneo2.h \
 tcpclientinfosender.h \
 devices/technogymmyruntreadmill/technogymmyruntreadmill.h \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
+devices/jkfitness10800treadmill/jkfitness10800protocol.h \
+devices/jkfitness10800treadmill/jkfitness10800treadmill.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
 webtranslation.h \

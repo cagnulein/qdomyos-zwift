@@ -1960,7 +1960,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(horizonTreadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
+#ifndef Q_OS_IOS
+            } else if (bh_spada_2 && b.name().toUpper().startsWith(QStringLiteral("JK-10800")) &&
+                       !jkFitness10800Treadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                jkFitness10800Treadmill = new jkfitness10800treadmill(noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(jkFitness10800Treadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(jkFitness10800Treadmill, &jkfitness10800treadmill::debug, this, &bluetooth::debug);
+                connect(jkFitness10800Treadmill, &jkfitness10800treadmill::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                jkFitness10800Treadmill->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(jkFitness10800Treadmill);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
                         ) &&
                        !technogymmyrunTreadmill 
@@ -4180,6 +4196,11 @@ void bluetooth::restart() {
         delete technogymmyrunrfcommTreadmill;
         technogymmyrunrfcommTreadmill = nullptr;
     }
+    if (jkFitness10800Treadmill) {
+
+        delete jkFitness10800Treadmill;
+        jkFitness10800Treadmill = nullptr;
+    }
 #endif
     if (soleF80) {
 
@@ -4923,6 +4944,8 @@ bluetoothdevice *bluetooth::device() {
 #ifndef Q_OS_IOS
     } else if (technogymmyrunrfcommTreadmill) {
         return technogymmyrunrfcommTreadmill;
+    } else if (jkFitness10800Treadmill) {
+        return jkFitness10800Treadmill;
 #endif
     } else if (soleF80) {
         return soleF80;
