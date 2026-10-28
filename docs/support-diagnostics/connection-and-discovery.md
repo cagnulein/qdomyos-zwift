@@ -167,3 +167,23 @@
 - **No devices found at all** is a different symptom from finding the trainer and choosing an unsuitable driver. A driver change cannot fix a scan that never sees advertisements.
 - QZ requests Android Bluetooth and location permissions. In a confirmed case, enabling **Precise location** restored discovery of a previously invisible trainer.
 - Collecting permission state and scan results first avoids requesting extensive Bluetooth traces for an operating-system permission problem.
+
+## A replacement machine appears in discovery, but QZ never opens its workout tiles
+
+### Provide first
+
+- The old and new machine models and the new machine's exact advertised Bluetooth name.
+- Whether QZ lists the new machine during discovery but stays on the initial screen, or opens workout tiles that remain at zero.
+- Screenshot **Settings > Advanced Settings > Manual Device**, showing whether the previous machine is still selected.
+
+### If still unclear
+
+- Clear the old **Manual Device** selection or select the new machine explicitly, then fully restart QZ and confirm that its speed, cadence, or power tiles change before launching Zwift or ROUVY.
+- If the new machine still does not connect, provide a QZ debug log starting before discovery, plus an nRF Connect screenshot showing its advertised name and services.
+- Avoid clearing all application data as a first diagnostic step; preserve other settings while testing the device filter.
+
+### Why it matters
+
+- QZ's manual-device filter compares discovered Bluetooth names against the configured name. A saved selection for an earlier machine can exclude a replacement even when its advertisement is visible.
+- In a confirmed treadmill replacement case, clearing stale app configuration restored the connection; checking the old manual-device selection first would have isolated the cause without resetting unrelated settings.
+- Distinguishing discovery from active workout telemetry prevents troubleshooting the receiving app before QZ has connected to the machine.

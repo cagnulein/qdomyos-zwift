@@ -6248,6 +6248,14 @@ Please enter it below:</source>
         <translation>Включите, чтобы брать дистанцию прямо с беговой дорожки, а не вычислять её по скорости. Некоторые дорожки сообщают дистанцию точнее, чем расчёт по скорости. По умолчанию выключено.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанция с дорожки: только прирост</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Работает вместе с «Дистанция напрямую с дорожки». Включите, если счётчик дистанции вашей дорожки не обнуляется между тренировками или начинает с 0 после выключения дорожки: в тренировку попадёт только пройденное за неё, а не то, что дорожка насчитала до подключения QZ. По умолчанию выключено.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Сложность через смещение</translation>
     </message>

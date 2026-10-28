@@ -5908,6 +5908,14 @@ Zadejte ho níže:</translation>
         <translation>Zapněte, pokud chcete vzdálenost číst přímo z běžeckého pásu místo jejího výpočtu z rychlosti. Některé pásy hlásí vzdálenost přesněji než výpočet z rychlosti. Výchozí: vypnuto.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Vzdálenost z pásu: přičítat jen přírůstek</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funguje spolu s „Vzdálenost přímo z pásu“. Zapněte, pokud počítadlo vzdálenosti vašeho pásu běží dál mezi tréninky nebo po vypnutí pásu začíná znovu od 0: přičte se jen vzdálenost ušlá během tréninku, ne to, co pás napočítal před připojením QZ. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Obtížnost pomocí korekce</translation>
     </message>

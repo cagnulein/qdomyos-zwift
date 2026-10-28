@@ -6,6 +6,7 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
+#include "ios/ios_background_keepalive.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -6146,6 +6147,10 @@ void homeform::Start_inner(bool send_event_to_device) {
     } else {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+        // Keep QZ active in background only when the user explicitly enables it.
+        if (settings.value(QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive)
+                .toBool())
+            iosBackgroundKeepAlive::start();
         if(h && !h->appleWatchAppInstalled() && bluetoothManager->device())
             h->startWorkout(bluetoothManager->device()->deviceType());
 #endif
@@ -6265,6 +6270,7 @@ void homeform::Stop() {
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
+    iosBackgroundKeepAlive::stop();
 #endif
 #endif
 
@@ -11300,6 +11306,12 @@ void homeform::sendMail() {
                 stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName +
                 QStringLiteral(" https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
+        }
+        if (!pelotonHandler->current_spotify_tracks.isEmpty()) {
+            textMessage += QStringLiteral("\n") + tr("Spotify songs:") + QStringLiteral("\n");
+            for (const QString &track : qAsConst(pelotonHandler->current_spotify_tracks)) {
+                textMessage += QStringLiteral("- ") + track + QStringLiteral("\n");
+            }
         }
     }
 
