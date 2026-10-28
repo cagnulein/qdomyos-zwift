@@ -5908,6 +5908,14 @@ Please enter it below:</source>
         <translation>속도로 거리를 계산하는 대신 트레드밀에서 거리를 직접 읽으려면 켜세요. 일부 트레드밀은 속도 기반 계산보다 거리를 더 정확하게 알려 줍니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>직접 거리: 증가분만 더하기</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>‘트레드밀에서 직접 거리 읽기’와 함께 사용합니다. 트레드밀의 거리 카운터가 운동 사이에도 계속 올라가거나 트레드밀을 끄면 0부터 다시 시작한다면 켜세요. QZ가 연결되기 전에 트레드밀이 센 거리는 빼고 운동 중에 걸은 거리만 더합니다. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>보정값 방식 난이도 조절</translation>
     </message>

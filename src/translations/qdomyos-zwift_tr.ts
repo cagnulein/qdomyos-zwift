@@ -5908,6 +5908,14 @@ Kodu aşağıya girin:</translation>
         <translation>Mesafeyi hızdan hesaplamak yerine doğrudan koşu bandından okumak için bunu açın. Bazı koşu bantları mesafeyi, hıza dayalı hesaplamadan daha doğru bildirir. Varsayılan: kapalı.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Doğrudan mesafe: yalnızca artışı ekle</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>“Mesafeyi doğrudan koşu bandından al” ile birlikte çalışır. Koşu bandınızın mesafe sayacı antrenmanlar arasında sıfırlanmıyorsa veya koşu bandı kapatılınca 0’dan yeniden başlıyorsa bunu açın: QZ bağlanmadan önce koşu bandının saydığı mesafe değil, yalnızca antrenman sırasında yürünen mesafe eklenir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Ofset tabanlı zorluk</translation>
     </message>

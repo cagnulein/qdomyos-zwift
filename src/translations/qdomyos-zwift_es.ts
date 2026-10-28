@@ -6272,6 +6272,14 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Activa esto para leer la distancia directamente de la cinta de correr en lugar de calcularla a partir de la velocidad. Algunas cintas de correr reportan la distancia con más precisión que el cálculo basado en la velocidad. Predeterminado: apagado.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distancia directa: sumar solo el incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto con «Distancia directa de la cinta de correr». Activa esto si el contador de distancia de tu cinta sigue sumando entre entrenamientos o vuelve a empezar desde 0 al apagar la cinta: solo se suma la distancia recorrida durante el entrenamiento, no lo que la cinta contó antes de que QZ se conectara. Predeterminado: apagado.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Dificultad por incrementos fijos</translation>
     </message>

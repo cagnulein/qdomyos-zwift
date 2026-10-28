@@ -2327,6 +2327,7 @@ import AndroidStatusBar 1.0
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
             property bool ios_background_keepalive: false
+            property bool treadmill_direct_distance_increment: false
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -11356,6 +11357,38 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillDirectDistanceIncrementDelegate
+                        text: qsTr("Direct Distance: add only the increase")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_direct_distance_increment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: settings.treadmill_direct_distance_increment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
