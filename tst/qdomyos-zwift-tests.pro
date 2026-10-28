@@ -25,7 +25,6 @@ SOURCES += \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
         TrainingProgram/trainingprogrampathtests.cpp \
-        Spotify/TestPelotonPlaylist.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
@@ -111,7 +110,6 @@ HEADERS += \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
     TrainingProgram/trainprogramtestsuite.h \
-    Spotify/TestPelotonPlaylist.h \
     ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \
