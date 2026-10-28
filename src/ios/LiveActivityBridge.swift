@@ -15,31 +15,29 @@ import UIKit
     private var currentActivity: Activity<QZWorkoutAttributes>?
     private var inactivityTimer: Timer?
 
-    // Preserve the original 10-second inactivity timeout for normal workouts.
-    // Only extend it when iOS background keepalive is actually running and the
-    // app is not active: Live Activity updates are then throttled to 5 seconds.
+    // Timeout in seconds - if no updates received, auto-close the Live Activity
     private let inactivityTimeout: TimeInterval = 10.0
-    private let backgroundKeepAliveInactivityTimeout: TimeInterval = 30.0
 
     // MARK: - Private Methods
 
-    private func startInactivityTimer(timeout: TimeInterval) {
+    private func startInactivityTimer() {
         // Cancel existing timer
         inactivityTimer?.invalidate()
 
-        // Use RunLoop.common so the timer continues to run in common run-loop modes.
+        // Create new timer that fires after inactivityTimeout seconds
+        // Using RunLoop.common mode ensures timer works even when app is in background
         inactivityTimer = Timer.scheduledTimer(
-            timeInterval: timeout,
+            timeInterval: inactivityTimeout,
             target: self,
-            selector: #selector(inactivityTimerFired(_:)),
+            selector: #selector(inactivityTimerFired),
             userInfo: nil,
             repeats: false
         )
         RunLoop.current.add(inactivityTimer!, forMode: .common)
     }
 
-    @objc private func inactivityTimerFired(_ timer: Timer) {
-        print("⚠️ No Live Activity updates received for \(timer.timeInterval) seconds - auto-closing")
+    @objc private func inactivityTimerFired() {
+        print("⚠️ No Live Activity updates received for \(inactivityTimeout) seconds - auto-closing")
         endActivity()
     }
 
@@ -86,7 +84,7 @@ import UIKit
             print("✅ Live Activity started successfully (useMiles: \(useMiles))")
 
             // Start inactivity timer
-            startInactivityTimer(timeout: inactivityTimeout)
+            startInactivityTimer()
         } catch {
             print("❌ Failed to start Live Activity: \(error.localizedDescription)")
         }
@@ -95,17 +93,14 @@ import UIKit
     @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int,
                                      distance: Double, kcal: Double, compactLeadingMetric: String,
                                      compactLeadingValue: Int, compactTrailingMetric: String,
-                                     compactTrailingValue: Int, useMiles: Bool,
-                                     extendedBackgroundTimeout: Bool) {
+                                     compactTrailingValue: Int, useMiles: Bool) {
         guard let activity = currentActivity else {
             print("No active Live Activity to update")
             return
         }
 
-        // Preserve the old 10-second behavior unless the opt-in keepalive is
-        // running while QZ is in background (updates are throttled there).
-        let timeout = extendedBackgroundTimeout ? backgroundKeepAliveInactivityTimeout : inactivityTimeout
-        startInactivityTimer(timeout: timeout)
+        // Reset inactivity timer - we received an update, so activity is still alive
+        startInactivityTimer()
 
         let updatedState = QZWorkoutAttributes.ContentState(
             speed: speed,
@@ -124,7 +119,7 @@ import UIKit
         Task {
             // Also set stale date as fallback indicator when app is killed
             // This won't close the Live Activity, but at least marks it as outdated visually
-            let staleDate = Date().addingTimeInterval(timeout + 5)
+            let staleDate = Date().addingTimeInterval(inactivityTimeout + 5)
             await activity.update(
                 ActivityContent<QZWorkoutAttributes.ContentState>(
                     state: updatedState,
