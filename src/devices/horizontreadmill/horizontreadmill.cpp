@@ -946,6 +946,8 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -1021,6 +1023,12 @@ void horizontreadmill::update() {
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
+                if (moovio_lynx_konect_2_0) {
+                    const double currentInclinationValue = currentInclination().value();
+                    requestInclination = requestInclination > currentInclinationValue ? qCeil(requestInclination)
+                                                                                     : qFloor(requestInclination);
+                    qDebug() << "requestInclination after Moovio whole-percent rounding=" << requestInclination;
+                }
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
 
