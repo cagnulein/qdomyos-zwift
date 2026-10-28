@@ -88,6 +88,8 @@ class metric {
     BLUETOOTH_TYPE m_bluetooth_type = UNKNOWN;
 
     bool paused = false;
+
+    double applySettings(double v, bool applyGainAndOffset);
 };
 
 #endif // METRIC_H
