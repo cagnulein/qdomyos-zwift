@@ -6292,6 +6292,14 @@ Please enter it below:</source>
         <translation>打开此项可直接从跑步机读取距离，而不是根据速度计算。有些跑步机报告的距离比基于速度的计算更准确。默认关闭。</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距离：仅累加增量</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>与“直接读取跑步机距离”配合使用。如果跑步机的距离计数在两次训练之间不清零，或关机后从 0 重新开始计数，请打开此项：只累加训练期间走过的距离，不计入 QZ 连接前跑步机已计的距离。默认关闭。</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>按偏移量调整难度</translation>
     </message>

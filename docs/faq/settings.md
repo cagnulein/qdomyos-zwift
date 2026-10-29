@@ -10,7 +10,7 @@ This transfers configuration, not the entire workout history or all separate pro
 
 Yes. Open **QZ Settings > General Options > App Language**, select German, Italian, or another available language, press **OK**, and restart QZ. Choose **Auto (System)** to follow your device's language.
 
-This selector and restart requirement are verified in QZ's current settings UI; the customer had not yet confirmed the change.
+This selector and restart requirement are verified in QZ's current settings UI. **Android:** if the installed Play Store version does not yet contain the Italian translation, join the [QZ Google Play beta](https://play.google.com/apps/testing/org.cagnulen.qdomyoszwift), then update QZ from the Play Store and reopen it. In a confirmed support case, the updated beta displayed Italian successfully. Availability of a particular translation may change as beta releases reach the stable channel.
 
 
 ## Can I use my QZ purchase on a replacement phone, or transfer it between iPhone and Android?

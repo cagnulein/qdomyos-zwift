@@ -5908,6 +5908,14 @@ Voer de code hieronder in:</translation>
         <translation>Schakel dit in om de afstand rechtstreeks van de loopband te lezen in plaats van die uit de snelheid te berekenen. Sommige loopbanden geven de afstand nauwkeuriger door dan de berekening op basis van snelheid. Standaard: uit.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Afstand van de loopband: alleen de toename optellen</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Werkt samen met ‘Afstand rechtstreeks van de loopband’. Schakel dit in als de afstandsteller van je loopband tussen trainingen doorloopt of na het uitschakelen van de loopband weer bij 0 begint: alleen de afstand die tijdens de training is afgelegd wordt opgeteld, niet wat de loopband telde voordat QZ verbinding maakte. Standaard: uit.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Moeilijkheid via correctie</translation>
     </message>

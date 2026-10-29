@@ -35,3 +35,14 @@ Garmin Companion supplies watch data such as heart rate to QZ; it does not mirro
 
 This is **watch → QZ** heart-rate input, not live transmission of bike data from an iPhone to Garmin over ANT+ (which iOS does not support). For the completed workout, use QZ's **Garmin Connect integration** separately. A rider with a Garmin Enduro 3 and QZ on iPhone explicitly confirmed that heart rate appeared in QZ after following the broadcast setup.
 
+## Can QZ on an iPad use heart rate from an Apple Watch paired to an iPhone?
+
+**Yes.** Run QZ on both the watch's paired **iPhone** and the **iPad**. The watch sends heart rate to QZ on the iPhone, and the iPad can receive that data from the other QZ instance over the local network while the iPad connects to the fitness machine.
+
+1. Put the iPhone and iPad on the **same Wi-Fi network**. In iOS/iPadOS Settings, allow **Local Network** access for QZ on **both devices**. Avoid guest Wi-Fi that isolates devices.
+2. On the iPhone, set **QZ > Heart Rate Options > Heart Rate Belt Name** to **Disabled** when the Apple Watch is the source. Keep QZ open for the initial test.
+3. Open the **QZ app on Apple Watch**, grant the needed Health permissions and start a workout. Confirm that live heart rate first appears on the watch and then in QZ's Heart tile on the iPhone.
+4. Open QZ on the iPad and connect it to the physical bike/trainer. Keep the iPhone's QZ running and check whether the iPad's **Heart** tile receives the same heart rate. The two QZ instances should discover each other over the LAN; do not try to pair the watch directly to the iPad as a Bluetooth belt.
+5. If the machine's own heart-rate value takes precedence on the iPad, enable **Disable HRM from the machinery** there. Keep the iPhone from connecting to the same physical trainer as the iPad.
+
+Only after heart rate appears in QZ on the iPad should you connect Zwift/MyWhoosh or another training app to the iPad's QZ virtual trainer. **Confirmed result:** an iPhone/Apple Watch-to-iPad QZ setup began working after Local Network permission was enabled on the QZ instance that lacked it. This confirms the heart-rate relay, not unrelated trainer-discovery or MyWhoosh pairing problems.
