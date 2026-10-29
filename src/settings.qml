@@ -575,8 +575,10 @@ import AndroidStatusBar 1.0
                 items.push(pages[k])
             }
 
-            for (var t = 0; t < items.length; t++)
+            for (var t = 0; t < items.length; t++) {
                 items[t]._translatedName = computeTranslatedName(items[t])
+                items[t]._translatedDescription = computeTranslatedDescription(items[t])
+            }
 
             searchableSettings = items
             if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
@@ -589,16 +591,19 @@ import AndroidStatusBar 1.0
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
+        // QML contexts where the labels of the settings pages are translated
+        readonly property var translationContexts: [
+            "settings", "settings-tiles", "settings-tts",
+            "settings-shortcuts", "settings-treadmill-inclination-override",
+            "homeform"
+        ]
+
         // Try to find a translation for a catalog entry name by probing common QML contexts.
         // Returns the translated string if found, or the original name as fallback.
         function computeTranslatedName(entry) {
             var name = entry.name || entry.key
             if (!name) return name
-            var contexts = [
-                "settings", "settings-tiles", "settings-tts",
-                "settings-shortcuts", "settings-treadmill-inclination-override",
-                "homeform"
-            ]
+            var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
                 // Try with trailing colon (common label pattern "Foo:")
                 var withColon = qsTranslate(contexts[i], name + ":")
@@ -610,12 +615,27 @@ import AndroidStatusBar 1.0
             return name
         }
 
+        // The same for the description: the catalog keeps the English text of the hint under
+        // the setting on its page, so its translation is found in the same contexts.
+        // Empty when there is none.
+        function computeTranslatedDescription(entry) {
+            var text = entry.description
+            if (!text) return ""
+            var contexts = translationContexts
+            for (var i = 0; i < contexts.length; i++) {
+                var translated = qsTranslate(contexts[i], text)
+                if (translated !== text) return translated
+            }
+            return ""
+        }
+
         function searchableText(entry) {
             var parts = [
                 entry.key,
                 entry.name,
                 entry._translatedName,
                 entry.description,
+                entry._translatedDescription,
                 entry.parent,
                 parentDisplayName(entry),
                 entry.type,
@@ -2595,7 +2615,7 @@ import AndroidStatusBar 1.0
                                 visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
-                                text: entry.description || ""
+                                text: entry._translatedDescription || entry.description || ""
                                 color: Material.color(Material.Lime)
                                 font.bold: true
                                 font.italic: true
