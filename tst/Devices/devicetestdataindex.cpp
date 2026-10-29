@@ -353,7 +353,11 @@ void DeviceTestDataIndex::Initialize() {
     // ES Linker Treadmill
     RegisterNewDeviceTestData(DeviceIndex::ESLinkerTreadmill)
         ->expectDevice<eslinkertreadmill>()
-        ->acceptDeviceName("ESLINKER", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("ESLINKER", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? QZSettings::default_ftms_treadmill : info.DeviceName());
+        });
 
 
     // Fake Bike
