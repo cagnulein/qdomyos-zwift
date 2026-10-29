@@ -5143,6 +5143,8 @@ bluetoothdevice *bluetooth::device() {
     } else if (csafeElliptical) {
         return csafeElliptical;
 #endif
+    } else if (freebeatBoomBike) {
+        return freebeatBoomBike;
     } else if (trixterXDreambike){
         return trixterXDreambike;
     }
