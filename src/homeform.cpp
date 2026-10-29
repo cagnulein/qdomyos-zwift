@@ -6127,6 +6127,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     m_overridePower = false;
+    m_overridePowerWarned = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6263,6 +6264,9 @@ void homeform::Stop() {
     QSettings settings;
 
     m_startRequested = false;
+    // like Start/Pause, Stop gives the load back to the external app or the bike
+    m_overridePower = false;
+    m_overridePowerWarned = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -7317,6 +7321,18 @@ void homeform::update() {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+
+                virtualbike *virtualBike = ((bike *)bluetoothManager->device())->VirtualBike();
+                if (!m_overridePowerWarned &&
+                    bike::targetPowerOverridesExternalApp(
+                        virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0,
+                        QDateTime::currentMSecsSinceEpoch(),
+                        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(),
+                        bluetoothManager->device()->autoResistance())) {
+                    m_overridePowerWarned = true;
+                    qDebug() << QStringLiteral("target power tile is overriding the external app commands");
+                    setToastRequested(tr("QZ target power is overriding the app's commands. Pause QZ and resume it to give control back to the app."));
+                }
             }
 
         } else if (bluetoothManager->device()->deviceType() == ROWING) {

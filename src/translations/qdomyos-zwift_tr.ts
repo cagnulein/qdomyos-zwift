@@ -3754,6 +3754,10 @@ This may take a few moments on first startup.</source>
         <source>Average Strokes Length: %1</source>
         <translation>Ortalama çekiş uzunluğu: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ hedef gücü uygulamanın komutlarını geçersiz kılıyor. Kontrolü uygulamaya geri vermek için QZ&apos;yi duraklatıp devam ettirin.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

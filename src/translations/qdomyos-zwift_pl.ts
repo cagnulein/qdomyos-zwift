@@ -3754,6 +3754,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <source>Average Strokes Length: %1</source>
         <translation>Średnia długość pociągnięcia: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Moc docelowa QZ nadpisuje polecenia aplikacji. Wstrzymaj QZ i wznów, aby oddać sterowanie aplikacji.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
