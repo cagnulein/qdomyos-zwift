@@ -716,6 +716,7 @@ public:
 #if defined(Q_OS_ANDROID)
     QString getBluetoothName();
     static QString getAndroidDataAppDir();
+    static void migrateAndroidDataToDocuments();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
     static QString safeFileName(const QString &name, const QString &fallback);
