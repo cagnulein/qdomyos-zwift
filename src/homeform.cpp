@@ -1451,7 +1451,9 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 9) {
+    const int expectedChartImages = bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == TREADMILL ? 8 : 9;
+    if (chartImagesFilenames.length() >= expectedChartImages) {
         sendMail();
         qDebug() << "removing chart images";
         for (const QString &f : qAsConst(chartImagesFilenames)) {
