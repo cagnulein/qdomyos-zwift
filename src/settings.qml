@@ -839,8 +839,9 @@ import AndroidStatusBar 1.0
         // The value of a result as text, read only. It is changed on its own page, where its
         // rules are (the range, the settings it depends on, the restart question); an editor
         // here would have to repeat them all. Empty when the value cannot be told for sure - a
-        // Bluetooth device, a stored value that is not one of the list, a secret, a type not
-        // known here: then the result shows no value rather than a wrong one
+        // Bluetooth device, a stored value that is not one of the list, a secret, a text of
+        // several lines, a type not known here: then the result shows no value rather than a
+        // wrong one
         function searchValueText(entry) {
             try {
                 if (entry.catalogKind === "virtual") {
@@ -877,8 +878,12 @@ import AndroidStatusBar 1.0
                         return ""
                     return String(value % 1 === 0 ? value : parseFloat(value.toPrecision(7)))
                 }
-                if (entry.type === "string")
-                    return String(value)
+                if (entry.type === "string") {
+                    // A text of several lines (a table of rows): its first line alone would
+                    // read as the whole value
+                    var text = String(value)
+                    return text.indexOf("\n") >= 0 ? "" : text
+                }
             } catch (e) {
                 console.log("settings search: no value for " + entry.key + ": " + e)
             }
