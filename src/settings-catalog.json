@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1036,
+  "settingCount": 1038,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -16358,6 +16358,37 @@
       "defaultExpression": "false",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "tile_alternative_pace_enabled",
+      "name": "Alternative Pace",
+      "description": "Show pace calculated from an available running sensor, such as HRM Pro Plus or Stryd.",
+      "parent": "Tiles",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "tile_alternative_pace_order",
+      "name": "order index",
+      "description": "Display order for the Alternative Pace tile.",
+      "parent": "tile_alternative_pace_enabled",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "select",
+      "visible": true,
+      "defaultValue": 80,
+      "defaultExpression": "80",
+      "options": {
+        "source": "expression",
+        "expression": "rootItem.tile_order"
+      },
+      "restartRequired": false
     }
   ],
   "legacyHierarchy": {
@@ -18534,7 +18565,9 @@
       "history_chart_peloton_resistance_order": "settings.qml",
       "history_chart_cadence_order": "settings.qml",
       "history_chart_power_distribution_order": "settings.qml",
-      "history_chart_speed_inclination_order": "settings.qml"
+      "history_chart_speed_inclination_order": "settings.qml",
+      "tile_alternative_pace_enabled": "settings-tiles.qml",
+      "tile_alternative_pace_order": "settings-tiles.qml"
     },
     "itemOrderByKey": {
       "age": 3044,
@@ -19416,7 +19449,8 @@
       "history_chart_peloton_resistance_order": 7151,
       "history_chart_cadence_order": 7152,
       "history_chart_power_distribution_order": 7153,
-      "history_chart_speed_inclination_order": 7154
+      "history_chart_speed_inclination_order": 7154,
+      "tile_alternative_pace_order": 800
     },
     "externalEntryOrderByKey": {
       "miles_unit": 20,
@@ -19722,7 +19756,8 @@
       "tts_max_speed": 167,
       "tts_max_watt": 391,
       "tts_max_watt_kg": 685,
-      "tts_summary_sec": 101
+      "tts_summary_sec": 101,
+      "tile_alternative_pace_order": 800
     },
     "pageNodeByKey": {
       "page_custom_gear_table": "bikeOptionsAccordion",

@@ -169,6 +169,8 @@ const QString QZSettings::tile_avg_pace_enabled = QStringLiteral("tile_avg_pace_
 const QString QZSettings::tile_avg_pace_order = QStringLiteral("tile_avg_pace_order");
 const QString QZSettings::tile_grade_adjusted_pace_enabled = QStringLiteral("tile_grade_adjusted_pace_enabled");
 const QString QZSettings::tile_grade_adjusted_pace_order = QStringLiteral("tile_grade_adjusted_pace_order");
+const QString QZSettings::tile_alternative_pace_enabled = QStringLiteral("tile_alternative_pace_enabled");
+const QString QZSettings::tile_alternative_pace_order = QStringLiteral("tile_alternative_pace_order");
 const QString QZSettings::tile_resistance_enabled = QStringLiteral("tile_resistance_enabled");
 const QString QZSettings::tile_resistance_order = QStringLiteral("tile_resistance_order");
 const QString QZSettings::tile_watt_enabled = QStringLiteral("tile_watt_enabled");
@@ -1346,7 +1348,7 @@ const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral
 
 const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
-const uint32_t allSettingsCount = 1040;
+const uint32_t allSettingsCount = 1042;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1453,6 +1455,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_pace_order, QZSettings::default_tile_pace_order},
     {QZSettings::tile_grade_adjusted_pace_enabled, QZSettings::default_tile_grade_adjusted_pace_enabled},
     {QZSettings::tile_grade_adjusted_pace_order, QZSettings::default_tile_grade_adjusted_pace_order},
+    {QZSettings::tile_alternative_pace_enabled, QZSettings::default_tile_alternative_pace_enabled},
+    {QZSettings::tile_alternative_pace_order, QZSettings::default_tile_alternative_pace_order},
     {QZSettings::tile_resistance_enabled, QZSettings::default_tile_resistance_enabled},
     {QZSettings::tile_resistance_order, QZSettings::default_tile_resistance_order},
     {QZSettings::tile_watt_enabled, QZSettings::default_tile_watt_enabled},

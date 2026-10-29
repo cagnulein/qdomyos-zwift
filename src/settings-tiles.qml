@@ -494,6 +494,50 @@ ScrollView {
         }
 
         AccordionCheckElement {
+            id: alternativePaceEnabledAccordion
+            title: qsTr("Alternative Pace")
+            linkedBoolSetting: "tile_alternative_pace_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelalternativePaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: alternativePaceOrderTextField
+                    Accessible.name: alternativePaceEnabledAccordion.title + ", " + labelalternativePaceOrder.text
+                    model: rootItem.tile_order
+                    displayText: settings.tile_alternative_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = alternativePaceOrderTextField.currentValue
+                }
+                Button {
+                    id: okalternativePaceOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: { settings.tile_alternative_pace_order = alternativePaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows the pace calculated from an available running sensor, such as HRM Pro Plus or Stryd. The treadmill pace remains unchanged.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
             id: gradeAdjustedPaceEnabledAccordion
             title: qsTr("Grade Adjusted Pace")
             linkedBoolSetting: "tile_grade_adjusted_pace_enabled"

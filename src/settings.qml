@@ -2356,6 +2356,8 @@ import AndroidStatusBar 1.0
             property int history_chart_power_distribution_order: 5
             property int history_chart_speed_inclination_order: 6
             property bool moovio_lynx_konect_2_0: false
+            property bool tile_alternative_pace_enabled: false
+            property int tile_alternative_pace_order: 80
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
