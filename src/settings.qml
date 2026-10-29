@@ -2355,6 +2355,7 @@ import AndroidStatusBar 1.0
             property int history_chart_cadence_order: 4
             property int history_chart_power_distribution_order: 5
             property int history_chart_speed_inclination_order: 6
+            property bool moovio_lynx_konect_2_0: false
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -13436,6 +13437,45 @@ import AndroidStatusBar 1.0
                             }
                         }
                     }                    
+
+                    AccordionElement {
+                        id: moovioTreadmillAccordion
+                        title: qsTr("Moovio Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: moovioLynxKonect20TreadmillDelegate
+                                text: qsTr("Lynx Konect 2.0")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.moovio_lynx_konect_2_0
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.moovio_lynx_konect_2_0 = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
                 }
             }            
 

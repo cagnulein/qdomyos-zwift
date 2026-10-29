@@ -3431,6 +3431,9 @@ class QZSettings {
     static const QString history_chart_speed_inclination_order;
     static constexpr int default_history_chart_speed_inclination_order = 6;
 
+    static const QString moovio_lynx_konect_2_0;
+    static constexpr bool default_moovio_lynx_konect_2_0 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

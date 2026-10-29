@@ -894,6 +894,17 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
+    if(anplus_treadmill) {
+        QSettings settings;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
+        if (moovio_lynx_konect_2_0) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+        }
+    }
+
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
@@ -935,6 +946,8 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -982,6 +995,12 @@ void horizontreadmill::update() {
                 settings.value(QZSettings::stryd_speed_instead_treadmill,
                                QZSettings::default_stryd_speed_instead_treadmill).toBool();
             const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
+            if (moovio_lynx_konect_2_0) {
+                // ANPLUS-18136 advertises 0.8..20.0 km/h with 0.1 km/h steps.
+                const double requestedSpeed = static_cast<double>(requestSpeed);
+                requestSpeed = qMax(0.8, qMin(20.0, requestedSpeed));
+                qDebug() << "requestSpeed after Moovio supported-range clamp=" << requestSpeed;
+            }
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
@@ -1010,6 +1029,12 @@ void horizontreadmill::update() {
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
+                if (moovio_lynx_konect_2_0) {
+                    const double currentInclinationValue = currentInclination().value();
+                    requestInclination = requestInclination > currentInclinationValue ? qCeil(requestInclination)
+                                                                                     : qFloor(requestInclination);
+                    qDebug() << "requestInclination after Moovio whole-percent rounding=" << requestInclination;
+                }
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
 

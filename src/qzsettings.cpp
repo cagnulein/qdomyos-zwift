@@ -1344,7 +1344,9 @@ const QString QZSettings::history_chart_cadence_order = QStringLiteral("history_
 const QString QZSettings::history_chart_power_distribution_order = QStringLiteral("history_chart_power_distribution_order");
 const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral("history_chart_speed_inclination_order");
 
-const uint32_t allSettingsCount = 1039;
+const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
+
+const uint32_t allSettingsCount = 1040;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2410,6 +2412,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::history_chart_cadence_order, QZSettings::default_history_chart_cadence_order},
     {QZSettings::history_chart_power_distribution_order, QZSettings::default_history_chart_power_distribution_order},
     {QZSettings::history_chart_speed_inclination_order, QZSettings::default_history_chart_speed_inclination_order},
+    {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
