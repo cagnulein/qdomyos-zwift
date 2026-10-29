@@ -93,17 +93,40 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         return false;
     };
 
-    if (rows.size() != 10) {
-        return fail(QStringLiteral("iConsole programs require exactly 10 rows"));
+    if (rows.isEmpty()) {
+        return fail(QStringLiteral("iConsole programs require at least one row"));
+    }
+
+    struct TimedSpeed {
+        double speed;
+        int durationSeconds;
+    };
+    QList<TimedSpeed> timeline;
+    int totalDurationSeconds = 0;
+    for (const trainrow &row : rows) {
+        const int durationSeconds = QTime(0, 0, 0).secsTo(row.duration);
+        if (durationSeconds <= 0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
+            !std::isfinite(row.speed)) {
+            return fail(QStringLiteral("iConsole programs require positive-duration non-ramp rows with finite speeds"));
+        }
+        timeline.append({qBound(0.0, row.speed, 254.9), durationSeconds});
+        totalDurationSeconds += durationSeconds;
     }
 
     QList<double> speeds;
-    for (const trainrow &row : rows) {
-        if (QTime(0, 0, 0).secsTo(row.duration) != 60 || row.rampDuration != QTime(0, 0, 0) ||
-            row.rampElapsed != QTime(0, 0, 0)) {
-            return fail(QStringLiteral("iConsole programs require ten one-minute non-ramp rows"));
+    speeds.reserve(10);
+    for (int slot = 0; slot < 10; ++slot) {
+        const double sample = (slot + 0.5) * totalDurationSeconds / 10.0;
+        int elapsed = 0;
+        double selectedSpeed = timeline.last().speed;
+        for (const TimedSpeed &entry : timeline) {
+            elapsed += entry.durationSeconds;
+            if (sample <= elapsed) {
+                selectedSpeed = entry.speed;
+                break;
+            }
         }
-        speeds.append(row.speed < 0.0 ? 0.0 : row.speed);
+        speeds.append(selectedSpeed);
     }
 
     const QByteArray speedA6 = iconsoleSpeedProgramFrame(0xa6, speeds);

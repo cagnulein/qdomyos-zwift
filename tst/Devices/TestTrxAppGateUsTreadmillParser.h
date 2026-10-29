@@ -127,13 +127,59 @@ TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedIconsoleSpeedProgramFrames) 
               QByteArray::fromHex("f0a701d30129013d0151020102150229021502010151013d14"));
 }
 
-TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithWrongRowCount) {
+TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithNoRows) {
     QList<trainrow> rows;
     QList<QByteArray> frames;
     QString error;
 
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("exactly 10 rows")));
+    EXPECT_TRUE(error.contains(QStringLiteral("at least one row")));
+    EXPECT_TRUE(frames.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsIconsoleWorkoutFromOneMinuteRow) {
+    trainrow row;
+    row.duration = QTime(0, 1, 0);
+    row.speed = 6.0;
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 2);
+
+    const QList<double> speeds = {6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0};
+    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
+    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, NormalizesWorkoutTimelineToTenSlots) {
+    QList<trainrow> rows;
+    for (const double speed : {4.0, 8.0}) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = speed;
+        rows.append(row);
+    }
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 2);
+
+    const QList<double> expected = {4.0, 4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0, 8.0};
+    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, expected));
+    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, expected));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithInvalidRows) {
+    trainrow row;
+    row.duration = QTime(0, 0, 0);
+    row.speed = 6.0;
+
+    QList<QByteArray> frames;
+    QString error;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("positive-duration")));
     EXPECT_TRUE(frames.isEmpty());
 }
 

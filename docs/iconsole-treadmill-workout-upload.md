@@ -21,7 +21,7 @@ The BLE transport splits each 25-byte logical frame into a 20-byte write followe
 4, 6, 8, 10, 12, 14, 12, 10, 8, 6 km/h
 ```
 
-The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute, so the first QZ implementation accepts exactly ten non-ramp rows of one minute each.
+The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. QZ accepts any non-empty workout made of positive-duration non-ramp rows and normalizes its complete timeline to the ten speed slots supported by this protocol. A one-minute single-row workout produces ten repeated speed values.
 
 The capture also contains an `F0 A8` table. Its exact value layout and relationship to the ten workout rows are not sufficiently established yet, so this patch does not upload inclination values.
 
@@ -31,19 +31,20 @@ When a treadmill workout is associated with a treadmill device, QZ calls the tre
 
 For an iConsole treadmill:
 
-1. QZ validates that the workout contains ten one-minute non-ramp rows.
-2. Each speed is encoded using the captured representation:
+1. QZ validates that the workout is non-empty and contains positive-duration non-ramp rows.
+2. QZ samples the complete workout timeline into ten protocol slots.
+3. Each speed is encoded using the captured representation:
    `deci-km/h = round(speed * 10)` followed by `deci-km/h / 100 + 1` and `deci-km/h % 100 + 1`.
-3. QZ creates both `F0 A6` and `F0 A7` frames.
-4. If BLE initialization is not complete, the frames remain queued.
-5. After initialization, each frame is written as 20 bytes plus 5 bytes, matching the capture.
-6. The normal telemetry polling remains enabled.
+4. QZ creates both `F0 A6` and `F0 A7` frames.
+5. If BLE initialization is not complete, the frames remain queued.
+6. After initialization, each frame is written as 20 bytes plus 5 bytes, matching the capture.
+7. The normal telemetry polling remains enabled.
 
 Other AppGate treadmill variants keep their existing behavior and do not receive these frames.
 
 ## Current limitations
 
-- Only ten one-minute non-ramp rows are accepted.
+- Workouts are normalized to ten speed slots because that is the only table size proven by the capture.
 - Only speed is uploaded.
 - Inclination upload is intentionally deferred until the `F0 A8` layout is confirmed with another capture or a physical TX 90 test.
 - The live speed function remains unimplemented because the available evidence does not prove a live command.
