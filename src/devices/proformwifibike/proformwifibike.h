@@ -56,6 +56,8 @@ class proformwifibike : public bike {
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;
     double max_incline_supported = 20;
+    double lastPhysicalIncline = -100;
+    double lastAppliedGearModifier = 0;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
