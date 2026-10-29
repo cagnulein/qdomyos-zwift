@@ -824,12 +824,13 @@ import AndroidStatusBar 1.0
                    differsFromDefault(entry.key, entry.type, entry.defaultValue)
         }
 
-        // From the store as well: a value changed on the voice or tiles page, opened over this
-        // one, is not in this page's copy until the settings are opened again. The copy stays the
-        // fallback of a key not written yet, and keeps the bindings of the cards on its property
+        // From this page's Settings: the pages opened over it (voice, tiles...) write into the same
+        // object, and the card is bound to its property. Not from the store: Settings writes a
+        // change there only a moment later, a card read again at once got the old value and kept
+        // it. The store only for a key that is not a property here
         function settingValue(entry) {
             var copy = settings[entry.key]
-            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
                 return Number(value)
             return value === undefined ? entry.defaultValue : value
