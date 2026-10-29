@@ -699,7 +699,7 @@ jobs:
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
           # API 37 is published under android-37.0; some tools still resolve android-37.
-          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
@@ -2294,7 +2294,7 @@ jobs:
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
           # API 37 is published under android-37.0; some tools still resolve android-37.
-          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
@@ -2467,7 +2467,7 @@ jobs:
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
           # API 37 is published under android-37.0; some tools still resolve android-37.
-          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
@@ -2643,7 +2643,7 @@ jobs:
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
           # API 37 is published under android-37.0; some tools still resolve android-37.
-          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
@@ -2773,7 +2773,7 @@ jobs:
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
           # API 37 is published under android-37.0; some tools still resolve android-37.
-          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
             ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
           fi
