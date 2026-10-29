@@ -706,7 +706,7 @@ void trainprogram::scheduler() {
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
-                zwift_world = new World(1, zwift_auth_token->getAccessToken());
+                zwift_world = new World(1, zwift_auth_token);
                 qDebug() << "creating zwift api world";
             }
             else {
@@ -722,8 +722,11 @@ void trainprogram::scheduler() {
                     QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
-                    zwift_player_id = ride[QStringLiteral("id")].toInt();
-                    emit zwiftLoginState(true);
+                    const int playerId = ride[QStringLiteral("id")].toInt();
+                    if (playerId > 0) {
+                        zwift_player_id = playerId;
+                        emit zwiftLoginState(true);
+                    }
                 } else {                    
                     static int zwift_counter = 5;
                     int timeout = settings.value(QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll).toInt();
@@ -732,6 +735,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        if (!bb.isEmpty()) { // Skip decoding while authentication is being renewed.
                         qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -816,6 +820,7 @@ void trainprogram::scheduler() {
                         }
                         old_distance = distance;
                         old_alt = alt;
+                        }
                     }
                 }
             }
