@@ -2870,7 +2870,7 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
         if (homeform::singleton()) {
             homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return false;
     }
 
@@ -3095,7 +3095,7 @@ void peloton::peloton_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return;
     }
 
