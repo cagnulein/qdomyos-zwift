@@ -80,7 +80,12 @@ jobs:
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-37" "build-tools;36.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="$(dirname "$(dirname "$(dirname "$SDKMANAGER")")")"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
 
       - name: Setup ccache
         run: |
@@ -197,7 +202,7 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
