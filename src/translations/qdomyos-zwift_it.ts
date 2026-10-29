@@ -7947,6 +7947,14 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <translation>Al momento nascosta nella sua pagina: modificala qui</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>On</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Nascosta nella sua pagina con le impostazioni attuali</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Attiva “%1” per modificare questa impostazione</translation>
     </message>

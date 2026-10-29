@@ -7435,6 +7435,14 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>켬</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>현재 설정에서는 원래 페이지에서 숨겨져 있습니다</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>이 설정을 변경하려면 “%1”을(를) 켜세요</translation>
     </message>

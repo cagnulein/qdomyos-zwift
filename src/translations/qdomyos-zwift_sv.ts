@@ -7370,6 +7370,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Dold på sin sida just nu: ändra här</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>På</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Dold på sin sida med nuvarande inställningar</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Aktivera ”%1” om du vill ändra den här inställningen.</translation>
     </message>

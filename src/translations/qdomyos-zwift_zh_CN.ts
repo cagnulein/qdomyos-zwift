@@ -7915,6 +7915,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>当前在其所在页面中隐藏：请在此处更改</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>按当前设置，在其所在页面中隐藏</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>开启“%1”后才能更改此设置</translation>
     </message>
