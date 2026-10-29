@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.os.Build;
 import android.provider.Settings;
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -22,6 +23,9 @@ public class LocationHelper {
     }
 
     public static void requestPermissions(Context context) {
+        // Refresh status rather than relying on a stale snapshot from app startup.
+        isLocationEnabled = isLocationEnabled(context);
+        isBluetoothEnabled = isBluetoothEnabled();
         if (!isLocationEnabled || !isBluetoothEnabled) {
             QLog.d(TAG, "Some services are disabled. Prompting user...");
             if (!isLocationEnabled) {
@@ -40,6 +44,9 @@ public class LocationHelper {
     }
 
     private static boolean isLocationEnabled(Context context) {
+        // Android 12+ BLE scans use Nearby devices, not the device-wide GPS toggle.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            return true;
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
