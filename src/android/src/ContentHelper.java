@@ -124,11 +124,11 @@ public class ContentHelper {
         if (destinationFile.exists() && !destinationFile.delete()) {
             // after a reinstall a file of the previous install keeps its name in the folder, but
             // this install can neither replace nor read it: the picked file goes under a free name,
-            // and picking it again reuses that copy
+            // and picking it again reuses that copy. Size -1: a copy is reused only when its content
+            // is the same, an edited file of the same length must not open the old copy
             QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath()
                 + ", importing under another name");
-            return importContentToAppDirKeepExisting(context, uri, fileName, getFileSize(context, uri),
-                                                     destinationDirPath);
+            return importContentToAppDirKeepExisting(context, uri, fileName, -1, destinationDirPath);
         }
 
         if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {

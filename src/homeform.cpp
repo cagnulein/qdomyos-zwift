@@ -9268,7 +9268,8 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         m_trainingRestoreQuiet = false;
         if (restored > 0) {
             setToastRequested(tr("Training programs restored: %1.").arg(restored));
-        } else if (!quiet && localPath.isEmpty()) {
+        } else if (!quiet) {
+            // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
             setToastRequested(tr("No training programs of a previous installation were found."));
         } else if (quiet && trainingFolderHasLockedFiles()) {
             // the saved grant restored nothing (folder moved or renamed): the user picks it again
