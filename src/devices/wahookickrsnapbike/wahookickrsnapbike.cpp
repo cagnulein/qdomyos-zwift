@@ -476,8 +476,14 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
 
-    // Handle async write queue - if we were waiting for a response, process next item
-    if (currentWriteWaitingForResponse && isWriting) {
+    // A cycling-power/FTMS notification is not an acknowledgement of a Wahoo
+    // control command. Only release the queue after a response for the opcode
+    // currently being sent (or after the existing timeout).
+    const QBluetoothUuid wahooControlPoint(QStringLiteral("A026E005-0A7D-4AB3-97FA-F1500F9FEB8B"));
+    const bool matchingControlResponse =
+        writeBuffer && !writeBuffer->isEmpty() && uuid == wahooControlPoint && newValue.size() >= 2 &&
+        (uint8_t)newValue.at(0) == 0x01 && newValue.at(1) == writeBuffer->at(0);
+    if (currentWriteWaitingForResponse && isWriting && matchingControlResponse) {
         // Stop timeout timer
         writeTimeoutTimer->stop();
 
