@@ -913,6 +913,21 @@ int main(int argc, char *argv[]) {
             qDebug() << "BLUETOOTH_CONNECT denied!";
     }
 
+    // API 37 blocks direct LAN sockets (including TCP, UDP and mDNS) unless the
+    // Nearby devices / Local network permission is granted. Request it before
+    // starting the device managers, which may publish or discover LAN services.
+    // Earlier Android versions have implicit LAN access through INTERNET.
+    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 37) {
+        const QString localNetworkPermission = QStringLiteral("android.permission.ACCESS_LOCAL_NETWORK");
+        if (QtAndroid::checkPermission(localNetworkPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap localResult =
+                QtAndroid::requestPermissionsSync(QStringList({localNetworkPermission}));
+            if (localResult.value(localNetworkPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "ACCESS_LOCAL_NETWORK denied: LAN-based equipment, DIRCON, and"
+                           << "network discovery may not work. Grant Nearby devices in Android settings.";
+        }
+    }
+
     result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
     if (result == QtAndroid::PermissionResult::Denied) {
         QtAndroid::PermissionResultMap resultHash =
