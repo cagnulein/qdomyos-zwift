@@ -171,8 +171,8 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page (searchHiddenSettings keeps the known ones out of the
-            // results): the tap leaves the results as they are
+            // A setting that is on no page (searchHiddenSettings, listed only in "Changed"): the
+            // tap leaves the results as they are
             if (!where)
                 return
             var page = settingsPane
@@ -562,8 +562,6 @@ import AndroidStatusBar 1.0
                     continue
                 if (!persistentSettings[j].visible)
                     continue
-                if (searchHiddenSettings[persistentSettings[j].key])
-                    continue
                 if (settingsPane.isTileOrderSetting(persistentSettings[j]))
                     continue
                 persistentSettings[j].catalogKind = "setting"
@@ -723,6 +721,8 @@ import AndroidStatusBar 1.0
             for (var i = 0; i < searchableSettings.length; i++) {
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
+                if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -759,7 +759,8 @@ import AndroidStatusBar 1.0
         // could not be changed from there either. Garmin ANT+ (moves the ANT channels to Garmin's
         // private network, switched on by chance it cuts the ANT+ sensors off), Peloton Bike OCR
         // (its switch is commented out on the page), the camera and emote of MyWhoosh Link (QZ
-        // cycles them with a controller button itself)
+        // cycles them with a controller button itself). Left out of the search by text only:
+        // "Changed" still lists them, so one switched on by chance is seen there
         readonly property var searchHiddenSettings: ({ "ant_garmin": true, "peloton_bike_ocr": true,
                                                        "mywhoosh_link_camera_value": true,
                                                        "mywhoosh_link_emote_value": true })
@@ -784,8 +785,8 @@ import AndroidStatusBar 1.0
             return appWrittenKeys.indexOf(entry.key) >= 0
         }
 
-        // From the store, not from this page's Settings: another settings page (tiles, voice)
-        // writes through a Settings object of its own, which this one does not hear about. The
+        // From the store: what "Changed" compares with the default, and the value of a key that
+        // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
             var value = settings.value(key, fallback)
