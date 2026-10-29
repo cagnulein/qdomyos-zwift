@@ -203,8 +203,14 @@ public class ContentHelper {
         if (others == null) {
             return null;
         }
+        // file was just written: its length() can still be 0 under FUSE passthrough (seen on
+        // Android 15), so its size is counted from the content
+        long length = contentLength(file);
+        if (length < 0) {
+            return null;
+        }
         for (File other : others) {
-            if (other.equals(file) || !other.isFile() || other.length() != file.length()) {
+            if (other.equals(file) || !other.isFile() || other.length() != length) {
                 continue;
             }
             if (sameContent(other, file)) {
@@ -212,6 +218,30 @@ public class ContentHelper {
             }
         }
         return null;
+    }
+
+    // Number of bytes read from file, -1 when it cannot be read.
+    private static long contentLength(File file) {
+        java.io.FileInputStream in = null;
+        try {
+            in = new java.io.FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                total += read;
+            }
+            return total;
+        } catch (Exception e) {
+            return -1;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private static boolean sameContent(File a, File b) {
