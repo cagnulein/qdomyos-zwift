@@ -538,6 +538,8 @@ void ftmsbike::update() {
             // Do not apply it a second time in this FTMS path.
             if (cscbike::useCustomResistancePowerTable())
                 gearMultiplier = 0;
+            else if (SOLE_B94 && !resistance_lvl_mode)
+                gearMultiplier = 0;
             else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool() ? 0 : gearsModifier() * gearMultiplier);
