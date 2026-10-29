@@ -3599,6 +3599,18 @@ This may take a few moments on first startup.</source>
         <translation>已导入训练：%1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>无法将文件复制到 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>已恢复训练计划：%1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>未找到以前安装的训练计划。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>已在历史记录中：%1。</translation>
     </message>
@@ -4119,6 +4131,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>以前安装的训练可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>训练计划</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
 要查找它们吗？
 
 请在下一个窗口中允许访问 QZ 文件夹。</translation>

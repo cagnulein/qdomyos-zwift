@@ -977,6 +977,21 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
+        function onTrainingRestoreOfferRequested() {
+            popupTrainingRestore.visible = true
+        }
+    }
+
+    // after a reinstall the training programs of the previous install are hidden in the
+    // training folder: with access to the QZ folder QZ copies them back as its own
+    MessageDialog {
+        id: popupTrainingRestore
+        text: qsTr("Training Programs")
+        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.restoreTrainingPrograms()
+        onNoClicked: this.visible = false
+        visible: false
     }
 
     // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
