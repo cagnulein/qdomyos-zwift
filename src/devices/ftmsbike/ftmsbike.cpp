@@ -543,6 +543,9 @@ void ftmsbike::update() {
             else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool() ? 0 : gearsModifier() * gearMultiplier);
+            if (SOLE_B94 && !resistance_lvl_mode && requestPower > 0 &&
+                settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool())
+                rR -= gearsModifier();
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
