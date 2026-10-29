@@ -2348,6 +2348,13 @@ import AndroidStatusBar 1.0
             property bool ui_text_scale_system: true
             property bool ios_background_keepalive: false
             property bool treadmill_direct_distance_increment: false
+            property int history_chart_power_order: 0
+            property int history_chart_heart_order: 1
+            property int history_chart_resistance_order: 2
+            property int history_chart_peloton_resistance_order: 3
+            property int history_chart_cadence_order: 4
+            property int history_chart_power_distribution_order: 5
+            property int history_chart_speed_inclination_order: 6
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -7056,6 +7063,131 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Workout History (not the live charts): customize the order of saved workout graphs.
+                    AccordionElement {
+                        id: historyChartsAccordion
+                        title: qsTr("Workout History Charts")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            id: historyChartOrderEditor
+                            spacing: 8
+                            Layout.fillWidth: true
+
+                            readonly property var defaultChartIds: [
+                                "power", "heart", "resistance", "pelotonResistance",
+                                "cadence", "powerDistribution", "speedInclination"
+                            ]
+                            property var chartOrder: []
+
+                            function currentOrder() {
+                                var positions = [
+                                    settings.history_chart_power_order,
+                                    settings.history_chart_heart_order,
+                                    settings.history_chart_resistance_order,
+                                    settings.history_chart_peloton_resistance_order,
+                                    settings.history_chart_cadence_order,
+                                    settings.history_chart_power_distribution_order,
+                                    settings.history_chart_speed_inclination_order
+                                ]
+                                var order = defaultChartIds.slice()
+                                order.sort(function(a, b) {
+                                    var ai = defaultChartIds.indexOf(a)
+                                    var bi = defaultChartIds.indexOf(b)
+                                    return positions[ai] - positions[bi] || ai - bi
+                                })
+                                return order
+                            }
+
+                            function saveOrder() {
+                                settings.history_chart_power_order = chartOrder.indexOf("power")
+                                settings.history_chart_heart_order = chartOrder.indexOf("heart")
+                                settings.history_chart_resistance_order = chartOrder.indexOf("resistance")
+                                settings.history_chart_peloton_resistance_order = chartOrder.indexOf("pelotonResistance")
+                                settings.history_chart_cadence_order = chartOrder.indexOf("cadence")
+                                settings.history_chart_power_distribution_order = chartOrder.indexOf("powerDistribution")
+                                settings.history_chart_speed_inclination_order = chartOrder.indexOf("speedInclination")
+                            }
+
+                            function chartLabel(chartId) {
+                                switch (chartId) {
+                                case "power": return qsTr("Power")
+                                case "heart": return qsTr("Heart Rate")
+                                case "resistance": return qsTr("Resistance vs Target Resistance")
+                                case "pelotonResistance": return qsTr("Peloton Resistance")
+                                case "cadence": return qsTr("Cadence")
+                                case "powerDistribution": return qsTr("Power Distribution")
+                                case "speedInclination": return qsTr("Speed and Inclination")
+                                default: return chartId
+                                }
+                            }
+
+                            function moveChart(index, delta) {
+                                var destination = index + delta
+                                if (destination < 0 || destination >= chartOrder.length)
+                                    return
+                                var updated = chartOrder.slice()
+                                var item = updated[index]
+                                updated[index] = updated[destination]
+                                updated[destination] = item
+                                chartOrder = updated
+                                saveOrder()
+                            }
+
+                            Component.onCompleted: chartOrder = currentOrder()
+
+                            Label {
+                                text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Repeater {
+                                model: historyChartOrderEditor.chartOrder.length
+                                delegate: RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Label {
+                                        text: historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                    }
+                                    Button {
+                                        text: "↑"
+                                        enabled: index > 0
+                                        Accessible.name: qsTr("Move up") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, -1)
+                                    }
+                                    Button {
+                                        text: "↓"
+                                        enabled: index < historyChartOrderEditor.chartOrder.length - 1
+                                        Accessible.name: qsTr("Move down") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, 1)
+                                    }
+                                }
+                            }
+
+                            Button {
+                                text: qsTr("Restore default order")
+                                Layout.alignment: Qt.AlignRight
+                                enabled: historyChartOrderEditor.chartOrder.join(",") !==
+                                         historyChartOrderEditor.defaultChartIds.join(",")
+                                onClicked: {
+                                    var defaults = historyChartOrderEditor.defaultChartIds.slice()
+                                    historyChartOrderEditor.chartOrder = defaults
+                                    historyChartOrderEditor.saveOrder()
+                                }
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
