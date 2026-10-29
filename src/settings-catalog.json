@@ -16347,9 +16347,9 @@
     },
     {
       "key": "moovio_lynx_konect_2_0",
-      "name": "Moovio Lynx Konect 2.0",
+      "name": "Lynx Konect 2.0",
       "description": "Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.",
-      "parent": "Treadmill Options",
+      "parent": "Moovio Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -16707,6 +16707,13 @@
         "sourceLine": 12466
       },
       {
+        "key": "moovioTreadmillAccordion",
+        "name": "Moovio Options",
+        "parent": "treadmillAccordion",
+        "depth": 1,
+        "sourceLine": 13441
+      },
+      {
         "key": "toorxTreadmillAccordion",
         "name": "Toorx/iConsole Options",
         "parent": null,
@@ -16916,7 +16923,7 @@
       "android_documents_folder": "experimentalFeatureAccordion",
       "android_notification_v2": "zwiftUsernameTextField",
       "android_wakelock": "experimentalFeatureAccordion",
-      "moovio_lynx_konect_2_0": "treadmillAccordion",
+      "moovio_lynx_konect_2_0": "moovioTreadmillAccordion",
       "ant_bike_device_number": "technogymBikeAccordion",
       "ant_cadence": "uiAntOptionsAccordion",
       "ant_garmin": "garminOptionsAccordion",
@@ -18535,7 +18542,7 @@
       "android_documents_folder": 17371,
       "android_notification_v2": 756,
       "android_wakelock": 17094,
-      "moovio_lynx_konect_2_0": 11557,
+      "moovio_lynx_konect_2_0": 13449,
       "ant_bike_device_number": 6600,
       "ant_cadence": 6692,
       "ant_heart": 6793,
