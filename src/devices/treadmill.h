@@ -2,6 +2,7 @@
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include "treadmillErgTable.h"
 #include "runnclosedloopcontroller.h"
@@ -52,6 +53,13 @@ class treadmill : public bluetoothdevice {
     double calculateCadenceFromSpeed(double speed);
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
+    virtual bool supportsManualSpeedOverride() const { return false; }
+    static bool isLikelyManualSpeedChange(double previousSpeed, double observedSpeed, double expectedSpeed,
+                                          bool expectedSpeedValid);
+    bool trainingProgramTransitionActive(qint64 settleMs) const {
+        return m_trainingProgramTransitionAt.isValid() &&
+               m_trainingProgramTransitionAt.msecsTo(QDateTime::currentDateTime()) < settleMs;
+    }
     double runningStressScore();
     QTime speedToPace(double Speed);
     double gradeAdjustedSpeed(double speed, double inclination);
@@ -106,6 +114,18 @@ class treadmill : public bluetoothdevice {
     double m_followPowerLastInclination = 0;
     double m_followPowerLastSpeedWhenTargetSet = -1;
     QDateTime m_followPowerSuppressedUntil;
+    QDateTime m_trainingProgramTransitionAt;
+    QElapsedTimer m_lastQzSpeedCommandTimer;
+    QElapsedTimer m_manualSpeedOverrideTimer;
+    double m_lastQzSpeedCommand = -1;
+
+    static constexpr qint64 manualSpeedOverrideDurationMs = 20000;
+    static constexpr qint64 expectedSpeedObservationWindowMs = 15000;
+    static constexpr double manualSpeedChangeThresholdKmh = 0.5;
+    static constexpr double expectedSpeedToleranceKmh = 0.25;
+
+    bool manualSpeedOverrideActive() const;
+    virtual void clearPendingSpeedCommands() {}
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
