@@ -996,8 +996,10 @@ void horizontreadmill::update() {
                                QZSettings::default_stryd_speed_instead_treadmill).toBool();
             const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
             if (moovio_lynx_konect_2_0) {
-                requestSpeed = requestSpeed > speedForControl ? qCeil(requestSpeed) : qFloor(requestSpeed);
-                qDebug() << "requestSpeed after Moovio whole-km/h rounding=" << requestSpeed;
+                // ANPLUS-18136 advertises 0.8..20.0 km/h with 0.1 km/h steps.
+                const double requestedSpeed = static_cast<double>(requestSpeed);
+                requestSpeed = qMax(0.8, qMin(20.0, requestedSpeed));
+                qDebug() << "requestSpeed after Moovio supported-range clamp=" << requestSpeed;
             }
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
