@@ -1006,6 +1006,14 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <source>Android notification enabled</source>
         <translation>Benachrichtigung von Android aktiviert</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 bereit</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Initialisierung des YPOO M5 fehlgeschlagen; erneute Verbindung erforderlich</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -5522,8 +5530,8 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Sprache der App:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6258,6 +6266,14 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Schalten Sie dies ein, um die Distanz direkt vom Laufband zu lesen, anstatt sie aus der Geschwindigkeit zu berechnen. Einige Laufbänder melden die Distanz genauer als die geschwindigkeitsbasierte Berechnung. Standardmäßig ist es aus.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Direkte Distanz: nur den Zuwachs addieren</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funktioniert zusammen mit „Direkte Distanz vom Laufband“. Schalten Sie dies ein, wenn der Distanzzähler Ihres Laufbands zwischen den Trainings weiterläuft oder nach dem Ausschalten des Laufbands wieder bei 0 beginnt: Es wird nur die während des Trainings zurückgelegte Distanz addiert, nicht das, was das Laufband vor der Verbindung mit QZ gezählt hat. Standardmäßig ist es aus.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7763,6 +7779,26 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers Rudergerät</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness Optionen</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness Benutzername/E-Mail:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness Passwort:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness Gastanmeldung (experimentell)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Verwendet ein synthetisches Life-Fitness-Profil ohne Konto. Wenn aktiviert, werden Benutzername, Passwort und zwischengespeicherte Kontodaten ignoriert; nur zum Testen der unterstützten Gastanmeldung verwenden.</translation>
     </message>
 </context>
 <context>

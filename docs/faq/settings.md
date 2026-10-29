@@ -20,3 +20,9 @@ A QZ purchase can be used again on a replacement phone **within the same app sto
 **Apple App Store and Google Play are separate marketplaces.** A purchase made on iPhone does **not** transfer to an Android phone (or vice versa), even if you use the same email address for both accounts; purchasing on the new platform is required.
 
 The app purchase and your saved QZ configuration are separate. To move your settings between phones, use the [QZ settings export/import instructions](#how-can-i-transfer-qz-settings-to-a-new-phone).
+
+## I subscribed to support QZ, but the app still stops after the trial period. What should I check?
+
+If you are using QZ's **supporter/Patreon email-based unlock** on a compatible installation, open **Settings > General Options > Email** and enter the **same email address as the active subscription, entirely in lowercase**. Save the settings, fully close QZ, and reopen it so the license status can refresh.
+
+In a confirmed case, the email had an uppercase first letter; changing it to lowercase stopped QZ from closing after ten minutes. This is a **supporter-email unlock** troubleshooting step, not a way to transfer an Apple App Store purchase to Google Play or vice versa. If it still times out, check that the subscription is active and contact QZ support with the email configured in QZ.

@@ -3381,6 +3381,8 @@ class QZSettings {
     static const QString zwiftplay_gear_rb; // Ride On (RB)
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
+    static const QString ios_background_keepalive;
+    static constexpr bool default_ios_background_keepalive = false;
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
 
@@ -3406,6 +3408,12 @@ class QZSettings {
     // Android and iOS: the text of the app follows the system text size instead of ui_text_scale
     static const QString ui_text_scale_system;
     static constexpr bool default_ui_text_scale_system = true;
+
+    // With treadmill_direct_distance: add only the increase of the treadmill distance counter, so a counter
+    // already running when QZ connects, or reset on the treadmill during the workout, does not change the
+    // workout distance. Off: the counter is the workout distance, as before
+    static const QString treadmill_direct_distance_increment;
+    static constexpr bool default_treadmill_direct_distance_increment = false;
 
     // Chart positions in the Workout History preview.
     static const QString history_chart_power_order;

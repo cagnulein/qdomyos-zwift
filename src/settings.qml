@@ -313,7 +313,8 @@ import AndroidStatusBar 1.0
             // On the flickable, not in its content: a ScrollView takes the content height from
             // the only child of the content, a second child would zero it and throw the page to
             // the top. So the highlight follows the scroll itself.
-            activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row })
+            activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row,
+                                                                    lit: reveal.lit !== false })
         }
 
         Timer {
@@ -330,6 +331,9 @@ import AndroidStatusBar 1.0
                 property Item flickable
                 property Item row
                 property int ticks: 0
+                // false: only the scroll to the row, without the glow (back on the language row
+                // after the language changed - nothing was searched)
+                property bool lit: true
                 radius: 12
                 // The sections above are still opening (their height animates) when the row is
                 // first measured: the row moves after it, so the glow and the scroll follow it
@@ -384,7 +388,7 @@ import AndroidStatusBar 1.0
                 }
                 Component.onCompleted: follow()
                 Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
-                color: Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22)
+                color: lit ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22) : "transparent"
                 SequentialAnimation {
                     running: true
                     PauseAnimation { duration: 1200 }
@@ -422,6 +426,59 @@ import AndroidStatusBar 1.0
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
+        }
+
+        // The sections of a page in page order, open or not: a new page opens the same ones
+        function sectionStates(item, states) {
+            var kids = item ? item.children : []
+            for (var i = 0; i < kids.length; i++) {
+                if (kids[i].isOpen !== undefined && kids[i].accordionContent !== undefined)
+                    states.push(kids[i].isOpen)
+                sectionStates(kids[i], states)
+            }
+            return states
+        }
+
+        function openSections(item, states, at) {
+            var kids = item ? item.children : []
+            for (var i = 0; i < kids.length; i++) {
+                if (kids[i].isOpen !== undefined && kids[i].accordionContent !== undefined) {
+                    if (at < states.length && kids[i].isOpen !== states[at])
+                        kids[i].isOpen = states[at]
+                    at++
+                }
+                at = openSections(kids[i], states, at)
+            }
+            return at
+        }
+
+        // The language changes at once. The page is made again: the texts it built once (search
+        // names, lists of choices) come in the new language. It opens on the same sections, at
+        // the language row.
+        function applyAppLanguage(language) {
+            var states = sectionStates(contentItem, [])
+            var snapshot = initialProfileSettingsSnapshot
+            var restartToApply = window.settings_restart_to_apply
+            // Settings writes a change only after a delay: the new page would read the old language
+            settings.setValue("app_language", language)
+            rootItem.setAppLanguage(language)
+            // The context of this page goes with the replace: its names (window, toast) no longer
+            // resolve after it, so the new page does the rest
+            var page = stackView.replace("settings.qml", {}, StackView.Immediate)
+            page.showAppLanguage(states, snapshot, restartToApply)
+        }
+
+        function showAppLanguage(states, snapshot, restartToApply) {
+            // Set by this page when it was made: what was changed before still counts
+            initialProfileSettingsSnapshot = snapshot
+            window.settings_restart_to_apply = restartToApply
+            toast.show(qsTr("Setting saved!"))
+            openSections(contentItem, states, 0)
+            var label = qsTr("App Language:")
+            // Scrolled to, not lit: the glow is for a setting opened from the search
+            pendingReveal = { flickable: contentItem, lit: false,
+                              target: findItem(contentItem, function (item) { return item.text === label }) }
+            revealTimer.restart()
         }
 
         function profileSettingsSnapshot() {
@@ -518,8 +575,10 @@ import AndroidStatusBar 1.0
                 items.push(pages[k])
             }
 
-            for (var t = 0; t < items.length; t++)
+            for (var t = 0; t < items.length; t++) {
                 items[t]._translatedName = computeTranslatedName(items[t])
+                items[t]._translatedDescription = computeTranslatedDescription(items[t])
+            }
 
             searchableSettings = items
             if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
@@ -532,16 +591,19 @@ import AndroidStatusBar 1.0
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
+        // QML contexts where the labels of the settings pages are translated
+        readonly property var translationContexts: [
+            "settings", "settings-tiles", "settings-tts",
+            "settings-shortcuts", "settings-treadmill-inclination-override",
+            "homeform"
+        ]
+
         // Try to find a translation for a catalog entry name by probing common QML contexts.
         // Returns the translated string if found, or the original name as fallback.
         function computeTranslatedName(entry) {
             var name = entry.name || entry.key
             if (!name) return name
-            var contexts = [
-                "settings", "settings-tiles", "settings-tts",
-                "settings-shortcuts", "settings-treadmill-inclination-override",
-                "homeform"
-            ]
+            var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
                 // Try with trailing colon (common label pattern "Foo:")
                 var withColon = qsTranslate(contexts[i], name + ":")
@@ -553,12 +615,27 @@ import AndroidStatusBar 1.0
             return name
         }
 
+        // The same for the description: the catalog keeps the English text of the hint under
+        // the setting on its page, so its translation is found in the same contexts.
+        // Empty when there is none.
+        function computeTranslatedDescription(entry) {
+            var text = entry.description
+            if (!text) return ""
+            var contexts = translationContexts
+            for (var i = 0; i < contexts.length; i++) {
+                var translated = qsTranslate(contexts[i], text)
+                if (translated !== text) return translated
+            }
+            return ""
+        }
+
         function searchableText(entry) {
             var parts = [
                 entry.key,
                 entry.name,
                 entry._translatedName,
                 entry.description,
+                entry._translatedDescription,
                 entry.parent,
                 parentDisplayName(entry),
                 entry.type,
@@ -749,6 +826,11 @@ import AndroidStatusBar 1.0
                 return
             }
 
+            // The page is made again: nothing of it may run after (applyAppLanguage)
+            if (entry.key === "app_language") {
+                applyAppLanguage(value)
+                return
+            }
             window.settings_restart_to_apply = true
             toast.show(qsTr("Setting saved!"))
         }
@@ -2264,6 +2346,8 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
+            property bool ios_background_keepalive: false
+            property bool treadmill_direct_distance_increment: false
             property int history_chart_power_order: 0
             property int history_chart_heart_order: 1
             property int history_chart_resistance_order: 2
@@ -2538,7 +2622,7 @@ import AndroidStatusBar 1.0
                                 visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
-                                text: entry.description || ""
+                                text: entry._translatedDescription || entry.description || ""
                                 color: Material.color(Material.Lime)
                                 font.bold: true
                                 font.italic: true
@@ -2704,13 +2788,13 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 settings.app_language = appLanguageOptions[appLanguageCombo.currentIndex].value
-                                window.settings_restart_to_apply = true
-                                toast.show(qsTr("Setting saved!"))
+                                // Last: the page is made again, the new one shows the toast
+                                settingsPane.applyAppLanguage(settings.app_language)
                             }
                         }
                     }
                     Label {
-                        text: qsTr("Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.")
+                        text: qsTr("Choose Auto to follow your device language, or pick a specific language for QZ.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
@@ -3094,7 +3178,9 @@ import AndroidStatusBar 1.0
                         checked: settings.miles_unit
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.miles_unit = checked
+                        // Written at once, not after the delay of Settings: back on the home page
+                        // the tile titles are read with the new units
+                        onClicked: { settings.miles_unit = checked; settings.setValue("miles_unit", checked) }
                     }
 
                     Label {
@@ -3123,7 +3209,7 @@ import AndroidStatusBar 1.0
                         checked: settings.weight_kg_unit
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.weight_kg_unit = checked
+                        onClicked: { settings.weight_kg_unit = checked; settings.setValue("weight_kg_unit", checked) }
                         visible: settings.miles_unit
                     }
 
@@ -6154,10 +6240,10 @@ import AndroidStatusBar 1.0
                                     initialized = true;
                                 }
 
-                                onCurrentIndexChanged: {
+                                onActivated: {
                                     if (!initialized) return;
 
-                                    console.log("bikeModelComboBox onCurrentIndexChanged " + currentIndex);
+                                    console.log("bikeModelComboBox onActivated " + currentIndex);
 
                                     // Reset all settings first
                                     settings.proform_tour_de_france_clc = false;
@@ -6966,7 +7052,6 @@ import AndroidStatusBar 1.0
                 pageSettings: settings
             }
 
-
             AccordionElement {
                 id: uiGeneralOptionsAccordion
                 title: qsTr("General UI Options")
@@ -7166,8 +7251,6 @@ import AndroidStatusBar 1.0
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
-                            // back to the value the field shows for this mode, also after an edit
-                            uiTextScaleTextField.text = uiTextScaleTextField.savedText;
                         }
                     }
 
@@ -7206,6 +7289,10 @@ import AndroidStatusBar 1.0
                             maximum: 170
                             enabled: !followsSystem
                             savedText: shownValue
+                            // back to the value the field shows for this mode, also after an edit and
+                            // whatever turned the mode (this switch, the search card): the same value
+                            // in both modes leaves savedText as it is, and the typed number stayed
+                            onFollowsSystemChanged: text = savedText
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9354,7 +9441,9 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             model: [qsTr("Global (garmin.com)"), qsTr("China (garmin.cn)")]
                             currentIndex: settings.garmin_domain === "garmin.cn" ? 1 : 0
-                            onCurrentIndexChanged: {
+                            // Only a choice of the user: a change of language rebuilds the list and
+                            // moves it to the first item, which must not log out and switch servers
+                            onActivated: {
                                 var newDomain = currentIndex === 1 ? "garmin.cn" : "garmin.com";
                                 if (newDomain !== settings.garmin_domain) {
                                     rootItem.garmin_connect_logout();
@@ -11431,6 +11520,38 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillDirectDistanceIncrementDelegate
+                        text: qsTr("Direct Distance: add only the increase")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_direct_distance_increment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: settings.treadmill_direct_distance_increment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                  
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
@@ -11993,10 +12114,10 @@ import AndroidStatusBar 1.0
                                     initialized = true;
                                 }
 
-                                onCurrentIndexChanged: {
+                                onActivated: {
                                     if (!initialized) return;
 
-                                    console.log("treadmillModelComboBox onCurrentIndexChanged " + currentIndex);
+                                    console.log("treadmillModelComboBox onActivated " + currentIndex);
 
                                     // Reset all settings
                                     settings.norditrack_s25_treadmill = false;
@@ -13888,45 +14009,48 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelDomyosEllipticalSpeedRatio
-                                text: qsTr("Speed Ratio:")
-                                wrapMode: window.labelWrap
-                                Layout.fillWidth: true
-                            }
-                            SettingsNumberField {
-                                id: domyosEllipticalSpeedRatioTextField
-                                savedText: settings.domyos_elliptical_speed_ratio
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_elliptical_speed_ratio = value
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                            }
-                            Button {
-                                id: okDomyosEllipticalRatioButton
-                                text: qsTr("OK")
-                                enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
-                            }
-                        }
-                        IndicatorOnlySwitch {
-                            id: domyosEllipticalInclinationDelegate
-                            text: qsTr("Inclination Supported")
+                        accordionContent: ColumnLayout {
                             spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_elliptical_inclination
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.domyos_elliptical_inclination = checked
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDomyosEllipticalSpeedRatio
+                                    text: qsTr("Speed Ratio:")
+                                    wrapMode: window.labelWrap
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: domyosEllipticalSpeedRatioTextField
+                                    savedText: settings.domyos_elliptical_speed_ratio
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.domyos_elliptical_speed_ratio = value
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDomyosEllipticalRatioButton
+                                    text: qsTr("OK")
+                                    enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                id: domyosEllipticalInclinationDelegate
+                                text: qsTr("Inclination Supported")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_elliptical_inclination
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_elliptical_inclination = checked
+                            }
                         }
                     }
                     AccordionElement {
@@ -18383,6 +18507,33 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         font.pixelSize: window.fontHint
                         bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Background Keep Alive")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_background_keepalive
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_background_keepalive = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter

@@ -1006,6 +1006,14 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <source>Android notification enabled</source>
         <translation>Notifica Android attivata</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 pronto</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Inizializzazione di YPOO M5 non riuscita; è necessario riconnettersi</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -6105,6 +6113,14 @@ Inseriscilo qui sotto:</translation>
         <translation>Attiva questo per leggere la distanza direttamente dal tapis roulant invece di calcolarla dalla velocità. Alcuni tapis roulant riportano la distanza più accuratamente del calcolo basato sulla velocità. Predefinito: disattivato.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distanza diretta: somma solo l'incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funziona insieme a «Distanza diretta dal tapis roulant». Attiva questo se il contatore della distanza del tuo tapis roulant continua tra un allenamento e l'altro o riparte da 0 quando il tapis roulant viene spento: viene sommata solo la distanza percorsa durante l'allenamento, non quella contata dal tapis roulant prima che QZ si collegasse. Predefinito: disattivato.</translation>
+    </message>
+    <message>
         <source>Max. Speed:</source>
         <translation>Max. Velocità:</translation>
     </message>
@@ -6569,8 +6585,8 @@ NOTE IMPORTANTI:
         <translation>Lingua dell&apos;app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ. Riavvio richiesto.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -7759,6 +7775,26 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers Vogatore</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opzioni Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nome utente/email Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Password Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Accesso ospite Life Fitness (sperimentale)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un profilo Life Fitness sintetico senza account. Se attivo, nome utente, password e dati dell&apos;account in cache vengono ignorati; usare solo per testare l&apos;accesso ospite supportato.</translation>
     </message>
 </context>
 <context>

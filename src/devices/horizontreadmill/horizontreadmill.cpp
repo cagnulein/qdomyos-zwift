@@ -1555,6 +1555,33 @@ void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+// treadmill_direct_distance: Distance is the treadmill counter. With treadmill_direct_distance_increment
+// only its increase is added instead: the counter may already be running when QZ connects and may be
+// reset on the treadmill during the workout. While QZ is paused the counter is followed but nothing is
+// added, as with the distance calculated from speed. The counter is followed in both modes, so turning
+// the option on during a workout adds nothing twice
+void horizontreadmill::setDirectDistance(double treadmillDistance, bool increment) {
+    QDateTime now = QDateTime::currentDateTime();
+    if (!increment) {
+        Distance = treadmillDistance;
+    } else if (lastDirectDistance < 0) {
+        qDebug() << "direct distance: first treadmill value" << treadmillDistance;
+    } else if (treadmillDistance < lastDirectDistance) {
+        qDebug() << "direct distance: treadmill counter reset from" << lastDirectDistance << "to" << treadmillDistance;
+    } else {
+        double increase = treadmillDistance - lastDirectDistance;
+        // more than 100 m plus 40 km/h since the last change of the counter is a bad packet
+        double maxIncrease = 0.1 + 40.0 * lastDirectDistanceChanged.msecsTo(now) / 3600000.0;
+        if (increase > maxIncrease)
+            qDebug() << "direct distance: increase ignored" << increase << "max" << maxIncrease;
+        else if (!isPaused())
+            Distance += increase;
+    }
+    if (treadmillDistance != lastDirectDistance)
+        lastDirectDistanceChanged = now;
+    lastDirectDistance = treadmillDistance;
+}
+
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
@@ -1572,6 +1599,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
         settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+    bool treadmill_direct_distance_increment =
+        settings.value(QZSettings::treadmill_direct_distance_increment,
+                       QZSettings::default_treadmill_direct_distance_increment).toBool();
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -1773,10 +1803,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -1935,10 +1966,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totalDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -2150,10 +2182,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance && newValue.length() > index + 2) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             } else {
                 if (firstDistanceCalculated)
                     Distance += ((Speed.value() / 3600000.0) *

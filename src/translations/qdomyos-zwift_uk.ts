@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Сповіщення Android увімкнено</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 готова до роботи</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Не вдалося ініціалізувати YPOO M5, потрібно перепідключитися</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4405,8 +4413,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Мова застосунку:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну. Потрібен перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6240,6 +6248,14 @@ Please enter it below:</source>
         <translation>Увімкніть, щоб брати дистанцію безпосередньо з бігової доріжки, а не обчислювати її за швидкістю. Деякі доріжки повідомляють дистанцію точніше, ніж розрахунок за швидкістю. Типово вимкнено.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанція з доріжки: лише приріст</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Працює разом із «Дистанція безпосередньо з доріжки». Увімкніть, якщо лічильник дистанції вашої доріжки не обнуляється між тренуваннями або починає з 0 після вимкнення доріжки: до тренування потрапить лише пройдене за нього, а не те, що доріжка нарахувала до підключення QZ. Типово вимкнено.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Складність через зміщення</translation>
     </message>
@@ -7747,6 +7763,26 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Гребний тренажер Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Параметри Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Ім’я користувача/пошта Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Пароль Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Гостьовий вхід Life Fitness (експериментально)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Використовує синтетичний профіль Life Fitness без облікового запису. Якщо увімкнено, ім’я користувача, пароль і збережені дані облікового запису не використовуються; вмикайте лише для перевірки підтримуваного гостьового входу.</translation>
     </message>
 </context>
 <context>

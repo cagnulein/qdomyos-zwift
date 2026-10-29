@@ -23,3 +23,15 @@ When using QZ Garmin Companion on a Garmin watch with QZ on an iPhone, enable **
 Start Garmin Companion on the watch, reconnect QZ and confirm the QZ Heart Rate tile updates before recording. This combination was confirmed working with a supported elliptical and Garmin watch: the watch's heart rate appeared in QZ and in the resulting Garmin Connect activity.
 
 Garmin Companion supplies watch data such as heart rate to QZ; it does not mirror the fitness machine's workout metrics onto the watch screen. For heart rate alone, the watch's Bluetooth HR Broadcast feature is another option; do not enable both input paths at the same time.
+
+## Can QZ on an iPhone receive heart rate from a Garmin watch without pairing QZ to the watch as a bike sensor?
+
+**Yes.** Use the Garmin watch as a **Bluetooth heart-rate broadcaster**, rather than trying to pair QZ's virtual bike as a sensor on the watch.
+
+1. On the Garmin watch, start **Broadcast Heart Rate** (often under **Settings > Health & Wellness > Wrist Heart Rate**; menus vary by model).
+2. In **QZ Settings > Heart Rate Options > Heart Rate Belt Name**, select the watch's advertised Bluetooth name.
+3. If QZ instead keeps using the machine's built-in heart-rate value, enable **Disable HRM from the machinery**.
+4. Check that QZ's Heart Rate tile updates before starting the workout. You do not need to start a second workout recording on the watch just to broadcast heart rate.
+
+This is **watch → QZ** heart-rate input, not live transmission of bike data from an iPhone to Garmin over ANT+ (which iOS does not support). For the completed workout, use QZ's **Garmin Connect integration** separately. A rider with a Garmin Enduro 3 and QZ on iPhone explicitly confirmed that heart rate appeared in QZ after following the broadcast setup.
+

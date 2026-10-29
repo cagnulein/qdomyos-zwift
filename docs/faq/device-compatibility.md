@@ -123,3 +123,22 @@ The USB-data mode plus 57600-baud combination restored an older Kettler ergomete
 Yes. A **Hammer Fly Run 4.0** owner explicitly confirmed that the treadmill worked with QZ after the model's Bluetooth details were checked. QZ also supports exporting completed workouts to **Garmin Connect** through its Garmin integration.
 
 This confirms that the treadmill can be used with QZ; it does **not** independently establish that every firmware version supports automatic speed or incline commands. If QZ does not recognize yours, share the advertised Bluetooth name and a screenshot from **nRF Connect**, then test live speed/incline readings in QZ before testing a third-party app.
+
+## QZ discovers my SmartSpin2K on a Schwinn IC4 but does not connect. How can I select it?
+
+In **QZ Settings > Bike Options**, open **FTMS Bike**, select the SmartSpin2K device (often shown as **SS2K**), and confirm with **OK**. Fully close and restart QZ, then let it connect again.
+
+A rider using a Schwinn IC4 with a SmartSpin2K confirmed that selecting **SS2K** under **FTMS Bike** and restarting QZ resolved the connection problem. Discovery of the device name alone did not mean QZ had connected to its FTMS service.
+
+
+## My BH i.Spada 2 FTMS is detected as an elliptical and Zwift does not change resistance. What should I try?
+
+For a **BH i.Spada 2 FTMS (H9355iZ)** that QZ can control manually but Zwift cannot control, QZ may have selected the elliptical path instead of the FTMS bike path.
+
+1. In **QZ Settings > Bike Options > FTMS Bike**, select the bike's **exact advertised Bluetooth name**.
+2. Press **OK/Save**, then fully close and restart QZ.
+3. Connect QZ to the bike first. Verify live power and cadence and that the **Resistance** tile can control the bike.
+4. In Zwift, select **QZ's virtual bike** as the power source and controllable/resistance device, rather than pairing Zwift directly to the physical bike.
+5. Try a short **ERG workout** to check that changing the target power changes physical resistance.
+
+In a confirmed support case, QZ had initially classified this bike as an elliptical. After explicitly selecting it under **FTMS Bike** and restarting QZ, the rider reported that Zwift ERG could increase resistance. This confirms ERG response in that setup; **automatic simulation-mode gradient changes and Kinomap control were not separately verified**. Do not force unrelated bikes into FTMS unless their protocol supports it.

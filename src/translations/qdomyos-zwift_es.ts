@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Notificación de Android activada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 lista</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -5574,8 +5582,8 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ. Se requiere reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6262,6 +6270,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Activa esto para leer la distancia directamente de la cinta de correr en lugar de calcularla a partir de la velocidad. Algunas cintas de correr reportan la distancia con más precisión que el cálculo basado en la velocidad. Predeterminado: apagado.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distancia directa: sumar solo el incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto con «Distancia directa de la cinta de correr». Activa esto si el contador de distancia de tu cinta sigue sumando entre entrenamientos o vuelve a empezar desde 0 al apagar la cinta: solo se suma la distancia recorrida durante el entrenamiento, no lo que la cinta contó antes de que QZ se conectara. Predeterminado: apagado.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7771,6 +7787,26 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opciones de Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nombre de usuario/correo electrónico de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Contraseña de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inicio de sesión como invitado de Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un perfil sintético de Life Fitness sin cuenta. Si se activa, se ignoran el nombre de usuario, la contraseña y los datos de cuenta guardados; úsalo solo para probar el inicio de sesión como invitado compatible.</translation>
     </message>
 </context>
 <context>

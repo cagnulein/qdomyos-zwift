@@ -196,6 +196,52 @@ TestCase {
         verify(!f.dirty)
     }
 
+    // The Text size row (settings.qml, uiTextScaleTextField): the system size or our own one
+    QtObject { id: textScale; property bool system: false; property int own: 100; property int systemSize: 100 }
+    Component {
+        id: textScaleField
+        SettingsNumberField {
+            width: 300
+            decimals: 0
+            readonly property bool followsSystem: textScale.system
+            enabled: !followsSystem
+            savedText: followsSystem ? textScale.systemSize : textScale.own
+            onFollowsSystemChanged: text = savedText
+        }
+    }
+
+    function test_text_size_mode_change_drops_typed_value() {
+        // The mode turned not by the switch of the row (the search card): the system size is the
+        // saved one, savedText stays the same, and the typed 130 stayed in the field
+        textScale.system = false
+        textScale.own = 100
+        textScale.systemSize = 100
+        var f = make(textScaleField)
+        f.selectAll()
+        type(f, "130")
+        verify(f.dirty)
+        textScale.system = true
+        compare(f.text, "100")
+        verify(!f.dirty)
+        textScale.system = false
+        compare(f.text, "100")
+        verify(!f.dirty)                     // a grey OK
+    }
+
+    function test_text_size_mode_change_shows_size_of_mode() {
+        textScale.system = false
+        textScale.own = 120
+        textScale.systemSize = 100
+        var f = make(textScaleField)
+        f.selectAll()
+        type(f, "130")
+        textScale.system = true
+        compare(f.text, "100")
+        textScale.system = false
+        compare(f.text, "120")
+        verify(!f.dirty)
+    }
+
     function test_without_saved_text_never_dirty() {
         var f = make(numberField)
         type(f, "70")

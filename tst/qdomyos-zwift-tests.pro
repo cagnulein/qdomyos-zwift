@@ -48,6 +48,7 @@ SOURCES += \
         Devices/TestFtmsTreadmillControl.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
+        Devices/TestTrxAppGateUsRowerParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \

@@ -61,3 +61,24 @@
 
 - The selected virtual profile determines what Zwift can pair with, even when QZ receives correct data from the rower.
 - In a confirmed rower setup, disabling Virtual Rower and restarting QZ resolved Zwift's no-signal pairing problem.
+
+## Echelon bike needs the manufacturer app to start, or loses resistance control after reconnecting
+
+### Provide first
+
+- Exact Echelon bike/console model, advertised Bluetooth name, QZ platform and **installed build**.
+- Whether QZ itself shows changing cadence/resistance and can change the bike's **physical resistance** before Peloton, Zwift, or another app is opened.
+- Screenshot of **Experimental Settings > Virtual Echelon**, plus the devices running QZ, the Echelon app, and the receiving training app.
+- Describe the **startup and reconnect order**, including whether the bike was power-cycled and whether opening the Echelon app on another device was necessary to unlock resistance.
+
+### If still unclear
+
+- Check whether the installed QZ build supports direct initialization for that bike; do not assume all Echelon models behave alike.
+- With no training app connected, compare one short QZ-only restart with the existing **Virtual Echelon** setting and, where direct initialization is supported, another with it disabled. Record whether QZ gets live metrics **and** physical resistance control after each restart.
+- If neither sequence works, request a QZ debug log spanning bike discovery, initialization, and one **small, safe** resistance change; note the time of any manufacturer-app connection.
+
+### Why it matters
+
+- The manufacturer-app unlock path and QZ's direct bike connection are different workflows. A successful unlock once does not prove resistance will initialize after the next power cycle.
+- In a confirmed case, a newer QZ build with **Virtual Echelon** disabled restored standalone bike operation without first opening the manufacturer's app. The setting and build are therefore important evidence, not universal instructions.
+- Testing physical resistance in QZ before the receiving app separates bike initialization from downstream virtual-device pairing. See the [Echelon troubleshooting FAQ](../faq/bike-troubleshooting.md) for the applicable setup paths.

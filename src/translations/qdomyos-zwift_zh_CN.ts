@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>已启用 Android 通知</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 已就绪</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 初始化失败，需要重新连接</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -5602,8 +5610,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>应用语言:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。需要重启。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6282,6 +6290,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>打开此项可直接从跑步机读取距离，而不是根据速度计算。有些跑步机报告的距离比基于速度的计算更准确。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距离：仅累加增量</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>与“直接读取跑步机距离”配合使用。如果跑步机的距离计数在两次训练之间不清零，或关机后从 0 重新开始计数，请打开此项：只累加训练期间走过的距离，不计入 QZ 连接前跑步机已计的距离。默认关闭。</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7803,6 +7819,26 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers 划船机</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness 选项</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness 用户名/邮箱:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness 密码:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness 访客登录 (实验性)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>使用无需账户的合成 Life Fitness 配置文件。启用后将忽略用户名、密码和缓存的账户数据；仅用于测试受支持的访客登录。</translation>
     </message>
 </context>
 <context>

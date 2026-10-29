@@ -1006,6 +1006,14 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift-apparaat: WERK DE FIRMWARE BIJ!</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 gereed</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4386,7 +4394,7 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Interfacezoom:</translation>
+        <translation type="vanished">Interfacezoom:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,15 +4406,15 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee</translation>
+        <translation type="vanished">Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Taal van de app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Kies Auto om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ. Opnieuw starten vereist.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5898,6 +5906,14 @@ Voer de code hieronder in:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Schakel dit in om de afstand rechtstreeks van de loopband te lezen in plaats van die uit de snelheid te berekenen. Sommige loopbanden geven de afstand nauwkeuriger door dan de berekening op basis van snelheid. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Afstand van de loopband: alleen de toename optellen</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Werkt samen met ‘Afstand rechtstreeks van de loopband’. Schakel dit in als de afstandsteller van je loopband tussen trainingen doorloopt of na het uitschakelen van de loopband weer bij 0 begint: alleen de afstand die tijdens de training is afgelegd wordt opgeteld, niet wat de loopband telde voordat QZ verbinding maakte. Standaard: uit.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7735,6 +7751,34 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tegelgrootte:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee. Heette vroeger ‘Interfacezoom’.</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness-opties</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness-gebruikersnaam/e-mailadres:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness-wachtwoord:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inloggen als gast bij Life Fitness (experimenteel)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Gebruikt een synthetisch Life Fitness-profiel zonder account. Als dit is ingeschakeld, worden gebruikersnaam, wachtwoord en opgeslagen accountgegevens genegeerd; gebruik dit alleen om het ondersteunde inloggen als gast te testen.</translation>
     </message>
 </context>
 <context>

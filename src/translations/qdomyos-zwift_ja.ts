@@ -1006,6 +1006,14 @@ QZの設定を更新しますか?</translation>
         <source>Android notification enabled</source>
         <translation>Androidバックグラウンド通知保持を有効にしました</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5の準備ができました</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -5522,8 +5530,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>アプリ言語:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。再起動が必要です。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6290,6 +6298,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>速度から計算するのではなく、トレッドミルから直接距離を読み取るためにこれをオンにしてください。一部のトレッドミルは、速度に基づく計算よりも正確に距離を報告します。初期設定はオフです。</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距離：増加分のみ加算</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>「トレッドミルからの直接距離」と組み合わせて使います。トレッドミルの距離カウンターがワークアウトの間もリセットされない場合や、電源を切ると0から数え直す場合はオンにしてください。QZが接続する前にトレッドミルが数えた分ではなく、ワークアウト中に歩いた距離だけが加算されます。初期設定はオフです。</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7807,6 +7823,26 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers ローイングマシン</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness連携設定</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitnessユーザー名/メール:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitnessパスワード:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitnessゲストログイン（実験的）</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>アカウント不要の合成Life Fitnessプロファイルを使用します。有効にすると、ユーザー名、パスワード、保存済みのアカウントデータは無視されます。サポートされているゲストログインのテストにのみ使用してください。</translation>
     </message>
 </context>
 <context>
