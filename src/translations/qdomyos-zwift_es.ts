@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Notificación de Android activada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 lista</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Max Speed</source>
         <translation>Velocidad máxima</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Pendiente máxima</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4222,7 +4234,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom de la interfaz:</translation>
+        <translation type="vanished">Zoom de la interfaz:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4234,7 +4246,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
+        <translation type="vanished">Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5194,6 +5206,22 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Opciones generales de la interfaz</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar el tamaño de texto del sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>El tamaño del texto de la aplicación sigue los ajustes del teléfono o la tableta, hasta un 150%. Desactívalo para elegir el tamaño abajo, por ejemplo para una pantalla que lees de lejos durante el entrenamiento. Activado por defecto.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamaño del texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamaño del texto de la aplicación (ajustes, menús, diálogos), en porcentaje, de 80 a 170. El valor predeterminado es 100. Los mosaicos tienen su propio ajuste de tamaño.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra superior habilitada</translation>
     </message>
@@ -5534,6 +5562,18 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Resultados de búsqueda</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modificados</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>No hay ajustes modificados</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Ajustes modificados</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
@@ -5542,8 +5582,8 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ. Se requiere reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6017,7 +6057,7 @@ Por favor, ingrésalo a continuación:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una Zona de Frecuencia Cardíaca elegida. Actívalo, establece una zona de frecuencia cardíaca objetivo (FC) en la que entrenar y haz clic en Aceptar. Por ejemplo, ingresa 2 para entrenar en la zona de FC 2 y la cinta de correr ajustará automáticamente la velocidad (o la resistencia en una bicicleta) para mantener tu frecuencia cardíaca en la zona 2. QZ aumenta o disminuye gradualmente tu velocidad (o resistencia de la bicicleta) en pequeños incrementos cada 40 segundos para alcanzar y mantener tu zona de FC objetivo. Durante un entrenamiento, puedes mostrar y usar el botón ‘+’ y ‘-’ en el mosaico Zona de FC objetivo para cambiar la zona de FC objetivo.</translation>
+        <translation type="vanished">QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una Zona de Frecuencia Cardíaca elegida. Actívalo, establece una zona de frecuencia cardíaca objetivo (FC) en la que entrenar y haz clic en Aceptar. Por ejemplo, ingresa 2 para entrenar en la zona de FC 2 y la cinta de correr ajustará automáticamente la velocidad (o la resistencia en una bicicleta) para mantener tu frecuencia cardíaca en la zona 2. QZ aumenta o disminuye gradualmente tu velocidad (o resistencia de la bicicleta) en pequeños incrementos cada 40 segundos para alcanzar y mantener tu zona de FC objetivo. Durante un entrenamiento, puedes mostrar y usar el botón ‘+’ y ‘-’ en el mosaico Zona de FC objetivo para cambiar la zona de FC objetivo.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6232,6 +6272,14 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Activa esto para leer la distancia directamente de la cinta de correr en lugar de calcularla a partir de la velocidad. Algunas cintas de correr reportan la distancia con más precisión que el cálculo basado en la velocidad. Predeterminado: apagado.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distancia directa: sumar solo el incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto con «Distancia directa de la cinta de correr». Activa esto si el contador de distancia de tu cinta sigue sumando entre entrenamientos o vuelve a empezar desde 0 al apagar la cinta: solo se suma la distancia recorrida durante el entrenamiento, no lo que la cinta contó antes de que QZ se conectara. Predeterminado: apagado.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Dificultad por incrementos fijos</translation>
     </message>
@@ -6343,6 +6391,18 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinación</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamaño de los mosaicos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Esto cambia el tamaño de los mosaicos que muestran tus métricas. El valor predeterminado es 100%. Para que quepan más mosaicos en tu pantalla, elige un porcentaje más pequeño. Para hacerlos más grandes, elige un porcentaje superior al 100%. No introduzcas el símbolo de porcentaje. Antes se llamaba «Zoom de la interfaz» (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Velocidad</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7053,6 +7113,14 @@ NOTAS IMPORTANTES:
         <translation>Si tienes una cinta de correr Bluetooth y un dispositivo Stryd conectado a QZ, y deseas usar la velocidad del Stryd en lugar de la de la cinta de correr, activa esta opción. Por defecto: deshabilitado.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Corrección de velocidad de la cinta en lazo cerrado con Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimental: corrige gradualmente la velocidad de la cinta controlada por QZ con los datos de Runn/Stryd, cuando el controlador proporciona mediciones de velocidad propias de la máquina. Requiere &quot;Usa la velocidad del sensor de potencia&quot;. Predeterminado: desactivado.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Umbral de corrección de velocidad del sensor de potencia (%):</translation>
     </message>
@@ -7709,8 +7777,36 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <translation>Activa “%1” para cambiar esta configuración</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>Mantener FC mediante:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una zona de frecuencia cardíaca elegida. El ajuste general &quot;Mantener FC mediante&quot; elige la velocidad o la inclinación en las cintas; un intervalo del entrenamiento puede cambiarlo en el Editor de entrenamiento. El mosaico &quot;Zona de FC objetivo&quot; solo cambia la zona de FC objetivo.</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opciones de Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nombre de usuario/correo electrónico de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Contraseña de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inicio de sesión como invitado de Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un perfil sintético de Life Fitness sin cuenta. Si se activa, se ignoran el nombre de usuario, la contraseña y los datos de cuenta guardados; úsalo solo para probar el inicio de sesión como invitado compatible.</translation>
     </message>
 </context>
 <context>

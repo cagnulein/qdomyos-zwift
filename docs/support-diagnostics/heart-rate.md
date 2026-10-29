@@ -43,3 +43,63 @@
 - A live reading on the watch proves local measurement, not delivery to the phone.
 - Distinguishing watch-session startup, watch-to-phone connectivity, and phone-side reception helps isolate the failed stage without confusing it with the bike connection.
 - Exact OS and QZ versions are important when the watch and phone communication path changes between platform releases.
+
+## Apple Watch shows heart rate but the iPhone app does not
+
+### Provide first
+
+- iPhone and watch models, operating system versions, and QZ build numbers.
+- Confirm that heart rate changes on the watch while the iPhone QZ display remains at zero.
+- Confirm that other machine metrics update in QZ before starting the watch session.
+- Screenshot the selected heart-rate source in QZ.
+
+### If still unclear
+
+- Run a short test with QZ open on iPhone before starting the watch app.
+- Note the time of the test and whether any heart-rate value reaches the phone.
+- Share a fresh QZ debug log and screenshots showing both readings.
+
+### Why it matters
+
+- A live watch reading does not confirm delivery to the phone.
+- Working machine metrics distinguish watch communication from machine discovery.
+- Exact installed builds help determine whether a newer test version needs verification.
+
+## A selected Bluetooth heart-rate strap does not supply live readings
+
+### Provide first
+
+- Strap model, phone operating system, and the exact **Heart Rate Belt Name** selected in QZ.
+- Confirm that the strap is being worn and its electrodes are moist or otherwise activated before QZ starts.
+- State whether the strap appears only in the settings list or whether QZ displays a changing heart-rate value during exercise.
+
+### If still unclear
+
+- Scan with nRF Connect while the strap is worn and awake; share a screenshot with the advertised device name.
+- Check whether the strap broadcasts consistently and whether another app can read live heart rate. Note recent battery replacement if relevant.
+- If advertising is confirmed but QZ still receives no readings, collect a QZ debug log from a fresh connection attempt.
+
+### Why it matters
+
+- A previously discovered name in QZ's selection list does not prove that the sensor is currently advertising.
+- Checking current advertising before collecting logs distinguishes a sleeping or intermittent strap from a QZ pairing or source-selection problem.
+
+## Apple Watch heart rate reaches QZ on iPhone but not a second QZ on iPad
+
+### Provide first
+
+- Identify the Apple Watch's paired iPhone, the iPad running QZ with the fitness machine, and the QZ/iOS/watchOS versions on each device.
+- Confirm where heart rate last appears: on the Watch, in QZ on the paired iPhone, and in QZ's Heart tile on the iPad. Test **before** opening Zwift, MyWhoosh, or another receiving app.
+- State whether both iOS devices use the same local Wi-Fi rather than cellular data or an isolated guest network, and whether **Local Network** permission is enabled for QZ on **both** devices.
+
+### If still unclear
+
+- With the fitness machine connected only to the iPad, keep both QZ instances open and repeat a short Watch HR test. Report which of the three displays changes and when.
+- Screenshot QZ's Heart Rate Options on the iPad, especially any machine-provided HR or alternate belt source, and the iOS Local Network permission screen on each device.
+- Only if the watch-to-phone stage works and the LAN permissions are correct, collect time-aligned QZ debug logs from the iPhone and iPad for the same short test.
+
+### Why it matters
+
+- The Watch sends HR to its paired iPhone; the second QZ instance depends on local-network communication, not direct Watch-to-iPad Bluetooth pairing.
+- In a confirmed multi-device case, enabling missing Local Network access for one QZ instance restored the HR relay. This should be checked before investigating trainer Bluetooth or a receiving training app.
+- A machine-provided HR value on the iPad can hide a correctly received external source. See the [Apple Watch/iPad FAQ](../faq/heart-rate.md) for setup guidance; this intake isolates the failing stage.

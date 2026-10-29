@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Сповіщення Android увімкнено</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 готова до роботи</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Не вдалося ініціалізувати YPOO M5, потрібно перепідключитися</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Max Speed</source>
         <translation>Макс. швидкість</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Макс. нахил</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4361,6 +4373,18 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Результати пошуку</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Змінені</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Усі налаштування типові</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Змінені налаштування</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Відкрити</translation>
     </message>
@@ -4370,7 +4394,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Масштаб інтерфейсу:</translation>
+        <translation type="vanished">Масштаб інтерфейсу:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4382,15 +4406,15 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте</translation>
+        <translation type="vanished">Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Мова застосунку:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну. Потрібен перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Виберіть «Авто», щоб використовувати мову пристрою, або задайте мову QZ вручну.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6009,7 +6033,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Увімкніть, задайте цільову пульсову зону для тренування й натисніть OK. Наприклад, введіть 2, щоб тренуватися в 2-й пульсовій зоні, – доріжка автоматично змінюватиме швидкість (на велотренажері – опір), утримуючи пульс у зоні 2. QZ поступово, невеликими кроками кожні 40 секунд, підвищує або знижує швидкість (чи опір велотренажера), щоб вийти в цільову пульсову зону й утримуватися в ній. Під час тренування можна вивести плитку «Цільова пульсова зона» і змінювати цільову зону її кнопками «+» і «-».</translation>
+        <translation type="vanished">QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Увімкніть, задайте цільову пульсову зону для тренування й натисніть OK. Наприклад, введіть 2, щоб тренуватися в 2-й пульсовій зоні, – доріжка автоматично змінюватиме швидкість (на велотренажері – опір), утримуючи пульс у зоні 2. QZ поступово, невеликими кроками кожні 40 секунд, підвищує або знижує швидкість (чи опір велотренажера), щоб вийти в цільову пульсову зону й утримуватися в ній. Під час тренування можна вивести плитку «Цільова пульсова зона» і змінювати цільову зону її кнопками «+» і «-».</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6224,6 +6248,14 @@ Please enter it below:</source>
         <translation>Увімкніть, щоб брати дистанцію безпосередньо з бігової доріжки, а не обчислювати її за швидкістю. Деякі доріжки повідомляють дистанцію точніше, ніж розрахунок за швидкістю. Типово вимкнено.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанція з доріжки: лише приріст</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Працює разом із «Дистанція безпосередньо з доріжки». Увімкніть, якщо лічильник дистанції вашої доріжки не обнуляється між тренуваннями або починає з 0 після вимкнення доріжки: до тренування потрапить лише пройдене за нього, а не те, що доріжка нарахувала до підключення QZ. Типово вимкнено.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Складність через зміщення</translation>
     </message>
@@ -6335,6 +6367,34 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>Нахил</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Розмір плиток:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте. Раніше називалася «Масштаб інтерфейсу» (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Розмір тексту як у системі</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Розмір тексту застосунку береться з налаштувань телефона чи планшета, але не більше за 150%. Вимкніть, щоб задати розмір нижче – наприклад, для екрана, який читають здалеку під час тренування. Типово ввімкнено.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Розмір тексту:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Розмір тексту застосунку (налаштування, меню, діалоги) у відсотках, від 80 до 170. Типово – 100. Для плиток – окреме налаштування розміру.</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Швидкість</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7041,6 +7101,14 @@ IMPORTANT NOTES:
         <translation>Якщо до QZ під’єднано Bluetooth-доріжку та датчик Stryd і ви хочете брати швидкість зі Stryd, а не з доріжки, увімкніть це налаштування. Типово: вимкнено.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Корекція швидкості доріжки за Runn/Stryd (зворотний зв’язок)</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Експериментально: QZ плавно підправляє задану ним швидкість доріжки за даними Runn/Stryd, якщо драйвер доріжки передає власні виміри швидкості. Потрібне налаштування «Швидкість із датчика потужності». Типово: вимкнено.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Поріг корекції швидкості за датчиком потужності (%):</translation>
     </message>
@@ -7685,8 +7753,36 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Увімкніть «%1», щоб змінити це налаштування</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>Утримання пульсу змінює:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Загальне налаштування «Утримання пульсу змінює» вибирає для доріжок швидкість або нахил; окремий інтервал тренування може перевизначити його в редакторі тренувань. Плитка «Цільова пульсова зона» змінює лише цільову пульсову зону.</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Гребний тренажер Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Параметри Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Ім’я користувача/пошта Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Пароль Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Гостьовий вхід Life Fitness (експериментально)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Використовує синтетичний профіль Life Fitness без облікового запису. Якщо увімкнено, ім’я користувача, пароль і збережені дані облікового запису не використовуються; вмикайте лише для перевірки підтримуваного гостьового входу.</translation>
     </message>
 </context>
 <context>

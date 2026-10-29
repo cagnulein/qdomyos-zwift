@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQml 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.settings 1.0
@@ -26,6 +27,7 @@ Page {
 
     Settings {
         id: settings
+        Component.onCompleted: window.retakeSettingsSnapshot(settings)
         property string peloton_username: "username"
         property string peloton_password: "password"
         property string peloton_difficulty: "lower"
@@ -77,7 +79,7 @@ Page {
                  radius: 5
              }
              contentItem: Text {
-                 font.pixelSize: 20
+                 font.pixelSize: window.fontPx(20)
                  text: parent.text
                  color: parent.textColor
                  wrapMode: Text.WordWrap
@@ -119,7 +121,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Welcome to QZ")
-                        font.pixelSize: 28
+                        font.pixelSize: window.fontPx(28)
                         font.bold: true
                         color: "white"
                     }
@@ -130,14 +132,14 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Created by Roberto Viola")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         color: "white"
                     }
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ is designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rower. By connecting seamlessly with your devices, QZ provides realtime data, personalized workout plans, and interactive elements to keep you motivated.\n\nThe following questions will customize QZ for your equipment and goals.")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
@@ -182,7 +184,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("How can I help you?")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -244,7 +246,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What's your fitness device?")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -307,7 +309,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your preferred app")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -315,7 +317,7 @@ Page {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ allows you to connect to both of them, even simultaneously if you want!")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
@@ -331,7 +333,8 @@ Page {
                         Repeater {
                             model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", QT_TR_NOOP("Other app"), QT_TR_NOOP("QZ Standalone")]
                             delegate: WizardButton {
-                                Layout.preferredWidth: 150
+                                // a bigger text: wider buttons, two of them still fit the screen
+                                Layout.preferredWidth: window.textScale !== 1 ? Math.min(window.fontPx(150), (stackViewLocal.width * 0.9 - 20) / 2) : 150
                                 text: qsTr(modelData)
                                 onClicked: {
                                     selectedOptions.step3 = modelData
@@ -390,7 +393,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Connect to Peloton")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -398,7 +401,7 @@ Page {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Click the button below to connect your Peloton account")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         width: stackViewLocal.width * 0.8
@@ -465,14 +468,14 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Peloton Difficulty")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         wrapMode: Text.WordWrap
                         width: stackViewLocal.width * 0.8
                         horizontalAlignment: Text.AlignHCenter
@@ -486,7 +489,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
@@ -553,7 +556,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Bike Resistance Level")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -561,7 +564,7 @@ Page {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What resistance level feels like a flat road on your bike?")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         wrapMode: Text.WordWrap
                         width: stackViewLocal.width * 0.8
                         horizontalAlignment: Text.AlignHCenter
@@ -628,7 +631,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
@@ -638,7 +641,7 @@ Page {
                         text: qsTr("Here you will see custom configurations based on your previous choices.")
                         wrapMode: Text.WordWrap
                         width: parent.width * 0.8
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
                     }
@@ -689,7 +692,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a feature")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -761,12 +764,14 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Credentials")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         wrapMode: Text.WordWrap
@@ -782,7 +787,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
@@ -803,7 +808,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
@@ -871,12 +876,13 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Play and Click")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         id: zwiftPlayClickDescription
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Enable the one that you would like to use directly with QZ. Remember to update their firmware before using it.")
@@ -894,7 +900,7 @@ Page {
                         topPadding: 0
                         rightPadding: 0
                         leftPadding: 0
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         clip: false
                         width: zwiftPlayClickDescription.width
                         checked: settings.zwift_click
@@ -909,7 +915,7 @@ Page {
                         bottomPadding: 0
                         topPadding: 0
                         rightPadding: 0
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         width: zwiftPlayClickDescription.width
                         leftPadding: 0
                         clip: false
@@ -920,6 +926,7 @@ Page {
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Correct startup phase:\n\n1. close any app that can connect to your Zwift devices\n2. wake up your Zwift devices\n3. wake up your trainer\n4. open qz\n5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.")
                         wrapMode: Text.WordWrap
@@ -978,12 +985,13 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual Shifting")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual shifting enabled! You can change gears using the gears tile in QZ directly, or you can also add a bluetooth remote or a Zwift Play or a Zwift Click to control it!")
                         wrapMode: Text.WordWrap
@@ -1042,12 +1050,13 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Here you will see custom configurations based on the selected feature.")
                         wrapMode: Text.WordWrap
@@ -1102,12 +1111,13 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Thank you for setting up QZ!")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         font.bold: true
                         color: "white"
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("If you have any questions or need further assistance, feel free to write to me at roberto.viola83@gmail.com. You can also restart this wizard from the left side bar menu. To apply some changes, you may need to restart the app.")
                         wrapMode: Text.WordWrap
@@ -1162,7 +1172,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Fitness Device")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -1240,7 +1250,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Unit System")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -1251,7 +1261,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select your preferred unit system")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                     }
 
@@ -1312,7 +1322,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("User Information")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -1323,7 +1333,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? qsTr("lbs") : qsTr("kg"))
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                     }
 
@@ -1357,7 +1367,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Age")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                     }
 
@@ -1376,7 +1386,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Gender")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                     }
 
@@ -1441,7 +1451,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Heart Rate Device")
-                        font.pixelSize: 24
+                        font.pixelSize: window.fontPx(24)
                         font.bold: true
                         color: "white"
                     }
@@ -1449,7 +1459,7 @@ Page {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your heart rate belt or select a smartwatch option:")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
@@ -1486,7 +1496,7 @@ Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Or select a smartwatch option:")
-                        font.pixelSize: 20
+                        font.pixelSize: window.fontPx(20)
                         color: "white"
                         Layout.topMargin: 20
                     }
@@ -1502,6 +1512,7 @@ Page {
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1522,6 +1533,7 @@ Page {
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -1542,6 +1554,7 @@ Page {
                     }
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true

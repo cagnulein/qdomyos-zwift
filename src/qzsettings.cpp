@@ -8,6 +8,9 @@ bool QZSettings::isSensitiveSettingKey(const QString &key) {
            normalizedKey.contains(QStringLiteral("user_email")) ||
            normalizedKey.contains(QStringLiteral("username")) ||
            normalizedKey.contains(QStringLiteral("token")) ||
+           normalizedKey.contains(QStringLiteral("api_key")) ||
+           normalizedKey.contains(QStringLiteral("preset_summary")) ||
+           normalizedKey.contains(QStringLiteral("life_fitness_")) ||
            normalizedKey.contains(QStringLiteral("cryptokey")) || // decrypts the passwords in the profile files
            normalizedKey.contains(QStringLiteral("garmin_device_serial")) ||
            normalizedKey.contains(QStringLiteral("garmin_email"));
@@ -315,6 +318,21 @@ const QString QZSettings::virtufit_etappe = QStringLiteral("virtufit_etappe");
 const QString QZSettings::flywheel_filter = QStringLiteral("flywheel_filter");
 const QString QZSettings::flywheel_life_fitness_ic8 = QStringLiteral("flywheel_life_fitness_ic8");
 const QString QZSettings::life_fitness_ic5 = QStringLiteral("life_fitness_ic5");
+const QString QZSettings::life_fitness_first_name = QStringLiteral("life_fitness_first_name");
+const QString QZSettings::default_life_fitness_first_name = QStringLiteral("");
+const QString QZSettings::life_fitness_last_name = QStringLiteral("life_fitness_last_name");
+const QString QZSettings::default_life_fitness_last_name = QStringLiteral("");
+const QString QZSettings::life_fitness_username = QStringLiteral("life_fitness_username");
+const QString QZSettings::default_life_fitness_username = QStringLiteral("");
+const QString QZSettings::life_fitness_password = QStringLiteral("life_fitness_password");
+const QString QZSettings::default_life_fitness_password = QStringLiteral("");
+const QString QZSettings::life_fitness_api_key = QStringLiteral("life_fitness_api_key");
+const QString QZSettings::default_life_fitness_api_key = QStringLiteral("");
+const QString QZSettings::life_fitness_token = QStringLiteral("life_fitness_token");
+const QString QZSettings::default_life_fitness_token = QStringLiteral("");
+const QString QZSettings::life_fitness_preset_summary = QStringLiteral("life_fitness_preset_summary");
+const QString QZSettings::default_life_fitness_preset_summary = QStringLiteral("00000001CC5B0A0A5D");
+const QString QZSettings::life_fitness_guest_login = QStringLiteral("life_fitness_guest_login");
 const QString QZSettings::technogym_bike = QStringLiteral("technogym_bike");
 const QString QZSettings::sole_treadmill_inclination = QStringLiteral("sole_treadmill_inclination");
 const QString QZSettings::sole_treadmill_miles = QStringLiteral("sole_treadmill_miles");
@@ -1160,6 +1178,7 @@ const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftpla
 const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
 const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
 
+const QString QZSettings::ios_background_keepalive = QStringLiteral("ios_background_keepalive");
 const QString QZSettings::renpho_bike_knob_gears = QStringLiteral("renpho_bike_knob_gears");
 
 // MyWhoosh Link settings
@@ -1315,8 +1334,21 @@ const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("andr
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
+const QString QZSettings::ui_text_scale = QStringLiteral("ui_text_scale");
+const QString QZSettings::ui_text_scale_system = QStringLiteral("ui_text_scale_system");
+const QString QZSettings::treadmill_direct_distance_increment = QStringLiteral("treadmill_direct_distance_increment");
 
-const uint32_t allSettingsCount = 1022;
+const QString QZSettings::history_chart_power_order = QStringLiteral("history_chart_power_order");
+const QString QZSettings::history_chart_heart_order = QStringLiteral("history_chart_heart_order");
+const QString QZSettings::history_chart_resistance_order = QStringLiteral("history_chart_resistance_order");
+const QString QZSettings::history_chart_peloton_resistance_order = QStringLiteral("history_chart_peloton_resistance_order");
+const QString QZSettings::history_chart_cadence_order = QStringLiteral("history_chart_cadence_order");
+const QString QZSettings::history_chart_power_distribution_order = QStringLiteral("history_chart_power_distribution_order");
+const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral("history_chart_speed_inclination_order");
+
+const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
+
+const uint32_t allSettingsCount = 1042;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1562,6 +1594,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},
     {QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5},
+    {QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name},
+    {QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name},
+    {QZSettings::life_fitness_username, QZSettings::default_life_fitness_username},
+    {QZSettings::life_fitness_password, QZSettings::default_life_fitness_password},
+    {QZSettings::life_fitness_api_key, QZSettings::default_life_fitness_api_key},
+    {QZSettings::life_fitness_token, QZSettings::default_life_fitness_token},
+    {QZSettings::life_fitness_preset_summary, QZSettings::default_life_fitness_preset_summary},
     {QZSettings::technogym_bike, QZSettings::default_technogym_bike},
     {QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination},
     {QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles},
@@ -2357,6 +2396,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
     {QZSettings::watt_max, QZSettings::default_watt_max},
     {QZSettings::android_landscape_cutout_margin, QZSettings::default_android_landscape_cutout_margin},
@@ -2365,6 +2405,18 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::pafers_rower, QZSettings::default_pafers_rower},
     {QZSettings::android_notification_prompt_disabled, QZSettings::default_android_notification_prompt_disabled},
     {QZSettings::android_notification_v2, QZSettings::default_android_notification_v2},
+    {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
+    {QZSettings::ui_text_scale, QZSettings::default_ui_text_scale},
+    {QZSettings::ui_text_scale_system, QZSettings::default_ui_text_scale_system},
+    {QZSettings::treadmill_direct_distance_increment, QZSettings::default_treadmill_direct_distance_increment},
+    {QZSettings::history_chart_power_order, QZSettings::default_history_chart_power_order},
+    {QZSettings::history_chart_heart_order, QZSettings::default_history_chart_heart_order},
+    {QZSettings::history_chart_resistance_order, QZSettings::default_history_chart_resistance_order},
+    {QZSettings::history_chart_peloton_resistance_order, QZSettings::default_history_chart_peloton_resistance_order},
+    {QZSettings::history_chart_cadence_order, QZSettings::default_history_chart_cadence_order},
+    {QZSettings::history_chart_power_distribution_order, QZSettings::default_history_chart_power_distribution_order},
+    {QZSettings::history_chart_speed_inclination_order, QZSettings::default_history_chart_speed_inclination_order},
+    {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

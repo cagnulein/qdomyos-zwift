@@ -1006,6 +1006,14 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <source>Android notification enabled</source>
         <translation>Benachrichtigung von Android aktiviert</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 bereit</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Initialisierung des YPOO M5 fehlgeschlagen; erneute Verbindung erforderlich</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     <message>
         <source>Max Speed</source>
         <translation>Max Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Max Steigung</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4230,7 +4242,7 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
+        <translation type="vanished">Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5138,6 +5150,22 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Allgemeine UI-Optionen</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Systemtextgröße verwenden</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Die Textgröße der App folgt den Einstellungen des Telefons oder Tablets, höchstens 150 %. Ausschalten, um die Größe unten festzulegen, z. B. für einen Bildschirm, den Sie beim Training aus der Entfernung lesen. Standard: an.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Textgröße:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Textgröße der App (Einstellungen, Menüs, Dialoge) in Prozent, von 80 bis 170. Standard ist 100. Die Kacheln haben eine eigene Größeneinstellung.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Obere Leiste aktiviert</translation>
     </message>
@@ -5478,20 +5506,32 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Suchergebnisse</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Geändert</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Keine geänderten Einstellungen</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Geänderte Einstellungen</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI-Zoom:</translation>
+        <translation type="vanished">UI-Zoom:</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Sprache der App:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6013,7 +6053,7 @@ Bitte geben Sie ihn unten ein:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
+        <translation type="vanished">QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6228,6 +6268,14 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Schalten Sie dies ein, um die Distanz direkt vom Laufband zu lesen, anstatt sie aus der Geschwindigkeit zu berechnen. Einige Laufbänder melden die Distanz genauer als die geschwindigkeitsbasierte Berechnung. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Direkte Distanz: nur den Zuwachs addieren</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funktioniert zusammen mit „Direkte Distanz vom Laufband“. Schalten Sie dies ein, wenn der Distanzzähler Ihres Laufbands zwischen den Trainings weiterläuft oder nach dem Ausschalten des Laufbands wieder bei 0 beginnt: Es wird nur die während des Trainings zurückgelegte Distanz addiert, nicht das, was das Laufband vor der Verbindung mit QZ gezählt hat. Standardmäßig ist es aus.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Schwierigkeitsgrad-Offset basierend</translation>
     </message>
@@ -6339,6 +6387,18 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Inclination</source>
         <translation>Neigung</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Kachelgröße:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein. Früher „UI-Zoom“.</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7049,6 +7109,14 @@ WICHTIGE HINWEISE:
         <translation>Wenn Sie ein Bluetooth Laufband und ein Stryd Gerät mit QZ verbunden haben und die Geschwindigkeit von Stryd anstelle der Geschwindigkeit des Laufbands verwenden möchten, aktivieren Sie dies. Standardmäßig: deaktiviert.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Laufbandgeschwindigkeit per Runn/Stryd im geschlossenen Regelkreis korrigieren</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimentell: korrigiert die von QZ gesteuerte Laufbandgeschwindigkeit schrittweise anhand der Rückmeldung von Runn/Stryd, wenn der Treiber eigene Geschwindigkeitsmesswerte des Geräts liefert. Erfordert „Geschwindigkeit des Leistungssensors verwenden“. Standard: deaktiviert.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Schwelle der Geschwindigkeitskorrektur per Leistungssensor (%):</translation>
     </message>
@@ -7701,8 +7769,36 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Aktivieren Sie „%1“, um diese Einstellung zu ändern</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>PID Herzfrequenz – Stellgröße:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Die globale Einstellung „PID Herzfrequenz – Stellgröße“ wählt bei Laufbändern Geschwindigkeit oder Neigung; ein Trainingsintervall kann sie im Trainingseditor überschreiben. Die Kachel „PID-HF-Zone“ ändert nur die Ziel-Herzfrequenzzone.</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Pafers Rudergerät</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness Optionen</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness Benutzername/E-Mail:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness Passwort:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness Gastanmeldung (experimentell)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Verwendet ein synthetisches Life-Fitness-Profil ohne Konto. Wenn aktiviert, werden Benutzername, Passwort und zwischengespeicherte Kontodaten ignoriert; nur zum Testen der unterstützten Gastanmeldung verwenden.</translation>
     </message>
 </context>
 <context>

@@ -1006,6 +1006,14 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <source>Android notification enabled</source>
         <translation>Notification Android activée</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 prêt</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Échec de l&apos;initialisation du YPOO M5 ; reconnexion nécessaire</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Max Speed</source>
         <translation>Vitesse max</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Pente max</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4222,7 +4234,7 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom de l&apos;interface :</translation>
+        <translation type="vanished">Zoom de l&apos;interface :</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4234,7 +4246,7 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Ceci change la taille des tuiles affichant vos métriques. La valeur par défaut est de 100 %. Pour afficher plus de tuiles sur votre écran, choisissez un pourcentage plus petit. Pour les rendre plus grandes, choisissez un pourcentage supérieur à 100 %. Ne saisissez pas le symbole pourcentage</translation>
+        <translation type="vanished">Ceci change la taille des tuiles affichant vos métriques. La valeur par défaut est de 100 %. Pour afficher plus de tuiles sur votre écran, choisissez un pourcentage plus petit. Pour les rendre plus grandes, choisissez un pourcentage supérieur à 100 %. Ne saisissez pas le symbole pourcentage</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5134,6 +5146,22 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Options générales de l&apos;interface</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Utiliser la taille de texte du système</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>La taille du texte de l&apos;application suit les réglages du téléphone ou de la tablette, jusqu&apos;à 150 %. Désactivez pour choisir la taille ci-dessous, par exemple pour un écran lu de loin pendant l&apos;entraînement. Activé par défaut.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Taille du texte :</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Taille du texte de l&apos;application (réglages, menus, boîtes de dialogue), en pourcentage, de 80 à 170. La valeur par défaut est 100. Les tuiles ont leur propre réglage de taille.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barre supérieure activée</translation>
     </message>
@@ -5474,6 +5502,18 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Résultats de recherche</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modifiés</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Aucun paramètre modifié</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Paramètres modifiés</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
@@ -5482,8 +5522,8 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Langue de l&apos;application :</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ. Redémarrage requis.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Choisissez Auto pour suivre la langue de votre appareil, ou sélectionnez une langue spécifique pour QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6017,7 +6057,7 @@ Veuillez le saisir ci-dessous :</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une Zone de fréquence cardiaque choisie. Activez l&apos;option, définissez une zone de fréquence cardiaque cible pour l&apos;entraînement et cliquez sur OK. Par exemple, entrez 2 pour s&apos;entraîner dans la zone de FC 2 et le tapis roulant ajustera automatiquement la vitesse (ou la résistance sur un vélo) pour maintenir votre fréquence cardiaque dans la zone 2. QZ augmente ou diminue progressivement votre vitesse (ou la résistance du vélo) par petits incréments toutes les 40 secondes pour atteindre et maintenir votre zone de FC cible. Pendant l&apos;entraînement, vous pouvez afficher et utiliser les boutons ‘+’ et ‘-’ sur la tuile de maintien de la zone de FC pour changer la zone de FC cible.</translation>
+        <translation type="vanished">QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une Zone de fréquence cardiaque choisie. Activez l&apos;option, définissez une zone de fréquence cardiaque cible pour l&apos;entraînement et cliquez sur OK. Par exemple, entrez 2 pour s&apos;entraîner dans la zone de FC 2 et le tapis roulant ajustera automatiquement la vitesse (ou la résistance sur un vélo) pour maintenir votre fréquence cardiaque dans la zone 2. QZ augmente ou diminue progressivement votre vitesse (ou la résistance du vélo) par petits incréments toutes les 40 secondes pour atteindre et maintenir votre zone de FC cible. Pendant l&apos;entraînement, vous pouvez afficher et utiliser les boutons ‘+’ et ‘-’ sur la tuile de maintien de la zone de FC pour changer la zone de FC cible.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6232,6 +6272,14 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Activez ceci pour lire la distance directement à partir du tapis de course au lieu de la calculer à partir de la vitesse. Certains tapis de course signalent la distance plus précisément que le calcul basé sur la vitesse. Par défaut, désactivé.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distance directe : n’ajouter que l’augmentation</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Fonctionne avec « Distance directe du tapis de course ». Activez ceci si le compteur de distance de votre tapis continue entre les entraînements ou repart de 0 quand le tapis est éteint : seule la distance parcourue pendant l’entraînement est ajoutée, pas ce que le tapis a compté avant la connexion de QZ. Par défaut, désactivé.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Difficulté par décalage</translation>
     </message>
@@ -6343,6 +6391,18 @@ Veuillez le saisir ci-dessous :</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinaison</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Taille des tuiles :</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Ceci change la taille des tuiles affichant vos métriques. La valeur par défaut est de 100 %. Pour afficher plus de tuiles sur votre écran, choisissez un pourcentage plus petit. Pour les rendre plus grandes, choisissez un pourcentage supérieur à 100 %. Ne saisissez pas le symbole pourcentage. Anciennement « Zoom de l&apos;interface » (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Vitesse</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7065,6 +7125,14 @@ NOTES IMPORTANTES :
         <translation>Si vous avez un tapis de course Bluetooth et un appareil Stryd connecté à QZ et que vous souhaitez utiliser la vitesse du Stryd au lieu de celle du tapis de course, activez ceci. Par défaut : désactivé.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correction de la vitesse du tapis en boucle fermée avec Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Expérimental : corrige progressivement la vitesse du tapis commandée par QZ d&apos;après le retour de Runn/Stryd, lorsque le pilote fournit ses propres mesures de vitesse de la machine. Nécessite « Utiliser la vitesse du capteur de puissance ». Par défaut : désactivé.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Seuil de correction de vitesse du capteur de puissance (%) :</translation>
     </message>
@@ -7721,8 +7789,36 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Activez « %1 » pour modifier ce paramètre</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>Maintien de la FC – agir sur :</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ contrôle votre tapis roulant ou votre vélo pour vous maintenir dans une zone de fréquence cardiaque choisie. Le réglage général « Maintien de la FC – agir sur » choisit la vitesse ou l&apos;inclinaison pour les tapis ; un intervalle d&apos;entraînement peut le remplacer dans l&apos;Éditeur d&apos;entraînement. La tuile « Zone de maintien de la FC » ne change que la zone de FC cible.</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Rameur Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Options Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nom d&apos;utilisateur/courriel Life Fitness :</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Mot de passe Life Fitness :</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Connexion invité Life Fitness (expérimentale)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Utilise un profil Life Fitness synthétique sans compte. Lorsque cette option est activée, le nom d&apos;utilisateur, le mot de passe et les données de compte en cache sont ignorés ; à utiliser uniquement pour tester la connexion invité prise en charge.</translation>
     </message>
 </context>
 <context>

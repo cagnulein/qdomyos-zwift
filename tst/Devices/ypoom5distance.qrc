@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/ypoo-m5">
+        <file alias="console-run.csv">data/ypoo-m5-console-run.csv</file>
+        <file alias="runna-stop.csv">data/ypoo-m5-runna-stop.csv</file>
+        <file alias="kinomap-stop.csv">data/ypoo-m5-kinomap-stop.csv</file>
+    </qresource>
+</RCC>

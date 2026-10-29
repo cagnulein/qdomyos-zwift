@@ -324,8 +324,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
     _lastTimeUpdate = current;
     _firstUpdate = false;
 
-    // Update iOS Live Activity with throttling
-    update_ios_live_activity();
+    // Update iOS Live Activity with throttling only for the primary device.
+    if (!from_accessory)
+        update_ios_live_activity();
 }
 
 void bluetoothdevice::update_hr_from_external() {

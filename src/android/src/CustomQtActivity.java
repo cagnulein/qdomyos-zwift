@@ -1,5 +1,6 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,6 +15,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.view.accessibility.AccessibilityManager;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
@@ -151,6 +153,13 @@ public class CustomQtActivity extends QtActivity {
         return 0;
     }
 
+    // Called by Qt from its own thread at start: whether Android has accessibility on (main.cpp
+    // turns Qt's accessibility on again when Qt lost that report)
+    public static boolean accessibilityOn(Context context) {
+        AccessibilityManager manager = (AccessibilityManager) context.getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,12 +171,14 @@ public class CustomQtActivity extends QtActivity {
 
         // Make the window truly edge-to-edge so the app renders into ALL screen areas
         // including the display cutout (punch-hole/notch) on all 4 rotation variants.
-        // setDecorFitsSystemWindows(false) (API 30+) prevents the system from shrinking
+        // setDecorFitsSystemWindows(false) prevents the system from shrinking
         // the content area around insets — we handle insets ourselves via onApplyWindowInsets.
         // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS extends into the cutout on every edge.
         // Dark window background ensures no white strip is visible in areas Qt may not render.
+        // API 31+ only, like the QML paddings (main.qml getTopPadding() and the others):
+        // below 31 they are 0, so on Android 11 (API 30) the system bars covered the app (#5484).
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-        if (Build.VERSION.SDK_INT >= 30) {
+        if (Build.VERSION.SDK_INT >= 31) {
             getWindow().setDecorFitsSystemWindows(false);
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

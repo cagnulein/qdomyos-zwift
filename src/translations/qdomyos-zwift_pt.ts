@@ -1006,6 +1006,14 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>Android notification enabled</source>
         <translation>Notificação do Android ativada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 pronta</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Max Speed</source>
         <translation>Velocidade máxima</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Inclinação máxima</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4222,7 +4234,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Zoom da UI:</translation>
+        <translation type="vanished">Zoom da UI:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4234,7 +4246,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
+        <translation type="vanished">Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5174,6 +5186,22 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Opções gerais da interface</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usar o tamanho de texto do sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>O tamanho do texto do aplicativo segue as configurações do telefone ou tablet, até 150%. Desative para escolher o tamanho abaixo, por exemplo para uma tela lida de longe durante o treino. Padrão é ligado.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tamanho do texto:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Tamanho do texto do aplicativo (configurações, menus, diálogos), em porcentagem, de 80 a 170. O padrão é 100. Os blocos têm sua própria configuração de tamanho.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Barra Superior Ativada</translation>
     </message>
@@ -5514,16 +5542,36 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Resultados de pesquisa</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Alteradas</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Nenhuma configuração alterada</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Configurações alteradas</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tamanho dos blocos:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Isso altera o tamanho dos blocos que exibem suas métricas. O padrão é 100%. Para caber mais blocos na sua tela, escolha uma porcentagem menor. Para torná-los maiores, escolha uma porcentagem acima de 100%. Não insira o símbolo de porcentagem. Antes chamado “Zoom da UI” (UI Zoom).</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Idioma do Aplicativo:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ. É necessário reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6013,7 +6061,7 @@ Insira-o abaixo:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma Zona de Frequência Cardíaca escolhida. Ligue, defina uma zona alvo de frequência cardíaca (FC) para treinar e clique em OK. Por exemplo, insira 2 para treinar na zona FC 2 e a esteira ajustará automaticamente a velocidade (ou resistência na bicicleta) para manter sua frequência cardíaca na zona 2. O QZ aumenta ou diminui gradualmente sua velocidade (ou resistência da bicicleta) em pequenos incrementos a cada 40 segundos para atingir e manter sua zona alvo de FC. Durante o treino, você pode exibir e usar os botões ‘+’ e ‘-’ no bloco Zona de FC alvo para alterar a zona alvo de FC.</translation>
+        <translation type="vanished">O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma Zona de Frequência Cardíaca escolhida. Ligue, defina uma zona alvo de frequência cardíaca (FC) para treinar e clique em OK. Por exemplo, insira 2 para treinar na zona FC 2 e a esteira ajustará automaticamente a velocidade (ou resistência na bicicleta) para manter sua frequência cardíaca na zona 2. O QZ aumenta ou diminui gradualmente sua velocidade (ou resistência da bicicleta) em pequenos incrementos a cada 40 segundos para atingir e manter sua zona alvo de FC. Durante o treino, você pode exibir e usar os botões ‘+’ e ‘-’ no bloco Zona de FC alvo para alterar a zona alvo de FC.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6228,6 +6276,14 @@ Insira-o abaixo:</translation>
         <translation>Ative isso para ler a distância diretamente da esteira em vez de calculá-la a partir da velocidade. Algumas esteiras relatam a distância com mais precisão do que o cálculo baseado na velocidade. Padrão: desativado.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distância direta: somar apenas o aumento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto com “Distância Direta da Esteira”. Ative isso se o contador de distância da sua esteira continua entre os treinos ou recomeça do 0 quando a esteira é desligada: só a distância percorrida durante o treino é somada, não o que a esteira contou antes de o QZ se conectar. Padrão: desativado.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Deslocamento de dificuldade baseado</translation>
     </message>
@@ -6339,6 +6395,10 @@ Insira-o abaixo:</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinação</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Velocidade</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7053,6 +7113,14 @@ OBSERVAÇÕES IMPORTANTES:
         <translation>Se você tiver uma esteira Bluetooth e também um dispositivo Stryd conectado ao QZ e quiser usar a velocidade do Stryd em vez da velocidade da esteira, ative esta opção. Padrão: desativado.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correção da velocidade da esteira em malha fechada com Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimental: corrige gradualmente a velocidade da esteira controlada pelo QZ com os dados do Runn/Stryd, quando o driver fornece medições de velocidade próprias da máquina. Requer &quot;Usar a velocidade do sensor de potência&quot;. Padrão: desativado.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Limite de correção de velocidade do sensor de potência (%):</translation>
     </message>
@@ -7705,8 +7773,36 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Ative “%1” para alterar esta configuração</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>Manter FC por meio de:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma zona de frequência cardíaca escolhida. A configuração geral &quot;Manter FC por meio de&quot; escolhe velocidade ou inclinação nas esteiras; um intervalo do treino pode substituí-la no Editor de treino. O bloco &quot;Zona de FC alvo&quot; altera apenas a zona de FC alvo.</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opções Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nome de usuário/e-mail Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Senha Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Login de convidado Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa um perfil sintético da Life Fitness sem conta. Quando ativado, o nome de usuário, a senha e os dados da conta em cache são ignorados; use apenas para testar o login de convidado compatível.</translation>
     </message>
 </context>
 <context>

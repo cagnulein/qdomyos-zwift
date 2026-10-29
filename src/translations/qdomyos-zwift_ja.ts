@@ -1006,6 +1006,14 @@ QZの設定を更新しますか?</translation>
         <source>Android notification enabled</source>
         <translation>Androidバックグラウンド通知保持を有効にしました</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5の準備ができました</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Max Speed</source>
         <translation>最高速度</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>最大傾斜</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4226,7 +4238,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>画面表示（タイル）サイズ:</translation>
+        <translation type="vanished">画面表示（タイル）サイズ:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4238,7 +4250,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください</translation>
+        <translation type="vanished">メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5498,6 +5510,18 @@ In the next window, allow access to the QZ folder.</source>
         <translation>検索結果</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>変更済み</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>変更した設定はありません</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>変更した設定</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>開く</translation>
     </message>
@@ -5506,8 +5530,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>アプリ言語:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。再起動が必要です。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -5616,6 +5640,22 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.</source>
         <translation>Toputure TEB1バイクの場合のみ、特別なSPORT01瞬間パワー計算式を有効にします。デバイスが報告する標準のFTMS瞬間パワーを使用する場合はオフのままにしてください。</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>システムの文字サイズを使用</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>アプリの文字サイズをスマートフォンやタブレットの設定に合わせます（最大 150%）。オフにすると下で文字サイズを選べます。トレーニング中に離れた位置から見る画面などに便利です。既定はオンです。</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>文字サイズ:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>アプリ（設定、メニュー、ダイアログ）の文字サイズ（パーセント、80～170）。既定値は 100 です。タイルのサイズは別の設定で変更します。</translation>
     </message>
     <message>
         <source>Classic</source>
@@ -6045,7 +6085,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZは、選択した心拍ゾーン内に留まるよう、トレッドミルまたはバイクを制御します。この設定をオンにし、トレーニングする目標の心拍数(HR)ゾーンを設定し、OKをクリックしてください。例として、2を入力すると、トレッドミルがゾーン2の心拍数を維持するために速度（またはバイクの負荷）を自動調整します。QZは、目標HRゾーンに到達し維持するために、40秒ごとに速度（またはバイクの負荷）を小さな増分で徐々に増加または減少させます。ワークアウト中、「目標心拍ゾーン」タイルにある「+」と「-」ボタンを使用して、目標HRゾーンを表示および変更できます。</translation>
+        <translation type="vanished">QZは、選択した心拍ゾーン内に留まるよう、トレッドミルまたはバイクを制御します。この設定をオンにし、トレーニングする目標の心拍数(HR)ゾーンを設定し、OKをクリックしてください。例として、2を入力すると、トレッドミルがゾーン2の心拍数を維持するために速度（またはバイクの負荷）を自動調整します。QZは、目標HRゾーンに到達し維持するために、40秒ごとに速度（またはバイクの負荷）を小さな増分で徐々に増加または減少させます。ワークアウト中、「目標心拍ゾーン」タイルにある「+」と「-」ボタンを使用して、目標HRゾーンを表示および変更できます。</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6260,6 +6300,14 @@ Please enter it below:</source>
         <translation>速度から計算するのではなく、トレッドミルから直接距離を読み取るためにこれをオンにしてください。一部のトレッドミルは、速度に基づく計算よりも正確に距離を報告します。初期設定はオフです。</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距離：増加分のみ加算</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>「トレッドミルからの直接距離」と組み合わせて使います。トレッドミルの距離カウンターがワークアウトの間もリセットされない場合や、電源を切ると0から数え直す場合はオンにしてください。QZが接続する前にトレッドミルが数えた分ではなく、ワークアウト中に歩いた距離だけが加算されます。初期設定はオフです。</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>難易度オフセットに基づく</translation>
     </message>
@@ -6371,6 +6419,18 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>傾斜（斜度）</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>画面表示（タイル）サイズ:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>メトリクスを表示するタイルのサイズを変更します。デフォルトは100%です。より多くのタイルを画面に表示するには、より小さいパーセンテージを選択してください。より大きくするには、100%を超えるパーセンテージを選択してください。パーセント記号は入力しないでください。以前の名称は「UI Zoom」です。</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>スピード</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -7085,6 +7145,14 @@ IMPORTANT NOTES:
         <translation>Bluetooth対応トレッドミルとStrydデバイスの両方をQZに接続している場合に、トレッドミルの速度ではなくStrydの速度データを使用したい場合はこれを有効にします&#x3000;デフォルト：無効</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Runn/Strydによるトレッドミル速度のクローズドループ補正</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>実験的機能：ドライバーがマシン独自の速度測定値を提供する場合、Runn/Strydのフィードバックを使って、QZが制御するトレッドミルの速度を少しずつ補正します。「パワーセンサーの速度を使用」が必要です。デフォルト：無効。</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>パワーセンサー速度補正のしきい値（%）：</translation>
     </message>
@@ -7745,8 +7813,36 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <translation>この設定を変更するには「%1」をオンにしてください</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>心拍数の維持で調整する項目：</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZは、選択した心拍ゾーン内に留まるよう、トレッドミルまたはバイクを制御します。全体設定「心拍数の維持で調整する項目」で、トレッドミルの速度または傾斜を選びます。ワークアウトの各インターバルでは、ワークアウトエディターでこの設定を上書きできます。「目標心拍ゾーン」タイルで変更できるのは目標心拍ゾーンだけです。</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Pafers ローイングマシン</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness連携設定</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitnessユーザー名/メール:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitnessパスワード:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitnessゲストログイン（実験的）</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>アカウント不要の合成Life Fitnessプロファイルを使用します。有効にすると、ユーザー名、パスワード、保存済みのアカウントデータは無視されます。サポートされているゲストログインのテストにのみ使用してください。</translation>
     </message>
 </context>
 <context>

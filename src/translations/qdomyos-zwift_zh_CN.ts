@@ -1006,6 +1006,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>已启用 Android 通知</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 已就绪</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 初始化失败，需要重新连接</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1537,6 +1545,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Max Speed</source>
         <translation>最高速度</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>最大坡度</translation>
     </message>
     <message>
         <source>Max Resistance</source>
@@ -4230,7 +4242,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>UI 缩放：</translation>
+        <translation type="vanished">UI 缩放：</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4242,7 +4254,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
+        <translation type="vanished">这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5202,6 +5214,22 @@ In the next window, allow access to the QZ folder.</source>
         <translation>通用 UI 选项</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>使用系统文字大小</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>应用的文字大小跟随手机或平板电脑的设置，最大 150%。关闭后可在下方自行选择大小，例如用于训练时从远处查看的屏幕。默认开启。</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>文字大小：</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>应用（设置、菜单、对话框）的文字大小（百分比，80～170）。默认值为 100。卡片有单独的大小设置。</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>顶部栏已启用</translation>
     </message>
@@ -5554,16 +5582,36 @@ In the next window, allow access to the QZ folder.</source>
         <translation>搜索结果</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>已更改</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>没有已更改的设置</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>已更改的设置</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>打开</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>卡片大小：</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>这将改变显示您指标的卡片大小。默认值是 100%。如需在屏幕上显示更多卡片，请选择更小的百分比。如需放大卡片，请选择大于 100% 的百分比。请勿输入百分号。原名“UI 缩放”（UI Zoom）。</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>应用语言:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。需要重启。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6029,7 +6077,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。请开启此项，设置目标心率区间，然后点击确定。例如，输入 2 即可在心率区间 2 训练，跑步机将自动调整速度（或自行车阻力），以使您的心率保持在区间 2。QZ 会每 40 秒以小增量逐渐增加或减少您的速度（或自行车阻力），从而达到并维持目标心率区间。在锻炼过程中，您可以使用“保持心率区间”卡片上的“+”和“-”按钮更改目标心率区间。</translation>
+        <translation type="vanished">QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。请开启此项，设置目标心率区间，然后点击确定。例如，输入 2 即可在心率区间 2 训练，跑步机将自动调整速度（或自行车阻力），以使您的心率保持在区间 2。QZ 会每 40 秒以小增量逐渐增加或减少您的速度（或自行车阻力），从而达到并维持目标心率区间。在锻炼过程中，您可以使用“保持心率区间”卡片上的“+”和“-”按钮更改目标心率区间。</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6242,6 +6290,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>打开此项可直接从跑步机读取距离，而不是根据速度计算。有些跑步机报告的距离比基于速度的计算更准确。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距离：仅累加增量</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>与“直接读取跑步机距离”配合使用。如果跑步机的距离计数在两次训练之间不清零，或关机后从 0 重新开始计数，请打开此项：只累加训练期间走过的距离，不计入 QZ 连接前跑步机已计的距离。默认关闭。</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7081,6 +7137,14 @@ IMPORTANT NOTES:
         <translation>如果您连接了蓝牙跑步机和 Stryd 设备到 QZ，并且想使用 Stryd 的速度而不是跑步机的速度，请启用此项。默认：禁用。</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Runn/Stryd 闭环跑步机速度校正</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>实验性功能：当驱动程序提供跑步机自身的速度测量值时，根据 Runn/Stryd 的反馈逐步校正由 QZ 控制的跑步机速度。需要启用“使用功率传感器速度”。默认值：禁用。</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>功率传感器速度校正阈值（%）：</translation>
     </message>
@@ -7741,8 +7805,40 @@ Default: A = -0.96, B = 1.33</source>
         <translation>开启“%1”后才能更改此设置</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>保持心率区间调节项：</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>速度</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。全局设置“保持心率区间调节项”为跑步机选择速度或坡度；训练中的单个间歇可以在训练编辑器中覆盖此设置。“保持心率区间”卡片只更改目标心率区间。</translation>
+    </message>
+    <message>
         <source>Pafers Rower</source>
         <translation>Pafers 划船机</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness 选项</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness 用户名/邮箱:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness 密码:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness 访客登录 (实验性)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>使用无需账户的合成 Life Fitness 配置文件。启用后将忽略用户名、密码和缓存的账户数据；仅用于测试受支持的访客登录。</translation>
     </message>
 </context>
 <context>
