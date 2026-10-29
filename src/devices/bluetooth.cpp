@@ -2839,7 +2839,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 proformTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(proformTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("ESLINKER"))) && !eslinkerTreadmill && filter) {
+                        b.name().toUpper().startsWith(QStringLiteral("ESLINKER"))) && !eslinkerTreadmill &&
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 eslinkerTreadmill = new eslinkertreadmill(this->pollDeviceTime, noConsole, noHeartService);
