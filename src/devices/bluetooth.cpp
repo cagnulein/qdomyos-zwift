@@ -249,8 +249,68 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
 #endif
-        this->startDiscovery();
     }
+
+    this->startDiscovery();
+}
+
+void bluetooth::nonBluetoothDeviceDiscovery() {
+    bluetoothdevice * nonBluetoothDevice = nullptr;
+
+    this->discoveringNonBluetooth = true;
+    try {
+        nonBluetoothDevice = this->discoverNonBluetoothDevices();
+    } catch(std::exception const& e) {
+        this->discoveringNonBluetooth = false;
+        debug("Exception thrown while looking for non-bluetooth devices");
+        debug(e.what());
+        throw;
+    } catch(...) {
+        this->discoveringNonBluetooth = false;
+        debug("Error was thrown while looking for non-bluetooth devices");
+        throw;
+    }
+
+    this->discoveringNonBluetooth = false;
+
+    if(nonBluetoothDevice) {
+        this->stopDiscovery();
+        this->signalBluetoothDeviceConnected(nonBluetoothDevice);
+        emit this->deviceConnected(nonBluetoothDevice->bluetoothDevice);
+        connect(nonBluetoothDevice, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        this->connectedAndDiscovered();
+    }
+}
+
+bluetoothdevice * bluetooth::discoverNonBluetoothDevices() {
+    QSettings settings;
+
+    /*
+    Calling code expects the returned bluetoothdevice subclass object to have the fake bluetooth device info set.
+
+    Do this in the class constructor as follows:
+    1. Go to a website and generate a Bluetooth UUID.
+    2. Set bluetoothdevice::bluetoothDevice as follows, using the UUID you have obtained, and a user-friendly name.
+
+        this->bluetoothDevice =
+            QBluetoothDeviceInfo(QBluetoothUuid {QStringLiteral("775f25bd-6636-4cdc-9398-839ae026be1d")}, "Device Name", 0);
+    */
+
+
+    // Try to connect to a Trixter X-Dream bike if the setting is enabled.
+    this->trixterXDreambike = this->findTrixterXDreambike(settings);
+    if(this->trixterXDreambike)
+    {
+        return this->trixterXDreambike;
+    }
+    if(!this->discovering) return nullptr;
+
+    // Test for other devices and check that discovery hasn't been cancelled.
+
+
+    // nothing found
+    return nullptr;
+
 }
 
 bluetooth::~bluetooth() {
@@ -442,41 +502,45 @@ void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
 
-    // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
-    // A start while scanning does nothing, so it is not counted.
-    if (discoveryAgent && !discoveryAgent->isActive()) {
-        const qint64 now = QDateTime::currentMSecsSinceEpoch();
-        pruneScanStarts(now);
-        scanStartsMs.append(now);
-    }
+    this->discovering = true;
 
+   // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
+   // A start while scanning does nothing, so it is not counted.
+   if (discoveryAgent && !discoveryAgent->isActive()) {
+       const qint64 now = QDateTime::currentMSecsSinceEpoch();
+       pruneScanStarts(now);
+       scanStartsMs.append(now);
+   }
+   
 #ifndef Q_OS_IOS
-    QSettings settings;
-    bool technogym_myrun_treadmill_experimental = settings
-                                                      .value(QZSettings::technogym_myrun_treadmill_experimental,
-                                                             QZSettings::default_technogym_myrun_treadmill_experimental)
-                                                      .toBool();
-    bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
-    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
-    bool iconcept_elliptical =
-        settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
+        QSettings settings;
+        bool technogym_myrun_treadmill_experimental = settings
+                                                          .value(QZSettings::technogym_myrun_treadmill_experimental,
+                                                                 QZSettings::default_technogym_myrun_treadmill_experimental)
+                                                          .toBool();
+        bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
+        bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
+        bool iconcept_elliptical =
+            settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 
-    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
+        if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
 #endif
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 #ifndef Q_OS_IOS
-    } else {
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
-                              QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    }
-#endif
+        } else {
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
+                                  QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        }
+#endif    
+
+    QTimer::singleShot(1, this, &bluetooth::nonBluetoothDeviceDiscovery);
 }
 
-void bluetooth::stopDiscovery() {
-    if (this->discoveryAgent)
-        this->discoveryAgent->stop();
-    else
-        qDebug() << "bluetooth::stopDiscovery() called when discoveryAgent is not defined. ";
+
+void bluetooth::stopDiscovery()
+{
+    this->discovering = false;
+    if(this->discoveryAgent) this->discoveryAgent->stop();
 }
 
 void bluetooth::canceled() {
@@ -495,6 +559,22 @@ void bluetooth::debug(const QString &text) {
 bool bluetooth::gymModeEnabled() const {
     QSettings settings;
     return settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
+}
+
+trixterxdreambike * bluetooth::findTrixterXDreambike(const QSettings& settings)
+{
+    bool trixterxdreambikeEnabled = settings.value(QZSettings::trixter_xdream_bike_enabled, false).toBool();
+    trixterxdreambike * result = nullptr;
+    if(trixterxdreambikeEnabled) {
+        debug("Looking for Trixter X-Dream Bike");
+        result = trixterxdreambike::tryCreate(this->noWriteResistance, this->noHeartService, false);
+        if(!result)
+            debug("Failed to find a Trixter X-Dream Bike");
+    } else {
+        debug("Not looking for Trixter X-Dream Bike - disabled in settings");
+    }
+
+    return result;
 }
 
 bool bluetooth::cscSensorAvaiable() {
@@ -4803,6 +4883,10 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+    if (trixterXDreambike) {
+        delete trixterXDreambike;
+        trixterXDreambike = nullptr;
+    }
     this->startDiscovery();
 }
 
@@ -5060,7 +5144,10 @@ bluetoothdevice *bluetooth::device() {
 #endif
     } else if (freebeatBoomBike) {
         return freebeatBoomBike;
+    } else if (trixterXDreambike){
+        return trixterXDreambike;
     }
+
     return nullptr;
 }
 

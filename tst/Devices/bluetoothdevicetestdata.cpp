@@ -3,6 +3,8 @@
 
 QString BluetoothDeviceTestData::Name() const { return this->name; }
 
+bool BluetoothDeviceTestData::UseNonBluetoothDiscovery() const { return this->usingNonBluetoothDiscovery; }
+
 DeviceTypeId BluetoothDeviceTestData::ExpectedDeviceType() const {
     if(this->expectedDeviceType<0)
         throw std::domain_error("Expected device not set");
@@ -10,7 +12,6 @@ DeviceTypeId BluetoothDeviceTestData::ExpectedDeviceType() const {
 }
 
 bool BluetoothDeviceTestData::IsEnabled() const { return this->enabled; }
-
 
 const QString BluetoothDeviceTestData::DisabledReason() const  { return this->disabledReason; }
 
@@ -76,6 +77,12 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::ApplyConfigurations(co
     }
 
     return result;
+}
+
+void BluetoothDeviceTestData::InitializeDevice() const
+{
+    if(this->initializer!=nullptr)
+        this->initializer();
 }
 
 
