@@ -3470,15 +3470,15 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>파일을 QZ 폴더에 복사할 수 없습니다.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>복원된 훈련 프로그램: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation type="unfinished"></translation>
+        <translation>이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4027,14 +4027,17 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation type="unfinished"></translation>
+        <translation>훈련 프로그램</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
     </message>
     <message>
         <source>Restart now?</source>
