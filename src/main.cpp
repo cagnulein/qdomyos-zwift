@@ -865,12 +865,16 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION denied!";
+    // Bluetooth scanning needs location only through Android 11 (API 30).
+    // From Android 12 onwards use BLUETOOTH_SCAN / Nearby devices instead.
+    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") <= 30) {
+        result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
+            if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "ACCESS_FINE_LOCATION denied!";
+        }
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
