@@ -2836,7 +2836,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         sportsplusbike::isCareSportsPlusBike13Name(b.name())) // CARE9040177, CARE113770737
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
-                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
                 // stateFileRead();
