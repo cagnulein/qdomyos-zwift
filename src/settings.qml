@@ -171,8 +171,8 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page (searchHiddenSettings, listed only in "Changed"): the
-            // tap leaves the results as they are
+            // A setting that is on no page (searchHiddenSettings, in "Changed" only): the tap
+            // leaves the results as they are
             if (!where)
                 return
             var page = settingsPane
@@ -760,7 +760,8 @@ import AndroidStatusBar 1.0
         // private network, switched on by chance it cuts the ANT+ sensors off), Peloton Bike OCR
         // (its switch is commented out on the page), the camera and emote of MyWhoosh Link (QZ
         // cycles them with a controller button itself). Left out of the search by text only:
-        // "Changed" still lists them, so one switched on by chance is seen there
+        // "Changed" still lists Garmin ANT+ and Peloton Bike OCR, so one switched on by chance is
+        // seen there (the MyWhoosh keys are written by QZ, isPrivateSetting keeps them out of it)
         readonly property var searchHiddenSettings: ({ "ant_garmin": true, "peloton_bike_ocr": true,
                                                        "mywhoosh_link_camera_value": true,
                                                        "mywhoosh_link_emote_value": true })
