@@ -1,0 +1,68 @@
+Subject: [PATCH] Android: override replaceText() and TextAttribute overloads in QtInputConnection
+
+Backport of qtbase dbd5af6231 (Qt 6.8), QTBUG-120238, done in Java only:
+Qt 5.15.0 has no native replaceText(), so the Java override calls
+finishComposingText(), setSelection() and commitText() natives in one batch edit.
+Applied to qtbase v5.15.0; jar/QtAndroid.jar is built with build_qtandroid_jar.sh.
+---
+--- a/src/android/jar/src/org/qtproject/qt5/android/QtInputConnection.java
++++ b/src/android/jar/src/org/qtproject/qt5/android/QtInputConnection.java
+@@ -40,7 +40,9 @@
+ 
+ package org.qtproject.qt5.android;
+ 
++import android.annotation.TargetApi;
+ import android.content.Context;
++import android.view.inputmethod.TextAttribute;
+ import android.view.inputmethod.BaseInputConnection;
+ import android.view.inputmethod.CompletionInfo;
+ import android.view.inputmethod.ExtractedText;
+@@ -256,6 +258,48 @@
+         return QtNativeInputConnection.setComposingText(text.toString(), newCursorPosition);
+     }
+ 
++    // Backport of qtbase dbd5af6231 (Qt 6.8, QTBUG-120238): the TextAttribute overloads
++    // and replaceText() are new in InputConnection and must be overridden, otherwise
++    // BaseInputConnection applies them to its own dummy Editable and the Qt text field
++    // never changes (e.g. tapping a Gboard suggestion on Android 14+ does nothing).
++    @TargetApi(33)
++    @Override
++    public boolean setComposingText(CharSequence text, int newCursorPosition, TextAttribute textAttribute)
++    {
++        return setComposingText(text, newCursorPosition);
++    }
++
++    @TargetApi(33)
++    @Override
++    public boolean setComposingRegion(int start, int end, TextAttribute textAttribute)
++    {
++        return setComposingRegion(start, end);
++    }
++
++    @TargetApi(33)
++    @Override
++    public boolean commitText(CharSequence text, int newCursorPosition, TextAttribute textAttribute)
++    {
++        return commitText(text, newCursorPosition);
++    }
++
++    // Qt 5.15 has no native replaceText(), so do here what Qt 6.8 does in
++    // QAndroidInputContext::replaceText(): finishComposingText(), setSelection(start, end),
++    // commitText(). The natives are called directly: the Java finishComposingText() would
++    // schedule hiding the keyboard. The batch edit sends the IME one update instead of three.
++    @TargetApi(34)
++    @Override
++    public boolean replaceText(int start, int end, CharSequence text, int newCursorPosition, TextAttribute textAttribute)
++    {
++        setClosing(false);
++        QtNativeInputConnection.beginBatchEdit();
++        boolean res = QtNativeInputConnection.finishComposingText()
++                && QtNativeInputConnection.setSelection(start, end)
++                && QtNativeInputConnection.commitText(text.toString(), newCursorPosition);
++        QtNativeInputConnection.endBatchEdit();
++        return res;
++    }
++
+     @Override
+     public boolean setComposingRegion(int start, int end)
+     {

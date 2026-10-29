@@ -10198,7 +10198,7 @@ void homeform::strava_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
@@ -10316,7 +10316,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     QHttpPart externalIdPart;
     externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                              QVariant(QStringLiteral("form-data; name=\"external_id\"")));
-    externalIdPart.setBody(filename.toStdString().c_str());
+    externalIdPart.setBody(filename.toUtf8());
     multiPart->append(externalIdPart);
 
     QHttpPart filePart;

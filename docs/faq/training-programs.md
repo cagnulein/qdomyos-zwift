@@ -87,3 +87,19 @@ If the workout has a **target power in watts (ERG mode)**, this is expected: the
 
 To create intervals that follow resistance levels instead of a watt target, open **QZ > Workout Editor**, select **Bike**, and create a resistance-based workout with the desired resistance for each interval. Save and start that workout. A rider confirmed that switching to a resistance-based workout resolved the confusion after observing cadence-dependent resistance in ERG mode. Actual resistance control still requires a compatible controllable bike and the correct QZ device configuration.
 
+## Can I load a GPX route and see my virtual position on a map while using a treadmill?
+
+**Yes.** QZ supports importing a GPX route and displaying it on a map, including 2D/3D map views.
+
+1. Create or export a **GPX** route using a mapping tool.
+2. In QZ's main menu choose **Open GPX** and select the route file.
+3. Start the treadmill session, then use the **map button** to display the route and follow your progress.
+4. The position shown on the route is **virtual**, based on the workout's progress, not the iPhone's real-world GPS position.
+
+The **Open GPX** menu and GPX/map support are present in QZ's current UI and README. A treadmill user explicitly confirmed that an externally created GPX route loaded and displayed correctly on the map during a workout.
+
+## Why does my treadmill not stop automatically when a QZ interval program finishes?
+
+By default, QZ **does not send an automatic Stop command** when the training program reaches its end. The program can finish its intervals without displaying an obvious completion message or stopping the treadmill motor. **Use the treadmill's physical controls when needed and press Stop in QZ** to finish and save the workout.
+
+QZ's training-program code has a `trainprogram_stop_at_end` option, but its default is **false**; only when that option is enabled does the program-end path emit a device Stop request. Do not assume a particular treadmill accepts remote Stop commands. This is code-verified behavior, not a claim that automatic stopping was tested on every treadmill.
