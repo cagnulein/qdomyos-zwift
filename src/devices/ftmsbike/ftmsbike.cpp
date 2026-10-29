@@ -1473,7 +1473,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(4, QStringLiteral("step count")))
                 return;
 
-            if (useMachineCadence) {
+            if (useMachineCadence && !(SOLE_B94 && !resistance_lvl_mode)) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
             }
