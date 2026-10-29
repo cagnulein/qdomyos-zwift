@@ -203,14 +203,19 @@ public class ContentHelper {
         if (others == null) {
             return null;
         }
-        // file was just written: its length() can still be 0 under FUSE passthrough (seen on
-        // Android 15), so its size is counted from the content
+        // under FUSE passthrough (seen on Android 15) length() of a recently written file can stay
+        // 0 for a long time: the size of file is counted from its content, and another file
+        // reporting 0 is compared by content too
         long length = contentLength(file);
         if (length < 0) {
             return null;
         }
         for (File other : others) {
-            if (other.equals(file) || !other.isFile() || other.length() != length) {
+            if (other.equals(file) || !other.isFile()) {
+                continue;
+            }
+            long otherLength = other.length();
+            if (otherLength != length && otherLength != 0) {
                 continue;
             }
             if (sameContent(other, file)) {
