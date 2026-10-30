@@ -865,16 +865,22 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    // Bluetooth scanning needs location only through Android 11 (API 30).
-    // From Android 12 onwards use BLUETOOTH_SCAN / Nearby devices instead.
-    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") <= 30) {
-        result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-        if (result == QtAndroid::PermissionResult::Denied) {
-            QtAndroid::PermissionResultMap resultHash =
-                QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-            if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "ACCESS_FINE_LOCATION denied!";
-        }
+    // Qt 5.15's QBluetoothDeviceDiscoveryAgent still requires a location
+    // permission on *every* Android version >= 6, even with BLUETOOTH_SCAN
+    // and neverForLocation on Android 12+. Use coarse location as the narrowest
+    // compatibility workaround on modern Android; this is not required by
+    // the Android BLE APIs themselves. The legacy OS still needs fine location.
+    const int androidSdkVersion =
+        QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    const QString locationPermission = androidSdkVersion >= 31
+        ? QStringLiteral("android.permission.ACCESS_COARSE_LOCATION")
+        : QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
+    if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
+        const QtAndroid::PermissionResultMap locationResult =
+            QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
+        if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
+            qWarning() << "Bluetooth scanning blocked by Qt 5.15 location compatibility requirement:"
+                       << locationPermission;
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
