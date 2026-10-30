@@ -181,3 +181,9 @@ The tile-order meaning and default value of 26 are verified in QZ's `settings-ti
 5. Press the handlebar shift buttons and confirm that QZ's gear number changes and the trainer's resistance responds.
 
 QZ alone can show and record workout metrics and control the trainer; a virtual-world app is optional. If you later use MyWhoosh or another training app, follow its separate pairing guidance. **This is code-verified setup guidance**, not a claim that the particular rider's final test was already confirmed.
+
+## Zwift automatic incline stopped working while QZ's MyWhoosh option was enabled. What should I check?
+
+If you are currently using **Zwift** rather than MyWhoosh, check QZ's **Experimental Settings** for an enabled **MyWhoosh compatibility** option. Disable that option, save the settings, restart QZ and reconnect Zwift, then test automatic incline on a short route.
+
+A rider explicitly confirmed that **Zwift automatic inclination started working again after disabling the MyWhoosh option**. This is a targeted workaround for a setup where the MyWhoosh option was enabled; it does not imply that every Zwift incline problem is caused by that setting. Re-enable MyWhoosh-specific functionality when you switch back to a MyWhoosh workflow that requires it.
