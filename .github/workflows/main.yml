@@ -664,7 +664,7 @@ jobs:
       - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
         run: |
           QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
-          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.1/qt5.15.0-android-page16.zip
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.1/qt5.15.0-android-page16-1.0.1.zip
           unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
           # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
           # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
@@ -2928,4 +2928,4 @@ jobs:
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
-            raspberry-pi-binary-aarch64/qdomyos-zwift-aarch64
+            raspberry-pi-binary-aarch64/qdomyos-zwift-aar

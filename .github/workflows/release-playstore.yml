@@ -47,7 +47,7 @@ jobs:
       - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
         run: |
           QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
-          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.1/qt5.15.0-android-page16.zip
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.1/qt5.15.0-android-page16-1.0.1.zip
           unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
           # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
           # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
@@ -306,4 +306,4 @@ jobs:
         if: ${{ inputs.publish && steps.publish_attempt1.outcome == 'failure' && steps.publish_attempt2.outcome != 'success' }}
         run: |
           echo "Both publish attempts failed (with and without changesNotSentForReview) - see the two steps above for the actual errors."
-          exit 1
+          e
