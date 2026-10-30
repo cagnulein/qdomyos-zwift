@@ -280,7 +280,7 @@ void ypootreadmill::processTelemetry(const QByteArray &value, qint64 now) {
             .toString().startsWith(QStringLiteral("Disabled"))) {
         const double cadence = calculateCadenceFromSpeed(Speed.value());
         if (cadence > 0) {
-            evaluateStepCount();
+            evaluateStepCount(true);
             parseCadence(cadence);
         }
     }
