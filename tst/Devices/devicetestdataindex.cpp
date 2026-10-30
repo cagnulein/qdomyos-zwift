@@ -640,6 +640,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
+        ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("48645 RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864 RACER SX", DeviceNameComparison::IgnoreCase)
 
 
         // Starts with DT- and is 14+ characters long.
