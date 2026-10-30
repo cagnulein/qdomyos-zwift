@@ -24,13 +24,13 @@ bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName
            static_cast<uint8_t>(newValue.at(2)) == 0x30;
 }
 
-// WLT8266BM_07E2 sometimes sends 0x31 packets with a nonzero byte 3.
+// Some WLT8266BM bikes send 0x31 packets with a nonzero byte 3.
 // In the 2026-10-30 capture these packets produced impossible 302-394 RPM
 // spikes, while all normal cadence packets had byte 3 == 0.
-// Only reject the cadence value for this observed variant; keep other
+// Reject only the cadence value on the WLT8266BM model family; keep other
 // models and resistance data unaffected.
-bool apexbike::isWlt8266bm07e2CadenceSpikePacket(const QString &deviceName, const QByteArray &newValue) {
-    return deviceName.compare(QStringLiteral("WLT8266BM_07E2"), Qt::CaseInsensitive) == 0 &&
+bool apexbike::isWlt8266bmCadenceSpikePacket(const QString &deviceName, const QByteArray &newValue) {
+    return deviceName.startsWith(QStringLiteral("WLT8266BM"), Qt::CaseInsensitive) &&
            newValue.length() == 10 && static_cast<uint8_t>(newValue.at(2)) == 0x31 &&
            static_cast<uint8_t>(newValue.at(3)) != 0;
 }
@@ -203,8 +203,8 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                if (isWlt8266bm07e2CadenceSpikePacket(bluetoothDevice.name(), newValue)) {
-                    qDebug() << QStringLiteral("Ignoring suspicious WLT8266BM_07E2 cadence packet; keeping previous cadence")
+                if (isWlt8266bmCadenceSpikePacket(bluetoothDevice.name(), newValue)) {
+                    qDebug() << QStringLiteral("Ignoring suspicious WLT8266BM cadence packet; keeping previous cadence")
                              << Cadence.value();
                 } else {
                     Cadence = rawCadence * 2;
