@@ -367,7 +367,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
+    if (SOLE_B94 && !resistance_lvl_mode) {
+        const resistance_t level =
+            qBound<resistance_t>(1, requestResistance, max_resistance);
+        forceInclination(_inclinationResistanceTable.estimateInclination(level));
+    } else if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
         resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && WLT_BK == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
