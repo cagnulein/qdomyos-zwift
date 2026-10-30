@@ -132,3 +132,19 @@ References:
 - https://developer.android.com/privacy-and-security/local-network-permission
 - https://developer.android.com/about/versions/17/setup-sdk
 - https://support.google.com/googleplay/android-developer/answer/18100766
+
+### Qt 5 androiddeployqt / AGP 9 manifest collision
+
+- Qt 5.15's `<!-- %%INSERT_PERMISSIONS -->` expands to module-derived Android
+  permissions, including an unrestricted `ACCESS_FINE_LOCATION` and `INTERNET`.
+  When these duplicate QZ's explicit permissions, AGP 9 rejects the merged
+  manifest (first observed in CI run 41006927150).
+- QZ now omits that expansion marker and explicitly declares the legacy
+  `BLUETOOTH` / `BLUETOOTH_ADMIN` permissions with `maxSdkVersion=30`, along
+  with its network and legacy storage requirements. It retains
+  `ACCESS_FINE_LOCATION` only through API 30, and relies on Nearby devices on
+  modern Android.
+- **Validation:** inspect the final APK/AAB merged manifest, not only the
+  source XML. This replacement needs a real-device legacy-Bluetooth/storage
+  regression check because Qt's inferred permission list is no longer used.
+
