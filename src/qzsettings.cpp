@@ -1347,7 +1347,7 @@ const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral
 
 const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
-const uint32_t allSettingsCount = 1040;
+const uint32_t allSettingsCount = 1041;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
