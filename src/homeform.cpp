@@ -1,4 +1,6 @@
 #include "homeform.h"
+#include "devices/ftmsbike/ftmsbike.h"
+#include "qzsettings.h"
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
@@ -2001,6 +2003,17 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
 
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
+}
+
+void homeform::resetSoleBikeInclinationResistanceTable() {
+    if (bluetoothManager && bluetoothManager->ftmsBike) {
+        bluetoothManager->ftmsBike->resetInclinationResistanceTable();
+        return;
+    }
+
+    QSettings settings;
+    settings.remove(QZSettings::inclinationResistancePoints);
+    settings.sync();
 }
 
 homeform::~homeform() {
