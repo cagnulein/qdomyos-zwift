@@ -30,6 +30,7 @@
 #include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "inclinationresistancetable.h"
+#include "stableftmspowermatch.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -171,6 +172,7 @@ class ftmsbike : public bike {
     bool native_resistance_received = false;
     QDateTime calculatedResistanceFallbackSince;
     inclinationResistanceTable _inclinationResistanceTable;
+    StableFtmsPowerMatch m_stableFtmsPowerMatch;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
     bool awaiting_start_simulation_after_request_control = false;
