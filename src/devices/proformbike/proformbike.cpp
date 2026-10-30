@@ -170,7 +170,20 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 }
 
 void proformbike::forceResistance(resistance_t requestResistance) {
-    if(proform_bike_PFEVEX71316_0) {
+    if (nordictrack_vx450) {
+        // VX450 telemetry reports resistance in 500-unit increments (levels 1-20).
+        // Command encoding is experimental until confirmed on the hardware.
+        const uint16_t rawResistance = static_cast<uint16_t>(requestResistance) * 500;
+        uint8_t packet[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                            0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        packet[11] = static_cast<uint8_t>(rawResistance & 0xff);
+        packet[12] = static_cast<uint8_t>(rawResistance >> 8);
+        for (int i = 6; i <= 13; ++i) {
+            packet[14] += packet[i]; // checksum is the low byte of the payload sum
+        }
+        writeCharacteristic(packet, sizeof(packet), QStringLiteral("resistance") + QString::number(requestResistance),
+                            false, true);
+    } else if(proform_bike_PFEVEX71316_0) {
         // Value: 0012020402120812020400000004000000000700
         // Value: ff040001002c0000000000000000000000000000
 
@@ -1701,7 +1714,22 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if(proform_225_csx_PFEX32925_INT_0) {
+            if (nordictrack_vx450) {
+                // VX450 reports the resistance setting as a little-endian 16-bit value
+                // at bytes 10-11. Only trust its 0x32 telemetry frames.
+                if (static_cast<uint8_t>(newValue.at(5)) == 0x32 &&
+                    static_cast<uint8_t>(newValue.at(6)) == 0x07 &&
+                    static_cast<uint8_t>(newValue.at(7)) == 0x32 &&
+                    static_cast<uint8_t>(newValue.at(9)) == 0x02) {
+                    const uint16_t rawResistance =
+                        static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(10))) |
+                        (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(11))) << 8);
+                    if (rawResistance >= 500 && rawResistance <= 10000 && rawResistance % 500 == 0) {
+                        Resistance = rawResistance / 500;
+                        m_pelotonResistance = Resistance.value() * 5;
+                    }
+                }
+            } else if(proform_225_csx_PFEX32925_INT_0) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                 case 1:
@@ -2629,6 +2657,7 @@ void proformbike::btinit() {
     nordictrack_vr21 = settings.value(QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21).toBool();
     proform_bike_325_csx_PFEX439210INT_0 = settings.value(QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0).toBool();
     nordictrack_gx_le = settings.value(QZSettings::nordictrack_gx_le, QZSettings::default_nordictrack_gx_le).toBool();
+    nordictrack_vx450 = settings.value(QZSettings::nordictrack_vx450, QZSettings::default_nordictrack_vx450).toBool();
     nordictrack_gx_4_5_pro = settings.value(QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro).toBool();
 
 
@@ -2640,6 +2669,8 @@ void proformbike::btinit() {
         max_resistance = 16;
     if(nordictrack_vr21)
         max_resistance = 25;
+    if (nordictrack_vx450)
+        max_resistance = 20;
 
     if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
