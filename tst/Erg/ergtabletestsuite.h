@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 #include "ergtable.h"
+#include "stableftmspowermatch.h"
 
 
 class ErgTableTestSuite: public testing::Test {
@@ -30,6 +31,9 @@ public:
     void test_pairedPowerTableRejectsRudyInstability();
     void test_pairedPowerTableRejectsExcessiveStableDelta();
     void test_pairedPowerTableIgnoresPersistedExcessiveDelta();
+    void test_stableFtmsPowerMatchConvergesWithoutJumps();
+    void test_stableFtmsPowerMatchRejectsUnstableSensors();
+    void test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss();
 
 };
 
@@ -73,3 +77,15 @@ TEST_F(ErgTableTestSuite, TestPairedPowerTableIgnoresPersistedExcessiveDelta) {
     this->test_pairedPowerTableIgnoresPersistedExcessiveDelta();
 }
 
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchConvergesWithoutJumps) {
+    this->test_stableFtmsPowerMatchConvergesWithoutJumps();
+}
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchRejectsUnstableSensors) {
+    this->test_stableFtmsPowerMatchRejectsUnstableSensors();
+}
+
+TEST_F(ErgTableTestSuite, TestStableFtmsPowerMatchResetsOnTargetAndSensorLoss) {
+    this->test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss();
+}
