@@ -722,3 +722,57 @@ void ErgTableTestSuite::test_pairedPowerTableIgnoresPersistedExcessiveDelta() {
     ergTable erg;
     EXPECT_EQ(0, erg.trainerPowerForPedalTarget(168, 93, 39));
 }
+
+// FI9117 ion + SPEEDPLAY power matching must not depend on calculated resistance.
+// The observed trainer/pedal difference was roughly 44 W at a 168 W interval.
+void ErgTableTestSuite::test_stableFtmsPowerMatchConvergesWithoutJumps() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    EXPECT_EQ(168, command);
+    for (int second = 1; second <= 30; ++second) {
+        const int lastCommand = command;
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90.0, second * 1000LL);
+        EXPECT_LE(command - lastCommand, StableFtmsPowerMatch::MAX_UP_WATTS_PER_SECOND);
+        EXPECT_GE(command, 168);
+        EXPECT_LE(command, 212);
+    }
+    EXPECT_GE(command, 208);
+    EXPECT_LE(command, 212);
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchRejectsUnstableSensors() {
+    StableFtmsPowerMatch match;
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 122, 90, 0));
+    for (int second = 1; second <= 20; ++second) {
+        // Alternating 11/56 W offsets cannot form a stable window.
+        const double pedal = second % 2 ? 155.0 : 110.0;
+        EXPECT_EQ(168, match.adjustedPower(168, 166, pedal, 90, second * 1000LL));
+    }
+    match.reset();
+    EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, 0));
+    for (int second = 1; second <= 15; ++second) {
+        // A 90 W mismatch is too large to adopt automatically.
+        EXPECT_EQ(168, match.adjustedPower(168, 166, 76, 90, second * 1000LL));
+    }
+}
+
+void ErgTableTestSuite::test_stableFtmsPowerMatchResetsOnTargetAndSensorLoss() {
+    StableFtmsPowerMatch match;
+    int command = match.adjustedPower(168, 166, 122, 90, 0);
+    for (int second = 1; second <= 25; ++second) {
+        const double trainer = command <= 168 ? 166.0 : command - 2.0;
+        command = match.adjustedPower(168, trainer, trainer - 44.0, 90, second * 1000LL);
+    }
+    EXPECT_GT(command, 168);
+    const int afterLoss = match.adjustedPower(168, 0, 0, 0, 26000);
+    EXPECT_LT(afterLoss, command);
+    EXPECT_GE(afterLoss, 168);
+    for (int second = 27; second <= 38; ++second)
+        command = match.adjustedPower(168, 0, 0, 0, second * 1000LL);
+    EXPECT_EQ(168, command);
+
+    EXPECT_EQ(190, match.adjustedPower(190, 185, 141, 90, 39000));
+    EXPECT_EQ(0, match.adjustedPower(0, 185, 141, 90, 40000));
+    EXPECT_EQ(130, match.adjustedPower(130, 126, 82, 90, 41000));
+}
