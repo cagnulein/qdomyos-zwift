@@ -927,6 +927,7 @@ jobs:
             arch: x86_64
             android-version: "Android 16"
           - api-level: 37
+            emulator-api-level: '37.0'
             target: google_apis
             arch: x86_64
             android-version: "Android 17"
@@ -955,10 +956,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # The Android 17 SDK and system image use android-37.0, not android-37.
+      # Keep matrix.api-level = 37 for test names/artifacts but provide the
+      # package identifier to the emulator runner when installing the SDK.
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
+          api-level: ${{ matrix.emulator-api-level || matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: Nexus 6
