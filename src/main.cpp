@@ -883,20 +883,25 @@ int main(int argc, char *argv[]) {
                        << locationPermission;
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH denied!";
-    }
+    // BLUETOOTH and BLUETOOTH_ADMIN are legacy, install-time-only permissions.
+    // They are not available on API 31+ once maxSdkVersion=30 is set.
+    if (androidSdkVersion <= 30) {
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+            if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH denied!";
+        }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN denied!";
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+            if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH_ADMIN denied!";
+        }
+
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
