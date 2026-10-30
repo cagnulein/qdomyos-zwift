@@ -6651,6 +6651,7 @@ import AndroidStatusBar 1.0
                                 buttons: MessageDialog.Yes | MessageDialog.No
                                 onYesClicked: {
                                     rootItem.resetInclinationResistanceTable()
+                                    window.settings_restart_to_apply = true
                                     toast.show(qsTr("Learned table reset."))
                                 }
                                 visible: false

@@ -1,5 +1,4 @@
 #include "homeform.h"
-#include "qzsettings.h"
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
@@ -2005,15 +2004,9 @@ bool homeform::hasConnectedDevice() const {
 }
 
 void homeform::resetInclinationResistanceTable() {
-    if (bluetoothManager) {
-        if (auto activeBike = qobject_cast<bike *>(bluetoothManager->device())) {
-            activeBike->resetLearnedCalibration();
-            return;
-        }
-    }
-
     QSettings settings;
-    settings.remove(QZSettings::inclinationResistancePoints);
+    settings.setValue(QZSettings::inclinationResistancePoints,
+                      QZSettings::default_inclinationResistancePoints);
     settings.sync();
 }
 

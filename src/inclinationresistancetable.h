@@ -30,9 +30,7 @@ public:
         loadSettings();
     }
 
-    ~inclinationResistanceTable() {
-        saveSettings();
-    }
+    ~inclinationResistanceTable() = default;
 
     // Reset all collected data
     void reset() {
