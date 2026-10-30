@@ -645,6 +645,8 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("4864RACER S", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("48645 RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCD RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("123A RACER S", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("4864 RACER SX", DeviceNameComparison::IgnoreCase)
 
 
