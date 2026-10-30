@@ -699,7 +699,7 @@ class homeform : public QObject {
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
-    Q_INVOKABLE void resetSoleBikeInclinationResistanceTable();
+    Q_INVOKABLE void resetInclinationResistanceTable();
 
 private:
     void clearWebViewCache();

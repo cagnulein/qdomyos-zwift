@@ -6645,12 +6645,12 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             spacing: 0
                             MessageDialog {
-                                id: resetSoleBikeInclinationTableDialog
+                                id: resetInclinationResistanceTableDialog
                                 text: qsTr("Reset learned resistance/inclination table?")
                                 informativeText: qsTr("This deletes the learned table. QZ will collect it again as valid data becomes available.")
                                 buttons: MessageDialog.Yes | MessageDialog.No
                                 onYesClicked: {
-                                    rootItem.resetSoleBikeInclinationResistanceTable()
+                                    rootItem.resetInclinationResistanceTable()
                                     toast.show(qsTr("Learned table reset."))
                                 }
                                 visible: false
@@ -6658,7 +6658,7 @@ import AndroidStatusBar 1.0
                             Button {
                                 text: qsTr("Reset learned resistance/inclination table")
                                 Layout.alignment: Qt.AlignLeft
-                                onClicked: resetSoleBikeInclinationTableDialog.visible = true
+                                onClicked: resetInclinationResistanceTableDialog.visible = true
                             }
                             IndicatorOnlySwitch {
                                 text: qsTr("Miles unit from the device")

@@ -2005,7 +2005,7 @@ bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
 
-void homeform::resetSoleBikeInclinationResistanceTable() {
+void homeform::resetInclinationResistanceTable() {
     if (bluetoothManager && bluetoothManager->ftmsBike) {
         bluetoothManager->ftmsBike->resetInclinationResistanceTable();
         return;
