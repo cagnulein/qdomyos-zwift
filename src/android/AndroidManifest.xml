@@ -2,7 +2,13 @@
 <manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.22.0" android:versionCode="1404" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
-			<!-- %%INSERT_PERMISSIONS -->
+            <!--
+                QZ declares its Android permissions explicitly below.
+                Do not restore %%INSERT_PERMISSIONS: Qt 5.15 androiddeployqt injects
+                unbounded ACCESS_FINE_LOCATION, which duplicates QZ's API<=30
+                declaration and fails Android Gradle Plugin 9 manifest validation.
+                It would also restore the modern location permission we intentionally removed.
+            -->
 
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
 	      Remove the comment if you do not require these default features. -->
@@ -160,6 +166,14 @@
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 <uses-permission android:name="android.permission.RECEIVE_MEDIA_BUTTON" />
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
+    <!-- Qt 5 historically auto-injected these permissions. Keep the legacy
+         Bluetooth/storage declarations when disabling the auto-injection above.
+         Android 12+ uses the separate Nearby devices permissions below. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <!-- Legacy Android 11 and earlier requires location for Bluetooth scanning. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
     <!-- QZ uses scan results to identify exercise equipment, not to derive physical location. -->
