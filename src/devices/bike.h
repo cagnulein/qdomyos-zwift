@@ -61,6 +61,7 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableBySoftware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
     virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
+    virtual void resetLearnedCalibration();
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;

@@ -1,5 +1,4 @@
 #include "homeform.h"
-#include "devices/ftmsbike/ftmsbike.h"
 #include "qzsettings.h"
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
@@ -2006,9 +2005,11 @@ bool homeform::hasConnectedDevice() const {
 }
 
 void homeform::resetInclinationResistanceTable() {
-    if (bluetoothManager && bluetoothManager->ftmsBike) {
-        bluetoothManager->ftmsBike->resetInclinationResistanceTable();
-        return;
+    if (bluetoothManager) {
+        if (auto activeBike = qobject_cast<bike *>(bluetoothManager->device())) {
+            activeBike->resetLearnedCalibration();
+            return;
+        }
     }
 
     QSettings settings;

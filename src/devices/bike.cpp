@@ -3,11 +3,18 @@
 #include "qdebugfixup.h"
 #include "homeform.h"
 #include "mywhooshlink.h"
+#include "qzsettings.h"
 #include <QSettings>
 #include <QStringList>
 #include <cmath>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
+
+void bike::resetLearnedCalibration() {
+    QSettings settings;
+    settings.remove(QZSettings::inclinationResistancePoints);
+    settings.sync();
+}
 
 double bike::powerZoneValueToFtpPercentage(double zoneValue) {
     if (zoneValue <= 1.9) {
