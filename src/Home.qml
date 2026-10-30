@@ -260,7 +260,7 @@ HomeForm {
     MessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
-        informativeText: qsTr("QZ needs Bluetooth and Location Services enabled to discover fitness equipment. The current Qt Bluetooth library still checks Location Services on newer Android versions too. QZ does not need your GPS coordinates to scan fitness equipment.\n\nWould you like to enable the required services?")
+        informativeText: qsTr("QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.\n\nWould you like to enable the required services?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -276,7 +276,7 @@ HomeForm {
     MessageDialog {
         id: remindLocationServicesDialog
         text: qsTr("Reminder Preference")
-        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
+        informativeText: qsTr("Would you like to be reminded about enabling Bluetooth or Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true

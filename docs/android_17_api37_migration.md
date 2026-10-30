@@ -128,12 +128,13 @@ for all of these, notably unsolicited inbound traffic and service publishing.
 6. **Static final / MessageQueue:** reflective modifications to static finals
    fail, and a new MessageQueue implementation is used by target 37. Smoke-test
    Qt Java glue, accessibility, activity lifecycle and plugin integrations.
-7. **Location privacy / Play policy:** Fine location remains limited to
-   API 30 and earlier, but Qt 5.15 still requires an approximate location
-   permission **and the Location toggle** on Android 12+ solely to start
-   Bluetooth scanning. This is a draft-branch compatibility workaround, not
-   the intended final permission model. Audit the merged AAB manifest and
-   remove the Qt-specific check in a future rebuilt QtBluetooth library.
+7. **Location privacy / Play policy:** Qt 5.15's Android Bluetooth backend
+   has been rebuilt to read the merged manifest. When BLUETOOTH_SCAN declares
+   neverForLocation, Android 12+ scanning uses Nearby devices permission and
+   skips both the Location permission request and Location Services toggle.
+   Android 11 and earlier retain the legacy Location permission and toggle
+   requirements. Keep coarse and fine location declarations capped at API 30
+   and verify the final APK/AAB manifest.
 
 ## Required validation
 
@@ -143,8 +144,12 @@ for all of these, notably unsolicited inbound traffic and service publishing.
 - DIRCON with Zwift and Rouvy, MyWhoosh TCP/UDP/mDNS, IP-connected treadmills,
   SmartSpin2K and other LAN fitness equipment. Check discovery, connect,
   telemetry, control, reconnection, and local broadcast/advertisement.
-- BLE FTMS scan, pairing, auto-resistance, disconnect/reconnect, and classic
-  Bluetooth RFCOMM on Android 17, plus at least one Android 15/16 regression.
+- Android 12+: with Location permission revoked and Location Services off,
+  grant Nearby devices and verify BLE scanning; deny Nearby devices once and
+  verify QZ remains usable. Repeat BLE FTMS scan, pairing, auto-resistance and
+  disconnect/reconnect on Android 17, plus one Android 15/16 regression.
+- Android 11 or earlier: verify BLE scanning still requests Location permission
+  and requires Location Services.
 - Background workout, notifications, TTS/audio (on Android 17, verify FGS is
   active/WIU; include denial, disable and reboot scenarios), screenshots/overlays, Health
   Connect, Garmin integrations and Play Billing.

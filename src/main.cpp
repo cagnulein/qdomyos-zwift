@@ -865,22 +865,20 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    // Qt 5.15's QBluetoothDeviceDiscoveryAgent still requires a location
-    // permission on *every* Android version >= 6, even with BLUETOOTH_SCAN
-    // and neverForLocation on Android 12+. Use coarse location as the narrowest
-    // compatibility workaround on modern Android; this is not required by
-    // the Android BLE APIs themselves. The legacy OS still needs fine location.
+    // Android 11 and earlier require Location permission for Bluetooth scanning.
+    // The patched Qt backend uses Nearby devices alone on Android 12+ when
+    // BLUETOOTH_SCAN is declared with neverForLocation.
     const int androidSdkVersion =
         QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
-    const QString locationPermission = androidSdkVersion >= 31
-        ? QStringLiteral("android.permission.ACCESS_COARSE_LOCATION")
-        : QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
-    if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
-        const QtAndroid::PermissionResultMap locationResult =
-            QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
-        if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
-            qWarning() << "Bluetooth scanning blocked by Qt 5.15 location compatibility requirement:"
-                       << locationPermission;
+    if (androidSdkVersion <= 30) {
+        const QString locationPermission = QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
+        if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap locationResult =
+                QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
+            if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "Bluetooth scanning may be blocked by missing legacy Location permission:"
+                           << locationPermission;
+        }
     }
 
     // BLUETOOTH and BLUETOOTH_ADMIN are legacy, install-time-only permissions.

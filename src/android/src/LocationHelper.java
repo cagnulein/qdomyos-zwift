@@ -44,9 +44,11 @@ public class LocationHelper {
     }
 
     private static boolean isLocationEnabled(Context context) {
-        // Qt 5.15's Android Bluetooth backend still checks the system-wide
-        // Location toggle on every Android version, including API 31+.
-        // Match that legacy check until we update the bundled Qt library.
+        // Android 12+ uses Nearby devices permission for BLE scanning when
+        // BLUETOOTH_SCAN is declared with neverForLocation.
+        if (Build.VERSION.SDK_INT >= 31)
+            return true;
+
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager == null)
             return false;
@@ -57,7 +59,14 @@ public class LocationHelper {
 
     private static boolean isBluetoothEnabled() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
+        if (bluetoothAdapter == null)
+            return false;
+        try {
+            return bluetoothAdapter.isEnabled();
+        } catch (SecurityException exception) {
+            QLog.d(TAG, "Cannot read Bluetooth state without BLUETOOTH_CONNECT permission.");
+            return false;
+        }
     }
 
     private static void promptEnableLocation(Context context) {
@@ -71,6 +80,10 @@ public class LocationHelper {
         QLog.d(TAG, "Prompting to enable Bluetooth...");
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            context.startActivity(intent);
+        } catch (SecurityException exception) {
+            QLog.d(TAG, "Cannot request Bluetooth enable without BLUETOOTH_CONNECT permission.");
+        }
     }
 }
