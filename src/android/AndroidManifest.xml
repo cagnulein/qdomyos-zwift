@@ -152,7 +152,8 @@
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 
-<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="37" tools:overrideLibrary="com.google.android.play.agesignals,com.google.android.gms.common,androidx.health.connect.client" />
+<!-- AGP 9 reads minSdk/targetSdk from build.gradle; keep only the library override here. -->
+<uses-sdk tools:overrideLibrary="com.google.android.play.agesignals,com.google.android.gms.common,androidx.health.connect.client" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
