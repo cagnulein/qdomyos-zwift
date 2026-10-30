@@ -44,11 +44,15 @@ public class LocationHelper {
     }
 
     private static boolean isLocationEnabled(Context context) {
-        // Android 12+ BLE scans use Nearby devices, not the device-wide GPS toggle.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            return true;
+        // Qt 5.15's Android Bluetooth backend still checks the system-wide
+        // Location toggle on every Android version, including API 31+.
+        // Match that legacy check until we update the bundled Qt library.
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (locationManager == null)
+            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            return locationManager.isLocationEnabled();
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private static boolean isBluetoothEnabled() {
