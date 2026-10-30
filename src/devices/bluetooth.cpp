@@ -2172,6 +2172,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO 3M ")) ||
                         (b.name().toUpper().startsWith("JFBK7.0")) ||
                         (b.name().toUpper().startsWith("SPEED RACE S")) ||
+                        // Hammer Speed Race S may advertise a four-digit prefix (e.g. "4864 RACER S").
+                        // Keep plain "RACER S" on its existing Kettler/Stages paths.
+                        QRegularExpression(QStringLiteral("^\\d{4} RACER S$"), QRegularExpression::CaseInsensitiveOption)
+                            .match(deviceName).hasMatch() ||
                         (b.name().toUpper().startsWith("SPEEDRACEX")) ||
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
