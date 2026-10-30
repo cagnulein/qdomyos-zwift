@@ -184,3 +184,18 @@ Yes. Under **QZ Settings > Advanced Settings**, **Speed Offset** corrects a fixe
 First check that the treadmill and QZ use the **same speed units** (km/h or mph). Save the setting, restart QZ and compare readings at a **safe, steady belt speed**. The correction affects **future** QZ readings and recordings; it does not rewrite already-saved workouts. Because these settings can also affect QZ's treadmill control calculations, carefully verify any automatic speed commands after changing them.
 
 This is a code-verified capability that was requested after a **Hammer Fly Run 4.0** owner confirmed QZ connectivity. The owner did not yet report back after applying the speed correction, so it is not presented as a confirmed calibration outcome.
+
+## My treadmill changes speed unexpectedly when a workout changes incline. How can I keep the programmed speed?
+
+If a structured treadmill workout has a fixed speed (such as a QZ XML row with `forcespeed="1"`) but QZ suddenly slows down or accelerates when the incline changes, first check the **PID inclination compensation** setting.
+
+1. Open **QZ Settings > Training Program Options**.
+2. Enable **PID Ignore Inclination**.
+3. Fully close and restart QZ.
+4. Retest with a low, safe speed, checking that the treadmill follows both the programmed speed and the incline steps. Keep the treadmill emergency stop accessible.
+
+This setting prevents the HR PID incline-compensation path from recalculating speed to preserve estimated power when incline changes. It is **separate** from **Treadmill Auto-adjust speed by power** (`treadmill_follow_wattage`), and `speed_power_based` is not the same treadmill control.
+
+**Confirmed result:** In a fixed-speed training program, QZ previously requested 9.0 km/h after the workout requested 4.5 km/h when incline changed, despite the Treadmill Auto-adjust speed by power option already being off. With **PID Ignore Inclination** enabled, the treadmill held **3.0 km/h** through incline steps from **0% to 12% and back**. This is a verified workaround, not a complete code fix: see [issue #5520](https://github.com/cagnulein/qdomyos-zwift/issues/5520) for protecting explicit workout targets from accidental PID overrides.
+
+If you intentionally want speed to change to preserve running power during a climb, leave the PID inclination compensation active only when that behavior is desired, and verify it cautiously.
