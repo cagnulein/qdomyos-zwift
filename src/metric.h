@@ -79,9 +79,9 @@ class metric {
     double m_lapMin = 999999999;
     double m_lapMax = 0;
 
-    QDateTime m_lastChanged = QDateTime::currentDateTime();
+    QDateTime m_lastChanged = QDateTime::currentDateTimeUtc();
     quint64 m_updateSequence = 0;
-    QDateTime m_valueChanged = QDateTime::currentDateTime();
+    QDateTime m_valueChanged = QDateTime::currentDateTimeUtc();
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;

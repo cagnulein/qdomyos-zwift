@@ -67,7 +67,8 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
     if (m_type == METRIC_WATT || m_type == METRIC_SPEED)
         v = applySettings(v, applyGainAndOffset);
 
-    QDateTime now = QDateTime::currentDateTime();
+    // UTC: no local-time conversion on every value; callers only use differences (msecsTo/secsTo) and epoch
+    QDateTime now = QDateTime::currentDateTimeUtc();
     if (v != m_value && v != INFINITY) {
         m_valueChanged = now;
         if (m_last5.count() > 1) {
