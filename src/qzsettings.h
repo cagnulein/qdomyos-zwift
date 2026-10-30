@@ -2513,6 +2513,9 @@ class QZSettings {
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
 
+    static const QString proform_treadmill_sport_55;
+    static constexpr bool default_proform_treadmill_sport_55 = false;
+
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
 
