@@ -260,7 +260,7 @@ HomeForm {
     MessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
-        informativeText: qsTr("QZ needs Bluetooth to be enabled to discover fitness equipment. On Android 11 and earlier, Location Services must also be enabled for Bluetooth scanning.\n\nWould you like to enable the required services?")
+        informativeText: qsTr("QZ needs Bluetooth and Location Services enabled to discover fitness equipment. The current Qt Bluetooth library still checks Location Services on newer Android versions too. QZ does not need your GPS coordinates to scan fitness equipment.\n\nWould you like to enable the required services?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
