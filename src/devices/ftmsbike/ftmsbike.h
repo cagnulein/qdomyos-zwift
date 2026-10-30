@@ -71,7 +71,6 @@ enum FtmsResultCode {
 class ftmsbike : public bike {
     Q_OBJECT
   public:
-    void resetLearnedCalibration() override { _inclinationResistanceTable.reset(); }
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
     bool connected() override;

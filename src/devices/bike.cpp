@@ -3,18 +3,11 @@
 #include "qdebugfixup.h"
 #include "homeform.h"
 #include "mywhooshlink.h"
-#include "qzsettings.h"
 #include <QSettings>
 #include <QStringList>
 #include <cmath>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
-
-void bike::resetLearnedCalibration() {
-    QSettings settings;
-    settings.remove(QZSettings::inclinationResistancePoints);
-    settings.sync();
-}
 
 double bike::powerZoneValueToFtpPercentage(double zoneValue) {
     if (zoneValue <= 1.9) {
@@ -51,6 +44,16 @@ double bike::powerZoneValueToFtpPercentage(double zoneValue) {
 
 int bike::powerZoneValueToWatts(double zoneValue, double ftp) {
     return qRound(ftp * powerZoneValueToFtpPercentage(zoneValue));
+}
+
+bool bike::targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                           bool autoResistance) {
+    // an app that sends its own target power (ERG) is followed by the tile, so there is nothing to warn about;
+    // the conflict is an app driving slope or resistance while the tile keeps re-sending its power.
+    // With auto resistance off the app's grade and resistance are dropped (changeInclination/changeResistance),
+    // so the tile has nothing to fight.
+    const bool externalControllerActive = lastAppFrame > 0 && now <= lastAppFrame + 2000;
+    return autoResistance && externalControllerActive && !appErgMode;
 }
 
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }

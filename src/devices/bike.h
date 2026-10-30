@@ -14,6 +14,8 @@ class bike : public bluetoothdevice {
     bike();
     static double powerZoneValueToFtpPercentage(double zoneValue);
     static int powerZoneValueToWatts(double zoneValue, double ftp);
+    static bool targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                                bool autoResistance);
 
     virtualbike *VirtualBike();
 
@@ -61,7 +63,6 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableBySoftware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
     virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
-    virtual void resetLearnedCalibration();
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
