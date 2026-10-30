@@ -119,6 +119,7 @@ class horizontreadmill : public treadmill {
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
     bool SWALK_845_TREADMILL = false;
+    int swalk845NotifyCccdHandle = -1; // Track AE02 CCCD confirmation, reset at service discovery.
     bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
