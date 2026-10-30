@@ -37,7 +37,7 @@ class apexbike : public bike {
   public:
     static bool usesWlt8266bmDistanceCounterMetrics(const QString &deviceName);
     static bool isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue);
-    static bool isWlt8266bm07e2CadenceSpikePacket(const QString &deviceName, const QByteArray &newValue);
+    static bool isWlt8266bmCadenceSpikePacket(const QString &deviceName, const QByteArray &newValue);
     static uint16_t wlt8266bmDistanceCounterFromPacket(const QByteArray &newValue);
     static double wlt8266bmSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs);
     static double wlt8266bmCadenceFromSpeed(double speed);
