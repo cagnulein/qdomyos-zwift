@@ -45,3 +45,38 @@ TEST(ApexBikeWlt8266BmRegressionTest, InvalidDistanceCounterDeltaDoesNotProduceM
     EXPECT_EQ(apexbike::wlt8266bmSpeedFromDistanceCounterDelta(0, 1200), 0);
     EXPECT_EQ(apexbike::wlt8266bmSpeedFromDistanceCounterDelta(1, 0), 0);
 }
+
+TEST(ApexBikeWlt8266BmRegressionTest, Wlt8266Bm07e2RejectsLoggedCadenceSpikePackets) {
+    const QString deviceName = QStringLiteral("WLT8266BM_07E2");
+
+    // Captured on 2026-10-30: these packets previously generated 328, 394, and 302 RPM.
+    EXPECT_TRUE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        deviceName, QByteArray::fromHex("ea503102a40c00000b3e")));
+    EXPECT_TRUE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        deviceName, QByteArray::fromHex("ea503101c50f0000489e")));
+    EXPECT_TRUE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        deviceName, QByteArray::fromHex("ea503102970f0000547d")));
+
+    // Device-name matching should not depend on the advertisement's case.
+    EXPECT_TRUE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        QStringLiteral("wlt8266bm_07e2"), QByteArray::fromHex("ea503101c50f0000489e")));
+}
+
+TEST(ApexBikeWlt8266BmRegressionTest, Wlt8266Bm07e2AcceptsNormalAndStationaryCadencePackets) {
+    const QString deviceName = QStringLiteral("WLT8266BM_07E2");
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        deviceName, QByteArray::fromHex("ea5031002c0c00000bc4")));
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        deviceName, QByteArray::fromHex("ea503100000c0000008d")));
+}
+
+TEST(ApexBikeWlt8266BmRegressionTest, CadenceSpikeFilterDoesNotChangeOtherApexVariantsOrPacketTypes) {
+    const QByteArray spikePacket = QByteArray::fromHex("ea503101c50f0000489e");
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(QStringLiteral("WLT8266BM_025B"), spikePacket));
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(QStringLiteral("WLT8266BM"), spikePacket));
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(QStringLiteral("APEX Bike"), spikePacket));
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        QStringLiteral("WLT8266BM_07E2"), QByteArray::fromHex("ea503000020000000082")));
+    EXPECT_FALSE(apexbike::isWlt8266bm07e2CadenceSpikePacket(
+        QStringLiteral("WLT8266BM_07E2"), QByteArray::fromHex("ea503101c5")));
+}
