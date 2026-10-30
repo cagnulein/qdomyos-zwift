@@ -503,6 +503,18 @@ Desideri farlo ora?</translation>
         <translation>%1 (sensore FC) connesso!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Ricerca di %1 (sensore FC)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensore FC) non trovato. Verifica che sia acceso e che trasmetta la frequenza cardiaca.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensore FC): nessuna frequenza cardiaca. Verifica che trasmetta la frequenza cardiaca.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (sensore di cadenza) connesso!</translation>
     </message>

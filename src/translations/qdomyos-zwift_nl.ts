@@ -503,6 +503,18 @@ Wil je dat nu doen?</translation>
         <translation>%1 (hartslagsensor) verbonden!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Zoeken naar %1 (hartslagsensor)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor) niet gevonden. Controleer of hij aan staat en de hartslag uitzendt.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor): geen hartslag. Controleer of hij de hartslag uitzendt.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (cadanssensor) verbonden!</translation>
     </message>

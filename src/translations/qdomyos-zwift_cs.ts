@@ -503,6 +503,18 @@ Restartovat nyní?</translation>
         <translation>Připojeno: %1 (snímač tepu)!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Hledání: %1 (snímač tepu)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenalezeno: %1 (snímač tepu). Zkontrolujte, že je zapnutý a vysílá tep.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (snímač tepu): žádný tep. Zkontrolujte, že vysílá tep.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Připojeno: %1 (snímač kadence)!</translation>
     </message>

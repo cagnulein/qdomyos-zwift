@@ -503,6 +503,18 @@ Would you like to do that now?</source>
         <translation>¡%1 (sensor de frecuencia cardíaca) conectado!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Buscando %1 (sensor de frecuencia cardíaca)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensor de frecuencia cardíaca) no encontrado. Comprueba que esté encendido y transmitiendo la frecuencia cardíaca.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensor de frecuencia cardíaca): sin frecuencia cardíaca. Comprueba que esté transmitiendo la frecuencia cardíaca.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>¡%1 (sensor de cadencia) conectado!</translation>
     </message>
