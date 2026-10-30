@@ -660,16 +660,17 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
     return Inclination;
 }
 
-void treadmill::evaluateStepCount() {
-    // Auto-detect cadence format: if per-leg, needs doubling for step count
+void treadmill::evaluateStepCount(bool cadenceAlreadyInStepsPerMinute) {
+    // Speed-derived cadence is already in steps/minute, never a per-leg sensor value.
+    // Only auto-detect and double cadence from an actual sensor when appropriate.
     // Running (>6 km/h): double if cadence < 120
     // Walking (<6 km/h): double if cadence < 60
     double effectiveCadence = Cadence.value();
 
-    if (Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
+    if (!cadenceAlreadyInStepsPerMinute && Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
         // Running: likely per-leg cadence, double it
         effectiveCadence = Cadence.value() * 2;
-    } else if (Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
+    } else if (!cadenceAlreadyInStepsPerMinute && Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
         // Walking: likely per-leg cadence, double it
         effectiveCadence = Cadence.value() * 2;
     }
