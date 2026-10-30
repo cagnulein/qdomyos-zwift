@@ -142,3 +142,9 @@ For a **BH i.Spada 2 FTMS (H9355iZ)** that QZ can control manually but Zwift can
 5. Try a short **ERG workout** to check that changing the target power changes physical resistance.
 
 In a confirmed support case, QZ had initially classified this bike as an elliptical. After explicitly selecting it under **FTMS Bike** and restarting QZ, the rider reported that Zwift ERG could increase resistance. This confirms ERG response in that setup; **automatic simulation-mode gradient changes and Kinomap control were not separately verified**. Do not force unrelated bikes into FTMS unless their protocol supports it.
+
+## Is the DT-SMART90-R treadmill compatible with QZ, and can I prepare workouts on a PC?
+
+A **DT-SMART90-R** owner explicitly confirmed that QZ worked after installation. The treadmill had previously been used with FitShow for structured workouts. As with other compatible treadmills, verify the available live metrics and test any automatic speed or incline commands safely on your particular firmware; the confirmation does not separately establish every control mode.
+
+You can also **author QZ XML workouts on a PC** with a text editor, transfer the file to the phone/tablet, and load it using **Open Train Program** in QZ. See the [XML training-program examples and format reference](../../train-programs-examples/README.md) and the [Workout Editor guide](../workout-editor.md). Alternatively, build the intervals directly in QZ's **Workout Editor**. Test the first program at low speed before relying on automatic treadmill control.
