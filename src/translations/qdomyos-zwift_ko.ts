@@ -3754,6 +3754,10 @@ This may take a few moments on first startup.</source>
         <source>Average Strokes Length: %1</source>
         <translation>평균 스트로크 길이: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ 목표 파워가 앱의 명령을 덮어쓰고 있습니다. 앱에 제어를 돌려주려면 QZ를 일시 중지했다가 다시 시작하세요.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

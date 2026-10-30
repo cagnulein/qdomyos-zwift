@@ -3770,6 +3770,10 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ 目标功率正在覆盖应用的指令。暂停 QZ 后再继续，即可将控制权交还给应用。</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

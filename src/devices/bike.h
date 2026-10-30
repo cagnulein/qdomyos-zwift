@@ -14,6 +14,8 @@ class bike : public bluetoothdevice {
     bike();
     static double powerZoneValueToFtpPercentage(double zoneValue);
     static int powerZoneValueToWatts(double zoneValue, double ftp);
+    static bool targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                                bool autoResistance);
 
     virtualbike *VirtualBike();
 
