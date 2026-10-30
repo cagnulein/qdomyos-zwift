@@ -41,22 +41,45 @@ for all of these, notably unsolicited inbound traffic and service publishing.
 
 ## Position permission / Bluetooth discovery
 
-- Android 12+ (API 31+) uses `BLUETOOTH_SCAN` (Nearby devices) with
-  `neverForLocation`; `ACCESS_FINE_LOCATION` in the manifest has
-  `maxSdkVersion=30` and the runtime request is limited to API <= 30.
-- `LocationHelper` no longer demands the device-wide Location toggle on Android
-  12+. Older versions still need the legacy location flow to discover Bluetooth.
-  Home.qml explains the two cases.
-- **Regression caveat:** Android warns that `neverForLocation` can filter some
-  BLE beacons. Validate device discovery against representative FTMS devices and
-  proprietary advertisements (including devices not broadcasting standard FTMS).
-- `PathController` uses `QGeoPositionInfoSource::lastKnownPosition()` as an
-  initial map center, but the GPX preview sets its center to the route's center
-  in `homeform::gpxpreview_open_clicked()`. Review this fallback with location
-  denied; avoid silently assuming there is no location-related source code.
-- Play's January 27, 2027 location policy means dropping precise location on
-  modern Android avoids an otherwise difficult-to-justify declaration. Inspect
-  the final merged AAB manifest in case dependency manifests re-add location.
+### Confirmed Android 17 real-device regression (October 30, 2026)
+
+- QZ log `debug-Fri_Oct_30_08_11_07_2026.log` demonstrates that the
+  bundled Qt 5.15 native Bluetooth backend **never starts its BLE scan**:
+  `Requesting ACCESS_*_LOCATION permission` then
+  `Search not possible due to missing permission (ACCESS_COARSE|FINE_LOCATION)`,
+  followed by `BTLE scanning error 100`. This is NOT an advertisement filter
+  or Echelon device-type issue; it occurs before any scan results.
+- Upstream Qt 5.15 `src/bluetooth/qbluetoothdevicediscoveryagent_android.cpp`
+  checks whether either `ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION`
+  is granted **for every Android SDK >= 23**, including API 37, and refuses to
+  scan if both are denied. It also checks the system-wide Location toggle.
+  Android 12+ itself does **not** require location for `BLUETOOTH_SCAN` when
+  `neverForLocation` applies; this additional check is an old Qt constraint.
+- **Compatibility workaround on this draft PR:** declare/request
+  `ACCESS_COARSE_LOCATION` (approximate only) on Android 12+; keep
+  `ACCESS_FINE_LOCATION` constrained to `maxSdkVersion=30` for Android
+  11 and older. `LocationHelper` again checks the system-wide Location toggle
+  using `LocationManager.isLocationEnabled()` on API 28+, matching Qt's
+  native guard. Home.qml explains that the requirement comes from Qt.
+- Keep `BLUETOOTH_SCAN` + `neverForLocation` and `BLUETOOTH_CONNECT` for
+  modern Android. Google warns that `neverForLocation` may filter some BLE
+  beacons; first validate that scanning starts, then check whether the Echelon
+  EX-5S and proprietary BLE advertisements are visible. Do not remove the
+  privacy assertion without evidence that it blocks devices.
+- **Permanent resolution:** update/patch Qt Bluetooth's Android discovery
+  native backend so API 31+ checks the Nearby devices permissions and does
+  not require a location permission or Location toggle solely for Bluetooth
+  scanning. The shipped `libQt5Bluetooth` is part of a custom 16K-page
+  aligned Qt distribution, so this is NOT solved by editing an app Java file
+  or the Android manifest alone; it requires a validated Qt library rebuild.
+- `PathController` uses `QGeoPositionInfoSource::lastKnownPosition()` as
+  an initial map center, while the GPX preview subsequently centers on the
+  selected route. Review this separately from the Bluetooth location request.
+- Google Play's January 2027 policy is particularly strict for **precise**
+  location. Approximate permission avoids restoring unrestricted
+  `ACCESS_FINE_LOCATION`, but it is still an unnecessary permission caused
+  by outdated Qt, so investigate removal before release. Check the merged
+  Play AAB manifest for any transitive precise location grant.
 
 ## Background TTS / Android 17 audio hardening
 
@@ -105,9 +128,12 @@ for all of these, notably unsolicited inbound traffic and service publishing.
 6. **Static final / MessageQueue:** reflective modifications to static finals
    fail, and a new MessageQueue implementation is used by target 37. Smoke-test
    Qt Java glue, accessibility, activity lifecycle and plugin integrations.
-7. **Location privacy / Play policy:** QZ now limits `ACCESS_FINE_LOCATION` to
-   API 30 and earlier; audit the merged manifest and confirm BLE discovery on
-   Android 12+ with `neverForLocation` (some beacon advertisements are filtered).
+7. **Location privacy / Play policy:** Fine location remains limited to
+   API 30 and earlier, but Qt 5.15 still requires an approximate location
+   permission **and the Location toggle** on Android 12+ solely to start
+   Bluetooth scanning. This is a draft-branch compatibility workaround, not
+   the intended final permission model. Audit the merged AAB manifest and
+   remove the Qt-specific check in a future rebuilt QtBluetooth library.
 
 ## Required validation
 
