@@ -1608,6 +1608,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+    if (SWALK_845_TREADMILL && characteristic.uuid() == QBluetoothUuid((quint16)0xAE02)) {
+        qDebug() << "SWALK-845 AE02 notification payload:" << newValue.toHex(' ');
+        return; // Diagnostic only: do not interpret unknown vendor bytes as FTMS data.
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
@@ -2371,7 +2375,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (!hasPowerSensor && !garminCompanion) {
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
-                evaluateStepCount();
+                evaluateStepCount(true);
                 parseCadence(calculatedCadence);
                 emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
             }
@@ -2520,9 +2524,16 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        const QLowEnergyDescriptor cccd = c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                        if (swalk845Notify) {
+                            swalk845NotifyCccdHandle = cccd.handle();
+                            qDebug() << "SWALK-845 AE02 CCCD subscription requested (awaiting confirmation):" << cccd.handle();
+                        }
+                        s->writeDescriptor(cccd, descriptor);
                         notificationSubscribed++;
                     } else {
+                        if (swalk845Notify)
+                            qDebug() << "SWALK-845 AE02 CCCD missing or invalid";
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
@@ -2530,9 +2541,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                    if (swalk845Notify) {
-                        qDebug() << QStringLiteral("SWALK-845 AE02 notifications enabled");
-                    }
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
                            // FTMS indications, plus the Merach unlock indication characteristic.
                            (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
@@ -2620,6 +2628,13 @@ void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic 
 
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+    if (SWALK_845_TREADMILL && swalk845NotifyCccdHandle >= 0 &&
+        descriptor.handle() == swalk845NotifyCccdHandle) {
+        if (newValue == QByteArray::fromHex("0100"))
+            qDebug() << "SWALK-845 AE02 CCCD notifications confirmed";
+        else
+            qDebug() << "SWALK-845 AE02 CCCD unexpected write confirmation:" << newValue.toHex(' ');
+    }
 
     if (notificationSubscribed)
         notificationSubscribed--;
@@ -2664,6 +2679,9 @@ void horizontreadmill::serviceScanDone(void) {
     initRequest = false;
     firstStateChanged = 0;
     auto services_list = m_control->services();
+    swalk845NotifyCccdHandle = -1;
+    if (SWALK_845_TREADMILL)
+        qDebug() << "SWALK-845 AE00 service discovered:" << services_list.contains(QBluetoothUuid((quint16)0xAE00));
 
     // Check if DOMYOS device has native service
     QBluetoothUuid _FTMSServiceId((quint16)0x1826);
@@ -2699,6 +2717,11 @@ void horizontreadmill::serviceScanDone(void) {
 }
 
 void horizontreadmill::errorService(QLowEnergyService::ServiceError err) {
+    if (SWALK_845_TREADMILL) {
+        auto *service = qobject_cast<QLowEnergyService *>(sender());
+        if (service && service->serviceUuid() == QBluetoothUuid((quint16)0xAE00))
+            qDebug() << "SWALK-845 AE00 service error:" << static_cast<int>(err);
+    }
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("horizontreadmill::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
