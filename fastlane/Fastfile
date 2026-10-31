@@ -70,6 +70,7 @@ platform :ios do
     upload_to_testflight(
       api_key: result[:api_key],
       ipa: result[:ipa_path],
+      changelog: ENV.fetch("TESTFLIGHT_CHANGELOG"),
       skip_waiting_for_build_processing: true,
       distribute_external: false
     )
