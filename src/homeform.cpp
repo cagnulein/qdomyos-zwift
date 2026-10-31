@@ -2007,6 +2007,8 @@ void homeform::resetInclinationResistanceTable() {
     QSettings settings;
     settings.setValue(QZSettings::inclinationResistancePoints,
                       QZSettings::default_inclinationResistancePoints);
+    settings.setValue(QZSettings::ergDataPoints,
+                      QZSettings::default_ergDataPoints);
     settings.sync();
 }
 
