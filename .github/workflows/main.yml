@@ -960,9 +960,7 @@ jobs:
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
             # Temporary #5172 Android memory stress (one older and one newer Android).
-            if [ "${{ matrix.api-level }}" = "30" ] || [ "${{ matrix.api-level }}" = "35" ]; then
-              bash .github/scripts/android_ip_memory_test.sh
-            fi
+            if [ "${{ matrix.api-level }}" = "30" ] || [ "${{ matrix.api-level }}" = "35" ]; then bash .github/scripts/android_ip_memory_test.sh; fi
 
             # Save logcat for debugging
             echo "Saving logcat for analysis..."
