@@ -24,7 +24,8 @@ for count in 5000 35000 65000; do
   for i in $(seq 1 150); do
     current="$(adb shell pidof "$pkg" 2>/dev/null | tr -d '\r')"
     [ "$current" = "$pid" ] || fail "QZ crashed/restarted during stress (pid $pid -> $current)"
-    if adb logcat -d -s QZIpStress:I '*:S' | grep -Fq "QZ_IP_STRESS $count"; then
+    phases="$(adb logcat -d -s QZIpStress:I '*:S')"
+    if [[ "$phases" == *"QZ_IP_STRESS $count"* ]]; then
       seen=yes
       break
     fi
