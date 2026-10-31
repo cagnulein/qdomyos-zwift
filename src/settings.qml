@@ -7528,7 +7528,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okUiZoomButton
                             Accessible.role: Accessible.Button
-                                                        Accessible.name: qsTr("Save Tile Size")
+                            Accessible.name: qsTr("Save Tile Size")
                             text: qsTr("OK")
                             enabled: uiZoomTextField.valid && uiZoomTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14706,7 +14706,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okDomyosEllipticalRatioButton
                                     Accessible.role: Accessible.Button
-                                                                        Accessible.name: qsTr("Save Domyos Elliptical Speed Ratio")
+                                    Accessible.name: qsTr("Save Domyos Elliptical Speed Ratio")
                                     text: qsTr("OK")
                                     enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
