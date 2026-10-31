@@ -9,8 +9,7 @@ mkdir -p "$(dirname "$LOG_PATH")"
 python3 .github/scripts/ios_simulator_project.py \
   build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 
-# Keep this invocation shared with the simulator CI job. TestFlight still needs
-# a separate signed device archive, which Fastlane creates after this check.
+# TestFlight needs a signed device archive, which Fastlane builds separately.
 if xcodebuild -project src/qdomyoszwift.xcodeproj -scheme qdomyoszwift -configuration Release \
   -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath dd \
   ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \

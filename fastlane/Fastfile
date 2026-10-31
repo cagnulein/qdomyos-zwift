@@ -49,7 +49,6 @@ platform :ios do
       export_options: { signingStyle: "automatic" },
       clean: true,
       xcargs: signing_args,
-      export_xcargs: signing_args,
       disable_package_automatic_updates: true
     )
 
