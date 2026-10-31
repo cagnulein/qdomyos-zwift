@@ -628,6 +628,11 @@ HomeForm {
                 Accessible.focusable: true
                 Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
+            MouseArea {
+                anchors.fill: rect
+                enabled: identificator === "required_speed" && !window.lockTiles
+                onClicked: editRequiredSpeedGoal()
+            }
         }
     }
 
