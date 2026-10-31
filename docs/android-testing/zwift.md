@@ -1,5 +1,182 @@
 # Testing the QZ <-> Zwift Integration on Android
 
+## Quick Reference — Pixel 8a (192.168.0.35)
+
+Tested 2026-06-21 with QZ 2.21.5 and Zwift on Pixel 8a. Everything below is confirmed working.
+
+### ADB connection
+
+ADB port changes after every wireless debug session. Last known port: `45407`.
+
+```bash
+ADB="~/Library/Android/sdk/platform-tools/adb -s 192.168.0.35:45407"
+
+# If that port is stale, check mDNS first:
+~/Library/Android/sdk/platform-tools/adb mdns services
+# Look for _adb-tls-connect._tcp. entries for 192.168.0.35
+
+# If nothing, scan in batches:
+for port in $(seq 44000 1000 51000); do
+  nc -w 1 192.168.0.35 $port </dev/null 2>/dev/null && echo "open: $port"
+done
+```
+
+### Zwift package on Pixel 8a
+
+On this device `com.zwift.android.prod` is the **Zwift game** (not Companion).
+Zwift Companion is a separate package not installed here.
+
+```bash
+$ADB shell monkey -p com.zwift.android.prod 1   # launch Zwift
+```
+
+### Screen orientation
+
+Zwift runs in **landscape** on the Pixel 8a: the resolution is **2400×1080**.
+QZ runs in **portrait**: **1080×2400**.
+Always check orientation before using hardcoded coordinates.
+
+### Zwift BLE pairing coordinates (landscape 2400×1080)
+
+| Step | Tap coordinates | Notes |
+|---|---|---|
+| Login `>` button | `(1655, 629)` | After the Zwift home screen appears |
+| POTENZA → Cerca | `(900, 650)` | On the DISPOSITIVI ABBINATI screen |
+| Switch to TUTTI filter | `(1450, 200)` | "Wahoo KICKR 0000" only appears here, not under CONSIGLIATI |
+| Select Wahoo KICKR 0000 | appears after ~15 s | Tap the device row |
+| CHIUDI | `(1200, 950)` | Closes the pairing modal |
+
+### One-time dialogs on first launch (portrait 1080×2400)
+
+| Dialog | Tap | Coordinates |
+|---|---|---|
+| Health Connect permission | "Don't allow" | `(270, 2217)` |
+| 16KB compatibility warning | "Don't Show Again" | `(810, 2245)` |
+
+### Live power verification
+
+With QZ running (`applewatch_fakedevice=true`, `tile_target_power_enabled=true`):
+
+To set T.Power from adb — scroll QZ dashboard down then use exact uiautomator bounds:
+```bash
+# Find current bounds (scroll position changes them):
+$ADB shell uiautomator dump /sdcard/ui.xml
+$ADB pull /sdcard/ui.xml /tmp/ui.xml
+grep -o '"Increase T.Power.*bounds="[^"]*"' /tmp/ui.xml
+
+# Tap + 20 times to reach ~200W (confirmed bounds 2026-06-21):
+for i in $(seq 1 20); do $ADB shell input tap 918 1716; sleep 0.25; done
+```
+
+- Each tap adds ~10W; Zwift POTENZA tile updates in real time
+- **Confirmed 2026-06-21:** QZ T.Power=200W → Zwift shows **183W POTENZA + 61 rpm CADENZA** live
+
+### Zwift account
+
+Account "aaa ssss" has no active Zwift subscription. The pairing screen and live power readout work, but you cannot start a ride. This is enough for sensor validation tests.
+
+---
+
+## Zwift App Architecture (Pixel 8a)
+
+There are **two separate packages** installed:
+
+| Package | Role | How to launch |
+|---|---|---|
+| `com.zwift.android.prod` | Zwift Home app (portrait, web-like UI) | `monkey -p com.zwift.android.prod 1` |
+| `com.zwift.zwiftgame` | Zwift game/engine (landscape, Unity) | `am start com.zwift.zwiftgame/.ZwiftMainActivity` |
+
+The **DISPOSITIVI ABBINATI** (sensor pairing) screen is only accessible inside `com.zwift.zwiftgame`. From the Zwift Home app there is no direct route to the pairing screen without starting a ride (which requires a subscription). Launch the game activity directly instead:
+
+```bash
+$ADB shell am start com.zwift.zwiftgame/.ZwiftMainActivity
+```
+
+If the game has never been launched in this session, it shows the **login screen** first. Tap the `>` button at **(1655, 629)** in landscape 2400×1080 to proceed to the pairing screen.
+
+If the game was already running, it brings the DISPOSITIVI ABBINATI screen back to the foreground immediately.
+
+---
+
+## Pairing All Sensors — Pixel 8a (2400×1080 landscape)
+
+Tile centers found via Pillow pixel analysis on the orange tiles:
+
+| Sensor | Tile center (device px) |
+|---|---|
+| POTENZA | `(620, 337)` |
+| RESISTENZA | `(1424, 337)` |
+| CADENZA | `(659, 689)` |
+| CONTROLLER | `(1200, 689)` |
+| FREQUENZA CARDIACA | `(1739, 689)` |
+
+### ABBINA DISPOSITIVI modal (per sensor)
+
+After tapping a tile, the search modal opens:
+
+| Action | Coordinates |
+|---|---|
+| Select "Wahoo KICKR 0000" row | `(1200, 357)` |
+| CHIUDI (confirm/close) | `(1199, 952)` |
+
+"Wahoo KICKR 0000" appears under **CONSIGLIATI** for POTENZA, RESISTENZA, CADENZA (no need to switch to TUTTI).
+
+### FREQUENZA CARDIACA — Consent Dialog Limitation ⚠️
+
+When pairing a heart rate sensor for the first time, Zwift shows a **"CONSENSO DATI SUI SENSORI"** dialog with NON ADESSO and ACCONSENTO buttons. This dialog is rendered inside Unity's `SurfaceView` and its buttons **do not respond to `adb shell input tap`** synthetic events — not even after delays or raw event attempts.
+
+**Workaround:** tap **ACCONSENTO** physically on the device screen (once accepted, it is remembered and the dialog will not appear again).
+
+Screenshots:
+- [`zwift_pairing_3sensors.png`](zwift_pairing_3sensors.png) — 3 sensors paired, QZ not yet sending data
+- [`zwift_pairing_live_data.png`](zwift_pairing_live_data.png) — **live data confirmed: POTENZA 183W, CADENZA 61 rpm** from QZ T.Power=200W target
+- [`qz_tpower_200w.png`](qz_tpower_200w.png) — QZ dashboard showing T.Power=200W, FTP Zone Z4.9, timer running
+
+### Sequence to pair all sensors from scratch
+
+```bash
+ADB="~/Library/Android/sdk/platform-tools/adb -s 192.168.0.35:45407"
+
+# 1. Ensure QZ is running and advertising BLE
+$ADB shell am start org.cagnulen.qdomyoszwift/.CustomQtActivity
+sleep 8
+
+# 2. Launch Zwift game (brings DISPOSITIVI ABBINATI to front)
+$ADB shell am start com.zwift.zwiftgame/.ZwiftMainActivity
+sleep 5
+
+# 3. If the login screen appears, tap >
+$ADB shell input tap 1655 629
+sleep 12   # wait for game to load to pairing screen
+
+# 4. Pair POTENZA
+$ADB shell input tap 620 337   # open POTENZA modal
+sleep 3
+$ADB shell input tap 1200 357  # select Wahoo KICKR 0000
+sleep 2
+$ADB shell input tap 1199 952  # CHIUDI
+sleep 2
+
+# 5. Pair RESISTENZA
+$ADB shell input tap 1424 337
+sleep 3
+$ADB shell input tap 1200 357
+sleep 2
+$ADB shell input tap 1199 952
+sleep 2
+
+# 6. Pair CADENZA
+$ADB shell input tap 659 689
+sleep 3
+$ADB shell input tap 1200 357
+sleep 2
+$ADB shell input tap 1199 952
+sleep 2
+
+# 7. FREQUENZA CARDIACA — requires physical tap on ACCONSENTO button (once only)
+# After first consent, use the same flow: tap (1739,689) -> (1200,357) -> (1199,952)
+```
+
 ## Overview
 
 On Android, Zwift can receive QZ data **without Bluetooth** by using the Android notification mechanism. QZ publishes sensor data, such as power, cadence, and heart rate, through a system notification. Zwift reads that notification as if it were a BLE sensor.

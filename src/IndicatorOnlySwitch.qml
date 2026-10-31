@@ -9,6 +9,11 @@ import QtQuick.Dialogs 1.0
 SwitchDelegate {
     id: root
 
+    Accessible.name: root.text
+    Accessible.role: Accessible.CheckBox
+    Accessible.checkable: true
+    Accessible.checked: root.checked
+
     // Preserve Material styling while making translated setting titles responsive.
     function configureTextItem(item) {
         if (!item)

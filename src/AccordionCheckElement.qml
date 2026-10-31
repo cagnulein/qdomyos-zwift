@@ -68,6 +68,10 @@ ColumnLayout {
         id: indicatCbx
         text: rootElement.title
         checked: rootElement.isOpen
+        Accessible.name: rootElement.title
+        Accessible.role: Accessible.CheckBox
+        Accessible.checkable: true
+        Accessible.checked: rootElement.isOpen
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {

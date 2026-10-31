@@ -1059,6 +1059,7 @@ ios {
     LIBS += -framework AVFoundation
 
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_accessibility_helper.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_background_keepalive.mm \
@@ -1075,6 +1076,7 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
+    ios/ios_accessibility_helper.h \
     ios/ios_liveactivity.h \
     ios/ios_background_keepalive.h
 
