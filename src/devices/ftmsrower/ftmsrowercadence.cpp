@@ -33,16 +33,9 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         return m_cadence;
     }
 
-    // The first increment after startup/resume establishes a new real-stroke baseline.
-    if (!m_hasStroke) {
-        m_samples.clear();
-        m_samples.append({strokeCount, timestampMs});
-        m_hasStroke = true;
-        m_lastStrokeTimestampMs = timestampMs;
-        m_cadence = 0;
-        return m_cadence;
-    }
-
+    // The first increment completes the interval from the initial baseline.
+    // Discarding it delayed the four-interval warm-up by an extra stroke.
+    m_hasStroke = true;
     m_samples.append({strokeCount, timestampMs});
     while (m_samples.size() > 5) {
         m_samples.removeFirst();

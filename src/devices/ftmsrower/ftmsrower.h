@@ -41,7 +41,8 @@ class ftmsrower : public rower {
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     static bool usesJorotoStrokeCountCadence(const QString &deviceName);
-    bool usesJorotoDirectDistance() const { return JOROTO_MR280PRO; }
+    bool usesDirectSessionDistance() const override { return JOROTO_MR280PRO; }
+    void clearStats() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

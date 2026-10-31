@@ -34,6 +34,15 @@ ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
     refresh->start(200ms);
 }
 
+void ftmsrower::clearStats() {
+    rower::clearStats();
+    jorotoCadence.reset();
+    jorotoPlausiblePaceSamples = 0;
+    jorotoPaceReady = false;
+    lastStrokesCount = 0;
+    lastStroke = QDateTime::currentDateTime();
+}
+
 void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                     bool wait_for_response) {
     if (!gattFTMSService || !gattWriteCharControlPointId.isValid()) {
@@ -386,6 +395,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             Cadence = jorotoCadence.update(static_cast<quint16>(StrokesCount.value()), nowMs, reportedCadence);
             if (jorotoStale) {
                 qDebug() << "Resetting JOROTO cadence!";
+                jorotoPlausiblePaceSamples = 0;
+                jorotoPaceReady = false;
                 Cadence = 0;
                 m_watt = 0;
                 Speed = 0;
@@ -933,7 +944,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             Resistance = 9;
             emit resistanceRead(Resistance.value());
             qDebug() << "MRK-R26 found! using SPM-based power with manual resistance 1-18, default 9";
-        } else if (deviceName.startsWith(QStringLiteral("JOROTO-MR280PRO"))) {
+        } else if (usesJorotoStrokeCountCadence(deviceName)) {
             JOROTO_MR280PRO = true;
             qDebug() << "JOROTO-MR280PRO found! using Stroke Count cadence";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {

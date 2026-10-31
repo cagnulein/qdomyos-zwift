@@ -114,6 +114,20 @@ TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
     EXPECT_NEAR(calculator.update(109, 33001, 22), 20, 0.001);
 }
 
+TEST(FtmsRowerCadenceTest, ExplicitResetRequiresFourNewIntervals) {
+    ftmsrowerCadenceCalculator calculator;
+    for (int i = 0; i <= 4; ++i)
+        calculator.update(static_cast<quint16>(100 + i), i * 3000, 20);
+    EXPECT_NEAR(calculator.cadence(), 20, 0.001);
+
+    calculator.reset();
+    EXPECT_DOUBLE_EQ(calculator.cadence(), 0);
+    for (int i = 0; i < 4; ++i) {
+        EXPECT_DOUBLE_EQ(calculator.update(static_cast<quint16>(200 + i), 20000 + i * 3000, 20), 0);
+    }
+    EXPECT_NEAR(calculator.update(204, 32000, 20), 20, 0.001);
+}
+
 TEST(FtmsRowerCadenceTest, SlowRowingGetsAWindowBasedTimeout) {
     ftmsrowerCadenceCalculator calculator;
 

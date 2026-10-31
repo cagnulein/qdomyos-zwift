@@ -103,6 +103,9 @@ class bluetoothdevice : public QObject {
      */
     virtual double odometer();
     virtual double odometerFromStartup();
+    // Drivers may use their reported odometer for session/FIT distance instead of
+    // integrating speed every second. The default preserves existing behavior.
+    virtual bool usesDirectSessionDistance() const { return false; }
     virtual metric currentDistance() {return Distance;}
     virtual metric currentDistance1s() {return Distance1s;}
     void addCurrentDistance1s(double distance) { Distance1s += distance; }
