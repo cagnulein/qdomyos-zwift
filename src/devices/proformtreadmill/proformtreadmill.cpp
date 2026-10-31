@@ -96,7 +96,7 @@ void proformtreadmill::forceIncline(double incline) {
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                 proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0 || proform_treadmill_705_cst_V80_44 ||
-                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
+                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_sport_3_0_unit_key || proform_treadmill_995i || nordictrack_series_7 ||
                 proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0
                ) {
         write[14] = write[11] + write[12] + 0x12;
@@ -144,7 +144,7 @@ void proformtreadmill::forceSpeed(double speed) {
                proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0 || proform_treadmill_705_cst_V80_44 ||
-               nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
+               nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_sport_3_0_unit_key || proform_treadmill_995i || nordictrack_series_7 ||
                proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0 || proform_treadmill_105_cst || proform_treadmill_305_cst) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
@@ -918,13 +918,22 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
-        } else if (proform_treadmill_sport_3_0) {
+        } else if (proform_treadmill_sport_3_0 || proform_treadmill_sport_3_0_unit_key) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
             uint8_t noOpData3[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
             uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t sport30_stateHeader[] = {0xfe, 0x02, 0x0d, 0x02};
+            uint8_t sport30_resume[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                        0x00, 0x10, 0x0d, 0x00, 0x2e, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t sport30_pause[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                       0x00, 0x10, 0x03, 0x00, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t sport30_stop[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                      0x00, 0x10, 0x04, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t sport30_idle[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                      0x00, 0x10, 0x01, 0x00, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00};
             
             switch (counterPoll) {
             case 0:
@@ -962,28 +971,69 @@ void proformtreadmill::update() {
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));                
                 if (requestStart != -1) {
-                    emit debug(QStringLiteral("starting..."));
+                    if (proform_treadmill_sport_3_0_unit_key && isPaused()) {
+                        emit debug(QStringLiteral("resuming ProForm Sport 3.0..."));
+                        writeCharacteristic(sport30_stateHeader, sizeof(sport30_stateHeader), QStringLiteral("Sport 3.0 resume 1/2"));
+                        writeCharacteristic(sport30_resume, sizeof(sport30_resume), QStringLiteral("Sport 3.0 resume 2/2"), false, true);
+                        forceSpeed(1.6);
+                    } else {
+                        emit debug(QStringLiteral("starting..."));
 
-                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
-                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
-                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
-                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
-                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
-                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
-                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
-                                        0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
-                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
-                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
-                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
-                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
-                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
-
+                        uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                        uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                            0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                        uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
+                                            0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+                        uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                        uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                            0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+                        if (proform_treadmill_sport_3_0_unit_key) {
+                            const uint16_t startIncline = static_cast<uint16_t>(currentInclination().value() * 100);
+                            start5[14] = static_cast<uint8_t>(startIncline & 0xff);
+                            start5[15] = static_cast<uint8_t>((startIncline >> 8) & 0xff);
+                            start5[18] = 0;
+                            for (uint8_t i = 6; i <= 17; i++) {
+                                start5[18] += start5[i];
+                            }
+                        }
+                        writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                        writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                        writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                        writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                        writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+                    }
+                    if (proform_treadmill_sport_3_0_unit_key) {
+                        setPaused(false);
+                    }
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1 || requestPause != -1) {
-                    forceSpeed(0);
-
+                if (requestPause != -1) {
+                    if (proform_treadmill_sport_3_0_unit_key) {
+                        emit debug(QStringLiteral("pausing ProForm Sport 3.0..."));
+                        writeCharacteristic(sport30_stateHeader, sizeof(sport30_stateHeader), QStringLiteral("Sport 3.0 pause 1/2"));
+                        writeCharacteristic(sport30_pause, sizeof(sport30_pause), QStringLiteral("Sport 3.0 pause 2/2"), false, true);
+                        setPaused(true);
+                    } else {
+                        forceSpeed(0);
+                    }
+                    requestStop = -1;
+                    requestPause = -1;
+                } else if (requestStop != -1) {
+                    if (proform_treadmill_sport_3_0_unit_key) {
+                        emit debug(QStringLiteral("stopping ProForm Sport 3.0..."));
+                        if (!isPaused()) {
+                            writeCharacteristic(sport30_stateHeader, sizeof(sport30_stateHeader), QStringLiteral("Sport 3.0 stop pause 1/2"));
+                            writeCharacteristic(sport30_pause, sizeof(sport30_pause), QStringLiteral("Sport 3.0 stop pause 2/2"), false, true);
+                        }
+                        writeCharacteristic(sport30_stateHeader, sizeof(sport30_stateHeader), QStringLiteral("Sport 3.0 stop 1/2"));
+                        writeCharacteristic(sport30_stop, sizeof(sport30_stop), QStringLiteral("Sport 3.0 stop 2/2"), false, true);
+                        writeCharacteristic(sport30_stateHeader, sizeof(sport30_stateHeader), QStringLiteral("Sport 3.0 idle 1/2"));
+                        writeCharacteristic(sport30_idle, sizeof(sport30_idle), QStringLiteral("Sport 3.0 idle 2/2"), false, true);
+                        setPaused(false);
+                    } else {
+                        forceSpeed(0);
+                    }
                     emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
                     requestPause = -1;
@@ -4188,7 +4238,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF) ||
 
         (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) &&
-        (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0 || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || freemotion_t10_9b_hci))
+        (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0 || proform_treadmill_sport_3_0_unit_key || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || freemotion_t10_9b_hci))
     )
     {
         return;
@@ -4198,7 +4248,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
     // Some profiles expose distance in this field instead of power.
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !freemotion_t10_9b_hci && !nordictrack_elite_800) {
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_treadmill_sport_3_0_unit_key && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !freemotion_t10_9b_hci && !nordictrack_elite_800) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
@@ -4347,6 +4397,7 @@ void proformtreadmill::btinit() {
     proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
     nordictrack_series_7 = settings.value(QZSettings::nordictrack_series_7, QZSettings::default_nordictrack_series_7).toBool();
     proform_treadmill_sport_3_0 = settings.value(QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0).toBool();
+    proform_treadmill_sport_3_0_unit_key = settings.value(QZSettings::proform_treadmill_sport_3_0_unit_key, QZSettings::default_proform_treadmill_sport_3_0_unit_key).toBool();
     proform_carbon_tlx_treadmill = settings.value(QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill).toBool();
     proform_carbon_tlx_v84_314_treadmill = settings.value(QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill).toBool();
     proform_carbon_tl_PFTL59723_6 = settings.value(QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6).toBool();
@@ -8965,7 +9016,7 @@ void proformtreadmill::btinit() {
         uint8_t initData25[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
-    } else if (proform_treadmill_sport_3_0) {
+    } else if (proform_treadmill_sport_3_0 || proform_treadmill_sport_3_0_unit_key) {
         // Init sequence (39 packets)
         uint8_t sport30_init_001[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t sport30_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -8983,6 +9034,9 @@ void proformtreadmill::btinit() {
         uint8_t sport30_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0x56, 0x24, 0xe8, 0xba, 0x8a, 0x68, 0x3c, 0x06, 0xee};
         uint8_t sport30_init_015[] = {0x01, 0x12, 0xcc, 0x90, 0x72, 0x52, 0x50, 0x34, 0x1e, 0xe6, 0xf4, 0xd8, 0xaa, 0xba, 0xb8, 0x8c, 0x96, 0x9e, 0x9c, 0x60};
         uint8_t sport30_init_016[] = {0xff, 0x08, 0x62, 0x62, 0xa0, 0x98, 0x02, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_unit_key_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0xd5, 0xc8, 0xc1, 0xb8, 0xbd, 0xb0, 0xb1, 0xb0, 0xb5};
+        uint8_t sport30_unit_key_init_015[] = {0x01, 0x12, 0xc8, 0xc1, 0xd8, 0xed, 0xe0, 0x11, 0x00, 0x35, 0x28, 0x41, 0x78, 0x9d, 0xb0, 0xd1, 0xf0, 0x15, 0x28, 0x41};
+        uint8_t sport30_unit_key_init_016[] = {0xff, 0x08, 0x98, 0xad, 0xc0, 0x98, 0x02, 0x00, 0x00, 0xdd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t sport30_init_017[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t sport30_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t sport30_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -9035,11 +9089,23 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_013, sizeof(sport30_init_013), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
-        writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        if (proform_treadmill_sport_3_0_unit_key) {
+            writeCharacteristic(sport30_unit_key_init_014, sizeof(sport30_unit_key_init_014), QStringLiteral("init"), false, true);
+        } else {
+            writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        }
         QThread::msleep(sleepms);
-        writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        if (proform_treadmill_sport_3_0_unit_key) {
+            writeCharacteristic(sport30_unit_key_init_015, sizeof(sport30_unit_key_init_015), QStringLiteral("init"), false, true);
+        } else {
+            writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        }
         QThread::msleep(sleepms);
-        writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        if (proform_treadmill_sport_3_0_unit_key) {
+            writeCharacteristic(sport30_unit_key_init_016, sizeof(sport30_unit_key_init_016), QStringLiteral("init"), false, true);
+        } else {
+            writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        }
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_017, sizeof(sport30_init_017), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
