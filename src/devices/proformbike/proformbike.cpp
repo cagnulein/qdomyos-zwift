@@ -1724,8 +1724,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     const uint16_t rawResistance =
                         static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(10))) |
                         (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(11))) << 8);
-                    if (rawResistance >= 500 && rawResistance <= 10000 && rawResistance % 500 == 0) {
-                        Resistance = rawResistance / 500;
+                    const uint16_t resistanceLevel = static_cast<uint16_t>((rawResistance + 250U) / 500U);
+                    const int resistanceDelta =
+                        static_cast<int>(rawResistance) - static_cast<int>(resistanceLevel * 500U);
+                    if (resistanceLevel >= 1 && resistanceLevel <= 20 && resistanceDelta >= -1 &&
+                        resistanceDelta <= 1) {
+                        Resistance = resistanceLevel;
                         m_pelotonResistance = Resistance.value() * 5;
                     }
                 }
