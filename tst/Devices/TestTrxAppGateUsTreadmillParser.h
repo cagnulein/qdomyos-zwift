@@ -133,8 +133,47 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithNoRows) {
     QString error;
 
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("exactly 10 rows")));
+    EXPECT_TRUE(error.contains(QStringLiteral("at least one row")));
     EXPECT_TRUE(frames.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, NormalizesSingleRowWorkoutToTenMinuteProfile) {
+    trainrow row;
+    row.duration = QTime(0, 1, 0);
+    row.speed = 6.0;
+    row.inclination = 3.0;
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 8);
+
+    const QList<double> speeds = {6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0};
+    EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
+    EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
+    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30303030303030303030303030303030303030303a8"));
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3001e001e001e001e001e001e001e001e001e001e99"));
+    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3001e001e001e001e001e001e001e001e001e001e9a"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, SamplesTwoRowWorkoutAcrossTenMinuteProfile) {
+    trainrow first;
+    first.duration = QTime(0, 1, 0);
+    first.speed = 4.0;
+    trainrow second;
+    second.duration = QTime(0, 1, 0);
+    second.speed = 8.0;
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({first, second}, &frames, &error))
+        << error.toStdString();
+    ASSERT_EQ(frames.size(), 8);
+
+    const QList<double> firstHalf = {4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0};
+    const QList<double> secondHalf = {8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0};
+    EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, firstHalf));
+    EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, secondHalf));
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, BuildsIconsoleWorkoutFromTenOneMinuteRows) {
@@ -189,7 +228,7 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithInvalidRows) {
     QList<QByteArray> frames;
     QString error;
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("ten one-minute")));
+    EXPECT_TRUE(error.contains(QStringLiteral("positive-duration")));
     EXPECT_TRUE(frames.isEmpty());
 }
 

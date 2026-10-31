@@ -93,26 +93,49 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         return false;
     };
 
-    if (rows.size() != 10) {
-        return fail(QStringLiteral("iConsole programs require exactly 10 rows"));
+    if (rows.isEmpty()) {
+        return fail(QStringLiteral("iConsole programs require at least one row"));
     }
 
-    QList<double> speedSlots;
-    QByteArray inclinePayload;
-    QList<int> slotDurations;
+    struct WorkoutStage {
+        double speed;
+        double incline;
+        int durationSeconds;
+    };
+    QList<WorkoutStage> stages;
+    qint64 totalDurationSeconds = 0;
     for (const trainrow &row : rows) {
-        if (QTime(0, 0, 0).secsTo(row.duration) != 60 || row.rampDuration != QTime(0, 0, 0) ||
-            row.rampElapsed != QTime(0, 0, 0) || !std::isfinite(row.speed)) {
-            return fail(QStringLiteral("iConsole programs require ten one-minute non-ramp rows with finite speeds"));
+        const int durationSeconds = QTime(0, 0, 0).secsTo(row.duration);
+        if (durationSeconds <= 0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
+            !std::isfinite(row.speed)) {
+            return fail(QStringLiteral("iConsole programs require positive-duration non-ramp rows with finite speeds"));
         }
 
         const double speed = qBound(0.0, row.speed, 254.9);
         const double incline = !std::isfinite(row.inclination) || row.inclination == -200.0
                                    ? 0.0
                                    : qBound(0.0, row.inclination, 254.0);
+        stages.append({speed, incline, durationSeconds});
+        totalDurationSeconds += durationSeconds;
+    }
+
+    QList<double> speedSlots;
+    QByteArray inclinePayload;
+    QList<int> slotDurations;
+    for (int minuteSlot = 0; minuteSlot < 10; ++minuteSlot) {
+        const double sampleTime = (minuteSlot + 0.5) * totalDurationSeconds / 10.0;
+        double elapsedSeconds = 0.0;
+        const WorkoutStage *stage = &stages.last();
+        for (const WorkoutStage &candidate : stages) {
+            elapsedSeconds += candidate.durationSeconds;
+            if (sampleTime < elapsedSeconds) {
+                stage = &candidate;
+                break;
+            }
+        }
         for (int subslot = 0; subslot < 2; ++subslot) {
-            speedSlots.append(speed);
-            inclinePayload.append(static_cast<char>(qRound(incline)));
+            speedSlots.append(stage->speed);
+            inclinePayload.append(static_cast<char>(qRound(stage->incline)));
             slotDurations.append(30);
         }
     }

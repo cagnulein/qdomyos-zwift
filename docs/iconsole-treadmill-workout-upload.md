@@ -21,7 +21,7 @@ The BLE transport splits each 25-byte logical frame into a 20-byte write followe
 4, 6, 8, 10, 12, 14, 12, 10, 8, 6 km/h
 ```
 
-The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. This implementation accepts exactly ten one-minute, non-ramp rows and maps each row to two 30-second slots. The profile is split into two ten-slot speed frames.
+The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. QZ samples the input timeline at the midpoint of each of ten output minutes, then maps every output minute to two 30-second slots. This approximates the input speed and inclination changes, while normalizing the programmed duration to ten minutes.
 
 The capture also records `F0 A3`, `F0 A4`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF` around the speed frames. The candidate Android app's handlers associate these with workout mode, parameters, inclination, duration, and key-lock. The APK analyzed is a mirror candidate and has not been proven to match the captured app build. QZ now sends those profile frames in the observed order. Their complete firmware semantics have not been confirmed on a physical TX 90. `F0 A5` remains a separate workout-control command and is not part of the profile upload.
 
@@ -31,8 +31,8 @@ When a treadmill workout is associated with a treadmill device, QZ calls the tre
 
 For an iConsole treadmill:
 
-1. QZ validates that the workout has exactly ten one-minute, non-ramp rows with finite speeds.
-2. Each row contributes two 30-second speed and inclination slots. Missing inclination is encoded as zero.
+1. QZ requires a non-empty workout with positive-duration, non-ramp rows and finite speeds.
+2. QZ samples the timeline at ten evenly spaced minute midpoints. Each sampled value contributes two 30-second speed and inclination slots; missing inclination is encoded as zero.
 3. Each speed is encoded using the captured representation:
    `deci-km/h = round(speed * 10)` followed by `deci-km/h / 100 + 1` and `deci-km/h % 100 + 1`.
 4. QZ creates the ordered profile frames `F0 A3`, `F0 A4`, `F0 A6`, `F0 A7`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF`.
@@ -44,7 +44,8 @@ Other AppGate treadmill variants keep their existing behavior and do not receive
 
 ## Current limitations
 
-- Only ten one-minute, non-ramp rows are accepted; other workout shapes are rejected.
+- The device profile is fixed at ten minutes. Imported workout duration is not preserved: speed and inclination are sampled across the source timeline and stretched or compressed to ten minutes.
+- Ramp rows, zero/negative-duration rows, and non-finite speeds are rejected.
 - The speed, inclination, and duration field mapping follows the candidate Android app and capture, but has not yet been confirmed by a physical TX 90 test.
 - The live speed function remains unimplemented because the available evidence does not prove a live command.
 - The implementation has not yet been validated on physical TX 90 hardware. Matthias reported that the treadmill moved only after pressing Start on the console; upload acknowledgements do not prove belt movement.
@@ -53,4 +54,4 @@ A first hardware test should use a conservative profile with clearly different s
 
 ## Verification
 
-The driver unit tests verify the captured speed frames, the complete eight-frame profile sequence, speed-slot mapping, and rejection of workouts that do not contain exactly ten valid rows.
+The driver unit tests verify the captured speed frames, the complete eight-frame profile sequence, speed-slot mapping for one- and two-row workouts, and rejection of invalid rows.
