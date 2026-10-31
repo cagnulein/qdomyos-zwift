@@ -2004,6 +2004,15 @@ bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
 
+void homeform::resetInclinationResistanceTable() {
+    QSettings settings;
+    settings.setValue(QZSettings::inclinationResistancePoints,
+                      QZSettings::default_inclinationResistancePoints);
+    settings.setValue(QZSettings::ergDataPoints,
+                      QZSettings::default_ergDataPoints);
+    settings.sync();
+}
+
 homeform::~homeform() {
     // Cleanup FIT backup thread
     if (fitBackupThread && fitBackupThread->isRunning()) {

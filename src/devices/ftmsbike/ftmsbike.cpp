@@ -367,7 +367,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
+    if (SOLE_B94 && !resistance_lvl_mode) {
+        const resistance_t level =
+            qBound<resistance_t>(1, requestResistance, max_resistance);
+        forceInclination(_inclinationResistanceTable.estimateInclination(level));
+    } else if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
         resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && WLT_BK == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
@@ -538,9 +542,14 @@ void ftmsbike::update() {
             // Do not apply it a second time in this FTMS path.
             if (cscbike::useCustomResistancePowerTable())
                 gearMultiplier = 0;
+            else if (SOLE_B94 && !resistance_lvl_mode)
+                gearMultiplier = 0;
             else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool() ? 0 : gearsModifier() * gearMultiplier);
+            if (SOLE_B94 && !resistance_lvl_mode && requestPower > 0 &&
+                settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool())
+                rR -= gearsModifier();
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -1473,7 +1482,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(4, QStringLiteral("step count")))
                 return;
 
-            if (useMachineCadence) {
+            if (useMachineCadence && !(SOLE_B94 && !resistance_lvl_mode)) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
             }
@@ -1838,6 +1847,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if (SOLE_B94) { 
+        resistance_lvl_mode = gattFTMSService && gattFTMSService->characteristic(QBluetoothUuid((quint16)0x2AD6)).isValid();
+    }
+        
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())

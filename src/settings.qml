@@ -6707,6 +6707,54 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
+                            Popup {
+                                id: resetInclinationResistanceTableDialog
+                                parent: Overlay.overlay
+                                x: Math.round((parent.width - width) / 2)
+                                y: Math.round((parent.height - height) / 2)
+                                width: Math.min(420, parent.width - 32)
+                                modal: true
+                                focus: true
+                                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                                padding: 24
+                                ColumnLayout {
+                                    width: resetInclinationResistanceTableDialog.availableWidth
+                                    spacing: 16
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: qsTr("Reset learned resistance/inclination table?")
+                                        font.bold: true
+                                        wrapMode: Text.WordWrap
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: qsTr("This deletes the learned table. QZ will collect it again as valid data becomes available.")
+                                        wrapMode: Text.WordWrap
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Item { Layout.fillWidth: true }
+                                        Button {
+                                            text: qsTr("No")
+                                            onClicked: resetInclinationResistanceTableDialog.close()
+                                        }
+                                        Button {
+                                            text: qsTr("Yes")
+                                            onClicked: {
+                                                resetInclinationResistanceTableDialog.close()
+                                                rootItem.resetInclinationResistanceTable()
+                                                window.settings_restart_to_apply = true
+                                                toast.show(qsTr("Learned table reset."))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Button {
+                                text: qsTr("Reset learned resistance/inclination table")
+                                Layout.alignment: Qt.AlignLeft
+                                onClicked: resetInclinationResistanceTableDialog.visible = true
+                            }
                             IndicatorOnlySwitch {
                                 text: qsTr("Miles unit from the device")
                                 spacing: 0
