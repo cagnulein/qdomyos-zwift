@@ -38,6 +38,7 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    private static final UUID RSC_SERVICE_UUID = UUID.fromString("00001814-0000-1000-8000-00805f9b34fb");
     private static final UUID ECHELON_SERVICE_UUID = UUID.fromString("0bf669f0-45f2-11e7-9598-0800200c9a66");
     private static final String ECHELON_DEVICE_NAME = "ECHEX-5s-160880";
     // PM5 Concept2 UUIDs
@@ -188,6 +189,29 @@ public class BleAdvertiser {
                     .setIncludeDeviceName(true)
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
                     .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_TREADMILL)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    // Garmin watches look for a foot pod by the RSC UUID in the main advertising packet.
+    public static void startAdvertisingFootPod(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(RSC_SERVICE_UUID))
                     .build();
 
             if (advertiser != null) {
