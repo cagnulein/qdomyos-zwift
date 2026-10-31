@@ -133,70 +133,90 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithNoRows) {
     QString error;
 
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("at least one row")));
-    EXPECT_TRUE(frames.isEmpty());
-}
-
-TEST(TrxAppGateUsTreadmillParserTest, BuildsIconsoleWorkoutFromOneMinuteRow) {
-    trainrow row;
-    row.duration = QTime(0, 1, 0);
-    row.speed = 6.0;
-
-    QList<QByteArray> frames;
-    QString error;
-    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error)) << error.toStdString();
-    ASSERT_EQ(frames.size(), 2);
-
-    const QList<double> speeds = {6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0};
-    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
-    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
-}
-
-TEST(TrxAppGateUsTreadmillParserTest, NormalizesWorkoutTimelineToTenSlots) {
-    QList<trainrow> rows;
-    for (const double speed : {4.0, 8.0}) {
-        trainrow row;
-        row.duration = QTime(0, 1, 0);
-        row.speed = speed;
-        rows.append(row);
-    }
-
-    QList<QByteArray> frames;
-    QString error;
-    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
-    ASSERT_EQ(frames.size(), 2);
-
-    const QList<double> expected = {4.0, 4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0, 8.0};
-    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, expected));
-    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, expected));
-}
-
-TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithInvalidRows) {
-    trainrow row;
-    row.duration = QTime(0, 0, 0);
-    row.speed = 6.0;
-
-    QList<QByteArray> frames;
-    QString error;
-    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("positive-duration")));
+    EXPECT_TRUE(error.contains(QStringLiteral("exactly 10 rows")));
     EXPECT_TRUE(frames.isEmpty());
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, BuildsIconsoleWorkoutFromTenOneMinuteRows) {
-    const QList<double> speeds = {4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 12.0, 10.0, 8.0, 6.0};
     QList<trainrow> rows;
-    for (const double speed : speeds) {
+    for (int i = 0; i < 10; ++i) {
         trainrow row;
         row.duration = QTime(0, 1, 0);
-        row.speed = speed;
+        row.speed = 6.0;
         rows.append(row);
     }
 
     QList<QByteArray> frames;
     QString error;
     ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
-    ASSERT_EQ(frames.size(), 2);
-    EXPECT_EQ(frames.at(0), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
-    EXPECT_EQ(frames.at(1), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
+    ASSERT_EQ(frames.size(), 8);
+
+    const QList<double> speeds = {6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0};
+    EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
+    EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, MapsTenRowsToTwentyHalfMinuteSpeedSlots) {
+    QList<trainrow> rows;
+    for (int i = 0; i < 10; ++i) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = i < 5 ? 4.0 : 8.0;
+        rows.append(row);
+    }
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 8);
+
+    const QList<double> fourSpeedSlots = {4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0};
+    const QList<double> eightSpeedSlots = {8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0};
+    EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, fourSpeedSlots));
+    EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, eightSpeedSlots));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithInvalidRows) {
+    QList<trainrow> rows;
+    for (int i = 0; i < 10; ++i) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = 6.0;
+        rows.append(row);
+    }
+    rows[0].duration = QTime(0, 0, 0);
+
+    QList<QByteArray> frames;
+    QString error;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("ten one-minute")));
+    EXPECT_TRUE(frames.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCompleteIconsoleWorkoutUploadSequence) {
+    const QList<double> speeds = {4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 12.0, 10.0, 8.0, 6.0};
+    QList<trainrow> rows;
+    for (int i = 0; i < speeds.size(); ++i) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = speeds.at(i);
+        row.inclination = i;
+        rows.append(row);
+    }
+
+    QList<QByteArray> frames;
+    QString error;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &frames, &error)) << error.toStdString();
+    ASSERT_EQ(frames.size(), 8);
+
+    EXPECT_EQ(frames.at(0), QByteArray::fromHex("f0a301d3020101010101016f"));
+    EXPECT_EQ(frames.at(1), QByteArray::fromHex("f0a401d30a010101010101010101017c"));
+    EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(
+                                0xa6, {4.0, 4.0, 6.0, 6.0, 8.0, 8.0, 10.0, 10.0, 12.0, 12.0}));
+    EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(
+                                0xa7, {14.0, 14.0, 12.0, 12.0, 10.0, 10.0, 8.0, 8.0, 6.0, 6.0}));
+    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30000010102020303040405050606070708080909c6"));
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3001e001e001e001e001e001e001e001e001e001e99"));
+    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3001e001e001e001e001e001e001e001e001e001e9a"));
+    EXPECT_EQ(frames.at(7), QByteArray::fromHex("f0af01d30275"));
 }

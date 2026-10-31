@@ -93,49 +93,79 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         return false;
     };
 
-    if (rows.isEmpty()) {
-        return fail(QStringLiteral("iConsole programs require at least one row"));
+    if (rows.size() != 10) {
+        return fail(QStringLiteral("iConsole programs require exactly 10 rows"));
     }
 
-    struct TimedSpeed {
-        double speed;
-        int durationSeconds;
-    };
-    QList<TimedSpeed> timeline;
-    int totalDurationSeconds = 0;
+    QList<double> speedSlots;
+    QByteArray inclinePayload;
+    QList<int> slotDurations;
     for (const trainrow &row : rows) {
-        const int durationSeconds = QTime(0, 0, 0).secsTo(row.duration);
-        if (durationSeconds <= 0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
-            !std::isfinite(row.speed)) {
-            return fail(QStringLiteral("iConsole programs require positive-duration non-ramp rows with finite speeds"));
+        if (QTime(0, 0, 0).secsTo(row.duration) != 60 || row.rampDuration != QTime(0, 0, 0) ||
+            row.rampElapsed != QTime(0, 0, 0) || !std::isfinite(row.speed)) {
+            return fail(QStringLiteral("iConsole programs require ten one-minute non-ramp rows with finite speeds"));
         }
-        timeline.append({qBound(0.0, row.speed, 254.9), durationSeconds});
-        totalDurationSeconds += durationSeconds;
+
+        const double speed = qBound(0.0, row.speed, 254.9);
+        const double incline = !std::isfinite(row.inclination) || row.inclination == -200.0
+                                   ? 0.0
+                                   : qBound(0.0, row.inclination, 254.0);
+        for (int subslot = 0; subslot < 2; ++subslot) {
+            speedSlots.append(speed);
+            inclinePayload.append(static_cast<char>(qRound(incline)));
+            slotDurations.append(30);
+        }
     }
 
-    QList<double> speeds;
-    speeds.reserve(10);
-    for (int slot = 0; slot < 10; ++slot) {
-        const double sample = (slot + 0.5) * totalDurationSeconds / 10.0;
-        int elapsed = 0;
-        double selectedSpeed = timeline.last().speed;
-        for (const TimedSpeed &entry : timeline) {
-            elapsed += entry.durationSeconds;
-            if (sample <= elapsed) {
-                selectedSpeed = entry.speed;
-                break;
-            }
+    auto frameWithPayload = [](quint8 command, const QByteArray &payload) {
+        QByteArray frame;
+        frame.append(static_cast<char>(0xf0));
+        frame.append(static_cast<char>(command));
+        frame.append(static_cast<char>(0x01));
+        frame.append(static_cast<char>(0xd3));
+        frame.append(payload);
+        quint8 checksum = 0;
+        for (const char byte : frame) {
+            checksum = static_cast<quint8>(checksum + static_cast<quint8>(byte));
         }
-        speeds.append(selectedSpeed);
-    }
+        frame.append(static_cast<char>(checksum));
+        return frame;
+    };
 
-    const QByteArray speedA6 = iconsoleSpeedProgramFrame(0xa6, speeds);
-    const QByteArray speedA7 = iconsoleSpeedProgramFrame(0xa7, speeds);
+    QByteArray modePayload;
+    modePayload.append(static_cast<char>(0x02));
+    modePayload.append(QByteArray(6, static_cast<char>(0x01)));
+
+    QByteArray parameterPayload;
+    parameterPayload.append(static_cast<char>(10));
+    parameterPayload.append(QByteArray(10, static_cast<char>(0x01)));
+
+    const QList<double> speedFirst = speedSlots.mid(0, 10);
+    const QList<double> speedSecond = speedSlots.mid(10, 10);
+    const QByteArray speedA6 = iconsoleSpeedProgramFrame(0xa6, speedFirst);
+    const QByteArray speedA7 = iconsoleSpeedProgramFrame(0xa7, speedSecond);
     if (speedA6.isEmpty() || speedA7.isEmpty()) {
         return fail(QStringLiteral("iConsole program contains an unsupported speed"));
     }
+
+    auto durationFrame = [&frameWithPayload, &slotDurations](quint8 command, int firstSlot) {
+        QByteArray payload;
+        for (int slot = firstSlot; slot < firstSlot + 10; ++slot) {
+            const int duration = slotDurations.at(slot);
+            payload.append(static_cast<char>(duration / 60));
+            payload.append(static_cast<char>(duration % 60));
+        }
+        return frameWithPayload(command, payload);
+    };
+
+    frames->append(frameWithPayload(0xa3, modePayload));
+    frames->append(frameWithPayload(0xa4, parameterPayload));
     frames->append(speedA6);
     frames->append(speedA7);
+    frames->append(frameWithPayload(0xa8, inclinePayload));
+    frames->append(durationFrame(0xa9, 0));
+    frames->append(durationFrame(0xaa, 10));
+    frames->append(frameWithPayload(0xaf, QByteArray(1, static_cast<char>(0x02))));
     return true;
 }
 
@@ -160,18 +190,17 @@ void trxappgateusbtreadmill::uploadPendingIconsoleWorkout() {
     const QList<QByteArray> frames = pendingIconsoleWorkoutFrames;
     pendingIconsoleWorkoutFrames.clear();
     for (const QByteArray &frame : frames) {
-        if (frame.size() != 25) {
+        if (frame.size() < 6) {
             emit debug(QStringLiteral("iConsole workout frame has invalid size"));
             continue;
         }
-        const QByteArray firstPart = frame.left(20);
-        const QByteArray secondPart = frame.mid(20);
-        writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(firstPart.constData())),
-                            static_cast<uint8_t>(firstPart.size()), QStringLiteral("iConsole workout part 1"), false,
-                            false);
-        writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(secondPart.constData())),
-                            static_cast<uint8_t>(secondPart.size()), QStringLiteral("iConsole workout part 2"), false,
-                            true);
+        for (int offset = 0; offset < frame.size(); offset += 20) {
+            const QByteArray part = frame.mid(offset, 20);
+            const bool isLastPart = offset + part.size() == frame.size();
+            writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(part.constData())),
+                                static_cast<uint8_t>(part.size()), QStringLiteral("iConsole workout frame"), false,
+                                isLastPart);
+        }
         QThread::msleep(100);
     }
     emit debug(QStringLiteral("iConsole workout uploaded"));
@@ -605,7 +634,9 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
             .toBool();
 
-    if (treadmill_type == TYPE::FLOW_FITNESS) {
+    if (iconsoleTreadmill) {
+        emit debug(QStringLiteral("iConsole initialization will be sent with the workout profile"));
+    } else if (treadmill_type == TYPE::FLOW_FITNESS) {
         // Flow Fitness Runner DTM2000i frames observed in the HCI capture.
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x2e, 0xd3, 0x91};

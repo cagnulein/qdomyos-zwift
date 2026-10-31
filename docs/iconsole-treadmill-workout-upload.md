@@ -21,9 +21,9 @@ The BLE transport splits each 25-byte logical frame into a 20-byte write followe
 4, 6, 8, 10, 12, 14, 12, 10, 8, 6 km/h
 ```
 
-The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. QZ accepts any non-empty workout made of positive-duration non-ramp rows and normalizes its complete timeline to the ten speed slots supported by this protocol. A one-minute single-row workout produces ten repeated speed values.
+The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. This implementation accepts exactly ten one-minute, non-ramp rows and maps each row to two 30-second slots. The profile is split into two ten-slot speed frames.
 
-The capture also contains an `F0 A8` table. Its exact value layout and relationship to the ten workout rows are not sufficiently established yet, so this patch does not upload inclination values.
+The capture also records `F0 A3`, `F0 A4`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF` around the speed frames. The candidate Android app's handlers associate these with workout mode, parameters, inclination, duration, and key-lock. The APK analyzed is a mirror candidate and has not been proven to match the captured app build. QZ now sends those profile frames in the observed order. Their complete firmware semantics have not been confirmed on a physical TX 90. `F0 A5` remains a separate workout-control command and is not part of the profile upload.
 
 ## QZ behavior
 
@@ -31,27 +31,26 @@ When a treadmill workout is associated with a treadmill device, QZ calls the tre
 
 For an iConsole treadmill:
 
-1. QZ validates that the workout is non-empty and contains positive-duration non-ramp rows.
-2. QZ samples the complete workout timeline into ten protocol slots.
+1. QZ validates that the workout has exactly ten one-minute, non-ramp rows with finite speeds.
+2. Each row contributes two 30-second speed and inclination slots. Missing inclination is encoded as zero.
 3. Each speed is encoded using the captured representation:
    `deci-km/h = round(speed * 10)` followed by `deci-km/h / 100 + 1` and `deci-km/h % 100 + 1`.
-4. QZ creates both `F0 A6` and `F0 A7` frames.
+4. QZ creates the ordered profile frames `F0 A3`, `F0 A4`, `F0 A6`, `F0 A7`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF`.
 5. If BLE initialization is not complete, the frames remain queued.
-6. After initialization, each frame is written as 20 bytes plus 5 bytes, matching the capture.
+6. After initialization, each frame is written in chunks of at most 20 bytes, with a 100 ms delay between frames. The 25-byte speed frames are therefore split into 20-byte and 5-byte writes.
 7. The normal telemetry polling remains enabled.
 
 Other AppGate treadmill variants keep their existing behavior and do not receive these frames.
 
 ## Current limitations
 
-- Workouts are normalized to ten speed slots because that is the only table size proven by the capture.
-- Only speed is uploaded.
-- Inclination upload is intentionally deferred until the `F0 A8` layout is confirmed with another capture or a physical TX 90 test.
+- Only ten one-minute, non-ramp rows are accepted; other workout shapes are rejected.
+- The speed, inclination, and duration field mapping follows the candidate Android app and capture, but has not yet been confirmed by a physical TX 90 test.
 - The live speed function remains unimplemented because the available evidence does not prove a live command.
-- The implementation has not yet been validated on physical TX 90 hardware.
+- The implementation has not yet been validated on physical TX 90 hardware. Matthias reported that the treadmill moved only after pressing Start on the console; upload acknowledgements do not prove belt movement.
 
 A first hardware test should use a conservative profile with clearly different speeds, for example 4, 6, 8, 6, 4, 6, 8, 6, 4, 6 km/h, and should record the QZ debug log and the treadmill response.
 
 ## Verification
 
-The driver unit tests verify the two speed frames against the captured byte sequences and verify rejection of a workout with the wrong number of rows.
+The driver unit tests verify the captured speed frames, the complete eight-frame profile sequence, speed-slot mapping, and rejection of workouts that do not contain exactly ten valid rows.
