@@ -434,7 +434,7 @@ HomeForm {
             Component.onCompleted: console.log("completed " + objectName)
 
             // VoiceOver accessibility support
-            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            Accessible.role: largeButton || identificator === "required_speed" ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
             Accessible.name: name + (largeButton ? "" : (": " + value))
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
             Accessible.focusable: true
