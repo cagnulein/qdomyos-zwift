@@ -1,6 +1,6 @@
 # iOS TestFlight release workflow
 
-The GitHub Actions workflow **Release iOS to TestFlight** is a manual release path on `master`. It runs the same `ci_post_clone.sh` and `ci_pre_xcodebuild.sh` scripts as the iOS Simulator job, then uses Fastlane to archive for a physical iOS device. The Simulator build itself cannot be uploaded to App Store Connect.
+The GitHub Actions workflow **Release iOS to TestFlight** is a manual release path on `master`. Both it and the iOS Simulator job call `.github/scripts/build_ios_simulator.sh`, so they use the same simulator `xcodebuild` invocation. The release workflow then uses Fastlane to create a signed archive for a physical iOS device; that separate device archive is required because a Simulator build cannot be uploaded to App Store Connect.
 
 Run it from **Actions → Release iOS to TestFlight → Run workflow**. Leave `publish` unchecked to create a signed IPA artifact only. Check it to upload the IPA to TestFlight. The workflow does not run for pushes or pull requests.
 

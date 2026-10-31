@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+
+LOG_PATH="${1:-ios-test/xcodebuild.log}"
+mkdir -p "$(dirname "$LOG_PATH")"
+
+# The watch app has no product types for the iOS simulator, so remove its
+# dependency and embed phase from the generated Xcode project before building.
+python3 .github/scripts/ios_simulator_project.py \
+  build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+
+# Keep this invocation shared with the simulator CI job. TestFlight still needs
+# a separate signed device archive, which Fastlane creates after this check.
+if xcodebuild -project src/qdomyoszwift.xcodeproj -scheme qdomyoszwift -configuration Release \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath dd \
+  ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+  build > "$LOG_PATH" 2>&1; then
+  grep -F "** BUILD" "$LOG_PATH"
+else
+  grep -F -e "error:" -e "** BUILD" "$LOG_PATH" | tail -n 50 || true
+  exit 1
+fi

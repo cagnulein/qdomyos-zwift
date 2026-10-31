@@ -1154,15 +1154,7 @@ jobs:
 
       - name: Build for the simulator
         run: |
-          mkdir -p ios-test
-          # the watch app has no product types for the iOS simulator: the app is built without it
-          python3 .github/scripts/ios_simulator_project.py build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
-          # the Qt libraries of the App Store build also have an x86_64 slice, the one for the simulator
-          xcodebuild -project src/qdomyoszwift.xcodeproj -scheme qdomyoszwift -configuration Release \
-            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath dd \
-            ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-            build > ios-test/xcodebuild.log 2>&1 || { grep -F -e "error:" -e "** BUILD" ios-test/xcodebuild.log | tail -n 50; exit 1; }
-          grep -F "** BUILD" ios-test/xcodebuild.log
+          bash .github/scripts/build_ios_simulator.sh ios-test/xcodebuild.log
 
       - name: Start test on the simulator
         run: |

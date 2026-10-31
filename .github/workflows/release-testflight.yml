@@ -80,6 +80,9 @@ jobs:
           bash ci_post_clone.sh
           bash ci_pre_xcodebuild.sh
 
+      - name: Build for the simulator using the shared CI script
+        run: bash .github/scripts/build_ios_simulator.sh ios-test/xcodebuild.log
+
       - name: Build and upload to TestFlight
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -96,7 +99,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-testflight-${{ github.run_number }}
-          path: build/ios/export/*.ipa
+          path: |
+            build/ios/export/*.ipa
+            ios-test/xcodebuild.log
           if-no-files-found: warn
           retention-days: 14
 
