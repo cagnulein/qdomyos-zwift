@@ -39,10 +39,6 @@ class proformtreadmill : public treadmill {
     bool connected() override;
     double minStepSpeed() override { return 0.1; }
 
-    static QByteArray sport30StateCommand(uint8_t state);
-    static QByteArray sport30StartCommand(double currentInclination);
-    static bool parseSport30AuthorizationPackets(const QByteArray &input, QList<QByteArray> *packets);
-
   private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

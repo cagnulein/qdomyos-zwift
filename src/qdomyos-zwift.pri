@@ -839,6 +839,7 @@ powerzonepack.h \
 devices/proformbike/proformbike.h \
 devices/proformelliptical/proformelliptical.h \
 devices/proformtreadmill/proformtreadmill.h \
+devices/proformtreadmill/sport30protocol.h \
 qdebugfixup.h \
 qfit.h \
 qmdnsengine_export.h \
