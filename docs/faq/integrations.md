@@ -215,3 +215,12 @@ An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android 
 If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
 
 In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
+
+
+## Can QZ and ROUVY run on the same Android tablet and connect through QZ's virtual Bluetooth trainer?
+
+**Not with the usual QZ virtual-Bluetooth-to-ROUVY pairing workflow.** In a reported Android tablet setup, both apps could launch, but ROUVY did not discover QZ's virtual trainer on that same tablet. The established working arrangement used **QZ on an Android phone** and **ROUVY on a separate computer**.
+
+For this workflow, connect the physical trainer to QZ on the first device, keep QZ's virtual device and virtual Bluetooth enabled, and select **QZ's virtual trainer** as the power/controllable device in ROUVY on the second device. Do not pair ROUVY directly to the physical trainer if you want QZ to act as the bridge.
+
+**Zwift is different:** QZ can be kept running alongside Zwift on a supported Android device using the **Android Notification** setting under Experimental Settings, subject to Android's background/battery restrictions. That same-device Zwift capability should not be taken as evidence that ROUVY supports the same local virtual-Bluetooth pairing.

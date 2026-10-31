@@ -420,6 +420,8 @@ const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_devic
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
+const QString QZSettings::virtual_device_rower_cadence_gain = QStringLiteral("virtual_device_rower_cadence_gain");
+const QString QZSettings::virtual_device_rower_cadence_offset = QStringLiteral("virtual_device_rower_cadence_offset");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
@@ -1347,7 +1349,7 @@ const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral
 
 const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
-const uint32_t allSettingsCount = 1041;
+const uint32_t allSettingsCount = 1043;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2415,6 +2417,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::history_chart_power_distribution_order, QZSettings::default_history_chart_power_distribution_order},
     {QZSettings::history_chart_speed_inclination_order, QZSettings::default_history_chart_speed_inclination_order},
     {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
+    {QZSettings::virtual_device_rower_cadence_gain, QZSettings::default_virtual_device_rower_cadence_gain},
+    {QZSettings::virtual_device_rower_cadence_offset, QZSettings::default_virtual_device_rower_cadence_offset},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -148,3 +148,22 @@ In a confirmed support case, QZ had initially classified this bike as an ellipti
 A **DT-SMART90-R** owner explicitly confirmed that QZ worked after installation. The treadmill had previously been used with FitShow for structured workouts. As with other compatible treadmills, verify the available live metrics and test any automatic speed or incline commands safely on your particular firmware; the confirmation does not separately establish every control mode.
 
 You can also **author QZ XML workouts on a PC** with a text editor, transfer the file to the phone/tablet, and load it using **Open Train Program** in QZ. See the [XML training-program examples and format reference](../../train-programs-examples/README.md) and the [Workout Editor guide](../workout-editor.md). Alternatively, build the intervals directly in QZ's **Workout Editor**. Test the first program at low speed before relying on automatic treadmill control.
+
+
+## My Hammer Speed Race S advertises as "4864 RACER S" but QZ never connects. Which profile should I use?
+
+Some **Hammer Speed Race S** bikes advertise a numeric-prefix BLE name such as **4864 RACER S**. Do not assume this is the same Bluetooth protocol as an older **Kettler RACER S** without the numeric prefix.
+
+1. Turn the bike on, close Kinomap and any other app that may already be connected, and check the advertised device name and services with nRF Connect.
+2. In **QZ Settings > Bike Options > FTMS Bike**, select the bike's exact advertised name (for example, **4864 RACER S**), then press **OK**.
+3. Fully close and restart QZ. Check whether the bike now connects and reports workout metrics.
+
+**Confirmed result:** A rider with **4864 RACER S** reported that selecting it under **FTMS Bike** and restarting QZ restored connectivity. QZ's discovery code explicitly distinguishes numeric-prefix **RACER S** devices from the plain Kettler **RACER S** naming path. This confirms connection in that setup, not every possible resistance-control or power-accuracy feature.
+
+## Can QZ read data from a REP Strive Air Bike, including its adjustable fan setting?
+
+A **REP Strive Air Bike** was confirmed to connect to QZ and provide **some workout data**. Its Bluetooth interface exposed the standard **FTMS service (0x1826)** and **Indoor Bike Data (0x2AD2)**, which QZ's generic FTMS bike support can read.
+
+Connect the bike to QZ first and check which live metrics update while pedalling. If QZ discovers the bike but does not use the expected profile, inspect its Bluetooth services and consider explicitly selecting the device under **Bike Options > FTMS Bike** before restarting QZ.
+
+**Not yet confirmed:** The bike's **eight adjustable fan-blade positions** are shown on its own console, but it is not established that those positions are exposed in standard FTMS resistance data or in the manufacturer's additional Bluetooth service. Do not promise that QZ can display or control fan position without a separate protocol test.
