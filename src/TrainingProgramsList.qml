@@ -68,7 +68,7 @@ ColumnLayout {
             FileDialog {
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -93,13 +93,12 @@ ColumnLayout {
 
     RowLayout{
         spacing: 2
-        anchors.top: parent.top
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
 
         ColumnLayout {
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
+            Layout.fillHeight: true
 
             Row
             {
@@ -121,9 +120,15 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
+                    // the field kept its 120 of Material and showed less of the hint as the text grew.
+                    // The list column has no width of its own here: at most half of the window, so
+                    // the back button stays on a narrow screen
+                    width: window.textScale !== 1
+                           ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth), window.width / 2))
+                           : implicitWidth
                     onTextChanged: updateFilter()
                 }
                      Button {
@@ -138,14 +143,13 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 ScrollBar.vertical: ScrollBar {}
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo"]
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
                           showDotAndDotDot: false
                     showDirs: true
@@ -157,7 +161,7 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                                 color: Material.backgroundColor
                         z: 1
                         Item {
@@ -171,7 +175,7 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
@@ -187,7 +191,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 }
                             }
                         }
@@ -253,12 +257,11 @@ ColumnLayout {
         }
 
         ScrollView {
-            anchors.top: parent.top
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
             // Padding, not a margin: the content moves in, the scroll bar stays at the edge
             rightPadding: window.contentSideMargin
             contentHeight: date.height + description.height + powerChart.height
-            Layout.preferredHeight: parent.height
+            Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
@@ -279,7 +282,7 @@ ColumnLayout {
                     id: date
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
@@ -292,7 +295,7 @@ ColumnLayout {
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
+                    font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
@@ -314,7 +317,7 @@ ColumnLayout {
                         height: 400
                         width: parent.width
                         title: qsTr("Power")
-                        titleFont.pixelSize: 20
+                        titleFont.pixelSize: window.fontPx(20)
 
                         DateTimeAxis {
                             id: valueAxisX
@@ -325,7 +328,7 @@ ColumnLayout {
                             //labelsVisible: false
                             gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         ValueAxis {
@@ -338,7 +341,7 @@ ColumnLayout {
                             //labelsVisible: false
                             //gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         LineSeries {
@@ -357,9 +360,8 @@ ColumnLayout {
     }
 
     RowLayout {
-        height: 50
-        width: parent.width
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        Layout.fillWidth: true
+        Layout.preferredHeight: 50
 
         Button {
             Layout.fillWidth: true
@@ -391,9 +393,6 @@ ColumnLayout {
                     fileDialogLoader.active = true
                 }
             }
-        }
-        anchors {
-            bottom: parent.bottom
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "workoutloaderworker.h"
 #include "homeform.h"
 #include "trainprogram.h"
+#include "trainingprogrampath.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -19,7 +20,6 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     , m_dbPath(dbPath)
     , m_currentStreak(0)
     , m_longestStreak(0)
-    , m_streakMessage("")
     , m_isDateFiltered(false)
     , m_filteredDate()
 {
@@ -57,13 +57,23 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
 }
 
 WorkoutModel::~WorkoutModel() {
-    m_workerThread->quit();
-    m_workerThread->wait();
+    if (m_workerThread) {
+        m_workerThread->quit();
+        m_workerThread->wait();
+    }
     QSqlDatabase::removeDatabase(FitDatabaseProcessor::DB_CONNECTION_NAME + "_main");
 }
 
 void WorkoutModel::refresh() {
-    if (m_isLoading) return;
+    if (!m_worker) {
+        // the database did not open: nothing to load, and nobody would end the loading state
+        return;
+    }
+    if (m_isLoading) {
+        // the running load may have started before the newest workouts reached the database
+        m_refreshPending = true;
+        return;
+    }
 
     m_isLoading = true;
     emit loadingStatusChanged();
@@ -88,6 +98,11 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
 
     m_isLoading = false;
     emit loadingStatusChanged();
+
+    if (m_refreshPending) {
+        m_refreshPending = false;
+        refresh();
+    }
 }
 
 bool WorkoutModel::isLoading() const {
@@ -113,8 +128,12 @@ int WorkoutModel::longestStreak() const {
     return m_longestStreak;
 }
 
+// Made when it is read, not stored: it follows a change of the app language.
+// No workouts at all (the longest streak is at least 1 otherwise): no line, as before
 QString WorkoutModel::streakMessage() const {
-    return m_streakMessage;
+    if (m_longestStreak == 0)
+        return QString();
+    return getStreakMessage(m_currentStreak);
 }
 
 bool WorkoutModel::deleteWorkout(int workoutId) {
@@ -392,7 +411,8 @@ QString WorkoutModel::getWorkoutSource(int workoutId) {
         }
         
         // Check if this should be marked as ERG mode based on training program
-        if (result == "QZ" && !trainingProgramFile.isEmpty() && trainprogram::hasTargetPower(trainingProgramFile)) {
+        const QString resolvedProgram = result == "QZ" ? resolveTrainingProgramPath(trainingProgramFile) : QString();
+        if (!resolvedProgram.isEmpty() && trainprogram::hasTargetPower(resolvedProgram)) {
             qDebug() << "Training program has target power > 0, returning ERG";
             return "ERG";
         }
@@ -422,8 +442,8 @@ bool WorkoutModel::hasTrainingProgram(int workoutId) {
     if (query.exec() && query.next()) {
         QString filename = query.value("training_program_file").toString();
         if (!filename.isEmpty()) {
-            // Check if file actually exists
-            return QFile::exists(filename);
+            // Old iOS application containers may no longer exist after an app update.
+            return !resolveTrainingProgramPath(filename).isEmpty();
         }
     }
     return false;
@@ -443,8 +463,8 @@ bool WorkoutModel::loadTrainingProgram(int workoutId) {
     query.addBindValue(workoutId);
     
     if (query.exec() && query.next()) {
-        QString filename = query.value("training_program_file").toString();
-        if (!filename.isEmpty() && QFile::exists(filename)) {
+        const QString filename = resolveTrainingProgramPath(query.value("training_program_file").toString());
+        if (!filename.isEmpty()) {
             // Use homeform singleton to load the training program
             if (homeform::singleton()) {
                 QUrl fileUrl = QUrl::fromLocalFile(filename);
@@ -534,12 +554,10 @@ void WorkoutModel::calculateStreaks() {
     }
 
     // Update values and emit signal if changed
-    QString newMessage = getStreakMessage(currentStreak);
-    bool changed = (m_currentStreak != currentStreak || m_longestStreak != longestStreak || m_streakMessage != newMessage);
+    bool changed = (m_currentStreak != currentStreak || m_longestStreak != longestStreak);
     m_currentStreak = currentStreak;
     m_longestStreak = longestStreak;
-    m_streakMessage = newMessage;
-    
+
     if (changed) {
         emit streakChanged();
     }
@@ -589,6 +607,16 @@ QString WorkoutModel::getStreakMessage(int streak) const {
     } else {
         return tr("Beyond legendary! 🌟✨");
     }
+}
+
+QString WorkoutModel::resolveTrainingProgramPath(const QString& savedPath) const {
+#if defined(Q_OS_IOS)
+    // Only iOS can rebase an obsolete Application Container UUID.
+    return TrainingProgramPath::resolve(savedPath, homeform::getWritableAppDir(), true);
+#else
+    // Preserve the exact stored-path behaviour on Android, Windows, macOS and Linux.
+    return TrainingProgramPath::resolve(savedPath, QString(), false);
+#endif
 }
 
 QString WorkoutModel::makeAbsolutePath(const QString& relativePath) const {

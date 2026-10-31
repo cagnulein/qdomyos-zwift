@@ -1,5 +1,6 @@
 #include "trainprogram.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "homeform.h"
 #include <QFile>
 #include <QMutexLocker>
@@ -115,10 +116,12 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
     rv += QStringLiteral(" HRmin = %1").arg(HRmin);
     rv += QStringLiteral(" HRmax = %1").arg(HRmax);
+    rv += QStringLiteral(" pidHrMode = %1").arg(trainprogram::pidHrModeToString(pidHrMode));
     rv += QStringLiteral(" HRabove = %1").arg(HRabove);
     rv += QStringLiteral(" HRbelow = %1").arg(HRbelow);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
     rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
+    rv += QStringLiteral(" maxInclination = %1").arg(maxInclination);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
@@ -130,6 +133,31 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" rampElapsed = %1").arg(rampElapsed.toString());
     rv += QStringLiteral(" rampDuration = %1").arg(rampDuration.toString());
     return rv;
+}
+
+QString trainprogram::pidHrModeToString(treadmill_pid_hr_mode mode) {
+    switch (mode) {
+    case treadmill_pid_hr_mode::Speed:
+        return QStringLiteral("speed");
+    case treadmill_pid_hr_mode::Inclination:
+        return QStringLiteral("inclination");
+    case treadmill_pid_hr_mode::Default:
+    default:
+        return QStringLiteral("default");
+    }
+}
+
+treadmill_pid_hr_mode trainprogram::pidHrModeFromString(const QString &value) {
+    const QString normalized = value.trimmed().toLower();
+    if (normalized == QStringLiteral("speed"))
+        return treadmill_pid_hr_mode::Speed;
+    if (normalized == QStringLiteral("inclination"))
+        return treadmill_pid_hr_mode::Inclination;
+    return treadmill_pid_hr_mode::Default;
+}
+
+treadmill_pid_hr_mode trainprogram::effectivePidHrMode(const trainrow &row, treadmill_pid_hr_mode globalMode) {
+    return row.pidHrMode == treadmill_pid_hr_mode::Default ? globalMode : row.pidHrMode;
 }
 
 void trainprogram::applySpeedFilter() {
@@ -1102,6 +1130,7 @@ void trainprogram::scheduler() {
         } else {
             if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
                 const QString message = currentHeartRateEndConditionMessage();
+                // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
                 qDebug() << "Waiting for heart-rate end condition on row" << currentStep
                          << "current heart" << bluetoothManager->device()->currentHeart().value()
                          << "target power" << rows.at(currentStep).power
@@ -1843,6 +1872,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.maxSpeed >= 0) {
                 stream.writeAttribute(QStringLiteral("maxspeed"), QString::number(row.maxSpeed));
             }
+            if (row.maxInclination >= 0) {
+                stream.writeAttribute(QStringLiteral("maxinclination"), QString::number(row.maxInclination));
+            }
             if (row.maxResistance >= 0) {
                 stream.writeAttribute(QStringLiteral("maxresistance"), QString::number(row.maxResistance));
             }
@@ -1854,6 +1886,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             }
             if (row.HRmax >= 0) {
                 stream.writeAttribute(QStringLiteral("hrmax"), QString::number(row.HRmax));
+            }
+            if (row.pidHrMode != treadmill_pid_hr_mode::Default) {
+                stream.writeAttribute(QStringLiteral("pidhrmode"), pidHrModeToString(row.pidHrMode));
             }
             if (row.HRabove >= 0) {
                 stream.writeAttribute(QStringLiteral("hrabove"), QString::number(row.HRabove));
@@ -1922,7 +1957,16 @@ bool trainprogram::hasTargetPower(const QString &filename) {
 void trainprogram::save(const QString &filename) { saveXML(filename, rows, loadedDeviceType); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (zwiftworkout::isZwiftWorkoutFile(filename, Extension)
+    if (workoutimport::isSupportedFile(filename, Extension)) {
+        QString description = "";
+        QString tags = "";
+        trainprogram *program =
+            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
+        if (b && b->device()) {
+            program->loadedDeviceType = b->device()->deviceType();
+        }
+        return program;
+    } else if (zwiftworkout::isZwiftWorkoutFile(filename, Extension)
 #ifdef Q_OS_ANDROID
             || filename.toUpper().contains(".ZWO")
 #endif
@@ -2060,6 +2104,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
                 row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
             }
+            if (atts.hasAttribute(QStringLiteral("maxinclination"))) {
+                row.maxInclination = atts.value(QStringLiteral("maxinclination")).toDouble();
+            }
             if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
                 row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();
             }
@@ -2071,6 +2118,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("hrmax"))) {
                 row.HRmax = atts.value(QStringLiteral("hrmax")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("pidhrmode"))) {
+                row.pidHrMode = pidHrModeFromString(atts.value(QStringLiteral("pidhrmode")).toString());
             }
             if (atts.hasAttribute(QStringLiteral("hrabove"))) {
                 row.HRabove = atts.value(QStringLiteral("hrabove")).toInt();

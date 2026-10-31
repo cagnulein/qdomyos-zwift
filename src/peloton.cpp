@@ -23,6 +23,35 @@ static const QString kPelotonRedirectUri = QStringLiteral("https://www.qzfitness
 static constexpr quint16 kPelotonDesktopRelayPort = 18080;
 #endif
 
+QStringList peloton::spotifyTracksFromRide(const QJsonObject &ride) {
+    QStringList tracks;
+    const QJsonArray songs = ride.value(QStringLiteral("playlist")).toObject().value(QStringLiteral("songs")).toArray();
+    for (const QJsonValue &songValue : songs) {
+        const QJsonObject song = songValue.toObject();
+        const QString title = song.value(QStringLiteral("title")).toString().trimmed();
+        if (title.isEmpty()) {
+            continue;
+        }
+
+        QStringList artists;
+        const QJsonArray artistArray = song.value(QStringLiteral("artists")).toArray();
+        for (const QJsonValue &artistValue : artistArray) {
+            const QString artist = artistValue.toObject().value(QStringLiteral("artist_name")).toString().trimmed();
+            if (!artist.isEmpty()) {
+                artists.append(artist);
+            }
+        }
+
+        const QString artistText = artists.join(QStringLiteral(", "));
+        const QString searchText = artistText.isEmpty() ? title : title + QStringLiteral(" ") + artistText;
+        const QString spotifyUrl = QStringLiteral("https://open.spotify.com/search/") +
+                                   QString::fromUtf8(QUrl::toPercentEncoding(searchText));
+        tracks.append(artistText.isEmpty() ? QStringLiteral("%1: %2").arg(title, spotifyUrl)
+                                           : QStringLiteral("%1 - %2: %3").arg(title, artistText, spotifyUrl));
+    }
+    return tracks;
+}
+
 #define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
@@ -1144,6 +1173,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject ride = document.object();
+    current_spotify_tracks = spotifyTracksFromRide(ride);
 
     // ride.pedaling_start_offset and instructor_cues[0].offset.start is
     // generally 60s for the intro, but let's ignore this since we assume
@@ -2576,7 +2606,8 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
 
 void peloton::replyDataReceived(const QByteArray &v) {
 
-    qDebug() << v;
+    // The OAuth body contains access and refresh tokens; avoid logging it.
+    qDebug() << QStringLiteral("Peloton reply received:") << v.size() << QStringLiteral("bytes");
 
     QByteArray data;
     QSettings settings;
@@ -2839,7 +2870,7 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
         if (homeform::singleton()) {
             homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return false;
     }
 
@@ -3064,13 +3095,14 @@ void peloton::peloton_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return;
     }
 
     // lets extract the access token, and possibly a new refresh token
     QByteArray r = reply->readAll();
-    qDebug() << QStringLiteral("Got response:") << r.data();
+    // the body has the access and refresh tokens; users may attach logs to public issues
+    qDebug() << QStringLiteral("Got response:") << r.size() << QStringLiteral("bytes");
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(r, &parseError);

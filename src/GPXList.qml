@@ -59,13 +59,12 @@ ColumnLayout {
 
     RowLayout{
         spacing: 2
-        anchors.top: parent.top
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
 
         ColumnLayout {
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
+            Layout.fillHeight: true
 
             Row
             {
@@ -104,9 +103,8 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 ScrollBar.vertical: ScrollBar {}
                 id: list
                 FolderListModel {
@@ -123,7 +121,7 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
                         Item {
@@ -137,7 +135,7 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 text: fileName.substring(0, fileName.length-4)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
@@ -153,7 +151,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 }
                             }
                         }
@@ -203,12 +201,9 @@ ColumnLayout {
         }
 
         ScrollView {
-            anchors.top: parent.top
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            //contentHeight: map.height
-            Layout.preferredHeight: parent.height
-            Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.fillWidth: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
             // Padding, not a margin: the content moves in, the scroll bar stays at the edge
@@ -222,7 +217,7 @@ ColumnLayout {
                     id: distance
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 16
+                    font.pixelSize: window.fontPx(16)
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
@@ -286,10 +281,9 @@ ColumnLayout {
 
     Button {
         id: searchButton
-        height: 50
-        width: parent.width
+        Layout.fillWidth: true
+        Layout.preferredHeight: 50
         text: qsTr("Other folders")
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
             if (Qt.platform.os === "android") {
@@ -297,9 +291,6 @@ ColumnLayout {
             } else {
                 fileDialogLoader.active = true
             }
-        }
-        anchors {
-            bottom: parent.bottom
         }
     }
 }

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtQml 2.15
 
 Page {
 
@@ -16,9 +17,14 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+    // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
+    property string searchStatus: ""
+    // Home.qml sets the new values from the settings page in it (the background color of the top bar)
+    property alias homeFormSettings: settings
 
     Settings {
 	     id: settings
+	     Component.onCompleted: window.retakeSettingsSnapshot(settings)
 		  property real ui_zoom: 100.0
 		  property bool theme_tile_icon_enabled: true
 		  property string theme_background_color: "#303030"
@@ -80,6 +86,12 @@ Page {
                             source: treadmill_connection
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
                         }
+                        // No device yet: a tap searches right away instead of waiting for the next search
+                        // (with a device connected bluetoothSearchNow() does nothing)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: rootItem.bluetoothSearchNow()
+                        }
                     }
                     Image {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -104,6 +116,8 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.startText
+                    // fixed width: keep the size it had before the Text size setting
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: start
                     width: 120
@@ -134,6 +148,7 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.stopText
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     enabled: true
                     id: stop
                     width: 120
@@ -189,12 +204,18 @@ Page {
             id: row1
             width: parent.width
             anchors.bottom: row.bottom
-            anchors.bottomMargin: -10
+            // a bigger text grows down into the gap above the tiles, not up into the buttons
+            anchors.bottomMargin: window.textScale !== 1 ? -10 - Math.round(statusLabel.height * (1 - 1 / window.textScale)) : -10
 
             Label {
+                id: statusLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: rootItem.info
+                // the search status may have two lines ("<device> found" and the countdown): the line
+                // grows upwards, so they are set closer to keep the first one off the buttons
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
+                text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
             }
         }
 

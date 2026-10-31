@@ -894,6 +894,17 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
+    if(anplus_treadmill) {
+        QSettings settings;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
+        if (moovio_lynx_konect_2_0) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+        }
+    }
+
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
@@ -935,6 +946,8 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -974,12 +987,26 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         
         if (requestSpeed != -1) {
+            // In Runn closed-loop mode the displayed Speed belongs to the sensor,
+            // not the motor. Check the motor's independent telemetry instead.
+            const bool useMachineSpeed =
+                settings.value(QZSettings::treadmill_runn_closed_loop,
+                               QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+                settings.value(QZSettings::stryd_speed_instead_treadmill,
+                               QZSettings::default_stryd_speed_instead_treadmill).toBool();
+            const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
+            if (moovio_lynx_konect_2_0) {
+                // ANPLUS-18136 advertises 0.8..20.0 km/h with 0.1 km/h steps.
+                const double requestedSpeed = static_cast<double>(requestSpeed);
+                requestSpeed = qMax(0.8, qMin(20.0, requestedSpeed));
+                qDebug() << "requestSpeed after Moovio supported-range clamp=" << requestSpeed;
+            }
             bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+                fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                     << float_one_point_round(currentSpeed().value());
-            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                     << float_one_point_round(speedForControl);
+            if (float_one_point_round(requestSpeed) != float_one_point_round(speedForControl) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(float_one_point_round(requestSpeed));
@@ -1002,6 +1029,12 @@ void horizontreadmill::update() {
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
+                if (moovio_lynx_konect_2_0) {
+                    const double currentInclinationValue = currentInclination().value();
+                    requestInclination = requestInclination > currentInclinationValue ? qCeil(requestInclination)
+                                                                                     : qFloor(requestInclination);
+                    qDebug() << "requestInclination after Moovio whole-percent rounding=" << requestInclination;
+                }
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
 
@@ -1266,7 +1299,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1275,7 +1308,6 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 false, false);
         }
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
@@ -1285,9 +1317,15 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
-        uint16_t speed_int = round(requestSpeed * 100);
-        writeS[1] = speed_int & 0xFF;
-        writeS[2] = speed_int >> 8;
+        uint16_t speed_int = round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
+        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        if (SW3925EAI_TREADMILL) {
+            // SW3925EAI reads the high byte as tenths of km/h.
+            writeS[2] = speed_int & 0xFF;
+        } else {
+            writeS[1] = speed_int & 0xFF;
+            writeS[2] = speed_int >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -1542,6 +1580,33 @@ void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+// treadmill_direct_distance: Distance is the treadmill counter. With treadmill_direct_distance_increment
+// only its increase is added instead: the counter may already be running when QZ connects and may be
+// reset on the treadmill during the workout. While QZ is paused the counter is followed but nothing is
+// added, as with the distance calculated from speed. The counter is followed in both modes, so turning
+// the option on during a workout adds nothing twice
+void horizontreadmill::setDirectDistance(double treadmillDistance, bool increment) {
+    QDateTime now = QDateTime::currentDateTime();
+    if (!increment) {
+        Distance = treadmillDistance;
+    } else if (lastDirectDistance < 0) {
+        qDebug() << "direct distance: first treadmill value" << treadmillDistance;
+    } else if (treadmillDistance < lastDirectDistance) {
+        qDebug() << "direct distance: treadmill counter reset from" << lastDirectDistance << "to" << treadmillDistance;
+    } else {
+        double increase = treadmillDistance - lastDirectDistance;
+        // more than 100 m plus 40 km/h since the last change of the counter is a bad packet
+        double maxIncrease = 0.1 + 40.0 * lastDirectDistanceChanged.msecsTo(now) / 3600000.0;
+        if (increase > maxIncrease)
+            qDebug() << "direct distance: increase ignored" << increase << "max" << maxIncrease;
+        else if (!isPaused())
+            Distance += increase;
+    }
+    if (treadmillDistance != lastDirectDistance)
+        lastDirectDistanceChanged = now;
+    lastDirectDistance = treadmillDistance;
+}
+
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
@@ -1559,6 +1624,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
         settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+    bool treadmill_direct_distance_increment =
+        settings.value(QZSettings::treadmill_direct_distance_increment,
+                       QZSettings::default_treadmill_direct_distance_increment).toBool();
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -1760,10 +1828,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -1922,10 +1991,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totalDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -2137,10 +2207,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance && newValue.length() > index + 2) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             } else {
                 if (firstDistanceCalculated)
                     Distance += ((Speed.value() / 3600000.0) *
@@ -2621,6 +2692,10 @@ void horizontreadmill::serviceScanDone(void) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
                 continue;
             }
+            if (TM55_TREADMILL && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (TM55 treadmill will use only FTMS 0x1826)";
+                continue;
+            }
 
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -2657,6 +2732,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         bluetoothDevice = device;
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
+        SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
+        if (SW3925EAI_TREADMILL) {
+            qDebug() << QStringLiteral("SW3925EAI FTMS speed workaround ON!");
+        }
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
@@ -2770,6 +2849,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
             minInclination = -3.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM55-"))) {
+            qDebug() << QStringLiteral("TM55 treadmill found; will use only FTMS service (0x1826)");
+            TM55_TREADMILL = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-T"))) {
             qDebug() << QStringLiteral("MERACH treadmill workaround ON!");
             MERACH_TREADMILL = true;
@@ -2783,6 +2865,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
             maxInclination = 40.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SF-T"))) {
+            qDebug() << QStringLiteral("SF-T treadmill found");
+            SF_TREADMILL = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

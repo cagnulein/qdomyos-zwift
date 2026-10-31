@@ -178,6 +178,7 @@ devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
+devices/lifefitnesstreadmill/lifefitnessworkout.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
 devices/mepanelbike/mepanelbike.cpp \
 devices/nautilusbike/nautilusbike.cpp \
@@ -225,6 +226,7 @@ devices/dircon/dirconprocessor.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
+devices/echelonconnectsport/echelonunlock.cpp \
 devices/echelonconnectsport/echelonconnectsport.cpp \
 devices/echelonrower/echelonrower.cpp \
 devices/echelonstride/echelonstride.cpp \
@@ -274,7 +276,10 @@ mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
+devices/ypootreadmill/ypootreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
+devices/kettlerclassicbike/kettlerclassicbike.cpp \
+devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
 devices/keepbike/keepbike.cpp \
@@ -287,6 +292,7 @@ devices/nautiluselliptical/nautiluselliptical.cpp \
 devices/nautilustreadmill/nautilustreadmill.cpp \
 devices/npecablebike/npecablebike.cpp \
 devices/pafersbike/pafersbike.cpp \
+devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
@@ -355,6 +361,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -499,6 +506,7 @@ devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
+devices/lifefitnesstreadmill/lifefitnessworkout.h \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.h \
 devices/mepanelbike/mepanelbike.h \
 devices/nautilusbike/nautilusbike.h \
@@ -560,6 +568,7 @@ devices/dircon/dirconprocessor.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
+devices/echelonconnectsport/echelonunlock.h \
 devices/echelonconnectsport/echelonconnectsport.h \
 devices/echelonrower/echelonrower.h \
 devices/echelonstride/echelonstride.h \
@@ -577,6 +586,8 @@ devices/ftmsrower/ftmsrowercadence.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
+devices/kettlerclassicbike/kettlerclassicbike.h \
+devices/kettlerclassicbike/kettlerclassicprotocol.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \
 devices/kingsmithr2treadmill/kingsmithr2treadmill.h \
@@ -808,6 +819,9 @@ homeform.h \
 mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
+devices/ypootreadmill/ypootreadmill.h \
+devices/ypootreadmill/ypoom5control.h \
+devices/ypootreadmill/ypoom5distance.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
 keepawakehelper.h \
@@ -820,6 +834,7 @@ devices/nautiluselliptical/nautiluselliptical.h \
 devices/nautilustreadmill/nautilustreadmill.h \
 devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
+devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
 peloton.h \
 powerzonepack.h \
@@ -886,6 +901,7 @@ devices/ultrasportbike/ultrasportbike.h \
 devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
+virtualdevices/virtualrowercadence.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
@@ -895,6 +911,7 @@ wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 
@@ -1040,9 +1057,13 @@ ios {
 }
 
 ios {
+    # AVFoundation is used by the background keep alive (silent audio session)
+    LIBS += -framework AVFoundation
+
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
+    ios/ios_background_keepalive.mm \
     ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -1056,7 +1077,8 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets

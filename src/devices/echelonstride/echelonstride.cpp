@@ -29,8 +29,16 @@ echelonstride::echelonstride(uint32_t pollDeviceTime, bool noConsole, bool noHea
     }
 
     refresh = new QTimer(this);
+    directUnlockActivationTimer = new QTimer(this);
+    directUnlockActivationTimer->setSingleShot(true);
+    directUnlockFallbackTimer = new QTimer(this);
+    directUnlockFallbackTimer->setSingleShot(true);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &echelonstride::update);
+    connect(directUnlockActivationTimer, &QTimer::timeout, this, &echelonstride::sendDirectUnlockActivation);
+    connect(directUnlockFallbackTimer, &QTimer::timeout, this, [this]() {
+        directUnlockFailed(QStringLiteral("no treadmill acknowledgement"));
+    });
     refresh->start(pollDeviceTime);
 }
 
@@ -128,6 +136,10 @@ void echelonstride::update() {
         return;
     }
 
+    if (directUnlockInProgress) {
+        return;
+    }
+
     if (initRequest) {
         initRequest = false;
         btinit();
@@ -162,6 +174,12 @@ void echelonstride::update() {
             }
         }
         // ********************************************************************************************************
+
+        // Echelon only notifies speed and inclination when the value changes.
+        // Re-sample the last known values on every poll so metric averages count
+        // the time between notifications instead of only the notifications.
+        Speed.setValue(Speed.valueRaw());
+        Inclination.setValue(Inclination.value(), false, Inclination.value() == 0.0 && Speed.value() > 0.0);
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -252,12 +270,33 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
     qDebug() << QStringLiteral(" << ") + newValue.toHex(' ');
 
+    if (auto *virtualTreadmill = dynamic_cast<virtualtreadmill *>(VirtualDevice())) {
+        virtualTreadmill->relayEchelonPacket(characteristic.uuid(), newValue);
+    }
+
     lastPacket = newValue;
+
+    if (newValue.size() < 2) {
+        return;
+    }
+
+    if (directUnlockInProgress && directUnlockActivationSent && newValue != directUnlockChallenge &&
+        directUnlockTelemetryFrame(newValue) && static_cast<uint8_t>(newValue.at(4)) == directUnlockAuth) {
+        directUnlockActivationTimer->stop();
+        directUnlockFallbackTimer->stop();
+        directUnlockInProgress = false;
+        directUnlockSucceeded = true;
+        emit debug(QStringLiteral("Echelon treadmill direct unlock acknowledged"));
+    }
+
+    if (newValue.size() == 8 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(newValue.at(1)) == 0xe0) {
+        handleDirectUnlockChallenge(newValue);
+    }
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
 
@@ -479,6 +518,7 @@ void echelonstride::error(QLowEnergyController::Error err) {
 
 void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
+        resetDirectUnlockState();
         bluetoothDevice = device;
 
         if(bluetoothDevice.name().toUpper().startsWith("STRIDE4")) {
@@ -508,6 +548,7 @@ void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("LowEnergy controller disconnected"));
+            resetDirectUnlockState();
             emit disconnected();
         });
 
@@ -521,9 +562,91 @@ void echelonstride::controllerStateChanged(QLowEnergyController::ControllerState
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+        resetDirectUnlockState();
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+bool echelonstride::virtualEchelonSessionActive() {
+    auto *virtualTreadmill = dynamic_cast<virtualtreadmill *>(VirtualDevice());
+    return virtualTreadmill && virtualTreadmill->connected();
+}
+
+bool echelonstride::directUnlockTelemetryFrame(const QByteArray &newValue) const {
+    if (newValue.size() != 8 || static_cast<uint8_t>(newValue.at(0)) != 0xf0 ||
+        static_cast<uint8_t>(newValue.at(1)) != 0xe0) {
+        return false;
+    }
+
+    uint8_t checksum = 0;
+    for (int i = 0; i < newValue.size() - 1; ++i) {
+        checksum = static_cast<uint8_t>(checksum + static_cast<uint8_t>(newValue.at(i)));
+    }
+    return checksum == static_cast<uint8_t>(newValue.at(newValue.size() - 1));
+}
+
+void echelonstride::handleDirectUnlockChallenge(const QByteArray &newValue) {
+    if (directUnlockAttempted || directUnlockInProgress || directUnlockSucceeded || virtualEchelonSessionActive()) {
+        return;
+    }
+
+    directUnlockAttempted = true;
+    directUnlockChallenge = newValue;
+    const auto result = echelonunlock::responseForChallenge(newValue);
+    if (!result.valid()) {
+        directUnlockFailed(QStringLiteral("invalid challenge (%1)").arg(static_cast<int>(result.error)));
+        return;
+    }
+
+    directUnlockInProgress = true;
+    directUnlockAuth = static_cast<uint8_t>(result.response.at(4));
+    directUnlockActivationSent = false;
+    directUnlockActivationTimer->start(500);
+    directUnlockFallbackTimer->start(2500);
+
+    // The recorded treadmill responses vary in the four envelope bytes around AUTH. Keep the
+    // bike-proven minimal envelope here and require a valid post-auth acknowledgement; otherwise
+    // the existing Virtual Echelon proxy remains the fallback.
+    QByteArray response = result.response;
+    writeCharacteristic(reinterpret_cast<uint8_t *>(response.data()), static_cast<uint8_t>(response.size()),
+                        QStringLiteral("direct Echelon treadmill unlock response"), false, false);
+}
+
+void echelonstride::sendDirectUnlockActivation() {
+    if (!directUnlockInProgress || directUnlockActivationSent) {
+        return;
+    }
+
+    directUnlockActivationSent = true;
+    QByteArray activation = echelonunlock::activationCommand();
+    writeCharacteristic(reinterpret_cast<uint8_t *>(activation.data()), static_cast<uint8_t>(activation.size()),
+                        QStringLiteral("direct Echelon treadmill unlock activation"), false, false);
+}
+
+void echelonstride::directUnlockFailed(const QString &reason) {
+    if (!directUnlockAttempted && !directUnlockInProgress) {
+        return;
+    }
+
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
+    emit debug(QStringLiteral("Echelon treadmill direct unlock failed: ") + reason +
+               QStringLiteral("; keeping Virtual Echelon fallback available"));
+}
+
+void echelonstride::resetDirectUnlockState() {
+    directUnlockActivationTimer->stop();
+    directUnlockFallbackTimer->stop();
+    directUnlockChallenge.clear();
+    directUnlockAuth = 0;
+    directUnlockAttempted = false;
+    directUnlockInProgress = false;
+    directUnlockActivationSent = false;
+    directUnlockSucceeded = false;
 }
 
 bool echelonstride::connected() {
@@ -531,6 +654,23 @@ bool echelonstride::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void echelonstride::proxyVirtualTreadmillCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualTreadmillCommand ignored because the Echelon treadmill is not ready");
+        return;
+    }
+
+    if (directUnlockSucceeded && value.size() == 8 && static_cast<uint8_t>(value.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(value.at(1)) == 0xe0) {
+        emit debug(QStringLiteral("ignoring duplicate Virtual Echelon treadmill unlock response"));
+        return;
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon treadmill proxy"));
 }
 
 bool echelonstride::autoPauseWhenSpeedIsZero() {

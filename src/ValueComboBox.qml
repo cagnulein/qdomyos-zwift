@@ -7,7 +7,7 @@ import QtQuick.Controls.Material 2.15
 // `value` is the raw setting value the caller saves; `labels` maps raw values
 // to translated text and is used for display only. Values missing from
 // `labels` (such as Bluetooth device names) are shown unchanged.
-ComboBox {
+UiComboBox {
     id: control
 
     property string value
@@ -19,6 +19,13 @@ ComboBox {
 
     displayText: labelFor(value)
     onActivated: value = currentValue
+
+    // savedText (see UiComboBox) is the raw saved value: shown through `value`, compared raw
+    dirty: savedText !== undefined && value !== String(savedText)
+    function showSaved() {
+        if (savedText !== undefined)
+            value = savedText
+    }
 
     // Same as the Material style's default delegate; only the text goes through labelFor()
     delegate: MenuItem {
