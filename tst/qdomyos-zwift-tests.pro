@@ -38,7 +38,6 @@ SOURCES += \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
-        Devices/TestProFormSport30Protocol.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
@@ -47,6 +46,7 @@ SOURCES += \
         Devices/TestYpooTreadmill.cpp \
         Devices/TestYpooM5Distance.cpp \
         Devices/TestFtmsTreadmillControl.cpp \
+        Devices/TestProFormSport30Protocol.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestTrxAppGateUsRowerParser.cpp \
