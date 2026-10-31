@@ -11,7 +11,9 @@ fail() {
 }
 adb shell am force-stop "$pkg"
 adb logcat -c
-adb shell am start -W -n "$activity" --ez qz_ci_ip_stress true
+# Android 15 may hand -W back while Health Connect onboarding is on top,
+# even if QZ starts. Force a fresh launch and validate PID/checkpoints below.
+adb shell am start -S -n "$activity" --ez qz_ci_ip_stress true || echo "am start reported an error; checking PID and stress markers"
 pid=""
 for i in $(seq 1 60); do
   pid="$(adb shell pidof "$pkg" 2>/dev/null | tr -d '\r')"
