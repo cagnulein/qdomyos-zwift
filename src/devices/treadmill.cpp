@@ -27,6 +27,10 @@ static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent)
 
 treadmill::treadmill() {}
 
+void treadmill::setTrainingProgram(const QList<trainrow> &rows) {
+    Q_UNUSED(rows);
+}
+
 void treadmill::changeSpeed(double speed) {
     // Reset target watts only if called from external source
     if (!callingFromFollowPower) {
