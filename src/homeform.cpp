@@ -8949,7 +8949,7 @@ void homeform::update() {
 
             bool treadmill_direct_distance = settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
             double distance1s = 0;
-            if (treadmill_direct_distance) {
+            if (treadmill_direct_distance || bluetoothManager->device()->usesDirectSessionDistance()) {
                 distance1s = bluetoothManager->device()->odometer();
             } else {
                 if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
