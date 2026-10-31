@@ -14,7 +14,6 @@ TEST(QZSettingsSecurityTest, FiltersSensitiveKeysUsedByStartupSettingsLog) {
         QStringLiteral("ZWIFT_PASSWORD"),
         QStringLiteral("/MQTT_TOKEN"),
         QStringLiteral("cryptoKeySettingsProfiles"),
-        QZSettings::proform_treadmill_sport_3_0_auth_packets,
         QStringLiteral("life_fitness_first_name"),
         QStringLiteral("life_fitness_last_name"),
         QStringLiteral("life_fitness_username"),
@@ -46,9 +45,4 @@ TEST(QZSettingsSecurityTest, AllowsNonSensitiveTemplateSettings) {
     for (const QString &key : allowedKeys) {
         EXPECT_FALSE(QZSettings::isSensitiveSettingKey(key)) << key.toStdString();
     }
-}
-
-TEST(QZSettingsSecurityTest, KeepsSport30AuthorizationPacketsLocalToTheDevice) {
-    EXPECT_TRUE(QZSettings::isProfileLocalSettingKey(QZSettings::proform_treadmill_sport_3_0_auth_packets));
-    EXPECT_FALSE(QZSettings::isProfileLocalSettingKey(QZSettings::ftp));
 }

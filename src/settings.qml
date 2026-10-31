@@ -738,7 +738,7 @@ import AndroidStatusBar 1.0
         // - the keys QZ writes by itself, without anyone touching them: the MyWhoosh link cycles
         //   its actions with a controller button, the last gear is kept on every shift with
         //   gears_restore_value, the detection of the equipment marks what it found
-        readonly property var privateKeyParts: ["password", "user_email", "username", "token", "cryptokey", "auth_packets",
+        readonly property var privateKeyParts: ["password", "user_email", "username", "token", "cryptokey",
                                                 "garmin_device_serial", "garmin_email"]
         readonly property var appWrittenKeys: ["mywhoosh_link_camera_value", "mywhoosh_link_emote_value",
                                                "gears_current_value_f", "domyosbike_notfmts",
@@ -2388,7 +2388,6 @@ import AndroidStatusBar 1.0
             property bool moovio_lynx_konect_2_0: false
             property real virtual_device_rower_cadence_gain: 1.0
             property real virtual_device_rower_cadence_offset: 0.0
-            property string proform_treadmill_sport_3_0_auth_packets: ""
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -12296,53 +12295,6 @@ import AndroidStatusBar 1.0
 
                                     window.settings_restart_to_apply = true;
                                 }
-                            }
-                            RowLayout {
-                                visible: settings.proform_treadmill_sport_3_0
-                                spacing: 10
-                                Label {
-                                    text: qsTr("Sport 3.0 authorization packets:")
-                                    wrapMode: window.labelWrap
-                                    Layout.fillWidth: true
-                                }
-                                SettingsTextField {
-                                    id: sport30AuthPacketsTextField
-                                    savedText: settings.proform_treadmill_sport_3_0_auth_packets
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.fillWidth: true
-                                    inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoPredictiveText
-                                    echoMode: TextInput.Password
-                                    onAccepted: {
-                                        settings.proform_treadmill_sport_3_0_auth_packets = text;
-                                        window.settings_restart_to_apply = true;
-                                    }
-                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    text: qsTr("OK")
-                                    enabled: sport30AuthPacketsTextField.dirty
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: {
-                                        settings.proform_treadmill_sport_3_0_auth_packets = sport30AuthPacketsTextField.text;
-                                        window.settings_restart_to_apply = true;
-                                        toast.show(qsTr("Setting saved!"));
-                                    }
-                                }
-                            }
-                            Label {
-                                visible: settings.proform_treadmill_sport_3_0
-                                text: qsTr("Paste the three complete 20-byte 0x90 packets captured from this treadmill (60 bytes total; hex bytes may be separated by spaces or colons). Stored locally and masked here. Leave blank to use the built-in profile packets.")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: window.fontHint
-                                bottomPadding: window.hintGap
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                verticalAlignment: Text.AlignVCenter
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
                             }
                             RowLayout {
                                 spacing: 10

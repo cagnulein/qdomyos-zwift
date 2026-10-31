@@ -42,61 +42,6 @@ QByteArray proformtreadmill::sport30StartCommand(double currentInclination) {
     return QByteArray(reinterpret_cast<const char *>(command), sizeof(command));
 }
 
-bool proformtreadmill::parseSport30AuthorizationPackets(const QByteArray &input, QList<QByteArray> *packets) {
-    if (!packets) {
-        return false;
-    }
-
-    QByteArray bytes;
-    bytes.reserve(60);
-    int nibbleCount = 0;
-    uint8_t highNibble = 0;
-
-    for (const char character : input) {
-        const uint8_t value = static_cast<uint8_t>(character);
-        int nibble = -1;
-        if (value >= '0' && value <= '9') {
-            nibble = value - '0';
-        } else if (value >= 'a' && value <= 'f') {
-            nibble = value - 'a' + 10;
-        } else if (value >= 'A' && value <= 'F') {
-            nibble = value - 'A' + 10;
-        } else if (value == ' ' || value == '\t' || value == '\r' || value == '\n' || value == ':') {
-            continue;
-        } else {
-            return false;
-        }
-
-        if (nibbleCount >= 120) {
-            return false;
-        }
-        if ((nibbleCount & 1) == 0) {
-            highNibble = static_cast<uint8_t>(nibble << 4);
-        } else {
-            bytes.append(static_cast<char>(highNibble | nibble));
-        }
-        ++nibbleCount;
-    }
-
-    if (nibbleCount != 120) {
-        return false;
-    }
-
-    QList<QByteArray> parsed;
-    for (int packetIndex = 0; packetIndex < 3; ++packetIndex) {
-        parsed.append(bytes.mid(packetIndex * 20, 20));
-    }
-
-    const QByteArray firstPacketPrefix = QByteArray::fromHex("0012020402280428900701");
-    if (!parsed.at(0).startsWith(firstPacketPrefix) || static_cast<uint8_t>(parsed.at(1).at(0)) != 0x01 ||
-        static_cast<uint8_t>(parsed.at(1).at(1)) != 0x12 || static_cast<uint8_t>(parsed.at(2).at(0)) != 0xff ||
-        static_cast<uint8_t>(parsed.at(2).at(1)) != 0x08) {
-        return false;
-    }
-
-    *packets = parsed;
-    return true;
-}
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -9082,9 +9027,9 @@ void proformtreadmill::btinit() {
         uint8_t sport30_init_011[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t sport30_init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t sport30_init_013[] = {0xfe, 0x02, 0x2c, 0x04};
-        uint8_t sport30_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0x56, 0x24, 0xe8, 0xba, 0x8a, 0x68, 0x3c, 0x06, 0xee};
-        uint8_t sport30_init_015[] = {0x01, 0x12, 0xcc, 0x90, 0x72, 0x52, 0x50, 0x34, 0x1e, 0xe6, 0xf4, 0xd8, 0xaa, 0xba, 0xb8, 0x8c, 0x96, 0x9e, 0x9c, 0x60};
-        uint8_t sport30_init_016[] = {0xff, 0x08, 0x62, 0x62, 0xa0, 0x98, 0x02, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0xd5, 0xc8, 0xc1, 0xb8, 0xbd, 0xb0, 0xb1, 0xb0, 0xb5};
+        uint8_t sport30_init_015[] = {0x01, 0x12, 0xc8, 0xc1, 0xd8, 0xed, 0xe0, 0x11, 0x00, 0x35, 0x28, 0x41, 0x78, 0x9d, 0xb0, 0xd1, 0xf0, 0x15, 0x28, 0x41};
+        uint8_t sport30_init_016[] = {0xff, 0x08, 0x98, 0xad, 0xc0, 0x98, 0x02, 0x00, 0x00, 0xdd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t sport30_init_017[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t sport30_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t sport30_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -9137,37 +9082,12 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_013, sizeof(sport30_init_013), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
-        const QString encodedAuthPackets =
-            settings.value(QZSettings::proform_treadmill_sport_3_0_auth_packets,
-                          QZSettings::default_proform_treadmill_sport_3_0_auth_packets)
-                .toString();
-        QList<QByteArray> customAuthPackets;
-        const bool hasCustomAuthPackets = !encodedAuthPackets.trimmed().isEmpty();
-        const bool useCustomAuthPackets =
-            hasCustomAuthPackets &&
-            proformtreadmill::parseSport30AuthorizationPackets(encodedAuthPackets.toLatin1(), &customAuthPackets);
-        if (hasCustomAuthPackets && !useCustomAuthPackets) {
-            emit debug(QStringLiteral("Invalid Sport 3.0 authorization packets; using the built-in profile packets."));
-        } else if (useCustomAuthPackets) {
-            emit debug(QStringLiteral("Using custom Sport 3.0 authorization packets."));
-        }
-        if (useCustomAuthPackets) {
-            for (int packetIndex = 0; packetIndex < customAuthPackets.size(); ++packetIndex) {
-                const QString packetInfo =
-                    QStringLiteral("Sport 3.0 authorization packet %1").arg(static_cast<int>(packetIndex + 1));
-                QByteArray &packet = customAuthPackets[packetIndex];
-                writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
-                                    packetInfo, false, true);
-                QThread::msleep(sleepms);
-            }
-        } else {
-            writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-        }
+        writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_017, sizeof(sport30_init_017), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_018, sizeof(sport30_init_018), QStringLiteral("init"), false, true);

@@ -11765,7 +11765,7 @@ void homeform::saveSettings(const QUrl &filename) {
                             QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(QZSettings::cryptoKeySettingsProfiles) && !QZSettings::isProfileLocalSettingKey(s)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {
@@ -11794,7 +11794,7 @@ void homeform::loadSettings(const QUrl &filename) {
     QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
-        if (!s.contains(QZSettings::cryptoKeySettingsProfiles) && !QZSettings::isProfileLocalSettingKey(s)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             // peloton refresh token must not be changed because it has one refresh token for peloton user saved locally on the device
             if(!s.contains(QStringLiteral("peloton_refreshtoken"))) {
                 if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
@@ -11836,7 +11836,7 @@ void homeform::saveProfile(QString profilename) {
     QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(QZSettings::cryptoKeySettingsProfiles) && !QZSettings::isProfileLocalSettingKey(s)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {
