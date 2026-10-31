@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 #include <QByteArray>
 
-
 TEST(ProFormSport30ProtocolTest, EncodesNativeModeCommandAndChecksum) {
     const QByteArray expected = QByteArray::fromHex("ff0d020402090409020200100300240000000000");
     EXPECT_EQ(proformtreadmill::sport30StateCommand(0x03), expected);

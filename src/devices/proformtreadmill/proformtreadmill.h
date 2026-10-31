@@ -42,7 +42,6 @@ class proformtreadmill : public treadmill {
     static QByteArray sport30StateCommand(uint8_t state);
     static QByteArray sport30StartCommand(double currentInclination);
 
-
   private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
