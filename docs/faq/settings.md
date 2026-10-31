@@ -26,3 +26,16 @@ The app purchase and your saved QZ configuration are separate. To move your sett
 If you are using QZ's **supporter/Patreon email-based unlock** on a compatible installation, open **Settings > General Options > Email** and enter the **same email address as the active subscription, entirely in lowercase**. Save the settings, fully close QZ, and reopen it so the license status can refresh.
 
 In a confirmed case, the email had an uppercase first letter; changing it to lowercase stopped QZ from closing after ten minutes. This is a **supporter-email unlock** troubleshooting step, not a way to transfer an Apple App Store purchase to Google Play or vice versa. If it still times out, check that the subscription is active and contact QZ support with the email configured in QZ.
+
+## QZ connects to a nearby trainer instead of the fitness machine I selected. How can I force the main device?
+
+If QZ detects multiple supported Bluetooth fitness machines in the same room, selecting a specific **FTMS Treadmill** or **FTMS Bike** protocol alone may not prevent another supported machine from becoming QZ's main device.
+
+1. Open **QZ Settings > Advanced Settings > Manual Device**.
+2. Select the **exact Bluetooth name** of the machine you want as the main device.
+3. Fully close and restart QZ with both devices powered on.
+4. Confirm that the main QZ device is the intended machine and that its Start/Stop or other supported controls work.
+
+QZ may still **discover** other Bluetooth devices in its debug log; discovery alone does not mean they were connected as the main fitness machine. If the target is unavailable, QZ may keep looking for the selected name. Remove or change the Manual Device filter when switching to a different main machine.
+
+**Confirmed result:** A treadmill was previously displaced by a nearby Tacx Neo 2T bike trainer despite an explicit **FTMS Treadmill** selection. After setting **Manual Device** to the treadmill's exact advertised name, QZ still discovered the Tacx but selected the treadmill as its main device and successfully started and stopped the belt. The trainer no longer needed to be powered off.

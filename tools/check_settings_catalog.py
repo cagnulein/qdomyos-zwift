@@ -10,6 +10,16 @@ from check_settings_property_order import settings_properties
 
 CATALOG_PATH = Path("src/settings-catalog.json")
 SETTINGS_PATH = Path("src/settings.qml")
+NOT_ON_PAGES = "is not on the settings pages the search translates from"
+# The pages whose labels translate the search results: a new page goes here and in
+# translationContexts in settings.qml
+SETTINGS_PAGES = (
+    SETTINGS_PATH,
+    Path("src/settings-tiles.qml"),
+    Path("src/settings-tts.qml"),
+    Path("src/settings-shortcuts.qml"),
+    Path("src/settings-treadmill-inclination-override.qml"),
+)
 EXPECTED_FORMAT = "qdomyos-zwift-settings-catalog"
 SUPPORTED_TYPES = {"boolean", "integer", "number", "string", "enum", "page"}
 SUPPORTED_CONTROLS = {"button", "internal", "select", "switch", "text", "textfield", "virtualOption", "page", "spinbox"}
@@ -239,6 +249,73 @@ def validate_catalog(catalog: dict, qml_text: str) -> tuple[list[str], set[str]]
     return errors, catalog_keys
 
 
+def read_page(read, path: Path) -> str:
+    """A page only on one side (added or removed by the PR) has no texts on the other."""
+    try:
+        return read(path)
+    except (OSError, RuntimeError, ValueError):
+        return ""
+
+
+def on_page(text: str, pages_text: str) -> bool:
+    return json.dumps(text, ensure_ascii=False) in pages_text
+
+
+def option_problems(entry: dict, pages_text: str) -> set[str]:
+    options = entry.get("options")
+    if isinstance(options, list):
+        return {
+            f"list option {option.get('label')!r} {NOT_ON_PAGES}"
+            for option in options
+            if isinstance(option, dict) and not on_page(option.get("label"), pages_text)
+        }
+    if not isinstance(options, dict) or not options.get("values"):
+        return set()
+
+    problems = set()
+    labels = options.get("labels")
+    if labels:
+        for value, label in zip(options["values"], labels):
+            if label != str(value) and not on_page(label, pages_text):
+                problems.add(f"list label {label!r} {NOT_ON_PAGES}")
+        return problems
+    for value in options["values"]:
+        if not isinstance(value, str):
+            problems.add("the list has numeric values: if the page shows texts for them, add 'labels'")
+        elif not on_page(value, pages_text):
+            problems.add(f"list value {value!r} {NOT_ON_PAGES}")
+    return problems
+
+
+def text_problems(catalog: dict, pages_text: str) -> set[tuple[str, str]]:
+    """(key, problem) for each catalog text the settings pages do not have word for word: the
+    search finds a translation by the exact English text and shows the English one without it."""
+    collections = [catalog.get(name, []) for name in ("settings", "virtualSettings", "pages")]
+    # A parent that is a key shows the name of that setting (catalogEntryNameByKey), pages have none
+    parent_keys = {entry.get("key") for entries in collections[:2] for entry in entries}
+    problems = set()
+    for entries in collections:
+        for entry in entries:
+            key = entry.get("key")
+            # The entries the search does not show (buildSearchableSettings in settings.qml)
+            if entry.get("visible") is False or entry.get("control") == "virtualOption":
+                continue
+            if key.startswith("tile_") and key.endswith("_order"):
+                continue
+            name = entry.get("name")
+            if not on_page(name, pages_text) and not on_page(f"{name}:", pages_text):
+                problems.add((key, f"name {name!r} {NOT_ON_PAGES}"))
+            description = entry.get("description")
+            if description and not on_page(description, pages_text):
+                problems.add((key, f"description {description!r} {NOT_ON_PAGES}"))
+            parent = entry.get("parent")
+            if parent and parent not in parent_keys and not on_page(parent, pages_text) \
+                    and not on_page(f"{parent}:", pages_text):
+                problems.add((key, f"parent {parent!r} is neither a section title nor a setting key"))
+            problems |= {(key, problem) for problem in option_problems(entry, pages_text)}
+    return problems
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <base-git-ref>", file=sys.stderr)
@@ -271,6 +348,19 @@ def main() -> int:
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
+
+    # Only what this PR adds: the differences already in the base block nobody
+    current_pages = "\n".join(
+        read_page(lambda page: page.read_text(encoding="utf-8"), path) for path in SETTINGS_PAGES
+    )
+    base_pages = "\n".join(
+        read_page(lambda page: read_git_file(base_ref, page), path) for path in SETTINGS_PAGES
+    )
+    new_problems = text_problems(current_catalog, current_pages) - text_problems(base_catalog, base_pages)
+    for key, problem in sorted(new_problems):
+        print(f"::warning file={CATALOG_PATH.as_posix()}::{key}: {problem}")
+    if new_problems:
+        print(f"{len(new_problems)} catalog text warning(s): see 'Updating' in docs/settings-catalog.md.")
 
     print(f"OK: validated {len(current_catalog['settings'])} persistent settings, "
           f"{len(current_catalog['virtualSettings'])} virtual settings, and "

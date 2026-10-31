@@ -1182,6 +1182,16 @@ class QZSettings {
     static const QString virtual_device_rower_pm5;
     static constexpr bool default_virtual_device_rower_pm5 = false;
     /**
+     *@brief Gain applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_gain;
+    static constexpr double default_virtual_device_rower_cadence_gain = 1.0;
+    /**
+     *@brief Offset applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_offset;
+    static constexpr double default_virtual_device_rower_cadence_offset = 0.0;
+    /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
     static const QString virtual_device_force_bike;
@@ -2512,6 +2522,9 @@ class QZSettings {
 
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString proform_treadmill_sport_55;
+    static constexpr bool default_proform_treadmill_sport_55 = false;
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;

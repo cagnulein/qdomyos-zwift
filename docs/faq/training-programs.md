@@ -103,3 +103,24 @@ The **Open GPX** menu and GPX/map support are present in QZ's current UI and REA
 By default, QZ **does not send an automatic Stop command** when the training program reaches its end. The program can finish its intervals without displaying an obvious completion message or stopping the treadmill motor. **Use the treadmill's physical controls when needed and press Stop in QZ** to finish and save the workout.
 
 QZ's training-program code has a `trainprogram_stop_at_end` option, but its default is **false**; only when that option is enabled does the program-end path emit a device Stop request. Do not assume a particular treadmill accepts remote Stop commands. This is code-verified behavior, not a claim that automatic stopping was tested on every treadmill.
+
+## My QZ XML resistance workout loads but stays on the first interval. How can I make it run?
+
+Loading a QZ XML workout and starting the general activity timer are not always the same as **starting the training program**. If the file loads but the interval never advances, check that the training program itself has started before assuming that the bike is ignoring resistance commands.
+
+In a confirmed **Domyos X12** case, the bike connected and the XML contained alternating resistance levels, but no programmed resistance command was sent because the program was still on its first row. The working sequence on that installation was:
+
+1. Connect the bike and load the XML workout in **Open Train Program**.
+2. If the workout remains on its first row, **stop and restart the QZ workout session** using QZ's controls after loading the file (do not power-cycle the bike).
+3. Watch the interval timer advance and verify that the bike actually changes resistance at the next step.
+
+The rider confirmed that stopping and restarting the QZ session was necessary each time on that build. A subsequent debug log showed QZ sending resistance **6** and then **9** about a minute apart, with the bike reporting those levels. This is a **confirmed workaround for an affected start/stop workflow**, not a requirement for every QZ workout or device.
+
+## How can I align QZ's workout interval timing with a workout playing in Zwift or Peloton?
+
+In **QZ Settings > Tiles Options**, enable **Peloton Offset** and **Remaining Time/Row**. During the workout, use the **Peloton Offset** tile to shift QZ's workout timeline:
+
+- Press **+** if QZ's interval transitions are **behind** the external workout's callouts.
+- Press **-** if QZ's transitions are **ahead**.
+
+A treadmill user explicitly confirmed that the **Peloton Offset** tile aligned the transitions of a QZ workout with a workout in Zwift. The tile adjusts QZ's interval timing; it does **not** eliminate Bluetooth/network latency between Zwift, QZ and the treadmill, and it does not change the external workout itself.

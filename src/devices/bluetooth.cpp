@@ -1036,6 +1036,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
+            // Keep plain "RACER S" on the existing Kettler/Stages paths.
+            bool isNumericRacerS = deviceName.length() == 12 && upperDeviceName.endsWith(QStringLiteral(" RACER S"));
+            if (isNumericRacerS) {
+                for (int i = 0; i < 4; ++i) {
+                    if (!deviceName.at(i).isDigit()) {
+                        isNumericRacerS = false;
+                        break;
+                    }
+                }
+            }
             const bool isConfiguredFtmsRowerDevice =
                 !ftms_rower.contains(QZSettings::default_ftms_rower) &&
                 !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
@@ -2252,6 +2263,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO 3M ")) ||
                         (b.name().toUpper().startsWith("JFBK7.0")) ||
                         (b.name().toUpper().startsWith("SPEED RACE S")) ||
+                        isNumericRacerS ||
                         (b.name().toUpper().startsWith("SPEEDRACEX")) ||
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||

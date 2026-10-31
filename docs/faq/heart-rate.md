@@ -46,3 +46,14 @@ This is **watch → QZ** heart-rate input, not live transmission of bike data fr
 5. If the machine's own heart-rate value takes precedence on the iPad, enable **Disable HRM from the machinery** there. Keep the iPhone from connecting to the same physical trainer as the iPad.
 
 Only after heart rate appears in QZ on the iPad should you connect Zwift/MyWhoosh or another training app to the iPad's QZ virtual trainer. **Confirmed result:** an iPhone/Apple Watch-to-iPad QZ setup began working after Local Network permission was enabled on the QZ instance that lacked it. This confirms the heart-rate relay, not unrelated trainer-discovery or MyWhoosh pairing problems.
+
+## QZ receives my chest-strap heart rate, but Zwift shows no heart rate. How do I forward it?
+
+QZ can expose a **separate virtual heart-rate sensor** in addition to its virtual trainer or treadmill. Seeing heart rate in QZ does not automatically mean Zwift has selected that virtual HR source.
+
+1. Connect the chest strap to QZ and confirm the **Heart** tile updates.
+2. Open Zwift's device pairing screen and look in the **Heart Rate** field for the QZ virtual HR sensor (often advertised as **Wahoo HRM**).
+3. Select that HR sensor in Zwift **separately** from QZ's virtual trainer/treadmill connection.
+4. Verify the heart-rate value updates in Zwift during the activity.
+
+In a confirmed treadmill setup, QZ already displayed the chest-strap heart rate and passed it to the treadmill console, but Zwift showed none. Selecting QZ's **virtual HR sensor** in Zwift made heart rate visible in **all three** places. This is a pairing issue, not evidence of a three-device heart-rate limit.
