@@ -40,6 +40,27 @@ class trxappgateusbtreadmill : public treadmill {
         uint16_t elapsed = 0;
     };
 
+    class IconsoleTransactionScope {
+      public:
+        IconsoleTransactionScope(bool &state, bool protectTransaction)
+            : transactionInProgress(state), previousState(state) {
+            if (protectTransaction) {
+                transactionInProgress = true;
+            }
+        }
+        ~IconsoleTransactionScope() { transactionInProgress = previousState; }
+        IconsoleTransactionScope(const IconsoleTransactionScope &) = delete;
+        IconsoleTransactionScope &operator=(const IconsoleTransactionScope &) = delete;
+
+      private:
+        bool &transactionInProgress;
+        bool previousState;
+    };
+
+    static bool shouldSkipIconsoleTransaction(bool isIconsole, bool transactionInProgress) {
+        return isIconsole && transactionInProgress;
+    }
+
     trxappgateusbtreadmill();
     bool connected() override;
 
@@ -51,10 +72,24 @@ class trxappgateusbtreadmill : public treadmill {
     static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
     static bool isFlowFitnessDeviceName(const QString &deviceName);
     static QByteArray iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds);
+    static QByteArray iconsoleKeepAliveFrame();
+    static bool shouldAutoStartFromTelemetry(bool isIconsoleTreadmill, bool readyStatusPattern, bool alreadyReady);
+    static bool shouldRetryIconsoleInitialization(int completedAttempts);
+    static bool shouldAcceptIconsoleUploadCompletion(bool uploadSucceeded, bool latestRequestInvalidated);
+    static bool shouldBlockIconsoleStart(bool uploadRequired, bool uploadPending, bool uploadSucceeded,
+                                         bool latestRequestInvalidated);
+    static bool shouldContinueIconsoleUpload(bool frameWriteSucceeded, quint64 activeGeneration,
+                                             quint64 currentGeneration);
+    static bool hasNewerPendingIconsoleWorkout(bool hasPendingFrames, quint64 activeGeneration,
+                                               quint64 pendingGeneration);
+    static QList<QByteArray> iconsoleInitializationFrames();
+    static int iconsoleExpectedResponseSize(quint8 requestCommand);
+    static bool iconsoleResponseMatches(quint8 requestCommand, const QByteArray &response);
     static bool buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
                                            QString *error = nullptr);
 
     void setTrainingProgram(const QList<trainrow> &rows) override;
+    bool isIconsoleTreadmill() const { return iconsoleTreadmill; }
 
   private:
     static double GetSpeedFromPacket(const QByteArray &packet);
@@ -68,8 +103,8 @@ class trxappgateusbtreadmill : public treadmill {
     void uploadPendingIconsoleWorkout();
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
+    bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                             bool wait_for_response, quint8 expectedIconsoleResponse = 0);
     void waitForAPacket();
     void startDiscover();
     QTimer *refresh;
@@ -87,8 +122,16 @@ class trxappgateusbtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    int iconsoleInitializationAttempts = 0;
     bool readyToStart = false;
     bool iconsoleTreadmill = false;
+    bool iconsoleTransactionInProgress = false;
+    bool iconsoleWorkoutUploadRequired = false;
+    bool iconsoleWorkoutUploadPending = false;
+    bool iconsoleWorkoutUploadSucceeded = false;
+    bool iconsoleWorkoutRequestInvalidated = false;
+    quint64 iconsoleWorkoutRequestGeneration = 0;
+    quint64 pendingIconsoleWorkoutGeneration = 0;
     QList<QByteArray> pendingIconsoleWorkoutFrames;
 
     typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7, DKN_3 = 8, FLOW_FITNESS = 9 } TYPE;
@@ -97,7 +140,7 @@ class trxappgateusbtreadmill : public treadmill {
   signals:
     void disconnected();
     void debug(QString string);
-    void packetReceived();
+    void packetReceived(const QByteArray &packet);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

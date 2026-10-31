@@ -2,6 +2,7 @@
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
+#include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -9435,13 +9436,17 @@ void homeform::trainprogram_autostart_requested() {
     if (bluetoothManager) {
         dev = bluetoothManager->device();
     }
+    const auto *iconsole = dynamic_cast<const trxappgateusbtreadmill *>(dev);
 
     if (dev && !dev->isPaused()) {
         // Pause and resume QZ to start the program, without sending STOP/START
-        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        // commands to devices whose console telemetry is disrupted by those commands.
         QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
         QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
+        if (iconsole && iconsole->isIconsoleTreadmill()) {
+            dev->start();
+        }
     } else {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);

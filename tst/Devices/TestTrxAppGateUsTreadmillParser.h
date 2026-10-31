@@ -127,6 +127,99 @@ TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedIconsoleSpeedProgramFrames) 
               QByteArray::fromHex("f0a701d30129013d0151020102150229021502010151013d14"));
 }
 
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedIconsoleInitializationSequence) {
+    EXPECT_EQ(trxappgateusbtreadmill::iconsoleInitializationFrames(),
+              (QList<QByteArray>{QByteArray::fromHex("f0a0000090"), QByteArray::fromHex("f0a001d364"),
+                                 QByteArray::fromHex("f0a101d365")}));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedIconsoleKeepAlivePoll) {
+    EXPECT_EQ(trxappgateusbtreadmill::iconsoleKeepAliveFrame(), QByteArray::fromHex("f0a201d366"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, PreventsTelemetryAutoStartForIConsole) {
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldAutoStartFromTelemetry(true, true, false));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldAutoStartFromTelemetry(false, true, false));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldAutoStartFromTelemetry(false, true, true));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldAutoStartFromTelemetry(false, false, false));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BoundsIConsoleInitializationRetries) {
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldRetryIconsoleInitialization(0));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldRetryIconsoleInitialization(1));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldRetryIconsoleInitialization(2));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldRetryIconsoleInitialization(3));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldRetryIconsoleInitialization(-1));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsOldUploadCompletionAfterInvalidWorkoutRequest) {
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldAcceptIconsoleUploadCompletion(true, true));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldAcceptIconsoleUploadCompletion(true, false));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldAcceptIconsoleUploadCompletion(false, false));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BlocksStartWhileLatestWorkoutIsRejected) {
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldBlockIconsoleStart(true, false, false, true));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldBlockIconsoleStart(true, true, true, false));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldBlockIconsoleStart(true, false, false, false));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldBlockIconsoleStart(true, false, true, false));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldBlockIconsoleStart(false, false, false, true));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, StopsUploadAfterNewerWorkoutRequest) {
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldContinueIconsoleUpload(true, 7, 7));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldContinueIconsoleUpload(true, 7, 8));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldContinueIconsoleUpload(false, 7, 7));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RetainsNewerPendingWorkoutAfterOlderAckFailure) {
+    EXPECT_TRUE(trxappgateusbtreadmill::hasNewerPendingIconsoleWorkout(true, 7, 8));
+    EXPECT_FALSE(trxappgateusbtreadmill::hasNewerPendingIconsoleWorkout(false, 7, 8));
+    EXPECT_FALSE(trxappgateusbtreadmill::hasNewerPendingIconsoleWorkout(true, 7, 7));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, SerializesNestedIconsoleTransactions) {
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(false, false));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(true, false));
+    EXPECT_TRUE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(true, true));
+    EXPECT_FALSE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(false, true));
+
+    bool pollingTransaction = false;
+    {
+        trxappgateusbtreadmill::IconsoleTransactionScope pollingScope(pollingTransaction, true);
+        EXPECT_TRUE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(true, pollingTransaction));
+    }
+    EXPECT_FALSE(pollingTransaction);
+
+    bool transactionInProgress = false;
+    {
+        trxappgateusbtreadmill::IconsoleTransactionScope uploadScope(transactionInProgress, true);
+        EXPECT_TRUE(trxappgateusbtreadmill::shouldSkipIconsoleTransaction(true, transactionInProgress));
+        {
+            trxappgateusbtreadmill::IconsoleTransactionScope responseWaitScope(transactionInProgress, true);
+            EXPECT_TRUE(transactionInProgress);
+        }
+        EXPECT_TRUE(transactionInProgress);
+    }
+    EXPECT_FALSE(transactionInProgress);
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, MatchesCompleteCapturedIconsoleResponses) {
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa0, QByteArray::fromHex("f0b001d374")));
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa1, QByteArray::fromHex("f0b101d301150201109e")));
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa3, QByteArray::fromHex("f0b301d3020101010101017f")));
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa5, QByteArray::fromHex("f0b501d3027b")));
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(
+        0xa6, QByteArray::fromHex("f0b601d30129013d0151020102150229021502010151013d23")));
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xaf, QByteArray::fromHex("f0bf01d30285")));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsWrongOrIncompleteIconsoleResponses) {
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa3, QByteArray::fromHex("f0b401d3150101010101010101010197")));
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa6, QByteArray::fromHex("f0b601d30129013d015102010215022902150201")));
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xaf, QByteArray::fromHex("f0bf01d30284")));
+}
+
 TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithNoRows) {
     QList<trainrow> rows;
     QList<QByteArray> frames;
@@ -151,9 +244,9 @@ TEST(TrxAppGateUsTreadmillParserTest, NormalizesSingleRowWorkoutToTenMinuteProfi
     const QList<double> speeds = {6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0};
     EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa6, speeds));
     EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(0xa7, speeds));
-    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30303030303030303030303030303030303030303a8"));
-    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3001e001e001e001e001e001e001e001e001e001e99"));
-    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3001e001e001e001e001e001e001e001e001e001e9a"));
+    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30404040404040404040404040404040404040404bc"));
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
+    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, SamplesTwoRowWorkoutAcrossTenMinuteProfile) {
@@ -249,13 +342,13 @@ TEST(TrxAppGateUsTreadmillParserTest, BuildsCompleteIconsoleWorkoutUploadSequenc
     ASSERT_EQ(frames.size(), 8);
 
     EXPECT_EQ(frames.at(0), QByteArray::fromHex("f0a301d3020101010101016f"));
-    EXPECT_EQ(frames.at(1), QByteArray::fromHex("f0a401d30a010101010101010101017c"));
+    EXPECT_EQ(frames.at(1), QByteArray::fromHex("f0a401d3150101010101010101010187"));
     EXPECT_EQ(frames.at(2), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(
                                 0xa6, {4.0, 4.0, 6.0, 6.0, 8.0, 8.0, 10.0, 10.0, 12.0, 12.0}));
     EXPECT_EQ(frames.at(3), trxappgateusbtreadmill::iconsoleSpeedProgramFrame(
                                 0xa7, {14.0, 14.0, 12.0, 12.0, 10.0, 10.0, 8.0, 8.0, 6.0, 6.0}));
-    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30000010102020303040405050606070708080909c6"));
-    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3001e001e001e001e001e001e001e001e001e001e99"));
-    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3001e001e001e001e001e001e001e001e001e001e9a"));
+    EXPECT_EQ(frames.at(4), QByteArray::fromHex("f0a801d30101020203030404050506060707080809090a0ada"));
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
+    EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
     EXPECT_EQ(frames.at(7), QByteArray::fromHex("f0af01d30275"));
 }

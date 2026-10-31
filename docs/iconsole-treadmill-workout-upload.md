@@ -23,7 +23,7 @@ The BLE transport splits each 25-byte logical frame into a 20-byte write followe
 
 The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. QZ samples the input timeline at the midpoint of each of ten output minutes, then maps every output minute to two 30-second slots. This approximates the input speed and inclination changes, while normalizing the programmed duration to ten minutes.
 
-The capture also records `F0 A3`, `F0 A4`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF` around the speed frames. The candidate Android app's handlers associate these with workout mode, parameters, inclination, duration, and key-lock. The APK analyzed is a mirror candidate and has not been proven to match the captured app build. QZ now sends those profile frames in the observed order. Their complete firmware semantics have not been confirmed on a physical TX 90. `F0 A5` remains a separate workout-control command and is not part of the profile upload.
+The capture also records `F0 A3`, `F0 A4`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF` around the speed frames. The candidate Android app's handlers associate these with workout mode, parameters, inclination, duration, and key-lock. The captured parameter frame uses `0x15`; the Android builders encode each data byte with `+1` for `A8/A9/AA`. QZ sends those profile frames in the observed order and checks the corresponding `B3/B4/B6/B7/B8/B9/BA/BF` response frame, including its length and checksum. The APK analyzed is a mirror candidate and has not been proven to match the captured app build. Their complete firmware semantics have not been confirmed on a physical TX 90. `F0 A5` remains a separate workout-control command and is sent only for the explicit Start Workout action, after the profile upload has been acknowledged.
 
 ## QZ behavior
 
@@ -33,12 +33,11 @@ For an iConsole treadmill:
 
 1. QZ requires a non-empty workout with positive-duration, non-ramp rows and finite speeds.
 2. QZ samples the timeline at ten evenly spaced minute midpoints. Each sampled value contributes two 30-second speed and inclination slots; missing inclination is encoded as zero.
-3. Each speed is encoded using the captured representation:
-   `deci-km/h = round(speed * 10)` followed by `deci-km/h / 100 + 1` and `deci-km/h % 100 + 1`.
-4. QZ creates the ordered profile frames `F0 A3`, `F0 A4`, `F0 A6`, `F0 A7`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF`.
-5. If BLE initialization is not complete, the frames remain queued.
-6. After initialization, each frame is written in chunks of at most 20 bytes, with a 100 ms delay between frames. The 25-byte speed frames are therefore split into 20-byte and 5-byte writes.
-7. The normal telemetry polling remains enabled.
+3. Speed uses the captured representation: `deci-km/h = round(speed * 10)`, then high and low bytes are each incremented by one. `A8/A9/AA` data bytes are incremented by one as in the candidate Android builders; `A4` uses the captured `0x15` parameter value.
+4. Before the profile, QZ sends the captured `A0 00 00`, `A0 01 D3`, and `A1 01 D3` initialization frames and waits for valid `B0/B1` responses. If initialization fails, QZ retries the sequence after one second, with at most three attempts total; retries stop if the BLE connection is no longer discovered.
+5. QZ creates the ordered profile frames `F0 A3`, `F0 A4`, `F0 A6`, `F0 A7`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF`.
+6. After initialization, each frame is written in chunks of at most 20 bytes, with no polling between fragments. QZ waits for the matching complete response frame and checksum after each command; a missing or invalid response stops the active batch. If a newer workout request arrives during transfer, QZ stops the active batch and proceeds with the newest valid queued profile; after an ACK failure it reinitializes before retrying that profile. A rejected latest request keeps Start blocked.
+7. After the transaction, the captured iConsole poll `F0 A2 01 D3 66` resumes. iConsole telemetry does not trigger Start. The separate `F0 A5` Start command is sent only when the user requests Start Workout, and only after successful profile acknowledgements; QZ waits for `B5` before starting its workout clock.
 
 Other AppGate treadmill variants keep their existing behavior and do not receive these frames.
 
