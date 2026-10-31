@@ -3444,6 +3444,16 @@ class QZSettings {
     static const QString moovio_lynx_konect_2_0;
     static constexpr bool default_moovio_lynx_konect_2_0 = false;
 
+    // Optional treadmill tile: pace required to reach a target average at a finish time.
+    static const QString tile_required_speed_enabled;
+    static constexpr bool default_tile_required_speed_enabled = false;
+    static const QString tile_required_speed_order;
+    static constexpr int default_tile_required_speed_order = 34;
+    static const QString required_speed_target_average_kmh;
+    static constexpr double default_required_speed_target_average_kmh = 10.0;
+    static const QString required_speed_target_duration_minutes;
+    static constexpr int default_required_speed_target_duration_minutes = 60;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

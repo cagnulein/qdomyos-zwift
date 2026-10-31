@@ -483,6 +483,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         });
     }
     QSettings settings;
+    m_requiredSpeedTargetAverageKmh = settings.value(QZSettings::required_speed_target_average_kmh,
+                                                    QZSettings::default_required_speed_target_average_kmh).toDouble();
+    if (!qIsFinite(m_requiredSpeedTargetAverageKmh) || m_requiredSpeedTargetAverageKmh <= 0.0 ||
+        m_requiredSpeedTargetAverageKmh > 1000.0)
+        m_requiredSpeedTargetAverageKmh = QZSettings::default_required_speed_target_average_kmh;
+    m_requiredSpeedTargetDurationMinutes = settings.value(QZSettings::required_speed_target_duration_minutes,
+                                                         QZSettings::default_required_speed_target_duration_minutes).toInt();
+    if (m_requiredSpeedTargetDurationMinutes < 1 || m_requiredSpeedTargetDurationMinutes > 1440)
+        m_requiredSpeedTargetDurationMinutes = QZSettings::default_required_speed_target_duration_minutes;
 #ifdef Q_OS_ANDROID
     m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
                                               "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
@@ -583,6 +592,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_speed = new DataObject(QString(),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
+    required_speed = new DataObject(QString(), QStringLiteral("icons/icons/speed.png"),
+                                    QStringLiteral("0.0"), false, QStringLiteral("required_speed"), 48, labelFontSize);
     target_incline =
         new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0.0"), true, QStringLiteral("target_inclination"), 48, labelFontSize);
@@ -2422,6 +2433,7 @@ void homeform::setTileNames() {
     target_power->setName(tr("T.Power(W)"));
     target_zone->setName(tr("T.Zone"));
     target_speed->setName(tr("T.Speed (%1/h)").arg(unit));
+    required_speed->setName(tr("Req. Speed (%1/h)").arg(unit));
     target_incline->setName(tr("T.Incline (%)"));
     watt->setName(tr("Watts"));
     weightLoss->setName(tr("Weight Loss(%1)").arg(weightLossUnit));
@@ -2658,6 +2670,13 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_target_speed_order, 28).toInt() == i) {
                 target_speed->setGridId(i);
                 dataList.append(target_speed);
+            }
+            if (settings.value(QZSettings::tile_required_speed_enabled,
+                               QZSettings::default_tile_required_speed_enabled).toBool() &&
+                settings.value(QZSettings::tile_required_speed_order,
+                               QZSettings::default_tile_required_speed_order).toInt() == i) {
+                required_speed->setGridId(i);
+                dataList.append(required_speed);
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
@@ -6468,6 +6487,51 @@ void homeform::handleRestoreDefaultWheelDiameter() {
     }
 }
 
+bool homeform::requiredSpeedUsesMiles() const {
+    QSettings settings;
+    return settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+}
+
+void homeform::configureRequiredSpeedTarget(double averageSpeedKmh, int durationMinutes) {
+    // Advisory display only: never change the physical treadmill speed.
+    if (!qIsFinite(averageSpeedKmh) || averageSpeedKmh <= 0.0 || averageSpeedKmh > 1000.0 ||
+        durationMinutes < 1 || durationMinutes > 1440)
+        return;
+    m_requiredSpeedTargetAverageKmh = averageSpeedKmh;
+    m_requiredSpeedTargetDurationMinutes = durationMinutes;
+    QSettings settings;
+    settings.setValue(QZSettings::required_speed_target_average_kmh, averageSpeedKmh);
+    settings.setValue(QZSettings::required_speed_target_duration_minutes, durationMinutes);
+    refreshRequiredSpeedTile();
+}
+
+void homeform::refreshRequiredSpeedTile() {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != TREADMILL) {
+        required_speed->setValue(tr("N/A"));
+        required_speed->setSecondLine(QString());
+        return;
+    }
+
+    auto *device = bluetoothManager->device();
+    const double elapsedSeconds = QTime(0, 0).secsTo(device->elapsedTime());
+    const double remainingSeconds = m_requiredSpeedTargetDurationMinutes * 60.0 - elapsedSeconds;
+    const double remainingDistanceKm =
+        m_requiredSpeedTargetAverageKmh * m_requiredSpeedTargetDurationMinutes / 60.0 - device->odometer();
+    const double unitFactor = requiredSpeedUsesMiles() ? 0.621371 : 1.0;
+    if (remainingSeconds <= 0.0) {
+        required_speed->setValue(tr("Time up"));
+    } else {
+        // Do not clamp to a machine's speed limit: the user asked for the honest
+        // required speed, including an unattainable result if far behind target.
+        const double requiredKmh = qMax(0.0, remainingDistanceKm) * 3600.0 / remainingSeconds;
+        required_speed->setValue(QString::number(requiredKmh * unitFactor, 'f', 1));
+    }
+    required_speed->setSecondLine(tr("Avg %1 / %2 min")
+        .arg(QString::number(m_requiredSpeedTargetAverageKmh * unitFactor, 'f', 1))
+        .arg(m_requiredSpeedTargetDurationMinutes));
+}
+
 void homeform::update() {
 
     QSettings settings;
@@ -6899,6 +6963,7 @@ void homeform::update() {
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             double _rss = ((treadmill *)bluetoothManager->device())->runningStressScore();
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
+            refreshRequiredSpeedTile();
             if (bluetoothManager->device()->currentSpeed().value()) {
                 pace = 10000 / (((treadmill *)bluetoothManager->device())->currentPace().second() +
                                 (((treadmill *)bluetoothManager->device())->currentPace().minute() * 60));

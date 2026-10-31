@@ -699,6 +699,12 @@ class homeform : public QObject {
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
+    // User-adjustable advisory treadmill goal. Does not send speed commands.
+    Q_INVOKABLE void configureRequiredSpeedTarget(double averageSpeedKmh, int durationMinutes);
+    Q_INVOKABLE double requiredSpeedTargetAverageKmh() const { return m_requiredSpeedTargetAverageKmh; }
+    Q_INVOKABLE int requiredSpeedTargetDurationMinutes() const { return m_requiredSpeedTargetDurationMinutes; }
+    Q_INVOKABLE bool requiredSpeedUsesMiles() const;
+
 
 private:
     void clearWebViewCache();
@@ -955,6 +961,7 @@ public:
     DataObject *target_power;
     DataObject *target_zone;
     DataObject *target_speed;
+    DataObject *required_speed;
     DataObject *target_pace;
     DataObject *target_incline;
     DataObject *ftp;
@@ -1023,6 +1030,8 @@ public:
     void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
+    double m_requiredSpeedTargetAverageKmh = 10.0;
+    int m_requiredSpeedTargetDurationMinutes = 60;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     QQmlApplicationEngine *engine;
@@ -1196,6 +1205,7 @@ public:
     const int32_t resistanceOffsetJog = 1;
 
     void update();
+    void refreshRequiredSpeedTile();
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
