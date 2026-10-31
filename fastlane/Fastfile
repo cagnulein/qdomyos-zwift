@@ -14,7 +14,7 @@ platform :ios do
       key_filepath: api_key_path
     )
 
-    current_build = get_build_number(xcodeproj: project_path, target: "qdomyoszwift").to_i
+    current_build = get_build_number(xcodeproj: project_path).to_i
     current_version = get_version_number(xcodeproj: project_path, target: "qdomyoszwift")
     latest_build = latest_testflight_build_number(
       api_key: api_key,
