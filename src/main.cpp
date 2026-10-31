@@ -992,8 +992,10 @@ int main(int argc, char *argv[]) {
             ipStressTimer->setInterval(1);
             QObject::connect(ipStressTimer, &QTimer::timeout, ipStressTimer,
                              [ipStressTimer, calls = 0]() mutable {
+                // Unmatched peer forces interface enumeration on unpatched master.
+                static const QHostAddress unmatchedPeer(QStringLiteral("203.0.113.42"));
                 for (int i = 0; i < 500; ++i)
-                    localipaddress::getIP(QHostAddress());
+                    localipaddress::getIP(unmatchedPeer);
                 calls += 500;
                 if (calls == 5000 || calls == 35000 || calls == 65000) {
                     const auto tag = QAndroidJniObject::fromString("QZIpStress");
