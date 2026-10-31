@@ -3088,6 +3088,9 @@ class QZSettings {
     static const QString nordictrack_gx_le;
     static constexpr bool default_nordictrack_gx_le = false;
 
+    static const QString nordictrack_vx450;
+    static constexpr bool default_nordictrack_vx450 = false;
+
     static const QString nordictrack_vr21;
     static constexpr bool default_nordictrack_vr21 = false;
 
