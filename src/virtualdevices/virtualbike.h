@@ -117,6 +117,7 @@ class virtualbike : public virtualdevice {
     void echelonWriteResistance();
     void echelonWriteStatus();
     bool isEchelonVirtualEnabled() const;
+    bool garminPowerMeter() const;
     void attachDirconManager(DirconManager *manager);
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
