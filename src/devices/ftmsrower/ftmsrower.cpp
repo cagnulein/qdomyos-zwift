@@ -36,11 +36,13 @@ ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
 
 void ftmsrower::clearStats() {
     rower::clearStats();
-    jorotoCadence.reset();
-    jorotoPlausiblePaceSamples = 0;
-    jorotoPaceReady = false;
-    lastStrokesCount = 0;
-    lastStroke = QDateTime::currentDateTime();
+    if (JOROTO_MR280PRO) {
+        jorotoCadence.reset();
+        jorotoPlausiblePaceSamples = 0;
+        jorotoPaceReady = false;
+        lastStrokesCount = 0;
+        lastStroke = QDateTime::currentDateTime();
+    }
 }
 
 void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
