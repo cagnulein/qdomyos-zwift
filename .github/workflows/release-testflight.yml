@@ -63,10 +63,14 @@ jobs:
             exit 1
           fi
           KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
-          printf '%s' "$ASC_API_KEY_BASE64" | base64 -D > "$KEY_PATH"
+          printf '%s' "$ASC_API_KEY_BASE64" | tr -d '[:space:]' | base64 -D > "$KEY_PATH"
           chmod 600 "$KEY_PATH"
           if [ ! -s "$KEY_PATH" ]; then
             echo "Could not decode the App Store Connect API key."
+            exit 1
+          fi
+          if ! openssl pkey -in "$KEY_PATH" -noout >/dev/null 2>&1; then
+            echo "The decoded App Store Connect API key is not a valid private key."
             exit 1
           fi
           echo "ASC_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
