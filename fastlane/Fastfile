@@ -1,0 +1,79 @@
+require "shellwords"
+
+default_platform(:ios)
+
+platform :ios do
+  private_lane :archive_release do
+    project_path = "src/qdomyoszwift.xcodeproj"
+    bundle_id = "org.cagnulein.qdomyoszwift"
+    team_id = "6335M7T29D"
+    api_key_path = ENV.fetch("ASC_API_KEY_PATH")
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: api_key_path
+    )
+
+    current_build = get_build_number(xcodeproj: project_path, target: "qdomyoszwift").to_i
+    current_version = get_version_number(xcodeproj: project_path, target: "qdomyoszwift")
+    latest_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: bundle_id,
+      version: current_version,
+      initial_build_number: current_build
+    ).to_i
+    next_build = [current_build, latest_build].max + 1
+
+    signing_args = [
+      "-allowProvisioningUpdates",
+      "-authenticationKeyPath #{Shellwords.escape(api_key_path)}",
+      "-authenticationKeyID #{Shellwords.escape(ENV.fetch('ASC_KEY_ID'))}",
+      "-authenticationKeyIssuerID #{Shellwords.escape(ENV.fetch('ASC_ISSUER_ID'))}",
+      "CODE_SIGN_STYLE=Automatic",
+      "CODE_SIGN_IDENTITY=Apple Distribution",
+      "DEVELOPMENT_TEAM=#{team_id}",
+      "CURRENT_PROJECT_VERSION=#{next_build}"
+    ].join(" ")
+
+    build_app(
+      project: project_path,
+      scheme: "qdomyoszwift",
+      configuration: "Release",
+      destination: "generic/platform=iOS",
+      sdk: "iphoneos",
+      archive_path: "build/ios/qdomyoszwift.xcarchive",
+      derived_data_path: "build/ios/DerivedData",
+      output_directory: "build/ios/export",
+      output_name: "qdomyoszwift.ipa",
+      export_method: "app-store",
+      export_team_id: team_id,
+      export_options: { signingStyle: "automatic" },
+      clean: true,
+      xcargs: signing_args,
+      export_xcargs: signing_args,
+      disable_package_automatic_updates: true
+    )
+
+    {
+      api_key: api_key,
+      ipa_path: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      build_number: next_build
+    }
+  end
+
+  desc "Build a signed iOS IPA without uploading it"
+  lane :build_release do
+    archive_release
+  end
+
+  desc "Build and upload an iOS IPA to App Store Connect TestFlight"
+  lane :testflight do
+    result = archive_release
+    upload_to_testflight(
+      api_key: result[:api_key],
+      ipa: result[:ipa_path],
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+end

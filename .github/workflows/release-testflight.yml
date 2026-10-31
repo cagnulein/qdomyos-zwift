@@ -1,0 +1,108 @@
+name: Release iOS to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Upload the signed IPA to App Store Connect TestFlight
+        type: boolean
+        required: true
+        default: false
+
+concurrency:
+  group: release-testflight
+  cancel-in-progress: false
+
+jobs:
+  release-ios:
+    if: github.ref == 'refs/heads/master'
+    runs-on: macos-26
+    timeout-minutes: 180
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Select the Xcode version used by Xcode Cloud scripts
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)
+          test -n "$XCODE"
+          sudo ln -sfn "$XCODE" /Applications/Xcode.app
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install Fastlane
+        run: gem install fastlane --version 2.230.0 --no-document
+
+      - name: Prepare App Store Connect API key
+        env:
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ -z "$ASC_API_KEY_BASE64" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ]; then
+            echo "ASC_API_KEY_BASE64, ASC_KEY_ID, and ASC_ISSUER_ID GitHub secrets are required."
+            exit 1
+          fi
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_API_KEY_BASE64" | base64 -D > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          if [ ! -s "$KEY_PATH" ]; then
+            echo "Could not decode the App Store Connect API key."
+            exit 1
+          fi
+          echo "ASC_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Run the Xcode Cloud setup scripts
+        env:
+          CI_PRIMARY_REPOSITORY_PATH: ${{ github.workspace }}
+          STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
+          PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}
+          SMTP_USERNAME: ${{ secrets.smtp_username }}
+          SMTP_PASSWORD: ${{ secrets.smtp_password }}
+          SMTP_SERVER: ${{ secrets.smtp_server }}
+          INTERVALSICU_CLIENT_ID: ${{ secrets.intervalsicu_client_id }}
+          INTERVALSICU_CLIENT_SECRET: ${{ secrets.intervalsicu_client_secret }}
+          CESIUMKEY: ${{ secrets.cesiumkey }}
+        run: |
+          sudo mkdir -p /Volumes/workspace
+          sudo ln -sfn "$GITHUB_WORKSPACE" /Volumes/workspace/repository
+          cd build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ci_scripts
+          bash ci_post_clone.sh
+          bash ci_pre_xcodebuild.sh
+
+      - name: Build and upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            fastlane ios testflight
+          else
+            fastlane ios build_release
+          fi
+
+      - name: Upload the IPA artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-testflight-${{ github.run_number }}
+          path: build/ios/export/*.ipa
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove the temporary API key
+        if: always()
+        run: |
+          if [ -n "$ASC_API_KEY_PATH" ]; then
+            rm -f "$ASC_API_KEY_PATH"
+          fi
