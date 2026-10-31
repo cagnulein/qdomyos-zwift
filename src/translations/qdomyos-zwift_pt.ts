@@ -3762,6 +3762,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>A potência-alvo do QZ está substituindo os comandos do aplicativo. Pause o QZ e retome para devolver o controle ao aplicativo.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6274,6 +6278,14 @@ Insira-o abaixo:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Ative isso para ler a distância diretamente da esteira em vez de calculá-la a partir da velocidade. Algumas esteiras relatam a distância com mais precisão do que o cálculo baseado na velocidade. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distância direta: somar apenas o aumento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto com “Distância Direta da Esteira”. Ative isso se o contador de distância da sua esteira continua entre os treinos ou recomeça do 0 quando a esteira é desligada: só a distância percorrida durante o treino é somada, não o que a esteira contou antes de o QZ se conectar. Padrão: desativado.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

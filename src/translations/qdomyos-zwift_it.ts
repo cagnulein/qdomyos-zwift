@@ -3762,6 +3762,10 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>La potenza target di QZ sta sovrascrivendo i comandi dell&apos;app. Metti in pausa QZ e riprendi per restituire il controllo all&apos;app.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6111,6 +6115,14 @@ Inseriscilo qui sotto:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Attiva questo per leggere la distanza direttamente dal tapis roulant invece di calcolarla dalla velocità. Alcuni tapis roulant riportano la distanza più accuratamente del calcolo basato sulla velocità. Predefinito: disattivato.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distanza diretta: somma solo l'incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funziona insieme a «Distanza diretta dal tapis roulant». Attiva questo se il contatore della distanza del tuo tapis roulant continua tra un allenamento e l'altro o riparte da 0 quando il tapis roulant viene spento: viene sommata solo la distanza percorsa durante l'allenamento, non quella contata dal tapis roulant prima che QZ si collegasse. Predefinito: disattivato.</translation>
     </message>
     <message>
         <source>Max. Speed:</source>

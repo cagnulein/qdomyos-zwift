@@ -956,6 +956,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
+            // Keep plain "RACER S" on the existing Kettler/Stages paths.
+            bool isNumericRacerS = deviceName.length() == 12 && upperDeviceName.endsWith(QStringLiteral(" RACER S"));
+            if (isNumericRacerS) {
+                for (int i = 0; i < 4; ++i) {
+                    if (!deviceName.at(i).isDigit()) {
+                        isNumericRacerS = false;
+                        break;
+                    }
+                }
+            }
             const bool isConfiguredFtmsRowerDevice =
                 !ftms_rower.contains(QZSettings::default_ftms_rower) &&
                 !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
@@ -2172,6 +2183,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO 3M ")) ||
                         (b.name().toUpper().startsWith("JFBK7.0")) ||
                         (b.name().toUpper().startsWith("SPEED RACE S")) ||
+                        isNumericRacerS ||
                         (b.name().toUpper().startsWith("SPEEDRACEX")) ||
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
@@ -2325,12 +2337,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (bh_spada_2 &&
-                     b.name() == QStringLiteral("RACER S") &&
+                     b.name().toUpper().startsWith("RACER S") &&
                      !kettlerClassicBike && filter) {
                 // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
-                // Only route the exact RACER S name to this driver when
-                // BH SPADA Compatibility is enabled; otherwise preserve
-                // the existing BLE Stages path below.
+                // Route RACER S-prefixed names to this driver when BH SPADA
+                // Compatibility is enabled; otherwise preserve the existing
+                // BLE Stages path below.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,

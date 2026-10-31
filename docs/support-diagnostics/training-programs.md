@@ -122,3 +122,25 @@
 - The ZWO parser uses `sportType` and `durationType` to interpret running intervals. A confirmed import problem produced an empty graph until the time-based duration metadata was supplied.
 - QZ derives running speed from configured pace values and interval percentages, so an unexpected target can be a **pace-mapping issue** even when the file parses correctly.
 - Separating file parsing, target calculation, and physical treadmill control avoids collecting Bluetooth logs for an import-format problem.
+
+## An XML resistance workout loads, but its interval stays on the first row
+
+### Provide first
+
+- Bike/trainer model, QZ platform and installed build, and the anonymized XML workout (or two consecutive rows with their durations and resistance targets).
+- Explain **how the file was opened** and what was pressed afterward: loading the program, starting the general QZ activity, and starting the training program are distinct actions.
+- State whether the program's current-row/remaining-time display advances, whether **Auto Resistance** is enabled, and whether the bike's physical resistance changes.
+- Give a short expected-versus-observed sequence: for example, first target 6, second target 9 after one minute, but the displayed row never changes.
+
+### If still unclear
+
+- With the bike already connected and reporting live metrics, reproduce a short session lasting beyond the first interval; note each QZ Start/Play/Stop action and the time it occurred.
+- Check whether the program starts only after stopping and restarting the **QZ session** following file selection. Report the difference without assuming that this is required on every build.
+- Provide a QZ debug log starting **before the XML is loaded** and ending after the expected transition. Include the visible row/timer and actual bike resistance at that time.
+- Compare the log's parsed row targets and program-running state with resistance commands **actually sent** to the bike before investigating a rejected command.
+
+### Why it matters
+
+- A valid imported program and an active general workout timer do not establish that the training-program playback has started.
+- In a confirmed bike case, the XML contained alternating resistance targets but no commands were issued until the session was restarted; a subsequent log showed both targets sent and acknowledged by the bike.
+- This intake distinguishes a program start-state problem from malformed XML, disabled auto-resistance, and a physical bike-control failure. See the [XML playback FAQ](../faq/training-programs.md) for the known workaround.

@@ -83,3 +83,44 @@
 
 - A previously discovered name in QZ's selection list does not prove that the sensor is currently advertising.
 - Checking current advertising before collecting logs distinguishes a sleeping or intermittent strap from a QZ pairing or source-selection problem.
+
+## Apple Watch heart rate reaches QZ on iPhone but not a second QZ on iPad
+
+### Provide first
+
+- Identify the Apple Watch's paired iPhone, the iPad running QZ with the fitness machine, and the QZ/iOS/watchOS versions on each device.
+- Confirm where heart rate last appears: on the Watch, in QZ on the paired iPhone, and in QZ's Heart tile on the iPad. Test **before** opening Zwift, MyWhoosh, or another receiving app.
+- State whether both iOS devices use the same local Wi-Fi rather than cellular data or an isolated guest network, and whether **Local Network** permission is enabled for QZ on **both** devices.
+
+### If still unclear
+
+- With the fitness machine connected only to the iPad, keep both QZ instances open and repeat a short Watch HR test. Report which of the three displays changes and when.
+- Screenshot QZ's Heart Rate Options on the iPad, especially any machine-provided HR or alternate belt source, and the iOS Local Network permission screen on each device.
+- Only if the watch-to-phone stage works and the LAN permissions are correct, collect time-aligned QZ debug logs from the iPhone and iPad for the same short test.
+
+### Why it matters
+
+- The Watch sends HR to its paired iPhone; the second QZ instance depends on local-network communication, not direct Watch-to-iPad Bluetooth pairing.
+- In a confirmed multi-device case, enabling missing Local Network access for one QZ instance restored the HR relay. This should be checked before investigating trainer Bluetooth or a receiving training app.
+- A machine-provided HR value on the iPad can hide a correctly received external source. See the [Apple Watch/iPad FAQ](../faq/heart-rate.md) for setup guidance; this intake isolates the failing stage.
+
+## QZ receives heart rate, but Zwift shows no heart-rate value
+
+### Provide first
+
+- QZ platform/build, the device running Zwift, and the heart-rate source connected to QZ (strap, watch, or fitness machine).
+- Confirm whether QZ's **Heart** tile changes during exercise; state whether the machine console also displays that value.
+- Screenshot **Zwift's Heart Rate pairing field** and identify the device selected there, separately from the Power/Speed/Controllable pairing roles.
+- State whether Zwift can see a separate QZ virtual HR sensor (which may appear as **Wahoo HRM**) or only QZ's virtual trainer/treadmill.
+
+### If still unclear
+
+- Keep the physical HR source connected to QZ and repeat a short test, pairing the QZ virtual HR sensor in Zwift's **Heart Rate** field separately from the trainer. Report which of QZ, the machine console, and Zwift shows a changing value.
+- If the virtual HR sensor does not appear, provide QZ virtual-device/HR settings, the device topology, and the exact pairing screen before requesting a log.
+- Request a QZ debug log only if QZ's incoming HR is missing/intermittent or virtual advertising remains unclear; include the approximate time and expected HR source.
+
+### Why it matters
+
+- Receiving HR in QZ, forwarding it to the machine console, and pairing HR in Zwift are separate stages. A working QZ Heart tile does not establish the Zwift HR pairing.
+- In a confirmed treadmill setup, selecting QZ's separate virtual HR sensor in Zwift restored HR in all three places without changing the chest strap.
+- The [heart-rate FAQ](../faq/heart-rate.md) documents the pairing solution; this intake identifies the failed stage before recommending it.

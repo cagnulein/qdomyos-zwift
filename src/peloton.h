@@ -21,6 +21,8 @@
 
 #include <QSettings>
 
+#include <QStringList>
+
 #include <QTimer>
 #include <QUrlQuery>
 
@@ -62,6 +64,7 @@ class peloton : public QObject {
     QString current_instructor_id = QLatin1String("");
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
+    QStringList current_spotify_tracks;
     QString current_image_url = QLatin1String("");
     fileDownloader *current_image_downloaded = nullptr;
     void downloadImage();
@@ -80,6 +83,7 @@ class peloton : public QObject {
         return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
     }
     QString getPelotonWorkoutUrl();
+    static QStringList spotifyTracksFromRide(const QJsonObject &ride);
 
     // Helper function to determine if workout is walking-based
     bool isWalkingWorkout() const {

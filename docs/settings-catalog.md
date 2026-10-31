@@ -59,3 +59,13 @@ For a new persistent setting:
 - Set `parent`, `name`, `description`, `control`, and `options` from the visible UI control.
 
 For a removed setting, delete its catalog entry and decrement `settingCount`. For a rename, update the catalog key in the same commit as the QML and `QZSettings` changes.
+
+The settings search translates `name`, `description`, `parent` and the list texts by their exact English text, so a catalog text that differs from the page stays in English. `tools/check_settings_catalog.py` warns about these in a PR, without failing it, and only about what the PR adds:
+
+- `name`, `description`, list `labels`, string list `values`: the same text on a settings page (`name` also with a trailing `:`). Copy the text of the label or hint, including when it changes on the page. `values` are what gets stored, so never change them to match a text: if the page shows another text for a value, add `labels`.
+- `parent`: the title of a section on a page, or the key of a setting.
+- A list with numeric `values` needs `labels` if the page shows texts for the numbers.
+
+Some warnings are expected, the check needs no change for them: a label with a value in it (`qsTr("Bike Weight (%1)")`), which the catalog keeps without the value, and a setting with no label of its own on the page.
+
+A new settings page goes in `translationContexts` in `src/settings.qml`, or the search does not translate its texts, and in `SETTINGS_PAGES` in the check.

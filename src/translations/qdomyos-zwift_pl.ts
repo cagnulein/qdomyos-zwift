@@ -3754,6 +3754,10 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <source>Average Strokes Length: %1</source>
         <translation>Średnia długość pociągnięcia: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Moc docelowa QZ nadpisuje polecenia aplikacji. Wstrzymaj QZ i wznów, aby oddać sterowanie aplikacji.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -5906,6 +5910,14 @@ Wprowadź go poniżej:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Włącz tę opcję, aby odczytać dystans bezpośrednio z bieżni, zamiast obliczać go na podstawie prędkości. Niektóre bieżnie podają dystans dokładniej niż obliczenia na podstawie prędkości. Domyślnie: wyłączone.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Dystans z bieżni: dodawaj tylko przyrost</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Działa razem z opcją „Pobieraj dystans bezpośrednio z bieżni”. Włącz, jeśli licznik dystansu bieżni nie zeruje się między treningami albo po wyłączeniu bieżni liczy od 0: dodawany jest tylko dystans pokonany podczas treningu, a nie to, co bieżnia naliczyła przed połączeniem z QZ. Domyślnie: wyłączone.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

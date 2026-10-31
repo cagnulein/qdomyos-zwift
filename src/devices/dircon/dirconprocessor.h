@@ -83,6 +83,9 @@ class DirconProcessor : public QObject {
     QMdnsEngine::Hostname *mdnsHostname = 0;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool rouvy_compatibility = false;
+    // Read once like rouvy_compatibility: the setting applies after a restart, and
+    // sendCharacteristicNotification() runs for every characteristic on every bikeTimer tick.
+    bool wahoo_rgt_dircon = false;
     // Last 0x2AD2 payload CharacteristicNotifier2AD2 produced, replayed to a client the
     // moment it connects. Empty until the notifier has run at least once, which is the
     // signal that no device is attached yet and there is nothing truthful to say.

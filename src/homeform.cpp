@@ -6,6 +6,7 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
+#include "ios/ios_background_keepalive.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -6135,6 +6136,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     m_overridePower = false;
+    m_overridePowerWarned = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6155,6 +6157,10 @@ void homeform::Start_inner(bool send_event_to_device) {
     } else {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+        // Keep QZ active in background only when the user explicitly enables it.
+        if (settings.value(QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive)
+                .toBool())
+            iosBackgroundKeepAlive::start();
         if(h && !h->appleWatchAppInstalled() && bluetoothManager->device())
             h->startWorkout(bluetoothManager->device()->deviceType());
 #endif
@@ -6267,6 +6273,9 @@ void homeform::Stop() {
     QSettings settings;
 
     m_startRequested = false;
+    // like Start/Pause, Stop gives the load back to the external app or the bike
+    m_overridePower = false;
+    m_overridePowerWarned = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -6274,6 +6283,7 @@ void homeform::Stop() {
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
+    iosBackgroundKeepAlive::stop();
 #endif
 #endif
 
@@ -7320,6 +7330,18 @@ void homeform::update() {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+
+                virtualbike *virtualBike = ((bike *)bluetoothManager->device())->VirtualBike();
+                if (!m_overridePowerWarned &&
+                    bike::targetPowerOverridesExternalApp(
+                        virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0,
+                        QDateTime::currentMSecsSinceEpoch(),
+                        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(),
+                        bluetoothManager->device()->autoResistance())) {
+                    m_overridePowerWarned = true;
+                    qDebug() << QStringLiteral("target power tile is overriding the external app commands");
+                    setToastRequested(tr("QZ target power is overriding the app's commands. Pause QZ and resume it to give control back to the app."));
+                }
             }
 
         } else if (bluetoothManager->device()->deviceType() == ROWING) {
@@ -10201,7 +10223,7 @@ void homeform::strava_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
@@ -10319,7 +10341,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     QHttpPart externalIdPart;
     externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                              QVariant(QStringLiteral("form-data; name=\"external_id\"")));
-    externalIdPart.setBody(filename.toStdString().c_str());
+    externalIdPart.setBody(filename.toUtf8());
     multiPart->append(externalIdPart);
 
     QHttpPart filePart;
@@ -11309,6 +11331,12 @@ void homeform::sendMail() {
                 stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName +
                 QStringLiteral(" https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
+        }
+        if (!pelotonHandler->current_spotify_tracks.isEmpty()) {
+            textMessage += QStringLiteral("\n") + tr("Spotify songs:") + QStringLiteral("\n");
+            for (const QString &track : qAsConst(pelotonHandler->current_spotify_tracks)) {
+                textMessage += QStringLiteral("- ") + track + QStringLiteral("\n");
+            }
         }
     }
 

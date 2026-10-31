@@ -3762,6 +3762,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>La puissance cible de QZ remplace les commandes de l&apos;application. Mettez QZ en pause puis reprenez pour rendre le contrôle à l&apos;application.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6270,6 +6274,14 @@ Veuillez le saisir ci-dessous :</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Activez ceci pour lire la distance directement à partir du tapis de course au lieu de la calculer à partir de la vitesse. Certains tapis de course signalent la distance plus précisément que le calcul basé sur la vitesse. Par défaut, désactivé.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distance directe : n’ajouter que l’augmentation</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Fonctionne avec « Distance directe du tapis de course ». Activez ceci si le compteur de distance de votre tapis continue entre les entraînements ou repart de 0 quand le tapis est éteint : seule la distance parcourue pendant l’entraînement est ajoutée, pas ce que le tapis a compté avant la connexion de QZ. Par défaut, désactivé.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

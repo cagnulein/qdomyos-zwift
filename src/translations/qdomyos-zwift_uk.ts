@@ -3754,6 +3754,10 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>фут</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Цільова потужність QZ перебиває команди застосунку. Щоб повернути керування застосунку, поставте QZ на паузу і продовжте.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6246,6 +6250,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Увімкніть, щоб брати дистанцію безпосередньо з бігової доріжки, а не обчислювати її за швидкістю. Деякі доріжки повідомляють дистанцію точніше, ніж розрахунок за швидкістю. Типово вимкнено.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанція з доріжки: лише приріст</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Працює разом із «Дистанція безпосередньо з доріжки». Увімкніть, якщо лічильник дистанції вашої доріжки не обнуляється між тренуваннями або починає з 0 після вимкнення доріжки: до тренування потрапить лише пройдене за нього, а не те, що доріжка нарахувала до підключення QZ. Типово вимкнено.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

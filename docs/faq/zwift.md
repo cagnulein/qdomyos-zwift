@@ -150,3 +150,40 @@ If a **single button press skips two gears**, that is a separate issue: enable *
 Connect the KICKR to QZ, configure the physical **Chainring Size** and **Cog Size** to match the actual gear you leave the bike in, and configure the virtual gear table or gearing profile you want to use. Shift through QZ's on-screen gear controls or compatible Zwift Click/Play controllers. For apps such as MyWhoosh or ROUVY, let QZ own the controller unless you deliberately use an app-specific direct-controller integration. See the gear-table and controller-pairing FAQs above.
 
 The distinction is between the **physical sprocket/cassette** and the **virtual gear ratio** that QZ applies to the trainer; the latter does not require special physical Zwift hardware.
+
+## Can I make the 24 virtual gears non-linear for Zwift Click in ROUVY?
+
+**Yes.** In QZ, open **Custom Gear Table**, enable **Enable Custom Gear Table**, and edit the **Offset** for each of the 24 gears. The default offsets are linear (gear 1 = 1, gear 2 = 2, and so on), but you can make climbing gears closer together and use larger steps for higher gears. Use **Reset to Linear Defaults** to undo your custom progression.
+
+These are **QZ resistance/inclination/slope offsets**, not literal front-chainring and rear-sprocket ratios; tune them gradually to reproduce the *feel* of your bike. When the custom table is enabled, each gear press moves one table row: **Gears Gain does not scale the spacing** between custom rows. With Zwift Click connected **directly to QZ** while riding in ROUVY, leave **Get Gears from Zwift** disabled; that option is for gear events coming from Zwift. You can save a QZ profile before experimenting so you can restore your previous configuration.
+
+The 24 editable offsets, non-linear mapping, and whole-row gear steps are verified in QZ's `customgears.qml` and `bike.h` code. The support conversation established the configuration guidance but did **not** yet confirm the rider's final custom table.
+
+## Where is the Gears tile in Spanish, and does its default value of 26 mean 26 gears?
+
+In a Spanish-language QZ interface, the **Gears** tile is named **Marchas**. It is **not** the **Resistencia** (Resistance) tile.
+
+1. Open **Settings > Tiles Options** (in Spanish, **Ajustes > Opciones de mosaicos**).
+2. Scroll down past **Watt/Kg** (**Vatios/kg**) to **Gears** (**Marchas**) and enable it.
+3. The number shown in that setting (normally **26**) is the **tile's display-order index**, **not** the number of available virtual or physical gears. You do not need to change it to match a bike with ten gears.
+4. Return to QZ's dashboard, find the **Marchas** tile, pedal gently and use **+ / −** to test whether the bike's physical effort changes. If you cannot see the tile, scroll down on the dashboard.
+
+The tile-order meaning and default value of 26 are verified in QZ's `settings-tiles.qml` and `qzsettings.h`; the Spanish translation **Marchas** is in the app's translation file. A BKOOL Smart Bike rider explicitly confirmed that the on-screen gear controls changed the gears after enabling the correct tile.
+
+## Can I use Zwift Ride handlebars and a Wahoo KICKR CORE 2 in QZ without another Zwift subscription?
+
+**Yes.** QZ supports the Zwift Ride handlebar button protocol through its **Zwift Play** controller path, so it can handle local virtual shifting without a second Zwift account or a separate cycling app.
+
+1. Connect the **KICKR CORE 2** to QZ and check that power and cadence update.
+2. In **QZ Settings > Accessories**, enable **Zwift Play** for the Zwift Ride handlebars.
+3. Disable **Get Gears from Zwift**, because QZ must handle the shifts locally rather than wait for commands from Zwift.
+4. Restart QZ with the handlebar controls awake. Enable the **Gears** dashboard tile under **Tiles Options** if it is hidden.
+5. Press the handlebar shift buttons and confirm that QZ's gear number changes and the trainer's resistance responds.
+
+QZ alone can show and record workout metrics and control the trainer; a virtual-world app is optional. If you later use MyWhoosh or another training app, follow its separate pairing guidance. **This is code-verified setup guidance**, not a claim that the particular rider's final test was already confirmed.
+
+## Zwift automatic incline stopped working while QZ's MyWhoosh option was enabled. What should I check?
+
+If you are currently using **Zwift** rather than MyWhoosh, check QZ's **Experimental Settings** for an enabled **MyWhoosh compatibility** option. Disable that option, save the settings, restart QZ and reconnect Zwift, then test automatic incline on a short route.
+
+A rider explicitly confirmed that **Zwift automatic inclination started working again after disabling the MyWhoosh option**. This is a targeted workaround for a setup where the MyWhoosh option was enabled; it does not imply that every Zwift incline problem is caused by that setting. Re-enable MyWhoosh-specific functionality when you switch back to a MyWhoosh workflow that requires it.

@@ -1153,6 +1153,7 @@ public:
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_overridePowerWarned = false;
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;

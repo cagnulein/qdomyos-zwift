@@ -3766,6 +3766,10 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZの目標パワーがアプリのコマンドを上書きしています。アプリに制御を戻すには、QZを一時停止してから再開してください。</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6298,6 +6302,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>速度から計算するのではなく、トレッドミルから直接距離を読み取るためにこれをオンにしてください。一部のトレッドミルは、速度に基づく計算よりも正確に距離を報告します。初期設定はオフです。</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距離：増加分のみ加算</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>「トレッドミルからの直接距離」と組み合わせて使います。トレッドミルの距離カウンターがワークアウトの間もリセットされない場合や、電源を切ると0から数え直す場合はオンにしてください。QZが接続する前にトレッドミルが数えた分ではなく、ワークアウト中に歩いた距離だけが加算されます。初期設定はオフです。</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

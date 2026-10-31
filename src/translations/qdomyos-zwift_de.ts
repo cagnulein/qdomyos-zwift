@@ -3762,6 +3762,10 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Die QZ-Zielleistung überschreibt die Befehle der App. Pausieren Sie QZ und setzen Sie es fort, um die Steuerung an die App zurückzugeben.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6266,6 +6270,14 @@ Bitte geben Sie ihn unten ein:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Schalten Sie dies ein, um die Distanz direkt vom Laufband zu lesen, anstatt sie aus der Geschwindigkeit zu berechnen. Einige Laufbänder melden die Distanz genauer als die geschwindigkeitsbasierte Berechnung. Standardmäßig ist es aus.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Direkte Distanz: nur den Zuwachs addieren</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funktioniert zusammen mit „Direkte Distanz vom Laufband“. Schalten Sie dies ein, wenn der Distanzzähler Ihres Laufbands zwischen den Trainings weiterläuft oder nach dem Ausschalten des Laufbands wieder bei 0 beginnt: Es wird nur die während des Trainings zurückgelegte Distanz addiert, nicht das, was das Laufband vor der Verbindung mit QZ gezählt hat. Standardmäßig ist es aus.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>

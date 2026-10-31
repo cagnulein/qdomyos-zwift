@@ -575,8 +575,10 @@ import AndroidStatusBar 1.0
                 items.push(pages[k])
             }
 
-            for (var t = 0; t < items.length; t++)
+            for (var t = 0; t < items.length; t++) {
                 items[t]._translatedName = computeTranslatedName(items[t])
+                items[t]._translatedDescription = computeTranslatedDescription(items[t])
+            }
 
             searchableSettings = items
             if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
@@ -589,16 +591,19 @@ import AndroidStatusBar 1.0
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
+        // QML contexts where the labels of the settings pages are translated
+        readonly property var translationContexts: [
+            "settings", "settings-tiles", "settings-tts",
+            "settings-shortcuts", "settings-treadmill-inclination-override",
+            "homeform"
+        ]
+
         // Try to find a translation for a catalog entry name by probing common QML contexts.
         // Returns the translated string if found, or the original name as fallback.
         function computeTranslatedName(entry) {
             var name = entry.name || entry.key
             if (!name) return name
-            var contexts = [
-                "settings", "settings-tiles", "settings-tts",
-                "settings-shortcuts", "settings-treadmill-inclination-override",
-                "homeform"
-            ]
+            var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
                 // Try with trailing colon (common label pattern "Foo:")
                 var withColon = qsTranslate(contexts[i], name + ":")
@@ -610,12 +615,27 @@ import AndroidStatusBar 1.0
             return name
         }
 
+        // The same for the description: the catalog keeps the English text of the hint under
+        // the setting on its page, so its translation is found in the same contexts.
+        // Empty when there is none.
+        function computeTranslatedDescription(entry) {
+            var text = entry.description
+            if (!text) return ""
+            var contexts = translationContexts
+            for (var i = 0; i < contexts.length; i++) {
+                var translated = qsTranslate(contexts[i], text)
+                if (translated !== text) return translated
+            }
+            return ""
+        }
+
         function searchableText(entry) {
             var parts = [
                 entry.key,
                 entry.name,
                 entry._translatedName,
                 entry.description,
+                entry._translatedDescription,
                 entry.parent,
                 parentDisplayName(entry),
                 entry.type,
@@ -829,6 +849,36 @@ import AndroidStatusBar 1.0
             }
 
             return []
+        }
+
+        // What the list shows for each value, as on the setting's page: the translated label of
+        // the catalog ("Gear Up" for 1), or the value itself translated ("Male"). The value
+        // written is still the one of optionValues at the same place. A list made at run time
+        // (Bluetooth devices) shows its values as they are
+        function optionTexts(entry) {
+            var values = optionValues(entry)
+            if (!entry.options || !entry.options.values)
+                return values
+
+            var labels = entry.options.labels || []
+            var texts = []
+            for (var i = 0; i < values.length; i++) {
+                var text = labels[i] !== undefined ? labels[i] : values[i]
+                if (typeof text === "string")
+                    text = translatedText(text)
+                texts.push(String(text))
+            }
+            return texts
+        }
+
+        function translatedText(text) {
+            var contexts = translationContexts
+            for (var i = 0; i < contexts.length; i++) {
+                var translated = qsTranslate(contexts[i], text)
+                if (translated !== text)
+                    return translated
+            }
+            return text
         }
 
         function isBluetoothDeviceSetting(entry) {
@@ -2326,6 +2376,18 @@ import AndroidStatusBar 1.0
             property bool life_fitness_guest_login: false
             property int ui_text_scale: 100
             property bool ui_text_scale_system: true
+            property bool ios_background_keepalive: false
+            property bool treadmill_direct_distance_increment: false
+            property int history_chart_power_order: 0
+            property int history_chart_heart_order: 1
+            property int history_chart_resistance_order: 2
+            property int history_chart_peloton_resistance_order: 3
+            property int history_chart_cadence_order: 4
+            property int history_chart_power_distribution_order: 5
+            property int history_chart_speed_inclination_order: 6
+            property bool moovio_lynx_konect_2_0: false
+            property real virtual_device_rower_cadence_gain: 1.0
+            property real virtual_device_rower_cadence_offset: 0.0
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -2593,7 +2655,7 @@ import AndroidStatusBar 1.0
                                 visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
-                                text: entry.description || ""
+                                text: entry._translatedDescription || entry.description || ""
                                 color: Material.color(Material.Lime)
                                 font.bold: true
                                 font.italic: true
@@ -2637,7 +2699,7 @@ import AndroidStatusBar 1.0
                                 Layout.minimumWidth: 0
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionValues(entry) : []
+                                model: visible ? settingsPane.optionTexts(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
                                 displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
                                              ? settingsPane.settingValue(entry)
@@ -2663,7 +2725,8 @@ import AndroidStatusBar 1.0
                                     }
                                 }
                                 onActivated: {
-                                    var selectedValue = currentValue
+                                    // The model holds the texts shown: the value is at the same place
+                                    var selectedValue = settingsPane.optionValues(entry)[index]
                                     if (settingsPane.isBluetoothDeviceSetting(entry))
                                         selectedValue = settingsPane.stripRssi(selectedValue)
                                     settingsPane.setSettingValue(entry, selectedValue)
@@ -7082,6 +7145,131 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Workout History (not the live charts): customize the order of saved workout graphs.
+                    AccordionElement {
+                        id: historyChartsAccordion
+                        title: qsTr("Workout History Charts")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            id: historyChartOrderEditor
+                            spacing: 8
+                            Layout.fillWidth: true
+
+                            readonly property var defaultChartIds: [
+                                "power", "heart", "resistance", "pelotonResistance",
+                                "cadence", "powerDistribution", "speedInclination"
+                            ]
+                            property var chartOrder: []
+
+                            function currentOrder() {
+                                var positions = [
+                                    settings.history_chart_power_order,
+                                    settings.history_chart_heart_order,
+                                    settings.history_chart_resistance_order,
+                                    settings.history_chart_peloton_resistance_order,
+                                    settings.history_chart_cadence_order,
+                                    settings.history_chart_power_distribution_order,
+                                    settings.history_chart_speed_inclination_order
+                                ]
+                                var order = defaultChartIds.slice()
+                                order.sort(function(a, b) {
+                                    var ai = defaultChartIds.indexOf(a)
+                                    var bi = defaultChartIds.indexOf(b)
+                                    return positions[ai] - positions[bi] || ai - bi
+                                })
+                                return order
+                            }
+
+                            function saveOrder() {
+                                settings.history_chart_power_order = chartOrder.indexOf("power")
+                                settings.history_chart_heart_order = chartOrder.indexOf("heart")
+                                settings.history_chart_resistance_order = chartOrder.indexOf("resistance")
+                                settings.history_chart_peloton_resistance_order = chartOrder.indexOf("pelotonResistance")
+                                settings.history_chart_cadence_order = chartOrder.indexOf("cadence")
+                                settings.history_chart_power_distribution_order = chartOrder.indexOf("powerDistribution")
+                                settings.history_chart_speed_inclination_order = chartOrder.indexOf("speedInclination")
+                            }
+
+                            function chartLabel(chartId) {
+                                switch (chartId) {
+                                case "power": return qsTr("Power")
+                                case "heart": return qsTr("Heart Rate")
+                                case "resistance": return qsTr("Resistance vs Target Resistance")
+                                case "pelotonResistance": return qsTr("Peloton Resistance")
+                                case "cadence": return qsTr("Cadence")
+                                case "powerDistribution": return qsTr("Power Distribution")
+                                case "speedInclination": return qsTr("Speed and Inclination")
+                                default: return chartId
+                                }
+                            }
+
+                            function moveChart(index, delta) {
+                                var destination = index + delta
+                                if (destination < 0 || destination >= chartOrder.length)
+                                    return
+                                var updated = chartOrder.slice()
+                                var item = updated[index]
+                                updated[index] = updated[destination]
+                                updated[destination] = item
+                                chartOrder = updated
+                                saveOrder()
+                            }
+
+                            Component.onCompleted: chartOrder = currentOrder()
+
+                            Label {
+                                text: qsTr("Move the charts up or down to choose their order in Workout History. Changes are saved automatically.")
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Repeater {
+                                model: historyChartOrderEditor.chartOrder.length
+                                delegate: RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Label {
+                                        text: historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                    }
+                                    Button {
+                                        text: "↑"
+                                        enabled: index > 0
+                                        Accessible.name: qsTr("Move up") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, -1)
+                                    }
+                                    Button {
+                                        text: "↓"
+                                        enabled: index < historyChartOrderEditor.chartOrder.length - 1
+                                        Accessible.name: qsTr("Move down") + ": " +
+                                                         historyChartOrderEditor.chartLabel(historyChartOrderEditor.chartOrder[index])
+                                        onClicked: historyChartOrderEditor.moveChart(index, 1)
+                                    }
+                                }
+                            }
+
+                            Button {
+                                text: qsTr("Restore default order")
+                                Layout.alignment: Qt.AlignRight
+                                enabled: historyChartOrderEditor.chartOrder.join(",") !==
+                                         historyChartOrderEditor.defaultChartIds.join(",")
+                                onClicked: {
+                                    var defaults = historyChartOrderEditor.defaultChartIds.slice()
+                                    historyChartOrderEditor.chartOrder = defaults
+                                    historyChartOrderEditor.saveOrder()
+                                }
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -7145,8 +7333,6 @@ import AndroidStatusBar 1.0
                         onClicked: {
                             settings.ui_text_scale_system = checked;
                             window.setTextScaleOption("ui_text_scale_system", checked);
-                            // back to the value the field shows for this mode, also after an edit
-                            uiTextScaleTextField.text = uiTextScaleTextField.savedText;
                         }
                     }
 
@@ -7185,6 +7371,10 @@ import AndroidStatusBar 1.0
                             maximum: 170
                             enabled: !followsSystem
                             savedText: shownValue
+                            // back to the value the field shows for this mode, also after an edit and
+                            // whatever turned the mode (this switch, the search card): the same value
+                            // in both modes leaves savedText as it is, and the typed number stayed
+                            onFollowsSystemChanged: text = savedText
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -11412,6 +11602,38 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillDirectDistanceIncrementDelegate
+                        text: qsTr("Direct Distance: add only the increase")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_direct_distance_increment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        // in Qt 5.15 the role of a SwitchDelegate has no action: a double tap of the
+                        // screen reader did nothing
+                        Accessible.onPressAction: { toggle(); clicked(); }
+                        onClicked: settings.treadmill_direct_distance_increment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                  
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
@@ -13296,6 +13518,45 @@ import AndroidStatusBar 1.0
                             }
                         }
                     }                    
+
+                    AccordionElement {
+                        id: moovioTreadmillAccordion
+                        title: qsTr("Moovio Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: moovioLynxKonect20TreadmillDelegate
+                                text: qsTr("Lynx Konect 2.0")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.moovio_lynx_konect_2_0
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.moovio_lynx_konect_2_0 = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
                 }
             }            
 
@@ -13869,45 +14130,48 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelDomyosEllipticalSpeedRatio
-                                text: qsTr("Speed Ratio:")
-                                wrapMode: window.labelWrap
-                                Layout.fillWidth: true
-                            }
-                            SettingsNumberField {
-                                id: domyosEllipticalSpeedRatioTextField
-                                savedText: settings.domyos_elliptical_speed_ratio
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                onAccepted: settings.domyos_elliptical_speed_ratio = value
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                            }
-                            Button {
-                                id: okDomyosEllipticalRatioButton
-                                text: qsTr("OK")
-                                enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
-                            }
-                        }
-                        IndicatorOnlySwitch {
-                            id: domyosEllipticalInclinationDelegate
-                            text: qsTr("Inclination Supported")
+                        accordionContent: ColumnLayout {
                             spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.domyos_elliptical_inclination
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.domyos_elliptical_inclination = checked
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDomyosEllipticalSpeedRatio
+                                    text: qsTr("Speed Ratio:")
+                                    wrapMode: window.labelWrap
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: domyosEllipticalSpeedRatioTextField
+                                    savedText: settings.domyos_elliptical_speed_ratio
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.domyos_elliptical_speed_ratio = value
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDomyosEllipticalRatioButton
+                                    text: qsTr("OK")
+                                    enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                id: domyosEllipticalInclinationDelegate
+                                text: qsTr("Inclination Supported")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_elliptical_inclination
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_elliptical_inclination = checked
+                            }
                         }
                     }
                     AccordionElement {
@@ -17652,6 +17916,94 @@ import AndroidStatusBar 1.0
                                         color: Material.color(Material.Lime)
                                     }
 
+                                    AccordionElement {
+                                        id: virtualRowerOptionsAccordion
+                                        title: qsTr("Rower Options")
+                                        indicatRectColor: Material.color(Material.Grey)
+                                        textColor: Material.color(Material.Yellow)
+                                        color: Material.backgroundColor
+                                        visible: settings.virtual_device_rower
+                                        accordionContent: ColumnLayout {
+                                            spacing: 0
+
+                                            RowLayout {
+                                                spacing: 10
+                                                Label {
+                                                    text: qsTr("Cadence Gain")
+                                                    Layout.fillWidth: true
+                                                }
+                                                SettingsNumberField {
+                                                    id: virtualRowerCadenceGainTextField
+                                                    savedText: settings.virtual_device_rower_cadence_gain
+                                                    Accessible.name: qsTr("Cadence Gain") + ": " + text
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.fillHeight: false
+                                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                    onAccepted: if (valid) { settings.virtual_device_rower_cadence_gain = value; window.settings_restart_to_apply = true; }
+                                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                                }
+                                                Button {
+                                                    text: qsTr("OK")
+                                                    enabled: virtualRowerCadenceGainTextField.valid && virtualRowerCadenceGainTextField.dirty
+                                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                    onClicked: { settings.virtual_device_rower_cadence_gain = virtualRowerCadenceGainTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                                }
+                                            }
+
+                                            Label {
+                                                text: qsTr("Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.")
+                                                font.bold: true
+                                                font.italic: true
+                                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                                textFormat: Text.PlainText
+                                                wrapMode: Text.WordWrap
+                                                verticalAlignment: Text.AlignVCenter
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                                Layout.fillWidth: true
+                                                color: Material.color(Material.Lime)
+                                            }
+
+                                            RowLayout {
+                                                spacing: 10
+                                                Label {
+                                                    text: qsTr("Cadence Offset")
+                                                    Layout.fillWidth: true
+                                                }
+                                                SettingsNumberField {
+                                                    id: virtualRowerCadenceOffsetTextField
+                                                    signed: true
+                                                    savedText: settings.virtual_device_rower_cadence_offset
+                                                    Accessible.name: qsTr("Cadence Offset") + ": " + text
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.fillHeight: false
+                                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                    onAccepted: if (valid) { settings.virtual_device_rower_cadence_offset = value; window.settings_restart_to_apply = true; }
+                                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                                }
+                                                Button {
+                                                    text: qsTr("OK")
+                                                    enabled: virtualRowerCadenceOffsetTextField.valid && virtualRowerCadenceOffsetTextField.dirty
+                                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                    onClicked: { settings.virtual_device_rower_cadence_offset = virtualRowerCadenceOffsetTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                                }
+                                            }
+
+                                            Label {
+                                                text: qsTr("Offset added after the gain. Default is 0.0. QZ's internal cadence display and workout metrics remain unchanged.")
+                                                font.bold: true
+                                                font.italic: true
+                                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                                textFormat: Text.PlainText
+                                                wrapMode: Text.WordWrap
+                                                verticalAlignment: Text.AlignVCenter
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                                Layout.fillWidth: true
+                                                color: Material.color(Material.Lime)
+                                            }
+                                        }
+                                    }
+
+
                                     IndicatorOnlySwitch {
                                         id: virtualDeviceForceTreadmillDelegate
                                         text: qsTr("Force Virtual Treadmill")
@@ -18364,6 +18716,33 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         font.pixelSize: window.fontHint
                         bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Background Keep Alive")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_background_keepalive
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_background_keepalive = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
