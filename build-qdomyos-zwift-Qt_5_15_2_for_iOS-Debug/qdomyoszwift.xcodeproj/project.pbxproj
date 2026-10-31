@@ -1836,7 +1836,6 @@
 		87EBB2A52D39214E00348B15 /* workoutmodel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = workoutmodel.cpp; path = ../src/workoutmodel.cpp; sourceTree = SOURCE_ROOT; };
 		87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtreadmill.cpp; path = ../src/devices/proformtreadmill/proformtreadmill.cpp; sourceTree = "<group>"; };
 		87EFB56D25BD703C0039DD5A /* proformtreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtreadmill.h; path = ../src/devices/proformtreadmill/proformtreadmill.h; sourceTree = "<group>"; };
-		E2CE894D932A433186ACA46D /* sport30protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sport30protocol.h; path = ../src/devices/proformtreadmill/sport30protocol.h; sourceTree = "<group>"; };
 		87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtreadmill.cpp; sourceTree = "<group>"; };
 		87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QZWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		87EFC5652E918D35005BB573 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -2999,7 +2998,6 @@
 				62131FE0D24D0B93E8E1E73D /* kettlerc12bike.h */,
 				87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */,
 				87EFB56D25BD703C0039DD5A /* proformtreadmill.h */,
-				E2CE894D932A433186ACA46D /* sport30protocol.h */,
 				87586A4025B8340E00A243C4 /* proformbike.cpp */,
 				87586A3F25B8340D00A243C4 /* proformbike.h */,
 				87E6A85925B5C8B900371D28 /* flywheelbike.cpp */,

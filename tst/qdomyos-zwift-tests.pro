@@ -46,7 +46,6 @@ SOURCES += \
         Devices/TestYpooTreadmill.cpp \
         Devices/TestYpooM5Distance.cpp \
         Devices/TestFtmsTreadmillControl.cpp \
-        Devices/TestProFormSport30Protocol.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestTrxAppGateUsRowerParser.cpp \

@@ -1,5 +1,4 @@
 #include "proformtreadmill.h"
-#include "sport30protocol.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -12,95 +11,10 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
-#include <algorithm>
-#include <cmath>
 #include <chrono>
 #include <math.h>
 
 using namespace std::chrono_literals;
-
-namespace ProFormSport30Protocol {
-std::array<uint8_t, 20> makeStateCommand(uint8_t state) {
-    std::array<uint8_t, 20> command = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
-                                      0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    command[12] = state;
-    for (uint8_t i = 6; i <= 12; ++i) {
-        command[14] = static_cast<uint8_t>(command[14] + command[i]);
-    }
-    return command;
-}
-
-std::array<uint8_t, 20> makeStartCommand(double currentInclination) {
-    std::array<uint8_t, 20> command = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
-                                      0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
-    const double scaledInclination = std::isfinite(currentInclination) ? currentInclination * 100.0 : 0.0;
-    const auto incline = static_cast<uint16_t>(std::lround(std::min(65535.0, std::max(0.0, scaledInclination))));
-    command[14] = static_cast<uint8_t>(incline & 0xff);
-    command[15] = static_cast<uint8_t>((incline >> 8) & 0xff);
-    command[18] = 0;
-    for (uint8_t i = 6; i <= 17; ++i) {
-        command[18] = static_cast<uint8_t>(command[18] + command[i]);
-    }
-    return command;
-}
-
-bool parseAuthorizationPackets(const std::string &input, AuthorizationPackets &packets) {
-    std::array<uint8_t, 60> bytes{};
-    size_t nibbleCount = 0;
-    uint8_t highNibble = 0;
-
-    for (const unsigned char character : input) {
-        int nibble = -1;
-        if (character >= '0' && character <= '9') {
-            nibble = character - '0';
-        } else if (character >= 'a' && character <= 'f') {
-            nibble = character - 'a' + 10;
-        } else if (character >= 'A' && character <= 'F') {
-            nibble = character - 'A' + 10;
-        } else if (character == ' ' || character == '\t' || character == '\r' || character == '\n' ||
-                   character == ':') {
-            continue;
-        } else {
-            return false;
-        }
-
-        if (nibbleCount >= bytes.size() * 2) {
-            return false;
-        }
-        if ((nibbleCount & 1U) == 0) {
-            highNibble = static_cast<uint8_t>(nibble << 4);
-        } else {
-            bytes[nibbleCount / 2] = static_cast<uint8_t>(highNibble | nibble);
-        }
-        ++nibbleCount;
-    }
-
-    if (nibbleCount != bytes.size() * 2) {
-        return false;
-    }
-
-    AuthorizationPackets parsed{};
-    for (size_t packetIndex = 0; packetIndex < parsed.size(); ++packetIndex) {
-        for (size_t byteIndex = 0; byteIndex < parsed[packetIndex].size(); ++byteIndex) {
-            parsed[packetIndex][byteIndex] = bytes[packetIndex * parsed[packetIndex].size() + byteIndex];
-        }
-    }
-
-    constexpr std::array<uint8_t, 11> firstPacketPrefix = {
-        0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01};
-    for (size_t i = 0; i < firstPacketPrefix.size(); ++i) {
-        if (parsed[0][i] != firstPacketPrefix[i]) {
-            return false;
-        }
-    }
-    if (parsed[1][0] != 0x01 || parsed[1][1] != 0x12 || parsed[2][0] != 0xff || parsed[2][1] != 0x08) {
-        return false;
-    }
-
-    packets = parsed;
-    return true;
-}
-} // namespace ProFormSport30Protocol
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -1011,14 +925,7 @@ void proformtreadmill::update() {
             uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
             uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            auto sendSport30State = [this](uint8_t state, const QString &info) {
-                uint8_t stateRequest[] = {0xfe, 0x02, 0x0d, 0x02};
-                auto stateCommand = ProFormSport30Protocol::makeStateCommand(state);
-                writeCharacteristic(stateRequest, sizeof(stateRequest), info + QStringLiteral(" 1/2"));
-                writeCharacteristic(stateCommand.data(),
-                                    static_cast<uint8_t>(stateCommand.size()), info + QStringLiteral(" 2/2"), false, true);
-            };
-
+            
             switch (counterPoll) {
             case 0:
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -1055,44 +962,31 @@ void proformtreadmill::update() {
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));                
                 if (requestStart != -1) {
-                    const bool resume = isPaused();
-                    emit debug(resume ? QStringLiteral("resuming ProForm Sport 3.0...")
-                                      : QStringLiteral("starting ProForm Sport 3.0..."));
-                    if (resume) {
-                        sendSport30State(0x0d, QStringLiteral("Sport 3.0 resume"));
-                        forceSpeed(1.6);
-                    } else {
-                        uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
-                        uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
-                                            0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
-                        uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
-                                            0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
-                        uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
-                        auto start5 = ProFormSport30Protocol::makeStartCommand(currentInclination().value());
+                    emit debug(QStringLiteral("starting..."));
 
-                        writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
-                        writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
-                        writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
-                        writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
-                        writeCharacteristic(start5.data(), static_cast<uint8_t>(start5.size()),
-                                             QStringLiteral("start5"), false, true);
-                    }
-                    setPaused(false);
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestPause != -1) {
-                    emit debug(QStringLiteral("pausing ProForm Sport 3.0..."));
-                    sendSport30State(0x03, QStringLiteral("Sport 3.0 pause"));
-                    setPaused(true);
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+
+                    emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
                     requestPause = -1;
-                } else if (requestStop != -1) {
-                    emit debug(QStringLiteral("stopping ProForm Sport 3.0..."));
-                    sendSport30State(0x04, QStringLiteral("Sport 3.0 stop"));
-                    sendSport30State(0x01, QStringLiteral("Sport 3.0 stop finalize"));
-                    setPaused(false);
-                    requestStop = -1;
                 }
                 break;
             }
@@ -9141,35 +9035,12 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_013, sizeof(sport30_init_013), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
-        const QString encodedAuthPackets =
-            settings.value(QZSettings::proform_treadmill_sport_3_0_auth_packets,
-                          QZSettings::default_proform_treadmill_sport_3_0_auth_packets)
-                .toString();
-        ProFormSport30Protocol::AuthorizationPackets customAuthPackets{};
-        const bool hasCustomAuthPackets = !encodedAuthPackets.trimmed().isEmpty();
-        const bool useCustomAuthPackets =
-            hasCustomAuthPackets && ProFormSport30Protocol::parseAuthorizationPackets(encodedAuthPackets.toStdString(), customAuthPackets);
-        if (hasCustomAuthPackets && !useCustomAuthPackets) {
-            emit debug(QStringLiteral("Invalid Sport 3.0 authorization packets; using the built-in profile packets."));
-        } else if (useCustomAuthPackets) {
-            emit debug(QStringLiteral("Using custom Sport 3.0 authorization packets."));
-        }
-        if (useCustomAuthPackets) {
-            for (size_t packetIndex = 0; packetIndex < customAuthPackets.size(); ++packetIndex) {
-                const QString packetInfo =
-                    QStringLiteral("Sport 3.0 authorization packet %1").arg(static_cast<int>(packetIndex + 1));
-                writeCharacteristic(customAuthPackets[packetIndex].data(),
-                                    static_cast<uint8_t>(customAuthPackets[packetIndex].size()), packetInfo, false, true);
-                QThread::msleep(sleepms);
-            }
-        } else {
-            writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-        }
+        writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_017, sizeof(sport30_init_017), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
         writeCharacteristic(sport30_init_018, sizeof(sport30_init_018), QStringLiteral("init"), false, true);

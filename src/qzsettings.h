@@ -10,7 +10,6 @@ class QZSettings {
 
   public:
     static bool isSensitiveSettingKey(const QString &key);
-    static bool isProfileLocalSettingKey(const QString &key);
 
     //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
@@ -805,8 +804,6 @@ class QZSettings {
     static constexpr bool default_nordictrack_se7i = false;
     static const QString proform_treadmill_sport_3_0;
     static constexpr bool default_proform_treadmill_sport_3_0 = false;
-    static const QString proform_treadmill_sport_3_0_auth_packets;
-    static const QString default_proform_treadmill_sport_3_0_auth_packets;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
