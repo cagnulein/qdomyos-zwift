@@ -28,6 +28,61 @@ HomeForm {
     signal minus_clicked(string name)
     signal largeButton_clicked(string name)
 
+    function editRequiredSpeedGoal() {
+        var factor = rootItem.requiredSpeedUsesMiles() ? 0.621371 : 1
+        averageField.text = (rootItem.requiredSpeedTargetAverageKmh() * factor).toFixed(1)
+        durationField.text = rootItem.requiredSpeedTargetDurationMinutes().toString()
+        speedGoalPopup.open()
+    }
+    Popup {
+        id: speedGoalPopup
+        parent: Overlay.overlay
+        x: parent ? (parent.width - width) / 2 : 0
+        y: parent ? (parent.height - height) / 2 : 0
+        width: Math.min(360, parent ? parent.width - 24 : 360)
+        modal: true
+        focus: true
+        Column {
+            width: speedGoalPopup.availableWidth
+            spacing: 10
+            Label { text: qsTr("Required Speed Goal"); font.bold: true }
+            Label { text: qsTr("Target average (%1/h)").arg(rootItem.requiredSpeedUsesMiles() ? "mi" : "km") }
+            TextField {
+                id: averageField
+                width: parent.width
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                Accessible.name: qsTr("Target average speed")
+            }
+            Label { text: qsTr("Total duration (minutes)") }
+            TextField {
+                id: durationField
+                width: parent.width
+                inputMethodHints: Qt.ImhDigitsOnly
+                Accessible.name: qsTr("Total duration in minutes")
+            }
+            Row {
+                anchors.right: parent.right
+                spacing: 12
+                Button { text: qsTr("Cancel"); onClicked: speedGoalPopup.close() }
+                Button {
+                    text: qsTr("Save")
+                    enabled: {
+                        var avg = parseFloat(averageField.text.replace(",", "."))
+                        var mins = Number(durationField.text)
+                        return isFinite(avg) && avg > 0 && avg <= 1000 &&
+                               isFinite(mins) && mins >= 1 && mins <= 1440 && Math.floor(mins) === mins
+                    }
+                    onClicked: {
+                        var factor = rootItem.requiredSpeedUsesMiles() ? 0.621371 : 1
+                        rootItem.configureRequiredSpeedTarget(
+                            parseFloat(averageField.text.replace(",", ".")) / factor, Number(durationField.text))
+                        speedGoalPopup.close()
+                    }
+                }
+            }
+        }
+    }
+
     Settings {
         id: settings
         Component.onCompleted: window.retakeSettingsSnapshot(settings)
