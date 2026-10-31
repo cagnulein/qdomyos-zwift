@@ -1519,22 +1519,18 @@ void proformbike::update() {
         }
         }
 
-        if (nordictrack_vx450) {
-            counterPoll = static_cast<uint8_t>((counterPoll + 1U) % 5U);
-        } else {
-            counterPoll++;
-            if (counterPoll > 6) {
-                counterPoll = 0;
-            } else if(counterPoll == 6 && (nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0 || proform_bike_PFEVEX71316_0)) {
-                counterPoll = 0;
-            } else if (counterPoll == 6 &&
-                       (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
-                       requestResistance == -1) {
-                // this bike sends the frame noOpData7 only when it needs to change the resistance
-                counterPoll = 0;
-            } else if (counterPoll == 5 && (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
-                counterPoll = 0;
-            }
+        counterPoll++;
+        if (counterPoll > 6) {
+            counterPoll = 0;
+        } else if(counterPoll == 6 && (nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0 || proform_bike_PFEVEX71316_0)) {
+            counterPoll = 0;
+        } else if (counterPoll == 6 &&
+                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
+                   requestResistance == -1) {
+            // this bike sends the frame noOpData7 only when it needs to change the resistance
+            counterPoll = 0;
+        } else if (counterPoll == 5 && (nordictrack_vx450 || nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
+            counterPoll = 0;
         }
 
         // updating the treadmill console every second
