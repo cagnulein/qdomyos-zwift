@@ -4,6 +4,7 @@ import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
+import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -18,6 +19,15 @@ ScrollView {
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTilesPane
+
+    // Dedicated settings store for this feature. Keeping these keys separate avoids
+    // modifying the large existing settings.qml property snapshot.
+    Settings {
+        id: requiredSpeedSettings
+        Component.onCompleted: window.retakeSettingsSnapshot(requiredSpeedSettings)
+        property bool tile_required_speed_enabled: false
+        property int tile_required_speed_order: 34
+    }
 
     readonly property real speedPresetMilesConversion: 0.621371
 
@@ -1633,6 +1643,49 @@ ScrollView {
                     onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
+        }
+
+        AccordionCheckElement {
+            id: requiredSpeedEnabledAccordion
+            title: qsTr("Required Speed (Target Average)")
+            linkedBoolSetting: "tile_required_speed_enabled"
+            settings: requiredSpeedSettings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: requiredSpeedOrderLabel
+                    text: qsTr("order index:")
+                    wrapMode: window.labelWrap
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: requiredSpeedOrderField
+                    Accessible.name: requiredSpeedEnabledAccordion.title + ", " + requiredSpeedOrderLabel.text
+                    model: rootItem.tile_order
+                    savedText: requiredSpeedSettings.tile_required_speed_order
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: { displayText = requiredSpeedOrderField.currentValue }
+                }
+                Button {
+                    text: qsTr("OK")
+                    enabled: requiredSpeedOrderField.dirty
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: { requiredSpeedSettings.tile_required_speed_order = requiredSpeedOrderField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Treadmill only. Displays the speed needed to reach a target average by a chosen duration. Tap the tile to change either goal; it never controls the treadmill.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
