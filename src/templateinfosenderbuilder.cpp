@@ -1740,6 +1740,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         int i = 0;
         auto allKeys_list = settings.allKeys();
         for (const auto &key : allKeys_list) {
+            if (QZSettings::isProfileLocalSettingKey(key)) {
+                continue;
+            }
             valsett.setValue(settings.value(key));
             typesett = valsett.type();
             if (typesett == QVariant::Int) {
