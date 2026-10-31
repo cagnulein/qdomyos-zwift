@@ -3,6 +3,8 @@
 
 #include "Tools/testsettings.h"
 #include "devices/ypootreadmill/ypootreadmill.h"
+#include "qzsettings.h"
+#include "characteristics/characteristicnotifier2acd.h"
 
 class YpooTreadmillTestPeer {
   public:
@@ -29,6 +31,10 @@ class YpooTreadmillTestPeer {
     static bool requestIncline(ypootreadmill &device, double target) {
         return device.ypooM5Control.requestIncline(target);
     }
+    static void startFromApp(ypootreadmill &device) {
+        device.initDone = true;
+        device.ftmsCharacteristicChanged(QLowEnergyCharacteristic(), QByteArray::fromHex("07"));
+    }
 };
 
 namespace {
@@ -49,11 +55,22 @@ QByteArray telemetryPacket(int speed, int incline) {
     return QByteArray(reinterpret_cast<const char *>(packet), sizeof(packet));
 }
 
+QByteArray distancePacket(int speed, uint32_t meters) {
+    QByteArray packet = telemetryPacket(speed, 0);
+    packet[0] = 0x0c; // Instantaneous speed, total distance, inclination and ramp angle.
+    const char counter[] = {char(meters), char(meters >> 8), char(meters >> 16)};
+    packet.insert(4, counter, sizeof(counter));
+    return packet;
+}
+
 class YpooTreadmillTest : public ::testing::Test {
   protected:
     TestSettings settings{QStringLiteral("QZTests"), QStringLiteral("YpooTreadmill")};
     ypootreadmill device{false, false};
-    void SetUp() override { settings.activate(); }
+    void SetUp() override {
+        settings.qsettings.clear();
+        settings.activate();
+    }
 };
 } // namespace
 
@@ -169,4 +186,134 @@ TEST_F(YpooTreadmillTest, AdvertisesModelRangesThroughGenericDeviceInterface) {
         EXPECT_EQ(control.speedRange, QByteArray::fromHex("640058070a00"));
         EXPECT_EQ(control.inclineRange, QByteArray::fromHex(ypM1552 ? "000078000a00" : "c4ff96000a00"));
     }
+}
+
+TEST_F(YpooTreadmillTest, CounterResetAfterConsoleRunPreservesCumulativeDistanceAndNewSessionOffset) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 0), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 20), 15000);
+    EXPECT_NEAR(device.odometer(), 0.02, 1e-12);
+    // The console stops and clears its counter before a training app starts the next run.
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(0, 20), 16000);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(0, 0), 17000);
+    EXPECT_NEAR(device.odometerFromStartup(), 0.02, 1e-12);
+    YpooTreadmillTestPeer::startFromApp(device);
+    EXPECT_NEAR(device.odometerFromStartup(), 0.02, 1e-12);
+    // QZ starts a new recording by clearing its session offset, not the FTMS cumulative total.
+    device.clearStats();
+    EXPECT_DOUBLE_EQ(device.odometer(), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 0), 20000);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 10), 30000);
+    EXPECT_NEAR(device.odometer(), 0.01, 1e-12);
+    EXPECT_NEAR(device.odometerFromStartup(), 0.03, 1e-12);
+    CharacteristicNotifier2ACD notifier(&device);
+    QByteArray packet;
+    notifier.notify(packet);
+    ASSERT_GE(packet.size(), 9);
+    const unsigned offset = (uint8_t(packet[0]) & 2) ? 6 : 4;
+    const uint32_t advertisedMeters = uint8_t(packet[offset]) | (uint32_t(uint8_t(packet[offset + 1])) << 8) |
+                                      (uint32_t(uint8_t(packet[offset + 2])) << 16);
+    EXPECT_EQ(advertisedMeters, 30u); // The app can subtract its 20 m baseline to record the new 10 m.
+}
+
+TEST_F(YpooTreadmillTest, CounterFollowsPausedSamplesAndDoesNotCountThemOnResume) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 0), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 10), 10000);
+    device.setPaused(true);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 20), 20000);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 30), 30000);
+    EXPECT_NEAR(device.odometer(), 0.02, 1e-12);
+}
+
+TEST_F(YpooTreadmillTest, EnablingCounterIncrementsDoesNotAddDistanceAlreadyCountedFromSpeed) {
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 100), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 110), 1000);
+    const double previousDistance = device.odometer();
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 110), 1500);
+    EXPECT_DOUBLE_EQ(device.odometer(), previousDistance);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 120), 2000);
+    EXPECT_NEAR(device.odometer(), previousDistance + 0.01, 1e-12);
+}
+
+TEST_F(YpooTreadmillTest, IncrementOptionAloneLeavesDefaultSpeedDistanceUnchanged) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 100), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 110), 1000);
+    EXPECT_NEAR(device.odometer(), 10.0 / 3600.0, 1e-12);
+}
+
+TEST_F(YpooTreadmillTest, DirectDistanceWithoutIncrementsKeepsExistingAbsoluteCounterBehavior) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(500, 5050), 0);
+    EXPECT_DOUBLE_EQ(device.odometer(), 5.05);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(0, 0), 1000);
+    EXPECT_DOUBLE_EQ(device.odometer(), 0);
+}
+
+TEST_F(YpooTreadmillTest, CapturedDistanceCountersAccumulateAcrossStopsWithoutSpeedIntegration) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    // De-identified counter-change packets from the owner's runs; unchanged packets are omitted.
+    const QString fixtures[] = {QStringLiteral(":/ypoo-m5/distance-20261025.csv"),
+                                QStringLiteral(":/ypoo-m5/distance-20261028.csv"),
+                                QStringLiteral(":/ypoo-m5/distance-20261030.csv")};
+    const double expectedDistances[] = {6.56, 7.21, 6.53}; // 28 October includes two runs separated by a reset.
+    const unsigned expectedSamples[] = {658, 724, 655};
+    for (unsigned index = 0; index < 3; ++index) {
+        for (bool ypM1552 : {false, true}) {
+            SCOPED_TRACE(fixtures[index].toStdString());
+            SCOPED_TRACE(ypM1552);
+            ypootreadmill capturedDevice{false, false};
+            YpooTreadmillTestPeer::model(capturedDevice, ypM1552);
+            capturedDevice.setPaused(false);
+            QFile file(fixtures[index]);
+            ASSERT_TRUE(file.open(QIODevice::ReadOnly));
+            ASSERT_EQ(file.readLine().trimmed(), QByteArray("elapsed_ms,speed_centi_kmh,distance_m"));
+            double previousDistance = 0;
+            unsigned samples = 0;
+            while (!file.atEnd()) {
+                const auto fields = file.readLine().trimmed().split(',');
+                ASSERT_EQ(fields.size(), 3);
+                YpooTreadmillTestPeer::telemetry(capturedDevice,
+                                               distancePacket(fields[1].toInt(), fields[2].toUInt()),
+                                               fields[0].toLongLong());
+                ASSERT_GE(capturedDevice.odometerFromStartup(), previousDistance);
+                previousDistance = capturedDevice.odometerFromStartup();
+                ++samples;
+            }
+            EXPECT_EQ(samples, expectedSamples[index]);
+            EXPECT_NEAR(capturedDevice.odometer(), expectedDistances[index], 1e-9);
+            CharacteristicNotifier2ACD notifier(&capturedDevice);
+            QByteArray packet;
+            notifier.notify(packet);
+            ASSERT_GE(packet.size(), 9);
+            const unsigned offset = (uint8_t(packet[0]) & 2) ? 6 : 4;
+            const uint32_t advertisedMeters = uint8_t(packet[offset]) |
+                                              (uint32_t(uint8_t(packet[offset + 1])) << 8) |
+                                              (uint32_t(uint8_t(packet[offset + 2])) << 16);
+            EXPECT_EQ(advertisedMeters, uint32_t(qRound(expectedDistances[index] * 1000.0)));
+        }
+    }
+}
+
+TEST_F(YpooTreadmillTest, MissingCounterPacketsDoNotMixSpeedDistanceIntoCounterMode) {
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance, true);
+    settings.qsettings.setValue(QZSettings::treadmill_direct_distance_increment, true);
+    device.setPaused(false);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 100), 0);
+    YpooTreadmillTestPeer::telemetry(device, telemetryPacket(1000, 0), 1000);
+    EXPECT_DOUBLE_EQ(device.odometer(), 0);
+    YpooTreadmillTestPeer::telemetry(device, distancePacket(1000, 110), 2000);
+    EXPECT_NEAR(device.odometer(), 0.01, 1e-12);
 }
