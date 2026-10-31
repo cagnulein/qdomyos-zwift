@@ -195,19 +195,8 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
             }
         }
     }
-    // No peer address to match against (this is how provider.cpp announces the
-    // mDNS A record), so fall back to enumerating our own interfaces. Without
-    // this the A record is published empty and the service is unreachable.
-    const QHostAddress fallback = bestLocalIPv4(interfaces);
-    if (!fallback.isNull()) {
-        qDebug() << "getIP fallback" << fallback;
-        return fallback;
-    }
-
 #ifdef Q_OS_ANDROID
-    // Keep the JNI path as a last resort. QNetworkInterface is the normal path
-    // on current Android releases and avoids a high-frequency Wi-Fi framework
-    // call from the mDNS responder.
+    // Preserve the original Android Wi-Fi priority; JNI references are released below.
     QAndroidJniEnvironment env;
     jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
     jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
@@ -229,5 +218,8 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     }
 #endif
 
-    return QHostAddress();
+    // Fallback to the cached interface list when Android Wi-Fi has no IPv4.
+    const QHostAddress fallback = bestLocalIPv4(interfaces);
+    qDebug() << "getIP fallback" << fallback;
+    return fallback;
 }

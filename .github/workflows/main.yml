@@ -959,6 +959,11 @@ jobs:
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
+            # Temporary #5172 Android memory stress (one older and one newer Android).
+            if [ "${{ matrix.api-level }}" = "30" ] || [ "${{ matrix.api-level }}" = "35" ]; then
+              bash .github/scripts/android_ip_memory_test.sh
+            fi
+
             # Save logcat for debugging
             echo "Saving logcat for analysis..."
             adb logcat -d > full_logcat.txt
@@ -975,6 +980,8 @@ jobs:
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
+            ip_mem_*.txt
+            ip_stress_logcat.txt
           if-no-files-found: warn                
 
   ios-build:
