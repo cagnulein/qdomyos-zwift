@@ -804,6 +804,8 @@ class QZSettings {
     static constexpr bool default_nordictrack_se7i = false;
     static const QString proform_treadmill_sport_3_0;
     static constexpr bool default_proform_treadmill_sport_3_0 = false;
+    static const QString proform_treadmill_sport_3_0_unit_key;
+    static constexpr bool default_proform_treadmill_sport_3_0_unit_key = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;

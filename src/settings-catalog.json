@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1038,
+  "settingCount": 1039,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -462,6 +462,10 @@
         {
           "label": "Freemotion T10.9B (HCI snoop)",
           "sets": "freemotion_t10_9b_hci"
+        },
+        {
+          "label": "Proform Sport 3.0 (unit-specific key)",
+          "sets": "proform_treadmill_sport_3_0_unit_key"
         }
       ],
       "restartRequired": true
@@ -16386,6 +16390,21 @@
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "proform_treadmill_sport_3_0_unit_key",
+      "name": "Proform Sport 3.0 Unit-Specific Key",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -17339,6 +17358,7 @@
       "proform_treadmill_l6_0s": "proformTreadmillAccordion",
       "proform_treadmill_se": "proformTreadmillAccordion",
       "proform_treadmill_sport_3_0": "proformTreadmillAccordion",
+      "proform_treadmill_sport_3_0_unit_key": "proformTreadmillAccordion",
       "proform_treadmill_sport_70": "proformTreadmillAccordion",
       "proform_treadmill_sport_8_5": "proformTreadmillAccordion",
       "proform_treadmill_z1300i": "proformTreadmillAccordion",
@@ -17974,6 +17994,7 @@
       "proform_treadmill_l6_0s": "settings.qml",
       "proform_treadmill_se": "settings.qml",
       "proform_treadmill_sport_3_0": "settings.qml",
+      "proform_treadmill_sport_3_0_unit_key": "settings.qml",
       "proform_treadmill_sport_70": "settings.qml",
       "proform_treadmill_sport_8_5": "settings.qml",
       "proform_treadmill_z1300i": "settings.qml",
@@ -18959,6 +18980,7 @@
       "proform_treadmill_l6_0s": 11222,
       "proform_treadmill_se": 11230,
       "proform_treadmill_sport_3_0": 11266,
+      "proform_treadmill_sport_3_0_unit_key": 11278,
       "proform_treadmill_sport_70": 11245,
       "proform_treadmill_sport_8_5": 11220,
       "proform_treadmill_z1300i": 11229,
