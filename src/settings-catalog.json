@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1039,
+  "settingCount": 1040,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -466,6 +466,10 @@
         {
           "label": "Freemotion T10.9B (HCI snoop)",
           "sets": "freemotion_t10_9b_hci"
+        },
+        {
+          "label": "Proform Sport 5.5",
+          "sets": "proform_treadmill_sport_55"
         }
       ],
       "restartRequired": true
@@ -16405,6 +16409,21 @@
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "proform_treadmill_sport_55",
+      "name": "Proform Treadmill Sport 55",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -17310,6 +17329,7 @@
       "proform_carbon_tl": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59720": "proformTreadmillAccordion",
       "freemotion_t10_9b_hci": "proformTreadmillAccordion",
+      "proform_treadmill_sport_55": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59722c": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59723_6": "proformTreadmillAccordion",
       "proform_carbon_tlx_treadmill": "proformTreadmillAccordion",
@@ -17946,6 +17966,7 @@
       "proform_carbon_tl": "settings.qml",
       "proform_carbon_tl_PFTL59720": "settings.qml",
       "freemotion_t10_9b_hci": "settings.qml",
+      "proform_treadmill_sport_55": "settings.qml",
       "proform_carbon_tl_PFTL59722c": "settings.qml",
       "proform_carbon_tl_PFTL59723_6": "settings.qml",
       "proform_carbon_tlx_treadmill": "settings.qml",
@@ -18932,6 +18953,7 @@
       "proform_carbon_tl": 11236,
       "proform_carbon_tl_PFTL59720": 11244,
       "freemotion_t10_9b_hci": 17400,
+      "proform_treadmill_sport_55": 17401,
       "proform_carbon_tl_PFTL59722c": 11251,
       "proform_carbon_tl_PFTL59723_6": 11269,
       "proform_carbon_tlx_treadmill": 11267,

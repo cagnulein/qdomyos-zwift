@@ -103,6 +103,7 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           PUBLISH_TO_TESTFLIGHT: ${{ github.event_name == 'pull_request' || inputs.publish }}
+          TESTFLIGHT_CHANGELOG: "Branch: ${{ github.head_ref || github.ref_name }}"
         run: |
           if [ "$PUBLISH_TO_TESTFLIGHT" = "true" ]; then
             fastlane ios testflight
