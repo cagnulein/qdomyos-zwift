@@ -39,6 +39,9 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAccessible>
+#include <QAndroidJniObject>
+#include <QTimer>
 #include <QtAndroid>
 #endif
 
@@ -499,8 +502,8 @@ void initializeLogThread() {
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
-    QSettings settings;
-    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    // QSettings only for the first call: this runs for every log line, even with the debug log off
+    static bool logdebug = QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -556,6 +559,29 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
+
+#ifdef Q_OS_ANDROID
+// Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
+// Android UI thread, and when it comes before Qt published its platform integration (a service
+// such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
+// stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in later Qt the same way:
+// keep the report and apply it once the integration exists). Qt publishes the integration from an
+// event it posts while QApplication is constructed, so a call queued after that runs once it is
+// published: either Qt has got the report by then, or Android already says accessibility is on
+// and one setActive() is enough.
+static void restoreLostAccessibility() {
+    if (QAccessible::isActive())
+        return;
+    if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityOn", "(Landroid/content/Context;)Z",
+                                                      QtAndroid::androidContext().object())) {
+        QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
+                                                  "setActive", "(Z)V", jboolean(true));
+        qDebug() << "accessibility: Qt lost Android's report at launch, active after setActive:" << QAccessible::isActive();
+    }
+}
+#endif
 
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
@@ -839,28 +865,41 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION denied!";
+    // Android 11 and earlier require Location permission for Bluetooth scanning.
+    // The patched Qt backend uses Nearby devices alone on Android 12+ when
+    // BLUETOOTH_SCAN is declared with neverForLocation.
+    const int androidSdkVersion =
+        QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (androidSdkVersion <= 30) {
+        const QString locationPermission = QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
+        if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap locationResult =
+                QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
+            if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "Bluetooth scanning may be blocked by missing legacy Location permission:"
+                           << locationPermission;
+        }
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH denied!";
-    }
+    // BLUETOOTH and BLUETOOTH_ADMIN are legacy, install-time-only permissions.
+    // They are not available on API 31+ once maxSdkVersion=30 is set.
+    if (androidSdkVersion <= 30) {
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+            if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH denied!";
+        }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN denied!";
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+            if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH_ADMIN denied!";
+        }
+
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
@@ -885,6 +924,21 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+
+    // API 37 blocks direct LAN sockets (including TCP, UDP and mDNS) unless the
+    // Nearby devices / Local network permission is granted. Request it before
+    // starting the device managers, which may publish or discover LAN services.
+    // Earlier Android versions have implicit LAN access through INTERNET.
+    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 37) {
+        const QString localNetworkPermission = QStringLiteral("android.permission.ACCESS_LOCAL_NETWORK");
+        if (QtAndroid::checkPermission(localNetworkPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap localResult =
+                QtAndroid::requestPermissionsSync(QStringList({localNetworkPermission}));
+            if (localResult.value(localNetworkPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "ACCESS_LOCAL_NETWORK denied: LAN-based equipment, DIRCON, and"
+                           << "network discovery may not work. Grant Nearby devices in Android settings.";
+        }
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
@@ -972,39 +1026,8 @@ int main(int argc, char *argv[]) {
         Q_UNUSED(qtStandardButtonTexts);
 
         // Load translations based on explicit app setting or system locale.
-        QTranslator *translator = new QTranslator(app.data());
-        QString configuredLanguage =
-            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
-        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
-                                 configuredLanguage.isEmpty()
-                             ? QLocale::system().name()
-                             : configuredLanguage;
-        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
-
-        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
-            if (localeKey.isEmpty()) {
-                return false;
-            }
-            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
-                app->installTranslator(translator);
-                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
-                return true;
-            }
-            return false;
-        };
-
-        // "en" is the built-in source language, so we don't load any translator for it.
-        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
-            qDebug() << "Language setting resolves to English. Using built-in source strings.";
-        } else {
-            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
-            if (!loaded && locale.contains(QLatin1Char('_'))) {
-                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
-            }
-            if (!loaded) {
-                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
-            }
-        }
+        homeform::loadAppTranslation(
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString());
 
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -1036,6 +1059,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, [] { restoreLostAccessibility(); });
+#endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast

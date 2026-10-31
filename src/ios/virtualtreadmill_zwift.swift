@@ -8,6 +8,8 @@ let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
+let forwardedTreadmillFTMSFeatures = Data([0x0d, 0x14, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00])
+
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
 
@@ -45,6 +47,21 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
     {
         return peripheralManager.lastRequestedSpeed;
     }
+
+    @objc(enableControlPointForwardingWithSpeedRange:inclineRange:)
+    public func enableControlPointForwarding(speedRange: Data, inclineRange: Data) {
+        peripheralManager.supportedSpeedRange = speedRange
+        peripheralManager.supportedInclineRange = inclineRange
+        peripheralManager.forwardControlPointWrites = true
+    }
+
+    @objc public func takeControlPointWrite() -> Data? {
+        return peripheralManager.takeControlPointWrite()
+    }
+
+    @objc public func clearControlPointWrites() {
+        peripheralManager.controlPointWrites.clear()
+    }
     
     @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
@@ -59,7 +76,52 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
     }
 }
 
+// Used only when a physical treadmill opts into raw FTMS forwarding.
+final class TreadmillControlPointWriteQueue {
+  private var writes: [Data] = []
+  private let lock = NSLock()
+
+  func take() -> Data? {
+    lock.lock()
+    defer { lock.unlock() }
+    return writes.isEmpty ? nil : writes.removeFirst()
+  }
+
+  func clear(keepingStop: Bool = false) {
+    lock.lock()
+    defer { lock.unlock() }
+    if keepingStop {
+        writes = writes.filter { $0.first == 0x08 || $0 == Data([0x02, 0x00, 0x00]) }
+    } else {
+        writes.removeAll()
+    }
+  }
+
+  func enqueue(_ data: Data) -> CBATTError.Code {
+    let minimumLengths: [UInt8: Int] = [0x00: 1, 0x01: 1, 0x02: 3, 0x03: 3, 0x07: 1, 0x08: 2, 0x11: 7]
+    guard let opcode = data.first, let minimumLength = minimumLengths[opcode] else { return .requestNotSupported }
+    guard data.count >= minimumLength else { return .invalidAttributeValueLength }
+    lock.lock()
+    defer { lock.unlock() }
+    // A Stop supersedes commands waiting for the Qt event loop to poll them.
+    if data.first == 0x08 || data == Data([0x02, 0x00, 0x00]) {
+        writes.removeAll()
+    }
+    guard writes.count < 16 else { return .insufficientResources }
+    writes.append(data)
+    return .success
+  }
+}
+
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
+  var forwardControlPointWrites = false
+  var supportedSpeedRange = Data()
+  var supportedInclineRange = Data()
+  let controlPointWrites = TreadmillControlPointWriteQueue()
+
+  func takeControlPointWrite() -> Data? {
+    return controlPointWrites.take()
+  }
   private var garmin_bluetooth_compatibility: Bool = false
   private var bike_cadence_sensor: Bool = false
   private var peripheralManager: CBPeripheralManager!
@@ -133,7 +195,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
             let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
             self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
                                                                                properties: FitnessMachineFeatureProperties,
-                                                                               value: Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
+                                                                               value: forwardControlPointWrites ? forwardedTreadmillFTMSFeatures : Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
                                                                                permissions: FitnessMachineFeaturePermissions)
             
             let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
@@ -185,6 +247,13 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                      treadmilldataCharacteristic,
                                                      FitnessMachinestatusCharacteristic,
                                                      TrainingStatusCharacteristic ]
+            if forwardControlPointWrites {
+                let speedRange = CBMutableCharacteristic(type: CBUUID(string: "2AD4"), properties: [.read],
+                                                        value: supportedSpeedRange, permissions: [.readable])
+                let inclineRange = CBMutableCharacteristic(type: CBUUID(string: "2AD5"), properties: [.read],
+                                                          value: supportedInclineRange, permissions: [.readable])
+                FitnessMachineService.characteristics?.append(contentsOf: [speedRange, inclineRange])
+            }
             
             self.peripheralManager.add(FitnessMachineService)
         }
@@ -259,6 +328,25 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        if forwardControlPointWrites {
+            for request in requests {
+                guard request.characteristic == FitnessMachineControlPointCharacteristic,
+                      let data = request.value, let opcode = data.first else {
+                    peripheral.respond(to: request, withResult: .writeNotPermitted)
+                    continue
+                }
+                let result = controlPointWrites.enqueue(data)
+                guard result == .success else {
+                    peripheral.respond(to: request, withResult: result)
+                    continue
+                }
+                connected = true
+                peripheral.respond(to: request, withResult: .success)
+                peripheral.updateValue(Data([0x80, opcode, 0x01]), for: FitnessMachineControlPointCharacteristic,
+                                       onSubscribedCentrals: nil)
+            }
+            return
+        }
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
           if(requests.first!.value?.first == 0x11)
           {
@@ -325,6 +413,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+    if forwardControlPointWrites && characteristic == FitnessMachineControlPointCharacteristic {
+        controlPointWrites.clear(keepingStop: true)
+    }
     //self.notificationTimer.invalidate()
      self.connected = false
     SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")

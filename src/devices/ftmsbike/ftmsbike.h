@@ -217,6 +217,7 @@ class ftmsbike : public bike {
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool FS_SB_RCR = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
@@ -227,6 +228,8 @@ class ftmsbike : public bike {
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
     bool TUNTURI_E50_168 = false;
+    bool SOLE_B94 = false;
+    bool VIFHTR = false;
 
     uint8_t secondsToResetTimer = 5;
 

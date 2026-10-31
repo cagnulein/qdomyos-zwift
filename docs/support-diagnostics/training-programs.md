@@ -23,3 +23,124 @@
 - The Treadmill Speed Forcing value determines whether speed control is expected from the training path and should be checked before interpreting a log.
 - A short log with no manual speed-button presses makes the source of a speed command much easier to identify.
 - The GPX file is only needed after the basic control-path test shows that the behavior follows the route.
+
+## Program start causes metrics or the console display to stop updating
+
+### Provide first
+
+- Machine model, QZ version, and the workout type (built-in, Workout Editor, or imported).
+- Compare a short session without a program to one with the program. State separately whether QZ metrics, the machine console, and physical resistance or speed still respond.
+- Identify the exact start action and when the values stop updating.
+
+### If still unclear
+
+- Capture short QZ debug logs for both tests with the time of program start and the first missing metric.
+- If available, record QZ tiles and the machine console during the transition. Provide the workout definition only if the issue depends on a particular program.
+
+### Why it matters
+
+- The comparison isolates workout-start behavior from initial Bluetooth discovery problems.
+- Console display, live telemetry, and physical control can fail independently.
+
+## Unexpected speed corrections during heart-rate-controlled intervals
+
+### Provide first
+
+- Treadmill model, QZ version, target heart-rate interval, and whether the controller adjusts speed or incline.
+- A specific expected-versus-observed speed or interval transition, and whether manual speed changes were made on the console or in QZ.
+- Compare the same short interval with no manual adjustments.
+
+### If still unclear
+
+- Share the affected workout XML or Workout Editor interval settings, including target zone and speed limits.
+- Provide a short QZ debug log covering the unexpected change and the next row transition, with approximate times of manual inputs.
+
+### Why it matters
+
+- Comparing manual and hands-off runs distinguishes competing speed requests from the normal heart-rate controller.
+- Workout row transitions, commands sent by QZ, and the treadmill's physical response must be checked separately. Manual console inputs may not be recorded as distinct QZ events.
+
+## Heart-rate-controlled treadmill speed repeatedly overshoots and slows down
+
+### Provide first
+
+- Treadmill model, QZ build, selected HR source, workout type, target HR zone, and a short example of speed/HR oscillation over time.
+- Screenshot of HR-control settings, especially whether **PID Pushy** is enabled, and the configured maximum HR plus whether an HR-max override is enabled.
+- Confirm whether the issue occurs during a programmed workout, HR-controlled mode, or both.
+
+### If still unclear
+
+- Repeat a comparable short workout with PID Pushy disabled, changing no other settings, and note whether speed still oscillates around the target zone.
+- Provide a time-aligned QZ debug log showing target HR, measured HR, speed commands, and the periods of overshoot.
+- Compare against a manual steady-speed segment to separate normal delayed heart-rate response from unexpected command spikes.
+
+### Why it matters
+
+- Heart rate responds later than treadmill speed changes, so frequent adjustments can produce oscillation without a Bluetooth fault.
+- PID Pushy can deliberately increase effort within the target zone, while a disabled HR-max override may change the calculated zone boundaries.
+- In a reviewed test, abnormal speed spikes disappeared but the HR-control oscillation remained, showing these are separate symptoms.
+
+## A treadmill training program ignores a manual speed change or continues after an interval
+
+### Provide first
+
+- Treadmill model, QZ build, and the exact training program or XML interval configuration (remove personal data).
+- State whether the problem concerns **speed**, **incline**, or the program ending, and whether it occurs at an interval transition or during an interval.
+- Give a short timeline: programmed speed/incline, manual treadmill speed change, what QZ displayed, and what the treadmill did after the change.
+- For HR-controlled rows, include the row's `looptimehr` value and whether the HR controller was active.
+
+### If still unclear
+
+- Reproduce a short interval transition and record separately whether speed control resumes after a manual adjustment and whether incline still follows the next interval.
+- Compare the actual interval completion condition with the intended end of the workout; provide the program file and a screenshot of the running program if the workout does not stop.
+- Capture a QZ debug log spanning the manual change and the next interval, with approximate timestamps. If testing a build with a manual-speed holdoff, note its configured duration and whether speed commands are suppressed during that window.
+
+### Why it matters
+
+- A manual-speed holdoff and programmed incline changes are independent: a confirmed test showed speed commands paused for 20 seconds while the next interval's incline still changed.
+- The per-row `looptimehr` controls how frequently HR-based speed corrections are evaluated; changing it affects command timing rather than the size of the speed step.
+- Separating interval completion from speed/incline control avoids treating a program-definition issue as a treadmill communication failure.
+
+
+## A running ZWO workout imports but the interval graph is empty or speed targets seem wrong
+
+### Provide first
+
+- QZ version/platform and the **original anonymized `.zwo` file** (or at least its opening tags and one affected interval).
+- State whether the file was opened using **Open Train Program** or imported into **Workout Editor**; include a screenshot of the interval graph before starting the workout and the number of intervals shown if available.
+- For a running workout, report the `sportType` and `durationType` values in the file and whether the intervals are intended to represent **time** or **distance**.
+- If the graph renders but the **speed targets** are unexpected, provide the affected interval's `pace` and power-percentage attributes plus the corresponding pace setting in QZ **Training Program options**.
+
+### If still unclear
+
+- Compare how the same file renders after verifying its running/time-or-distance metadata, without connecting or commanding a treadmill. The [running ZWO FAQ](../faq/training-programs.md) explains the known `durationType` format requirement.
+- If the graph now renders but the calculated speed is wrong, compare one interval's configured pace and percentage with the displayed QZ target before requesting a Bluetooth log.
+- Request a QZ debug log only if the workout graph and targets are correct **but the connected treadmill does not follow the commands**; include the exact interval and approximate timestamp.
+
+### Why it matters
+
+- The ZWO parser uses `sportType` and `durationType` to interpret running intervals. A confirmed import problem produced an empty graph until the time-based duration metadata was supplied.
+- QZ derives running speed from configured pace values and interval percentages, so an unexpected target can be a **pace-mapping issue** even when the file parses correctly.
+- Separating file parsing, target calculation, and physical treadmill control avoids collecting Bluetooth logs for an import-format problem.
+
+## An XML resistance workout loads, but its interval stays on the first row
+
+### Provide first
+
+- Bike/trainer model, QZ platform and installed build, and the anonymized XML workout (or two consecutive rows with their durations and resistance targets).
+- Explain **how the file was opened** and what was pressed afterward: loading the program, starting the general QZ activity, and starting the training program are distinct actions.
+- State whether the program's current-row/remaining-time display advances, whether **Auto Resistance** is enabled, and whether the bike's physical resistance changes.
+- Give a short expected-versus-observed sequence: for example, first target 6, second target 9 after one minute, but the displayed row never changes.
+
+### If still unclear
+
+- With the bike already connected and reporting live metrics, reproduce a short session lasting beyond the first interval; note each QZ Start/Play/Stop action and the time it occurred.
+- Check whether the program starts only after stopping and restarting the **QZ session** following file selection. Report the difference without assuming that this is required on every build.
+- Provide a QZ debug log starting **before the XML is loaded** and ending after the expected transition. Include the visible row/timer and actual bike resistance at that time.
+- Compare the log's parsed row targets and program-running state with resistance commands **actually sent** to the bike before investigating a rejected command.
+
+### Why it matters
+
+- A valid imported program and an active general workout timer do not establish that the training-program playback has started.
+- In a confirmed bike case, the XML contained alternating resistance targets but no commands were issued until the session was restarted; a subsequent log showed both targets sent and acknowledged by the bike.
+- This intake distinguishes a program start-state problem from malformed XML, disabled auto-resistance, and a physical bike-control failure. See the [XML playback FAQ](../faq/training-programs.md) for the known workaround.

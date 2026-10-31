@@ -1,4 +1,6 @@
 #include "treadmill.h"
+#include <algorithm>
+#include <cmath>
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #endif
@@ -36,6 +38,13 @@ void treadmill::changeSpeed(double speed) {
     double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
     double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+    const bool closedLoopEnabled =
+        settings.value(QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+        stryd_speed_instead_treadmill &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled")) &&
+        !settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
@@ -50,7 +59,7 @@ void treadmill::changeSpeed(double speed) {
         qDebug() << "speed override due to treadmill_speed_min" << speed;
     }
 
-    if(stryd_speed_instead_treadmill && Speed.value() > 0) {
+    if(stryd_speed_instead_treadmill && !closedLoopEnabled && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double correctionThreshold =
             settings.value(QZSettings::power_sensor_speed_correction_threshold,
@@ -71,6 +80,15 @@ void treadmill::changeSpeed(double speed) {
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
+    if (closedLoopEnabled && autoResistanceEnable && requestSpeed >= 5.0 &&
+        m_lastRawSpeedRequested >= 5.0) {
+        m_runnController.start(RequestedSpeed.value(), requestSpeed, QDateTime::currentMSecsSinceEpoch());
+        qDebug() << "Runn closed-loop: requested" << m_lastRawSpeedRequested
+                 << "motor target" << m_runnController.target()
+                 << "initial motor command" << requestSpeed;
+    } else {
+        m_runnController.reset();
+    }
 }
 void treadmill::changeInclination(double grade, double inclination) {    
     QSettings settings;
@@ -119,6 +137,57 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
     changeInclination(inclination, inclination);
 }
 
+void treadmill::stop(bool pause) {
+    m_runnController.reset();
+    bluetoothdevice::stop(pause);
+}
+
+void treadmill::updateRunnClosedLoop() {
+    if (!m_runnController.active()) return;
+    QSettings settings;
+    const bool configured =
+        settings.value(QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+        settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled")) &&
+        !settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    if (!configured || paused || !autoResistanceEnable || requestStop != -1 || requestPause != -1) {
+        qDebug() << "Runn closed-loop: cancelled by settings, pause, stop, or manual control mode";
+        m_runnController.reset();
+        return;
+    }
+    const std::int64_t now = QDateTime::currentMSecsSinceEpoch();
+    const std::int64_t age = now - rawSpeed.lastChanged().toMSecsSinceEpoch();
+    // Only devices updating rawSpeed through parseSpeed() expose independent
+    // machine feedback. Without that, never issue a blind motor correction.
+    if (age < 0 || age > 3000) return;
+
+    const std::int64_t lastRunn = Speed.lastChanged().toMSecsSinceEpoch();
+    if (lastRunn > 0 && lastRunn <= now && now - lastRunn <= 2500)
+        m_runnController.sample(Speed.valueRaw(), lastRunn);
+
+    // Existing speed requests always have priority over feedback correction.
+    if (requestSpeed != -1) return;
+    const double threshold =
+        settings.value(QZSettings::power_sensor_speed_correction_threshold,
+                       QZSettings::default_power_sensor_speed_correction_threshold).toDouble() / 100.0;
+    const double minSpeed =
+        std::max(0.0, settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble());
+    const double maxSpeed =
+        settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
+    const bool machineRunning = rawSpeed.value() >= 0.5;
+    const auto decision = m_runnController.update(now, machineRunning, rawSpeed.value(), age,
+                                                   minSpeed, maxSpeed, threshold);
+    if (decision.cancelled) {
+        qDebug() << "Runn closed-loop: cancelled" << decision.reason;
+    } else if (decision.changed) {
+        requestSpeed = decision.command;
+        qDebug() << "Runn closed-loop: target" << m_runnController.target()
+                 << "Runn filtered" << decision.filtered << "machine" << rawSpeed.value()
+                 << "motor command" << requestSpeed;
+    }
+}
+
 void treadmill::onTrainingProgramTransition() {
     targetWatts = -1;
     m_followPowerLastSpeedWhenTargetSet = -1;
@@ -143,6 +212,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     simulateInclinationWithSpeed();
     if(!from_accessory)
         followPowerBySpeed();
+    if (!from_accessory)
+        updateRunnClosedLoop();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -244,6 +315,7 @@ void treadmill::clearStats() {
 
 void treadmill::setPaused(bool p) {
 
+    if (p) m_runnController.reset();
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);

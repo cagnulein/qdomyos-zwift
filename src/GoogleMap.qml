@@ -25,6 +25,14 @@ ColumnLayout {
         }
     }
 
+    // a new app language: the page asks for its texts again
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
     Button {
         id: closeButton
         height: 50

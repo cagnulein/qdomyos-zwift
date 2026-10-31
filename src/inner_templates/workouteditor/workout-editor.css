@@ -270,6 +270,19 @@ button.small {
     align-self: flex-start;
 }
 
+.field input.invalid {
+    border-color: var(--danger-color);
+}
+
+.field-error {
+    font-size: 0.75rem;
+    color: var(--danger-color);
+}
+
+.field-error:empty {
+    display: none;
+}
+
 .field-with-buttons {
     display: flex;
     align-items: center;
@@ -413,6 +426,11 @@ canvas {
 }
 
 @media (max-width: 1080px) {
+    /* Stacked layout scrolls the page: let #app grow with it so its bottom padding stays under the last panel */
+    #app {
+        height: auto;
+        min-height: 100vh;
+    }
     .content {
         flex-direction: column;
     }

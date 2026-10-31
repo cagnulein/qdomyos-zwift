@@ -19,7 +19,8 @@ double metric::capWatt(double value, double maxWatt) {
     return maxWatt > 0.0 ? qMin(value, maxWatt) : value;
 }
 
-void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
+// watt and speed gain and offset, watt cap: read on every value, so a changed setting applies at once
+double metric::applySettings(double v, bool applyGainAndOffset) {
     QSettings settings;
     // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
@@ -58,8 +59,16 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
             v = cappedWatt;
         }
     }
+    return v;
+}
 
-    QDateTime now = QDateTime::currentDateTime();
+void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
+    // QSettings only for the types that read it: setValue runs for every value of every metric
+    if (m_type == METRIC_WATT || m_type == METRIC_SPEED)
+        v = applySettings(v, applyGainAndOffset);
+
+    // UTC: no local-time conversion on every value; callers only use differences (msecsTo/secsTo) and epoch
+    QDateTime now = QDateTime::currentDateTimeUtc();
     if (v != m_value && v != INFINITY) {
         m_valueChanged = now;
         if (m_last5.count() > 1) {
@@ -74,6 +83,7 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
 
     // it has to be here, even if the value is the same, due to https://github.com/cagnulein/qdomyos-zwift/issues/1325
     m_lastChanged = now;
+    ++m_updateSequence;
 
     m_value = v;
 
@@ -137,6 +147,8 @@ void metric::clear(bool accumulator) {
 
 double metric::valueRaw() {
     double v = m_value;
+    if (m_type != METRIC_WATT && m_type != METRIC_SPEED)
+        return v;
     QSettings settings;
 
     if (m_type == METRIC_WATT) {
@@ -460,6 +472,9 @@ double metric::powerPeak(QList<SessionLine> *session, int seconds) {
 // power = 5 min peak power for a specific ride
 double metric::calculateVO2Max(QList<SessionLine> *session) {       
     double peak = powerPeak(session, 5*60);
+    // -1: shorter than 5 min; 0: no power data or no full window. The formula would still give about 7
+    if (peak <= 0)
+        return 0;
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *

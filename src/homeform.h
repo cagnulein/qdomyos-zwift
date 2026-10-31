@@ -242,6 +242,11 @@ class homeform : public QObject {
     QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
+    // Status line of the search for the equipment on the home page, with the last device found;
+    // empty once it is connected
+    Q_INVOKABLE QString bluetoothSearchStatus();
+    // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
+    Q_INVOKABLE void bluetoothSearchNow();
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -772,6 +777,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    // Applies the app language at once, without a restart: "auto", "en" or a translation code
+    Q_INVOKABLE void setAppLanguage(const QString &language);
+    static void loadAppTranslation(const QString &language);
     Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
     DataObject *tileFromName(QString name);
 
@@ -1025,6 +1033,7 @@ public:
 
   private:
     static homeform *m_singleton;
+    void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
@@ -1040,6 +1049,8 @@ public:
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
+    // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
+    QString lastFoundDevice;
     bool m_generalPopupVisible = false;
     bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;
@@ -1148,11 +1159,13 @@ public:
 
     QList<QString> chartImagesFilenames;
     bool mailSent = false;
+    void removeOldWorkoutImages();
 
     bool m_autoresistance = true;
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_overridePowerWarned = false;
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
@@ -1199,6 +1212,8 @@ public:
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
+    bool adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
+                                     const QString &reason);
     void backup();
     bool getDevice();
     bool getLap();
@@ -1351,6 +1366,8 @@ public:
     void changeOfdevice();
     void changeOflap();
     void androidDocumentPicked(QString kind, QUrl localUrl);
+    // setAppLanguage() applied a new language
+    void appLanguageChanged();
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();

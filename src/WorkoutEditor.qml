@@ -117,6 +117,14 @@ Item {
         }
     }
 
+    // a new app language: the page asks for its texts again (a reload would lose the edits)
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
     BusyIndicator {
         id: busy
         anchors.centerIn: parent

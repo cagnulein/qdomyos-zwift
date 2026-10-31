@@ -41,7 +41,7 @@ This setup was confirmed on a Horizon 7.4AT to correct the displayed km/h value 
 
 Because **Speed Gain** also participates in QZ's treadmill speed-control path, verify both directions after changing it: manually set a simple treadmill speed and confirm QZ displays the same value, then start a Peloton treadmill workout and confirm an automatically requested speed produces the expected treadmill speed.
 
-## My Adidas T-800 High Incline shows an incline 6% higher in QZ. How do I fix it?
+## My Adidas T-800 High Incline shows an incline 6% higher in QZ, or ignores QZ speed/incline controls. How do I fix it?
 
 The Adidas T-800 High Incline has a **-6% to +40%** incline range. QZ has dedicated handling for this range, so do not compensate for the +6% mismatch with the generic **Treadmill Inclination Offset** setting.
 
@@ -55,6 +55,8 @@ Instead:
 You can also configure **Treadmill minimum incline = -6** and **Treadmill maximum incline = 40**. If you use Zwift automatic incline, set **Zwift Max Incline = 40** as well.
 
 This setup was explicitly confirmed to resolve a +6% incline display mismatch on an Adidas T-800 High Incline. The current QZ implementation recognizes Adidas treadmills and applies dedicated minimum/maximum incline handling for the -6% to +40% range.
+
+**If QZ displays speed and incline but its Speed + / Incline + tiles do not control the treadmill**, the same exact-name **FTMS Treadmill** selection and full QZ restart are worth checking. In a separate confirmed Adidas T-800 support case, selecting the advertised `ADIDAS xxxx` name restored control of both speed and incline. Test only small changes at a safe, low treadmill speed. Receiving FTMS metrics alone does not guarantee that a treadmill accepts control commands.
 
 ## Zwift incline through QZ feels about twice as steep as expected. What should I change?
 
@@ -122,3 +124,98 @@ If QZ is following Zwift's automatic incline but you want to hold a manually sel
 The toggle pauses **automatic speed control as well as incline control**; it is not an incline-only lock. Tap it again to request automatic control when needed, but verify that incoming Zwift grade updates actually resume before relying on it for a subsequent climb.
 
 In a confirmed treadmill support case, pausing automatic control allowed the user to hold a 15% incline while continuing to record the workout. The user also reported that automatic incline did not reliably resume afterward; that separate problem remains under investigation.
+
+## My Echelon Stride shows the correct speed number but the wrong km/h or mph units in QZ. What should I check?
+
+**Separate the units reported by the treadmill from the units QZ displays.** The Echelon Stride may report speed in **km/h** even when you prefer to see miles in the QZ interface. Enabling **Miles unit from the device** in that situation makes QZ interpret the incoming km/h number as mph and apply an unnecessary conversion.
+
+1. Open **QZ Settings > Treadmill Options > Echelon Options**.
+2. If the Stride's own console reports **km/h**, set **Miles unit from the device** to **OFF**.
+3. If you want QZ's interface to show mph and miles, leave **Settings > General Options > Use Miles unit in UI** enabled. This is a separate display setting.
+4. Fully close and restart QZ, reconnect the treadmill and compare its speed with QZ. For example, **4 km/h** on the treadmill should be about **2.5 mph** in QZ when miles are selected for display.
+
+**Confirmed result:** This configuration corrected the km/mile mismatch in an Echelon Stride support case. QZ's Echelon Stride driver uses the incoming-device miles flag to decide whether to multiply received speed by approximately 1.60934; the UI units are handled separately.
+
+This corrects **speed/distance units**, not a separate problem where the manufacturer's app has difficulty unlocking or reconnecting to the Stride.
+
+## QZ treadmill Speed + / Speed - buttons change speed by 0.5 km/h. Can I make them change by 0.1 km/h?
+
+Yes, **if your treadmill driver and hardware support 0.1 km/h increments**. The **Speed Step** setting controls the size of the steps requested when using QZ's speed up/down controls.
+
+1. Open **QZ Settings > Treadmill Options** and locate **Speed Step**.
+2. Change it from **0.5** (the normal default when using km/h) to **0.1**, then tap **OK** to save.
+3. Return to QZ's dashboard and test Speed + and Speed - at a slow, safe speed, checking the treadmill's actual response.
+
+**Confirmed result:** In a Sportstech F75 Android-serial support test, the QZ speed controls initially changed by 0.5 km/h. Changing **Speed Step** to **0.1** restored the expected 0.1 km/h increments; the user explicitly confirmed the result.
+
+The QZ settings UI exposes `treadmill_step_speed`; the speed-control code uses the **greater of the configured Speed Step and the device driver's minimum speed step**. Therefore, entering 0.1 does **not** override a treadmill that only accepts larger increments. This changes the QZ speed-control step, not the machine's physical speed capability. If using miles in the QZ interface, the setting is presented in the selected display units.
+
+## Can I add customizable treadmill speed buttons such as 5 km/h and 10 km/h to the QZ dashboard?
+
+**Yes.** QZ has built-in **Preset Speed** dashboard tiles, so you do not need to program a workout or modify the treadmill's physical console buttons to create quick speed targets.
+
+1. Open **QZ Settings > Tiles Options**.
+2. Find **Preset Speed 1**, **Preset Speed 2**, etc. Enable the presets you want displayed. QZ provides **five** configurable preset-speed tiles.
+3. For each enabled preset, set the target **speed** and a descriptive **label** (for example, `5 km/h` and `10 km/h`), then save the fields using **OK**.
+4. Return to the QZ dashboard and use those preset tiles to request the configured speed on a connected, controllable treadmill.
+
+This capability is **verified in QZ code**: `settings-tiles.qml` defines the five preset-speed values/labels and `homeform.cpp` routes a pressed preset to the treadmill's `changeSpeed()` function. It was discussed in support as an alternative to customizing the treadmill's physical buttons, but it was **not separately validated on that customer's specific device**.
+
+**Safety:** Preset buttons can request a substantial speed change. Start with modest targets and test with the belt clear of people before using them while running. Actual behavior depends on whether the treadmill supports speed commands from QZ and on its acceleration behavior.
+
+## Why does Garmin Connect label my QZ treadmill workout as Walking instead of Running?
+
+QZ's workout export distinguishes **Walking** from **Running** using the treadmill session's average speed. By default, a treadmill activity averaging **6.5 km/h or less** (with a nonzero average) is classified as Walking in the generated FIT activity. This is independent of whether a Garmin watch is in **Virtual Run** mode.
+
+If you want future treadmill activities classified as **Running** regardless of that speed threshold, enable **Force Running Activity** under **QZ Settings > Treadmill Options**, save the setting, and record a new workout. This changes the activity type exported by QZ; it does not retroactively reclassify activities already uploaded to Garmin Connect.
+
+This behavior is verified in QZ's FIT export code (`qfit.cpp`) and the `treadmill_force_running_activity` setting. It is capability/setup guidance, not a customer-confirmed fix for every Garmin Connect display issue.
+
+
+## My treadmill speed in QZ is consistently a little high or low. Can I correct it for future workouts?
+
+Yes. Under **QZ Settings > Advanced Settings**, **Speed Offset** corrects a fixed difference, while **Speed Gain** corrects a proportional difference. QZ's speed-metric code applies the adjustment to positive readings as:
+
+`adjusted speed = reported speed × Speed Gain + Speed Offset`
+
+- If the treadmill displays **10.0 km/h** but QZ reads **9.5 km/h**, try **Speed Offset = +0.5** with **Speed Gain = 1**.
+- If the treadmill displays **10.0 km/h** but QZ reads **9.0 km/h**, try **Speed Gain = 10 / 9 ≈ 1.111** with **Speed Offset = 0**.
+
+First check that the treadmill and QZ use the **same speed units** (km/h or mph). Save the setting, restart QZ and compare readings at a **safe, steady belt speed**. The correction affects **future** QZ readings and recordings; it does not rewrite already-saved workouts. Because these settings can also affect QZ's treadmill control calculations, carefully verify any automatic speed commands after changing them.
+
+This is a code-verified capability that was requested after a **Hammer Fly Run 4.0** owner confirmed QZ connectivity. The owner did not yet report back after applying the speed correction, so it is not presented as a confirmed calibration outcome.
+
+## My treadmill changes speed unexpectedly when a workout changes incline. How can I keep the programmed speed?
+
+If a structured treadmill workout has a fixed speed (such as a QZ XML row with `forcespeed="1"`) but QZ suddenly slows down or accelerates when the incline changes, first check the **PID inclination compensation** setting.
+
+1. Open **QZ Settings > Training Program Options**.
+2. Enable **PID Ignore Inclination**.
+3. Fully close and restart QZ.
+4. Retest with a low, safe speed, checking that the treadmill follows both the programmed speed and the incline steps. Keep the treadmill emergency stop accessible.
+
+This setting prevents the HR PID incline-compensation path from recalculating speed to preserve estimated power when incline changes. It is **separate** from **Treadmill Auto-adjust speed by power** (`treadmill_follow_wattage`), and `speed_power_based` is not the same treadmill control.
+
+**Confirmed result:** In a fixed-speed training program, QZ previously requested 9.0 km/h after the workout requested 4.5 km/h when incline changed, despite the Treadmill Auto-adjust speed by power option already being off. With **PID Ignore Inclination** enabled, the treadmill held **3.0 km/h** through incline steps from **0% to 12% and back**. This is a verified workaround, not a complete code fix: see [issue #5520](https://github.com/cagnulein/qdomyos-zwift/issues/5520) for protecting explicit workout targets from accidental PID overrides.
+
+If you intentionally want speed to change to preserve running power during a climb, leave the PID inclination compensation active only when that behavior is desired, and verify it cautiously.
+
+
+## My Reebok FR30Z shows speed in QZ but QZ cannot change the treadmill speed. Can I force FTMS?
+
+Yes, on a Reebok FR30Z that advertises the standard **Fitness Machine Service (FTMS, UUID 0x1826)**, the generic FTMS treadmill path may provide speed control when QZ's automatically selected Reebok-specific path does not.
+
+1. Check the treadmill's advertised Bluetooth name and services with nRF Connect. In a confirmed setup it appeared as **REEBOK 0340** and exposed **FTMS (0x1826)**.
+2. In **QZ Settings > Treadmill Options > FTMS Treadmill**, select the treadmill's **exact advertised Bluetooth name**.
+3. Fully close and restart QZ, then reconnect.
+4. Start the belt from the console at a safe, low speed. Verify the live speed in QZ and test one small change using QZ's Speed + / - buttons before trying a short interval workout.
+
+**Confirmed result:** A Reebok FR30Z owner reported that both QZ speed buttons and a short programmed-workout test controlled the belt after forcing the FTMS treadmill profile. This does **not** establish that every FR30Z firmware accepts FTMS commands, nor that a full workout or automatic incline was tested. Do not force FTMS on a machine that does not expose that service.
+
+## My ProForm 600i connects but stops shortly after starting. Which NordicTrack profile can I try?
+
+If a ProForm 600i is discovered by QZ but the treadmill stops a few seconds after starting, try the available profiles under **QZ Settings > Treadmill Options > ProForm/NordicTrack Options > Specific Model**, restarting QZ after each change.
+
+A ProForm 600i owner reported that the **NordicTrack T6.5S v83** profile appeared to work after other profiles caused short starts or stops. They could then connect QZ to MyWhoosh. This is a **model-specific starting point**, not proof that all ProForm 600i firmware versions use that protocol.
+
+**Limitation:** The same user still reported that **automatic incline from MyWhoosh was not working**. Check live speed and the treadmill's basic start/stop behavior first, then test speed and incline control separately at safe settings. Do not assume MyWhoosh auto-incline is supported by this profile without further verification.

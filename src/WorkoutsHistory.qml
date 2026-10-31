@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQml 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtCharts 2.15
@@ -22,11 +23,36 @@ Page {
     // a pending offer to recover the workouts of a previous install is made here
     Component.onCompleted: rootItem.historyPageOpened()
 
-    // Helper function to wrap text with emoji font only on Android
+    // Helper function to wrap text with emoji font only on Android. Android shows an emoji
+    // only with the downloaded font, so until it is there the emoji is left out
     function wrapEmoji(emoji) {
-        return Qt.platform.os === "android" ? 
-            '<font face="' + fontManager.emojiFontFamily + '">' + emoji + '</font>' : 
-            emoji;
+        if (Qt.platform.os !== "android")
+            return emoji;
+        if (!fontManager || fontManager.emojiFontFamily === "Arial")
+            return "";
+        // A trailing space stays out of the emoji font: its space is a wide one
+        var space = "";
+        if (emoji.slice(-1) === " ") {
+            space = " ";
+            emoji = emoji.slice(0, -1);
+        }
+        return '<font face="' + fontManager.emojiFontFamily + '">' + emoji + '</font>' + space;
+    }
+
+    // Sport type to ShapeIcon name, drawn instead of the emoji on Android
+    function getSportIconName(sport) {
+        switch(parseInt(sport)) {
+            case 1:  // FIT_SPORT_RUNNING
+                return "directions_run";
+            case 11: // FIT_SPORT_WALKING
+                return "directions_walk";
+            case 2:  // FIT_SPORT_CYCLING
+                return "pedal_bike";
+            case 15: // FIT_SPORT_ROWING
+                return "rowing";
+            default:
+                return "fitness_center";
+        }
     }
 
     // Sport type to icon mapping (using FIT_SPORT values)
@@ -86,11 +112,15 @@ Page {
         Rectangle {
             Layout.fillWidth: true
             height: 60
+            // a bigger text: the title and the filter line keep inside the header (the layout reads
+            // the height only once, a preferred height it follows)
+            Layout.preferredHeight: window.textScale !== 1 ? Math.max(60, headerTitle.height + 12) : -1
             color: "#f5f5f5"
 
             // Calendar Icon Button - positioned absolutely on the left
             Button {
                 id: calendarButton
+                Accessible.name: qsTr("Filter by date")
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: window.contentSideMargin
@@ -104,14 +134,24 @@ Page {
                     border.width: 1
                 }
                 
-                contentItem: Text {
-                    text: Qt.platform.os === "android" ? 
-                          wrapEmoji("📅") : 
-                          "📅"
-                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                    font.pixelSize: 26
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                contentItem: Item {
+                    Text {
+                        anchors.fill: parent
+                        visible: Qt.platform.os !== "android"
+                        text: "📅"
+                        font.pixelSize: 26
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // Android shows an emoji only with a downloaded font, so the icon is drawn
+                    ShapeIcon {
+                        anchors.centerIn: parent
+                        visible: Qt.platform.os === "android"
+                        name: "calendar_month"
+                        size: 26
+                        color: "#444444"
+                    }
                 }
                 
                 onClicked: {
@@ -119,105 +159,10 @@ Page {
                 }
             }
 
-            // Title with filter status - between the buttons, shrinking on narrow screens
-            Column {
-                anchors.left: clearFilterButton.visible ? clearFilterButton.right : calendarButton.right
-                anchors.right: importButton.left
-                anchors.leftMargin: 8
-                anchors.rightMargin: 8
-                anchors.verticalCenter: parent.verticalCenter
-
-                Text {
-                    width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
-                    text: qsTr("Workout History")
-                    font.pixelSize: 24
-                    font.bold: true
-                    fontSizeMode: Text.HorizontalFit
-                    minimumPixelSize: 14
-                    elide: Text.ElideRight
-                }
-
-                Text {
-                    width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
-                    text: workoutModel && workoutModel.isDateFiltered ?
-                          qsTr("Filtered: %1").arg(workoutModel.filteredDate.toLocaleDateString()) : ""
-                    font.pixelSize: 12
-                    color: "#666666"
-                    elide: Text.ElideRight
-                    visible: workoutModel && workoutModel.isDateFiltered
-                }
-            }
-
-            // Import Button - on the right: a single .fit file, or every workout of the QZ folder
-            Button {
-                id: importButton
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.rightMargin: window.contentSideMargin
-                width: 48
-                height: 48
-
-                background: Rectangle {
-                    radius: 8
-                    color: importButton.pressed ? "#e0e0e0" : "#f0f0f0"
-                    border.color: "#d0d0d0"
-                    border.width: 1
-                }
-
-                contentItem: Item {
-                    // Android draws emoji only with the downloaded emoji font; until it is
-                    // there (or when the download failed) the icon is drawn as a shape
-                    readonly property bool emojiFontMissing: Qt.platform.os === "android" &&
-                        (!fontManager || fontManager.emojiFontFamily === "Arial")
-
-                    Text {
-                        anchors.fill: parent
-                        visible: !parent.emojiFontMissing
-                        text: Qt.platform.os === "android" ?
-                              wrapEmoji("📥") :
-                              "📥"
-                        textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                        font.pixelSize: 26
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    // tray with a down arrow
-                    Canvas {
-                        anchors.centerIn: parent
-                        width: 26
-                        height: 26
-                        visible: parent.emojiFontMissing
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.strokeStyle = "#444444"
-                            ctx.lineWidth = 2.5
-                            ctx.lineCap = "round"
-                            ctx.lineJoin = "round"
-                            ctx.beginPath()
-                            ctx.moveTo(13, 3)
-                            ctx.lineTo(13, 16)
-                            ctx.moveTo(8, 11)
-                            ctx.lineTo(13, 16)
-                            ctx.lineTo(18, 11)
-                            ctx.moveTo(3, 15)
-                            ctx.lineTo(3, 23)
-                            ctx.lineTo(23, 23)
-                            ctx.lineTo(23, 15)
-                            ctx.stroke()
-                        }
-                    }
-                }
-
-                onClicked: importMenu.popup(importButton, 0, importButton.height)
-            }
-
-            // Clear Filter Button - left of the import button
+            // Clear Filter Button - right of the calendar; before the title and the import button, as a screen reader goes through the header in this order
             Button {
                 id: clearFilterButton
+                Accessible.name: qsTr("Clear Filter")
                 // next to the calendar that set the filter; small, so the title keeps its room
                 anchors.left: calendarButton.right
                 anchors.verticalCenter: parent.verticalCenter
@@ -235,7 +180,6 @@ Page {
 
                 contentItem: Text {
                     text: "×"
-                    Accessible.name: qsTr("Clear Filter")
                     color: "white"
                     font.pixelSize: 20
                     font.bold: true
@@ -246,6 +190,78 @@ Page {
                 onClicked: {
                     workoutModel.clearDateFilter()
                 }
+            }
+
+            // Title with filter status - between the buttons, shrinking on narrow screens
+            Column {
+                id: headerTitle
+                anchors.left: clearFilterButton.visible ? clearFilterButton.right : calendarButton.right
+                anchors.right: importButton.left
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Workout History")
+                    font.pixelSize: window.fontPx(24)
+                    font.bold: true
+                    fontSizeMode: Text.HorizontalFit
+                    minimumPixelSize: 14
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: workoutModel && workoutModel.isDateFiltered ?
+                          qsTr("Filtered: %1").arg(workoutModel.filteredDate.toLocaleDateString()) : ""
+                    font.pixelSize: window.fontPx(12)
+                    color: "#666666"
+                    elide: Text.ElideRight
+                    visible: workoutModel && workoutModel.isDateFiltered
+                }
+            }
+
+            // Import Button - on the right: a single .fit file, or every workout of the QZ folder
+            Button {
+                id: importButton
+                Accessible.name: qsTr("Import workouts")
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: window.contentSideMargin
+                width: 48
+                height: 48
+
+                background: Rectangle {
+                    radius: 8
+                    color: importButton.pressed ? "#e0e0e0" : "#f0f0f0"
+                    border.color: "#d0d0d0"
+                    border.width: 1
+                }
+
+                contentItem: Item {
+                    Text {
+                        anchors.fill: parent
+                        visible: Qt.platform.os !== "android"
+                        text: "📥"
+                        font.pixelSize: 26
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // Android shows an emoji only with a downloaded font, so the icon is drawn
+                    ShapeIcon {
+                        anchors.centerIn: parent
+                        visible: Qt.platform.os === "android"
+                        name: "download"
+                        size: 26
+                        color: "#444444"
+                    }
+                }
+
+                onClicked: importMenu.popup(importButton, 0, importButton.height)
             }
         }
 
@@ -268,7 +284,7 @@ Page {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#666666"
-            font.pixelSize: 16
+            font.pixelSize: window.fontPx(16)
         }
 
         // Database processing message
@@ -281,7 +297,7 @@ Page {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#666666"
-            font.pixelSize: 16
+            font.pixelSize: window.fontPx(16)
         }
 
         // Workout List
@@ -301,8 +317,15 @@ Page {
 
             delegate: SwipeDelegate {
                 id: swipeDelegate
+                // The row is a list item for Qt 5, which has no press action for a screen reader: with
+                // the handler a double tap opens the workout
+                Accessible.onPressAction: swipeDelegate.clicked()
+                // The row has no text of its own: without a name a screen reader stops on the texts
+                // inside it, which cannot be pressed, and the workout cannot be opened
+                Accessible.name: title + ", " + date + ", " + duration
                 width: parent.width
-                height: 135
+                // a bigger text: the card grows with its lines (margins 8 + 12 on each side)
+                height: window.textScale !== 1 ? Math.max(135, workoutInfo.implicitHeight + 40) : 135
 
                 Component.onCompleted: {
                     console.log("Delegate data:", JSON.stringify({
@@ -326,14 +349,20 @@ Page {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.rightMargin: 20
+                        spacing: 4
+
+                        ShapeIcon {
+                            visible: Qt.platform.os === "android"
+                            name: "delete"
+                            size: 18
+                            color: "white"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
 
                         Text {
-                            text: Qt.platform.os === "android" ? 
-                                  wrapEmoji("🗑️") + " " + qsTr("Delete") : 
-                                  "🗑️ " + qsTr("Delete")
-                            textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                            text: Qt.platform.os === "android" ? qsTr("Delete") : "🗑️ " + qsTr("Delete")
                             color: "white"
-                            font.pixelSize: 16
+                            font.pixelSize: window.fontPx(16)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
@@ -373,6 +402,7 @@ Page {
                         
                         // Peloton URL button
                         Button {
+                            Accessible.name: qsTr("Open on Peloton")
                             width: 40
                             height: 45
                             visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
@@ -385,14 +415,22 @@ Page {
                                 border.width: 1
                             }
                             
-                            contentItem: Text {
-                                text: Qt.platform.os === "android" ? 
-                                      wrapEmoji("🌐") : 
-                                      "🌐"
-                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                                font.pixelSize: 16
-                                color: "white"
-                                anchors.centerIn: parent
+                            contentItem: Item {
+                                Text {
+                                    visible: Qt.platform.os !== "android"
+                                    text: "🌐"
+                                    font.pixelSize: 16
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+
+                                ShapeIcon {
+                                    visible: Qt.platform.os === "android"
+                                    name: "language"
+                                    size: 20
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
                             }
                             
                             onClicked: {
@@ -402,6 +440,7 @@ Page {
                         
                         // Training Program button
                         Button {
+                            Accessible.name: qsTr("Load training program")
                             width: 40
                             height: 45
                             visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
@@ -413,14 +452,22 @@ Page {
                                 border.width: 1
                             }
                             
-                            contentItem: Text {
-                                text: Qt.platform.os === "android" ? 
-                                      wrapEmoji("📋") : 
-                                      "📋"
-                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                                font.pixelSize: 16
-                                color: "white"
-                                anchors.centerIn: parent
+                            contentItem: Item {
+                                Text {
+                                    visible: Qt.platform.os !== "android"
+                                    text: "📋"
+                                    font.pixelSize: 16
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
+
+                                ShapeIcon {
+                                    visible: Qt.platform.os === "android"
+                                    name: "list_alt"
+                                    size: 20
+                                    color: "white"
+                                    anchors.centerIn: parent
+                                }
                             }
                             
                             onClicked: {
@@ -448,24 +495,31 @@ Page {
                         Column {
                             Layout.alignment: Qt.AlignVCenter
                             Text {
-                                text: Qt.platform.os === "android" ? 
-                                      wrapEmoji(getSportIcon(sport)) : 
-                                      getSportIcon(sport)
-                                textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                                visible: Qt.platform.os !== "android"
+                                text: getSportIcon(sport)
                                 font.pixelSize: 32
+                            }
+
+                            // Android shows an emoji only with a downloaded font, so the icon is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android"
+                                name: getSportIconName(sport)
+                                size: 32
+                                color: "#444444"
                             }
                         }
 
                         // Workout info
                         ColumnLayout {
+                            id: workoutInfo
                             Layout.fillWidth: true
                             spacing: 4
 
                             // Title row (without tag) with auto-scrolling
                             Rectangle {
                                 Layout.fillWidth: true
-                                Layout.rightMargin: 80 // Reserve space for tag
-                                Layout.preferredHeight: 24
+                                Layout.rightMargin: window.fontPx(80) // Reserve space for tag
+                                Layout.preferredHeight: window.textScale !== 1 ? Math.max(24, titleText.implicitHeight) : 24
                                 clip: true
                                 color: "transparent"
                                 
@@ -473,7 +527,7 @@ Page {
                                     id: titleText
                                     text: title
                                     font.bold: true
-                                    font.pixelSize: 18
+                                    font.pixelSize: window.fontPx(18)
                                     anchors.verticalCenter: parent.verticalCenter
                                     
                                     // Auto-scroll animation for long titles.
@@ -521,24 +575,33 @@ Page {
                             }
 
                             Text {
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 text: date
                                 color: "#666666"
                             }
 
-                            // Stats row
-                            RowLayout {
-                                spacing: 16
+                            // Stats row; with a bigger text one under the other, clear of the action
+                            // buttons in the bottom-right corner
+                            GridLayout {
+                                columns: window.textScale > 1 ? 1 : 2
+                                columnSpacing: 16
+                                rowSpacing: 4
 
                                 Text {
-                                    text: "⏱ " + duration
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    text: wrapEmoji("⏱ ") + duration
+                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: {
                                         var useMiles = settings && settings.miles_unit
                                         var displayDistance = useMiles ? (distance / 1.60934) : distance
-                                        return "📏 " + displayDistance.toFixed(2) + (useMiles ? " mi" : " km")
+                                        return wrapEmoji("📏 ") + displayDistance.toFixed(2) + " " + (useMiles ? qsTr("mi") : qsTr("km"))
                                     }
+                                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
                             }
 
@@ -546,9 +609,10 @@ Page {
                                 spacing: 16
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     text: Qt.platform.os === "android" ? 
-                                          wrapEmoji("🔥") + " " + Math.round(calories) + " kcal" : 
-                                          "🔥 " + Math.round(calories) + " kcal"
+                                          wrapEmoji("🔥 ") + Math.round(calories) + " " + qsTr("kcal") :
+                                          "🔥 " + Math.round(calories) + " " + qsTr("kcal")
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
                             }
@@ -583,9 +647,18 @@ Page {
     }
 
     Menu {
+        // A MenuItem has no press action for a screen reader in Qt 5 (its role is reset to
+        // MenuItem): it is read, but a double tap does nothing without the handler
+        // The name is set as well: the one Qt takes from the text was empty for TalkBack on a phone
         id: importMenu
+        // Modal, as the calendar: otherwise a screen reader touching an item got the workout
+        // row under the menu; no dim, so it looks as before
+        modal: true
+        dim: false
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Import FIT File...")
             onTriggered: {
                 if (Qt.platform.os === "android") {
@@ -597,6 +670,8 @@ Page {
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             // after a reinstall the workouts of the previous install stay in this folder,
             // but Android hides them from the app until the folder is picked once
             text: qsTr("Import from QZ Folder...")
@@ -623,7 +698,14 @@ Page {
     }
 
     Menu {
+        // A MenuItem has no press action for a screen reader in Qt 5 (its role is reset to
+        // MenuItem): it is read, but a double tap does nothing without the handler
+        // The name is set as well: the one Qt takes from the text was empty for TalkBack on a phone
         id: uploadMenu
+        // Modal, as the calendar: otherwise a screen reader touching an item got the workout
+        // row under the menu; no dim, so it looks as before
+        modal: true
+        dim: false
 
         property int workoutId: -1
         property string workoutTitle: ""
@@ -632,24 +714,32 @@ Page {
         title: workoutTitle
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Strava")
             visible: rootItem && rootItem.isStravaLoggedIn()
             onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Garmin")
             visible: rootItem && rootItem.isGarminUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Intervals.icu")
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Apple Health")
             visible: Qt.platform.os === "ios" &&
                      workoutModel &&
@@ -672,7 +762,13 @@ Page {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
 
+        // a bigger text: the dialog keeps inside the screen and the question wraps
+        width: window.textScale !== 1 ? Math.min(implicitWidth, parent.width - 32) : implicitWidth
+
         Text {
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+            width: window.textScale !== 1 ? confirmDialog.availableWidth : implicitWidth
+            wrapMode: window.labelWrap
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
@@ -714,7 +810,7 @@ Page {
                 anchors.centerIn: parent
                 text: trainingProgramDialog.title
                 color: "white"
-                font.pixelSize: 18
+                font.pixelSize: window.fontPx(18)
                 font.bold: true
             }
         }
@@ -725,16 +821,16 @@ Page {
             Text {
                 Layout.margins: 20
                 Layout.preferredWidth: 300
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: window.textScale !== 1 ? Math.max(120, implicitHeight) : 120
                 text: Qt.platform.os === "android" ? 
-                      wrapEmoji("🔥") + " " + 
-                      wrapEmoji(trainingProgramDialog.isSuccess ? '✅' : '❌') + 
-                      " " + trainingProgramDialog.message : 
+                      wrapEmoji("🔥 ") +
+                      wrapEmoji(trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') +
+                      trainingProgramDialog.message :
                       "🔥 " + (trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') + trainingProgramDialog.message
                 textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 14
+                font.pixelSize: window.fontPx(14)
             }
         }
     }
@@ -745,7 +841,7 @@ Page {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: 80
+        height: window.textScale !== 1 ? Math.max(80, streakColumn.implicitHeight + 16) : 80
         visible: workoutModel
         
         Behavior on visible {
@@ -792,6 +888,7 @@ Page {
         }
         
         ColumnLayout {
+            id: streakColumn
             anchors.centerIn: parent
             spacing: 4
 
@@ -846,7 +943,7 @@ Page {
                 // Current streak count
                 Text {
                     text: workoutModel ? (workoutModel.currentStreak !== 1 ? qsTr("%1 days streak") : qsTr("%1 day streak")).arg(workoutModel.currentStreak) : ""
-                    font.pixelSize: 18
+                    font.pixelSize: window.fontPx(18)
                     font.bold: true
                     color: "white"
                     visible: workoutModel
@@ -900,7 +997,7 @@ Page {
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: workoutModel ? workoutModel.streakMessage : ""
-                font.pixelSize: 14
+                font.pixelSize: window.fontPx(14)
                 font.italic: true
                 color: "white"
                 visible: workoutModel && workoutModel.streakMessage !== ""
@@ -911,7 +1008,7 @@ Page {
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: workoutModel ? (workoutModel.longestStreak !== 1 ? qsTr("Personal best: %1 days") : qsTr("Personal best: %1 day")).arg(workoutModel.longestStreak) : ""
-                font.pixelSize: 12
+                font.pixelSize: window.fontPx(12)
                 color: "white"
                 visible: workoutModel && workoutModel.longestStreak > workoutModel.currentStreak && workoutModel.longestStreak > 0
                 opacity: 0.7
@@ -978,19 +1075,21 @@ Page {
                 
                 Button {
                     text: "<"
+                    Accessible.name: qsTr("Previous month")
                     onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() - 1, 1)
                 }
                 
                 Text {
                     Layout.fillWidth: true
                     text: calendar.selectedDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
-                    font.pixelSize: 18
+                    font.pixelSize: window.fontPx(18)
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                 }
                 
                 Button {
                     text: ">"
+                    Accessible.name: qsTr("Next month")
                     onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() + 1, 1)
                 }
             }
@@ -1014,6 +1113,7 @@ Page {
                 Repeater {
                     model: [qsTr("Sun"), qsTr("Mon"), qsTr("Tue"), qsTr("Wed"), qsTr("Thu"), qsTr("Fri"), qsTr("Sat")]
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
                         text: modelData
@@ -1037,7 +1137,26 @@ Page {
                         property bool isCurrentMonth: modelData.currentMonth
                         property bool hasWorkout: modelData.hasWorkout
                         property bool isToday: dayDate.toDateString() === new Date().toDateString()
-                        
+
+                        // A day is a rectangle with a MouseArea: a screen reader sees it only as a button
+                        // with a name and a press action; days of the other months do nothing on a tap
+                        Accessible.role: Accessible.Button
+                        Accessible.name: dayDate.toLocaleDateString(Qt.locale(), Locale.LongFormat) + (hasWorkout ? ", " + qsTr("has a workout") : "")
+                        Accessible.ignored: !isCurrentMonth
+                        Accessible.onPressAction: selectDay()
+
+                        function selectDay() {
+                            if (isCurrentMonth) {
+                                var year = dayDate.getFullYear();
+                                var month = dayDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
+                                var day = dayDate.getDate();
+                                var dateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
+
+                                workoutModel.setDateFilter(dateString);
+                                calendarPopup.close();
+                            }
+                        }
+
                         color: {
                             if (mouseArea.pressed) return "#e3f2fd"
                             if (isToday) return "#bbdefb"
@@ -1057,7 +1176,7 @@ Page {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: dayDate.getDate()
                                 color: isCurrentMonth ? "black" : "#cccccc"
-                                font.pixelSize: 14
+                                font.pixelSize: window.fontPx(14)
                             }
                             
                             // Workout indicator dot
@@ -1084,17 +1203,7 @@ Page {
                             id: mouseArea
                             anchors.fill: parent
                             
-                            onClicked: {
-                                if (isCurrentMonth) {
-                                    var year = dayDate.getFullYear();
-                                    var month = dayDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
-                                    var day = dayDate.getDate();
-                                    var dateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
-
-                                    workoutModel.setDateFilter(dateString);
-                                    calendarPopup.close();
-                                }
-                            }
+                            onClicked: parent.selectDay()
                         }
                     }
                 }
