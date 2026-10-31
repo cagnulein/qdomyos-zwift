@@ -17884,19 +17884,21 @@ import AndroidStatusBar 1.0
                                                     text: qsTr("Cadence Gain")
                                                     Layout.fillWidth: true
                                                 }
-                                                TextField {
+                                                SettingsNumberField {
                                                     id: virtualRowerCadenceGainTextField
-                                                    text: settings.virtual_device_rower_cadence_gain
+                                                    savedText: settings.virtual_device_rower_cadence_gain
+                                                    Accessible.name: qsTr("Cadence Gain") + ": " + text
                                                     horizontalAlignment: Text.AlignRight
                                                     Layout.fillHeight: false
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                                    onAccepted: { settings.virtual_device_rower_cadence_gain = text; window.settings_restart_to_apply = true; }
+                                                    onAccepted: if (valid) { settings.virtual_device_rower_cadence_gain = value; window.settings_restart_to_apply = true; }
                                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                                 }
                                                 Button {
                                                     text: qsTr("OK")
+                                                    enabled: virtualRowerCadenceGainTextField.valid && virtualRowerCadenceGainTextField.dirty
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                                    onClicked: { settings.virtual_device_rower_cadence_gain = virtualRowerCadenceGainTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                                    onClicked: { settings.virtual_device_rower_cadence_gain = virtualRowerCadenceGainTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                                 }
                                             }
 
@@ -17919,19 +17921,22 @@ import AndroidStatusBar 1.0
                                                     text: qsTr("Cadence Offset")
                                                     Layout.fillWidth: true
                                                 }
-                                                TextField {
+                                                SettingsNumberField {
                                                     id: virtualRowerCadenceOffsetTextField
-                                                    text: settings.virtual_device_rower_cadence_offset
+                                                    signed: true
+                                                    savedText: settings.virtual_device_rower_cadence_offset
+                                                    Accessible.name: qsTr("Cadence Offset") + ": " + text
                                                     horizontalAlignment: Text.AlignRight
                                                     Layout.fillHeight: false
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                                    onAccepted: { settings.virtual_device_rower_cadence_offset = text; window.settings_restart_to_apply = true; }
+                                                    onAccepted: if (valid) { settings.virtual_device_rower_cadence_offset = value; window.settings_restart_to_apply = true; }
                                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                                 }
                                                 Button {
                                                     text: qsTr("OK")
+                                                    enabled: virtualRowerCadenceOffsetTextField.valid && virtualRowerCadenceOffsetTextField.dirty
                                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                                    onClicked: { settings.virtual_device_rower_cadence_offset = virtualRowerCadenceOffsetTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                                    onClicked: { settings.virtual_device_rower_cadence_offset = virtualRowerCadenceOffsetTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                                 }
                                             }
 
