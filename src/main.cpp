@@ -43,6 +43,7 @@
 #include <QAndroidJniObject>
 #include <QTimer>
 #include <QtAndroid>
+#include "localipaddress.h"
 #endif
 
 #ifdef Q_OS_MACOS
@@ -1031,6 +1032,43 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        // Temporary opt-in CI diagnostic for #5172; not used by normal launches.
+        const auto ipTestIntent =
+            QtAndroid::androidActivity().callObjectMethod("getIntent", "()Landroid/content/Intent;");
+        const auto ipTestKey = QAndroidJniObject::fromString("qz_ci_ip_stress");
+        if (ipTestIntent.isValid() &&
+            ipTestIntent.callMethod<jboolean>("getBooleanExtra", "(Ljava/lang/String;Z)Z",
+                                              ipTestKey.object<jstring>(), JNI_FALSE)) {
+            // Avoid queuing tens of thousands of unrelated per-call debug messages.
+            QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+            QTimer *ipStressTimer = new QTimer(app.data());
+            ipStressTimer->setInterval(1);
+            QObject::connect(ipStressTimer, &QTimer::timeout, ipStressTimer,
+                             [ipStressTimer, calls = 0]() mutable {
+                // Unmatched peer forces interface enumeration on unpatched master.
+                static const QHostAddress unmatchedPeer(QStringLiteral("203.0.113.42"));
+                for (int i = 0; i < 500; ++i)
+                    localipaddress::getIP(unmatchedPeer);
+                calls += 500;
+                if (calls == 5000 || calls == 35000 || calls == 65000) {
+                    const auto tag = QAndroidJniObject::fromString("QZIpStress");
+                    const auto message = QAndroidJniObject::fromString(
+                        QStringLiteral("QZ_IP_STRESS %1").arg(calls));
+                    QAndroidJniObject::callStaticMethod<jint>(
+                        "android/util/Log", "i", "(Ljava/lang/String;Ljava/lang/String;)I",
+                        tag.object<jstring>(), message.object<jstring>());
+                    ipStressTimer->stop();
+                    if (calls < 65000)
+                        QTimer::singleShot(12000, ipStressTimer,
+                                           [ipStressTimer]() { ipStressTimer->start(); });
+                    else
+                        ipStressTimer->deleteLater();
+                }
+            });
+            QTimer::singleShot(5000, ipStressTimer, [ipStressTimer]() { ipStressTimer->start(); });
+        }
+#endif
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, [] { restoreLostAccessibility(); });
 #endif
