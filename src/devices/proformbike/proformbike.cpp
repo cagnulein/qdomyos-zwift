@@ -15,6 +15,107 @@
 
 using namespace std::chrono_literals;
 
+namespace proformbikeprotocol {
+
+const std::vector<Vx450InitFrame> &vx450InitializationFrames() {
+    // Extra waits approximate the captured gaps; writeCharacteristic already waits for each GATT write response.
+    static const std::vector<Vx450InitFrame> frames = {
+        {{0xfe, 0x02, 0x08, 0x02}, 0},
+        {{0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 205},
+        {{0xfe, 0x02, 0x08, 0x02}, 0},
+        {{0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 225},
+        {{0xfe, 0x02, 0x08, 0x02}, 0},
+        {{0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 115},
+        {{0xfe, 0x02, 0x0b, 0x02}, 0},
+        {{0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+          0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 295},
+        {{0xfe, 0x02, 0x0a, 0x02}, 0},
+        {{0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+          0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 225},
+        {{0xfe, 0x02, 0x08, 0x02}, 0},
+        {{0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 200},
+        // These post-0x2c setup payloads are copied from one capture; cross-session variability is unverified.
+        {{0xfe, 0x02, 0x2c, 0x04}, 0},
+        {{0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
+          0x00, 0x69, 0x38, 0x15, 0xe0, 0xb9, 0x90, 0x7d, 0x58, 0x39}, 0},
+        {{0x01, 0x12, 0x18, 0xf5, 0xd0, 0xc9, 0xa0, 0x8d, 0x98, 0x69,
+          0x78, 0x75, 0x40, 0x59, 0x50, 0x5d, 0x58, 0x59, 0x58, 0x55}, 0},
+        {{0xff, 0x08, 0x50, 0x49, 0x40, 0x60, 0x02, 0x00, 0x00, 0x50,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 265},
+        {{0xfe, 0x02, 0x13, 0x03}, 0},
+        {{0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+          0x09, 0x00, 0x10, 0x00, 0xc0, 0x1c, 0x4c, 0x00, 0x00, 0xe0}, 0},
+        {{0xff, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 230},
+        {{0xfe, 0x02, 0x13, 0x03}, 25},
+        {{0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+          0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80}, 15},
+        {{0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 320},
+        {{0xfe, 0x02, 0x11, 0x02}, 0},
+        {{0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x07, 0x0d, 0x02, 0x05,
+          0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7d, 0x00}, 135},
+        {{0xfe, 0x02, 0x0b, 0x02}, 0},
+        {{0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
+          0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 270},
+        {{0xfe, 0x02, 0x11, 0x02}, 45},
+        {{0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x07, 0x0d, 0x02, 0x05,
+          0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7d, 0x00}, 180},
+        {{0xfe, 0x02, 0x10, 0x02}, 0},
+        {{0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x07, 0x0c, 0x02, 0x04,
+          0x00, 0x00, 0x00, 0x02, 0xe4, 0x1f, 0x00, 0x1e, 0x00, 0x00}, 0},
+    };
+    return frames;
+}
+
+const std::vector<Vx450Frame> &vx450PollingFrames() {
+    static const std::vector<Vx450Frame> frames = {
+        {0xfe, 0x02, 0x13, 0x03},
+        {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+         0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80},
+        {0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+        {0xfe, 0x02, 0x0b, 0x02},
+        {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
+         0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+    };
+    return frames;
+}
+
+const Vx450Frame &vx450ResistancePreamble() {
+    static const Vx450Frame frame = {0xfe, 0x02, 0x0d, 0x02};
+    return frame;
+}
+
+bool parseVx450ResistanceTelemetry(const std::uint8_t *frame, std::size_t length, std::uint16_t *level) {
+    if (!frame || !level || length != 20 || frame[0] != 0x00 || frame[1] != 0x12 || frame[2] != 0x01 ||
+        frame[3] != 0x04 || frame[4] != 0x02 || frame[5] != 0x2c || frame[6] != 0x07 || frame[7] != 0x2c ||
+        frame[8] != 0x02 || frame[9] != 0x02) {
+        return false;
+    }
+
+    const std::uint16_t rawResistance = static_cast<std::uint16_t>(frame[10]) |
+                                        (static_cast<std::uint16_t>(frame[11]) << 8U);
+    const unsigned int rawResistancePlusOne = static_cast<unsigned int>(rawResistance) + 1U;
+    if (rawResistancePlusOne % 500U != 0U) {
+        return false;
+    }
+
+    const unsigned int candidate = rawResistancePlusOne / 500U;
+    if (candidate < 1U || candidate > 20U) {
+        return false;
+    }
+
+    *level = static_cast<std::uint16_t>(candidate);
+    return true;
+}
+
+} // namespace proformbikeprotocol
+
 proformbike::proformbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -171,18 +272,16 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
 void proformbike::forceResistance(resistance_t requestResistance) {
     if (nordictrack_vx450) {
-        // VX450 telemetry reports resistance in 500-unit increments (levels 1-20).
-        // Command encoding is experimental until confirmed on the hardware.
-        const uint16_t rawResistance = static_cast<uint16_t>(requestResistance) * 500;
-        uint8_t packet[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        packet[11] = static_cast<uint8_t>(rawResistance & 0xff);
-        packet[12] = static_cast<uint8_t>(rawResistance >> 8);
-        for (int i = 6; i <= 13; ++i) {
-            packet[14] += packet[i]; // checksum is the low byte of the payload sum
+        const proformbikeprotocol::Vx450Frame &preamble = proformbikeprotocol::vx450ResistancePreamble();
+        writeCharacteristic(preamble.data(), static_cast<uint8_t>(preamble.size()), QStringLiteral("resrequest"),
+                            false, false);
+
+        proformbikeprotocol::Vx450ResistancePacket packet = {};
+        if (!proformbikeprotocol::buildVx450ResistancePacket(requestResistance, &packet)) {
+            return;
         }
-        writeCharacteristic(packet, sizeof(packet), QStringLiteral("resistance") + QString::number(requestResistance),
-                            false, true);
+        writeCharacteristic(packet.data(), static_cast<uint8_t>(packet.size()),
+                            QStringLiteral("resistance") + QString::number(requestResistance), false, true);
     } else if(proform_bike_PFEVEX71316_0) {
         // Value: 0012020402120812020400000004000000000700
         // Value: ff040001002c0000000000000000000000000000
@@ -1253,7 +1352,14 @@ void proformbike::update() {
         uint8_t noOpData6_nordictrack_gx_4_5_pro[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0xbc, 0x90, 0x70, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00};
         uint8_t noOpData7_nordictrack_gx_4_5_pro[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x5d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        if (nordictrack_gx_le) {
+        if (nordictrack_vx450) {
+            if (!innerWriteResistance()) {
+                const std::vector<proformbikeprotocol::Vx450Frame> &frames =
+                    proformbikeprotocol::vx450PollingFrames();
+                const proformbikeprotocol::Vx450Frame &frame = frames[counterPoll % frames.size()];
+                writeCharacteristic(frame.data(), static_cast<uint8_t>(frame.size()), QStringLiteral("noOp"));
+            }
+        } else if (nordictrack_gx_le) {
             const uint8_t gxLePoll1[] = {0xfe, 0x02, 0x19, 0x03};
             const uint8_t gxLePoll2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             const uint8_t gxLePoll3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x10, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1499,18 +1605,22 @@ void proformbike::update() {
         }
         }
 
-        counterPoll++;
-        if (counterPoll > 6) {
-            counterPoll = 0;
-        } else if(counterPoll == 6 && (nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0 || proform_bike_PFEVEX71316_0)) {
-            counterPoll = 0;
-        } else if (counterPoll == 6 &&
-                   (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
-                   requestResistance == -1) {
-            // this bike sends the frame noOpData7 only when it needs to change the resistance
-            counterPoll = 0;
-        } else if (counterPoll == 5 && (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
-            counterPoll = 0;
+        if (nordictrack_vx450) {
+            counterPoll = static_cast<uint8_t>((counterPoll + 1U) % proformbikeprotocol::vx450PollingFrames().size());
+        } else {
+            counterPoll++;
+            if (counterPoll > 6) {
+                counterPoll = 0;
+            } else if(counterPoll == 6 && (nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0 || proform_bike_PFEVEX71316_0)) {
+                counterPoll = 0;
+            } else if (counterPoll == 6 &&
+                       (proform_tour_de_france_clc || proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1) &&
+                       requestResistance == -1) {
+                // this bike sends the frame noOpData7 only when it needs to change the resistance
+                counterPoll = 0;
+            } else if (counterPoll == 5 && (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
+                counterPoll = 0;
+            }
         }
 
         // updating the treadmill console every second
@@ -1706,6 +1816,19 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
+        std::uint16_t vx450ResistanceLevel = 0;
+        const bool vx450ResistanceTelemetry =
+            nordictrack_vx450 && proformbikeprotocol::parseVx450ResistanceTelemetry(
+                                     reinterpret_cast<const std::uint8_t *>(newValue.constData()),
+                                     static_cast<std::size_t>(newValue.size()), &vx450ResistanceLevel);
+        if (nordictrack_vx450 && static_cast<std::uint8_t>(newValue.at(5)) == 0x2c && !vx450ResistanceTelemetry) {
+            return;
+        }
+        if (vx450ResistanceTelemetry) {
+            Resistance = vx450ResistanceLevel;
+            m_pelotonResistance = Resistance.value() * 5;
+        }
+
         // wattage needs to be calculate always as a local variable because it's used as a filter for strange values
         // from proform even if the proform_tdf_jonseed_watt is ON.
         m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
@@ -1715,24 +1838,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             m_watts = 0;
         } else {
             if (nordictrack_vx450) {
-                // VX450 reports the resistance setting as a little-endian 16-bit value
-                // at bytes 10-11. Only trust its 0x32 telemetry frames.
-                if (static_cast<uint8_t>(newValue.at(5)) == 0x32 &&
-                    static_cast<uint8_t>(newValue.at(6)) == 0x07 &&
-                    static_cast<uint8_t>(newValue.at(7)) == 0x32 &&
-                    static_cast<uint8_t>(newValue.at(9)) == 0x02) {
-                    const uint16_t rawResistance =
-                        static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(10))) |
-                        (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(11))) << 8);
-                    const uint16_t resistanceLevel = static_cast<uint16_t>((rawResistance + 250U) / 500U);
-                    const int resistanceDelta =
-                        static_cast<int>(rawResistance) - static_cast<int>(resistanceLevel * 500U);
-                    if (resistanceLevel >= 1 && resistanceLevel <= 20 && resistanceDelta >= -1 &&
-                        resistanceDelta <= 1) {
-                        Resistance = resistanceLevel;
-                        m_pelotonResistance = Resistance.value() * 5;
-                    }
-                }
+                // VX450 resistance is updated only from validated 0x2c telemetry above.
             } else if(proform_225_csx_PFEX32925_INT_0) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
@@ -2676,7 +2782,17 @@ void proformbike::btinit() {
     if (nordictrack_vx450)
         max_resistance = 20;
 
-    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
+    if (nordictrack_vx450) {
+        const std::vector<proformbikeprotocol::Vx450InitFrame> &frames =
+            proformbikeprotocol::vx450InitializationFrames();
+        for (const proformbikeprotocol::Vx450InitFrame &frame : frames) {
+            writeCharacteristic(frame.bytes.data(), static_cast<uint8_t>(frame.bytes.size()), QStringLiteral("init"),
+                                false, false);
+            if (frame.delayAfterMs > 0) {
+                QThread::msleep(frame.delayAfterMs);
+            }
+        }
+    } else if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
         max_resistance = 32;
 

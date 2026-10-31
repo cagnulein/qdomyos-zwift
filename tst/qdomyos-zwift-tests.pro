@@ -60,6 +60,7 @@ SOURCES += \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestNordictrackVx450ResistanceCommand.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
         Devices/TestTargetPowerOverride.cpp \

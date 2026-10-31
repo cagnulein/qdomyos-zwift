@@ -1,6 +1,11 @@
 #ifndef PROFORMBIKE_H
 #define PROFORMBIKE_H
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -27,6 +32,43 @@
 #include <QString>
 
 #include "devices/bike.h"
+
+namespace proformbikeprotocol {
+
+using Vx450ResistancePacket = std::array<std::uint8_t, 20>;
+using Vx450Frame = std::vector<std::uint8_t>;
+
+struct Vx450InitFrame {
+    Vx450Frame bytes;
+    std::uint16_t delayAfterMs;
+};
+
+inline bool buildVx450ResistancePacket(int level, Vx450ResistancePacket *packet) {
+    if (!packet || level < 1 || level > 20) {
+        return false;
+    }
+
+    *packet = {{0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+
+    const std::uint16_t rawResistance = static_cast<std::uint16_t>(level) * 500U - 1U;
+    (*packet)[11] = static_cast<std::uint8_t>(rawResistance & 0xffU);
+    (*packet)[12] = static_cast<std::uint8_t>(rawResistance >> 8U);
+
+    std::uint8_t checksum = 0;
+    for (std::size_t i = 6; i <= 13; ++i) {
+        checksum = static_cast<std::uint8_t>(checksum + (*packet)[i]);
+    }
+    (*packet)[14] = checksum;
+    return true;
+}
+
+const std::vector<Vx450InitFrame> &vx450InitializationFrames();
+const std::vector<Vx450Frame> &vx450PollingFrames();
+const Vx450Frame &vx450ResistancePreamble();
+bool parseVx450ResistanceTelemetry(const std::uint8_t *frame, std::size_t length, std::uint16_t *level);
+
+} // namespace proformbikeprotocol
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
