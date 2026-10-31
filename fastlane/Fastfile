@@ -30,7 +30,6 @@ platform :ios do
       "-authenticationKeyID #{Shellwords.escape(ENV.fetch('ASC_KEY_ID'))}",
       "-authenticationKeyIssuerID #{Shellwords.escape(ENV.fetch('ASC_ISSUER_ID'))}",
       "CODE_SIGN_STYLE=Automatic",
-      Shellwords.escape("CODE_SIGN_IDENTITY=Apple Distribution"),
       "DEVELOPMENT_TEAM=#{team_id}",
       "CURRENT_PROJECT_VERSION=#{next_build}"
     ].join(" ")
