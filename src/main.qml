@@ -1448,7 +1448,6 @@ ApplicationWindow {
                 }
             }
             Accessible.role: Accessible.Button
-            Accessible.name: qsTr("Search settings")
             Accessible.focusable: !drawer.opened
             Accessible.ignored: drawer.opened
             Accessible.onPressAction: clicked()

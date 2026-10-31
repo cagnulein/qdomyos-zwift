@@ -7515,6 +7515,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: uiZoomTextField
+                            Accessible.name: labelUiZoom.text
                             minimum: 10
                             savedText: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
@@ -7526,6 +7527,8 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okUiZoomButton
+                            Accessible.role: Accessible.Button
+                                                        Accessible.name: qsTr("Save Tile Size")
                             text: qsTr("OK")
                             enabled: uiZoomTextField.valid && uiZoomTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10986,6 +10989,7 @@ import AndroidStatusBar 1.0
                         }
                         ValueComboBox {
                             id: treadmillPidHRControlTextField
+                            Accessible.name: labelTreadmillPidHRControl.text
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
                             savedText: settings.treadmill_pid_heart_control
@@ -10996,6 +11000,8 @@ import AndroidStatusBar 1.0
                         Button {
                             text: qsTr("OK")
                             enabled: treadmillPidHRControlTextField.dirty
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID HR actuator")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
@@ -13112,6 +13118,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness username/email:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessUsernameTextField
+                                    Accessible.name: qsTr("Life Fitness username/email")
                                     savedText: settings.life_fitness_username
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: { settings.life_fitness_username = text; window.settings_restart_to_apply = true; }
@@ -13119,6 +13126,8 @@ import AndroidStatusBar 1.0
                                 Button {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessUsernameTextField.dirty
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Life Fitness username/email")
                                     onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
@@ -13127,6 +13136,7 @@ import AndroidStatusBar 1.0
                                 Label { text: qsTr("Life Fitness password:"); wrapMode: window.labelWrap; Layout.fillWidth: true }
                                 SettingsTextField {
                                     id: lifeFitnessPasswordTextField
+                                    Accessible.name: qsTr("Life Fitness password")
                                     savedText: settings.life_fitness_password
                                     echoMode: TextInput.Password
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13135,6 +13145,8 @@ import AndroidStatusBar 1.0
                                 Button {
                                     text: qsTr("OK")
                                     enabled: lifeFitnessPasswordTextField.dirty
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Life Fitness password")
                                     onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
@@ -14682,6 +14694,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: domyosEllipticalSpeedRatioTextField
+                                    Accessible.name: labelDomyosEllipticalSpeedRatio.text
                                     savedText: settings.domyos_elliptical_speed_ratio
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -14692,6 +14705,8 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     id: okDomyosEllipticalRatioButton
+                                    Accessible.role: Accessible.Button
+                                                                        Accessible.name: qsTr("Save Domyos Elliptical Speed Ratio")
                                     text: qsTr("OK")
                                     enabled: domyosEllipticalSpeedRatioTextField.valid && domyosEllipticalSpeedRatioTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
