@@ -16,7 +16,7 @@ adb logcat -c
 adb shell am start -S -n "$activity" --ez qz_ci_ip_stress true || echo "am start reported an error; checking PID and stress markers"
 pid=""
 for i in $(seq 1 60); do
-  pid="$(adb shell pidof "$pkg" 2>/dev/null | tr -d '\r')"
+  pid="$((adb shell pidof "$pkg" 2>/dev/null || true) | tr -d '\r')"
   [ -n "$pid" ] && break
   sleep 2
 done
@@ -24,7 +24,7 @@ done
 for count in 5000 35000 65000; do
   seen=""
   for i in $(seq 1 150); do
-    current="$(adb shell pidof "$pkg" 2>/dev/null | tr -d '\r')"
+    current="$((adb shell pidof "$pkg" 2>/dev/null || true) | tr -d '\r')"
     [ "$current" = "$pid" ] || fail "QZ crashed/restarted during stress (pid $pid -> $current)"
     phases="$(adb logcat -d -s QZIpStress:I '*:S')"
     if [[ "$phases" == *"QZ_IP_STRESS $count"* ]]; then
