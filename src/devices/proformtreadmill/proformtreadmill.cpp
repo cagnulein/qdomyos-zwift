@@ -1,5 +1,4 @@
 #include "proformtreadmill.h"
-#include "sport30protocol.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -19,88 +18,85 @@
 
 using namespace std::chrono_literals;
 
-namespace ProFormSport30Protocol {
-std::array<uint8_t, 20> makeStateCommand(uint8_t state) {
-    std::array<uint8_t, 20> command = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
-                                      0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+QByteArray proformtreadmill::sport30StateCommand(uint8_t state) {
+    uint8_t command[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                         0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     command[12] = state;
     for (uint8_t i = 6; i <= 12; ++i) {
-        command[14] = static_cast<uint8_t>(command[14] + command[i]);
+        command[14] += command[i];
     }
-    return command;
+    return QByteArray(reinterpret_cast<const char *>(command), sizeof(command));
 }
 
-std::array<uint8_t, 20> makeStartCommand(double currentInclination) {
-    std::array<uint8_t, 20> command = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
-                                      0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+QByteArray proformtreadmill::sport30StartCommand(double currentInclination) {
+    uint8_t command[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                         0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
     const double scaledInclination = std::isfinite(currentInclination) ? currentInclination * 100.0 : 0.0;
     const auto incline = static_cast<uint16_t>(std::lround(std::min(65535.0, std::max(0.0, scaledInclination))));
     command[14] = static_cast<uint8_t>(incline & 0xff);
     command[15] = static_cast<uint8_t>((incline >> 8) & 0xff);
     command[18] = 0;
     for (uint8_t i = 6; i <= 17; ++i) {
-        command[18] = static_cast<uint8_t>(command[18] + command[i]);
+        command[18] += command[i];
     }
-    return command;
+    return QByteArray(reinterpret_cast<const char *>(command), sizeof(command));
 }
 
-bool parseAuthorizationPackets(const std::string &input, AuthorizationPackets &packets) {
-    std::array<uint8_t, 60> bytes{};
-    size_t nibbleCount = 0;
+bool proformtreadmill::parseSport30AuthorizationPackets(const QByteArray &input, QList<QByteArray> *packets) {
+    if (!packets) {
+        return false;
+    }
+
+    QByteArray bytes;
+    bytes.reserve(60);
+    int nibbleCount = 0;
     uint8_t highNibble = 0;
 
-    for (const unsigned char character : input) {
+    for (const char character : input) {
+        const uint8_t value = static_cast<uint8_t>(character);
         int nibble = -1;
-        if (character >= '0' && character <= '9') {
-            nibble = character - '0';
-        } else if (character >= 'a' && character <= 'f') {
-            nibble = character - 'a' + 10;
-        } else if (character >= 'A' && character <= 'F') {
-            nibble = character - 'A' + 10;
-        } else if (character == ' ' || character == '\t' || character == '\r' || character == '\n' ||
-                   character == ':') {
+        if (value >= '0' && value <= '9') {
+            nibble = value - '0';
+        } else if (value >= 'a' && value <= 'f') {
+            nibble = value - 'a' + 10;
+        } else if (value >= 'A' && value <= 'F') {
+            nibble = value - 'A' + 10;
+        } else if (value == ' ' || value == '\t' || value == '\r' || value == '\n' || value == ':') {
             continue;
         } else {
             return false;
         }
 
-        if (nibbleCount >= bytes.size() * 2) {
+        if (nibbleCount >= 120) {
             return false;
         }
-        if ((nibbleCount & 1U) == 0) {
+        if ((nibbleCount & 1) == 0) {
             highNibble = static_cast<uint8_t>(nibble << 4);
         } else {
-            bytes[nibbleCount / 2] = static_cast<uint8_t>(highNibble | nibble);
+            bytes.append(static_cast<char>(highNibble | nibble));
         }
         ++nibbleCount;
     }
 
-    if (nibbleCount != bytes.size() * 2) {
+    if (nibbleCount != 120) {
         return false;
     }
 
-    AuthorizationPackets parsed{};
-    for (size_t packetIndex = 0; packetIndex < parsed.size(); ++packetIndex) {
-        for (size_t byteIndex = 0; byteIndex < parsed[packetIndex].size(); ++byteIndex) {
-            parsed[packetIndex][byteIndex] = bytes[packetIndex * parsed[packetIndex].size() + byteIndex];
-        }
+    QList<QByteArray> parsed;
+    for (int packetIndex = 0; packetIndex < 3; ++packetIndex) {
+        parsed.append(bytes.mid(packetIndex * 20, 20));
     }
 
-    constexpr std::array<uint8_t, 11> firstPacketPrefix = {
-        0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01};
-    for (size_t i = 0; i < firstPacketPrefix.size(); ++i) {
-        if (parsed[0][i] != firstPacketPrefix[i]) {
-            return false;
-        }
-    }
-    if (parsed[1][0] != 0x01 || parsed[1][1] != 0x12 || parsed[2][0] != 0xff || parsed[2][1] != 0x08) {
+    const QByteArray firstPacketPrefix = QByteArray::fromHex("0012020402280428900701");
+    if (!parsed.at(0).startsWith(firstPacketPrefix) || static_cast<uint8_t>(parsed.at(1).at(0)) != 0x01 ||
+        static_cast<uint8_t>(parsed.at(1).at(1)) != 0x12 || static_cast<uint8_t>(parsed.at(2).at(0)) != 0xff ||
+        static_cast<uint8_t>(parsed.at(2).at(1)) != 0x08) {
         return false;
     }
 
-    packets = parsed;
+    *packets = parsed;
     return true;
 }
-} // namespace ProFormSport30Protocol
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -1013,9 +1009,9 @@ void proformtreadmill::update() {
             uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             auto sendSport30State = [this](uint8_t state, const QString &info) {
                 uint8_t stateRequest[] = {0xfe, 0x02, 0x0d, 0x02};
-                auto stateCommand = ProFormSport30Protocol::makeStateCommand(state);
+                auto stateCommand = sport30StateCommand(state);
                 writeCharacteristic(stateRequest, sizeof(stateRequest), info + QStringLiteral(" 1/2"));
-                writeCharacteristic(stateCommand.data(),
+                writeCharacteristic(reinterpret_cast<uint8_t *>(stateCommand.data()),
                                     static_cast<uint8_t>(stateCommand.size()), info + QStringLiteral(" 2/2"), false, true);
             };
 
@@ -1068,13 +1064,13 @@ void proformtreadmill::update() {
                         uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
                                             0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
                         uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
-                        auto start5 = ProFormSport30Protocol::makeStartCommand(currentInclination().value());
+                        auto start5 = sport30StartCommand(currentInclination().value());
 
                         writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
                         writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
                         writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
                         writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
-                        writeCharacteristic(start5.data(), static_cast<uint8_t>(start5.size()),
+                        writeCharacteristic(reinterpret_cast<uint8_t *>(start5.data()), static_cast<uint8_t>(start5.size()),
                                              QStringLiteral("start5"), false, true);
                     }
                     setPaused(false);
@@ -9145,21 +9141,23 @@ void proformtreadmill::btinit() {
             settings.value(QZSettings::proform_treadmill_sport_3_0_auth_packets,
                           QZSettings::default_proform_treadmill_sport_3_0_auth_packets)
                 .toString();
-        ProFormSport30Protocol::AuthorizationPackets customAuthPackets{};
+        QList<QByteArray> customAuthPackets;
         const bool hasCustomAuthPackets = !encodedAuthPackets.trimmed().isEmpty();
         const bool useCustomAuthPackets =
-            hasCustomAuthPackets && ProFormSport30Protocol::parseAuthorizationPackets(encodedAuthPackets.toStdString(), customAuthPackets);
+            hasCustomAuthPackets &&
+            proformtreadmill::parseSport30AuthorizationPackets(encodedAuthPackets.toLatin1(), &customAuthPackets);
         if (hasCustomAuthPackets && !useCustomAuthPackets) {
             emit debug(QStringLiteral("Invalid Sport 3.0 authorization packets; using the built-in profile packets."));
         } else if (useCustomAuthPackets) {
             emit debug(QStringLiteral("Using custom Sport 3.0 authorization packets."));
         }
         if (useCustomAuthPackets) {
-            for (size_t packetIndex = 0; packetIndex < customAuthPackets.size(); ++packetIndex) {
+            for (int packetIndex = 0; packetIndex < customAuthPackets.size(); ++packetIndex) {
                 const QString packetInfo =
                     QStringLiteral("Sport 3.0 authorization packet %1").arg(static_cast<int>(packetIndex + 1));
-                writeCharacteristic(customAuthPackets[packetIndex].data(),
-                                    static_cast<uint8_t>(customAuthPackets[packetIndex].size()), packetInfo, false, true);
+                QByteArray &packet = customAuthPackets[packetIndex];
+                writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                    packetInfo, false, true);
                 QThread::msleep(sleepms);
             }
         } else {
