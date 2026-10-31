@@ -4,8 +4,7 @@ set -euo pipefail
 LOG_PATH="${1:-ios-test/xcodebuild.log}"
 mkdir -p "$(dirname "$LOG_PATH")"
 
-# The watch app has no product types for the iOS simulator, so remove its
-# dependency and embed phase from the generated Xcode project before building.
+# Remove the WatchKit dependency that this CI setup cannot resolve for iOS builds.
 python3 .github/scripts/ios_simulator_project.py \
   build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 

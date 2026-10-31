@@ -93,6 +93,11 @@ jobs:
           bash ci_post_clone.sh
           bash ci_pre_xcodebuild.sh
 
+      - name: Prepare the generated Xcode project for iOS builds
+        run: |
+          python3 .github/scripts/ios_simulator_project.py \
+            build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+
       - name: Build and upload to TestFlight
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
