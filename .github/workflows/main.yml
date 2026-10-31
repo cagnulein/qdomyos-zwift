@@ -506,6 +506,25 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift         
 
+      - name: Replay Zwift Play 2.0.1 frames and dual BLE routing
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          mkdir -p tst/test-results
+          cd tst
+          ./qdomyos-zwift-tests \
+            --gtest_filter='ZwiftPlayRoddyReplay.*:ZwiftPlayDualConnectionReplay.*' \
+            --gtest_output=xml:test-results/zwift-play-roddy-replay.xml \
+            --gtest_color=yes
+
+      - name: Upload Zwift Play replay test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zwift-play-roddy-replay
+          path: tst/test-results/zwift-play-roddy-replay.xml
+          if-no-files-found: warn
+
       - name: Test
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
