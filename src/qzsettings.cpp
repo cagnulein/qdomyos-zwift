@@ -1348,7 +1348,12 @@ const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral
 
 const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
-const uint32_t allSettingsCount = 1042;
+const QString QZSettings::tile_required_speed_enabled = QStringLiteral("tile_required_speed_enabled");
+const QString QZSettings::tile_required_speed_order = QStringLiteral("tile_required_speed_order");
+const QString QZSettings::required_speed_target_average_kmh = QStringLiteral("required_speed_target_average_kmh");
+const QString QZSettings::required_speed_target_duration_minutes = QStringLiteral("required_speed_target_duration_minutes");
+
+const uint32_t allSettingsCount = 1046;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2417,6 +2422,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
     {QZSettings::virtual_device_rower_cadence_gain, QZSettings::default_virtual_device_rower_cadence_gain},
     {QZSettings::virtual_device_rower_cadence_offset, QZSettings::default_virtual_device_rower_cadence_offset},
+    {QZSettings::tile_required_speed_enabled, QZSettings::default_tile_required_speed_enabled},
+    {QZSettings::tile_required_speed_order, QZSettings::default_tile_required_speed_order},
+    {QZSettings::required_speed_target_average_kmh, QZSettings::default_required_speed_target_average_kmh},
+    {QZSettings::required_speed_target_duration_minutes, QZSettings::default_required_speed_target_duration_minutes},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
