@@ -4,7 +4,6 @@ import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -19,15 +18,6 @@ ScrollView {
     //anchors.bottom: footerSettings.top
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTilesPane
-
-    // Dedicated settings store for this feature. Keeping these keys separate avoids
-    // modifying the large existing settings.qml property snapshot.
-    Settings {
-        id: requiredSpeedSettings
-        Component.onCompleted: window.retakeSettingsSnapshot(requiredSpeedSettings)
-        property bool tile_required_speed_enabled: false
-        property int tile_required_speed_order: 34
-    }
 
     readonly property real speedPresetMilesConversion: 0.621371
 
@@ -1649,7 +1639,7 @@ ScrollView {
             id: requiredSpeedEnabledAccordion
             title: qsTr("Required Speed (Target Average)")
             linkedBoolSetting: "tile_required_speed_enabled"
-            settings: requiredSpeedSettings
+            settings: settingsTilesPane.settings
             accordionContent: RowLayout {
                 spacing: 10
                 Label {
@@ -1663,7 +1653,7 @@ ScrollView {
                     id: requiredSpeedOrderField
                     Accessible.name: requiredSpeedEnabledAccordion.title + ", " + requiredSpeedOrderLabel.text
                     model: rootItem.tile_order
-                    savedText: requiredSpeedSettings.tile_required_speed_order
+                    savedText: settings.value("tile_required_speed_order", 34)
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: { displayText = requiredSpeedOrderField.currentValue }
                 }
@@ -1671,7 +1661,7 @@ ScrollView {
                     text: qsTr("OK")
                     enabled: requiredSpeedOrderField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: { requiredSpeedSettings.tile_required_speed_order = requiredSpeedOrderField.displayText; toast.show(qsTr("Setting saved!")); }
+                    onClicked: { settings.setValue("tile_required_speed_order", requiredSpeedOrderField.displayText); requiredSpeedOrderField.savedText = requiredSpeedOrderField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
