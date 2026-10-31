@@ -393,6 +393,12 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
 
+    // Toputure TBE5 advertises FTMS too, but must use the direct FitShow driver.
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusToputureTBE5)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("TOPUTURE TBE5", DeviceNameComparison::StartsWithIgnoreCase)
+        ->excluding({DeviceTestDataIndex::GetTypeId<ftmsbike>()});
+
 
     // FitPlus Rower - Merach R28
     // Reproduces the support case from matthieu.f.graveleau@gmail.com:

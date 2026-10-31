@@ -88,11 +88,11 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 
 void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool virtufit_etappe = virtufitEtappe ||
+    bool fitshow32LevelLayout = virtufitEtappe || toputureTbe5 ||
                            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
     requestResistanceCompleted = false;
-    if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
+    if (fitshow32LevelLayout || merach_MRK || H9110_OSAKA) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
@@ -305,12 +305,12 @@ void fitplusbike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
         update_metrics(false, watts());
-        bool virtufit_etappe = virtufitEtappe ||
+        bool fitshow32LevelLayout = virtufitEtappe || toputureTbe5 ||
                                settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
         bool sportstech_sx600 =
             settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA) {
+        if (fitshow32LevelLayout || merach_MRK || sportstech_sx600 || H9110_OSAKA) {
 
         } else {
             m_watt = wattFromHR(false);
@@ -414,13 +414,13 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    bool virtufit_etappe = virtufitEtappe ||
+    bool fitshow32LevelLayout = virtufitEtappe || toputureTbe5 ||
                            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
     // the bike answers the 02 41 02 init request with its max resistance level in byte 3
     // (FS-xxxxxx with 32 levels: 02 41 02 20 00 02 00 61 03)
-    if (virtufit_etappe && newValue.length() >= 9 && (uint8_t)newValue.at(0) == 0x02 &&
+    if (fitshow32LevelLayout && newValue.length() >= 9 && (uint8_t)newValue.at(0) == 0x02 &&
         (uint8_t)newValue.at(1) == 0x41 && (uint8_t)newValue.at(2) == 0x02) {
         uint8_t maxRes = (uint8_t)newValue.at(3);
         if (maxRes >= 8 && maxRes <= 32) {
@@ -597,7 +597,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.remainingTime) {
             // todo
         }
-    } else if (virtufit_etappe || merach_MRK || H9110_OSAKA || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
+    } else if (fitshow32LevelLayout || merach_MRK || H9110_OSAKA || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
 
@@ -789,7 +789,7 @@ double fitplusbike::bikeResistanceToPeloton(double resistance) {
 void fitplusbike::btinit() {
 
     QSettings settings;
-    bool virtufit_etappe = virtufitEtappe ||
+    bool fitshow32LevelLayout = virtufitEtappe || toputureTbe5 ||
                            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
@@ -811,7 +811,7 @@ void fitplusbike::btinit() {
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    } else if (virtufit_etappe) {
+    } else if (fitshow32LevelLayout) {
         uint8_t initData1[] = {0x02, 0x42, 0x42, 0x03};
         uint8_t initData2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
         uint8_t initData3[] = {0x02, 0x41, 0x03, 0x42, 0x03};
@@ -1021,6 +1021,10 @@ void fitplusbike::serviceScanDone(void) {
         }
     } else {
         qDebug() << _gattCommunicationChannelServiceId << "not found!";
+        if (toputureTbe5) {
+            qDebug() << QStringLiteral("Toputure TBE5 FitShow service is required; refusing FTMS fallback");
+            return;
+        }
         gattCommunicationChannelServiceFTMS = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
         if(gattCommunicationChannelServiceFTMS) {
             QSettings settings;
@@ -1063,6 +1067,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
             max_resistance = 32;
             H9110_OSAKA = true;
+        } else if (device.name().toUpper().startsWith("TOPUTURE TBE5")) {
+            qDebug() << QStringLiteral("TOPUTURE TBE5 FitShow driver enabled!");
+            max_resistance = 32;
+            toputureTbe5 = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -1125,7 +1133,7 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
 
 uint16_t fitplusbike::wattsFromResistance(double resistance) {
     QSettings settings;
-    bool virtufit_etappe = virtufitEtappe ||
+    bool fitshow32LevelLayout = virtufitEtappe || toputureTbe5 ||
                            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
 
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
@@ -1134,7 +1142,7 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
     (double)(currentResistance().value())) ); else return (uint16_t)((3.59 * exp(0.0217 *
     (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/    
 
-    if(virtufit_etappe) {
+    if(fitshow32LevelLayout) {
         const double Epsilon = 4.94065645841247E-324;
         // VirtuFit Etappe 2.0i Spinbike ERG Table #1526
         const int wattTableFirstDimension = 25;
