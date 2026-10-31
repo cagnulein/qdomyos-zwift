@@ -1,6 +1,11 @@
 name: Release iOS to TestFlight
 
 on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - labeled
   workflow_dispatch:
     inputs:
       publish:
@@ -15,7 +20,11 @@ concurrency:
 
 jobs:
   release-ios:
-    if: github.ref == 'refs/heads/master'
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
+      (github.event_name == 'pull_request' &&
+       github.event.label.name == 'testflight-upload' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-26
     timeout-minutes: 180
     permissions:
@@ -87,8 +96,9 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          PUBLISH_TO_TESTFLIGHT: ${{ github.event_name == 'pull_request' || inputs.publish }}
         run: |
-          if [ "${{ inputs.publish }}" = "true" ]; then
+          if [ "$PUBLISH_TO_TESTFLIGHT" = "true" ]; then
             fastlane ios testflight
           else
             fastlane ios build_release
