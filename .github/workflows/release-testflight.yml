@@ -14,9 +14,9 @@ on:
         required: true
         default: false
 
-concurrency:
-  group: release-testflight
-  cancel-in-progress: false
+# Keep each release request independent. GitHub's concurrency group can cancel
+# an older *pending* run when a newer one arrives, even with
+# cancel-in-progress: false. Do not use workflow-level concurrency here.
 
 jobs:
   release-ios:
