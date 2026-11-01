@@ -71,6 +71,7 @@ class trxappgateusbtreadmill : public treadmill {
     static QByteArray flowFitnessStopPacket();
     static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
     static bool isFlowFitnessDeviceName(const QString &deviceName);
+    static bool isIconsoleTx90DeviceName(const QString &deviceName);
     static QByteArray iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds);
     static QByteArray iconsoleKeepAliveFrame();
     static bool shouldAutoStartFromTelemetry(bool isIconsoleTreadmill, bool readyStatusPattern, bool alreadyReady);
@@ -84,6 +85,8 @@ class trxappgateusbtreadmill : public treadmill {
                                                quint64 pendingGeneration);
     static QList<QByteArray> iconsoleInitializationFrames();
     static int iconsoleExpectedResponseSize(quint8 requestCommand);
+    enum class IconsoleRunState { Unknown, Ready, Running, Paused };
+    static IconsoleRunState iconsoleRunStateFromPacket(const QByteArray &packet);
     static bool takeIconsoleResponse(QByteArray &buffer, QByteArray &frame);
     static bool iconsoleResponseMatches(quint8 requestCommand, const QByteArray &response);
     static bool buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
@@ -129,6 +132,8 @@ class trxappgateusbtreadmill : public treadmill {
     bool readyToStart = false;
     bool iconsoleTreadmill = false;
     bool iconsoleTransactionInProgress = false;
+    bool iconsoleAwaitingBeltStart = false;
+    bool iconsoleStartWaitLogged = false;
     bool iconsoleWorkoutUploadRequired = false;
     bool iconsoleWorkoutUploadPending = false;
     bool iconsoleWorkoutUploadSucceeded = false;

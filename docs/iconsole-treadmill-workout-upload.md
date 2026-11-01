@@ -1,101 +1,101 @@
-# iConsole treadmill workout upload
+# Cardiostrong TX90 native iConsole session and workout upload
 
-## Scope
+## Current supported behavior
 
-QZ can prepare a first experimental speed profile for BLE treadmills exposed as `I-CONSOLE+` or `ICONSOLE+`. The profile is built from the same `trainrow` list used by imported XML, imported ZWO, and Workout Editor workouts.
+For the captured name `iConsole+0014` (also accepting the `I-CONSOLE+0014` spelling, case-insensitively), the native driver connects to the iConsole service, initializes the session, reads metrics, and can upload a fixed twenty-minute speed/inclination program. It uses the ordinary parsed QZ `trainrow` input from XML, ZWO and the Workout Editor. Other iConsole names and AppGate treadmill profiles retain their existing behavior.
 
-This is not a live speed command. The available capture shows iConsole+ loading a speed table before the workout and the treadmill applying the table internally. QZ still does not claim that a separate immediate speed command has been identified for this device.
+The experimental encoder accepts **exactly twenty minutes of positive, whole-minute, non-ramp rows**, with finite nonnegative encodable speeds. A twenty-row workout with one-minute rows or ten rows of two minutes is represented exactly. Missing inclination is encoded as zero. Unsupported timelines are rejected rather than stretched, compressed or sampled across interval boundaries.
 
-## Capture evidence
+This restriction follows the only successful captured program: twenty one-minute slots, an A4 parameter of `0x15`, and an initial console countdown of 19:59. One recording cannot distinguish whether the A4 field is a duration, slot count or related program parameter. Changing it or combining it with thirty-second slots is not yet validated. This supersedes earlier ten-minute/half-minute experimental mappings in this PR.
 
-The reference capture from the Cardiostrong TX 90 contains these writes:
+A conservative input example is available at `train-programs-examples/iconsole-tx90-20min.xml`. Physical validation of the revised QZ build remains necessary.
 
-```text
-F0 A6 01 D3 01 29 01 3D 01 51 02 01 02 15 02 29 02 15 02 01 01 51 01 3D 13
-F0 A7 01 D3 01 29 01 3D 01 51 02 01 02 15 02 29 02 15 02 01 01 51 01 3D 14
-```
+## Evidence inspected
 
-The BLE transport splits each 25-byte logical frame into a 20-byte write followed by a 5-byte write. Both commands contain the same ten speed values:
+Both original HCI files supplied by Matthias were parsed completely:
 
-```text
-4, 6, 8, 10, 12, 14, 12, 10, 8, 6 km/h
-```
+- `20261021_iConsole_Prtogram-Test.pklg`: 7,650 records, including metadata and HCI commands/events.
+- `20261021_iConsole_Prtogram-Test - (null).log`: BTSnoop version 1, link type 1001, 7,623 records.
 
-The last byte is the sum of all preceding bytes modulo 256. The observed profile changes approximately once per minute. The supported input is exactly ten minutes, with whole-minute fixed-speed rows. QZ maps each input minute to two 30-second slots. Other durations and fractional-minute boundaries are rejected rather than rescaled, so the treadmill profile and QZ workout clock describe the same timeline.
+The two formats contain **the same 4,398 ACL packets in the same order and direction**. The extra PKLG records are metadata. ACL/L2CAP reassembly yields 4,397 ATT packets across the connections present in the recording. The treadmill's connection is distinguished from the pre-existing other connection; its application notifications are on ATT handle 0x0012, not the other connection's handle 0x0032.
 
-The capture also records `F0 A3`, `F0 A4`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF` around the speed frames. The candidate Android app's handlers associate these with workout mode, parameters, inclination, duration, and key-lock. The captured parameter frame uses `0x15`; the Android builders encode each data byte with `+1` for `A8/A9/AA`. QZ sends those profile frames in the observed order and checks the corresponding `B3/B4/B6/B7/B8/B9/BA/BF` response frame, including its length and checksum. The APK analyzed is a mirror candidate and has not been proven to match the captured app build. Their complete firmware semantics have not been confirmed on a physical TX 90. `F0 A5` remains a separate workout-control command and is sent only for the explicit Start Workout action, after the profile upload has been acknowledged.
+Four complete QZ debug logs were also inspected: October 26 at 18:02 and 18:51, and October 31 at 13:58 and 22:00. Available QZ/nRF/Zwift screenshots were inspected. Three earlier QZ logs from October 21 and two from October 29 remain unavailable through the email connector. The supplied PDF contains no Bluetooth protocol data.
 
-## QZ behavior
+No private full HCI recording is committed. The tests contain only the protocol frames needed to reproduce the behavior. The earlier candidate-APK interpretation is not required for the exact captured program below.
 
-When a treadmill workout is associated with a treadmill device, QZ calls the treadmill program hook with the parsed `QList<trainrow>`.
+## Complete successful iConsole flow
 
-For an iConsole treadmill:
+### Transport and initialization
 
-1. QZ requires a non-empty workout totaling exactly ten minutes, with positive whole-minute, non-ramp rows and finite, nonnegative encodable speeds.
-2. QZ reads each of the ten input minutes at its midpoint. Each minute contributes two 30-second speed and inclination slots; missing inclination is encoded as zero.
-3. Speed uses the captured representation: `deci-km/h = round(speed * 10)`, then high and low bytes are each incremented by one. `A8/A9/AA` data bytes are incremented by one as in the candidate Android builders; `A4` uses the captured `0x15` parameter value.
-4. Before the profile, QZ sends the captured `A0 00 00`, `A0 01 D3`, and `A1 01 D3` initialization frames and waits for valid `B0/B1` responses. If initialization fails, QZ retries the sequence after one second, with at most three attempts total; retries stop if the BLE connection is no longer discovered.
-5. QZ creates the ordered profile frames `F0 A3`, `F0 A4`, `F0 A6`, `F0 A7`, `F0 A8`, `F0 A9`, `F0 AA`, and `F0 AF`.
-6. After initialization, each frame is written in chunks of at most 20 bytes, with no polling between fragments. QZ waits for the matching complete response frame and checksum after each command; a missing or invalid response stops the active batch. If a newer workout request arrives during transfer, QZ stops the active batch and proceeds with the newest valid queued profile; after an ACK failure it reinitializes before retrying that profile. A rejected latest request keeps Start blocked. A Start received while the profile is queued is retained until upload succeeds, while Stop cancels a deferred Start.
-7. After the transaction, the captured iConsole poll `F0 A2 01 D3 66` resumes. iConsole telemetry does not trigger Start. The separate `F0 A5` Start command is sent only when the user requests Start Workout, and only after successful profile acknowledgements; QZ waits for `B5` before starting its workout clock.
+The captured device exposes service FFF0. Its writable characteristic is FFF2 at ATT handle 0x0010, and its notification characteristic is FFF1 at handle 0x0012; CCCD is handle 0x0013. Writes use ATT Write Request, followed by ATT Write Response. Application acknowledgements are separate F0 Bx notification packets.
 
-Other AppGate treadmill variants keep their existing behavior and do not receive these frames.
+After enabling notifications, the app sends these initialization requests and receives their corresponding replies:
 
-## Current limitations
+| Request | Reply |
+| --- | --- |
+| `F0 A0 00 00 90` | `F0 B0 01 D3 74` |
+| `F0 A0 01 D3 64` | `F0 B0 01 D3 74` |
+| `F0 A1 01 D3 65` | `F0 B1 01 D3 01 15 02 01 10 9E` |
 
-- The experimental device profile supports exactly ten minutes with whole-minute rows. Unsupported durations and interval boundaries are rejected; QZ never stretches or compresses the requested timeline.
-- Ramp rows, zero/negative-duration rows, and non-finite speeds are rejected.
-- The speed, inclination, and duration field mapping follows the candidate Android app and capture, but has not yet been confirmed by a physical TX 90 test.
-- The live speed function remains unimplemented because the available evidence does not prove a live command.
-- The implementation has not yet been validated on physical TX 90 hardware. Matthias reported that the treadmill moved only after pressing Start on the console; upload acknowledgements do not prove belt movement.
+It then polls with `F0 A2 01 D3 66`, approximately once per 500 ms. B2 replies are 19 bytes with an additive checksum. QZ now matches this polling cadence for native iConsole devices.
 
-A first hardware test should use a conservative profile with clearly different speeds, for example 4, 6, 8, 6, 4, 6, 8, 6, 4, 6 km/h, and should record the QZ debug log and the treadmill response.
+### Program upload
 
-## Verification
+The ordered upload is A3, A4, A6, A7, A8, A9, AA, AF. Each request receives its matching B3/B4/B6/B7/B8/B9/BA/BF application acknowledgement before the next request. Twenty-five-byte requests are split into twenty bytes followed by five bytes, with ATT write completion between fragments and no poll interleaving.
 
-The driver unit tests verify the recorded speed frames, the eight-frame profile sequence, supported timeline mapping, rejection of unsupported durations and invalid rows, the actual sixteen-byte TX90 B4 response, checksum rejection, and fragmented/coalesced response reassembly.
+| Command | Captured meaning established by the complete flow |
+| --- | --- |
+| A3 | Program selection payload `02 01 01 01 01 01 01` |
+| A4 | Parameter payload `15` followed by ten `01` bytes; exact broader field semantics remain uncertain |
+| A6 | First ten speed slots |
+| A7 | Second ten speed slots; the recorded second half repeats the first half |
+| A8 | Twenty inclination values |
+| A9 | First ten duration slots, each encoded `02 01` (one minute) |
+| AA | Second ten duration slots, also one minute each |
+| AF | Final control payload `02`; its receipt alone does not prove console readiness or movement |
 
-## TX90 regression investigation (2026-11-01)
+Speeds use `(deci-km/h / 100) + 1` and `(deci-km/h % 100) + 1`; inclination uses value + 1. The final byte of every logical frame is the sum of preceding bytes modulo 256. The golden test reproduces **all eight full upload requests byte for byte**, including their checksums, from the observed twenty-slot input.
 
-### Evidence reviewed in this investigation
+The first ten captured speeds are 4, 6, 8, 10, 12, 14, 12, 10, 8, 6 km/h. The first twenty inclination values are 2, 2, 9, 9, 9, 9, 12, 12, 12, 12, 12, 5, 5, 5, 5, 5, 5, 0, 0, 0 percent.
 
-The email conversation and PR history were reviewed. Four original QZ attachments were downloaded in full: `debug-Mo__Okt__26_18_02_08_2026.log`, `debug-Mo__Okt__26_18_51_51_2026.log`, `debug-Sat_Oct_31_13_58_06_2026.log`, and `debug-Sat_Oct_31_22_00_49_2026.log`. The nRF screenshots identify `iConsole+0014` advertising FFF0 and FTMS; advertising FTMS does not establish that every FTMS control operation succeeds.
+### Readiness, Start, running and pause
 
-The original `20261021_iConsole_Prtogram-Test.pklg` and BTSnoop export `20261021_iConsole_Prtogram-Test - (null).log` could not be downloaded through the email connector: their MIME type is marked unsupported. Three QZ logs from October 21 and two from October 29 have the same access limitation. The captured-frame examples above are inherited PR evidence, not a new independent decode of those unavailable files. The candidate APK is likewise not independently revalidated here. Full protocol reconstruction remains blocked on access to these originals.
+B2 bytes 15–17 distinguish these observed states. The tuples are empirical; the recording does not establish a complete firmware state dictionary.
 
-### Connection and metrics
+| Observation | B2 bytes 15–17 | Speed |
+| --- | --- | --- |
+| Initial idle after connection | `04 04 02` | 0 |
+| Console ready before Start/resume | `03 02 02` | 0 |
+| Running after A5 | `03 04 03` | Positive |
+| Paused/stopped belt | `04 04 03` | 0 |
 
-- The October 26 18:02 session contains thousands of B2 notifications and movement at 0.8 km/h. Speed-profile exchanges alone did not establish program execution. The smaller 18:51 session contains no workout exchange.
-- The October 31 13:58 Android session logs `iConsole initialization will be sent with the workout profile`, but the transmitted profile begins at A3 without the A0/A1 handshake. There are no received `<<` notifications in that log, including after the user reports starting the belt manually. The missing metrics are therefore not evidence of a speed-decoding arithmetic error. The later branch revision restores the A0/A0/A1 handshake.
-- In the October 31 22:00 session that handshake is acknowledged by two B0 responses and `F0 B1 01 D3 01 15 02 01 10 9E`. Regular checksum-valid B2 telemetry is received before and after the attempted upload. All those B2 frames report zero speed. The link is working; the log does not show belt motion or prove the reason the console Start button is blocked.
-- The revised iConsole receive path separates complete checksum-valid response frames from B2 telemetry. ACKs never enter the telemetry accumulator. Fragmented frames and multiple frames in one notification are handled without changing other AppGate variants' framing.
+After AF is acknowledged, iConsole resumes polling. Approximately 5.6 seconds later the console reports `03 02 02`. The app sends `F0 A5 01 D3 02 6B` approximately three seconds after that observation. Its B5 response is `F0 B5 01 D3 02 7B`. The next B2 reports 4 km/h, 2% incline and a countdown of 19:59.
 
-### Start and upload
+QZ retains an explicit Start request through upload and subsequent readiness polling. It sends A5 only when the latest profile is acknowledged and the console is ready. It emits `tapeStarted` only after running B2 telemetry with positive speed, rather than treating B5 as proof that the belt moved. Actual metric assignment precedes that signal. Stop cancels a deferred Start. Without an uploaded program, the legacy handshake for the console's own Start-ready transition is preserved. Loading a program by itself does not manufacture a QZ Start request.
 
-At 22:01:04.411 a workout is queued while a poll is awaiting its response. Start is requested during that nested event loop. At 22:01:04.655 the old branch consumes and drops Start because the upload has not completed yet. The subsequent update begins the upload at 22:01:04.740. Retaining Start while upload is pending fixes this ordering defect; failed or invalid uploads still block Start, and Stop cancels it.
+The capture later reports 6, 8, 10, 12 and 14 km/h at approximately one-minute boundaries; inclination changes follow the A8 table. There are **no live speed writes** between those transitions: A2 polling continues while the console executes the uploaded program.
 
-A3 receives its valid B3 reply. At 22:01:04.920 QZ sends:
+The belt then pauses, with a frozen countdown of 14:35, later reports the ready tuple, receives another A5 `02`, and resumes at 14 km/h with 14:34 remaining. The final pause leaves 13:40 remaining. No application Stop command is present in this recording, so it cannot establish the bytes for a reliable remote Stop.
 
-```text
-F0 A4 01 D3 15 01 01 01 01 01 01 01 01 01 01 87
-```
+## What failed in QZ
 
-The TX90 responds:
+1. The October 31 13:58 Android build logged that initialization would accompany the profile, but began at A3 without A0/A1. No incoming notifications appear in that entire session, even when the user reports manually running the belt. The later branch restores the captured initialization.
+2. In the 22:00 session initialization succeeds, followed by regular B2 replies with zero speed. The Bluetooth link is communicating; there is no observed movement in that log.
+3. At 22:01:04.411 a workout is queued inside a polling response wait. At 22:01:04.655 the old code consumes Start before the deferred upload begins. Start must remain queued until upload and console readiness complete.
+4. The TX90 responds to A4 with `F0 B4 01 D3 15 01 01 01 01 01 01 01 01 01 01 97`: **16 bytes**, with a valid checksum. The old branch expected 17, timed out, and stopped before sending A6/A7/A8/A9/AA/AF/A5. The response size is corrected.
+5. The previous implementation sent Start immediately after profile acknowledgement instead of waiting for the ready tuple. The revised sequence follows the successful capture's state order; it does not invent a fixed delay or infer readiness from an ACK.
+6. Earlier workout encoders guessed that twenty half-minute slots and a fixed A4 `15` represented ten minutes. The golden captured transaction proves a twenty-minute program; the revised encoder stays within that evidenced format.
+7. ACKs and telemetry require separate complete-frame extraction. The revised receive path handles fragmented/coalesced notifications, validates checksums and routes only B2 into metric decoding. Reconnection clears framing and acknowledged-profile state.
 
-```text
-F0 B4 01 D3 15 01 01 01 01 01 01 01 01 01 01 97
-```
+Completing the upload and readiness handshake addresses concrete software defects. The evidence does not independently prove the exact reason the user's physical Start button was blocked after the aborted A4 transaction, or whether a console reset is required after that older failure.
 
-The reply is **16 bytes**, with correct checksum `97`. The old implementation expects 17 bytes, times out, and aborts at 22:01:06.425. It never sends A6, A7, A8, A9, AA, AF, or A5 in that attempt. The fix uses the observed sixteen-byte response length. This explains the aborted upload, but it does not independently establish the firmware semantics of selecting a program or locking/unlocking the physical keys.
+## Validation and remaining limits
 
-### Remaining verification
-
-Do not interpret these software corrections as hardware confirmation. Before claiming the TX90 is fixed, decode the original HCI files and compare the complete successful iConsole session: handshake, mode/parameters, both speed tables, inclination table, both duration tables, key control, Start, polling, and Stop. Confirm actual belt motion, console buttons, and profile execution on the TX90. Live speed remains unimplemented, and the existing iConsole Stop path does not currently transmit a physical stop command.
-
-### Software validation for this revision
-
-- Compiled the actual driver translation unit and its parser test translation unit with Qt 5.15.13; one pre-existing `PlayerStateWrapper::getCadence()` missing-return warning remains outside this change.
-- Linked the actual driver object into the parser test executable: **36 tests passed**.
-- Compiled the previous branch driver and the revised driver against the same standalone sixteen-byte B4 check: previous **REJECTED**, revised **ACCEPTED**.
-- Replayed every received notification from the four available original QZ logs through the revised frame extractor: 3,273 notifications in the October 26 18:02 session (3,268 telemetry frames, five ACKs), 140 in the October 31 22:00 session (135 telemetry frames, five ACKs), and zero in the other two sessions. All replay buffers ended empty.
-- `git diff --check` passed. These focused checks do not simulate the GATT device, execute the Start/Stop race on hardware, or establish physical workout execution. The full application/platform builds remain the responsibility of CI.
+- Actual driver and parser-test translation units compiled with Qt 5.15.13. One existing `PlayerStateWrapper::getCadence()` missing-return warning is outside this change.
+- **39 focused tests pass**, linked with the actual driver object, including the full eight-request captured profile and recorded idle/ready/running/pause/resume B2 frames.
+- Same sixteen-byte B4 regression check against the old and revised compiled driver: old REJECTED, revised ACCEPTED.
+- All 3,413 received notifications in the four available QZ logs reassemble without residual bytes. The original HCI contributes 1,049 treadmill notifications, including 1,036 B2 telemetry frames and thirteen ACKs.
+- Full platform builds and a physical TX90 test remain necessary. The focused tests do not simulate a GATT peripheral or verify a moving belt.
+- Workouts with other total durations, fractional-minute rows or ramps remain unsupported. No timeline is silently changed.
+- Live speed writes and a physical iConsole Stop command remain unimplemented; the capture contains neither. Use the treadmill's physical stop for hardware testing.
+- QZ's general UI/workout scheduler is unchanged. Emitting `tapeStarted` after movement is the driver's confirmation; this is not a claim that every UI clock path waits for that signal, particularly when continuous-moving settings are enabled.

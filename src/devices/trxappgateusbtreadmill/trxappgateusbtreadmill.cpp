@@ -53,6 +53,11 @@ bool trxappgateusbtreadmill::isFlowFitnessDeviceName(const QString &deviceName) 
     return true;
 }
 
+bool trxappgateusbtreadmill::isIconsoleTx90DeviceName(const QString &deviceName) {
+    const QString name = deviceName.toUpper();
+    return name == QStringLiteral("ICONSOLE+0014") || name == QStringLiteral("I-CONSOLE+0014");
+}
+
 QByteArray trxappgateusbtreadmill::iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds) {
     if (speeds.size() != 10 || (command != 0xa6 && command != 0xa7)) {
         return QByteArray();
@@ -192,6 +197,26 @@ bool trxappgateusbtreadmill::takeIconsoleResponse(QByteArray &buffer, QByteArray
     return false;
 }
 
+trxappgateusbtreadmill::IconsoleRunState
+trxappgateusbtreadmill::iconsoleRunStateFromPacket(const QByteArray &packet) {
+    if (!iconsoleResponseMatches(0xa2, packet)) {
+        return IconsoleRunState::Unknown;
+    }
+    const quint8 key = static_cast<quint8>(packet.at(15));
+    const quint8 console = static_cast<quint8>(packet.at(16));
+    const quint8 workout = static_cast<quint8>(packet.at(17));
+    if (key == 0x03 && console == 0x02 && workout == 0x02) {
+        return IconsoleRunState::Ready;
+    }
+    if (key == 0x03 && console == 0x04 && workout == 0x03 && GetSpeedFromPacket(packet) > 0.0) {
+        return IconsoleRunState::Running;
+    }
+    if (key == 0x04 && console == 0x04 && workout == 0x03) {
+        return IconsoleRunState::Paused;
+    }
+    return IconsoleRunState::Unknown;
+}
+
 bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
                                                         QString *error) {
     if (!frames) {
@@ -237,28 +262,21 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         totalDurationSeconds += durationSeconds;
     }
 
-    if (totalDurationSeconds != 600) {
-        return fail(QStringLiteral("iConsole programs currently require exactly ten minutes; duration is not rescaled"));
+    // The successful TX90 capture programs twenty one-minute slots and the
+    // console starts at 19:59. A4's 0x15 is held at the observed value: do not
+    // assume it is independent of duration or silently change the timeline.
+    if (totalDurationSeconds != 1200) {
+        return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes; duration is not rescaled"));
     }
 
     QList<double> speedSlots;
     QByteArray inclinePayload;
     QList<int> slotDurations;
-    for (int minuteSlot = 0; minuteSlot < 10; ++minuteSlot) {
-        const double sampleTime = (minuteSlot + 0.5) * totalDurationSeconds / 10.0;
-        double elapsedSeconds = 0.0;
-        const WorkoutStage *stage = &stages.last();
-        for (const WorkoutStage &candidate : stages) {
-            elapsedSeconds += candidate.durationSeconds;
-            if (sampleTime < elapsedSeconds) {
-                stage = &candidate;
-                break;
-            }
-        }
-        for (int subslot = 0; subslot < 2; ++subslot) {
-            speedSlots.append(stage->speed);
-            inclinePayload.append(static_cast<char>(qRound(stage->incline) + 1));
-            slotDurations.append(30);
+    for (const WorkoutStage &stage : stages) {
+        for (int minute = 0; minute < stage.durationSeconds / 60; ++minute) {
+            speedSlots.append(stage.speed);
+            inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
+            slotDurations.append(60);
         }
     }
 
@@ -319,6 +337,9 @@ void trxappgateusbtreadmill::setTrainingProgram(const QList<trainrow> &rows) {
         return;
     }
     const quint64 requestGeneration = ++iconsoleWorkoutRequestGeneration;
+    readyToStart = false;
+    iconsoleAwaitingBeltStart = false;
+    iconsoleStartWaitLogged = false;
 
     QList<QByteArray> frames;
     QString error;
@@ -364,11 +385,10 @@ void trxappgateusbtreadmill::uploadPendingIconsoleWorkout() {
 
         for (const QByteArray &frame : frames) {
             if (requestStop != -1) {
+                // Finish the configuration through AF, but never send Start.
+                // A partially selected program was left behind in the user's
+                // blocked-console session; no abort command is captured.
                 requestStart = -1;
-                pendingIconsoleWorkoutFrames.clear();
-                uploadSucceeded = false;
-                emit debug(QStringLiteral("iConsole workout upload canceled by Stop"));
-                break;
             }
             if (frame.size() < 6) {
                 emit debug(QStringLiteral("iConsole workout frame has invalid size"));
@@ -665,6 +685,8 @@ void trxappgateusbtreadmill::update() {
         // deferred Start, so finishing an upload cannot restart the belt.
         if (iconsoleTreadmill && requestStop != -1) {
             requestStart = -1;
+            iconsoleAwaitingBeltStart = false;
+            iconsoleStartWaitLogged = false;
         }
         if (requestStart != -1) {
             if (iconsoleTreadmill && iconsoleWorkoutUploadPending) {
@@ -674,6 +696,11 @@ void trxappgateusbtreadmill::update() {
                                          iconsoleWorkoutUploadSucceeded, iconsoleWorkoutRequestInvalidated)) {
                 emit debug(QStringLiteral("iConsole start skipped because workout upload was not acknowledged"));
                 requestStart = -1;
+            } else if (iconsoleTreadmill && !readyToStart) {
+                if (!iconsoleStartWaitLogged) {
+                    emit debug(QStringLiteral("iConsole Start queued; waiting for console-ready B2 status 03 02 02"));
+                    iconsoleStartWaitLogged = true;
+                }
             } else {
                 bool startCommandSucceeded = true;
                 if (iconsoleTreadmill) {
@@ -706,7 +733,14 @@ void trxappgateusbtreadmill::update() {
                     writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
                 }
                 if (startCommandSucceeded) {
-                    emit tapeStarted();
+                    if (iconsoleTreadmill) {
+                        iconsoleStartWaitLogged = false;
+                        iconsoleAwaitingBeltStart = true;
+                        readyToStart = false;
+                        emit debug(QStringLiteral("iConsole B5 acknowledged; waiting for running B2 telemetry"));
+                    } else {
+                        emit tapeStarted();
+                    }
                 } else {
                     emit debug(QStringLiteral("iConsole start not acknowledged; workout clock not started"));
                 }
@@ -827,6 +861,25 @@ void trxappgateusbtreadmill::processTelemetryPacket() {
         }
     }
 
+    bool beltStartDetected = false;
+    if (iconsoleTreadmill) {
+        const IconsoleRunState state = iconsoleRunStateFromPacket(lastPacket);
+        const bool wasReady = readyToStart;
+        readyToStart = state == IconsoleRunState::Ready;
+        // Preserve the legacy console-Start handshake for a manual session.
+        // Loading a profile alone must not invent an explicit QZ Start action.
+        if (readyToStart && !wasReady && requestStop == -1 && !iconsoleWorkoutUploadRequired) {
+            requestStart = 1;
+        }
+        if (state == IconsoleRunState::Running && iconsoleAwaitingBeltStart && requestStop == -1) {
+            iconsoleAwaitingBeltStart = false;
+            beltStartDetected = true;
+        }
+        if (state == IconsoleRunState::Paused) {
+            iconsoleAwaitingBeltStart = false;
+        }
+    }
+
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
         if (shouldAutoStartFromTelemetry(iconsoleTreadmill, lastPacket.at(15) == 0x03 && lastPacket.at(16) == 0x02,
                                          readyToStart)) {
@@ -909,6 +962,9 @@ void trxappgateusbtreadmill::processTelemetryPacket() {
     firstCharChanged = false;
 
     lastPacket.clear();
+    if (beltStartDetected) {
+        emit tapeStarted();
+    }
 }
 
 trxappgateusbtreadmill::FlowFitnessMetrics trxappgateusbtreadmill::flowFitnessMetricsFromPacket(const QByteArray &packet) {
@@ -1429,9 +1485,12 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
-        const QString upperDeviceName = device.name().toUpper();
-        iconsoleTreadmill = upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||
-                            upperDeviceName.startsWith(QStringLiteral("ICONSOLE+"));
+        // Scope the captured session/workout protocol to Matthias's TX90.
+        // Other iConsole treadmills keep the pre-existing IRUNNING path.
+        iconsoleTreadmill = isIconsoleTx90DeviceName(device.name());
+        if (iconsoleTreadmill) {
+            refresh->setInterval(500);
+        }
         if (flowFitnessDevice) {
             treadmill_type = TYPE::FLOW_FITNESS;
         } else if (dkn_endurun_treadmill) {
@@ -1504,6 +1563,9 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
         lastPacket.clear();
         if (iconsoleTreadmill) {
             iconsoleWorkoutUploadSucceeded = false;
+            iconsoleAwaitingBeltStart = false;
+            iconsoleStartWaitLogged = false;
+            readyToStart = false;
             requestStart = -1;
         }
         m_control->connectToDevice();
