@@ -18,12 +18,12 @@ The workflow uses these App Store Connect API key secrets:
 
 Fastlane uses the API key to query the latest TestFlight build number and upload the IPA. Keep it in GitHub Actions secrets; do not commit the `.p8` file. Code signing uses the persistent certificate and provisioning profiles described below, so the workflow does not ask Xcode to create signing assets on the temporary runner.
 
-The signing assets must be for the Apple Developer team `6335M7T29D` and must include the app's entitlements. Create an Apple Distribution certificate and App Store provisioning profiles for both bundle IDs:
+The signing assets must be for the Apple Developer team `6335M7T29D` and must include the app's entitlements. Reuse an Apple Distribution certificate for which the private key can be exported; Apple allows only one certificate of each distribution type per team ([certificates overview](https://developer.apple.com/help/account/certificates/certificates-overview)). Create App Store provisioning profiles for both bundle IDs:
 
 - `org.cagnulein.qdomyoszwift` (app; includes HealthKit, multicast networking, the `group.org.cagnulein.qdomyoszwift` app group, and the `applinks:www.qzfitness.com` associated domain)
 - `org.cagnulein.qdomyoszwift.QZWidget` (widget extension; includes the `group.org.cagnulein.qdomyoszwift` app group)
 
-Export the Apple Distribution certificate and its private key together as a password-protected `.p12`. Base64-encode that file and each `.mobileprovision` profile, then add these repository secrets:
+Export the existing Apple Distribution certificate and its private key together as a password-protected `.p12` from the Mac/keychain that owns the private key. A certificate download from the Apple Developer portal does not include its private key. Base64-encode that file and each `.mobileprovision` profile, then add these repository secrets:
 
 | Secret | Value |
 | --- | --- |
