@@ -6,6 +6,8 @@
 #include "treadmillErgTable.h"
 #include "runnclosedloopcontroller.h"
 
+struct trainrow;
+
 class treadmill : public bluetoothdevice {
     Q_OBJECT
 
@@ -52,6 +54,7 @@ class treadmill : public bluetoothdevice {
     double calculateCadenceFromSpeed(double speed);
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
+    virtual void setTrainingProgram(const QList<trainrow> &rows);
     double runningStressScore();
     QTime speedToPace(double Speed);
     double gradeAdjustedSpeed(double speed, double inclination);

@@ -1,4 +1,5 @@
 #include "trxappgateusbtreadmill.h"
+#include "trainprogram.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -10,6 +11,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <cmath>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -51,25 +53,489 @@ bool trxappgateusbtreadmill::isFlowFitnessDeviceName(const QString &deviceName) 
     return true;
 }
 
-void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                                 bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
+bool trxappgateusbtreadmill::isIconsoleTx90DeviceName(const QString &deviceName) {
+    const QString name = deviceName.toUpper();
+    return name == QStringLiteral("ICONSOLE+0014") || name == QStringLiteral("I-CONSOLE+0014");
+}
 
-    if (wait_for_response) {
-        connect(this, &trxappgateusbtreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+QByteArray trxappgateusbtreadmill::iconsoleSpeedProgramFrame(quint8 command, const QList<double> &speeds) {
+    if (speeds.size() != 10 || (command != 0xa6 && command != 0xa7)) {
+        return QByteArray();
     }
+
+    QByteArray frame;
+    frame.append(static_cast<char>(0xf0));
+    frame.append(static_cast<char>(command));
+    frame.append(static_cast<char>(0x01));
+    frame.append(static_cast<char>(0xd3));
+    for (const double speed : speeds) {
+        if (!std::isfinite(speed) || speed < 0.0 || speed > 254.9) {
+            return QByteArray();
+        }
+        const int deciKmh = qRound(speed * 10.0);
+        frame.append(static_cast<char>((deciKmh / 100) + 1));
+        frame.append(static_cast<char>((deciKmh % 100) + 1));
+    }
+
+    quint8 checksum = 0;
+    for (const char byte : frame) {
+        checksum = static_cast<quint8>(checksum + static_cast<quint8>(byte));
+    }
+    frame.append(static_cast<char>(checksum));
+    return frame;
+}
+
+QByteArray trxappgateusbtreadmill::iconsoleKeepAliveFrame() {
+    return QByteArray::fromHex("f0a201d366");
+}
+
+bool trxappgateusbtreadmill::shouldAutoStartFromTelemetry(bool isIconsoleTreadmill, bool readyStatusPattern,
+                                                           bool alreadyReady) {
+    return !isIconsoleTreadmill && readyStatusPattern && !alreadyReady;
+}
+
+bool trxappgateusbtreadmill::shouldRetryIconsoleInitialization(int completedAttempts) {
+    return completedAttempts >= 0 && completedAttempts < 3;
+}
+
+bool trxappgateusbtreadmill::shouldAcceptIconsoleUploadCompletion(bool uploadSucceeded,
+                                                                  bool latestRequestInvalidated) {
+    return uploadSucceeded && !latestRequestInvalidated;
+}
+
+bool trxappgateusbtreadmill::shouldBlockIconsoleStart(bool uploadRequired, bool uploadPending, bool uploadSucceeded,
+                                                       bool latestRequestInvalidated) {
+    return uploadRequired && (uploadPending || !uploadSucceeded || latestRequestInvalidated);
+}
+
+bool trxappgateusbtreadmill::shouldContinueIconsoleUpload(bool frameWriteSucceeded, quint64 activeGeneration,
+                                                          quint64 currentGeneration) {
+    return frameWriteSucceeded && activeGeneration == currentGeneration;
+}
+
+bool trxappgateusbtreadmill::hasNewerPendingIconsoleWorkout(bool hasPendingFrames, quint64 activeGeneration,
+                                                            quint64 pendingGeneration) {
+    return hasPendingFrames && activeGeneration != pendingGeneration;
+}
+
+QList<QByteArray> trxappgateusbtreadmill::iconsoleInitializationFrames() {
+    return {QByteArray::fromHex("f0a0000090"), QByteArray::fromHex("f0a001d364"),
+            QByteArray::fromHex("f0a101d365")};
+}
+
+int trxappgateusbtreadmill::iconsoleExpectedResponseSize(quint8 requestCommand) {
+    switch (requestCommand) {
+    case 0xa0:
+        return 5;
+    case 0xa1:
+        return 10;
+    case 0xa2:
+        return 19;
+    case 0xa3:
+        return 12;
+    case 0xa4:
+        return 16;
+    case 0xa5:
+    case 0xaf:
+        return 6;
+    case 0xa6:
+    case 0xa7:
+    case 0xa8:
+    case 0xa9:
+    case 0xaa:
+        return 25;
+    default:
+        return 0;
+    }
+}
+
+bool trxappgateusbtreadmill::iconsoleResponseMatches(quint8 requestCommand, const QByteArray &response) {
+    const int expectedSize = iconsoleExpectedResponseSize(requestCommand);
+    if (expectedSize == 0 || response.size() != expectedSize ||
+        static_cast<quint8>(response.at(0)) != 0xf0 ||
+        static_cast<quint8>(response.at(1)) != static_cast<quint8>(requestCommand + 0x10) ||
+        static_cast<quint8>(response.at(2)) != 0x01 || static_cast<quint8>(response.at(3)) != 0xd3) {
+        return false;
+    }
+
+    quint8 checksum = 0;
+    for (int i = 0; i < response.size() - 1; ++i) {
+        checksum = static_cast<quint8>(checksum + static_cast<quint8>(response.at(i)));
+    }
+    return checksum == static_cast<quint8>(response.back());
+}
+
+bool trxappgateusbtreadmill::takeIconsoleResponse(QByteArray &buffer, QByteArray &frame) {
+    frame.clear();
+    while (!buffer.isEmpty()) {
+        const int start = buffer.indexOf(static_cast<char>(0xf0));
+        if (start < 0) {
+            buffer.clear();
+            return false;
+        }
+        buffer.remove(0, start);
+        if (buffer.size() < 2) {
+            return false;
+        }
+        const quint8 command = static_cast<quint8>(buffer.at(1)) - 0x10;
+        const int size = iconsoleExpectedResponseSize(command);
+        if (size == 0) {
+            buffer.remove(0, 1);
+            continue;
+        }
+        if (buffer.size() < size) {
+            return false;
+        }
+        if (!iconsoleResponseMatches(command, buffer.left(size))) {
+            buffer.remove(0, 1);
+            continue;
+        }
+        frame = buffer.left(size);
+        buffer.remove(0, size);
+        return true;
+    }
+    return false;
+}
+
+trxappgateusbtreadmill::IconsoleRunState
+trxappgateusbtreadmill::iconsoleRunStateFromPacket(const QByteArray &packet) {
+    if (!iconsoleResponseMatches(0xa2, packet)) {
+        return IconsoleRunState::Unknown;
+    }
+    const quint8 key = static_cast<quint8>(packet.at(15));
+    const quint8 console = static_cast<quint8>(packet.at(16));
+    const quint8 workout = static_cast<quint8>(packet.at(17));
+    if (key == 0x03 && console == 0x02 && workout == 0x02) {
+        return IconsoleRunState::Ready;
+    }
+    if (key == 0x03 && console == 0x04 && workout == 0x03 && GetSpeedFromPacket(packet) > 0.0) {
+        return IconsoleRunState::Running;
+    }
+    if (key == 0x04 && console == 0x04 && workout == 0x03) {
+        return IconsoleRunState::Paused;
+    }
+    return IconsoleRunState::Unknown;
+}
+
+bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
+                                                        QString *error) {
+    if (!frames) {
+        return false;
+    }
+    frames->clear();
+    auto fail = [error](const QString &message) {
+        if (error) {
+            *error = message;
+        }
+        return false;
+    };
+
+    if (rows.isEmpty()) {
+        return fail(QStringLiteral("iConsole programs require at least one row"));
+    }
+
+    struct WorkoutStage {
+        double speed;
+        double incline;
+        int durationSeconds;
+    };
+    QList<WorkoutStage> stages;
+    qint64 totalDurationSeconds = 0;
+    for (const trainrow &row : rows) {
+        const int durationSeconds = QTime(0, 0, 0).secsTo(row.duration);
+        if (durationSeconds <= 0 || row.rampDuration != QTime(0, 0, 0) || row.rampElapsed != QTime(0, 0, 0) ||
+            !std::isfinite(row.speed)) {
+            return fail(QStringLiteral("iConsole programs require positive-duration non-ramp rows with finite speeds"));
+        }
+
+        if (row.speed < 0.0 || row.speed > 254.9) {
+            return fail(QStringLiteral("iConsole program speed is outside the encodable range"));
+        }
+        if (durationSeconds % 60 != 0) {
+            return fail(QStringLiteral("iConsole programs currently require whole-minute rows"));
+        }
+        const double speed = row.speed;
+        const double incline = !std::isfinite(row.inclination) || row.inclination == -200.0
+                                   ? 0.0
+                                   : qBound(0.0, row.inclination, 254.0);
+        stages.append({speed, incline, durationSeconds});
+        totalDurationSeconds += durationSeconds;
+    }
+
+    // The successful TX90 capture programs twenty one-minute slots and the
+    // console starts at 19:59. A4's 0x15 is held at the observed value: do not
+    // assume it is independent of duration or silently change the timeline.
+    if (totalDurationSeconds != 1200) {
+        return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes; duration is not rescaled"));
+    }
+
+    QList<double> speedSlots;
+    QByteArray inclinePayload;
+    QList<int> slotDurations;
+    for (const WorkoutStage &stage : stages) {
+        for (int minute = 0; minute < stage.durationSeconds / 60; ++minute) {
+            speedSlots.append(stage.speed);
+            inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
+            slotDurations.append(60);
+        }
+    }
+
+    auto frameWithPayload = [](quint8 command, const QByteArray &payload) {
+        QByteArray frame;
+        frame.append(static_cast<char>(0xf0));
+        frame.append(static_cast<char>(command));
+        frame.append(static_cast<char>(0x01));
+        frame.append(static_cast<char>(0xd3));
+        frame.append(payload);
+        quint8 checksum = 0;
+        for (const char byte : frame) {
+            checksum = static_cast<quint8>(checksum + static_cast<quint8>(byte));
+        }
+        frame.append(static_cast<char>(checksum));
+        return frame;
+    };
+
+    QByteArray modePayload;
+    modePayload.append(static_cast<char>(0x02));
+    modePayload.append(QByteArray(6, static_cast<char>(0x01)));
+
+    QByteArray parameterPayload;
+    parameterPayload.append(static_cast<char>(0x15));
+    parameterPayload.append(QByteArray(10, static_cast<char>(0x01)));
+
+    const QList<double> speedFirst = speedSlots.mid(0, 10);
+    const QList<double> speedSecond = speedSlots.mid(10, 10);
+    const QByteArray speedA6 = iconsoleSpeedProgramFrame(0xa6, speedFirst);
+    const QByteArray speedA7 = iconsoleSpeedProgramFrame(0xa7, speedSecond);
+    if (speedA6.isEmpty() || speedA7.isEmpty()) {
+        return fail(QStringLiteral("iConsole program contains an unsupported speed"));
+    }
+
+    auto durationFrame = [&frameWithPayload, &slotDurations](quint8 command, int firstSlot) {
+        QByteArray payload;
+        for (int slot = firstSlot; slot < firstSlot + 10; ++slot) {
+            const int duration = slotDurations.at(slot);
+            payload.append(static_cast<char>((duration / 60) + 1));
+            payload.append(static_cast<char>((duration % 60) + 1));
+        }
+        return frameWithPayload(command, payload);
+    };
+
+    frames->append(frameWithPayload(0xa3, modePayload));
+    frames->append(frameWithPayload(0xa4, parameterPayload));
+    frames->append(speedA6);
+    frames->append(speedA7);
+    frames->append(frameWithPayload(0xa8, inclinePayload));
+    frames->append(durationFrame(0xa9, 0));
+    frames->append(durationFrame(0xaa, 10));
+    frames->append(frameWithPayload(0xaf, QByteArray(1, static_cast<char>(0x02))));
+    return true;
+}
+
+void trxappgateusbtreadmill::setTrainingProgram(const QList<trainrow> &rows) {
+    if (!iconsoleTreadmill) {
+        return;
+    }
+    const quint64 requestGeneration = ++iconsoleWorkoutRequestGeneration;
+    readyToStart = false;
+    iconsoleAwaitingBeltStart = false;
+    iconsoleStartWaitLogged = false;
+
+    QList<QByteArray> frames;
+    QString error;
+    if (!buildIconsoleWorkoutFrames(rows, &frames, &error)) {
+        iconsoleWorkoutUploadRequired = true;
+        iconsoleWorkoutUploadPending = false;
+        iconsoleWorkoutUploadSucceeded = false;
+        iconsoleWorkoutRequestInvalidated = true;
+        pendingIconsoleWorkoutFrames.clear();
+        emit debug(QStringLiteral("iConsole workout not uploaded; Start is blocked: ") + error);
+        return;
+    }
+
+    pendingIconsoleWorkoutFrames = frames;
+    pendingIconsoleWorkoutGeneration = requestGeneration;
+    iconsoleWorkoutUploadRequired = true;
+    iconsoleWorkoutUploadPending = true;
+    iconsoleWorkoutUploadSucceeded = false;
+    iconsoleWorkoutRequestInvalidated = false;
+    if (shouldSkipIconsoleTransaction(iconsoleTreadmill, iconsoleTransactionInProgress)) {
+        emit debug(QStringLiteral("iConsole workout upload deferred until the active transaction completes"));
+        return;
+    }
+
+    emit debug(QStringLiteral("iConsole workout queued with %1 frames").arg(pendingIconsoleWorkoutFrames.size()));
+    // Run from update(), after the caller has finished queuing its Start action.
+}
+
+void trxappgateusbtreadmill::uploadPendingIconsoleWorkout() {
+    if (shouldSkipIconsoleTransaction(iconsoleTreadmill, iconsoleTransactionInProgress) || !iconsoleTreadmill ||
+        !initDone || !gattCommunicationChannelService || pendingIconsoleWorkoutFrames.isEmpty()) {
+        return;
+    }
+
+    IconsoleTransactionScope transactionScope(iconsoleTransactionInProgress, true);
+    bool uploadSucceeded = true;
+    while (!pendingIconsoleWorkoutFrames.isEmpty()) {
+        const QList<QByteArray> frames = pendingIconsoleWorkoutFrames;
+        const quint64 activeGeneration = pendingIconsoleWorkoutGeneration;
+        pendingIconsoleWorkoutFrames.clear();
+        iconsoleWorkoutUploadPending = false;
+        bool activeRequestSuperseded = false;
+
+        for (const QByteArray &frame : frames) {
+            if (requestStop != -1) {
+                // Finish the configuration through AF, but never send Start.
+                // A partially selected program was left behind in the user's
+                // blocked-console session; no abort command is captured.
+                requestStart = -1;
+            }
+            if (frame.size() < 6) {
+                emit debug(QStringLiteral("iConsole workout frame has invalid size"));
+                uploadSucceeded = false;
+                break;
+            }
+            for (int offset = 0; offset < frame.size(); offset += 20) {
+                if (activeGeneration != iconsoleWorkoutRequestGeneration) {
+                    activeRequestSuperseded = true;
+                    break;
+                }
+                const QByteArray part = frame.mid(offset, 20);
+                const bool isLastPart = offset + part.size() == frame.size();
+                const bool frameWriteSucceeded =
+                    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(part.constData())),
+                                        static_cast<uint8_t>(part.size()), QStringLiteral("iConsole workout frame"),
+                                        false, isLastPart, isLastPart ? static_cast<quint8>(frame.at(1)) : 0);
+                if (!shouldContinueIconsoleUpload(frameWriteSucceeded, activeGeneration,
+                                                  iconsoleWorkoutRequestGeneration)) {
+                    if (frameWriteSucceeded) {
+                        activeRequestSuperseded = true;
+                        emit debug(QStringLiteral("iConsole workout upload canceled because a newer request arrived"));
+                    } else {
+                        uploadSucceeded = false;
+                        emit debug(QStringLiteral("iConsole workout upload stopped: missing or invalid response for %1")
+                                       .arg(QString::number(static_cast<quint8>(frame.at(1)), 16)));
+                    }
+                    break;
+                }
+            }
+            if (!uploadSucceeded || activeRequestSuperseded) {
+                break;
+            }
+            QThread::msleep(100);
+        }
+
+        if (!uploadSucceeded) {
+            if (hasNewerPendingIconsoleWorkout(!pendingIconsoleWorkoutFrames.isEmpty(), activeGeneration,
+                                               pendingIconsoleWorkoutGeneration)) {
+                iconsoleWorkoutUploadPending = true;
+                iconsoleWorkoutUploadSucceeded = false;
+                initDone = false;
+                initRequest = true;
+                emit debug(QStringLiteral("iConsole upload failed after a newer request arrived; "
+                                           "reinitializing before retry"));
+            } else {
+                if (!pendingIconsoleWorkoutFrames.isEmpty()) {
+                    emit debug(QStringLiteral("iConsole deferred workout discarded after upload failure"));
+                    pendingIconsoleWorkoutFrames.clear();
+                }
+                iconsoleWorkoutUploadPending = false;
+            }
+            break;
+        }
+
+        if (activeRequestSuperseded) {
+            if (pendingIconsoleWorkoutFrames.isEmpty()) {
+                break;
+            }
+            emit debug(QStringLiteral("iConsole upload superseded; sending the latest workout request"));
+            continue;
+        }
+        if (pendingIconsoleWorkoutFrames.isEmpty()) {
+            break;
+        }
+        emit debug(QStringLiteral("iConsole upload complete; sending the deferred workout"));
+    }
+
+    iconsoleWorkoutUploadSucceeded =
+        shouldAcceptIconsoleUploadCompletion(uploadSucceeded, iconsoleWorkoutRequestInvalidated);
+    if (iconsoleWorkoutUploadSucceeded) {
+        emit debug(QStringLiteral("iConsole workout acknowledged by treadmill"));
+    } else if (iconsoleWorkoutRequestInvalidated) {
+        emit debug(QStringLiteral("iConsole workout request rejected; Start remains blocked"));
+    }
+}
+
+bool trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info,
+                                                 bool disable_log, bool wait_for_response,
+                                                 quint8 expectedIconsoleResponse) {
+    // The nested response wait processes timer events; suppress reentrant iConsole polling and uploads.
+    IconsoleTransactionScope transactionScope(iconsoleTransactionInProgress,
+                                              iconsoleTreadmill && wait_for_response);
+    QEventLoop loop;
+    bool receivedResponse = false;
+    bool writeCompleted = false;
+    QByteArray responseBuffer;
+
+    if (expectedIconsoleResponse != 0) {
+        connect(this, &trxappgateusbtreadmill::packetReceived, &loop,
+                [this, &loop, &responseBuffer, &receivedResponse, expectedIconsoleResponse](const QByteArray &packet) {
+                    responseBuffer.append(packet);
+                    const int expectedSize = iconsoleExpectedResponseSize(expectedIconsoleResponse);
+                    while (expectedSize > 0 && !responseBuffer.isEmpty()) {
+                        const int start = responseBuffer.indexOf(static_cast<char>(0xf0));
+                        if (start < 0) {
+                            responseBuffer.clear();
+                            return;
+                        }
+                        if (start > 0) {
+                            responseBuffer.remove(0, start);
+                        }
+                        if (responseBuffer.size() < 2) {
+                            return;
+                        }
+                        if (static_cast<quint8>(responseBuffer.at(1)) !=
+                            static_cast<quint8>(expectedIconsoleResponse + 0x10)) {
+                            responseBuffer.remove(0, 1);
+                            continue;
+                        }
+                        if (responseBuffer.size() < expectedSize) {
+                            return;
+                        }
+                        if (iconsoleResponseMatches(expectedIconsoleResponse, responseBuffer.left(expectedSize))) {
+                            receivedResponse = true;
+                            loop.quit();
+                            return;
+                        }
+                        responseBuffer.remove(0, 1);
+                    }
+                });
+    } else {
+        if (wait_for_response) {
+            connect(this, &trxappgateusbtreadmill::packetReceived, &loop,
+                    [&loop, &receivedResponse](const QByteArray &) {
+                        receivedResponse = true;
+                        loop.quit();
+                    });
+        } else {
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop,
+                    [&loop, &writeCompleted](const QLowEnergyCharacteristic &, const QByteArray &) {
+                        writeCompleted = true;
+                        loop.quit();
+                    });
+        }
+    }
+
+    QTimer::singleShot(expectedIconsoleResponse != 0 ? 1500 : 300, &loop, &QEventLoop::quit);
 
     if (writeBuffer) {
         delete writeBuffer;
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2  && treadmill_type != TYPE::DKN_3)) {
+    if ((gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) && !iconsoleTreadmill &&
+        (treadmill_type != TYPE::ADIDAS && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2 &&
+         treadmill_type != TYPE::DKN_3)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -82,9 +548,10 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
 
     loop.exec();
 
-    if (timeout.isActive() == false) {
+    if (!receivedResponse && !writeCompleted) {
         emit debug(QStringLiteral(" exit for timeout"));
     }
+    return expectedIconsoleResponse != 0 ? receivedResponse : (wait_for_response ? receivedResponse : writeCompleted);
 }
 
 void trxappgateusbtreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -146,12 +613,21 @@ void trxappgateusbtreadmill::update() {
         return;
     }
 
+    if (shouldSkipIconsoleTransaction(iconsoleTreadmill, iconsoleTransactionInProgress)) {
+        return;
+    }
+
     if (initRequest) {
         initRequest = false;
         btinit(false);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
+        if (iconsoleTreadmill && iconsoleWorkoutUploadPending) {
+            uploadPendingIconsoleWorkout();
+            return;
+        }
+
         QSettings settings;
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -162,7 +638,11 @@ void trxappgateusbtreadmill::update() {
         }
 
         bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
-        if (treadmill_type == TYPE::FLOW_FITNESS) {
+        if (iconsoleTreadmill) {
+            QByteArray noOpData = iconsoleKeepAliveFrame();
+            writeCharacteristic(reinterpret_cast<uint8_t *>(noOpData.data()),
+                                static_cast<uint8_t>(noOpData.size()), QStringLiteral("noOp"), false, true);
+        } else if (treadmill_type == TYPE::FLOW_FITNESS) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x2e, 0xd3, 0x93};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
@@ -201,30 +681,71 @@ void trxappgateusbtreadmill::update() {
             }
             requestInclination = -100;
         }
-        if (requestStart != -1) {
-            emit debug(QStringLiteral("starting..."));
-            // btinit(true);
-            if (treadmill_type == TYPE::FLOW_FITNESS) {
-                QByteArray startTape = flowFitnessStartPacket();
-                writeCharacteristic(reinterpret_cast<uint8_t *>(startTape.data()),
-                                    static_cast<uint8_t>(startTape.size()), QStringLiteral("startTape"), false, true);
-            } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
-                const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false) {
-                const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            } else if (treadmill_type == TYPE::ADIDAS) {
-                const uint8_t startTape[] = {0xf0, 0xa5, 0x5b, 0xd3, 0x02, 0xc5};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            } else {
-                const uint8_t startTape[] = {0xf0, 0xa5, 0x23, 0xd3, 0x02, 0x8d};
-                writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            }
-
+        // Stop may arrive during a nested upload/poll wait. It cancels a
+        // deferred Start, so finishing an upload cannot restart the belt.
+        if (iconsoleTreadmill && requestStop != -1) {
             requestStart = -1;
-            emit tapeStarted();
+            iconsoleAwaitingBeltStart = false;
+            iconsoleStartWaitLogged = false;
+        }
+        if (requestStart != -1) {
+            if (iconsoleTreadmill && iconsoleWorkoutUploadPending) {
+                emit debug(QStringLiteral("iConsole Start deferred until the queued workout is acknowledged"));
+            } else if (iconsoleTreadmill &&
+                shouldBlockIconsoleStart(iconsoleWorkoutUploadRequired, iconsoleWorkoutUploadPending,
+                                         iconsoleWorkoutUploadSucceeded, iconsoleWorkoutRequestInvalidated)) {
+                emit debug(QStringLiteral("iConsole start skipped because workout upload was not acknowledged"));
+                requestStart = -1;
+            } else if (iconsoleTreadmill && !readyToStart) {
+                if (!iconsoleStartWaitLogged) {
+                    emit debug(QStringLiteral("iConsole Start queued; waiting for console-ready B2 status 03 02 02"));
+                    iconsoleStartWaitLogged = true;
+                }
+            } else {
+                bool startCommandSucceeded = true;
+                if (iconsoleTreadmill) {
+                    requestStart = -1;
+                    iconsoleTransactionInProgress = true;
+                }
+                emit debug(QStringLiteral("starting..."));
+                // btinit(true);
+                if (iconsoleTreadmill) {
+                    const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
+                    startCommandSucceeded = writeCharacteristic((uint8_t *)startTape, sizeof(startTape),
+                                                                QStringLiteral("startTape"), false, true, 0xa5);
+                    iconsoleTransactionInProgress = false;
+                } else if (treadmill_type == TYPE::FLOW_FITNESS) {
+                    QByteArray startTape = flowFitnessStartPacket();
+                    writeCharacteristic(reinterpret_cast<uint8_t *>(startTape.data()),
+                                        static_cast<uint8_t>(startTape.size()), QStringLiteral("startTape"), false, true);
+                } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
+                    const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
+                    writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false) {
+                    const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
+                    writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                } else if (treadmill_type == TYPE::ADIDAS) {
+                    const uint8_t startTape[] = {0xf0, 0xa5, 0x5b, 0xd3, 0x02, 0xc5};
+                    writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                    writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                } else {
+                    const uint8_t startTape[] = {0xf0, 0xa5, 0x23, 0xd3, 0x02, 0x8d};
+                    writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+                }
+                if (startCommandSucceeded) {
+                    if (iconsoleTreadmill) {
+                        iconsoleStartWaitLogged = false;
+                        iconsoleAwaitingBeltStart = true;
+                        readyToStart = false;
+                        emit debug(QStringLiteral("iConsole B5 acknowledged; waiting for running B2 telemetry"));
+                    } else {
+                        emit tapeStarted();
+                    }
+                } else {
+                    emit debug(QStringLiteral("iConsole start not acknowledged; workout clock not started"));
+                }
+                requestStart = -1;
+            }
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -261,10 +782,22 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
                                                    const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
-    QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    emit packetReceived();
+    if (iconsoleTreadmill) {
+        emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+        iconsoleReceiveBuffer.append(newValue);
+        QByteArray frame;
+        while (takeIconsoleResponse(iconsoleReceiveBuffer, frame)) {
+            // ACKs must never enter the telemetry buffer. Decode B2 only, even
+            // when ACKs and telemetry share one notification or are fragmented.
+            if (static_cast<quint8>(frame.at(1)) == 0xb2) {
+                lastPacket = frame;
+                processTelemetryPacket();
+            }
+            emit packetReceived(frame);
+        }
+        return;
+    }
+    emit packetReceived(newValue);
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -312,6 +845,13 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         return;
     }
 
+    processTelemetryPacket();
+}
+
+void trxappgateusbtreadmill::processTelemetryPacket() {
+    QSettings settings;
+    const QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     FlowFitnessMetrics flowFitnessMetrics;
     if (treadmill_type == TYPE::FLOW_FITNESS) {
         flowFitnessMetrics = flowFitnessMetricsFromPacket(lastPacket);
@@ -321,14 +861,35 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         }
     }
 
+    bool beltStartDetected = false;
+    if (iconsoleTreadmill) {
+        const IconsoleRunState state = iconsoleRunStateFromPacket(lastPacket);
+        const bool wasReady = readyToStart;
+        readyToStart = state == IconsoleRunState::Ready;
+        // Preserve the legacy console-Start handshake for a manual session.
+        // Loading a profile alone must not invent an explicit QZ Start action.
+        if (readyToStart && !wasReady && requestStop == -1 && !iconsoleWorkoutUploadRequired) {
+            requestStart = 1;
+        }
+        if (state == IconsoleRunState::Running && iconsoleAwaitingBeltStart && requestStop == -1) {
+            iconsoleAwaitingBeltStart = false;
+            beltStartDetected = true;
+        }
+        if (state == IconsoleRunState::Paused) {
+            iconsoleAwaitingBeltStart = false;
+        }
+    }
+
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
-        if (lastPacket.at(15) == 0x03 && lastPacket.at(16) == 0x02 && readyToStart == false) {
+        if (shouldAutoStartFromTelemetry(iconsoleTreadmill, lastPacket.at(15) == 0x03 && lastPacket.at(16) == 0x02,
+                                         readyToStart)) {
             readyToStart = true;
             requestStart = 1;
         }
     } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::REEBOK_2 && treadmill_type != TYPE::DKN &&
                treadmill_type != TYPE::DKN_2 && treadmill_type != TYPE::FLOW_FITNESS) {
-        if (lastPacket.at(16) == 0x04 && lastPacket.at(17) == 0x03 && readyToStart == false) {
+        if (shouldAutoStartFromTelemetry(iconsoleTreadmill, lastPacket.at(16) == 0x04 && lastPacket.at(17) == 0x03,
+                                         readyToStart)) {
             readyToStart = true;
             requestStart = 1;
         }
@@ -401,6 +962,9 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     firstCharChanged = false;
 
     lastPacket.clear();
+    if (beltStartDetected) {
+        emit tapeStarted();
+    }
 }
 
 trxappgateusbtreadmill::FlowFitnessMetrics trxappgateusbtreadmill::flowFitnessMetricsFromPacket(const QByteArray &packet) {
@@ -479,7 +1043,36 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
             .toBool();
 
-    if (treadmill_type == TYPE::FLOW_FITNESS) {
+    if (iconsoleTreadmill) {
+        ++iconsoleInitializationAttempts;
+        iconsoleTransactionInProgress = true;
+        const QList<QByteArray> initializationFrames = iconsoleInitializationFrames();
+        for (const QByteArray &frame : initializationFrames) {
+            if (!writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(frame.constData())),
+                                     static_cast<uint8_t>(frame.size()), QStringLiteral("iConsole initialization"),
+                                     false, true, static_cast<quint8>(frame.at(1)))) {
+                iconsoleTransactionInProgress = false;
+                initDone = false;
+                emit debug(QStringLiteral("iConsole initialization stopped: missing or invalid response for %1")
+                               .arg(QString::number(static_cast<quint8>(frame.at(1)), 16)));
+                if (shouldRetryIconsoleInitialization(iconsoleInitializationAttempts)) {
+                    emit debug(QStringLiteral("iConsole initialization retry scheduled in 1 second (%1 of 3)")
+                                   .arg(iconsoleInitializationAttempts + 1));
+                    QTimer::singleShot(1000, this, [this]() {
+                        if (iconsoleTreadmill && !initDone && m_control &&
+                            m_control->state() == QLowEnergyController::DiscoveredState) {
+                            initRequest = true;
+                        }
+                    });
+                } else {
+                    emit debug(QStringLiteral("iConsole initialization failed after 3 attempts"));
+                }
+                return;
+            }
+        }
+        iconsoleTransactionInProgress = false;
+        iconsoleInitializationAttempts = 0;
+    } else if (treadmill_type == TYPE::FLOW_FITNESS) {
         // Flow Fitness Runner DTM2000i frames observed in the HCI capture.
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x2e, 0xd3, 0x91};
@@ -708,6 +1301,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     }
     initDone = true;
+    uploadPendingIconsoleWorkout();
 }
 
 void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
@@ -784,6 +1378,10 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 void trxappgateusbtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
+    if (iconsoleTreadmill) {
+        initDone = false;
+        iconsoleInitializationAttempts = 0;
+    }
     initRequest = true;
     emit connectedAndDiscovered();
 }
@@ -887,6 +1485,12 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
+        // Scope the captured session/workout protocol to Matthias's TX90.
+        // Other iConsole treadmills keep the pre-existing IRUNNING path.
+        iconsoleTreadmill = isIconsoleTx90DeviceName(device.name());
+        if (iconsoleTreadmill) {
+            refresh->setInterval(500);
+        }
         if (flowFitnessDevice) {
             treadmill_type = TYPE::FLOW_FITNESS;
         } else if (dkn_endurun_treadmill) {
@@ -955,6 +1559,15 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        iconsoleReceiveBuffer.clear();
+        lastPacket.clear();
+        if (iconsoleTreadmill) {
+            iconsoleWorkoutUploadSucceeded = false;
+            iconsoleAwaitingBeltStart = false;
+            iconsoleStartWaitLogged = false;
+            readyToStart = false;
+            requestStart = -1;
+        }
         m_control->connectToDevice();
     }
 }
