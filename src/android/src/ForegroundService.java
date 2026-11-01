@@ -25,7 +25,11 @@ public class ForegroundService extends Service {
 	 public int onStartCommand(Intent intent, int flags, int startId) {
 		  String input = intent.getStringExtra("inputExtra");
 		  createNotificationChannel();
-                  Intent notificationIntent = new Intent();
+                  // the same launch as the app icon: brings the running task to the front, no second activity
+                  Intent notificationIntent = new Intent(this, CustomQtActivity.class)
+                          .setAction(Intent.ACTION_MAIN)
+                          .addCategory(Intent.CATEGORY_LAUNCHER)
+                          .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		  PendingIntent pendingIntent = PendingIntent.getActivity(this,
 		          0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 					Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
