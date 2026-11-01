@@ -827,8 +827,9 @@ void DeviceTestDataIndex::Initialize() {
     // Kettler Classic / MyHomeFIT RFCOMM
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        // bluetooth.cpp matches RACER S prefixes regardless of case.
+        // bluetooth.cpp matches RACER S and SITUS FITNESS prefixes regardless of case.
         ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SITUS FITNESS", DeviceNameComparison::StartsWithIgnoreCase)
         ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);

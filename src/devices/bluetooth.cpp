@@ -2338,7 +2338,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (bh_spada_2 &&
-                     b.name().toUpper().startsWith("RACER S") &&
+                     (b.name().toUpper().startsWith("RACER S") ||
+                      b.name().toUpper().startsWith("SITUS FITNESS")) &&
                      !kettlerClassicBike && filter) {
                 // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
                 // Route RACER S-prefixed names to this driver when BH SPADA
