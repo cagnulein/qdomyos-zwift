@@ -3689,6 +3689,8 @@ void bluetooth::connectedAndDiscovered() {
                 AbstractZapDevice::ZWIFT_PLAY_TYPE type;
                 if (mfgByte == 3 || mfgByte == 7)
                     type = AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT;
+                else if (mfgByte == 10) // Zwift Click V2 right controller (also when used alone)
+                    type = AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 else
                     type = zwiftPlayDevice.isEmpty() ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 zwiftPlayDevice.append(new zwiftclickremote(this->device(), type));
@@ -3709,6 +3711,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                zwiftPlayDevice.last()->playDevice->singleRightClickV2 = (mfgByte == 10);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
