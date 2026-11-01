@@ -98,7 +98,7 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH" "$HOME/Library/Keychains/login.keychain-db"
           security default-keychain -d user -s "$KEYCHAIN_PATH"
 
-          CERTIFICATE_SUBJECT="$(openssl pkcs12 -in "$CERTIFICATE_PATH" -passin "env:IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" -clcerts -nokeys 2>/dev/null | openssl x509 -noout -subject -nameopt RFC2253)"
+          CERTIFICATE_SUBJECT="$(security find-certificate -a -p "$KEYCHAIN_PATH" | openssl x509 -noout -subject -nameopt RFC2253)"
           case "$CERTIFICATE_SUBJECT" in
             *"CN=Apple Development:"*) ;;
             *)
