@@ -1948,7 +1948,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
-                       !horizonTreadmill && filter) {
+                       !horizonTreadmill && !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
@@ -3233,7 +3233,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
-                        b.name().startsWith(QStringLiteral("MRK-"))) &&
+                        (b.name().startsWith(QStringLiteral("MRK-")) &&
+                         !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")))) &&
                        !fitPlusBike && !fitPlusRower && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3263,6 +3264,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(focusTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TR510-T"))) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) || // Merach T12 Pro uses FitShow control
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
