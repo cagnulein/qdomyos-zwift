@@ -37,6 +37,7 @@ public class ForegroundService extends Service {
 					 .setContentText(input)
 					 .setSmallIcon(R.drawable.icon)
 					 .setContentIntent(pendingIntent)
+					 .setOnlyAlertOnce(true)
 					 .build();
 
                                         try {
