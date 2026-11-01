@@ -56,6 +56,10 @@ void trxappgateusbrower::writeCharacteristic(uint8_t *data, uint8_t data_len, co
     loop.exec();
 }
 
+resistance_t trxappgateusbrower::maxResistance() {
+    return bluetoothDevice.name().compare(QStringLiteral("i-Console+0132"), Qt::CaseInsensitive) == 0 ? 32 : 15;
+}
+
 void trxappgateusbrower::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData1[] = {0xf0, 0xa6, 0x35, 0x01, 0x02, 0xce};
     noOpData1[4] = requestResistance + 1;
@@ -83,7 +87,7 @@ void trxappgateusbrower::update() {
                 if (requestResistance < 1)
                     requestResistance = 1;
                 if (requestResistance != currentResistance().value() && requestResistance >= 1 &&
-                    requestResistance <= 15) {
+                    requestResistance <= maxResistance()) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
