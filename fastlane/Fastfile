@@ -1,3 +1,5 @@
+require "shellwords"
+
 default_platform(:ios)
 
 platform :ios do
@@ -22,29 +24,15 @@ platform :ios do
     ).to_i
     next_build = [current_build, latest_build].max + 1
 
-    app_profile_uuid = ENV.fetch("IOS_APP_PROFILE_UUID")
-    widget_profile_uuid = ENV.fetch("IOS_WIDGET_PROFILE_UUID")
-
-    update_code_signing_settings(
-      path: project_path,
-      use_automatic_signing: false,
-      targets: ["qdomyoszwift"],
-      build_configurations: ["Release"],
-      team_id: team_id,
-      code_sign_identity: "Apple Distribution",
-      profile_uuid: app_profile_uuid,
-      sdk: "iphoneos*"
-    )
-    update_code_signing_settings(
-      path: project_path,
-      use_automatic_signing: false,
-      targets: ["QZWidgetExtension"],
-      build_configurations: ["Release"],
-      team_id: team_id,
-      code_sign_identity: "Apple Distribution",
-      profile_uuid: widget_profile_uuid,
-      sdk: "iphoneos*"
-    )
+    signing_args = [
+      "-allowProvisioningUpdates",
+      "-authenticationKeyPath #{Shellwords.escape(api_key_path)}",
+      "-authenticationKeyID #{Shellwords.escape(ENV.fetch('ASC_KEY_ID'))}",
+      "-authenticationKeyIssuerID #{Shellwords.escape(ENV.fetch('ASC_ISSUER_ID'))}",
+      "CODE_SIGN_STYLE=Automatic",
+      "DEVELOPMENT_TEAM=#{team_id}",
+      "CURRENT_PROJECT_VERSION=#{next_build}"
+    ].join(" ")
 
     build_app(
       project: project_path,
@@ -58,16 +46,9 @@ platform :ios do
       output_name: "qdomyoszwift.ipa",
       export_method: "app-store",
       export_team_id: team_id,
-      export_options: {
-        signingStyle: "manual",
-        teamID: team_id,
-        provisioningProfiles: {
-          bundle_id => app_profile_uuid,
-          "#{bundle_id}.QZWidget" => widget_profile_uuid
-        }
-      },
+      export_options: { signingStyle: "automatic" },
       clean: true,
-      xcargs: "CURRENT_PROJECT_VERSION=#{next_build}",
+      xcargs: signing_args,
       disable_package_automatic_updates: true
     )
 

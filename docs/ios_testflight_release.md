@@ -16,31 +16,22 @@ The workflow uses these App Store Connect API key secrets:
 | `ASC_ISSUER_ID` | Issuer ID from App Store Connect |
 | `ASC_API_KEY_BASE64` | Base64-encoded contents of the downloaded `.p8` private key |
 
-Fastlane uses the API key to query the latest TestFlight build number and upload the IPA. Keep it in GitHub Actions secrets; do not commit the `.p8` file. Code signing uses the persistent certificate and provisioning profiles described below, so the workflow does not ask Xcode to create signing assets on the temporary runner.
+Fastlane uses the API key to query the latest TestFlight build number and upload the IPA. Xcode also uses it with automatic signing and `-allowProvisioningUpdates` to retrieve the provisioning profiles and cloud-sign the app for distribution. Keep the key in GitHub Actions secrets; do not commit the `.p8` file.
 
-The signing assets must be for the Apple Developer team `6335M7T29D` and must include the app's entitlements. Reuse an Apple Distribution certificate for which the private key can be exported; Apple allows only one certificate of each distribution type per team ([certificates overview](https://developer.apple.com/help/account/certificates/certificates-overview)). Create App Store provisioning profiles for both bundle IDs:
-
-- `org.cagnulein.qdomyoszwift` (app; includes HealthKit, multicast networking, the `group.org.cagnulein.qdomyoszwift` app group, and the `applinks:www.qzfitness.com` associated domain)
-- `org.cagnulein.qdomyoszwift.QZWidget` (widget extension; includes the `group.org.cagnulein.qdomyoszwift` app group)
-
-Export the existing Apple Distribution certificate and its private key together as a password-protected `.p12` from the Mac/keychain that owns the private key. A certificate download from the Apple Developer portal does not include its private key. Base64-encode that file and each `.mobileprovision` profile, then add these repository secrets:
+The temporary GitHub runner needs the same **Apple Development** identity that Xcode uses to create the archive. The Apple Developer team is `6335M7T29D`. Xcode can use the cloud-managed Apple Distribution certificate for the later distribution step; that certificate does not have an exportable private key. Export the Apple Development identity and its private key together as a password-protected `.p12` from Xcode's **Manage Certificates** sheet, then Base64-encode it and add these repository secrets:
 
 | Secret | Value |
 | --- | --- |
-| `IOS_SIGNING_CERTIFICATE_BASE64` | Base64-encoded `.p12` containing the Apple Distribution certificate and private key |
-| `IOS_SIGNING_CERTIFICATE_PASSWORD` | Password used to export the `.p12` |
-| `IOS_APP_PROVISIONING_PROFILE_BASE64` | Base64-encoded App Store profile for `org.cagnulein.qdomyoszwift` |
-| `IOS_WIDGET_PROVISIONING_PROFILE_BASE64` | Base64-encoded App Store profile for `org.cagnulein.qdomyoszwift.QZWidget` |
+| `IOS_DEVELOPMENT_CERTIFICATE_BASE64` | Base64-encoded `.p12` containing the Apple Development certificate and private key for team `6335M7T29D` |
+| `IOS_DEVELOPMENT_CERTIFICATE_PASSWORD` | Password used to export the `.p12` |
 
-Add them under the repository's **Settings → Secrets and variables → Actions**. On macOS, run one command at a time, paste the clipboard into its matching secret, then run the next command:
+Add them under the repository's **Settings → Secrets and variables → Actions**. On macOS, encode the exported identity and copy it to the clipboard:
 
 ```sh
-base64 -i signing.p12 | tr -d '\n' | pbcopy
-base64 -i app.mobileprovision | tr -d '\n' | pbcopy
-base64 -i widget.mobileprovision | tr -d '\n' | pbcopy
+base64 -i signing-development.p12 | tr -d '\n' | pbcopy
 ```
 
-The workflow imports the certificate into a temporary keychain, installs both profiles, signs the app and widget with manual signing, and removes the temporary signing material at the end of the job. Do not commit the `.p12` or `.mobileprovision` files.
+The workflow imports the identity into a temporary keychain and removes it at the end of the job. Automatic signing then reuses the existing development certificate instead of asking Apple to create a new one on each temporary runner. Do not commit the `.p12` file.
 
 The Xcode Cloud setup script also reads the existing GitHub secrets used by the iOS build: `strava_secret_key`, `peloton_secret_key`, `smtp_username`, `smtp_password`, `smtp_server`, `intervalsicu_client_id`, `intervalsicu_client_secret`, and `cesiumkey`.
 
@@ -54,4 +45,4 @@ This is a legal classification, not a Fastlane workaround. Reassess it if the ap
 
 ## Build numbering and signing
 
-Fastlane reads the current iOS version/build settings, queries the latest TestFlight build for that version, and uses the next build number for the archive. It signs with the Apple Distribution identity and the two installed App Store profiles. The workflow retains the exported IPA as a 14-day Actions artifact.
+Fastlane reads the current iOS version/build settings, queries the latest TestFlight build for that version, and uses the next build number for the archive. It archives with the persistent Apple Development identity, then Xcode cloud-signs for TestFlight distribution. The workflow retains the exported IPA as a 14-day Actions artifact.

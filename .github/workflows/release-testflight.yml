@@ -75,63 +75,37 @@ jobs:
           fi
           echo "ASC_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
-      - name: Install persistent iOS signing assets
+      - name: Install persistent iOS development signing identity
         env:
-          IOS_SIGNING_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_BASE64 }}
-          IOS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
-          IOS_APP_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_APP_PROVISIONING_PROFILE_BASE64 }}
-          IOS_WIDGET_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_WIDGET_PROVISIONING_PROFILE_BASE64 }}
+          IOS_DEVELOPMENT_CERTIFICATE_BASE64: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_BASE64 }}
+          IOS_DEVELOPMENT_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_PASSWORD }}
         run: |
-          if [ -z "$IOS_SIGNING_CERTIFICATE_BASE64" ] || \
-             [ -z "$IOS_SIGNING_CERTIFICATE_PASSWORD" ] || \
-             [ -z "$IOS_APP_PROVISIONING_PROFILE_BASE64" ] || \
-             [ -z "$IOS_WIDGET_PROVISIONING_PROFILE_BASE64" ]; then
-            echo "IOS_SIGNING_CERTIFICATE_BASE64, IOS_SIGNING_CERTIFICATE_PASSWORD, IOS_APP_PROVISIONING_PROFILE_BASE64, and IOS_WIDGET_PROVISIONING_PROFILE_BASE64 GitHub secrets are required."
+          if [ -z "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" ] || [ -z "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" ]; then
+            echo "IOS_DEVELOPMENT_CERTIFICATE_BASE64 and IOS_DEVELOPMENT_CERTIFICATE_PASSWORD GitHub secrets are required."
             exit 1
           fi
 
           KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
           CERTIFICATE_PATH="$RUNNER_TEMP/ios-signing.p12"
-          printf '%s' "$IOS_SIGNING_CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -D > "$CERTIFICATE_PATH"
+          printf '%s' "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -D > "$CERTIFICATE_PATH"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychains -d user -s "$KEYCHAIN_PATH" "$HOME/Library/Keychains/login.keychain-db"
           security default-keychain -d user -s "$KEYCHAIN_PATH"
 
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          mkdir -p "$PROFILE_DIR"
-
-          install_profile() {
-            encoded_profile="$1"
-            expected_bundle_id="$2"
-            profile_basename="$3"
-            uuid_environment_name="$4"
-            profile_path="$RUNNER_TEMP/$profile_basename.mobileprovision"
-            profile_plist_path="$RUNNER_TEMP/$profile_basename.plist"
-
-            printf '%s' "$encoded_profile" | tr -d '[:space:]' | base64 -D > "$profile_path"
-            security cms -D -i "$profile_path" > "$profile_plist_path"
-            profile_uuid=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$profile_plist_path")
-            profile_app_id=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$profile_plist_path")
-            case "$profile_app_id" in
-              *".$expected_bundle_id") ;;
-              *)
-                echo "The $profile_basename provisioning profile does not match $expected_bundle_id."
-                exit 1
-                ;;
-            esac
-
-            cp "$profile_path" "$PROFILE_DIR/$profile_uuid.mobileprovision"
-            echo "$uuid_environment_name=$profile_uuid" >> "$GITHUB_ENV"
-          }
-
-          install_profile "$IOS_APP_PROVISIONING_PROFILE_BASE64" "org.cagnulein.qdomyoszwift" "ios-app-profile" "IOS_APP_PROFILE_UUID"
-          install_profile "$IOS_WIDGET_PROVISIONING_PROFILE_BASE64" "org.cagnulein.qdomyoszwift.QZWidget" "ios-widget-profile" "IOS_WIDGET_PROFILE_UUID"
+          IDENTITIES="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")"
+          case "$IDENTITIES" in
+            *"Apple Development:"*"(6335M7T29D)"*) ;;
+            *)
+              echo "The imported signing identity is not an Apple Development certificate for team 6335M7T29D."
+              exit 1
+              ;;
+          esac
 
       - name: Run the Xcode Cloud setup scripts
         env:
@@ -190,18 +164,7 @@ jobs:
         if: always()
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
           security default-keychain -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
           security list-keychains -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
-          if [ -n "$IOS_APP_PROFILE_UUID" ]; then
-            rm -f "$PROFILE_DIR/$IOS_APP_PROFILE_UUID.mobileprovision"
-          fi
-          if [ -n "$IOS_WIDGET_PROFILE_UUID" ]; then
-            rm -f "$PROFILE_DIR/$IOS_WIDGET_PROFILE_UUID.mobileprovision"
-          fi
-          rm -f "$RUNNER_TEMP/ios-signing.p12" \
-            "$RUNNER_TEMP/ios-app-profile.mobileprovision" \
-            "$RUNNER_TEMP/ios-app-profile.plist" \
-            "$RUNNER_TEMP/ios-widget-profile.mobileprovision" \
-            "$RUNNER_TEMP/ios-widget-profile.plist"
+          rm -f "$RUNNER_TEMP/ios-signing.p12"
