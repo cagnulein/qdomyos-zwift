@@ -22,6 +22,12 @@ The Xcode Cloud setup script also reads the existing GitHub secrets used by the 
 
 If App Store Connect shows an updated Apple Developer Program License Agreement, the Account Holder must accept it before a new build can be submitted.
 
+## Export compliance
+
+The iOS app bundle declares `ITSAppUsesNonExemptEncryption` as `false` in `src/ios/Info.plist`, which is the `INFOPLIST_FILE` used by the signed app target. This corresponds to the App Store Connect selection that the app uses no encryption requiring export documentation (no encryption or exempt encryption). App Store Connect reads the declaration from each new IPA and should no longer request the same TestFlight export-compliance answer for each upload.
+
+This is a legal classification, not a Fastlane workaround. Reassess it if the app or its linked libraries begin using cryptography that is not exempt; update the plist value and provide documentation when Apple requires it. After building, confirm the exported IPA contains `ITSAppUsesNonExemptEncryption = false` in `Payload/qdomyoszwift.app/Info.plist`, and verify the next processed TestFlight build does not show **Missing Compliance**.
+
 ## Build numbering and signing
 
 Fastlane reads the current iOS version/build settings, queries the latest TestFlight build for that version, and uses the next build number for the archive. Xcode automatic signing uses the API key and the developer team already configured in the Xcode project. The workflow retains the exported IPA as a 14-day Actions artifact.
