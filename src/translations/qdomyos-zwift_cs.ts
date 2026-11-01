@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ vyžaduje zapnutý Bluetooth i služby určování polohy.
+        <translation type="vanished">QZ vyžaduje zapnutý Bluetooth i služby určování polohy.
 V systému Android jsou služby určování polohy nutné k tomu, aby aplikace našla zařízení Bluetooth.
 GPS se používat nebude.
 
@@ -113,7 +113,7 @@ Chcete je zapnout?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Připomenout příště zapnutí služeb určování polohy?</translation>
+        <translation type="vanished">Připomenout příště zapnutí služeb určování polohy?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Restartovat nyní?</translation>
     <message>
         <source>Save</source>
         <translation>Uložit</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ potřebuje zapnutý Bluetooth, aby mohl vyhledávat fitness zařízení. V Androidu 11 a starších verzích je pro vyhledávání zařízení Bluetooth nutné také oprávnění k poloze a zapnuté služby určování polohy. QZ vaše údaje o poloze nepoužívá. V Androidu 12 a novějších verzích umožňuje oprávnění Zařízení v okolí vyhledávat zařízení Bluetooth bez přístupu k poloze.
+
+Chcete zapnout požadované služby?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Chcete příště připomenout zapnutí Bluetooth nebo služeb určování polohy?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Restartovat nyní?</translation>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>Připojeno: %1 (snímač tepu)!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Hledání: %1 (snímač tepu)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenalezeno: %1 (snímač tepu). Zkontrolujte, že je zapnutý a vysílá tep.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (snímač tepu): žádný tep. Zkontrolujte, že vysílá tep.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -3757,6 +3781,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Cílový výkon QZ přebíjí příkazy aplikace. Ovládání vrátíte aplikaci tak, že QZ pozastavíte a znovu spustíte.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7783,6 +7811,82 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Použije syntetický profil Life Fitness bez účtu. Po zapnutí se uživatelské jméno, heslo a uložená data účtu ignorují; používejte jen pro testování podporovaného přihlášení jako host.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished">Tep</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished">Odpor a cílový odpor</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished">Odpor Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished">Kadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished">Rozložení výkonu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished">Rychlost a sklon</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

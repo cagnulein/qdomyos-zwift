@@ -75,6 +75,54 @@ jobs:
           fi
           echo "ASC_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
+      - name: Install persistent iOS development signing identity
+        env:
+          IOS_DEVELOPMENT_CERTIFICATE_BASE64: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_BASE64 }}
+          IOS_DEVELOPMENT_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+        run: |
+          if [ -z "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" ] || [ -z "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" ]; then
+            echo "IOS_DEVELOPMENT_CERTIFICATE_BASE64 and IOS_DEVELOPMENT_CERTIFICATE_PASSWORD GitHub secrets are required."
+            exit 1
+          fi
+
+          KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+          CERTIFICATE_PATH="$RUNNER_TEMP/ios-signing.p12"
+          printf '%s' "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -D > "$CERTIFICATE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" "$HOME/Library/Keychains/login.keychain-db"
+          security default-keychain -d user -s "$KEYCHAIN_PATH"
+
+          CERTIFICATE_SUBJECT="$(security find-certificate -a -p "$KEYCHAIN_PATH" | openssl x509 -noout -subject -nameopt RFC2253)"
+          case "$CERTIFICATE_SUBJECT" in
+            *"CN=Apple Development:"*) ;;
+            *)
+              echo "The uploaded .p12 does not contain an Apple Development certificate."
+              exit 1
+              ;;
+          esac
+          case "$CERTIFICATE_SUBJECT" in
+            *"OU=6335M7T29D"*) ;;
+            *)
+              echo "The uploaded Apple Development certificate is not for team 6335M7T29D."
+              exit 1
+              ;;
+          esac
+
+          IDENTITIES="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")"
+          case "$IDENTITIES" in
+            *"Apple Development:"*) ;;
+            *)
+              echo "The imported keychain does not contain a usable Apple Development identity."
+              exit 1
+              ;;
+          esac
+
       - name: Run the Xcode Cloud setup scripts
         env:
           CI_PRIMARY_REPOSITORY_PATH: ${{ github.workspace }}
@@ -127,3 +175,12 @@ jobs:
           if [ -n "$ASC_API_KEY_PATH" ]; then
             rm -f "$ASC_API_KEY_PATH"
           fi
+
+      - name: Remove temporary iOS signing assets
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          security default-keychain -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
+          security list-keychains -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/ios-signing.p12"

@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZはBluetoothと位置情報サービスの両方が有効になっている必要があります。
+        <translation type="vanished">QZはBluetoothと位置情報サービスの両方が有効になっている必要があります。
 アプリがBluetoothデバイスを見つけるには、Androidでは位置情報サービスが必要です。
 GPSは使用されません。
 
@@ -197,7 +197,7 @@ GPSは使用されません。
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>次回、位置情報サービスを有効にするよう通知しますか？</translation>
+        <translation type="vanished">次回、位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>値を増やす </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZがフィットネス機器を検出するには、Bluetoothを有効にする必要があります。Android 11以前では、Bluetooth機器の検出に位置情報の権限と位置情報サービスの有効化も必要です。QZは位置情報データを使用しません。Android 12以降では、「付近のデバイス」の権限によって、位置情報へのアクセスなしでBluetooth機器を検出できます。
+
+必要なサービスを有効にしますか？</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>次回、Bluetoothまたは位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Would you like to do that now?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1（心拍センサー）を検索しています...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）が見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）: 心拍数がありません。心拍数を送信しているか確認してください。</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -3769,6 +3793,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>QZの目標パワーがアプリのコマンドを上書きしています。アプリに制御を戻すには、QZを一時停止してから再開してください。</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7847,6 +7875,82 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>アカウント不要の合成Life Fitnessプロファイルを使用します。有効にすると、ユーザー名、パスワード、保存済みのアカウントデータは無視されます。サポートされているゲストログインのテストにのみ使用してください。</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished">心拍数</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished">負荷レベルと目標負荷レベル</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished">Peloton換算負荷</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished">ケイデンス</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished">パワー分布</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished">スピードと傾斜</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
