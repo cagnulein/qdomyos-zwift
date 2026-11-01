@@ -3711,21 +3711,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
-                if (mfgByte == 10) {
-                    // Map Click V2 B through the existing Right Shift Down action setting.
-                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB,
-                            this, [this, zwiftplay_swap](bool pressed) {
-                        if (!pressed)
-                            return;
-                        QSettings settings;
-                        const int action = settings.value(QZSettings::zwiftplay_gear_rs2,
-                                                          QZSettings::default_zwiftplay_gear_rs2).toInt();
-                        if (action == 1)
-                            zwiftplay_swap ? controllerGearDownWithMyWhoosh() : controllerGearUpWithMyWhoosh();
-                        else if (action == 2)
-                            zwiftplay_swap ? controllerGearUpWithMyWhoosh() : controllerGearDownWithMyWhoosh();
-                    });
-                }
+                zwiftPlayDevice.last()->playDevice->singleRightClickV2 = (mfgByte == 10);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
