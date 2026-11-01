@@ -34,8 +34,18 @@ void proformbike::writeCharacteristic(const uint8_t *data, uint8_t data_len, con
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        if (nordictrack_vx450) {
+            // Like the working VX450 client, wait for the last response fragment.
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop,
+                    [&loop](const QLowEnergyCharacteristic &, const QByteArray &value) {
+                        if (value.size() >= 2 && (uint8_t)value.at(0) == 0xff)
+                            loop.quit();
+                    });
+            timeout.singleShot(1000ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -1256,22 +1266,23 @@ void proformbike::update() {
         uint8_t noOpData7_nordictrack_gx_4_5_pro[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x5d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         if (nordictrack_vx450) {
-            if (!innerWriteResistance()) {
-                const uint8_t vx450Poll1[] = {0xfe, 0x02, 0x13, 0x03};
-                const uint8_t vx450Poll2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
-                                              0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
-                const uint8_t vx450Poll3[] = {0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                const uint8_t vx450Poll4[] = {0xfe, 0x02, 0x0b, 0x02};
-                const uint8_t vx450Poll5[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
-                                              0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                switch (counterPoll) {
-                case 0: writeCharacteristic(vx450Poll1, sizeof(vx450Poll1), QStringLiteral("noOp")); break;
-                case 1: writeCharacteristic(vx450Poll2, sizeof(vx450Poll2), QStringLiteral("noOp")); break;
-                case 2: writeCharacteristic(vx450Poll3, sizeof(vx450Poll3), QStringLiteral("noOp")); break;
-                case 3: writeCharacteristic(vx450Poll4, sizeof(vx450Poll4), QStringLiteral("noOp")); break;
-                case 4: writeCharacteristic(vx450Poll5, sizeof(vx450Poll5), QStringLiteral("noOp")); break;
-                }
+            // Insert control only between complete polling cycles; never skip a fragment.
+            if (counterPoll == 0)
+                innerWriteResistance();
+            const uint8_t vx450Poll1[] = {0xfe, 0x02, 0x13, 0x03};
+            const uint8_t vx450Poll2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+                                          0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+            const uint8_t vx450Poll3[] = {0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t vx450Poll4[] = {0xfe, 0x02, 0x0b, 0x02};
+            const uint8_t vx450Poll5[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
+                                          0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            switch (counterPoll) {
+            case 0: writeCharacteristic(vx450Poll1, sizeof(vx450Poll1), QStringLiteral("noOp")); break;
+            case 1: writeCharacteristic(vx450Poll2, sizeof(vx450Poll2), QStringLiteral("noOp")); break;
+            case 2: writeCharacteristic(vx450Poll3, sizeof(vx450Poll3), QStringLiteral("noOp"), false, true); break;
+            case 3: writeCharacteristic(vx450Poll4, sizeof(vx450Poll4), QStringLiteral("noOp")); break;
+            case 4: writeCharacteristic(vx450Poll5, sizeof(vx450Poll5), QStringLiteral("noOp"), false, true); break;
             }
         } else if (nordictrack_gx_le) {
             const uint8_t gxLePoll1[] = {0xfe, 0x02, 0x19, 0x03};
@@ -1726,9 +1737,10 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
-        if (nordictrack_vx450 && (uint8_t)newValue.at(5) == 0x2c) {
+        if (nordictrack_vx450) {
             if (newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-                newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (uint8_t)newValue.at(6) != 0x07 ||
+                newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (uint8_t)newValue.at(5) != 0x2c ||
+                (uint8_t)newValue.at(6) != 0x07 ||
                 (uint8_t)newValue.at(7) != 0x2c || (uint8_t)newValue.at(8) != 0x02 ||
                 (uint8_t)newValue.at(9) != 0x02) {
                 return;
@@ -4624,3 +4636,4 @@ void proformbike::controllerStateChanged(QLowEnergyController::ControllerState s
         m_control->connectToDevice();
     }
 }
+
