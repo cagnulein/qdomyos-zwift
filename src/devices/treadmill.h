@@ -23,6 +23,7 @@ class treadmill : public bluetoothdevice {
     metric lastRequestedPower();
     virtual double minStepInclination();
     virtual double minStepSpeed();
+    VirtualTreadmillControl virtualTreadmillControl() const override;
     virtual bool canStartStop() { return true; }
     // Called when the UI ignores Stop because recording is already stopped or idle.
     virtual void stopWhenIdle() {}
