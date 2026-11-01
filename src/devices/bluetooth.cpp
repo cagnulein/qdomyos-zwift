@@ -3689,6 +3689,8 @@ void bluetooth::connectedAndDiscovered() {
                 AbstractZapDevice::ZWIFT_PLAY_TYPE type;
                 if (mfgByte == 3 || mfgByte == 7)
                     type = AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT;
+                else if (mfgByte == 10) // Zwift Click V2 right controller (also when used alone)
+                    type = AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 else
                     type = zwiftPlayDevice.isEmpty() ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 zwiftPlayDevice.append(new zwiftclickremote(this->device(), type));
@@ -3709,6 +3711,19 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                if (mfgByte == 10) {
+                    // A single right Click V2 has Shift Up but no Shift Down key.
+                    // Reuse B for the opposite gear action; only act on the press edge.
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB,
+                            this, [this, zwiftplay_swap](bool pressed) {
+                        if (!pressed)
+                            return;
+                        if (zwiftplay_swap)
+                            controllerGearUpWithMyWhoosh();
+                        else
+                            controllerGearDownWithMyWhoosh();
+                    });
+                }
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
