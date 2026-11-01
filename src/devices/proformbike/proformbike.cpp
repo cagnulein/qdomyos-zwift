@@ -34,8 +34,18 @@ void proformbike::writeCharacteristic(const uint8_t *data, uint8_t data_len, con
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        if (nordictrack_vx450) {
+            // Like the working VX450 client, wait for the last response fragment.
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop,
+                    [&loop](const QLowEnergyCharacteristic &, const QByteArray &value) {
+                        if (value.size() >= 2 && (uint8_t)value.at(0) == 0xff)
+                            loop.quit();
+                    });
+            timeout.singleShot(1000ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -170,7 +180,22 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 }
 
 void proformbike::forceResistance(resistance_t requestResistance) {
-    if(proform_bike_PFEVEX71316_0) {
+    if (nordictrack_vx450) {
+        if (requestResistance >= 1 && requestResistance <= 20) {
+            const uint8_t resrequest[] = {0xfe, 0x02, 0x0d, 0x02};
+            uint8_t packet[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint16_t rawResistance = requestResistance * 500 - 1;
+            packet[11] = static_cast<uint8_t>(rawResistance & 0xff);
+            packet[12] = static_cast<uint8_t>(rawResistance >> 8);
+            for (int i = 6; i <= 13; ++i) {
+                packet[14] += packet[i];
+            }
+            writeCharacteristic(resrequest, sizeof(resrequest), QStringLiteral("resrequest"), false, false);
+            writeCharacteristic(packet, sizeof(packet),
+                                QStringLiteral("resistance") + QString::number(requestResistance), false, true);
+        }
+    } else if(proform_bike_PFEVEX71316_0) {
         // Value: 0012020402120812020400000004000000000700
         // Value: ff040001002c0000000000000000000000000000
 
@@ -1240,7 +1265,26 @@ void proformbike::update() {
         uint8_t noOpData6_nordictrack_gx_4_5_pro[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0xbc, 0x90, 0x70, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00};
         uint8_t noOpData7_nordictrack_gx_4_5_pro[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x5d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        if (nordictrack_gx_le) {
+        if (nordictrack_vx450) {
+            // Insert control only between complete polling cycles; never skip a fragment.
+            if (counterPoll == 0)
+                innerWriteResistance();
+            const uint8_t vx450Poll1[] = {0xfe, 0x02, 0x13, 0x03};
+            const uint8_t vx450Poll2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+                                          0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+            const uint8_t vx450Poll3[] = {0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t vx450Poll4[] = {0xfe, 0x02, 0x0b, 0x02};
+            const uint8_t vx450Poll5[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
+                                          0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            switch (counterPoll) {
+            case 0: writeCharacteristic(vx450Poll1, sizeof(vx450Poll1), QStringLiteral("noOp")); break;
+            case 1: writeCharacteristic(vx450Poll2, sizeof(vx450Poll2), QStringLiteral("noOp")); break;
+            case 2: writeCharacteristic(vx450Poll3, sizeof(vx450Poll3), QStringLiteral("noOp"), false, true); break;
+            case 3: writeCharacteristic(vx450Poll4, sizeof(vx450Poll4), QStringLiteral("noOp")); break;
+            case 4: writeCharacteristic(vx450Poll5, sizeof(vx450Poll5), QStringLiteral("noOp"), false, true); break;
+            }
+        } else if (nordictrack_gx_le) {
             const uint8_t gxLePoll1[] = {0xfe, 0x02, 0x19, 0x03};
             const uint8_t gxLePoll2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             const uint8_t gxLePoll3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x10, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1496,7 +1540,7 @@ void proformbike::update() {
                    requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
-        } else if (counterPoll == 5 && (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
+        } else if (counterPoll == 5 && (nordictrack_vx450 || nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_325_csx || proform_xbike)) {
             counterPoll = 0;
         }
 
@@ -1693,6 +1737,26 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
+        if (nordictrack_vx450) {
+            if (newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
+                newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (uint8_t)newValue.at(5) != 0x2c ||
+                (uint8_t)newValue.at(6) != 0x07 ||
+                (uint8_t)newValue.at(7) != 0x2c || (uint8_t)newValue.at(8) != 0x02 ||
+                (uint8_t)newValue.at(9) != 0x02) {
+                return;
+            }
+            const uint16_t rawResistance = (uint8_t)newValue.at(10) | ((uint16_t)(uint8_t)newValue.at(11) << 8);
+            if ((rawResistance + 1U) % 500U != 0U) {
+                return;
+            }
+            const uint16_t resistanceLevel = (rawResistance + 1U) / 500U;
+            if (resistanceLevel < 1 || resistanceLevel > 20) {
+                return;
+            }
+            Resistance = resistanceLevel;
+            m_pelotonResistance = Resistance.value() * 5;
+        }
+
         // wattage needs to be calculate always as a local variable because it's used as a filter for strange values
         // from proform even if the proform_tdf_jonseed_watt is ON.
         m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
@@ -1701,7 +1765,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if(proform_225_csx_PFEX32925_INT_0) {
+            if (nordictrack_vx450) {
+                // VX450 resistance was handled above.
+            } else if(proform_225_csx_PFEX32925_INT_0) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                 case 1:
@@ -2629,6 +2695,7 @@ void proformbike::btinit() {
     nordictrack_vr21 = settings.value(QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21).toBool();
     proform_bike_325_csx_PFEX439210INT_0 = settings.value(QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0).toBool();
     nordictrack_gx_le = settings.value(QZSettings::nordictrack_gx_le, QZSettings::default_nordictrack_gx_le).toBool();
+    nordictrack_vx450 = settings.value(QZSettings::nordictrack_vx450, QZSettings::default_nordictrack_vx450).toBool();
     nordictrack_gx_4_5_pro = settings.value(QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro).toBool();
 
 
@@ -2640,8 +2707,106 @@ void proformbike::btinit() {
         max_resistance = 16;
     if(nordictrack_vr21)
         max_resistance = 25;
+    if (nordictrack_vx450)
+        max_resistance = 20;
 
-    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
+    if (nordictrack_vx450) {
+        // Captured VX450 initialization sequence (single capture).
+        // Captured VX450 initialization sequence (single capture).
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData6[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData8[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                               0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData10[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                                0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData11[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData12[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData13[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData14[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
+                                0x00, 0x69, 0x38, 0x15, 0xe0, 0xb9, 0x90, 0x7d, 0x58, 0x39};
+        uint8_t initData15[] = {0x01, 0x12, 0x18, 0xf5, 0xd0, 0xc9, 0xa0, 0x8d, 0x98, 0x69,
+                                0x78, 0x75, 0x40, 0x59, 0x50, 0x5d, 0x58, 0x59, 0x58, 0x55};
+        uint8_t initData16[] = {0xff, 0x08, 0x50, 0x49, 0x40, 0x60, 0x02, 0x00, 0x00, 0x50,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData17[] = {0xfe, 0x02, 0x13, 0x03};
+        uint8_t initData18[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+                                0x09, 0x00, 0x10, 0x00, 0xc0, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+        uint8_t initData19[] = {0xff, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData20[] = {0xfe, 0x02, 0x13, 0x03};
+        uint8_t initData21[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x0f, 0x07, 0x0f, 0x02, 0x00,
+                                0x09, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+        uint8_t initData22[] = {0xff, 0x01, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData23[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t initData24[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x07, 0x0d, 0x02, 0x05,
+                                0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7d, 0x00};
+        uint8_t initData25[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData26[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x07, 0x07, 0x02, 0x00,
+                                0x01, 0x80, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData27[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t initData28[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x07, 0x0d, 0x02, 0x05,
+                                0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7d, 0x00};
+        uint8_t initData29[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t initData30[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x07, 0x0c, 0x02, 0x04,
+                                0x00, 0x00, 0x00, 0x02, 0xe4, 0x1f, 0x00, 0x1e, 0x00, 0x00};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(205);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(225);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(115);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(295);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(225);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(200);
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, false);
+        QThread::msleep(265);
+        writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData18, sizeof(initData18), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData19, sizeof(initData19), QStringLiteral("init"), false, false);
+        QThread::msleep(230);
+        writeCharacteristic(initData20, sizeof(initData20), QStringLiteral("init"), false, false);
+        QThread::msleep(25);
+        writeCharacteristic(initData21, sizeof(initData21), QStringLiteral("init"), false, false);
+        QThread::msleep(15);
+        writeCharacteristic(initData22, sizeof(initData22), QStringLiteral("init"), false, false);
+        QThread::msleep(320);
+        writeCharacteristic(initData23, sizeof(initData23), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData24, sizeof(initData24), QStringLiteral("init"), false, false);
+        QThread::msleep(135);
+        writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData26, sizeof(initData26), QStringLiteral("init"), false, false);
+        QThread::msleep(270);
+        writeCharacteristic(initData27, sizeof(initData27), QStringLiteral("init"), false, false);
+        QThread::msleep(45);
+        writeCharacteristic(initData28, sizeof(initData28), QStringLiteral("init"), false, false);
+        QThread::msleep(180);
+        writeCharacteristic(initData29, sizeof(initData29), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData30, sizeof(initData30), QStringLiteral("init"), false, false);
+    } else if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
         max_resistance = 32;
 
@@ -4471,3 +4636,4 @@ void proformbike::controllerStateChanged(QLowEnergyController::ControllerState s
         m_control->connectToDevice();
     }
 }
+
