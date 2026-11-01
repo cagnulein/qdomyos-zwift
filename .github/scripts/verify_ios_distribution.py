@@ -56,14 +56,20 @@ def verify_project(path):
     dep_section = project.split("/* Begin PBXTargetDependency section */", 1)[1].split(
         "/* End PBXTargetDependency section */", 1
     )[0]
-    watch_dependency = re.search(
-        r"^\s*([A-F0-9]{24}) /\* PBXTargetDependency \*/ = "
-        r"\{[^}]*target = [A-F0-9]{24} /\* watchkit \*/;",
-        dep_section, flags=re.M,
-    )
-    require(watch_dependency is not None, "Missing WatchKit target dependency")
-    require(watch_dependency.group(1) + " /* PBXTargetDependency */" in app,
-            "iOS app no longer depends on the WatchKit target")
+    def require_dependency(parent, child):
+        dependency = re.search(
+            r"^\s*([A-F0-9]{24}) /\* PBXTargetDependency \*/ = "
+            r"\{[^}]*target = [A-F0-9]{24} /\* "
+            + re.escape(child) + r" \*/;",
+            dep_section, flags=re.M,
+        )
+        require(dependency is not None, f"Missing target dependency: {child}")
+        require(dependency.group(1) + " /* PBXTargetDependency */" in parent,
+                f"Parent target no longer depends on {child}")
+
+    require_dependency(app, "watchkit")
+    require_dependency(watch, "watchkit Extension")
+    require_dependency(app, "QZWidgetExtension")
     print("Xcode project: iOS, WatchKit app, WatchKit extension and widget preserved")
 
 
