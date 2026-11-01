@@ -237,11 +237,13 @@ Would you like to do that now?</source>
         <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
 
 Would you like to enable the required services?</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin fitness ekipmanlarını bulabilmesi için Bluetooth&apos;un açık olması gerekir. Android 11 ve önceki sürümlerde Bluetooth cihazlarını keşfetmek için ayrıca konum izni ve konum hizmetlerinin açık olması gerekir. QZ konum verilerinizi kullanmaz. Android 12 ve sonraki sürümlerde &apos;Yakındaki cihazlar&apos; izni, konuma erişim olmadan Bluetooth cihazlarının keşfedilmesini sağlar.
+
+Gerekli hizmetleri açmak ister misiniz?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir dahaki sefere Bluetooth&apos;u veya konum hizmetlerini açmanız hatırlatılsın mı?</translation>
     </message>
 </context>
 <context>
