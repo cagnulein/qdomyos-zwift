@@ -16,7 +16,22 @@ The workflow uses these App Store Connect API key secrets:
 | `ASC_ISSUER_ID` | Issuer ID from App Store Connect |
 | `ASC_API_KEY_BASE64` | Base64-encoded contents of the downloaded `.p8` private key |
 
-The key is used by Xcode automatic signing and by Fastlane for the App Store Connect API. Keep it in GitHub Actions secrets; do not commit the `.p8` file. A Team API key with the minimum role that supports automatic signing and binary uploads should be used.
+Fastlane uses the API key to query the latest TestFlight build number and upload the IPA. Xcode also uses it with automatic signing and `-allowProvisioningUpdates` to retrieve the provisioning profiles and cloud-sign the app for distribution. Keep the key in GitHub Actions secrets; do not commit the `.p8` file.
+
+The temporary GitHub runner needs the same **Apple Development** identity that Xcode uses to create the archive. The Apple Developer team is `6335M7T29D`. Xcode can use the cloud-managed Apple Distribution certificate for the later distribution step; that certificate does not have an exportable private key. Export the Apple Development identity and its private key together as a password-protected `.p12` from Xcode's **Manage Certificates** sheet, then Base64-encode it and add these repository secrets:
+
+| Secret | Value |
+| --- | --- |
+| `IOS_DEVELOPMENT_CERTIFICATE_BASE64` | Base64-encoded `.p12` containing the Apple Development certificate and private key for team `6335M7T29D` |
+| `IOS_DEVELOPMENT_CERTIFICATE_PASSWORD` | Password used to export the `.p12` |
+
+Add them under the repository's **Settings → Secrets and variables → Actions**. On macOS, encode the exported identity and copy it to the clipboard:
+
+```sh
+base64 -i signing-development.p12 | tr -d '\n' | pbcopy
+```
+
+The workflow imports the identity into a temporary keychain and removes it at the end of the job. Automatic signing then reuses the existing development certificate instead of asking Apple to create a new one on each temporary runner. Do not commit the `.p12` file.
 
 The Xcode Cloud setup script also reads the existing GitHub secrets used by the iOS build: `strava_secret_key`, `peloton_secret_key`, `smtp_username`, `smtp_password`, `smtp_server`, `intervalsicu_client_id`, `intervalsicu_client_secret`, and `cesiumkey`.
 
@@ -30,4 +45,4 @@ This is a legal classification, not a Fastlane workaround. Reassess it if the ap
 
 ## Build numbering and signing
 
-Fastlane reads the current iOS version/build settings, queries the latest TestFlight build for that version, and uses the next build number for the archive. Xcode automatic signing uses the API key and the developer team already configured in the Xcode project. The workflow retains the exported IPA as a 14-day Actions artifact.
+Fastlane reads the current iOS version/build settings, queries the latest TestFlight build for that version, and uses the next build number for the archive. It archives with the persistent Apple Development identity, then Xcode cloud-signs for TestFlight distribution. The workflow retains the exported IPA as a 14-day Actions artifact.
