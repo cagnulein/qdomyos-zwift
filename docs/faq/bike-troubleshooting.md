@@ -167,7 +167,7 @@ An old system-level Bluetooth pairing can leave stale service information on a p
 3. Power-cycle the trainer and reopen QZ to let it discover and connect again.
 4. If the issue persists, try QZ with the trainer on a second phone to distinguish phone-specific Bluetooth cache behavior from a trainer problem.
 
-A KICKR CORE support user confirmed that connectivity worked again after the pairing/cache troubleshooting. The reply did not isolate which check was decisive, so this is a diagnostic workaround, not a guaranteed fix.
+**Confirmed Android fix:** A KICKR CORE 2 owner explicitly reported that deleting the saved KICKR pairing in **Android Bluetooth settings** restored QZ's connection and live metrics. Let QZ discover the trainer again instead of manually re-pairing it in Android first. This confirms the pairing reset for that phone, not a universal cause of all KICKR failures. A separate Zwift Ride handlebar-shifting issue remained unresolved and should be diagnosed independently.
 
 ## My Thinkrider X5 shows virtual gear changes in Zwift but the trainer does not change resistance. What should I check?
 
@@ -200,3 +200,9 @@ First confirm QZ receives cadence and power and that the bike has **electronical
 
 A Domyos X12 rider explicitly confirmed that enabling **Ignore FTMS** restored physical resistance control. This is a device-specific workaround, **not** a recommendation to disable FTMS on every bike. The same rider also needed to adjust **Zwift Resistance Offset** when a workout immediately requested maximum resistance; see the [resistance baseline guidance](#zwift-auto-resistance-is-working-but-flat-resistance-or-gradient-changes-feel-wrong-which-settings-should-i-adjust) rather than copying someone else's offset value blindly.
 
+
+## My Keiser M3i stops showing metrics in QZ after previously working. Could the Manual Device selection be wrong?
+
+Check **QZ Settings > Advanced Settings > Manual Device** before reinstalling the app. If it is set to **WiFi** while you are using a Keiser M3i, change the selection to the **M3** bike entry, then return to the dashboard and pedal to check for live data. Keep other apps from connecting directly to the bike during the test.
+
+**Confirmed result:** In an Android Keiser M3i setup, the dashboard fields reappeared immediately after changing the advanced device selection from **WiFi** to **M3**. This establishes that QZ was receiving bike data again; the downstream MyWhoosh connection was not separately confirmed in that reply. QZ also has a dedicated M3i bike implementation. If you later connect MyWhoosh, run it on a separate device and pair it to QZ's virtual trainer rather than directly to the bike.
