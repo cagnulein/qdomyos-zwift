@@ -81,6 +81,7 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - Bike model, QZ version, physical console resistance range, and the minimum/maximum **Resistance** reported by QZ.
 - One simultaneous example of the **Gears** tile, **Resistance** tile, bike console level, and how the pedals actually feel. Do not assume virtual gears and physical resistance are the same scale.
+- Identify the **exact QZ control pressed** (**Resistance** +/− versus **Target Resistance** +/−), whether cadence/power were nonzero during the test, and whether the pedals physically became harder or easier. A changing target alone is not proof of a command to the machine.
 - Whether changes originate from the bike, QZ, or the external training app, and whether the bike starts reporting metrics immediately or only after the first Gear+ / resistance command.
 - Screenshot relevant FTMS Bike and model-specific resistance settings before changing any options.
 
@@ -89,12 +90,14 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Close training apps and turn off Auto Resistance. Compare a few **safe, comfortable** physical resistance levels with the values QZ displays; stop rather than forcing high resistance.
 - If telemetry stays at zero until a control action, record one QZ-only startup test: pedal briefly without touching the gear buttons, then press Gear+ once. Note when metrics begin and collect a log covering both stages.
 - If physical resistance stops increasing while Gears continues upward, capture a separate short log of two or three safe resistance requests. Where FTMS is used, compare the machine's advertised resistance range, the control-point responses, the reported Resistance tile, and actual physical response.
+- If QZ's **Resistance** tile changes but the rider feels no change, repeat two safe, distinct Resistance +/− presses **while pedaling**; record the tile, physical effort, and the times of each press. Only then request a log spanning those presses. If available, report whether the manufacturer's app can change physical resistance on the same bike.
 - Test automatic control from Zwift/MyWhoosh/ROUVY only after the QZ-only test, recording the app's Controllable pairing role separately.
 
 ### Why it matters
 
 - A bike may advertise fewer FTMS resistance levels than its console provides; the Gears number is not proof of the Bluetooth-controlled physical level.
 - A successful FTMS command response confirms protocol acceptance, not that the motor moved through the console's entire range.
+- In a bike-control investigation, a log showed sent resistance commands and matching notifications while cadence and power remained zero. Identifying the tile pressed and repeating the test while pedaling was necessary to distinguish displayed acknowledgement from a physical resistance change.
 - Metrics beginning only after the first control command can distinguish startup/control initialization timing from an incorrect resistance scale.
 - Separating local QZ control from third-party commands distinguishes telemetry mapping, initialization, and downstream trainer-control problems.
 
