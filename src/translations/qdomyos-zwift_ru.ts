@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>Для работы QZ нужно включить Bluetooth и службы геолокации.
+        <translation type="vanished">Для работы QZ нужно включить Bluetooth и службы геолокации.
 На Android геолокация нужна, чтобы приложение могло находить Bluetooth-устройства.
 GPS использоваться не будет.
 
@@ -197,7 +197,7 @@ GPS использоваться не будет.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Напомнить о включении геолокации в следующий раз?</translation>
+        <translation type="vanished">Напомнить о включении геолокации в следующий раз?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,16 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>Увеличить значение параметра </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3757,6 +3767,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Целевая мощность QZ перебивает команды приложения. Чтобы вернуть управление приложению, поставьте QZ на паузу и продолжите.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7787,6 +7801,82 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Использует синтетический профиль Life Fitness без учётной записи. Если включено, имя пользователя, пароль и сохранённые данные учётной записи не используются; включайте только для проверки поддерживаемого гостевого входа.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished">Пульс</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished">Сопротивление и целевое сопротивление</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished">Сопротивление Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished">Каденс</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished">Распределение мощности</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished">Скорость и наклон</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

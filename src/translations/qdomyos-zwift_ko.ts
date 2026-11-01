@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ를 사용하려면 Bluetooth와 위치 서비스를 모두 켜야 합니다.
+        <translation type="vanished">QZ를 사용하려면 Bluetooth와 위치 서비스를 모두 켜야 합니다.
 Android에서는 앱이 Bluetooth 기기를 찾으려면 위치 서비스가 필요합니다.
 GPS는 사용하지 않습니다.
 
@@ -113,7 +113,7 @@ GPS는 사용하지 않습니다.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>다음에 위치 서비스를 켜도록 다시 알림을 받으시겠습니까?</translation>
+        <translation type="vanished">다음에 위치 서비스를 켜도록 다시 알림을 받으시겠습니까?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,16 @@ Would you like to do that now?</source>
     <message>
         <source>Save</source>
         <translation>저장</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3757,6 +3767,10 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>QZ 목표 파워가 앱의 명령을 덮어쓰고 있습니다. 앱에 제어를 돌려주려면 QZ를 일시 중지했다가 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7783,6 +7797,82 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>계정 없이 쓰는 가상 Life Fitness 프로필을 사용합니다. 켜면 사용자 이름, 비밀번호, 저장된 계정 데이터는 무시됩니다. 지원되는 게스트 로그인을 테스트할 때만 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation type="unfinished">심박수</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation type="unfinished">저항 및 목표 저항</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation type="unfinished">Peloton 저항</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation type="unfinished">케이던스</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation type="unfinished">파워 분포</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation type="unfinished">속도 및 경사도</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
