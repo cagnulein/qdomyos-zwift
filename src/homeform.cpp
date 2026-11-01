@@ -6128,6 +6128,15 @@ void homeform::Minus(const QString &name) {
 
 void homeform::Start() { Start_inner(true); }
 
+void homeform::syncTreadmillStateFromDevice(bool running) {
+    if (stopped || running == !paused) {
+        return;
+    }
+
+    qDebug() << QStringLiteral("Synchronizing treadmill state from telemetry - running") << running;
+    Start_inner(false);
+}
+
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
