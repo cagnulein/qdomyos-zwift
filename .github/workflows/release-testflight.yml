@@ -98,11 +98,27 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH" "$HOME/Library/Keychains/login.keychain-db"
           security default-keychain -d user -s "$KEYCHAIN_PATH"
 
+          CERTIFICATE_SUBJECT="$(openssl pkcs12 -in "$CERTIFICATE_PATH" -passin "env:IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" -clcerts -nokeys 2>/dev/null | openssl x509 -noout -subject -nameopt RFC2253)"
+          case "$CERTIFICATE_SUBJECT" in
+            *"CN=Apple Development:"*) ;;
+            *)
+              echo "The uploaded .p12 does not contain an Apple Development certificate."
+              exit 1
+              ;;
+          esac
+          case "$CERTIFICATE_SUBJECT" in
+            *"OU=6335M7T29D"*) ;;
+            *)
+              echo "The uploaded Apple Development certificate is not for team 6335M7T29D."
+              exit 1
+              ;;
+          esac
+
           IDENTITIES="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")"
           case "$IDENTITIES" in
-            *"Apple Development:"*"(6335M7T29D)"*) ;;
+            *"Apple Development:"*) ;;
             *)
-              echo "The imported signing identity is not an Apple Development certificate for team 6335M7T29D."
+              echo "The imported keychain does not contain a usable Apple Development identity."
               exit 1
               ;;
           esac
