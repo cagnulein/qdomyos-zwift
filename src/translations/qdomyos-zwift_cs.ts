@@ -3784,7 +3784,7 @@ Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladby Spotify:</translation>
     </message>
 </context>
 <context>
@@ -7814,79 +7814,79 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafy v historii tréninků</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Tep</translation>
+        <translation>Tep</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Odpor a cílový odpor</translation>
+        <translation>Odpor a cílový odpor</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Odpor Peloton</translation>
+        <translation>Odpor Peloton</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Kadence</translation>
+        <translation>Kadence</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Rozložení výkonu</translation>
+        <translation>Rozložení výkonu</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Rychlost a sklon</translation>
+        <translation>Rychlost a sklon</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Posouvejte grafy nahoru nebo dolů a zvolte jejich pořadí v historii tréninků. Změny se ukládají automaticky.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunout nahoru</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunout dolů</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovit výchozí pořadí</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Možnosti Moovio</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapne standardní příkaz FTMS Request Control pro běžecké pásy Moovio Lynx Konect 2.0. Výchozí: vypnuto.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel kadence</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Násobitel použitý jen pro frekvenci záběrů, kterou odesílá virtuální veslovací trenažér. Výchozí: 1.0; hodnota 0.25 převede otáčky BikeERG na frekvenci záběrů požadovanou EXR.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Korekce přičtená po násobiteli. Výchozí: 0.0. Kadence zobrazovaná v QZ a metriky tréninku se nemění.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>Běh na pozadí v iOS</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jen iOS. Udrží QZ v chodu při vypnuté obrazovce nebo na pozadí, aby připojení Bluetooth a časovače relace nezamrzaly. Používá tichou zvukovou stopu smíchanou s vaší hudbou, takže nic, co posloucháte, se nepřeruší. Zapněte, pokud potřebujete trénovat se zamčenou obrazovkou nebo s QZ na pozadí. Výchozí: vypnuto.</translation>
     </message>
 </context>
 <context>

@@ -3784,7 +3784,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Песни Spotify:</translation>
     </message>
 </context>
 <context>
@@ -7818,79 +7818,79 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Графики истории тренировок</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Пульс</translation>
+        <translation>Пульс</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Сопротивление и целевое сопротивление</translation>
+        <translation>Сопротивление и целевое сопротивление</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Сопротивление Peloton</translation>
+        <translation>Сопротивление Peloton</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Каденс</translation>
+        <translation>Каденс</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Распределение мощности</translation>
+        <translation>Распределение мощности</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Скорость и наклон</translation>
+        <translation>Скорость и наклон</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемещайте графики вверх или вниз, чтобы выбрать их порядок в истории тренировок. Изменения сохраняются автоматически.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить вверх</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить вниз</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Восстановить порядок по умолчанию</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры Moovio</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Включает стандартную команду FTMS Request Control для беговых дорожек Moovio Lynx Konect 2.0. По умолчанию выключено.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Коэффициент каденса</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Множитель, который применяется только к темпу гребли, передаваемому виртуальным гребным тренажёром. По умолчанию 1.0; значение 0.25 переводит об/мин BikeERG в темп гребли, который запрашивает EXR.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Смещение, которое прибавляется после коэффициента. По умолчанию 0.0. Каденс, который показывает QZ, и показатели тренировки не меняются.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>Фоновая работа на iOS</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Только для iOS. QZ продолжает работать при выключенном экране или в фоне, чтобы подключения Bluetooth и таймеры сессии не замирали. Для этого используется беззвучная звуковая дорожка, которая смешивается с вашей музыкой, поэтому то, что вы слушаете, не прерывается. Включите, если тренируетесь с заблокированным экраном или с QZ в фоне. По умолчанию выключено.</translation>
     </message>
 </context>
 <context>
