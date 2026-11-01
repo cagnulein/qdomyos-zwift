@@ -84,6 +84,7 @@ class trxappgateusbtreadmill : public treadmill {
                                                quint64 pendingGeneration);
     static QList<QByteArray> iconsoleInitializationFrames();
     static int iconsoleExpectedResponseSize(quint8 requestCommand);
+    static bool takeIconsoleResponse(QByteArray &buffer, QByteArray &frame);
     static bool iconsoleResponseMatches(quint8 requestCommand, const QByteArray &response);
     static bool buildIconsoleWorkoutFrames(const QList<trainrow> &rows, QList<QByteArray> *frames,
                                            QString *error = nullptr);
@@ -101,6 +102,7 @@ class trxappgateusbtreadmill : public treadmill {
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void uploadPendingIconsoleWorkout();
+    void processTelemetryPacket();
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -114,6 +116,7 @@ class trxappgateusbtreadmill : public treadmill {
     QTime lastTimeCharChanged;
     uint8_t sec1update = 0;
     QByteArray lastPacket;
+    QByteArray iconsoleReceiveBuffer;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

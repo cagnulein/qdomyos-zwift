@@ -230,9 +230,9 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsIconsoleWorkoutWithNoRows) {
     EXPECT_TRUE(frames.isEmpty());
 }
 
-TEST(TrxAppGateUsTreadmillParserTest, NormalizesSingleRowWorkoutToTenMinuteProfile) {
+TEST(TrxAppGateUsTreadmillParserTest, BuildsConstantTenMinuteWorkout) {
     trainrow row;
-    row.duration = QTime(0, 1, 0);
+    row.duration = QTime(0, 10, 0);
     row.speed = 6.0;
     row.inclination = 3.0;
 
@@ -249,12 +249,12 @@ TEST(TrxAppGateUsTreadmillParserTest, NormalizesSingleRowWorkoutToTenMinuteProfi
     EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
 }
 
-TEST(TrxAppGateUsTreadmillParserTest, SamplesTwoRowWorkoutAcrossTenMinuteProfile) {
+TEST(TrxAppGateUsTreadmillParserTest, PreservesTwoFiveMinuteIntervals) {
     trainrow first;
-    first.duration = QTime(0, 1, 0);
+    first.duration = QTime(0, 5, 0);
     first.speed = 4.0;
     trainrow second;
-    second.duration = QTime(0, 1, 0);
+    second.duration = QTime(0, 5, 0);
     second.speed = 8.0;
 
     QList<QByteArray> frames;
@@ -351,4 +351,76 @@ TEST(TrxAppGateUsTreadmillParserTest, BuildsCompleteIconsoleWorkoutUploadSequenc
     EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
     EXPECT_EQ(frames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
     EXPECT_EQ(frames.at(7), QByteArray::fromHex("f0af01d30275"));
+}
+
+// Actual TX90 reply from the 2026-10-31 22:00:49 Android session.
+TEST(TrxAppGateUsTreadmillParserTest, AcceptsSixteenByteTx90ParameterReply) {
+    const QByteArray ack = QByteArray::fromHex("f0b401d3150101010101010101010197");
+    ASSERT_EQ(ack.size(), 16);
+    EXPECT_TRUE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, ack));
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, ack.left(15)));
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, ack + char(0)));
+    QByteArray corrupt = ack;
+    corrupt[15] = char(0x96);
+    EXPECT_FALSE(trxappgateusbtreadmill::iconsoleResponseMatches(0xa4, corrupt));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, ReassemblesEveryTx90AckAndTelemetrySplit) {
+    const QList<QByteArray> packets = {
+        QByteArray::fromHex("f0b401d3150101010101010101010197"),
+        QByteArray::fromHex("f0b601d30129013d0151020102150229021502010151013d23"),
+        QByteArray::fromHex("f0b201d301010101010101010101010404028b")};
+    for (const QByteArray &packet : packets) {
+        for (int split = 1; split < packet.size(); ++split) {
+            QByteArray buffer = packet.left(split);
+            QByteArray frame;
+            ASSERT_FALSE(trxappgateusbtreadmill::takeIconsoleResponse(buffer, frame));
+            buffer.append(packet.mid(split));
+            ASSERT_TRUE(trxappgateusbtreadmill::takeIconsoleResponse(buffer, frame));
+            EXPECT_EQ(frame, packet);
+            EXPECT_TRUE(buffer.isEmpty());
+        }
+    }
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, SeparatesAckFromFollowingTelemetry) {
+    const QByteArray ack = QByteArray::fromHex("f0b401d3150101010101010101010197");
+    const QByteArray telemetry = QByteArray::fromHex("f0b201d301010101010101010101010404028b");
+    QByteArray buffer = ack + telemetry;
+    QByteArray frame;
+    ASSERT_TRUE(trxappgateusbtreadmill::takeIconsoleResponse(buffer, frame));
+    EXPECT_EQ(frame, ack);
+    ASSERT_TRUE(trxappgateusbtreadmill::takeIconsoleResponse(buffer, frame));
+    EXPECT_EQ(frame, telemetry);
+    EXPECT_TRUE(buffer.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, ResynchronizesAfterCorruptAckAndNoise) {
+    const QByteArray telemetry = QByteArray::fromHex("f0b201d301010101010101010101010404028b");
+    QByteArray buffer = QByteArray::fromHex("00fff0b401d3150101010101010101010196") + telemetry;
+    QByteArray frame;
+    ASSERT_TRUE(trxappgateusbtreadmill::takeIconsoleResponse(buffer, frame));
+    EXPECT_EQ(frame, telemetry);
+    EXPECT_TRUE(buffer.isEmpty());
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsDurationRescalingAndUnrepresentableIntervals) {
+    trainrow row;
+    row.speed = 6;
+    row.duration = QTime(0, 1, 0);
+    QList<QByteArray> frames;
+    QString error;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("exactly ten minutes")));
+    EXPECT_TRUE(frames.isEmpty());
+    row.duration = QTime(0, 5, 0);
+    trainrow second = row;
+    row.duration = QTime(0, 4, 30);
+    second.duration = QTime(0, 5, 30);
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row, second}, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("whole-minute")));
+    row.duration = QTime(0, 10, 0);
+    row.speed = -1;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
+    EXPECT_TRUE(frames.isEmpty());
 }
