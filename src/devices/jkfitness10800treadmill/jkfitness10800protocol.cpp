@@ -51,6 +51,10 @@ QByteArray speedFrame(double speed) {
     return makeFrame(0x0f, payload);
 }
 
+QByteArray speedFrame(double speed, int units) {
+    return speedFrame(units == 0 ? speed : speed * 0.62137);
+}
+
 QByteArray inclineFrame(double incline) {
     const int value = qBound(0, qRound(incline), static_cast<int>(MAX_INCLINE));
     return makeFrame(0x11, QByteArray(1, static_cast<char>(value)));
@@ -60,18 +64,48 @@ QByteArray keepAliveFrame() {
     return makeFrame(0x0d, QByteArray(10, static_cast<char>(0xff)));
 }
 
+QByteArray heartbeatFrame(bool active) {
+    QByteArray payload(1, static_cast<char>(active ? 0x01 : 0x00));
+    return makeFrame(0x17, payload);
+}
+
+QByteArray telemetryQueryFrame() {
+    return QByteArray::fromHex("550701ff");
+}
+
+QByteArray profileFrame(int age, bool male, double heightCm, double weightKg) {
+    return profileFrame(age, male, heightCm, weightKg, 0);
+}
+
+QByteArray profileFrame(int age, bool male, double heightCm, double weightKg, int units) {
+    const auto appendDecimal = [](QByteArray &payload, double value) {
+        int whole = qFloor(qMax(0.0, value));
+        int fraction = qRound((qMax(0.0, value) - whole) * 100.0);
+        if (fraction >= 100) {
+            ++whole;
+            fraction = 0;
+        }
+        payload.append(static_cast<char>(whole));
+        payload.append(static_cast<char>(fraction));
+    };
+    QByteArray payload;
+    payload.append(static_cast<char>(qBound(0, age, 255)));
+    payload.append(static_cast<char>(male ? 0x00 : 0x01));
+    // The native profile frame places weight before height after conversion to
+    // the app's selected units. QZ stores both values in metric units.
+    appendDecimal(payload, units == 0 ? weightKg : weightKg * 2.20462);
+    appendDecimal(payload, units == 0 ? heightCm : heightCm * 0.3937);
+    return makeFrame(0x01, payload);
+}
+
 QVector<QByteArray> initializationFrames() {
     QVector<QByteArray> frames;
-    frames.append(QByteArray::fromHex("55bb01ff"));
-    frames.append(QByteArray::fromHex("550c01ff"));
-    frames.append(QByteArray::fromHex("551f01ff"));
-    frames.append(keepAliveFrame());
-    frames.append(stopFrame());
-    frames.append(QByteArray::fromHex("55010639013219a532"));
-    frames.append(QByteArray::fromHex("55150100"));
-    frames.append(QByteArray::fromHex("550f020100"));
-    frames.append(QByteArray::fromHex("55110100"));
-    frames.append(QByteArray::fromHex("55080101"));
+    const quint8 opcodes[] = {0x0c, 0xbb, 0x24, 0x25, 0x26, 0x27, 0x02, 0x03, 0x04,
+                              0x06, 0x1f, 0xa0, 0xb0, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6,
+                              0xb7, 0xb8, 0xb9, 0xba, 0x0b, 0x18, 0x19, 0x1a, 0x1b};
+    for (quint8 opcode : opcodes) {
+        frames.append(makeFrame(opcode, QByteArray::fromHex("ff")));
+    }
     return frames;
 }
 
@@ -114,7 +148,27 @@ QVector<Frame> consumeFrames(QByteArray &buffer) {
 }
 
 bool decodeTelemetry(const QByteArray &raw, double &speed, double &incline) {
-    if (raw.size() != 13 || byteAt(raw, 0) != 0x55) {
+    return decodeTelemetry(raw, 2, 0, speed, incline);
+}
+
+bool decodeTelemetry(const QByteArray &raw, int deviceType, int units, double &speed, double &incline) {
+    if (deviceType < 0 || deviceType > 2 || raw.size() < 3 || byteAt(raw, 0) != 0x55) return false;
+    const quint8 opcode = byteAt(raw, 1);
+    int expectedSize = 0;
+    int speedIndex = 9;
+    int inclineIndex = 11;
+    if (opcode == 0x0d) {
+        expectedSize = deviceType == 2 ? 13 : 16;
+    } else if (opcode == 0x1d) {
+        expectedSize = deviceType == 2 ? 13 : 10;
+        if (deviceType != 2) {
+            speedIndex = 3;
+            inclineIndex = 5;
+        }
+    } else {
+        return false;
+    }
+    if (raw.size() != expectedSize || byteAt(raw, 2) != expectedSize - 3) {
         return false;
     }
 
@@ -131,26 +185,55 @@ bool decodeTelemetry(const QByteArray &raw, double &speed, double &incline) {
         return false;
     }
 
-    speed = static_cast<double>(byteAt(raw, 9)) + static_cast<double>(byteAt(raw, 10)) / 100.0;
-    if (qFuzzyCompare(speed, 1.0)) {
-        speed = 0.0;
+    speed = static_cast<double>(byteAt(raw, speedIndex)) + static_cast<double>(byteAt(raw, speedIndex + 1)) / 100.0;
+    incline = static_cast<double>(byteAt(raw, inclineIndex));
+    if (units != 0) {
+        speed /= 0.62137;
     }
-    incline = static_cast<double>(byteAt(raw, 11));
     return true;
 }
 
-bool isConsoleState(const QByteArray &raw, bool &running) {
+bool isConsoleState(const QByteArray &raw, bool &running, bool &paused) {
+    paused = false;
     if (raw.size() != 4 || byteAt(raw, 0) != 0x55 || byteAt(raw, 1) != 0x09 ||
         byteAt(raw, 2) != 0x01) {
         return false;
     }
 
     const quint8 state = byteAt(raw, 3);
+    if (state == 0x02) {
+        running = false;
+        return true;
+    }
     if (state != 0x00 && state != 0x01) {
         return false;
     }
     running = state == 0x01;
+    paused = state == 0x00;
     return true;
+}
+
+bool isConsoleState(const QByteArray &raw, bool &running) {
+    bool paused = false;
+    return isConsoleState(raw, running, paused);
+}
+
+bool decodeDeviceType(const QByteArray &raw, int &deviceType) {
+    if (raw.size() != 4 || byteAt(raw, 0) != 0x55 || byteAt(raw, 1) != 0xbb ||
+        byteAt(raw, 2) != 0x01 || byteAt(raw, 3) > 2) return false;
+    deviceType = byteAt(raw, 3);
+    return true;
+}
+
+bool decodeUnits(const QByteArray &raw, int &units) {
+    if (raw.size() != 4 || byteAt(raw, 0) != 0x55 || byteAt(raw, 1) != 0x0c || byteAt(raw, 2) != 0x01)
+        return false;
+    units = byteAt(raw, 3);
+    return true;
+}
+
+bool isRetryDeviceTypeQuery(const QByteArray &raw) {
+    return raw == QByteArray::fromHex("55bb00");
 }
 
 } // namespace jkfitness10800protocol

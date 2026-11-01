@@ -7,7 +7,6 @@
 
 namespace {
 constexpr quint16 SERIAL_PORT_UUID = 0x1101;
-constexpr int SETUP_TIMEOUT_MS = 300;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr double MAX_SPEED = 22.0;
 constexpr double MAX_INCLINE = 15.0;
@@ -30,12 +29,20 @@ jkfitness10800treadmill::jkfitness10800treadmill(bool noConsole, bool noHeartSer
     connect(refresh, &QTimer::timeout, this, &jkfitness10800treadmill::update);
     refresh->start(200);
 
-    setupTimeoutTimer.setSingleShot(true);
-    connect(&setupTimeoutTimer, &QTimer::timeout, this, &jkfitness10800treadmill::setupTimeout);
+    heartbeatTimer.setInterval(1000);
+    connect(&heartbeatTimer, &QTimer::timeout, this, &jkfitness10800treadmill::sendHeartbeat);
+    startupSettleTimer.setSingleShot(true);
+    connect(&startupSettleTimer, &QTimer::timeout, this, [this]() {
+        if (!socket || socket->state() != QBluetoothSocket::ConnectedState) return;
+        const QVector<QByteArray> frames = jkfitness10800protocol::initializationFrames();
+        emit debug(QStringLiteral("Sending native 27-frame protocol query sequence"));
+        for (const QByteArray &frame : frames) writeFrame(frame, QStringLiteral("query"));
+    });
+    startSequenceTimer.setSingleShot(true);
+    connect(&startSequenceTimer, &QTimer::timeout, this, &jkfitness10800treadmill::sendNextStartFrame);
 }
 
 jkfitness10800treadmill::~jkfitness10800treadmill() {
-    setupTimeoutTimer.stop();
     if (discoveryAgent) {
         discoveryAgent->stop();
     }
@@ -126,57 +133,40 @@ void jkfitness10800treadmill::serviceFinished() {
 void jkfitness10800treadmill::rfCommConnected() {
     emit debug(QStringLiteral("JK Fitness RFCOMM connected: ") + socket->peerName());
     resetConnectionState();
-    const QVector<QByteArray> initialization = jkfitness10800protocol::initializationFrames();
-    for (const QByteArray &frame : initialization) {
-        setupQueue.enqueue(frame);
-    }
-    sendNextSetupFrame();
+    sendHeartbeat();
+    heartbeatTimer.start();
+    startupSettleTimer.start(700);
 }
 
-void jkfitness10800treadmill::sendNextSetupFrame() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState) {
-        return;
-    }
-
-    if (setupQueue.isEmpty()) {
-        finishSetup();
-        return;
-    }
-
-    const QByteArray frame = setupQueue.dequeue();
-    setupWaiting = true;
-    writeFrame(frame, QStringLiteral("setup"));
-    setupTimeoutTimer.start(SETUP_TIMEOUT_MS);
+void jkfitness10800treadmill::sendHeartbeat() {
+    writeFrame(jkfitness10800protocol::heartbeatFrame(), QStringLiteral("native heartbeat"));
 }
 
-void jkfitness10800treadmill::setupTimeout() {
-    if (!setupWaiting) {
+void jkfitness10800treadmill::sendNextStartFrame() {
+    if (requestStop != -1) {
+        startSequenceQueue.clear();
+        startWaitingForRunning = false;
         return;
     }
-
-    setupWaiting = false;
-    emit debug(QStringLiteral("setup response timeout; advancing to next frame"));
-    sendNextSetupFrame();
+    if (!connected() || startSequenceQueue.isEmpty()) {
+        startSequenceQueue.clear();
+        startWaitingForRunning = false;
+        return;
+    }
+    const QByteArray frame = startSequenceQueue.dequeue();
+    writeFrame(frame, QStringLiteral("native type-2 start sequence"));
+    if (frame == QByteArray::fromHex("55080101")) {
+        startWaitingForRunning = true;
+        return;
+    }
+    if (!startSequenceQueue.isEmpty()) startSequenceTimer.start(600);
 }
 
-void jkfitness10800treadmill::finishSetup() {
-    if (initDone) {
-        return;
-    }
-
-    if (!setupHadValidResponse) {
-        emit debug(QStringLiteral("RFCOMM probe finished without validated telemetry; controls remain disabled"));
-        return;
-    }
-
-    setupWaiting = false;
-    setupTimeoutTimer.stop();
+void jkfitness10800treadmill::updateReadyState() {
+    if (!deviceTypeKnown || !unitsKnown || protocolDeviceType != 2 || connectedSignalEmitted) return;
     initDone = true;
-    emit debug(QStringLiteral("RFCOMM setup complete; hardware acceptance remains unverified"));
-    if (!connectedSignalEmitted) {
-        connectedSignalEmitted = true;
-        emit connectedAndDiscovered();
-    }
+    connectedSignalEmitted = true;
+    emit connectedAndDiscovered();
 }
 
 void jkfitness10800treadmill::writeFrame(const QByteArray &frame, const QString &info) {
@@ -186,7 +176,11 @@ void jkfitness10800treadmill::writeFrame(const QByteArray &frame, const QString 
     }
 
     emit debug(QStringLiteral(">> ") + frame.toHex(' ') + QStringLiteral(" // ") + info);
-    socket->write(frame);
+    const qint64 written = socket->write(frame);
+    if (written != frame.size()) {
+        emit debug(QStringLiteral("RFCOMM write accepted ") + QString::number(written) + QStringLiteral(" of ") +
+                   QString::number(frame.size()) + QStringLiteral(" bytes // ") + info);
+    }
 }
 
 void jkfitness10800treadmill::readSocket() {
@@ -194,51 +188,97 @@ void jkfitness10800treadmill::readSocket() {
         return;
     }
 
-    socketReadBuffer.append(socket->readAll());
+    const QByteArray chunk = socket->readAll();
+    emit debug(QStringLiteral("RX chunk: ") + chunk.toHex(' '));
+    socketReadBuffer.append(chunk);
     const QVector<jkfitness10800protocol::Frame> frames =
         jkfitness10800protocol::consumeFrames(socketReadBuffer);
     for (const jkfitness10800protocol::Frame &frame : frames) {
         emit debug(QStringLiteral("<< ") + frame.raw.toHex(' ') + QStringLiteral(" // opcode=0x") +
                    QString::number(frame.opcode, 16));
         processFrame(frame.raw);
-
-        if (setupWaiting) {
-            setupTimeoutTimer.stop();
-            setupWaiting = false;
-            sendNextSetupFrame();
-        }
     }
 }
 
 void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
     bool running = false;
-    if (jkfitness10800protocol::isConsoleState(frame, running)) {
-        setupHadValidResponse = true;
-        if (!runningStateKnown || runningState != running) {
+    bool paused = false;
+    int discoveredValue = 0;
+    if (jkfitness10800protocol::decodeDeviceType(frame, discoveredValue)) {
+        protocolDeviceType = discoveredValue;
+        deviceTypeKnown = true;
+        emit debug(QStringLiteral("Protocol device type discovered: ") + QString::number(protocolDeviceType));
+        if (protocolDeviceType != 2) {
+            initDone = false;
+            startSequenceTimer.stop();
+            startSequenceQueue.clear();
+            startWaitingForRunning = false;
+            emit debug(QStringLiteral("Discovered PAFERS device type is not a treadmill; treadmill controls disabled"));
+            return;
+        }
+        updateReadyState();
+        if (unitsKnown) writeFrame(jkfitness10800protocol::telemetryQueryFrame(), QStringLiteral("telemetry query after discovery"));
+        return;
+    }
+    if (jkfitness10800protocol::decodeUnits(frame, discoveredValue)) {
+        units = discoveredValue;
+        unitsKnown = true;
+        emit debug(QStringLiteral("Protocol speed units discovered: ") + QString::number(units));
+        updateReadyState();
+        if (deviceTypeKnown && protocolDeviceType == 2) {
+            writeFrame(jkfitness10800protocol::telemetryQueryFrame(), QStringLiteral("telemetry query after discovery"));
+        }
+        return;
+    }
+    if (jkfitness10800protocol::isRetryDeviceTypeQuery(frame)) {
+        writeFrame(QByteArray::fromHex("55bb01ff"), QStringLiteral("retry device type query"));
+        return;
+    }
+    const bool typeTwoStopped = deviceTypeKnown && protocolDeviceType == 2 && frame == QByteArray::fromHex("550b0101");
+    if (jkfitness10800protocol::isConsoleState(frame, running, paused) || typeTwoStopped) {
+        if (typeTwoStopped) running = false;
+        if (running && startWaitingForRunning) {
+            startWaitingForRunning = false;
+            startSequenceTimer.start(3000);
+        } else if (!running && startWaitingForRunning) {
+            startWaitingForRunning = false;
+            startSequenceTimer.stop();
+            startSequenceQueue.clear();
+        }
+        // A stop reply while preparing the session can acknowledge our reset.
+        // Once running (or explicitly paused), cancel all delayed start writes.
+        if (!running && (runningState || paused) && !startSequenceQueue.isEmpty()) {
+            startSequenceTimer.stop();
+            startSequenceQueue.clear();
+            startWaitingForRunning = false;
+            requestStart = -1;
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
+        if (!runningStateKnown || runningState != running || pausedState != paused) {
             runningStateKnown = true;
             runningState = running;
+            pausedState = paused;
             if (running) {
                 lastStart = 0;
                 emit tapeStarted();
                 emit buttonHWStart();
+            } else if (paused) {
+                emit debug(QStringLiteral("Console reports paused"));
             } else {
                 lastStop = 0;
                 emit buttonHWStop();
             }
-        }
-        if (!setupWaiting && setupQueue.isEmpty()) {
-            finishSetup();
         }
         return;
     }
 
     double speed = 0.0;
     double incline = 0.0;
-    if (!jkfitness10800protocol::decodeTelemetry(frame, speed, incline)) {
+    if (!deviceTypeKnown || !unitsKnown || protocolDeviceType != 2 ||
+        !jkfitness10800protocol::decodeTelemetry(frame, protocolDeviceType, units, speed, incline)) {
         return;
     }
-
-    setupHadValidResponse = true;
 
     const QDateTime now = QDateTime::currentDateTime();
     if (Speed.value() != speed) {
@@ -258,16 +298,13 @@ void jkfitness10800treadmill::processFrame(const QByteArray &frame) {
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed) +
-               QStringLiteral(" incline: ") + QString::number(incline) +
-               QStringLiteral(" telemetry=source-derived-13-byte"));
+               QStringLiteral(" incline: ") + QString::number(incline) + QStringLiteral(" telemetry=source-derived"));
     lastTelemetryUpdate = now;
-    if (!setupWaiting && setupQueue.isEmpty()) {
-        finishSetup();
-    }
 }
 
 void jkfitness10800treadmill::update() {
-    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone) {
+    if (!socket || socket->state() != QBluetoothSocket::ConnectedState || !initDone || !deviceTypeKnown ||
+        !unitsKnown || protocolDeviceType != 2) {
         return;
     }
 
@@ -284,12 +321,25 @@ void jkfitness10800treadmill::update() {
     }
 
     bool commandSent = false;
-    if (requestSpeed != -1) {
+    if (requestStop != -1) {
+        requestStop = -1;
+        requestStart = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        startSequenceTimer.stop();
+        startSequenceQueue.clear();
+        startWaitingForRunning = false;
+        writeFrame(jkfitness10800protocol::stopFrame(), QStringLiteral("stop"));
+        lastStop = QDateTime::currentMSecsSinceEpoch();
+        commandSent = true;
+    } else if (!startSequenceQueue.isEmpty() || startWaitingForRunning) {
+        commandSent = true;
+    } else if (requestSpeed != -1) {
         const double requestedInput = requestSpeed;
         const double requested = qBound(0.0, requestedInput, MAX_SPEED);
         requestSpeed = -1;
         if (qAbs(requested - currentSpeed().value()) >= minStepSpeed()) {
-            writeFrame(jkfitness10800protocol::speedFrame(requested),
+            writeFrame(jkfitness10800protocol::speedFrame(requested, units),
                        QStringLiteral("speed request=") + QString::number(requested));
             commandSent = true;
         }
@@ -304,19 +354,32 @@ void jkfitness10800treadmill::update() {
         }
     } else if (requestStart != -1) {
         requestStart = -1;
-        writeFrame(jkfitness10800protocol::startFrame(), QStringLiteral("start"));
-        emit tapeStarted();
-        commandSent = true;
-    } else if (requestStop != -1) {
-        requestStop = -1;
-        writeFrame(jkfitness10800protocol::stopFrame(), QStringLiteral("stop"));
-        lastStop = QDateTime::currentMSecsSinceEpoch();
+        requestSpeed = -1;
+        requestInclination = -100;
+        QSettings profile;
+        const bool male = profile.value(QZSettings::sex, QZSettings::default_sex)
+                              .toString().compare(QStringLiteral("Male"), Qt::CaseInsensitive) == 0;
+        const int age = profile.value(QZSettings::age, QZSettings::default_age).toInt();
+        const double heightCm = profile.value(QZSettings::height, QZSettings::default_height).toDouble();
+        const double weightKg = profile.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+        startSequenceTimer.stop();
+        startSequenceQueue.clear();
+        startWaitingForRunning = false;
+        writeFrame(jkfitness10800protocol::stopFrame(), QStringLiteral("native start reset"));
+        startSequenceQueue.enqueue(jkfitness10800protocol::profileFrame(age, male, heightCm, weightKg, units));
+        startSequenceQueue.enqueue(QByteArray::fromHex("55150100"));
+        startSequenceQueue.enqueue(jkfitness10800protocol::speedFrame(1.0, units));
+        startSequenceQueue.enqueue(jkfitness10800protocol::inclineFrame(qMax(0.0, Inclination.value())));
+        startSequenceQueue.enqueue(QByteArray::fromHex("55080101"));
+        startSequenceQueue.enqueue(jkfitness10800protocol::startFrame());
+        startSequenceQueue.enqueue(jkfitness10800protocol::telemetryQueryFrame());
+        startSequenceTimer.start(600);
         commandSent = true;
     }
 
     if (!commandSent && pollCounter++ >= (POLL_INTERVAL_MS / refresh->interval())) {
         pollCounter = 0;
-        writeFrame(jkfitness10800protocol::keepAliveFrame(), QStringLiteral("poll/keep-alive"));
+        writeFrame(jkfitness10800protocol::telemetryQueryFrame(), QStringLiteral("telemetry query"));
     }
 
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -344,19 +407,26 @@ void jkfitness10800treadmill::onSocketErrorOccurred(QBluetoothSocket::SocketErro
 }
 
 void jkfitness10800treadmill::resetConnectionState() {
-    setupTimeoutTimer.stop();
-    setupQueue.clear();
+    heartbeatTimer.stop();
+    startupSettleTimer.stop();
+    startSequenceTimer.stop();
+    startSequenceQueue.clear();
+    startWaitingForRunning = false;
     socketReadBuffer.clear();
-    setupWaiting = false;
-    setupHadValidResponse = false;
     initDone = false;
     connectedSignalEmitted = false;
     disconnectedSignalEmitted = false;
     runningStateKnown = false;
     runningState = false;
+    pausedState = false;
+    deviceTypeKnown = false;
+    unitsKnown = false;
+    protocolDeviceType = 2;
+    units = 0;
     pollCounter = 0;
 }
 
 bool jkfitness10800treadmill::connected() {
-    return socket && socket->state() == QBluetoothSocket::ConnectedState && initDone;
+    return socket && socket->state() == QBluetoothSocket::ConnectedState && deviceTypeKnown && unitsKnown &&
+           protocolDeviceType == 2 && initDone;
 }

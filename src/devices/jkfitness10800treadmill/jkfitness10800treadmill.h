@@ -40,14 +40,14 @@ class jkfitness10800treadmill : public treadmill {
     void rfCommConnected();
     void socketDisconnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError error);
-    void setupTimeout();
+    void sendHeartbeat();
+    void sendNextStartFrame();
+    void updateReadyState();
     void update();
     void changeInclinationRequested(double grade, double percentage);
 
   private:
     void createSocket();
-    void sendNextSetupFrame();
-    void finishSetup();
     void writeFrame(const QByteArray &frame, const QString &info);
     void processFrame(const QByteArray &frame);
     void resetConnectionState();
@@ -55,12 +55,16 @@ class jkfitness10800treadmill : public treadmill {
     bool noConsole = false;
     bool noHeartService = false;
     bool initDone = false;
-    bool setupWaiting = false;
-    bool setupHadValidResponse = false;
     bool connectedSignalEmitted = false;
     bool disconnectedSignalEmitted = false;
     bool runningStateKnown = false;
     bool runningState = false;
+    bool pausedState = false;
+    bool startWaitingForRunning = false;
+    bool deviceTypeKnown = false;
+    bool unitsKnown = false;
+    int protocolDeviceType = 2;
+    int units = 0;
     uint8_t pollCounter = 0;
 
     QBluetoothDeviceInfo bluetoothDevice;
@@ -68,10 +72,12 @@ class jkfitness10800treadmill : public treadmill {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
     QByteArray socketReadBuffer;
-    QQueue<QByteArray> setupQueue;
+    QQueue<QByteArray> startSequenceQueue;
 
     QTimer *refresh = nullptr;
-    QTimer setupTimeoutTimer;
+    QTimer heartbeatTimer;
+    QTimer startupSettleTimer;
+    QTimer startSequenceTimer;
     QDateTime lastTelemetryUpdate = QDateTime::currentDateTime();
 };
 

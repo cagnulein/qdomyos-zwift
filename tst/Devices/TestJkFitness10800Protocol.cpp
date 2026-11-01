@@ -11,6 +11,26 @@ TEST(JkFitness10800Protocol, BuildsSourceDerivedControlFrames) {
     EXPECT_EQ(speedFrame(8.32), QByteArray::fromHex("550f020820"));
     EXPECT_EQ(inclineFrame(6.0), QByteArray::fromHex("55110106"));
     EXPECT_EQ(keepAliveFrame().size(), 13);
+    EXPECT_EQ(heartbeatFrame(), QByteArray::fromHex("55170101"));
+    EXPECT_EQ(telemetryQueryFrame(), QByteArray::fromHex("550701ff"));
+    EXPECT_EQ(profileFrame(42, true, 178.5, 81.2), QByteArray::fromHex("5501062a005114b232"));
+    EXPECT_EQ(speedFrame(8.0, 1), QByteArray::fromHex("550f020461"));
+    EXPECT_EQ(profileFrame(42, false, 178.0, 81.0, 1), QByteArray::fromHex("5501062a01b2394608"));
+}
+
+TEST(JkFitness10800Protocol, BuildsNativeConnectionQuerySequence) {
+    const QVector<QByteArray> frames = initializationFrames();
+    const QVector<QByteArray> expected = {
+        QByteArray::fromHex("550c01ff"), QByteArray::fromHex("55bb01ff"), QByteArray::fromHex("552401ff"),
+        QByteArray::fromHex("552501ff"), QByteArray::fromHex("552601ff"), QByteArray::fromHex("552701ff"),
+        QByteArray::fromHex("550201ff"), QByteArray::fromHex("550301ff"), QByteArray::fromHex("550401ff"),
+        QByteArray::fromHex("550601ff"), QByteArray::fromHex("551f01ff"), QByteArray::fromHex("55a001ff"),
+        QByteArray::fromHex("55b001ff"), QByteArray::fromHex("55b201ff"), QByteArray::fromHex("55b301ff"),
+        QByteArray::fromHex("55b401ff"), QByteArray::fromHex("55b501ff"), QByteArray::fromHex("55b601ff"),
+        QByteArray::fromHex("55b701ff"), QByteArray::fromHex("55b801ff"), QByteArray::fromHex("55b901ff"),
+        QByteArray::fromHex("55ba01ff"), QByteArray::fromHex("550b01ff"), QByteArray::fromHex("551801ff"),
+        QByteArray::fromHex("551901ff"), QByteArray::fromHex("551a01ff"), QByteArray::fromHex("551b01ff")};
+    EXPECT_EQ(frames, expected);
 }
 
 TEST(JkFitness10800Protocol, ClampsControlValues) {
@@ -69,6 +89,62 @@ TEST(JkFitness10800Protocol, DecodesTelemetryAndConsoleState) {
     EXPECT_TRUE(running);
     EXPECT_TRUE(isConsoleState(QByteArray::fromHex("55090100"), running));
     EXPECT_FALSE(running);
+    EXPECT_TRUE(isConsoleState(QByteArray::fromHex("55090102"), running));
+    EXPECT_FALSE(running);
+    bool paused = false;
+    EXPECT_TRUE(isConsoleState(QByteArray::fromHex("55090100"), running, paused));
+    EXPECT_FALSE(running);
+    EXPECT_TRUE(paused);
+    EXPECT_TRUE(isConsoleState(QByteArray::fromHex("55090102"), running, paused));
+    EXPECT_FALSE(running);
+    EXPECT_FALSE(paused);
+}
+
+TEST(JkFitness10800Protocol, ValidatesNativeTelemetryOpcodeLengthAndType) {
+    QByteArray shortTelemetry = QByteArray::fromHex("550d0a00000000000008320600");
+    double speed = 0.0;
+    double incline = 0.0;
+    ASSERT_TRUE(decodeTelemetry(shortTelemetry, 2, 0, speed, incline));
+    EXPECT_DOUBLE_EQ(speed, 8.50);
+    EXPECT_DOUBLE_EQ(incline, 6.0);
+    EXPECT_TRUE(decodeTelemetry(shortTelemetry, 2, 1, speed, incline));
+    EXPECT_NEAR(speed, 8.50 / 0.62137, 0.00001);
+    EXPECT_FALSE(decodeTelemetry(shortTelemetry, 1, 0, speed, incline));
+
+    QByteArray extendedTelemetry = QByteArray::fromHex("550d0d00000000000008320600000000");
+    EXPECT_EQ(extendedTelemetry.size(), 16);
+    EXPECT_TRUE(decodeTelemetry(extendedTelemetry, 0, 0, speed, incline));
+    EXPECT_FALSE(decodeTelemetry(QByteArray::fromHex("550c0a00000000000008320600"), 2, 0, speed, incline));
+    EXPECT_FALSE(decodeTelemetry(QByteArray::fromHex("550d0900000000000008320600"), 2, 0, speed, incline));
+
+    shortTelemetry[9] = static_cast<char>(0x01);
+    shortTelemetry[10] = static_cast<char>(0x00);
+    ASSERT_TRUE(decodeTelemetry(shortTelemetry, 2, 0, speed, incline));
+    EXPECT_DOUBLE_EQ(speed, 1.0);
+}
+
+TEST(JkFitness10800Protocol, DecodesNativeProtocolDiscoveryAndUnits) {
+    int value = -1;
+    EXPECT_TRUE(decodeDeviceType(QByteArray::fromHex("55bb0102"), value));
+    EXPECT_EQ(value, 2);
+    EXPECT_FALSE(decodeDeviceType(QByteArray::fromHex("55bb0103"), value));
+    EXPECT_TRUE(decodeUnits(QByteArray::fromHex("550c0101"), value));
+    EXPECT_EQ(value, 1);
+    EXPECT_TRUE(isRetryDeviceTypeQuery(QByteArray::fromHex("55bb00")));
+}
+
+TEST(JkFitness10800Protocol, DecodesNativeSecondaryTelemetryByDeviceType) {
+    double incline = 0.0;
+    double speed = 0.0;
+    const QByteArray treadmillStatus = QByteArray::fromHex("551d0a00000000000008320600");
+    EXPECT_TRUE(decodeTelemetry(treadmillStatus, 2, 0, speed, incline));
+    EXPECT_DOUBLE_EQ(speed, 8.50);
+    EXPECT_DOUBLE_EQ(incline, 6.0);
+    const QByteArray extendedStatus = QByteArray::fromHex("551d07080604ff000000");
+    EXPECT_TRUE(decodeTelemetry(extendedStatus, 1, 0, speed, incline));
+    EXPECT_DOUBLE_EQ(speed, 8.06);
+    EXPECT_DOUBLE_EQ(incline, 4.0);
+    EXPECT_FALSE(decodeTelemetry(extendedStatus, 2, 0, speed, incline));
 }
 
 TEST(JkFitness10800Protocol, DoesNotInterpretKeepAliveAsTelemetry) {
