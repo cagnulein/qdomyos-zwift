@@ -2385,6 +2385,13 @@ void homeform::setAppLanguage(const QString &language) {
     sortTiles();
     // the web pages took their texts when they were loaded: the open ones ask for them again
     emit appLanguageChanged();
+#ifdef Q_OS_ANDROID
+    // and so did the notification, which is up once a device is connected
+    QSettings settings;
+    if (bluetoothManager && bluetoothManager->device() &&
+        settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool())
+        android_notification_apply(true);
+#endif
 }
 
 // The tile titles, in the current language and units: set when the tiles are made and again in
@@ -10956,7 +10963,8 @@ void homeform::android_notification_apply(bool enabled) {
     if (enabled) {
         // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
         // start right away and the running workout doesn't need a restart
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString(tr("QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
