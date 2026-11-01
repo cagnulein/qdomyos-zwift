@@ -3792,7 +3792,7 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotify-Titel:</translation>
     </message>
 </context>
 <context>
@@ -7834,79 +7834,79 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagramme im Trainingsverlauf</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Herzfrequenz</translation>
+        <translation>Herzfrequenz</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Widerstand vs. Zielwiderstand</translation>
+        <translation>Widerstand vs. Zielwiderstand</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton-Widerstand</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Trittfrequenz</translation>
+        <translation>Trittfrequenz</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Leistungsverteilung</translation>
+        <translation>Leistungsverteilung</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Geschwindigkeit und Neigung</translation>
+        <translation>Geschwindigkeit und Neigung</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschieben Sie die Diagramme nach oben oder unten, um ihre Reihenfolge im Trainingsverlauf festzulegen. Änderungen werden automatisch gespeichert.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardreihenfolge wiederherstellen</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio Optionen</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert den Standard-FTMS-Befehl Request Control für Moovio-Lynx-Konect-2.0-Laufbänder. Standardmäßig aus.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadenzgewinn</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Multiplikator, der nur auf die vom virtuellen Ruderer gesendete Schlagfrequenz angewendet wird. Standardwert: 1.0; mit 0.25 werden die BikeERG-U/min in die von EXR angeforderte Schlagfrequenz umgerechnet.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Offset, der nach dem Kadenzgewinn addiert wird. Standardwert: 0.0. Die interne Trittfrequenzanzeige von QZ und die Trainingswerte bleiben unverändert.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS-Hintergrundbetrieb</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur iOS. Hält QZ bei ausgeschaltetem Bildschirm oder im Hintergrund aktiv, damit Bluetooth-Verbindungen und Sitzungstimer nicht einfrieren. Dazu wird eine stumme Audiospur verwendet, die mit Ihrer Musik gemischt wird, sodass nichts unterbrochen wird, was Sie gerade hören. Aktivieren Sie dies, wenn Sie bei gesperrtem Bildschirm oder mit QZ im Hintergrund trainieren. Standardmäßig aus.</translation>
     </message>
 </context>
 <context>

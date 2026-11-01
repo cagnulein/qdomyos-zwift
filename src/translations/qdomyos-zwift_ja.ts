@@ -3796,7 +3796,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotifyの曲:</translation>
     </message>
 </context>
 <context>
@@ -7878,79 +7878,79 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>ワークアウト履歴のグラフ</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">心拍数</translation>
+        <translation>心拍数</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">負荷レベルと目標負荷レベル</translation>
+        <translation>負荷レベルと目標負荷レベル</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Peloton換算負荷</translation>
+        <translation>Peloton換算負荷</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">ケイデンス</translation>
+        <translation>ケイデンス</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">パワー分布</translation>
+        <translation>パワー分布</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">スピードと傾斜</translation>
+        <translation>スピードと傾斜</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを上下に移動して、ワークアウト履歴での表示順を選択します。変更は自動的に保存されます。</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>上へ移動</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>下へ移動</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトの順序に戻す</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio設定</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio Lynx Konect 2.0 トレッドミル向けに、標準の FTMS Request Control コマンドを有効にします。デフォルトはオフです。</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンスゲイン</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>バーチャルローイングマシンが送信するストロークレートにのみ適用される倍率です。デフォルトは1.0です。BikeERG の RPM を EXR が要求するストロークレートに変換するには 0.25 を使用します。</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲインの後に加算されるオフセットです。デフォルトは0.0です。QZ 内部のケイデンス表示とワークアウトの指標は変わりません。</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS バックグラウンド維持</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS のみ。画面がオフのときや QZ がバックグラウンドにあるときも QZ を動作させ続け、Bluetooth 接続やセッションタイマーが止まらないようにします。音楽とミックスされる無音のオーディオトラックを使用するため、聴いている音楽は中断されません。画面をロックしたまま、または QZ をバックグラウンドにしたままトレーニングする必要がある場合に有効にしてください。デフォルトはオフです。</translation>
     </message>
 </context>
 <context>

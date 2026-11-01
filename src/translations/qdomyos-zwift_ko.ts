@@ -3784,7 +3784,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotify 노래:</translation>
     </message>
 </context>
 <context>
@@ -7814,79 +7814,79 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>운동 기록 그래프</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">심박수</translation>
+        <translation>심박수</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">저항 및 목표 저항</translation>
+        <translation>저항 및 목표 저항</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Peloton 저항</translation>
+        <translation>Peloton 저항</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">케이던스</translation>
+        <translation>케이던스</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">파워 분포</translation>
+        <translation>파워 분포</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">속도 및 경사도</translation>
+        <translation>속도 및 경사도</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>그래프를 위아래로 이동해 운동 기록에서 표시 순서를 정하세요. 변경 사항은 자동으로 저장됩니다.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>위로 이동</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>아래로 이동</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>기본 순서로 복원</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio 옵션</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio Lynx Konect 2.0 트레드밀용 표준 FTMS Request Control 명령을 사용합니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>케이던스 배율</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>가상 로잉 머신이 보내는 스트로크 속도에만 적용되는 배율입니다. 기본값: 1.0. BikeERG RPM을 EXR이 요청하는 스트로크 속도로 변환하려면 0.25를 사용하세요.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>배율 적용 후 더하는 보정값입니다. 기본값: 0.0. QZ 내부 케이던스 표시와 운동 지표는 바뀌지 않습니다.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS 백그라운드 유지</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS 전용. 화면이 꺼져 있거나 QZ가 백그라운드에 있을 때도 QZ가 계속 실행되도록 해 Bluetooth 연결과 세션 타이머가 멈추지 않게 합니다. 음악과 함께 재생되는 무음 오디오 트랙을 사용하므로 듣고 있는 음악이 끊기지 않습니다. 화면을 잠근 상태나 QZ를 백그라운드에 둔 상태로 운동해야 한다면 켜세요. 기본값: 꺼짐.</translation>
     </message>
 </context>
 <context>

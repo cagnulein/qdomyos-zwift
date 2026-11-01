@@ -3792,7 +3792,7 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Morceaux Spotify :</translation>
     </message>
 </context>
 <context>
@@ -7854,79 +7854,79 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Graphiques de l&apos;historique des entraînements</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Fréquence cardiaque</translation>
+        <translation>Fréquence cardiaque</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Résistance vs résistance cible</translation>
+        <translation>Résistance vs résistance cible</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Résistance Peloton</translation>
+        <translation>Résistance Peloton</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Cadence</translation>
+        <translation>Cadence</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Répartition de la puissance</translation>
+        <translation>Répartition de la puissance</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Vitesse et inclinaison</translation>
+        <translation>Vitesse et inclinaison</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacez les graphiques vers le haut ou vers le bas pour choisir leur ordre dans l&apos;historique des entraînements. Les modifications sont enregistrées automatiquement.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Monter</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Descendre</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Rétablir l&apos;ordre par défaut</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Options Moovio</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Active la commande FTMS standard Request Control pour les tapis de course Moovio Lynx Konect 2.0. Par défaut, désactivé.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Gain de cadence</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Multiplicateur appliqué uniquement à la cadence de rame envoyée par le rameur virtuel. Par défaut : 1.0 ; utilisez 0.25 pour convertir les tr/min du BikeERG en cadence de rame demandée par l&apos;EXR.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Décalage ajouté après le gain. Par défaut : 0.0. L&apos;affichage interne de la cadence dans QZ et les métriques d&apos;entraînement restent inchangés.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>Maintien en arrière-plan iOS</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS uniquement. Maintient QZ actif lorsque l&apos;écran est éteint ou que QZ est en arrière-plan, afin que les connexions Bluetooth et les minuteurs de session ne se figent pas. Une piste audio silencieuse est mélangée à votre musique : rien de ce que vous écoutez n&apos;est interrompu. Activez-le si vous devez vous entraîner avec l&apos;écran verrouillé ou avec QZ en arrière-plan. Par défaut, désactivé.</translation>
     </message>
 </context>
 <context>
