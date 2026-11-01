@@ -153,8 +153,20 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
     }
 }
 
+void fitshowtreadmill::cancelPendingStartTarget(const QString &reason) {
+    if (!m_startSpeedGate.waitingForRunning())
+        return;
+
+    emit debug(QStringLiteral("FitShow startup: discarding deferred speed/incline (%1)").arg(reason));
+    requestSpeed = -1;
+    requestInclination = -100;
+    m_runnController.reset();
+    m_startSpeedGate.cancel();
+}
+
 void fitshowtreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
+        cancelPendingStartTarget(QStringLiteral("disconnected"));
         emit disconnected();
         return;
     }
@@ -187,8 +199,19 @@ void fitshowtreadmill::update() {
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-        if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value()) {
+        // The FitShow controller acknowledges speed commands during START
+        // countdown without applying them. Keep the most recent requested
+        // workout speed/incline until physical RUNNING status is confirmed.
+        // Stop always wins over a pending target.
+        if (requestStop != -1) {
+            cancelPendingStartTarget(QStringLiteral("stop or pause requested"));
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
+        const bool canSendTarget = m_startSpeedGate.canSendTarget(requestStart != -1, requestStop != -1);
+
+        if (requestSpeed != -1 && canSendTarget) {
+            if (requestSpeed != rawSpeed.value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 double inc = rawInclination.value();
                 if (requestInclination != -100) {
@@ -202,7 +225,7 @@ void fitshowtreadmill::update() {
             requestSpeed = -1;
         }
 
-        if (requestInclination != -100) {
+        if (requestInclination != -100 && canSendTarget) {
             double inc = rawInclination.value();
             // only 0.5 or 1 changes otherwise it beeps forever
             double a = 1.0 / minStepInclination();
@@ -210,7 +233,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().valueRaw();
+                double speed = rawSpeed.value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -237,8 +260,10 @@ void fitshowtreadmill::update() {
                 0x00,
                 0x00 // mode-dependent value (u16le)
             };       // to verify
+            m_startSpeedGate.startSent();
             scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
             forceSpeedOrIncline(lastSpeed, lastInclination);
+            emit debug(QStringLiteral("FitShow startup: waiting for RUNNING before applying workout speed"));
 
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
@@ -247,7 +272,9 @@ void fitshowtreadmill::update() {
         if (requestStop != -1) {
             if (paused) {
                 lastStop = QDateTime::currentMSecsSinceEpoch();
-                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_PAUSE}; // to verify
+                // Merach uses its PAUSED status value as the pause command.
+                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL,
+                                       (uint8_t)(merach_t12_connected ? FITSHOW_STATUS_PAUSED : FITSHOW_CONTROL_PAUSE)};
                 emit debug(QStringLiteral("pausing..."));
                 scheduleWrite(pauseTape, sizeof(pauseTape), QStringLiteral("pause tape"));
             } else {
@@ -299,12 +326,12 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
-    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected) {
+    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected && !merach_t12_connected) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+            homeform::singleton()->setToastRequested(QObject::tr("FTMS treadmill found, restart the app to apply the change"));
     }
 }
 
@@ -455,9 +482,16 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         } else if (par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
                    par == FITSHOW_STATUS_END) {
             if (full_len >= 16) {
-                if (par == FITSHOW_STATUS_RUNNING)
+                if (par == FITSHOW_STATUS_RUNNING) {
                     IS_RUNNING = true;
-                else {
+                    if (m_startSpeedGate.waitingForRunning()) {
+                        m_startSpeedGate.runningConfirmed();
+                        emit debug(QStringLiteral("FitShow startup: RUNNING confirmed; releasing deferred workout target"));
+                    }
+                } else {
+                    if (par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
+                        par == FITSHOW_STATUS_END)
+                        cancelPendingStartTarget(QStringLiteral("stopped before RUNNING"));
                     IS_STATUS_STUDY = false;
                     IS_STATUS_ERRO = false;
                     IS_STATUS_SAFETY = false;
@@ -527,12 +561,17 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         .toBool())
                     miles = 1.60934;
 
-                if(IS_RUNNING)
-                    Speed = speed * miles;
-                else
-                    Speed = 0;
+                // Always update the treadmill speed used for motor control and corrections.
+                // When a Runn/Stryd sensor is selected, keep its speed in Speed instead.
+                const double machineSpeed = IS_RUNNING ? speed * miles : 0.0;
+                parseSpeed(machineSpeed);
+                if (!IS_RUNNING) {
+                    Speed = 0.0;
+                }
 
-                if (Speed.value() != speed) {
+                if (!settings.value(QZSettings::stryd_speed_instead_treadmill,
+                                    QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+                    Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
 
@@ -585,18 +624,22 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             } else if (par == FITSHOW_STATUS_STUDY) {
                 IS_STATUS_STUDY = true;
             } else if (par == FITSHOW_STATUS_ERROR) {
+                cancelPendingStartTarget(QStringLiteral("treadmill error"));
                 if (len > 2) {
                     IS_STATUS_ERRO = true;
                     ERRNO = array[2];
                     sendSportData();
                 }
             } else if (par == FITSHOW_STATUS_SAFETY) {
+                cancelPendingStartTarget(QStringLiteral("safety key removed"));
                 ERRNO = 100;
                 IS_STATUS_SAFETY = true;
                 sendSportData();
             }
-            if (Speed.value() != 0.0) {
-                Speed = 0.0;
+            const bool wasMoving = Speed.value() != 0.0;
+            parseSpeed(0.0);
+            Speed = 0.0;
+            if (wasMoving) {
                 emit speedChanged(0.0);
             }
             if (Inclination.value() != 0.0) {
@@ -684,6 +727,24 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void fitshowtreadmill::btinit(bool startTape) {
+    if (merach_t12_connected) {
+        // Replay the official Merach app initialization before using FitShow control.
+        if (!gattMerachUnlockService || !gattMerachUnlockCharacteristic.isValid()) {
+            emit debug(QStringLiteral("Merach T12 unlock characteristic missing"));
+            return;
+        }
+        const QByteArray unlock = QByteArray::fromHex("aa01000155");
+        gattMerachUnlockService->writeCharacteristic(gattMerachUnlockCharacteristic, unlock);
+        emit debug(QStringLiteral(" >> ") + unlock.toHex(' ') + QStringLiteral(" // Merach unlock"));
+        const uint8_t model[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_MODEL};
+        const uint8_t incline[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_INCLINE};
+        const uint8_t prepare[] = {FITSHOW_SYS_CONTROL, 0x09};
+        scheduleWrite(model, sizeof(model), QStringLiteral("Merach model"));
+        scheduleWrite(incline, sizeof(incline), QStringLiteral("Merach incline limits"));
+        scheduleWrite(prepare, sizeof(prepare), QStringLiteral("Merach prepare"));
+        initDone = true;
+        return;
+    }
     uint8_t initInfos[] = {FITSHOW_INFO_SPEED, FITSHOW_INFO_INCLINE, FITSHOW_INFO_TOTAL, FITSHOW_INFO_DATE};
     uint8_t initDataStart1[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_UNKNOWN};
 
@@ -733,6 +794,7 @@ void fitshowtreadmill::btinit(bool startTape) {
     }
 
     if (startTape) {
+        m_startSpeedGate.startSent();
         scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
         forceSpeedOrIncline(lastSpeed, lastInclination);
     }
@@ -752,6 +814,14 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered)) {
         qDebug() << QStringLiteral("not all services discovered");
         return;        
+    }
+
+    if (merach_t12_connected) {
+        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
+            !gattMerachUnlockService || gattMerachUnlockService->state() != QLowEnergyService::ServiceDiscovered)
+            return;
+        gattMerachUnlockCharacteristic = gattMerachUnlockService->characteristic(
+            QBluetoothUuid(QStringLiteral("59554c55-0000-6666-8888-4d4552414348")));
     }
 
     if (state == QLowEnergyService::ServiceDiscovered) {
@@ -858,6 +928,18 @@ void fitshowtreadmill::serviceScanDone(void) {
     gattCommunicationChannelService->discoverDetails();
 #endif
 
+    if (merach_t12_connected) {
+        gattMerachUnlockService = m_control->createServiceObject(
+            QBluetoothUuid(QStringLiteral("59554c55-8000-6666-8888-4d4552414348")));
+        if (!gattMerachUnlockService) {
+            emit debug(QStringLiteral("Merach T12 unlock service missing"));
+            return;
+        }
+        connect(gattMerachUnlockService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);
+        gattMerachUnlockService->discoverDetails();
+        return;
+    }
+
     // useful for the cadence
     gattCommunicationRSCService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1814));
     if (!gattCommunicationRSCService) {
@@ -888,7 +970,9 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+    if (device.name().toUpper().startsWith(QStringLiteral("MRK-T12-"))) {
+        merach_t12_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
         device.name().toUpper().startsWith(QStringLiteral("TR510-T"))) {
         qDebug() << "FS FIX!";
         fs_connected = true;
@@ -950,6 +1034,7 @@ void fitshowtreadmill::searchingStop() { searchStopped = true; }
 void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        cancelPendingStartTarget(QStringLiteral("connection lost"));
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();

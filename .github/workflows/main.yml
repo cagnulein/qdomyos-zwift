@@ -79,7 +79,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
           msystem: mingw64
           release: false
 
@@ -106,7 +106,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-msys2-syncqt-cygwin-v2
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -115,17 +115,35 @@ jobs:
 
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            qmake
-            make -j8
+            export PATH="/usr/bin:/mingw64/bin:$PATH"
+            command -v perl
+            perl -e 'print "Perl OS: $^O\n"'
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            qmake="$qt_dir/bin/qmake.exe"
+            "$qmake" -v
+            cd src/qthttpserver
+            "$qmake"
+            syncqt="$qt_dir/bin/syncqt.pl"
+            perl -0pi -e 's/my \$normalizePath_fixDrive = \(\$\^O eq "msys" \? 1 : 0\);/my \$normalizePath_fixDrive = (\$^O eq "msys" || \$^O eq "cygwin" ? 1 : 0);/' "$syncqt"
+            grep -F '|| $^O eq "cygwin"' "$syncqt"
+            mingw32-make -j8
             cd ../..
 
       - name: Install qthttpserver
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            make install
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            cd src/qthttpserver
+            mingw32-make install
             cd ../..
+            test -f "$qt_dir/bin/Qt5HttpServer.dll"
+            test -f "$qt_dir/bin/Qt5SslServer.dll"
+            test -f "$qt_dir/lib/libQt5HttpServer.a"
+            test -f "$qt_dir/lib/libQt5SslServer.a"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_httpserver.pri"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_sslserver.pri"
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -192,6 +210,50 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
+
+      - name: Smoke test qHttpServer runtime
+        shell: pwsh
+        run: |
+          $outputDir = Join-Path $PWD "src/debug/output"
+          $stdoutPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stdout.log"
+          $stderrPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stderr.log"
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_OPENGL = "software"
+          $process = Start-Process -FilePath (Join-Path $outputDir "qdomyos-zwift.exe") `
+            -ArgumentList @("-qml", "-no-heart-service", "-no-virtual-device-bluetooth") `
+            -WorkingDirectory $outputDir -PassThru `
+            -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+          try {
+            $deadline = (Get-Date).AddMinutes(2)
+            $response = $null
+            do {
+              Start-Sleep -Seconds 2
+              $listeners = Get-NetTCPConnection -State Listen -OwningProcess $process.Id -ErrorAction SilentlyContinue
+              foreach ($listener in $listeners) {
+                try {
+                  $candidate = Invoke-WebRequest -Uri "http://127.0.0.1:$($listener.LocalPort)/chartjs/chart.htm" -UseBasicParsing -TimeoutSec 5
+                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match '<title>Line Chart</title>') {
+                    $response = $candidate
+                    $port = $listener.LocalPort
+                    break
+                  }
+                } catch {
+                  # The process may expose non-HTTP listeners while it starts.
+                }
+              }
+              if ((Get-Date) -gt $deadline) {
+                throw "QZ did not serve /chartjs/chart.htm. stdout: $(Get-Content $stdoutPath -Raw -ErrorAction SilentlyContinue) stderr: $(Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue)"
+              }
+            } while (-not $response -and -not $process.HasExited)
+            if (-not $response) {
+              throw "QZ exited without serving /chartjs/chart.htm (exit code $($process.ExitCode))."
+            }
+            Write-Host "qHttpServer runtime smoke test passed on port $port (HTTP $($response.StatusCode))."
+          } finally {
+            if ($process -and -not $process.HasExited) {
+              Stop-Process -Id $process.Id -Force
+            }
+          }
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
@@ -602,7 +664,7 @@ jobs:
       - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
         run: |
           QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
-          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.1/qt5.15.0-android-page16-1.0.1.zip
           unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
           # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
           # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
@@ -635,7 +697,12 @@ jobs:
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
 
       - name: Setup ccache
         run: |
@@ -730,7 +797,16 @@ jobs:
           # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
           # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
           # below); Qt's own QtNetwork already has openssl linked in.
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          # The ABIs are built one after another: with Qt 5.15.0 every ABI writes the same
+          # src/qdomyos-zwift_metatypes.json, qdomyos-zwift.qmltypes and
+          # qdomyos-zwift_qmltyperegistrations.cpp, and with a plain make -j4 two ABIs can
+          # write them at the same time ("Error parsing qdomyos-zwift_metatypes.json").
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug'
+          make qmake_all
+          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
+            make -j4 -C src -f Makefile.qdomyos-zwift "$abi-all"
+          done
+          make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -748,10 +824,10 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
-          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
           export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
@@ -765,8 +841,8 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
-            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
+            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
 
@@ -811,7 +887,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [24, 26, 28, 29, 30, 31, 33, 35, 36]
+        api-level: [24, 26, 28, 29, 30, 31, 33, 35, 36, 37]
         include:
           - api-level: 24
             target: default
@@ -850,6 +926,12 @@ jobs:
             target: google_apis
             arch: x86_64
             android-version: "Android 16"
+          - api-level: 37
+            emulator-api-level: '37.0'
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 17"
+            flaky: true
     
     steps:
       - name: Checkout code
@@ -874,10 +956,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # The Android 17 SDK and system image use android-37.0, not android-37.
+      # Keep matrix.api-level = 37 for test names/artifacts but provide the
+      # package identifier to the emulator runner when installing the SDK.
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
+          api-level: ${{ matrix.emulator-api-level || matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: Nexus 6
@@ -914,31 +999,13 @@ jobs:
 
             echo "All permissions granted successfully"
 
-            # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+            # Turn on location services, otherwise the "Permissions Required" dialog covers the app
+            adb shell settings put secure location_mode 3 || true
+            adb shell settings put secure location_providers_allowed +gps,+network || true
+            adb shell cmd location set-location-enabled true || true
 
-            # Wait for app to start
-            sleep 90
-
-            # Verify the app is running
-            echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-
-            # Debug: show all processes to understand the format
-            echo "=== All running processes ==="
-            cat process_list.txt | head -20
-            echo "=== Looking for our app ==="
-
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
-            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            echo "=== Checking app info ==="
-            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
-            echo "=== Logcat output for debugging ==="
-            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
-            echo "=== Full recent logcat ==="
-            adb logcat -d | tail -n 100
-            echo "App is running successfully"
+            # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
+            sh .github/scripts/android_app_start_test.sh
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
@@ -956,6 +1023,9 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Back button test (single presses navigate back, a double press on the home page exits)
+            sh .github/scripts/android_back_button_test.sh
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -972,6 +1042,7 @@ jobs:
           path: |
             screenshot.png
             screenshot_orientation_*.png
+            screenshot_back_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
@@ -1064,6 +1135,54 @@ jobs:
       - name: Show ccache stats
         if: always()
         run: ccache --show-stats
+
+  ios-simulator-test:
+    # Builds the app the way Xcode Cloud builds the App Store version (the scripts in
+    # build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ci_scripts, the committed Xcode project, Release),
+    # but for the iOS simulator; then starts it there and keeps screenshots and logs
+    runs-on: macos-26
+    timeout-minutes: 120
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Newest Xcode as /Applications/Xcode.app (the path of the Xcode Cloud scripts)
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)
+          if [ ! -e /Applications/Xcode.app ]; then sudo ln -s "$XCODE" /Applications/Xcode.app; fi
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Xcode Cloud scripts
+        run: |
+          # what Xcode Cloud gives them: the repository path, also as /Volumes/workspace/repository
+          export CI_PRIMARY_REPOSITORY_PATH="$GITHUB_WORKSPACE"
+          sudo mkdir -p /Volumes/workspace
+          sudo ln -sfn "$GITHUB_WORKSPACE" /Volumes/workspace/repository
+          cd build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ci_scripts
+          bash ci_post_clone.sh
+          bash ci_pre_xcodebuild.sh
+
+      - name: Build for the simulator
+        run: |
+          bash .github/scripts/build_ios_simulator.sh ios-test/xcodebuild.log
+
+      - name: Start test on the simulator
+        run: |
+          # the simulator build is x86_64, the runner is Apple Silicon
+          softwareupdate --install-rosetta --agree-to-license || true
+          sh .github/scripts/ios_simulator_start_test.sh dd
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-test-evidence
+          path: ios-test/
+          if-no-files-found: warn
 
   window-msvc2019-build:
     runs-on: windows-2022
@@ -1670,6 +1789,9 @@ jobs:
           docker run --rm -v ${{ github.workspace }}/bin64:/app \
             arm64v8/debian:bullseye-20241016 \
             bash -c "
+              # Bullseye is EOL; use the same dated snapshot as the ARM64 build.
+              rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+              printf '%s\\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
               apt-get update && apt-get install -y --no-install-recommends \
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
@@ -2166,7 +2288,12 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2231,10 +2358,10 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
-          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
           export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
@@ -2248,8 +2375,8 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
-            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
+            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
@@ -2334,7 +2461,12 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2409,10 +2541,10 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
-          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
           export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
@@ -2426,8 +2558,8 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
-            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
+            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk
@@ -2505,7 +2637,12 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2543,10 +2680,10 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
-          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
           export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
@@ -2560,8 +2697,8 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
-            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
+            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
@@ -2630,7 +2767,12 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-37.0" "build-tools;36.0.0" --channel=3
+          # API 37 is published under android-37.0; some tools still resolve android-37.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$SDK_ROOT/platforms/android-37"
+          fi
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2668,10 +2810,10 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-37.0 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
-          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
           export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
@@ -2685,8 +2827,8 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
-            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
+            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
@@ -2778,4 +2920,4 @@ jobs:
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
-            raspberry-pi-binary-aarch64/qdomyos-zwift-aarch64
+            raspberry-pi-binary-aarch64/qdomyos-zwift-aar

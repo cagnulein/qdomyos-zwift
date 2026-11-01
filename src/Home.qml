@@ -30,6 +30,7 @@ HomeForm {
 
     Settings {
         id: settings
+        Component.onCompleted: window.retakeSettingsSnapshot(settings)
         property real ui_zoom: 100.0
         property bool theme_tile_icon_enabled: true
         property string theme_tile_background_color: "#303030"
@@ -39,6 +40,26 @@ HomeForm {
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
         property bool trainprogram_sound_on_segment: false
+    }
+
+    // The settings page writes through its own Settings copy, and a copy reads the stored values
+    // only when it is created, so the tile size and the tile colors waited for a restart (#466).
+    // The settings page sends each new value here (settings.qml), and it is set in both copies.
+    // Assigning one key makes Qt.labs.settings write the whole copy back, so every key of these
+    // copies that the settings page can change is sent, and none of them is left stale.
+    Connections {
+        target: window
+        function onTileSettingChanged(key, value) {
+            if (settings[key] !== undefined && settings[key] !== value) {
+                // skipLocationServicesDialog is written back too. homeform.cpp resets it when the
+                // GPS is on (Android), after this copy has read it: apply the same rule here
+                if (Qt.platform.os === "android" && typeof rootItem !== "undefined" && rootItem.locationServices())
+                    settings.skipLocationServicesDialog = false
+                settings[key] = value
+            }
+            if (homeFormSettings[key] !== undefined && homeFormSettings[key] !== value)
+                homeFormSettings[key] = value
+        }
     }
 
     SoundEffect {
@@ -112,8 +133,11 @@ HomeForm {
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        width: 420
-        height: 340
+        // with a bigger text: as wide as the screen allows, as tall as the content (Skip/Save fell out)
+        width: window.textScale !== 1 ? Math.min(420, parent.width - 32) : 420
+        height: window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(340, rpeColumn.implicitHeight + 32 + topPadding + bottomPadding))
+            : 340
         modal: true
         focus: true
         palette.text: "white"
@@ -128,6 +152,7 @@ HomeForm {
         ]
 
         Column {
+            id: rpeColumn
             anchors.fill: parent
             anchors.margins: 16
             spacing: 14
@@ -135,7 +160,7 @@ HomeForm {
             Label {
                 text: qsTr("How was this workout?")
                 font.bold: true
-                font.pixelSize: 18
+                font.pixelSize: window.fontPx(18)
                 width: parent.width
                 wrapMode: Text.WordWrap
             }
@@ -162,7 +187,7 @@ HomeForm {
                 wrapMode: Text.WordWrap
             }
 
-            ComboBox {
+            UiComboBox {
                 id: feelCombo
                 width: parent.width
                 model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]
@@ -203,30 +228,55 @@ HomeForm {
     }
 
     Timer {
+        id: searchStatusTimer
+        // Always running: rootItem.device blinks while no device is connected (it drives the icon),
+        // and bluetoothSearchStatus() is empty once a device is connected
+        interval: 1000; repeat: true; triggeredOnStart: true; running: true
+        onTriggered: searchStatus = rootItem.bluetoothSearchStatus()
+    }
+
+    Timer {
         id: checkStartStopFromWeb
         interval: 200; running: true; repeat: true
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
     property bool locationServiceRequsted: false
+    // Bluetooth and Location as Android reports them now, not only at app start: switched on from
+    // the quick settings, the questions about them go away.
+    // Home.qml is created before homeform sets rootItem: until then assume "on", so the question
+    // doesn't flash at start; setting rootItem re-evaluates the binding with the real value
+    property bool locationServicesOn: typeof rootItem === "undefined" || rootItem.locationServices()
+    // "No" answered: not asked again until the next start
+    property bool locationServicesDeclined: false
+
+    Timer {
+        interval: 2000; repeat: true
+        // only while a question about them is open: devices without GPS never report Location on
+        running: !locationServicesOn && (locationServicesDialog.visible || locationServiceRequsted)
+        onTriggered: locationServicesOn = rootItem.refreshLocationServices()
+    }
 
     MessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
-        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
+        informativeText: qsTr("QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.\n\nWould you like to enable the required services?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
             rootItem.enableLocationServices()
         }
-        onNoClicked: remindLocationServicesDialog.visible = true
-        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+        onNoClicked: {
+            locationServicesDeclined = true
+            remindLocationServicesDialog.visible = true
+        }
+        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
 
     MessageDialog {
         id: remindLocationServicesDialog
         text: qsTr("Reminder Preference")
-        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
+        informativeText: qsTr("Would you like to be reminded about enabling Bluetooth or Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -239,7 +289,7 @@ HomeForm {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
-        visible: locationServiceRequsted
+        visible: locationServiceRequsted && !locationServicesOn
     }
 
     Timer {
@@ -256,6 +306,8 @@ HomeForm {
         if (rootItem.rpeFeelPopupEnabled()) {
             rpeFeelPopup.selectedRpe = 5;
             rpeFeelPopup.selectedFeel = 50;
+            // A change of language rebuilds the list and moves it to the first item
+            feelCombo.currentIndex = 2;
             rpeFeelPopup.open();
         } else {
             finish_stop();
@@ -286,30 +338,41 @@ HomeForm {
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
-        cellWidth: 175 * settings.ui_zoom / 100
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        // The tiles stretch to fill the row: the space left over by a whole number of columns
+        // is shared between the columns, up to a quarter of the tile width, and what remains
+        // centres the grid. Measured on the page, so the Android insets are excluded.
+        // The grid is exactly as wide as its columns and centred by the anchor above, not
+        // by leftMargin: Qt 5.15 does not recount the columns when leftMargin changes, so
+        // after a resize a row could come out one column short
+        readonly property real tileBaseWidth: 175 * settings.ui_zoom / 100
+        readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
+        cellWidth: Math.floor(Math.min(parent.width / tileColumns, tileBaseWidth * 1.25))
+        width: tileColumns * cellWidth
+        // Every tile is narrower than its cell by tileGap and sits at the cell's left edge, so the
+        // last column ends with the gap: the grid is shifted by half the gap, so the outer margins
+        // are equal
+        readonly property real tileGap: 5 * settings.ui_zoom / 100
+        anchors.horizontalCenterOffset: tileGap / 2
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-            if(OS_VERSION === "Android")
-                gridView.leftMargin = (Screen.width % cellWidth) / 2;
-            else
-                gridView.leftMargin = (parent.width % cellWidth) / 2;
+            // Nothing to recompute: cellWidth and the grid width follow the page width
         }
 
         Accessible.ignored: true
 
         delegate: Item {
             id: id1
-            width: 170 * settings.ui_zoom / 100
+            width: gridView.cellWidth - gridView.tileGap
             height: 125 * settings.ui_zoom / 100
 
             visible: visibleItem
@@ -338,7 +401,7 @@ HomeForm {
             transitions: Transition { NumberAnimation { property: "opacity"; duration: 200} }
 
             Rectangle {
-                width: 168 * settings.ui_zoom / 100
+                width: id1.width - 2 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
                 radius: 3
                 border.width: 1
@@ -451,7 +514,10 @@ HomeForm {
             RoundButton {
                 objectName: minusName
                 autoRepeat: true
-                text: "-"
+                // the minus sign, not a hyphen: as wide as the "+" and on the same line
+                text: "−"
+                // the sign is a share of the button, so it grows with Tile size
+                font.pixelSize: Math.round(height * 0.45)
                 onClicked: minus_clicked(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
@@ -471,6 +537,7 @@ HomeForm {
                 autoRepeat: true
                 objectName: plusName
                 text: "+"
+                font.pixelSize: Math.round(height * 0.45)
                 onClicked: plus_clicked(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
@@ -685,9 +752,10 @@ HomeForm {
         property bool isSwiping: false
 
         function indexAtMouse(mx, my) {
-            var cols = Math.max(1, Math.floor(gridView.width / gridView.cellWidth))
+            var cols = gridView.tileColumns
             var adjustedY = my + gridView.contentY
-            var col = Math.floor(mx / gridView.cellWidth)
+            var col = Math.floor((mx - gridView.x) / gridView.cellWidth)
+            if (col < 0 || col >= cols) return -1
             var row = Math.floor(adjustedY / gridView.cellHeight)
             var idx = row * cols + col
             if (idx < 0 || idx >= appModel.count) return -1

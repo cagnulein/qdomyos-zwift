@@ -2,1468 +2,2431 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="tr_TR">
 <context>
+    <name>ChartsEndWorkoutForm.ui</name>
+    <message>
+        <source>Power</source>
+        <translation>Güç</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Nabız</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Kadans</translation>
+    </message>
+    <message>
+        <source>Resistance</source>
+        <translation>Direnç</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton direnci</translation>
+    </message>
+</context>
+<context>
     <name>Classifica</name>
     <message>
-        <location filename="../Classifica.qml" line="31"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapat</translation>
+    </message>
+</context>
+<context>
+    <name>Credits</name>
+    <message>
+        <source>Credits</source>
+        <translation>Emeği geçenler</translation>
+    </message>
+    <message>
+        <source>A very big thanks to&lt;br&gt;all the developers&lt;br&gt;(alphabetical sorted):</source>
+        <translation>Tüm geliştiricilere&lt;br&gt;çok teşekkürler&lt;br&gt;(alfabetik sırayla):</translation>
+    </message>
+</context>
+<context>
+    <name>GPXList</name>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>GPX files (*.gpx *.GPX)</source>
+        <translation>GPX dosyaları (*.gpx *.GPX)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Tüm dosyalar (*)</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtre</translation>
+    </message>
+    <message>
+        <source>Distance %1 km Elevation Gain: %2 meters</source>
+        <translation>Mesafe: %1 km, toplam tırmanış: %2 metre</translation>
+    </message>
+    <message>
+        <source>Other folders</source>
+        <translation>Diğer klasörler</translation>
     </message>
 </context>
 <context>
     <name>Home</name>
     <message>
-        <location filename="../Home.qml" line="45"/>
         <source>Peloton Workout in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton antrenmanı sürüyor</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="46"/>
         <source>Do you want to follow the resistance? </source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef direnç takip edilsin mi? </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="77"/>
         <source>New lap started!</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni tur başladı!</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="84"/>
         <source>Stop Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanı durdur</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="85"/>
         <source>Do you really want to stop the current workout?</source>
-        <translation type="unfinished"></translation>
+        <translation>Mevcut antrenman durdurulsun mu?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="110"/>
         <source>Permissions Required</source>
-        <translation type="unfinished"></translation>
+        <translation>İzin gerekli</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="111"/>
         <source>QZ requires both Bluetooth and Location Services to be enabled.
 Location Services are necessary on Android to allow the app to find Bluetooth devices.
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">QZ için hem Bluetooth hem de konum hizmetleri açık olmalıdır.
+Android&apos;de uygulamanın Bluetooth cihazlarını bulabilmesi için konum hizmetleri gereklidir.
+GPS kullanılmaz.
+
+Bunlar açılsın mı?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="123"/>
         <source>Reminder Preference</source>
-        <translation type="unfinished"></translation>
+        <translation>Hatırlatma tercihi</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="124"/>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Konum hizmetlerini açmak bir dahaki sefere hatırlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="132"/>
         <source>Restart the app</source>
-        <translation type="unfinished"></translation>
+        <translation>Uygulamayı yeniden başlat</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="133"/>
         <source>To apply the changes, you need to restart the app.
 Would you like to do that now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişiklikleri uygulamak için uygulamanın yeniden başlatılması gerekiyor.
+Şimdi yeniden başlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="205"/>
         <source>Adjustable. Current value: </source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlanabilir. Geçerli değer: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="205"/>
         <source>Current value: </source>
-        <translation type="unfinished"></translation>
+        <translation>Geçerli değer: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="356"/>
         <source>Decrease </source>
-        <translation type="unfinished"></translation>
+        <translation>Azalt </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="357"/>
         <source>Decrease the value of </source>
-        <translation type="unfinished"></translation>
+        <translation>Değeri azalt – </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="375"/>
         <source>Increase </source>
-        <translation type="unfinished"></translation>
+        <translation>Artır </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="376"/>
         <source>Increase the value of </source>
-        <translation type="unfinished"></translation>
+        <translation>Değeri artır – </translation>
+    </message>
+    <message>
+        <source>Rest</source>
+        <translation>Dinlenme</translation>
+    </message>
+    <message>
+        <source>Very Light</source>
+        <translation>Çok hafif</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>Hafif</translation>
+    </message>
+    <message>
+        <source>Moderate</source>
+        <translation>Orta</translation>
+    </message>
+    <message>
+        <source>Somewhat Hard</source>
+        <translation>Biraz zor</translation>
+    </message>
+    <message>
+        <source>Hard</source>
+        <translation>Zor</translation>
+    </message>
+    <message>
+        <source>Harder</source>
+        <translation>Daha zor</translation>
+    </message>
+    <message>
+        <source>Very Hard</source>
+        <translation>Çok zor</translation>
+    </message>
+    <message>
+        <source>Very Very Hard</source>
+        <translation>Çok çok zor</translation>
+    </message>
+    <message>
+        <source>Extremely Hard</source>
+        <translation>Son derece zor</translation>
+    </message>
+    <message>
+        <source>Maximum Effort</source>
+        <translation>Maksimum efor</translation>
+    </message>
+    <message>
+        <source>How was this workout?</source>
+        <translation>Bu antrenman nasıldı?</translation>
+    </message>
+    <message>
+        <source>Perceived Exertion (RPE): </source>
+        <translation>Algılanan zorluk (RPE): </translation>
+    </message>
+    <message>
+        <source>How did you feel?</source>
+        <translation>Nasıl hissettiniz?</translation>
+    </message>
+    <message>
+        <source>Very Bad</source>
+        <translation>Çok kötü</translation>
+    </message>
+    <message>
+        <source>Bad</source>
+        <translation>Kötü</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>İdare eder</translation>
+    </message>
+    <message>
+        <source>Good</source>
+        <translation>İyi</translation>
+    </message>
+    <message>
+        <source>Very Good</source>
+        <translation>Çok iyi</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Atla</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Kaydet</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ&apos;nin fitness ekipmanlarını bulabilmesi için Bluetooth&apos;un açık olması gerekir. Android 11 ve önceki sürümlerde Bluetooth cihazlarını keşfetmek için ayrıca konum izni ve konum hizmetlerinin açık olması gerekir. QZ konum verilerinizi kullanmaz. Android 12 ve sonraki sürümlerde &apos;Yakındaki cihazlar&apos; izni, konuma erişim olmadan Bluetooth cihazlarının keşfedilmesini sağlar.
+
+Gerekli hizmetleri açmak ister misiniz?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Bir dahaki sefere Bluetooth&apos;u veya konum hizmetlerini açmanız hatırlatılsın mı?</translation>
     </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
     <message>
-        <location filename="../HomeForm.ui.qml" line="9"/>
         <source>QZ Fitness</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ Fitness</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="74"/>
         <source>Bluetooth connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth bağlantısı</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="75"/>
         <source>Device connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz bağlandı</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="75"/>
         <source>Device not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz bağlı değil</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="115"/>
         <source>Start workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanı başlat</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="145"/>
         <source>Stop workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanı durdur</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="176"/>
         <source>Lap</source>
-        <translation type="unfinished"></translation>
+        <translation>Tur</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="177"/>
         <source>Record a new lap</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni tur kaydet</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="206"/>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu uygulama bisikletinize/koşu bandınıza/kürek makinenize otomatik olarak bağlanmalıdır. &lt;b&gt;Bağlanmazsa şunları kontrol edin&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift çalışırken Echelon/Domyos uygulamanız MUTLAKA kapalı olmalıdır;&lt;br&gt;2) Bluetooth ve Bluetooth izinleri MUTLAKA açık olmalıdır&lt;br&gt;3) bisikletiniz/koşu bandınız/kürek makineniz bu uygulamayı başlatmadan ÖNCE açılmış olmalıdır&lt;br&gt;4) cihazınızı yeniden başlatmayı deneyin&lt;br&gt;&lt;br&gt;Bisikletinizin/koşu bandınızın bağlantısı her 30 saniyede bir kopuyorsa sol çubuktaki &quot;Sanal cihazı etkinleştir&quot; ayarını kapatmayı deneyin.&lt;br&gt;&lt;br&gt;Sorun yaşarsanız roberto.viola83@gmail.com adresinden bana çekinmeden ulaşabilirsiniz.&lt;br&gt;&lt;br&gt;&lt;b&gt;İyi sürüşler!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ, arızi veya dolaylı zararlara ilişkin&lt;br&gt;sorumluluğu açıkça reddeder ve uygulamanın&lt;br&gt;kullanımı veya kötüye kullanımı sonucunda&lt;br&gt;herhangi bir kişinin uğradığı kayıp&lt;br&gt;veya zarardan hiçbir sorumluluk kabul etmez.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.ui" line="14"/>
         <source>qDoymos-Zwift</source>
-        <translation type="unfinished"></translation>
+        <translation>qDoymos-Zwift</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="31"/>
         <source>Connection Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı durumu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="48"/>
         <source>Treadmill Connection Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı bağlantı durumu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="68"/>
         <source>Zwift Connection Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift bağlantı durumu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="85"/>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafik</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="123"/>
         <source>Treadmill Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı durumu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="169"/>
-        <location filename="../mainwindow.ui" line="273"/>
-        <location filename="../mainwindow.ui" line="619"/>
-        <location filename="../mainwindow.ui" line="779"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="201"/>
-        <location filename="../mainwindow.ui" line="305"/>
-        <location filename="../mainwindow.ui" line="651"/>
-        <location filename="../mainwindow.ui" line="846"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="208"/>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="227"/>
-        <location filename="../mainwindow.ui" line="331"/>
-        <location filename="../mainwindow.ui" line="409"/>
-        <location filename="../mainwindow.ui" line="518"/>
-        <location filename="../mainwindow.ui" line="557"/>
-        <location filename="../mainwindow.ui" line="600"/>
-        <location filename="../mainwindow.ui" line="665"/>
-        <location filename="../mainwindow.ui" line="710"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="312"/>
         <source>Inclination (degrees):</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (derece):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="390"/>
         <source>Heart rate (bpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız (bpm)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="475"/>
         <source>Odometer (km):</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam mesafe (km):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="482"/>
-        <location filename="../mainwindow.ui" line="753"/>
-        <location filename="../mainwindow.ui" line="1008"/>
         <source>0.0</source>
-        <translation type="unfinished"></translation>
+        <translation>0.0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="511"/>
         <source>Elevation Gain (meters):</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam tırmanış (metre):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="550"/>
         <source>Calories (kcal):</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalori (kcal):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="593"/>
         <source>Cadence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="658"/>
         <source>Resistance:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="678"/>
         <source>Watt:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="746"/>
         <source>Pace (min/km):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo (dk/km):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="869"/>
         <source>Train me!</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="899"/>
         <source>Durantion (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Süre (s)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="904"/>
         <source>Speed (km/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız (km/h)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="909"/>
         <source>Inclination (degrees)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (derece)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="914"/>
         <source>Force Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızı ayarla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="926"/>
         <source>Total Elapsed Time: </source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam geçen süre: </translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="933"/>
-        <location filename="../mainwindow.ui" line="956"/>
-        <location filename="../mainwindow.ui" line="979"/>
         <source>00:00:00</source>
-        <translation type="unfinished"></translation>
+        <translation>00:00:00</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="949"/>
         <source>Current Row Elapsed Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mevcut satırda geçen süre:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="972"/>
         <source>Program Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Program süresi:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1001"/>
         <source>Total Distance (km):</source>
-        <translation type="unfinished"></translation>
+        <translation>Program mesafesi (km):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1021"/>
         <source>Difficulty:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zorluk:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1028"/>
         <source>50%</source>
-        <translation type="unfinished"></translation>
+        <translation>50%</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1081"/>
         <source>Player Weight (kg):</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilo (kg):</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1088"/>
         <source>70.0</source>
-        <translation type="unfinished"></translation>
+        <translation>70.0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1102"/>
         <source>&amp;Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sıfırla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1109"/>
         <source>&amp;Load</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Yükle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1116"/>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kaydet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1134"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Başlat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1159"/>
         <source>S&amp;top</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Durdur</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="349"/>
         <source>Save File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosyayı kaydet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="349"/>
         <source>Train Program (*.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman programı (*.xml)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="429"/>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosya aç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="431"/>
         <source>Train Program (*.xml *.gpx)</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman programı (*.xml *.gpx)</translation>
     </message>
 </context>
 <context>
     <name>Page1Form.ui</name>
     <message>
-        <location filename="../Page1Form.ui.qml" line="8"/>
         <source>Page 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sayfa 1</translation>
     </message>
     <message>
-        <location filename="../Page1Form.ui.qml" line="11"/>
         <source>You are on Page 1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sayfa 1&apos;desiniz.</translation>
     </message>
 </context>
 <context>
     <name>Page2Form.ui</name>
     <message>
-        <location filename="../Page2Form.ui.qml" line="8"/>
         <source>Page 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Sayfa 2</translation>
     </message>
     <message>
-        <location filename="../Page2Form.ui.qml" line="11"/>
         <source>You are on Page 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sayfa 2&apos;desiniz.</translation>
+    </message>
+</context>
+<context>
+    <name>PreviewChart</name>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+</context>
+<context>
+    <name>QAndroidPlatformTheme</name>
+    <message>
+        <source>Yes</source>
+        <translation>Evet</translation>
+    </message>
+    <message>
+        <source>Yes to All</source>
+        <translation>Tümüne evet</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Hayır</translation>
+    </message>
+    <message>
+        <source>No to All</source>
+        <translation>Tümüne hayır</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (HR sensor) connected!</source>
+        <translation>Bağlandı: %1 (nabız sensörü)</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Aranıyor: %1 (nabız sensörü)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Bulunamadı: %1 (nabız sensörü). Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (nabız sensörü): nabız yok. Nabız yayınladığını kontrol edin.</translation>
+    </message>
+    <message>
+        <source>%1 (cadence sensor) connected!</source>
+        <translation>Bağlandı: %1 (kadans sensörü)</translation>
+    </message>
+    <message>
+        <source>%1 (power sensor) connected!</source>
+        <translation>Bağlandı: %1 (güç sensörü)</translation>
+    </message>
+    <message>
+        <source>SRAM Connected!</source>
+        <translation>SRAM bağlandı</translation>
+    </message>
+    <message>
+        <source>Zwift Click Connected!</source>
+        <translation>Zwift Click bağlandı</translation>
+    </message>
+    <message>
+        <source>Zwift Click v2 Connected!</source>
+        <translation>Zwift Click v2 bağlandı</translation>
+    </message>
+    <message>
+        <source>Thinkrider Controller Connected!</source>
+        <translation>Thinkrider kumandası bağlandı</translation>
+    </message>
+    <message>
+        <source>CYCPLUS BC2 Connected!</source>
+        <translation>CYCPLUS BC2 bağlandı</translation>
+    </message>
+    <message>
+        <source>Elite Square Connected!</source>
+        <translation>Elite Square bağlandı</translation>
+    </message>
+    <message>
+        <source>Zwift Play/Ride Connected!</source>
+        <translation>Zwift Play/Ride bağlandı</translation>
+    </message>
+    <message>
+        <source>%1 connected!</source>
+        <translation>Bağlandı: %1</translation>
+    </message>
+    <message>
+        <source>Manual resistance power adjustment enabled: power now scales with the Resistance tile value.</source>
+        <translation>Dirence göre elle güç ayarı açıldı: güç artık &quot;Direnç&quot; kutucuğundaki değere göre değişiyor.</translation>
+    </message>
+    <message>
+        <source>Custom CSC power table enabled: power now follows the configured resistance/watt points.</source>
+        <translation>Özel CSC güç tablosu açıldı: güç artık ayarlanan direnç/watt noktalarına göre hesaplanıyor.</translation>
+    </message>
+    <message>
+        <source>%1 Battery Level %2 %</source>
+        <translation>%1 pil seviyesi %2 %</translation>
+    </message>
+    <message>
+        <source>FTMS bike found, restart the app to apply the change</source>
+        <translation>FTMS bisikleti bulundu, değişikliği uygulamak için uygulamayı yeniden başlatın</translation>
+    </message>
+    <message>
+        <source>Domyos Elliptial it&apos;s a FTMS. Restart QZ to apply the fix, thanks.</source>
+        <translation>Domyos eliptik bisikleti bir FTMS cihazıdır. Düzeltmeyi uygulamak için QZ&apos;yi yeniden başlatın, teşekkürler.</translation>
+    </message>
+    <message>
+        <source>FTMS rower found, restart the app to apply the change</source>
+        <translation>FTMS kürek makinesi bulundu, değişikliği uygulamak için uygulamayı yeniden başlatın</translation>
+    </message>
+    <message>
+        <source>Bluetooth Service Error! Restart the bike!</source>
+        <translation>Bluetooth hizmeti hatası! Bisikleti yeniden başlatın!</translation>
+    </message>
+    <message>
+        <source>Switching to classic Bluetooth bridge</source>
+        <translation>Klasik Bluetooth sanal cihazına geçiliyor</translation>
+    </message>
+    <message>
+        <source>Virtual Echelon enabled for this bike</source>
+        <translation>Bu bisiklet için sanal Echelon açıldı</translation>
+    </message>
+    <message>
+        <source>FTMS treadmill found, restart the app to apply the change</source>
+        <translation>FTMS koşu bandı bulundu, değişikliği uygulamak için uygulamayı yeniden başlatın</translation>
+    </message>
+    <message>
+        <source>Init completed, you can use the treadmill now!</source>
+        <translation>Hazırlık tamamlandı, koşu bandını artık kullanabilirsiniz!</translation>
+    </message>
+    <message>
+        <source>QZ has detected the data format of this bike and enabled &quot;Virtufit Etappe 2.0 Bike&quot; in the settings. QZ must be restarted to read the bike data.</source>
+        <translation>QZ bu bisikletin veri biçimini algıladı ve ayarlarda &quot;Virtufit Etappe 2.0 bisiklet&quot; seçeneğini açtı. Bisiklet verilerinin okunması için QZ yeniden başlatılmalıdır.</translation>
+    </message>
+    <message>
+        <source>FTMS bike found, restart the app to apply the change!</source>
+        <translation>FTMS bisikleti bulundu, değişikliği uygulamak için uygulamayı yeniden başlatın!</translation>
+    </message>
+    <message>
+        <source>FTMS rower found, restart the app to apply the change!</source>
+        <translation>FTMS kürek makinesi bulundu, değişikliği uygulamak için uygulamayı yeniden başlatın!</translation>
+    </message>
+    <message>
+        <source>Domyos bike presents itself like a FTMS but it&apos;s not. Restart QZ to apply the fix, thanks.</source>
+        <translation>Domyos bisikleti kendini FTMS cihazı olarak tanıtıyor ama değil. Düzeltmeyi uygulamak için QZ&apos;yi yeniden başlatın, teşekkürler.</translation>
+    </message>
+    <message>
+        <source>PM5 rower found. Restart QZ to apply the fix, thanks.</source>
+        <translation>PM5 kürek makinesi bulundu. Düzeltmeyi uygulamak için QZ&apos;yi yeniden başlatın, teşekkürler.</translation>
+    </message>
+    <message>
+        <source>Treadmill initialization in progress...%1%</source>
+        <translation>Koşu bandı hazırlanıyor…%1%</translation>
+    </message>
+    <message>
+        <source>Enable the &apos;Force Using FTMS&apos; setting under the Settings-&gt;Treadmill Options-&gt;Horizon Treadmill options and restart the app</source>
+        <translation>Ayarlar → Koşu bandı seçenekleri → Horizon koşu bandı seçenekleri bölümündeki &quot;FTMS kullanımını zorla&quot; ayarını açın ve uygulamayı yeniden başlatın</translation>
+    </message>
+    <message>
+        <source>Treadmill initialization completed!</source>
+        <translation>Koşu bandı hazırlığı tamamlandı!</translation>
+    </message>
+    <message>
+        <source>Domyos Treadmill presents itself like a FTMS but it&apos;s not. Restart QZ to apply the fix, thanks.</source>
+        <translation>Domyos koşu bandı kendini FTMS cihazı olarak tanıtıyor ama değil. Düzeltmeyi uygulamak için QZ&apos;yi yeniden başlatın, teşekkürler.</translation>
+    </message>
+    <message>
+        <source>Treadmill ready</source>
+        <translation>Koşu bandı hazır</translation>
+    </message>
+    <message>
+        <source>T01_ device detected. If you see strange inclination values, enable &apos;IConcept FTMS Treadmill&apos; in Treadmill Options settings.</source>
+        <translation>T01_ cihazı algılandı. Eğim değerleri tuhaf görünüyorsa &quot;Koşu bandı seçenekleri&quot; ayarlarında &quot;IConcept FTMS koşu bandı&quot; seçeneğini açın.</translation>
+    </message>
+    <message>
+        <source>Current SmO2: %1% Previous SmO2: %2% THb: %3 g/dL</source>
+        <translation>Güncel SmO2: %1%, önceki SmO2: %2%, THb: %3 g/dL</translation>
+    </message>
+    <message>
+        <source>SE7i init completed!</source>
+        <translation>SE7i hazırlığı tamamlandı!</translation>
+    </message>
+    <message>
+        <source>Starting treadmill before applying requested speed %1</source>
+        <translation>İstenen hız uygulanmadan önce koşu bandı başlatılıyor: %1</translation>
+    </message>
+    <message>
+        <source>Applying cached speed request %1</source>
+        <translation>Bekleyen hız isteği uygulanıyor: %1</translation>
+    </message>
+    <message>
+        <source>no service found, contact me to roberto.viola83@gmail.com!</source>
+        <translation>Hizmet bulunamadı, roberto.viola83@gmail.com adresinden bana ulaşın!</translation>
+    </message>
+    <message>
+        <source>Zwift Hub device found, please restart the app to enjoy virtual gearing!</source>
+        <translation>Zwift Hub cihazı bulundu, sanal vitesleri kullanmak için uygulamayı yeniden başlatın!</translation>
+    </message>
+    <message>
+        <source>Sending workout email...</source>
+        <translation>Antrenman e-postayla gönderiliyor…</translation>
+    </message>
+    <message>
+        <source>Workout email sent successfully</source>
+        <translation>Antrenman e-postayla gönderildi</translation>
+    </message>
+    <message>
+        <source>Failed to send workout email</source>
+        <translation>Antrenman e-postayla gönderilemedi</translation>
+    </message>
+    <message>
+        <source>QZ is looking for %1. Please wake it up or change this device under the Manual Device setting in Advanced Settings.</source>
+        <translation>QZ şu cihazı arıyor: %1. Cihazı uyandırın veya &quot;Gelişmiş ayarlar&quot; bölümündeki &quot;Elle seçilen cihaz&quot; ayarından cihazı değiştirin.</translation>
+    </message>
+    <message>
+        <source>Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters</source>
+        <translation>Bluetooth adı çok uzun: Android ayarlarından 4 karakterli bir adla değiştirin ve yalnızca A-Z veya 0-9 karakterlerini kullanın</translation>
+    </message>
+    <message>
+        <source>Peloton Login Error!</source>
+        <translation>Peloton giriş hatası!</translation>
+    </message>
+    <message>
+        <source>Zwift Login Error!</source>
+        <translation>Zwift giriş hatası!</translation>
+    </message>
+    <message>
+        <source>Peloton workout auto started! It will start automatically after the intro! %1 - %2</source>
+        <translation>Peloton antrenmanı otomatik başlatıldı! Açılış bölümünden sonra kendiliğinden başlayacak! %1 – %2</translation>
+    </message>
+    <message>
+        <source>Peloton workout auto started skipping the intro! %1 - %2</source>
+        <translation>Peloton antrenmanı açılış bölümü atlanarak otomatik başlatıldı! %1 – %2</translation>
+    </message>
+    <message>
+        <source>AVG: </source>
+        <translation>Ort.: </translation>
+    </message>
+    <message>
+        <source> MAX: </source>
+        <translation> Maks.: </translation>
+    </message>
+    <message>
+        <source>MAX: </source>
+        <translation>Maks.: </translation>
+    </message>
+    <message>
+        <source> AVG: </source>
+        <translation> Ort.: </translation>
+    </message>
+    <message>
+        <source>AutoLap %1</source>
+        <translation>Otomatik tur %1</translation>
+    </message>
+    <message>
+        <source>Strava Auth Failed!</source>
+        <translation>Strava kimlik doğrulaması yapılamadı!</translation>
+    </message>
+    <message>
+        <source>Strava Login OK!</source>
+        <translation>Strava girişi başarılı!</translation>
+    </message>
+    <message>
+        <source>Strava Upload Failed: %1</source>
+        <translation>Strava&apos;ya yüklenemedi: %1</translation>
+    </message>
+    <message>
+        <source>Strava Upload Failed</source>
+        <translation>Strava&apos;ya yüklenemedi</translation>
+    </message>
+    <message>
+        <source>Strava Upload Completed!</source>
+        <translation>Strava&apos;ya yükleme tamamlandı!</translation>
+    </message>
+    <message>
+        <source>Garmin credentials not configured. Please set email and password in settings.</source>
+        <translation>Garmin giriş bilgileri ayarlanmamış. Ayarlardan e-posta ve şifreyi girin.</translation>
+    </message>
+    <message>
+        <source>Garmin Connect: Authentication successful!</source>
+        <translation>Garmin Connect: kimlik doğrulama başarılı!</translation>
+    </message>
+    <message>
+        <source>Garmin Connect Login Failed: %1</source>
+        <translation>Garmin Connect&apos;e giriş yapılamadı: %1</translation>
+    </message>
+    <message>
+        <source>Garmin Connect: Upload successful!</source>
+        <translation>Garmin Connect: yükleme başarılı!</translation>
+    </message>
+    <message>
+        <source>Garmin Connect Upload Failed: %1</source>
+        <translation>Garmin Connect&apos;e yüklenemedi: %1</translation>
+    </message>
+    <message>
+        <source>Garmin workout saved: %1</source>
+        <translation>Garmin antrenmanı kaydedildi: %1</translation>
+    </message>
+    <message>
+        <source>Garmin Connect: Authenticated!</source>
+        <translation>Garmin Connect: kimlik doğrulandı!</translation>
+    </message>
+    <message>
+        <source>Garmin Connect: Login failed - %1</source>
+        <translation>Garmin Connect: giriş yapılamadı – %1</translation>
+    </message>
+    <message>
+        <source>Garmin Connect not initialized</source>
+        <translation>Garmin Connect hazır değil</translation>
+    </message>
+    <message>
+        <source>Please enter a valid MFA code</source>
+        <translation>Geçerli bir MFA kodu girin</translation>
+    </message>
+    <message>
+        <source>Submitting MFA code...</source>
+        <translation>MFA kodu gönderiliyor…</translation>
+    </message>
+    <message>
+        <source>No Garmin workout file available</source>
+        <translation>Garmin antrenman dosyası yok</translation>
+    </message>
+    <message>
+        <source>Failed to load Garmin workout: %1</source>
+        <translation>Garmin antrenmanı yüklenemedi: %1</translation>
+    </message>
+    <message>
+        <source>Starting Garmin workout: %1</source>
+        <translation>Garmin antrenmanı başlatılıyor: %1</translation>
+    </message>
+    <message>
+        <source>Cycling FTP: %1 -&gt; %2 W</source>
+        <translation>FTP (bisiklet): %1 -&gt; %2 W</translation>
+    </message>
+    <message>
+        <source>Running FTP: %1 -&gt; %2 W</source>
+        <translation>FTP (koşu): %1 -&gt; %2 W</translation>
+    </message>
+    <message>
+        <source>Garmin Connect has newer FTP values:
+
+%1
+
+Do you want to update QZ settings?</source>
+        <translation>Garmin Connect&apos;te daha yeni FTP değerleri var:
+
+%1
+
+QZ ayarları güncellensin mi?</translation>
+    </message>
+    <message>
+        <source>cycling FTP</source>
+        <translation>bisiklet FTP&apos;si</translation>
+    </message>
+    <message>
+        <source>running FTP</source>
+        <translation>koşu FTP&apos;si</translation>
+    </message>
+    <message>
+        <source>Updated Garmin %1</source>
+        <translation>Garmin&apos;den güncellendi: %1</translation>
+    </message>
+    <message>
+        <source> and </source>
+        <translation> ve </translation>
+    </message>
+    <message>
+        <source>No active Echelon device found</source>
+        <translation>Etkin Echelon cihazı bulunamadı</translation>
+    </message>
+    <message>
+        <source>The connected device is neither an Echelon Connect Sport nor a fakebike</source>
+        <translation>Bağlı cihaz ne Echelon Connect Sport ne de fakebike</translation>
+    </message>
+    <message>
+        <source>The connected device is not an Echelon Connect Sport</source>
+        <translation>Bağlı cihaz bir Echelon Connect Sport değil</translation>
+    </message>
+    <message>
+        <source>Android notification enabled</source>
+        <translation>Android bildirimi açıldı</translation>
+    </message>
+    <message>
+        <source>Strava: unable to open FIT file</source>
+        <translation>Strava: FIT dosyası açılamıyor</translation>
+    </message>
+    <message>
+        <source>Garmin: FIT file not found</source>
+        <translation>Garmin: FIT dosyası bulunamadı</translation>
+    </message>
+    <message>
+        <source>Garmin is not configured</source>
+        <translation>Garmin ayarlanmamış</translation>
+    </message>
+    <message>
+        <source>Garmin: Not authenticated. Please login first.</source>
+        <translation>Garmin: kimlik doğrulanmadı. Önce giriş yapın.</translation>
+    </message>
+    <message>
+        <source>Uploading to Garmin Connect...</source>
+        <translation>Garmin Connect&apos;e yükleniyor…</translation>
+    </message>
+    <message>
+        <source>Garmin: Upload failed - %1</source>
+        <translation>Garmin: yüklenemedi – %1</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: unable to open FIT file</source>
+        <translation>Intervals.icu: FIT dosyası açılamıyor</translation>
+    </message>
+    <message>
+        <source>Garmin: Upload successful!</source>
+        <translation>Garmin: yükleme başarılı!</translation>
+    </message>
+    <message>
+        <source>Downloading Garmin daily workout...</source>
+        <translation>Garmin günlük antrenmanı indiriliyor…</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Authentication failed</source>
+        <translation>Intervals.icu: kimlik doğrulama yapılamadı</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Error %1</source>
+        <translation>Intervals.icu: hata %1</translation>
+    </message>
+    <message>
+        <source>Intervals.icu error: %1</source>
+        <translation>Intervals.icu hatası: %1</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Not authenticated</source>
+        <translation>Intervals.icu: kimlik doğrulanmadı</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: No athlete ID configured</source>
+        <translation>Intervals.icu: sporcu kimliği ayarlanmamış</translation>
+    </message>
+    <message>
+        <source>Intervals.icu upload successful!</source>
+        <translation>Intervals.icu&apos;ya yükleme başarılı!</translation>
+    </message>
+    <message>
+        <source>Intervals.icu upload failed (HTTP %1)</source>
+        <translation>Intervals.icu&apos;ya yüklenemedi (HTTP %1)</translation>
+    </message>
+    <message>
+        <source>Intervals.icu upload failed: %1</source>
+        <translation>Intervals.icu&apos;ya yüklenemedi: %1</translation>
+    </message>
+    <message>
+        <source>Intervals.icu upload failed</source>
+        <translation>Intervals.icu&apos;ya yüklenemedi</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Configure athlete ID first</source>
+        <translation>Intervals.icu: önce sporcu kimliğini ayarlayın</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Please authenticate first</source>
+        <translation>Intervals.icu: önce giriş yapın</translation>
+    </message>
+    <message>
+        <source>Downloading workout from Intervals.icu...</source>
+        <translation>Intervals.icu&apos;dan antrenman indiriliyor…</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: %1</source>
+        <translation>Intervals.icu: %1</translation>
+    </message>
+    <message>
+        <source>Failed to get workouts (HTTP %1)</source>
+        <translation>Antrenmanlar alınamadı (HTTP %1)</translation>
+    </message>
+    <message>
+        <source>Intervals.icu: Invalid response</source>
+        <translation>Intervals.icu: geçersiz yanıt</translation>
+    </message>
+    <message>
+        <source>No workouts planned for today on Intervals.icu</source>
+        <translation>Intervals.icu&apos;da bugün için planlanmış antrenman yok</translation>
+    </message>
+    <message>
+        <source>Workout saved: %1</source>
+        <translation>Antrenman kaydedildi: %1</translation>
+    </message>
+    <message>
+        <source>Failed to save workout file</source>
+        <translation>Antrenman dosyası kaydedilemedi</translation>
+    </message>
+    <message>
+        <source>Peloton Auth Failed!</source>
+        <translation>Peloton kimlik doğrulaması yapılamadı!</translation>
+    </message>
+    <message>
+        <source>Welcome %1</source>
+        <translation>Hoş geldiniz, %1</translation>
+    </message>
+    <message>
+        <source>Error: Failed to load workout data after 3 attempts</source>
+        <translation>Hata: antrenman verileri 3 denemede yüklenemedi</translation>
+    </message>
+    <message>
+        <source>Peloton desktop relay failed!</source>
+        <translation>Peloton&apos;a tarayıcıdan giriş hazırlanamadı!</translation>
+    </message>
+    <message>
+        <source>Peloton Login OK!</source>
+        <translation>Peloton girişi başarılı!</translation>
+    </message>
+    <message>
+        <source>Peloton Syncing! Skipping intro...</source>
+        <translation>Peloton ile eşitleniyor! Açılış bölümü atlanıyor…</translation>
+    </message>
+    <message>
+        <source>Peloton Syncing!</source>
+        <translation>Peloton ile eşitleniyor!</translation>
+    </message>
+    <message>
+        <source>Heart rate target reached. Continuing workout.</source>
+        <translation>Hedef nabza ulaşıldı. Antrenman devam ediyor.</translation>
+    </message>
+    <message>
+        <source>Waiting for heart rate target</source>
+        <translation>Hedef nabız bekleniyor</translation>
+    </message>
+    <message>
+        <source>Ride until heart rate is above %1 bpm</source>
+        <translation>Nabız %1 bpm değerinin üzerine çıkana kadar pedal çevirin</translation>
+    </message>
+    <message>
+        <source>Ride until heart rate is below %1 bpm</source>
+        <translation>Nabız %1 bpm değerinin altına inene kadar pedal çevirin</translation>
+    </message>
+    <message>
+        <source>Lap received. Continuing workout.</source>
+        <translation>Tur alındı. Antrenman devam ediyor.</translation>
+    </message>
+    <message>
+        <source>Zwift Login OK!</source>
+        <translation>Zwift girişi başarılı!</translation>
+    </message>
+    <message>
+        <source>Zwift Auth Failed!</source>
+        <translation>Zwift kimlik doğrulaması yapılamadı!</translation>
+    </message>
+    <message>
+        <source>Zwift device: UPGRADE THE FIRMWARE!</source>
+        <translation>Zwift cihazı: ÜRÜN YAZILIMINI GÜNCELLEYİN!</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 hazır</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 başlatılamadı; yeniden bağlanmak gerekiyor</translation>
+    </message>
+</context>
+<context>
+    <name>QPlatformTheme</name>
+    <message>
+        <source>OK</source>
+        <translation>Tamam</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Kaydet</translation>
+    </message>
+    <message>
+        <source>Save All</source>
+        <translation>Tümünü kaydet</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Aç</translation>
+    </message>
+    <message>
+        <source>&amp;Yes</source>
+        <translation>&amp;Evet</translation>
+    </message>
+    <message>
+        <source>Yes to &amp;All</source>
+        <translation>&amp;Tümüne evet</translation>
+    </message>
+    <message>
+        <source>&amp;No</source>
+        <translation>&amp;Hayır</translation>
+    </message>
+    <message>
+        <source>N&amp;o to All</source>
+        <translation>Tümüne ha&amp;yır</translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation>Durdur</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>Yeniden dene</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Yoksay</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
+    </message>
+    <message>
+        <source>Discard</source>
+        <translation>Kaydetme</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Yardım</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Uygula</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Sıfırla</translation>
+    </message>
+    <message>
+        <source>Restore Defaults</source>
+        <translation>Varsayılanları geri yükle</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>Bir IP adresi girin, ör. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Bir IP adresi veya ana bilgisayar adı girin, ör. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Boyu santimetre olarak girin</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Boyu fit&apos;inç olarak girin, ör. 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Süreyi sa:dk:sn biçiminde girin</translation>
     </message>
 </context>
 <context>
     <name>SettingsList</name>
     <message>
-        <location filename="../SettingsList.qml" line="36"/>
         <source>Settings folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlar klasörü</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>Other folders</source>
+        <translation>Diğer klasörler</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>Değer negatif olamaz</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Bir tam sayı girin</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Bir sayı girin</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>İzin verilen aralık: %1 ile %2 arası</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>En az: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>En fazla: %1</translation>
     </message>
 </context>
 <context>
     <name>SwagBagView</name>
     <message>
-        <location filename="../SwagBagView.qml" line="66"/>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
-        <translation type="unfinished"></translation>
+        <translation>Merhaba! QZ&apos;nin bağımsız, açık kaynaklı bir uygulama olduğunu biliyor muydunuz?&lt;br&gt;&lt;br&gt;Arkasında büyük şirketler yok!&lt;br&gt;&quot;Swag Bag&quot;, QZ Fitness&apos;in süregelen geliştirme, bakım ve destek çalışmalarına katkıda bulunmanın bir yoludur!</translation>
     </message>
     <message>
-        <location filename="../SwagBagView.qml" line="92"/>
         <source>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag Bag özelliği:&lt;br&gt;• otomatik yenilenen bir abonelik&lt;br&gt;• 1 ay ($1.99)&lt;br&gt;• Abonelik ücreti, satın alma onaylandığında iTunes hesabınızdan tahsil edilir; otomatik yenileme geçerli dönemin bitiminden en az 24 saat önce kapatılmadıkça abonelik (seçilen süre için) otomatik olarak yenilenir.&lt;br&gt;• Mevcut abonelik, etkin abonelik dönemi içinde iptal edilemez; ancak satın aldıktan sonra iTunes hesap ayarlarınızdan aboneliğinizi yönetebilir ve/veya otomatik yenilemeyi kapatabilirsiniz.&lt;br&gt;• Gizlilik politikası: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Lisanslı uygulama son kullanıcı lisans sözleşmesi: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Restore Purchases</source>
+        <translation>Satın alımları geri yükle</translation>
+    </message>
+    <message>
+        <source>Restoring...</source>
+        <translation>Geri yükleniyor…</translation>
+    </message>
+</context>
+<context>
+    <name>TemplateTcpClient</name>
+    <message>
+        <source>%1 Host:</source>
+        <translation>%1 ana bilgisayarı:</translation>
+    </message>
+    <message>
+        <source>%1 Port:</source>
+        <translation>%1 bağlantı noktası:</translation>
     </message>
 </context>
 <context>
     <name>TemplateWebServer</name>
     <message>
-        <location filename="../TemplateWebServer.qml" line="14"/>
-        <location filename="../TemplateWebServer.qml" line="25"/>
         <source>Server addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sunucu adresleri:</translation>
+    </message>
+    <message>
+        <source>%1 Port:</source>
+        <translation>%1 bağlantı noktası:</translation>
+    </message>
+</context>
+<context>
+    <name>TrainingProgramsList</name>
+    <message>
+        <source>Delete workout?</source>
+        <translation>Antrenman silinsin mi?</translation>
+    </message>
+    <message>
+        <source>This cannot be undone.</source>
+        <translation>Bu işlem geri alınamaz.</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Antrenman programları (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Tüm dosyalar (*)</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtre</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>Güç</translation>
+    </message>
+    <message>
+        <source>Start Workout</source>
+        <translation>Antrenmanı başlat</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Sil</translation>
+    </message>
+    <message>
+        <source>Other folders</source>
+        <translation>Diğer klasörler</translation>
+    </message>
+</context>
+<context>
+    <name>TrainingProgramsListJS</name>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Antrenman programları (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Tüm dosyalar (*)</translation>
+    </message>
+    <message>
+        <source>Delete workout?</source>
+        <translation>Antrenman silinsin mi?</translation>
+    </message>
+    <message>
+        <source>This cannot be undone.</source>
+        <translation>Bu işlem geri alınamaz.</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtre</translation>
+    </message>
+    <message>
+        <source>Search (recursive)...</source>
+        <translation>Ara (alt klasörler dahil)…</translation>
+    </message>
+    <message>
+        <source>Other folders</source>
+        <translation>Diğer klasörler</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation>← Geri</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Sil</translation>
+    </message>
+    <message>
+        <source>Start Workout</source>
+        <translation>Antrenmanı başlat</translation>
     </message>
 </context>
 <context>
     <name>WebIntervalsICUAuth</name>
     <message>
-        <location filename="../WebIntervalsICUAuth.qml" line="54"/>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervals.icu hesabınız artık bağlı!&lt;br&gt;&lt;br&gt;QZ&apos;de &quot;Durdur&quot; düğmesine bastığınızda bir dosya&lt;br&gt;otomatik olarak Intervals.icu&apos;ya yüklenecek!</translation>
     </message>
 </context>
 <context>
     <name>WebPelotonAuth</name>
     <message>
-        <location filename="../WebPelotonAuth.qml" line="79"/>
         <source>Your Peloton account is now connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton hesabınız artık bağlı!</translation>
     </message>
 </context>
 <context>
     <name>WebStravaAuth</name>
     <message>
-        <location filename="../WebStravaAuth.qml" line="54"/>
         <source>Your Strava account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Strava!</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava hesabınız artık bağlı!&lt;br&gt;&lt;br&gt;QZ&apos;de &quot;Durdur&quot; düğmesine bastığınızda bir dosya&lt;br&gt;otomatik olarak Strava&apos;ya yüklenecek!</translation>
     </message>
 </context>
 <context>
     <name>WebTranslations</name>
     <message>
-        <location filename="../webtranslation.cpp" line="14"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="15"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>İptal</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="16"/>
         <source>Confirm</source>
-        <translation type="unfinished"></translation>
+        <translation>Onayla</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="17"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Veri girişi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="18"/>
         <source>Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>Uyarı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="19"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydet</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="20"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Sil</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="21"/>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Yükle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="22"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Yenile</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="23"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Temizle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="24"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="25"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="26"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopyala</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="27"/>
         <source>copy</source>
-        <translation type="unfinished"></translation>
+        <translation>kopya</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="28"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translation>Sil</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="29"/>
         <source>Decrease</source>
-        <translation type="unfinished"></translation>
+        <translation>Azalt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="30"/>
         <source>Increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Artır</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="31"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Evet</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="32"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Hayır</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="33"/>
         <source>Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="34"/>
         <source>Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="35"/>
         <source>Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliptik bisiklet</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="36"/>
         <source>Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Kürek makinesi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="37"/>
         <source>Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman düzenleyici</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="38"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ad</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="39"/>
         <source>New workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni antrenman</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="40"/>
         <source>Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="41"/>
         <source>Paste XML</source>
-        <translation type="unfinished"></translation>
+        <translation>XML yapıştır</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="42"/>
         <source>Save &amp; Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydet ve başlat</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="43"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="44"/>
         <source>Add Interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralık ekle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="45"/>
         <source>Repeat Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçimi tekrarla</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="46"/>
         <source>Select consecutive rows to repeat them quickly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızlıca tekrarlamak için art arda gelen satırları seçin.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="47"/>
         <source>Workout Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman önizlemesi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="48"/>
         <source>Total:</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam:</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="49"/>
         <source>Intervals:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralıklar:</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="50"/>
         <source>Offline mode: changes not saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı mod: değişiklikler kaydedilmedi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="51"/>
         <source>Select saved workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlı antrenmanı seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="52"/>
         <source>No saved workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlı antrenman yok</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="53"/>
         <source>Label</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiket</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="54"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Süre</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="55"/>
         <source>Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesafe</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="56"/>
-        <location filename="../webtranslation.cpp" line="164"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="57"/>
         <source>Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="58"/>
         <source>Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="59"/>
-        <location filename="../webtranslation.cpp" line="172"/>
         <source>Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="60"/>
-        <location filename="../webtranslation.cpp" line="165"/>
         <source>Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="61"/>
         <source>Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="62"/>
         <source>Force Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızı ayarla</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="63"/>
         <source>Fan</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="64"/>
         <source>Peloton Res.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton dir.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="65"/>
         <source>HR Loop (s)</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Workout editor field: interval in seconds between heart-rate based adjustments of the machine (1-60 s). Avoid technical words like &quot;loop&quot;.</extracomment>
+        <translation>Nabız döngüsü (s)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="66"/>
         <source>HR Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="67"/>
         <source>HR Min</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. nabız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="68"/>
         <source>HR Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. nabız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="69"/>
         <source>Min Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. hız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="70"/>
-        <location filename="../webtranslation.cpp" line="144"/>
         <source>Max Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. hız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="71"/>
         <source>Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. direnç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="72"/>
         <source>Ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Rampa</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="73"/>
         <source>Stroke Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Kürek temposu</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="74"/>
         <source>Strokes/min</source>
-        <translation type="unfinished"></translation>
+        <translation>Çekiş/dk</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="75"/>
         <source>Speed (mph)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="76"/>
         <source>Speed (km/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="77"/>
         <source>Incline (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="78"/>
         <source>Cadence (rpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans (rpm)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="79"/>
         <source>Power (W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç (W)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="80"/>
         <source>Ramp (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rampa (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="81"/>
         <source>Offline mode: load/save/start disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı mod: yükleme/kaydetme/başlatma kapalı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="82"/>
         <source>Interval added</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralık eklendi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="83"/>
         <source>Remove all intervals?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm aralıklar silinsin mi?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="84"/>
         <source>Offline: cannot delete workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: antrenmanlar silinemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="85"/>
         <source>Offline: cannot load workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: antrenmanlar yüklenemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="86"/>
         <source>Offline: cannot save workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: antrenmanlar kaydedilemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="87"/>
         <source>Offline: cannot start workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: antrenmanlar başlatılamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="88"/>
         <source>Offline: cannot read clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: pano okunamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="89"/>
         <source>Select a workout to load</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüklenecek antrenmanı seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="90"/>
         <source>Select a workout to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek antrenmanı seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="91"/>
         <source>Offline: cannot refresh list</source>
-        <translation type="unfinished"></translation>
+        <translation>Çevrimdışı: liste yenilenemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="92"/>
         <source>Environment not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Düzenleyici verileri kullanılamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="93"/>
         <source>Cannot load program list</source>
-        <translation type="unfinished"></translation>
+        <translation>Program listesi yüklenemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="94"/>
         <source>Cannot find workout file</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman dosyası bulunamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="95"/>
         <source>New workout ready</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni antrenman hazır</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="96"/>
         <source>Workout is empty or cannot be read</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boş veya okunamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="97"/>
         <source>Unable to load workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman yüklenemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="98"/>
         <source>Unable to paste XML from clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Panodan XML yapıştırılamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="99"/>
         <source>Clipboard XML is empty or cannot be read</source>
-        <translation type="unfinished"></translation>
+        <translation>Panodaki XML boş veya okunamıyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="100"/>
         <source>Workout pasted from clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman panodan yapıştırıldı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="101"/>
         <source>Are you sure you want to delete &quot;{name}&quot;? This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;{name}&quot; silinsin mi? Bu işlem geri alınamaz.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="102"/>
         <source>Delete Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanı sil</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="103"/>
         <source>Failed to delete workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman silinemedi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="104"/>
         <source>Unable to delete workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman silinemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="105"/>
         <source>Select interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralık seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="106"/>
         <source>Interval {number}</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralık {number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="107"/>
         <source>Cannot remove the only interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Tek aralık silinemez</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="108"/>
         <source>Save failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydedilemedi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="109"/>
         <source>Saved {name}</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydedildi: {name}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="110"/>
         <source>Workout file not ready, please try again</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman dosyası hazır değil, tekrar deneyin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="111"/>
         <source>Unable to save workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman kaydedilemiyor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="112"/>
         <source>Workout started</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman başladı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="113"/>
         <source>Add at least one interval</source>
-        <translation type="unfinished"></translation>
+        <translation>En az bir aralık ekleyin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="114"/>
         <source>Invalid duration in intervals</source>
-        <translation type="unfinished"></translation>
+        <translation>Aralıklarda geçersiz süre</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="115"/>
         <source>Enable duration or enter a valid distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Süreyi açın veya geçerli bir mesafe girin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="116"/>
         <source>Select one or more consecutive intervals first</source>
-        <translation type="unfinished"></translation>
+        <translation>Önce art arda gelen bir veya daha fazla aralık seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="117"/>
         <source>Selection must be consecutive</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen aralıklar art arda olmalıdır</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="118"/>
         <source>Repeat block how many times (total cycles)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Blok kaç kez tekrarlansın (toplam döngü)?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="119"/>
         <source>Repeat cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekrar iptal edildi</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="120"/>
         <source>Enter a number greater than 1</source>
-        <translation type="unfinished"></translation>
+        <translation>1&apos;den büyük bir sayı girin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="121"/>
         <source>Error repeating selection: {message}</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçim tekrarlanırken hata oluştu: {message}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="122"/>
         <source>Training Programs Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman programı tarayıcısı</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="123"/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre:</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="124"/>
         <source>Search...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ara…</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="125"/>
         <source>Select a workout to preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Önizlemek için bir antrenman seçin</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="126"/>
         <source>Other Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Diğer klasörler</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="127"/>
         <source>Start Workout?</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman başlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="128"/>
         <source>Do you want to automatically start this workout?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu antrenman otomatik olarak başlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="129"/>
         <source>Line Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Çizgi grafik</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="130"/>
         <source>Time (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Süre (saniye)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="131"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Değer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="132"/>
         <source>Cadence (RPM)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans (RPM)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="133"/>
         <source>Inclination (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="134"/>
         <source>Avg Output</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
+        <translation>Ort. güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="135"/>
         <source>Max Output</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Chart summary: maximum power during the workout, in watts.</extracomment>
+        <translation>Maks. güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="136"/>
         <source>Total Output</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Chart summary: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
+        <translation>Toplam iş</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="137"/>
-        <location filename="../webtranslation.cpp" line="167"/>
         <source>Calories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalori</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="138"/>
         <source>AVG Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. kadans</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="139"/>
         <source>Max Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. kadans</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="140"/>
         <source>AVG Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. direnç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="141"/>
         <source>AVG Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. nabız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="142"/>
         <source>Max Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. nabız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="143"/>
         <source>AVG Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. hız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="145"/>
         <source>Watts</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="146"/>
         <source>Req. Watts</source>
-        <translation type="unfinished"></translation>
+        <translation>İstenen güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="147"/>
         <source>Target R.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef dir.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="148"/>
         <source>Target C.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kad.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="149"/>
         <source>Target Speed (km/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="150"/>
         <source>Target Speed (mph)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="151"/>
         <source>Target Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef eğim</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="152"/>
         <source>Peloton Workout in progress!</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton antrenmanı sürüyor!</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="153"/>
         <source>Do you want to follow the resistance?</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef direnç takip edilsin mi?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="154"/>
         <source>SPEED</source>
-        <translation type="unfinished"></translation>
+        <translation>HIZ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="155"/>
         <source>INCLINE</source>
-        <translation type="unfinished"></translation>
+        <translation>EĞİM</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="156"/>
         <source>PACE</source>
-        <translation type="unfinished"></translation>
+        <translation>TEMPO</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="157"/>
         <source>ELEV.</source>
-        <translation type="unfinished"></translation>
+        <translation>YÜKS.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="158"/>
         <source>CADENCE</source>
-        <translation type="unfinished"></translation>
+        <translation>KADANS</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="159"/>
         <source>PULSE</source>
-        <translation type="unfinished"></translation>
+        <translation>NABIZ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="160"/>
         <source>POWER</source>
-        <translation type="unfinished"></translation>
+        <translation>GÜÇ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="161"/>
         <source>RESISTANCE</source>
-        <translation type="unfinished"></translation>
+        <translation>DİRENÇ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="162"/>
         <source>CALORIES</source>
-        <translation type="unfinished"></translation>
+        <translation>KALORİ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="163"/>
         <source>DISTANCE</source>
-        <translation type="unfinished"></translation>
+        <translation>MESAFE</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="166"/>
         <source>Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="168"/>
         <source>Odometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam mesafe</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="169"/>
         <source>Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="170"/>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçen süre</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="171"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="173"/>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>İrtifa</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="174"/>
         <source>Elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Yükseklik</translation>
+    </message>
+    <message>
+        <source>Jump Rope</source>
+        <translation>Atlama ipi</translation>
+    </message>
+    <message>
+        <source>Stair Climber</source>
+        <translation>Merdiven makinesi</translation>
+    </message>
+    <message>
+        <source>Ramp Unit</source>
+        <translation>Rampa birimi</translation>
+    </message>
+    <message>
+        <source>Ramp From</source>
+        <translation>Rampa başlangıcı</translation>
+    </message>
+    <message>
+        <source>Ramp To</source>
+        <translation>Rampa bitişi</translation>
+    </message>
+    <message>
+        <source>Block repeated {times} times</source>
+        <translation>Blok {times} kez tekrarlandı</translation>
+    </message>
+    <message>
+        <source>Loaded {name}</source>
+        <translation>Yüklendi: {name}</translation>
+    </message>
+    <message>
+        <source>Deleted {name}</source>
+        <translation>Silindi: {name}</translation>
+    </message>
+    <message>
+        <source>Untitled Workout</source>
+        <translation>Adsız antrenman</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Süre</translation>
+    </message>
+    <message>
+        <source>Duration {value}</source>
+        <translation>Süre: {value}</translation>
+    </message>
+    <message>
+        <source>{count} intervals</source>
+        <translation>{count} aralık</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Nabız</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Direnç ve hedef direnç</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance vs Target Peloton Resistance</source>
+        <translation>Peloton direnci ve hedef Peloton direnci</translation>
+    </message>
+    <message>
+        <source>Cadence vs Target Cadence</source>
+        <translation>Kadans ve hedef kadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Güç dağılımı</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Hız ve eğim</translation>
+    </message>
+    <message>
+        <source>Watt AVG: {value}</source>
+        <translation>Ort. güç: {value}</translation>
+    </message>
+    <message>
+        <source>Watt MAX: {value}</source>
+        <translation>Maks. güç: {value}</translation>
+    </message>
+    <message>
+        <source>Heart Rate AVG: {value}</source>
+        <translation>Ort. nabız: {value}</translation>
+    </message>
+    <message>
+        <source>Heart Rate MAX: {value}</source>
+        <translation>Maks. nabız: {value}</translation>
+    </message>
+    <message>
+        <source>zone {number}</source>
+        <translation>bölge {number}</translation>
+    </message>
+    <message>
+        <source>power z{number}</source>
+        <translation>güç Z{number}</translation>
+    </message>
+    <message>
+        <source>heart z{number}</source>
+        <translation>nabız Z{number}</translation>
+    </message>
+    <message>
+        <source>HR &gt;{value} bpm</source>
+        <translation>Nabız &gt;{value} bpm</translation>
+    </message>
+    <message>
+        <source>HR &lt;{value} bpm</source>
+        <translation>Nabız &lt;{value} bpm</translation>
+    </message>
+    <message>
+        <source>Marathon</source>
+        <translation>Maraton</translation>
+    </message>
+    <message>
+        <source>Half Marathon</source>
+        <translation>Yarı maraton</translation>
+    </message>
+    <message>
+        <source>10K</source>
+        <translation>10K</translation>
+    </message>
+    <message>
+        <source>5K</source>
+        <translation>5K</translation>
+    </message>
+    <message>
+        <source>1 Mile</source>
+        <translation>1 mil</translation>
+    </message>
+    <message>
+        <source>AVG</source>
+        <translation>ORT.</translation>
+    </message>
+    <message>
+        <source>MAX</source>
+        <translation>MAKS.</translation>
+    </message>
+    <message>
+        <source>TOTAL</source>
+        <translation>TOPLAM</translation>
+    </message>
+    <message>
+        <source>OFFSET</source>
+        <extracomment>Short uppercase label between the - and + buttons in the floating window: Peloton time offset (shift against the Peloton class timeline).</extracomment>
+        <translation>KAYDIRMA</translation>
+    </message>
+    <message>
+        <source>N/A</source>
+        <translation>Yok</translation>
+    </message>
+    <message>
+        <source>P.ZONE</source>
+        <extracomment>Short uppercase tile label in the floating window: Peloton power zone. &quot;P.&quot; stands for Peloton.</extracomment>
+        <translation>G.BÖLGESİ</translation>
+    </message>
+    <message>
+        <source>P.RESISTANCE</source>
+        <extracomment>Short uppercase tile label in the floating window: Peloton resistance. &quot;P.&quot; stands for Peloton.</extracomment>
+        <translation>P.DİRENÇ</translation>
+    </message>
+    <message>
+        <source>TOT.OUTPUT</source>
+        <extracomment>Short uppercase tile label in the floating window: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
+        <translation>TOP.İŞ</translation>
+    </message>
+    <message>
+        <source>ELAPSED</source>
+        <translation>GEÇEN SÜRE</translation>
+    </message>
+    <message>
+        <source>REM.TIME</source>
+        <translation>KALAN SÜRE</translation>
+    </message>
+    <message>
+        <source>P.OFFSET</source>
+        <extracomment>Short uppercase tile label in the floating window: Peloton time offset (how far QZ is shifted against the Peloton class timeline). &quot;P.&quot; stands for Peloton.</extracomment>
+        <translation>P.KAYDIRMA</translation>
+    </message>
+    <message>
+        <source>GEARS</source>
+        <translation>VİTES</translation>
+    </message>
+    <message>
+        <source>NEXT</source>
+        <translation>SONRAKİ</translation>
+    </message>
+    <message>
+        <source>CLEAR</source>
+        <extracomment>Short uppercase button label in the floating window: starts a new lap (calls Lap()), it does not clear or reset anything.</extracomment>
+        <translation>TUR</translation>
+    </message>
+    <message>
+        <source>GEAR -</source>
+        <translation>VİTES -</translation>
+    </message>
+    <message>
+        <source>GEAR +</source>
+        <translation>VİTES +</translation>
+    </message>
+    <message>
+        <source>Select metrics to display</source>
+        <translation>Gösterilecek ölçümleri seçin</translation>
+    </message>
+    <message>
+        <source>Select Metrics</source>
+        <translation>Ölçümleri seç</translation>
+    </message>
+    <message>
+        <source>Full Controls</source>
+        <translation>Tüm kontroller</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+    <message>
+        <source>Start/Pause</source>
+        <translation>Başlat/Duraklat</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Durdur</translation>
+    </message>
+    <message>
+        <source>Auto Resistance</source>
+        <translation>Otomatik direnç</translation>
+    </message>
+    <message>
+        <source>Max Incline</source>
+        <translation>Maks. eğim</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation>W</translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation>kJ</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation>rpm</translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation>bpm</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation>dk/km</translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation>dk/mi</translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation>sev.</translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation>spm</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Bir sayı girin</translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation>İzin verilen aralık: {min} ile {max} arası</translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation>En az: {min}</translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation>En fazla: {max}</translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation>Süreyi sa:dk:sn biçiminde girin</translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation>Süre 0&apos;dan uzun olmalıdır</translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation>Tempoyu dk:sn biçiminde girin, en az 1:00</translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation>Aralık {number}, {field}: {error}</translation>
     </message>
 </context>
 <context>
     <name>Wizard</name>
     <message>
-        <location filename="../Wizard.qml" line="101"/>
         <source>Welcome to QZ</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;ye hoş geldiniz</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="109"/>
         <source>Created by Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <translation>Geliştiren: Roberto Viola</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="116"/>
         <source>QZ is designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rower. By connecting seamlessly with your devices, QZ provides realtime data, personalized workout plans, and interactive elements to keep you motivated.
 
 The following questions will customize QZ for your equipment and goals.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ; egzersiz bisikletleri, koşu bantları, eliptik bisikletler ve kürek makineleri gibi çeşitli fitness ekipmanlarında antrenman deneyiminizi en üst düzeye çıkarmak için tasarlandı. Cihazlarınıza sorunsuzca bağlanan QZ, motivasyonunuzu korumanız için gerçek zamanlı veriler, kişiselleştirilmiş antrenman planları ve etkileşimli öğeler sunar.
+
+Aşağıdaki sorular QZ&apos;yi ekipmanınıza ve hedeflerinize göre özelleştirecek.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="127"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Başlat</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="155"/>
         <source>How can I help you?</source>
-        <translation type="unfinished"></translation>
+        <translation>Size nasıl yardımcı olabilirim?</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="163"/>
         <source>First-time setup</source>
-        <translation type="unfinished"></translation>
+        <translation>İlk kurulum</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="172"/>
         <source>Help with a specific feature</source>
-        <translation type="unfinished"></translation>
+        <translation>Belirli bir özellikle ilgili yardım</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="181"/>
         <source>I&apos;m fine, thanks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerek yok, teşekkürler.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="211"/>
         <source>What&apos;s your fitness device?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitness cihazınız hangisi?</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="241"/>
-        <location filename="../Wizard.qml" line="318"/>
-        <location filename="../Wizard.qml" line="387"/>
-        <location filename="../Wizard.qml" line="466"/>
-        <location filename="../Wizard.qml" line="535"/>
-        <location filename="../Wizard.qml" line="584"/>
-        <location filename="../Wizard.qml" line="655"/>
-        <location filename="../Wizard.qml" line="753"/>
-        <location filename="../Wizard.qml" line="845"/>
-        <location filename="../Wizard.qml" line="903"/>
-        <location filename="../Wizard.qml" line="960"/>
-        <location filename="../Wizard.qml" line="1091"/>
-        <location filename="../Wizard.qml" line="1154"/>
-        <location filename="../Wizard.qml" line="1266"/>
-        <location filename="../Wizard.qml" line="1408"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Geri</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="268"/>
         <source>Choose your preferred app</source>
-        <translation type="unfinished"></translation>
+        <translation>Tercih ettiğiniz uygulamayı seçin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="276"/>
         <source>QZ allows you to connect to both of them, even simultaneously if you want!</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ, isterseniz ikisine de bağlanabilir, hatta aynı anda!</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="345"/>
         <source>Connect to Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton&apos;a bağlan</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="353"/>
         <source>Click the button below to connect your Peloton account</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton hesabınızı bağlamak için aşağıdaki düğmeye dokunun</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="414"/>
         <source>Peloton Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton zorluğu</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="421"/>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton eğitmenleri genellikle hedef eğim, direnç ve/veya hız için bir aralık söyler. QZ&apos;nin ileteceği hedefin zorluğunu bu ayarla seçin. Zorluk seviyesi alt, üst veya ortalama olarak ayarlanabilir</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="432"/>
         <source>Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Zorluk</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="453"/>
-        <location filename="../Wizard.qml" line="590"/>
-        <location filename="../Wizard.qml" line="851"/>
-        <location filename="../Wizard.qml" line="909"/>
-        <location filename="../Wizard.qml" line="966"/>
         <source>Finish</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitir</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="493"/>
         <source>Bike Resistance Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet direnç seviyesi</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="501"/>
         <source>What resistance level feels like a flat road on your bike?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletinizde hangi direnç seviyesi düz yol gibi hissettiriyor?</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="525"/>
-        <location filename="../Wizard.qml" line="742"/>
-        <location filename="../Wizard.qml" line="1082"/>
-        <location filename="../Wizard.qml" line="1145"/>
-        <location filename="../Wizard.qml" line="1255"/>
-        <location filename="../Wizard.qml" line="1398"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation>İleri</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="562"/>
-        <location filename="../Wizard.qml" line="939"/>
         <source>Custom Configurations</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel yapılandırmalar</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="570"/>
         <source>Here you will see custom configurations based on your previous choices.</source>
-        <translation type="unfinished"></translation>
+        <translation>Burada önceki seçimlerinize göre özel yapılandırmaları göreceksiniz.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="617"/>
         <source>Select a feature</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir özellik seçin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="625"/>
         <source>Auto-incline with treadmill and Zwift</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı ve Zwift ile otomatik eğim</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="626"/>
         <source>Auto-resistance with Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton ile otomatik direnç</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="627"/>
         <source>Zwift Click or Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click veya Zwift Play</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="628"/>
-        <location filename="../Wizard.qml" line="881"/>
         <source>Virtual Shifting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal vites</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="682"/>
         <source>Zwift Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift giriş bilgileri</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="690"/>
         <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ, Zwift uygulamasındaki eğimi gerçek zamanlı okur ve koşu bandınızın eğimini buna göre ayarlar. Zwift&apos;in yapılandırılmış antrenmanlarında çalışmaz</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="700"/>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı adı</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="718"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Şifre</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="780"/>
         <source>Zwift Play and Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play ve Click</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="789"/>
         <source>Enable the one that you would like to use directly with QZ. Remember to update their firmware before using it.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ ile doğrudan kullanmak istediğiniz cihazı açın. Kullanmadan önce cihazın donanım yazılımını güncellemeyi unutmayın.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="798"/>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="814"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="831"/>
         <source>Correct startup phase:
 
 1. close any app that can connect to your Zwift devices
@@ -1471,4499 +2434,4077 @@ The following questions will customize QZ for your equipment and goals.</source>
 3. wake up your trainer
 4. open qz
 5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Doğru başlatma sırası:
+
+1. Zwift cihazlarınıza bağlanabilecek tüm uygulamaları kapatın
+2. Zwift cihazlarınızı uyandırın
+3. Antrenman cihazınızı uyandırın
+4. qz&apos;yi açın
+5. Artık Zwift cihazınızda vites değiştirdiğinizde qz&apos;deki vites kutucuğunda ve dolayısıyla antrenman cihazınızda bir tepki göreceksiniz.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="889"/>
         <source>Virtual shifting enabled! You can change gears using the gears tile in QZ directly, or you can also add a bluetooth remote or a Zwift Play or a Zwift Click to control it!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal vites açıldı! Vitesleri doğrudan QZ&apos;deki vites kutucuğundan değiştirebilir ya da kontrol için bir Bluetooth kumanda, Zwift Play veya Zwift Click ekleyebilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="947"/>
         <source>Here you will see custom configurations based on the selected feature.</source>
-        <translation type="unfinished"></translation>
+        <translation>Burada seçilen özelliğe göre özel ayarlar görüntülenir.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="993"/>
         <source>Thank you for setting up QZ!</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;yi kurduğunuz için teşekkürler!</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1001"/>
         <source>If you have any questions or need further assistance, feel free to write to me at roberto.viola83@gmail.com. You can also restart this wizard from the left side bar menu. To apply some changes, you may need to restart the app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorularınız varsa veya daha fazla yardıma ihtiyacınız olursa bana roberto.viola83@gmail.com adresinden yazabilirsiniz. Bu sihirbazı sol kenar çubuğundaki menüden yeniden başlatabilirsiniz. Bazı değişikliklerin uygulanması için uygulamayı yeniden başlatmanız gerekebilir.</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1018"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapat</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1047"/>
         <source>Select Your Fitness Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitness cihazınızı seçin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1119"/>
         <source>Unit System</source>
-        <translation type="unfinished"></translation>
+        <translation>Birim sistemi</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1127"/>
         <source>Select your preferred unit system</source>
-        <translation type="unfinished"></translation>
+        <translation>Tercih ettiğiniz birim sistemini seçin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1182"/>
         <source>User Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı bilgileri</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1221"/>
         <source>Age</source>
-        <translation type="unfinished"></translation>
+        <translation>Yaş</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1237"/>
         <source>Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>Cinsiyet</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1294"/>
         <source>Select Your Heart Rate Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sensörünüzü seçin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1302"/>
         <source>Choose your heart rate belt or select a smartwatch option:</source>
-        <translation type="unfinished"></translation>
+        <translation>Göğüs bandınızı seçin veya bir akıllı saat seçeneği belirleyin:</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1336"/>
         <source>Or select a smartwatch option:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya da bir akıllı saat seçeneği belirleyin:</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1344"/>
         <source>Apple Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple Watch</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1354"/>
-        <location filename="../Wizard.qml" line="1371"/>
-        <location filename="../Wizard.qml" line="1388"/>
         <source>Download the QZ Companion App there</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ Companion uygulamasını saate indirin</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1361"/>
         <source>Wear OS watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Wear OS saati</translation>
     </message>
     <message>
-        <location filename="../Wizard.qml" line="1378"/>
         <source>Garmin watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin saati</translation>
+    </message>
+    <message>
+        <source>Bike</source>
+        <translation>Bisiklet</translation>
+    </message>
+    <message>
+        <source>Treadmill</source>
+        <translation>Koşu bandı</translation>
+    </message>
+    <message>
+        <source>Rower</source>
+        <translation>Kürek makinesi</translation>
+    </message>
+    <message>
+        <source>Elliptical</source>
+        <translation>Eliptik bisiklet</translation>
+    </message>
+    <message>
+        <source>Other app</source>
+        <translation>Diğer uygulama</translation>
+    </message>
+    <message>
+        <source>QZ Standalone</source>
+        <translation>Yalnızca QZ</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>alt sınır</translation>
+    </message>
+    <message>
+        <source>upper</source>
+        <translation>üst sınır</translation>
+    </message>
+    <message>
+        <source>average</source>
+        <translation>ortalama</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Devre dışı</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Yenile</translation>
+    </message>
+    <message>
+        <source>Metric</source>
+        <translation>Metrik</translation>
+    </message>
+    <message>
+        <source>Imperial</source>
+        <translation>İngiliz</translation>
+    </message>
+    <message>
+        <source>Weight (%1)</source>
+        <translation>Ağırlık (%1)</translation>
+    </message>
+    <message>
+        <source>Male</source>
+        <translation>Erkek</translation>
+    </message>
+    <message>
+        <source>Female</source>
+        <translation>Kadın</translation>
+    </message>
+    <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
     </message>
 </context>
 <context>
     <name>WorkoutEditor</name>
     <message>
-        <location filename="../WorkoutEditor.qml" line="8"/>
         <source>Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman düzenleyici</translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutModel</name>
+    <message>
+        <source>Let&apos;s create a streak!</source>
+        <translation>Bir seri başlatın!</translation>
+    </message>
+    <message>
+        <source>Great start! 🚀</source>
+        <translation>Harika başlangıç! 🚀</translation>
+    </message>
+    <message>
+        <source>Building momentum! 💪</source>
+        <translation>İvme kazanıyorsunuz! 💪</translation>
+    </message>
+    <message>
+        <source>Three days strong! 🎯</source>
+        <translation>Üç gün üst üste! 🎯</translation>
+    </message>
+    <message>
+        <source>Amazing dedication! ⭐</source>
+        <translation>Muhteşem kararlılık! ⭐</translation>
+    </message>
+    <message>
+        <source>One week warrior! 🏆</source>
+        <translation>Bir haftalık savaşçı! 🏆</translation>
+    </message>
+    <message>
+        <source>Unstoppable force! 🔥</source>
+        <translation>Durdurulamaz güç! 🔥</translation>
+    </message>
+    <message>
+        <source>Two weeks champion! 👑</source>
+        <translation>İki haftalık şampiyon! 👑</translation>
+    </message>
+    <message>
+        <source>Legendary consistency! ⚡</source>
+        <translation>Efsanevi istikrar! ⚡</translation>
+    </message>
+    <message>
+        <source>Fitness machine! 🤖</source>
+        <translation>Fitness makinesi! 🤖</translation>
+    </message>
+    <message>
+        <source>One month master! 🎊</source>
+        <translation>Bir aylık usta! 🎊</translation>
+    </message>
+    <message>
+        <source>Discipline incarnate! 💎</source>
+        <translation>Disiplin timsali! 💎</translation>
+    </message>
+    <message>
+        <source>Two months titan! 🏅</source>
+        <translation>İki aylık titan! 🏅</translation>
+    </message>
+    <message>
+        <source>Workout legend! 🌟</source>
+        <translation>Antrenman efsanesi! 🌟</translation>
+    </message>
+    <message>
+        <source>Three months beast! 🦁</source>
+        <translation>Üç aylık canavar! 🦁</translation>
+    </message>
+    <message>
+        <source>Fitness deity! ✨</source>
+        <translation>Fitness tanrısı! ✨</translation>
+    </message>
+    <message>
+        <source>Half-year hero! 🎖️</source>
+        <translation>Yarım yılın kahramanı! 🎖️</translation>
+    </message>
+    <message>
+        <source>Unstoppable legend! 🔱</source>
+        <translation>Durdurulamaz efsane! 🔱</translation>
+    </message>
+    <message>
+        <source>FULL YEAR CHAMPION! 👑🔥</source>
+        <translation>KOCA BİR YILIN ŞAMPİYONU! 👑🔥</translation>
+    </message>
+    <message>
+        <source>Beyond legendary! 🌟✨</source>
+        <translation>Efsanenin de ötesinde! 🌟✨</translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutsHistory</name>
+    <message>
+        <source>Workout History</source>
+        <translation>Antrenman geçmişi</translation>
+    </message>
+    <message>
+        <source>Filtered: %1</source>
+        <translation>Filtre: %1</translation>
+    </message>
+    <message>
+        <source>Clear Filter</source>
+        <translation>Filtreyi temizle</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>Antrenmanlar içe aktarılıyor…</translation>
+    </message>
+    <message>
+        <source>Processing workout files...
+This may take a few moments on first startup.</source>
+        <translation>Antrenman dosyaları işleniyor…
+İlk açılışta bu biraz zaman alabilir.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Sil</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Başarılı</translation>
+    </message>
+    <message>
+        <source>Training program loaded successfully!</source>
+        <translation>Antrenman programı yüklendi.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Hata</translation>
+    </message>
+    <message>
+        <source>Failed to load training program. Please check if the file exists.</source>
+        <translation>Antrenman programı yüklenemedi. Dosyanın mevcut olup olmadığını kontrol edin.</translation>
+    </message>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>FIT dosyasını içe aktar…</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>QZ klasöründen içe aktar…</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>FIT dosyaları (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Tüm dosyalar (*)</translation>
+    </message>
+    <message>
+        <source>Upload to Strava</source>
+        <translation>Strava&apos;ya yükle</translation>
+    </message>
+    <message>
+        <source>Upload to Garmin</source>
+        <translation>Garmin&apos;e yükle</translation>
+    </message>
+    <message>
+        <source>Upload to Intervals.icu</source>
+        <translation>Intervals.icu&apos;ya yükle</translation>
+    </message>
+    <message>
+        <source>Upload to Apple Health</source>
+        <translation>Apple Health&apos;e yükle</translation>
+    </message>
+    <message>
+        <source>Delete Workout</source>
+        <translation>Antrenmanı sil</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete &apos;%1&apos;?</source>
+        <translation>&quot;%1&quot; silinsin mi?</translation>
+    </message>
+    <message>
+        <source>%1 days streak</source>
+        <translation>Üst üste gün: %1</translation>
+    </message>
+    <message>
+        <source>%1 day streak</source>
+        <translation>Üst üste gün: %1</translation>
+    </message>
+    <message>
+        <source>Personal best: %1 days</source>
+        <translation>Kişisel rekor: %1 gün</translation>
+    </message>
+    <message>
+        <source>Personal best: %1 day</source>
+        <translation>Kişisel rekor: %1 gün</translation>
+    </message>
+    <message>
+        <source>Sun</source>
+        <translation>Paz</translation>
+    </message>
+    <message>
+        <source>Mon</source>
+        <translation>Pzt</translation>
+    </message>
+    <message>
+        <source>Tue</source>
+        <translation>Sal</translation>
+    </message>
+    <message>
+        <source>Wed</source>
+        <translation>Çar</translation>
+    </message>
+    <message>
+        <source>Thu</source>
+        <translation>Per</translation>
+    </message>
+    <message>
+        <source>Fri</source>
+        <translation>Cum</translation>
+    </message>
+    <message>
+        <source>Sat</source>
+        <translation>Cmt</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+    <message>
+        <source>Filter by date</source>
+        <translation>Tarihe göre filtrele</translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation>Antrenmanları içe aktar</translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation>Peloton&apos;da aç</translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation>Antrenman programını yükle</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation>Önceki ay</translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation>Sonraki ay</translation>
+    </message>
+    <message>
+        <source>has a workout</source>
+        <translation>antrenman var</translation>
     </message>
 </context>
 <context>
     <name>charts</name>
     <message>
-        <location filename="../charts.ui" line="14"/>
         <source>Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafikler</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="59"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="83"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="107"/>
         <source>Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="131"/>
         <source>Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="152"/>
         <source>Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="176"/>
         <source>Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo</translation>
     </message>
     <message>
-        <location filename="../charts.ui" line="202"/>
         <source>Value on Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafikteki değer</translation>
     </message>
 </context>
 <context>
     <name>customgears</name>
     <message>
-        <location filename="../customgears.qml" line="112"/>
         <source>Enable Custom Gear Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel vites tablosunu etkinleştir</translation>
     </message>
     <message>
-        <location filename="../customgears.qml" line="126"/>
         <source>Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.</source>
-        <translation type="unfinished"></translation>
+        <translation>Her vites, ham vites değeri yerine aşağıdaki ofseti kullanır. QZ bunu, cihazın nasıl kontrol edildiğine bağlı olarak otomatik olarak dirence, eğime veya yol eğimine (slope) uygular. Varsayılan: doğrusal.</translation>
     </message>
     <message>
-        <location filename="../customgears.qml" line="134"/>
         <source>Reset to Linear Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Doğrusal varsayılanlara sıfırla</translation>
     </message>
     <message>
-        <location filename="../customgears.qml" line="163"/>
         <source>Gear</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites</translation>
     </message>
     <message>
-        <location filename="../customgears.qml" line="178"/>
         <source>Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Ofset</translation>
+    </message>
+</context>
+<context>
+    <name>custominclinationresistance</name>
+    <message>
+        <source>Enable Custom Inclination to Resistance Table</source>
+        <translation>Özel eğim/direnç tablosunu etkinleştir</translation>
+    </message>
+    <message>
+        <source>Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.</source>
+        <translation>QZ&apos;nin her eğim değerinde hedefleyeceği direnci ayarlayın. QZ noktalar arasındaki değerleri otomatik olarak hesaplar, ayarlanan aralığın dışında ise en yakın uç noktayı kullanır. Değişiklikler otomatik olarak kaydedilir.</translation>
+    </message>
+    <message>
+        <source>Inclination (%)</source>
+        <translation>Eğim (%)</translation>
+    </message>
+    <message>
+        <source>Resistance</source>
+        <translation>Direnç</translation>
+    </message>
+    <message>
+        <source>Add Point</source>
+        <translation>Nokta ekle</translation>
+    </message>
+    <message>
+        <source>Reset Example</source>
+        <translation>Örneğe sıfırla</translation>
     </message>
 </context>
 <context>
     <name>gears</name>
     <message>
-        <location filename="../gears.qml" line="335"/>
         <source>Without Wheel Diameter Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekerlek çapı protokolü olmadan</translation>
     </message>
     <message>
-        <location filename="../gears.qml" line="349"/>
         <source>Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vitesleri tekerlek çapını değiştirerek değil, doğrudan eğime ekleyerek uygulayan basitleştirilmiş Wahoo protokolü için açın. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Wahoo Options</source>
+        <translation>Wahoo seçenekleri</translation>
+    </message>
+    <message>
+        <source>Chainring Size</source>
+        <translation>Aynakol boyutu</translation>
+    </message>
+    <message>
+        <source>Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride</source>
+        <translation>Antrenman cihazında şu anda sürdüğünüz bisikletin aynakol diş sayısı – Zwift Ride için 42 girin</translation>
+    </message>
+    <message>
+        <source>Cog Size</source>
+        <translation>Arka dişli boyutu</translation>
+    </message>
+    <message>
+        <source>Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog</source>
+        <translation>Antrenman cihazınızdaki arka dişlinin diş sayısı – Zwift Cog kullanıyorsanız 14 girin</translation>
+    </message>
+    <message>
+        <source>Virtual Wheel Size</source>
+        <translation>Sanal tekerlek boyutu</translation>
+    </message>
+    <message>
+        <source>Restore Default Setting to the Trainer</source>
+        <translation>Antrenman cihazının varsayılan ayarını geri yükle</translation>
+    </message>
+    <message>
+        <source>Preset Gear Profiles</source>
+        <translation>Hazır vites profilleri</translation>
+    </message>
+    <message>
+        <source>Select a profile...</source>
+        <translation>Bir profil seçin…</translation>
+    </message>
+    <message>
+        <source>Virtual Gear Table</source>
+        <translation>Sanal vites tablosu</translation>
+    </message>
+    <message>
+        <source>Add Gear</source>
+        <translation>Vites ekle</translation>
+    </message>
+    <message>
+        <source>Clear Selected Gear and Following</source>
+        <translation>Seçili ve sonraki vitesleri temizle</translation>
+    </message>
+    <message>
+        <source>Reset All Gears</source>
+        <translation>Tüm vitesleri sıfırla</translation>
+    </message>
+    <message>
+        <source>Gear</source>
+        <translation>Vites</translation>
+    </message>
+    <message>
+        <source>Chainring</source>
+        <translation>Aynakol</translation>
+    </message>
+    <message>
+        <source>Rear Cog</source>
+        <translation>Arka dişli</translation>
     </message>
 </context>
 <context>
     <name>homeform</name>
     <message>
-        <location filename="../homeform.cpp" line="393"/>
         <source>Speed (%1/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="396"/>
         <source>Inclination (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="398"/>
         <source>Descent (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>İniş (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="400"/>
         <source>Cadence (rpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans (rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="402"/>
         <source>Elev. Gain (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Top. tırmanış (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="405"/>
         <source>Calories (KCal)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalori (kcal)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="407"/>
         <source>Odometer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam mesafe (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="411"/>
         <source>Pace (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo (dk/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="415"/>
         <source>Avg Pace (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. tempo (dk/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="419"/>
         <source>GAP (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>GAP (dk/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="424"/>
         <source>T.Pace(m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef tempo (dk/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="427"/>
         <source>Pace 500m (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo 500 m (dk/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="431"/>
         <source>Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="434"/>
         <source>Peloton R(%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton direnci (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="437"/>
         <source>Target R.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef dir.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="440"/>
         <source>T.Peloton R(%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef Peloton dir. (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="442"/>
         <source>T.Cadence(rpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kadans (rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="444"/>
         <source>T.Power(W)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef güç (W)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="446"/>
         <source>T.Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef bölge</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="448"/>
         <source>T.Speed (%1/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="452"/>
         <source>T.Incline (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef eğim (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="455"/>
-        <source>Watt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="457"/>
         <source>Weight Loss(%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilo kaybı (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="460"/>
-        <source>AVG Watt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="462"/>
         <source>AVG Watt Lap</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. tur gücü</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="464"/>
         <source>Watt/Kg</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="466"/>
         <source>FTP Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP bölgesi</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="468"/>
         <source>Heart (bpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız (bpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="470"/>
         <source>Fan Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan hızı</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="472"/>
         <source>KJouls</source>
-        <translation type="unfinished"></translation>
+        <translation>kJ</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="475"/>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçen süre</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="478"/>
         <source>Moving T.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hareket süresi</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="480"/>
         <source>Clock</source>
-        <translation type="unfinished"></translation>
+        <translation>Saat</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="483"/>
         <source>Lap Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tur süresi</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="487"/>
         <source>Time to Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonrakine kalan</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="491"/>
         <source>Next Rows</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.</extracomment>
+        <translation>Sonraki satırlar</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="494"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation>METS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="496"/>
         <source>Target METS</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef METS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="498"/>
         <source>RSS</source>
-        <translation type="unfinished"></translation>
+        <translation>RSS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="500"/>
         <source>Steering</source>
-        <translation type="unfinished"></translation>
+        <translation>Yönlendirme</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="503"/>
         <source>Peloton Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kaydırması</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="506"/>
         <source>Peloton Rem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kalan</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="508"/>
         <source>Strokes Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Çekiş sayısı</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="510"/>
         <source>Strokes Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Çekiş uzunluğu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="512"/>
         <source>Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="514"/>
         <source>GearsPlus</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites +</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="516"/>
         <source>GearsMinus</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites -</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="518"/>
         <source>Cruise</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="520"/>
         <source>Climb</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="522"/>
-        <source>Sprint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="524"/>
         <source>Power Avg</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ortalaması</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="528"/>
         <source>PID Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="530"/>
         <source>Ext.Inclin.(%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dış eğim (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="533"/>
         <source>Stride L.(%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Adım uz. (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="535"/>
         <source>Ground C.(ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zemin teması (ms)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="538"/>
         <source>Vert.Osc.(mm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dikey sal. (mm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="542"/>
         <source>Step Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Adım sayısı</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5791"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Durdur</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5803"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Başlat</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5805"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Duraklat</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6408"/>
-        <location filename="../homeform.cpp" line="6560"/>
-        <location filename="../homeform.cpp" line="6731"/>
         <source>Rec.</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone &quot;Recovery&quot; (not &quot;record&quot;); zones: (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Topar.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6411"/>
-        <location filename="../homeform.cpp" line="6563"/>
-        <location filename="../homeform.cpp" line="6734"/>
         <source>Easy</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Kolay</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6415"/>
         <source>Brisk</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Tempolu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6417"/>
-        <location filename="../homeform.cpp" line="6566"/>
-        <location filename="../homeform.cpp" line="6737"/>
         <source>Moder.</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Orta</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6422"/>
         <source>Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6424"/>
-        <location filename="../homeform.cpp" line="6569"/>
-        <location filename="../homeform.cpp" line="6740"/>
         <source>Chall.</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Zorlayıcı</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6429"/>
-        <location filename="../homeform.cpp" line="6438"/>
-        <location filename="../homeform.cpp" line="6578"/>
-        <location filename="../homeform.cpp" line="6743"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6431"/>
-        <location filename="../homeform.cpp" line="6572"/>
         <source>Hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Zor</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6435"/>
-        <location filename="../homeform.cpp" line="6575"/>
         <source>V.Hard</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.</extracomment>
+        <translation>Çok zor</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6441"/>
-        <location filename="../homeform.cpp" line="6581"/>
-        <location filename="../homeform.cpp" line="6746"/>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>Yok</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8006"/>
         <source>, speed </source>
-        <translation type="unfinished"></translation>
+        <translation>, hız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8008"/>
-        <location filename="../homeform.cpp" line="8026"/>
-        <location filename="../homeform.cpp" line="8187"/>
-        <location filename="../homeform.cpp" line="8220"/>
         <source> kilometers per hour</source>
-        <translation type="unfinished"></translation>
+        <translation> saatte kilometre</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8012"/>
-        <location filename="../homeform.cpp" line="8021"/>
-        <location filename="../homeform.cpp" line="8030"/>
-        <location filename="../homeform.cpp" line="8192"/>
-        <location filename="../homeform.cpp" line="8224"/>
         <source> miles per hour</source>
-        <translation type="unfinished"></translation>
+        <translation> saatte mil</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8014"/>
         <source>, Average speed </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama hız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8017"/>
         <source>kilometers per hour</source>
-        <translation type="unfinished"></translation>
+        <translation> saatte kilometre</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8023"/>
         <source>, Max speed </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum hız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8033"/>
         <source>, inclination </source>
-        <translation type="unfinished"></translation>
+        <translation>, eğim </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8036"/>
         <source>, cadence </source>
-        <translation type="unfinished"></translation>
+        <translation>, kadans </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8039"/>
         <source>, Average cadence </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama kadans </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8043"/>
         <source>, Max cadence </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum kadans </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8048"/>
         <source>, elevation </source>
-        <translation type="unfinished"></translation>
+        <translation>, toplam tırmanış </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8050"/>
         <source> meters</source>
-        <translation type="unfinished"></translation>
+        <translation> metre</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8054"/>
         <source> feet</source>
-        <translation type="unfinished"></translation>
+        <translation> fit</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8056"/>
         <source>, calories burned </source>
-        <translation type="unfinished"></translation>
+        <translation>, yakılan kalori </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8059"/>
         <source>, distance </source>
-        <translation type="unfinished"></translation>
+        <translation>, mesafe </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8061"/>
         <source>kilometers</source>
-        <translation type="unfinished"></translation>
+        <translation> kilometre</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8064"/>
         <source> miles</source>
-        <translation type="unfinished"></translation>
+        <translation> mil</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8068"/>
-        <location filename="../homeform.cpp" line="8072"/>
-        <location filename="../homeform.cpp" line="8077"/>
-        <location filename="../homeform.cpp" line="8080"/>
-        <location filename="../homeform.cpp" line="8083"/>
         <source>, pace </source>
-        <translation type="unfinished"></translation>
+        <translation>, tempo </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8087"/>
         <source>, resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, direnç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8092"/>
         <source>, average resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama direnç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8096"/>
         <source>, max resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum direnç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8099"/>
         <source>, watt </source>
-        <translation type="unfinished"></translation>
+        <translation>, güç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8102"/>
         <source>, average watt </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama güç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8105"/>
         <source>, max watt </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum güç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8111"/>
         <source>, heart rate </source>
-        <translation type="unfinished"></translation>
+        <translation>, nabız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8114"/>
         <source>, average heart rate </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama nabız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8117"/>
         <source>, max heart rate </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum nabız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8120"/>
         <source>, jouls </source>
-        <translation type="unfinished"></translation>
+        <translation>, jul </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8123"/>
         <source>, elapsed </source>
-        <translation type="unfinished"></translation>
+        <translation>, geçen süre </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8125"/>
         <source> minutes </source>
-        <translation type="unfinished"></translation>
+        <translation> dakika </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8127"/>
         <source> seconds</source>
-        <translation type="unfinished"></translation>
+        <translation> saniye</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8133"/>
         <source>, peloton resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, Peloton direnci </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8141"/>
         <source>, average peloton resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, ortalama Peloton direnci </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8149"/>
         <source>, max peloton resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, maksimum Peloton direnci </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8157"/>
         <source>, target peloton resistance </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef Peloton direnci </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8165"/>
         <source>, target cadence </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef kadans </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8171"/>
         <source>, target power </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef güç </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8177"/>
         <source>, target zone </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef bölge </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8183"/>
         <source>, target speed </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef hız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8197"/>
         <source>, target incline </source>
-        <translation type="unfinished"></translation>
+        <translation>, hedef eğim </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8202"/>
         <source>, watt for kilograms </source>
-        <translation type="unfinished"></translation>
+        <translation>, kilogram başına watt </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8205"/>
         <source>, average watt for kilograms</source>
-        <translation type="unfinished"></translation>
+        <translation>, kilogram başına ortalama watt </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8208"/>
         <source>, max watt for kilograms</source>
-        <translation type="unfinished"></translation>
+        <translation>, kilogram başına maksimum watt </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8218"/>
         <source>speed changed to</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Text-to-speech: spoken before the new speed value, e.g. &quot;speed changed to&quot; + &quot;12.5&quot; + &quot; kilometers per hour&quot;. Must read naturally when the number follows.</extracomment>
+        <translation>yeni hız </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="9186"/>
         <source>JSON parser error</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON ayrıştırma hatası</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="9473"/>
         <source>Error retrieving access token, %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erişim belirteci alınamadı, %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Watts</source>
+        <translation>Güç</translation>
+    </message>
+    <message>
+        <source>AVG Watts</source>
+        <translation>Ort. güç</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>Antrenman geçmişi veritabanı açılamadı.</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>İçe aktarılan antrenman: %1.</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>Geçmişte zaten var: %1.</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>Antrenman verisi olmayan: %1.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>Antrenman dosyası açılamadı.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>Antrenman dosyası kopyalanamadı.</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>Antrenman dosyası (.fit) bulunamadı.</translation>
+    </message>
+    <message>
+        <source>License Approved!</source>
+        <translation>Lisans onaylandı!</translation>
+    </message>
+    <message>
+        <source>License not found</source>
+        <translation>Lisans bulunamadı</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation>ft</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation>in</translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation>oz</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Kapalı</translation>
+    </message>
+    <message>
+        <source>HRV (ms)</source>
+        <translation>HRV (ms)</translation>
+    </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation>Cihaz aranıyor…</translation>
+    </message>
+    <message>
+        <source>%1 found</source>
+        <translation>Bulundu: %1</translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation>Arama durdu, Bluetooth simgesine dokunun</translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation>Sonraki arama %1 s sonra</translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation>Android 30 s içinde 5 Bluetooth aramasına izin verir, sonraki arama %1 s sonra başlar</translation>
+    </message>
+    <message>
+        <source>Odometer (m)</source>
+        <translation>Toplam mesafe (m)</translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation>Tempo (dk/500 m)</translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation>Ort. tempo (dk/500 m)</translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation>Hedef tempo (dk/500 m)</translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation>ofset </translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation> /dk</translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation> sn</translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation>Eğim: </translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation>%1%2W</translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation>Ort. 3 s</translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation>Ort. 5 s</translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation>Çarpan: </translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation>Min.: </translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation>W </translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>ft</translation>
+    </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>Harika antrenman!</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Ortalama hız: %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Maksimum hız: %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Yakılan kalori: %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Mesafe: %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Toplam tırmanış (%1): %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Ortalama güç: %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Maksimum güç: %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Ortalama güç (W/kg): %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Maksimum güç (W/kg): %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Ortalama nabız: %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Maksimum nabız: %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Nabız bölgesi %1 süresi: %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Toplam iş (kJ): %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Geçen süre: %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Hareket süresi: %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Kilo kaybı (%1): %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>Tahmini VO2Max: %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Koşu stres skoru: %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>5 saniyelik güç: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>1 dakikalık güç: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>5 dakikalık güç: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>Tahmini FTP: %1 W</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP ARTTI: +%1 W!</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Ortalama kadans: %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Maksimum kadans: %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Ortalama direnç: %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Maksimum direnç: %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Ortalama Peloton direnci: %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Maksimum Peloton direnci: %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Ortalama tempo: %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Maksimum tempo: %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Ortalama çekiş uzunluğu: %1</translation>
+    </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ hedef gücü uygulamanın komutlarını geçersiz kılıyor. Kontrolü uygulamaya geri vermek için QZ&apos;yi duraklatıp devam ettirin.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify şarkıları:</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.qml" line="20"/>
         <source>qDomyos-Zwift</source>
-        <translation type="unfinished"></translation>
+        <translation>qDomyos-Zwift</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="357"/>
         <source>Program has been loaded correctly. Press start to begin!</source>
-        <translation type="unfinished"></translation>
+        <translation>Program yüklendi. Başlamak için &quot;Başlat&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="364"/>
         <source>Peloton Authentication Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kimlik doğrulama değişikliği</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="365"/>
         <source>Peloton has moved to a new authentication system. Username and password are no longer required.
 
 Would you like to switch to the new authentication method now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton yeni bir kimlik doğrulama sistemine geçti. Kullanıcı adı ve şifre artık gerekmiyor.
+
+Yeni kimlik doğrulama yöntemine şimdi geçilsin mi?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="414"/>
         <source>QZ Classifica is a realtime viewer about the actual
 effort of every QZ users! If you want to join in,
 choose a nickname in the general settings
 and enable the QZ Classifica setting in the
 experimental settings section and
 restart the app.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ Classifica, tüm QZ kullanıcılarının o anki
+çabasını gerçek zamanlı gösterir! Katılmak isterseniz
+genel ayarlardan bir takma ad seçin,
+deneysel ayarlar bölümünde QZ Classifica
+ayarını açın ve
+uygulamayı yeniden başlatın.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="438"/>
         <source>Select Your Gym Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Spor aletinizi seçin</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="447"/>
         <source>QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ yakındaki Bluetooth antrenman cihazlarını buldu. Bu seansta kullanmak istediğiniz cihazı seçin.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="456"/>
         <source>Select a device</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir cihaz seçin</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="472"/>
         <source>The list refreshes automatically every 10 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste her 10 saniyede bir otomatik olarak yenilenir.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="480"/>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Atla</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="530"/>
         <source>Browse the What&apos;s on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
-        <translation type="unfinished"></translation>
+        <translation>What&apos;s on Zwift antrenman kitaplığına göz atın&lt;br&gt;ve antrenmanınızı seçin. Üstteki &quot;Yükle&quot;&lt;br&gt; düğmesine bastığınızda antrenman otomatik olarak&lt;br&gt;QZ&apos;ye yüklenir!&lt;br&gt;&lt;br&gt;QZ&apos;nin Zwift&lt;br&gt;veya https://whatsonzwift.com/ sitesiyle bir bağlantısı yoktur.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="559"/>
         <source>Settings has been loaded correctly. Restart the app!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlar yüklendi. Uygulamayı yeniden başlatın!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="588"/>
         <source>Saved! Check your private folder (Android)&lt;br&gt;or Files App (iOS)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydedildi! Özel klasörünüzü (Android)&lt;br&gt;veya Dosyalar uygulamasını (iOS) kontrol edin</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="622"/>
         <source>Your Strava account is now connected!&lt;br&gt;&lt;br&gt;When you will save a FIT file it will&lt;br&gt;automatically uploaded to Strava!</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava hesabınız bağlandı!&lt;br&gt;&lt;br&gt;Bir FIT dosyası kaydettiğinizde dosya&lt;br&gt;otomatik olarak Strava&apos;ya yüklenir!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="656"/>
         <source>Your Peloton account is now connected!&lt;br&gt;&lt;br&gt;Restart the app to apply this change!</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton hesabınız bağlandı!&lt;br&gt;&lt;br&gt;Bu değişikliği uygulamak için uygulamayı yeniden başlatın!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="696"/>
         <source>Trial time expired!&lt;br&gt;&lt;br&gt;Please join the QZ Patreon Membership to unlock the full license!&lt;br&gt;https://www.patreon.com/bePatron?u=45290147&lt;br&gt;&lt;br&gt;Then add your patreon email in the email field in the general settings.&lt;br&gt;The App will now close.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deneme süresi doldu!&lt;br&gt;&lt;br&gt;Tam lisansın kilidini açmak için QZ Patreon üyeliğine katılın!&lt;br&gt;https://www.patreon.com/bePatron?u=45290147&lt;br&gt;&lt;br&gt;Ardından Patreon e-posta adresinizi genel ayarlardaki e-posta alanına girin.&lt;br&gt;Uygulama şimdi kapanacak.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="703"/>
         <source>Settings changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlar değişti</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="704"/>
         <source>In order to apply the changes you need to restart the app.
 Do you want to do it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişikliklerin uygulanması için uygulamanın yeniden başlatılması gerekiyor.
+Şimdi yeniden başlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="712"/>
-        <location filename="../main.qml" line="845"/>
         <source>Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="713"/>
         <source>Do you want to upload the workout to Strava?</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman Strava&apos;ya yüklensin mi?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="721"/>
         <source>Garmin Workout Planned</source>
-        <translation type="unfinished"></translation>
+        <translation>Planlanmış Garmin antrenmanı</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="722"/>
         <source>Workout found:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman bulundu:
+</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="723"/>
         <source>
 Date: </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Tarih: </translation>
     </message>
     <message>
-        <location filename="../main.qml" line="724"/>
         <source>
 
 Do you want to start it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Şimdi başlatılsın mı?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="846"/>
         <source>You are already connected to Strava. Do you want to log out?</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;ya zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="855"/>
         <source>Peloton</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="856"/>
         <source>You are already connected to Peloton. Do you want to log out?</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton&apos;a zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="865"/>
         <source>Intervals.icu</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="866"/>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervals.icu&apos;ya zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="971"/>
         <source>You can move the tiles!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucukları taşıyabilirsiniz!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="971"/>
         <source>The tiles are locked now</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuklar artık kilitli</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1012"/>
         <source>Search settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlarda ara</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1122"/>
         <source>Profile: </source>
-        <translation type="unfinished"></translation>
+        <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1134"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlar</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1148"/>
         <source>Workouts History</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman geçmişi</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1157"/>
         <source>Swag Bag</source>
-        <translation type="unfinished"></translation>
+        <translation>Swag Bag</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1166"/>
         <source>Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafikler</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1179"/>
         <source>Open GPX</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX aç</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1195"/>
         <source>Open Train Program</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman programı aç</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1213"/>
         <source>Workout Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman düzenleyici</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1241"/>
         <source>Save GPX</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX kaydet</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1251"/>
         <source>Save FIT</source>
-        <translation type="unfinished"></translation>
+        <translation>FIT kaydet</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1261"/>
         <source>Wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurulum sihirbazı</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1270"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Yardım</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1279"/>
         <source>Community</source>
-        <translation type="unfinished"></translation>
+        <translation>Topluluk</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1287"/>
         <source>Credits</source>
-        <translation type="unfinished"></translation>
+        <translation>Emeği geçenler</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1295"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıkış</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="144"/>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
-        <translation type="unfinished"></translation>
+        <translation>QDomyos-Zwift – Fitness cihazı köprüsü</translation>
+    </message>
+    <message>
+        <source>Remember to save profile &quot;%1&quot; if you want to keep these changes in this profile.</source>
+        <translation>Bu değişiklikleri &quot;%1&quot; profilinde tutmak istiyorsanız profili kaydetmeyi unutmayın.</translation>
+    </message>
+    <message>
+        <source>Press back again to exit</source>
+        <translation>Çıkmak için tekrar &quot;Geri&quot; düğmesine basın</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Devre dışı</translation>
+    </message>
+    <message>
+        <source>Camera Cutout</source>
+        <translation>Kamera çentiği</translation>
+    </message>
+    <message>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>Yatay modda QZ, kamera deliği içeriği kapatmasın diye kamera tarafında bir kenar boşluğu bırakır.
+Bunun yerine ekranın tam genişliği kullanılsın mı?
+
+Bunu daha sonra Ayarlar &gt; Genel arayüz seçenekleri &gt; İçeriği kamera çentiğinden uzak tut bölümünden değiştirebilirsiniz.</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>Antrenman geçmişi</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenmanlar QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
+        <source>Restart now?</source>
+        <translation>Şimdi yeniden başlatılsın mı?</translation>
+    </message>
+    <message>
+        <source>Garmin FTP Update</source>
+        <translation>Garmin FTP güncellemesi</translation>
+    </message>
+    <message>
+        <source>Clipboard Workout</source>
+        <translation>Panodaki antrenman</translation>
+    </message>
+    <message>
+        <source>Workout found in clipboard:
+%1
+
+Do you want to open the workout preview?</source>
+        <translation>Panoda antrenman bulundu:
+%1
+
+Antrenman önizlemesi açılsın mı?</translation>
+    </message>
+    <message>
+        <source>The clipboard workout has ended.
+
+Do you want to delete the file?</source>
+        <translation>Panodaki antrenman bitti.
+
+Dosya silinsin mi?</translation>
+    </message>
+    <message>
+        <source>Echelon Unlock</source>
+        <translation>Echelon kilidi açma</translation>
+    </message>
+    <message>
+        <source>The bike has been unlocked and cadence is flowing.
+
+Do you want to switch to the classic Bluetooth bridge for this session?</source>
+        <translation>Bisikletin kilidi açıldı ve kadans verisi geliyor.
+
+Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
+    </message>
+    <message>
+        <source>Echelon Locked Bike</source>
+        <translation>Echelon tarafından kilitlenmiş bisiklet</translation>
+    </message>
+    <message>
+        <source>Your bike is locked by Echelon, but QZ can unlock it.
+
+</source>
+        <translation>Bisikletiniz Echelon tarafından kilitlenmiş, ancak QZ kilidi açabilir.
+
+</translation>
+    </message>
+    <message>
+        <source>Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.
+
+</source>
+        <translation>Deneysel ayarlarda &quot;Sanal Echelon&quot; ayarını açın ve QZ&apos;yi yeniden başlatın, ardından başka bir cihazda resmî Echelon uygulamasını açıp bisiklete bir kez bağlanın.
+
+</translation>
+    </message>
+    <message>
+        <source>After initialization, return to QZ and everything will work normally.
+
+</source>
+        <translation>Bu ilk ayardan sonra QZ&apos;ye dönün – her şey normal şekilde çalışır.
+
+</translation>
+    </message>
+    <message>
+        <source>You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?</source>
+        <translation>Bunu her seansta tekrarlamanız gerekir. &quot;Sanal Echelon&quot; ayarı şimdi açılsın mı?</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Evet</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Hayır</translation>
+    </message>
+    <message>
+        <source>Connection lost in the background</source>
+        <translation>Arka planda bağlantı koptu</translation>
+    </message>
+    <message>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>Android, QZ arka plandayken ağ bağlantısını kesti; bu yüzden QZ&apos;ye Wi-Fi üzerinden bağlı uygulama (örneğin Zwift) bağlantıyı kaybetti.
+
+</translation>
+    </message>
+    <message>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Android bildirimi, QZ&apos;nin arka planda çalışmaya devam etmesini sağlar. Şimdi açılsın mı? Antrenman devam eder, yeniden başlatma gerekmez.</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Etkinleştir</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Şimdi değil</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Bir daha sorma</translation>
+    </message>
+    <message>
+        <source>Auto Resistance enabled</source>
+        <translation>Otomatik direnç açıldı</translation>
+    </message>
+    <message>
+        <source>Auto Resistance disabled</source>
+        <translation>Otomatik direnç kapatıldı</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Bir dosya seçin</translation>
     </message>
 </context>
 <context>
     <name>peloton</name>
     <message>
-        <location filename="../peloton.cpp" line="2660"/>
         <source>Error retrieving access token, %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erişim belirteci alınamadı, %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../peloton.cpp" line="2849"/>
-        <location filename="../peloton.cpp" line="3080"/>
         <source>JSON parser error</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON ayrıştırma hatası</translation>
     </message>
 </context>
 <context>
     <name>profiles</name>
     <message>
-        <location filename="../profiles.qml" line="27"/>
         <source>Please choose a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir dosya seçin</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="49"/>
         <source>Profile loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil yüklendi</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="50"/>
         <source>Would you like to quit?</source>
-        <translation type="unfinished"></translation>
+        <translation>Uygulamadan çıkılsın mı?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="51"/>
         <source>You must quit and restart for changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Değişikliklerin geçerli olması için uygulamadan çıkıp uygulamayı yeniden başlatmanız gerekir.</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="64"/>
         <source>Delete profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profili sil</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="65"/>
         <source>Would you like to delete this profile?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu profil silinsin mi?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="77"/>
         <source>Profile Saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil kaydedildi</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="78"/>
         <source>Profile saved correctly!</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil başarıyla kaydedildi!</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="87"/>
         <source>New Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni profil</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="88"/>
         <source>New Profile Created with default values. Save it with a name and restart the app to apply them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan değerlerle yeni profil oluşturuldu. Profili bir adla kaydedin ve değerlerin uygulanması için uygulamayı yeniden başlatın.</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="97"/>
         <source>Save Current Profile?</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçerli profil kaydedilsin mi?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="98"/>
         <source>You&apos;re creating a new profile with the default values, would you like to save the current one before?</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan değerlerle yeni bir profil oluşturuyorsunuz. Önce geçerli profil kaydedilsin mi?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="102"/>
         <source>OldProfile</source>
-        <translation type="unfinished"></translation>
+        <translation>Eski profil</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="124"/>
         <source>Profile name</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil adı</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="158"/>
         <source>Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profiller</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Kaydet</translation>
+    </message>
+    <message>
+        <source>Other folders</source>
+        <translation>Diğer klasörler</translation>
     </message>
 </context>
 <context>
     <name>settings</name>
     <message>
-        <location filename="../settings.qml" line="203"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1725"/>
         <source>Auto (System)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik (sistem)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1726"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>İngilizce</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1727"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>İtalyanca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1728"/>
         <source>German</source>
-        <translation type="unfinished"></translation>
+        <translation>Almanca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1729"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>Fransızca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1730"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translation>İspanyolca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1731"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translation>Portekizce</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1732"/>
         <source>Portuguese (Brazil)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portekizce (Brezilya)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1733"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rusça</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1734"/>
         <source>Chinese (Simplified)</source>
-        <translation type="unfinished"></translation>
+        <translation>Çince (basitleştirilmiş)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1735"/>
         <source>Chinese (Traditional)</source>
-        <translation type="unfinished"></translation>
+        <translation>Çince (geleneksel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1736"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japonca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1737"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Korece</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1738"/>
         <source>Arabic</source>
-        <translation type="unfinished"></translation>
+        <translation>Arapça</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1740"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translation>Türkçe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1741"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnamca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1742"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Lehçe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1743"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukraynaca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1744"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>Felemenkçe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1745"/>
         <source>Thai</source>
-        <translation type="unfinished"></translation>
+        <translation>Tayca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1746"/>
         <source>Indonesian</source>
-        <translation type="unfinished"></translation>
+        <translation>Endonezce</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1747"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumence</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1748"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Çekçe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1749"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>Yunanca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1750"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation>İsveççe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1751"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Macarca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1752"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation>Fince</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1753"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>Norveççe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1754"/>
         <source>Danish</source>
-        <translation type="unfinished"></translation>
+        <translation>Danca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1755"/>
         <source>Hebrew</source>
-        <translation type="unfinished"></translation>
+        <translation>İbranice</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1756"/>
         <source>Catalan</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalanca</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1779"/>
         <source>Search settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlarda ara</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1798"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Temizle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1819"/>
         <source>Loading settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarlar yükleniyor…</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1820"/>
         <source>Searching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aranıyor…</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1821"/>
         <source>No settings found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayar bulunamadı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1822"/>
         <source>Search results</source>
-        <translation type="unfinished"></translation>
+        <translation>Arama sonuçları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1894"/>
+        <source>Changed</source>
+        <translation>Değiştirilenler</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Değiştirilmiş ayar yok</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Değiştirilmiş ayarlar</translation>
+    </message>
+    <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Aç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2020"/>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel seçenekler</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2033"/>
         <source>UI Zoom:</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Arayüz ölçeği:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2048"/>
-        <location filename="../settings.qml" line="2095"/>
-        <location filename="../settings.qml" line="2136"/>
-        <location filename="../settings.qml" line="2182"/>
-        <location filename="../settings.qml" line="2232"/>
-        <location filename="../settings.qml" line="2272"/>
-        <location filename="../settings.qml" line="2311"/>
-        <location filename="../settings.qml" line="2347"/>
-        <location filename="../settings.qml" line="2384"/>
-        <location filename="../settings.qml" line="2421"/>
-        <location filename="../settings.qml" line="2737"/>
-        <location filename="../settings.qml" line="2790"/>
-        <location filename="../settings.qml" line="2815"/>
-        <location filename="../settings.qml" line="2840"/>
-        <location filename="../settings.qml" line="2865"/>
-        <location filename="../settings.qml" line="2939"/>
-        <location filename="../settings.qml" line="2977"/>
-        <location filename="../settings.qml" line="3025"/>
-        <location filename="../settings.qml" line="3050"/>
-        <location filename="../settings.qml" line="3075"/>
-        <location filename="../settings.qml" line="3100"/>
-        <location filename="../settings.qml" line="3232"/>
-        <location filename="../settings.qml" line="3273"/>
-        <location filename="../settings.qml" line="3305"/>
-        <location filename="../settings.qml" line="3343"/>
-        <location filename="../settings.qml" line="3367"/>
-        <location filename="../settings.qml" line="3419"/>
-        <location filename="../settings.qml" line="3457"/>
-        <location filename="../settings.qml" line="3495"/>
-        <location filename="../settings.qml" line="3533"/>
-        <location filename="../settings.qml" line="3571"/>
-        <location filename="../settings.qml" line="3609"/>
-        <location filename="../settings.qml" line="3647"/>
-        <location filename="../settings.qml" line="3685"/>
-        <location filename="../settings.qml" line="3721"/>
-        <location filename="../settings.qml" line="3765"/>
-        <location filename="../settings.qml" line="3869"/>
-        <location filename="../settings.qml" line="3893"/>
-        <location filename="../settings.qml" line="3917"/>
-        <location filename="../settings.qml" line="3941"/>
-        <location filename="../settings.qml" line="3975"/>
-        <location filename="../settings.qml" line="3999"/>
-        <location filename="../settings.qml" line="4023"/>
-        <location filename="../settings.qml" line="4047"/>
-        <location filename="../settings.qml" line="4081"/>
-        <location filename="../settings.qml" line="4105"/>
-        <location filename="../settings.qml" line="4129"/>
-        <location filename="../settings.qml" line="4153"/>
-        <location filename="../settings.qml" line="4181"/>
-        <location filename="../settings.qml" line="4289"/>
-        <location filename="../settings.qml" line="4333"/>
-        <location filename="../settings.qml" line="4372"/>
-        <location filename="../settings.qml" line="4396"/>
-        <location filename="../settings.qml" line="4420"/>
-        <location filename="../settings.qml" line="4778"/>
-        <location filename="../settings.qml" line="4840"/>
-        <location filename="../settings.qml" line="4972"/>
-        <location filename="../settings.qml" line="5150"/>
-        <location filename="../settings.qml" line="5175"/>
-        <location filename="../settings.qml" line="5199"/>
-        <location filename="../settings.qml" line="5259"/>
-        <location filename="../settings.qml" line="5293"/>
-        <location filename="../settings.qml" line="5318"/>
-        <location filename="../settings.qml" line="5376"/>
-        <location filename="../settings.qml" line="5401"/>
-        <location filename="../settings.qml" line="5509"/>
-        <location filename="../settings.qml" line="5627"/>
-        <location filename="../settings.qml" line="5664"/>
-        <location filename="../settings.qml" line="5716"/>
-        <location filename="../settings.qml" line="5833"/>
-        <location filename="../settings.qml" line="5883"/>
-        <location filename="../settings.qml" line="5920"/>
-        <location filename="../settings.qml" line="5957"/>
-        <location filename="../settings.qml" line="6029"/>
-        <location filename="../settings.qml" line="6144"/>
-        <location filename="../settings.qml" line="6178"/>
-        <location filename="../settings.qml" line="6225"/>
-        <location filename="../settings.qml" line="6258"/>
-        <location filename="../settings.qml" line="6289"/>
-        <location filename="../settings.qml" line="6423"/>
-        <location filename="../settings.qml" line="6461"/>
-        <location filename="../settings.qml" line="6499"/>
-        <location filename="../settings.qml" line="6533"/>
-        <location filename="../settings.qml" line="6567"/>
-        <location filename="../settings.qml" line="6605"/>
-        <location filename="../settings.qml" line="6642"/>
-        <location filename="../settings.qml" line="6681"/>
-        <location filename="../settings.qml" line="6719"/>
-        <location filename="../settings.qml" line="6757"/>
-        <location filename="../settings.qml" line="6907"/>
-        <location filename="../settings.qml" line="6947"/>
-        <location filename="../settings.qml" line="6985"/>
-        <location filename="../settings.qml" line="7156"/>
-        <location filename="../settings.qml" line="7196"/>
-        <location filename="../settings.qml" line="7337"/>
-        <location filename="../settings.qml" line="7659"/>
-        <location filename="../settings.qml" line="7686"/>
-        <location filename="../settings.qml" line="8432"/>
-        <location filename="../settings.qml" line="8467"/>
-        <location filename="../settings.qml" line="8489"/>
-        <location filename="../settings.qml" line="8580"/>
-        <location filename="../settings.qml" line="8617"/>
-        <location filename="../settings.qml" line="8654"/>
-        <location filename="../settings.qml" line="8691"/>
-        <location filename="../settings.qml" line="8728"/>
-        <location filename="../settings.qml" line="8768"/>
-        <location filename="../settings.qml" line="8805"/>
-        <location filename="../settings.qml" line="8854"/>
-        <location filename="../settings.qml" line="8879"/>
-        <location filename="../settings.qml" line="8904"/>
-        <location filename="../settings.qml" line="8929"/>
-        <location filename="../settings.qml" line="8954"/>
-        <location filename="../settings.qml" line="8979"/>
-        <location filename="../settings.qml" line="9004"/>
-        <location filename="../settings.qml" line="9029"/>
-        <location filename="../settings.qml" line="9216"/>
-        <location filename="../settings.qml" line="9253"/>
-        <location filename="../settings.qml" line="9289"/>
-        <location filename="../settings.qml" line="9325"/>
-        <location filename="../settings.qml" line="9361"/>
-        <location filename="../settings.qml" line="9399"/>
-        <location filename="../settings.qml" line="9486"/>
-        <location filename="../settings.qml" line="9840"/>
-        <location filename="../settings.qml" line="9864"/>
-        <location filename="../settings.qml" line="10258"/>
-        <location filename="../settings.qml" line="10281"/>
-        <location filename="../settings.qml" line="10304"/>
-        <location filename="../settings.qml" line="10327"/>
-        <location filename="../settings.qml" line="10350"/>
-        <location filename="../settings.qml" line="10570"/>
-        <location filename="../settings.qml" line="10742"/>
-        <location filename="../settings.qml" line="10765"/>
-        <location filename="../settings.qml" line="10788"/>
-        <location filename="../settings.qml" line="10811"/>
-        <location filename="../settings.qml" line="10834"/>
-        <location filename="../settings.qml" line="11277"/>
-        <location filename="../settings.qml" line="11305"/>
-        <location filename="../settings.qml" line="11384"/>
-        <location filename="../settings.qml" line="11428"/>
-        <location filename="../settings.qml" line="11471"/>
-        <location filename="../settings.qml" line="11499"/>
-        <location filename="../settings.qml" line="11616"/>
-        <location filename="../settings.qml" line="11732"/>
-        <location filename="../settings.qml" line="11804"/>
-        <location filename="../settings.qml" line="11842"/>
-        <location filename="../settings.qml" line="11880"/>
-        <location filename="../settings.qml" line="11919"/>
-        <location filename="../settings.qml" line="11957"/>
-        <location filename="../settings.qml" line="11995"/>
-        <location filename="../settings.qml" line="12041"/>
-        <location filename="../settings.qml" line="12065"/>
-        <location filename="../settings.qml" line="12368"/>
-        <location filename="../settings.qml" line="12406"/>
-        <location filename="../settings.qml" line="12442"/>
-        <location filename="../settings.qml" line="12480"/>
-        <location filename="../settings.qml" line="12598"/>
-        <location filename="../settings.qml" line="12634"/>
-        <location filename="../settings.qml" line="12761"/>
-        <location filename="../settings.qml" line="12806"/>
-        <location filename="../settings.qml" line="13291"/>
-        <location filename="../settings.qml" line="13357"/>
-        <location filename="../settings.qml" line="13388"/>
-        <location filename="../settings.qml" line="13425"/>
-        <location filename="../settings.qml" line="13472"/>
-        <location filename="../settings.qml" line="13519"/>
-        <location filename="../settings.qml" line="13543"/>
-        <location filename="../settings.qml" line="13567"/>
-        <location filename="../settings.qml" line="13600"/>
-        <location filename="../settings.qml" line="13623"/>
-        <location filename="../settings.qml" line="13647"/>
-        <location filename="../settings.qml" line="13670"/>
-        <location filename="../settings.qml" line="13694"/>
-        <location filename="../settings.qml" line="13717"/>
-        <location filename="../settings.qml" line="13741"/>
-        <location filename="../settings.qml" line="13764"/>
-        <location filename="../settings.qml" line="13819"/>
-        <location filename="../settings.qml" line="13843"/>
-        <location filename="../settings.qml" line="13867"/>
-        <location filename="../settings.qml" line="13916"/>
-        <location filename="../settings.qml" line="13938"/>
-        <location filename="../settings.qml" line="13960"/>
-        <location filename="../settings.qml" line="14009"/>
-        <location filename="../settings.qml" line="14031"/>
-        <location filename="../settings.qml" line="14053"/>
-        <location filename="../settings.qml" line="14360"/>
-        <location filename="../settings.qml" line="14423"/>
-        <location filename="../settings.qml" line="14916"/>
-        <location filename="../settings.qml" line="14953"/>
-        <location filename="../settings.qml" line="14988"/>
-        <location filename="../settings.qml" line="15024"/>
-        <location filename="../settings.qml" line="15060"/>
-        <location filename="../settings.qml" line="15097"/>
-        <location filename="../settings.qml" line="15133"/>
-        <location filename="../settings.qml" line="15180"/>
-        <location filename="../settings.qml" line="15204"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2050"/>
-        <location filename="../settings.qml" line="2100"/>
-        <location filename="../settings.qml" line="2138"/>
-        <location filename="../settings.qml" line="2196"/>
-        <location filename="../settings.qml" line="2234"/>
-        <location filename="../settings.qml" line="2274"/>
-        <location filename="../settings.qml" line="2313"/>
-        <location filename="../settings.qml" line="2349"/>
-        <location filename="../settings.qml" line="2386"/>
-        <location filename="../settings.qml" line="2423"/>
-        <location filename="../settings.qml" line="2739"/>
-        <location filename="../settings.qml" line="2792"/>
-        <location filename="../settings.qml" line="2817"/>
-        <location filename="../settings.qml" line="2842"/>
-        <location filename="../settings.qml" line="2867"/>
-        <location filename="../settings.qml" line="2941"/>
-        <location filename="../settings.qml" line="2979"/>
-        <location filename="../settings.qml" line="3027"/>
-        <location filename="../settings.qml" line="3052"/>
-        <location filename="../settings.qml" line="3077"/>
-        <location filename="../settings.qml" line="3102"/>
-        <location filename="../settings.qml" line="3237"/>
-        <location filename="../settings.qml" line="3275"/>
-        <location filename="../settings.qml" line="3307"/>
-        <location filename="../settings.qml" line="3345"/>
-        <location filename="../settings.qml" line="3369"/>
-        <location filename="../settings.qml" line="3421"/>
-        <location filename="../settings.qml" line="3459"/>
-        <location filename="../settings.qml" line="3497"/>
-        <location filename="../settings.qml" line="3535"/>
-        <location filename="../settings.qml" line="3573"/>
-        <location filename="../settings.qml" line="3611"/>
-        <location filename="../settings.qml" line="3649"/>
-        <location filename="../settings.qml" line="3687"/>
-        <location filename="../settings.qml" line="3723"/>
-        <location filename="../settings.qml" line="3767"/>
-        <location filename="../settings.qml" line="3871"/>
-        <location filename="../settings.qml" line="3895"/>
-        <location filename="../settings.qml" line="3919"/>
-        <location filename="../settings.qml" line="3943"/>
-        <location filename="../settings.qml" line="3977"/>
-        <location filename="../settings.qml" line="4001"/>
-        <location filename="../settings.qml" line="4025"/>
-        <location filename="../settings.qml" line="4049"/>
-        <location filename="../settings.qml" line="4083"/>
-        <location filename="../settings.qml" line="4107"/>
-        <location filename="../settings.qml" line="4131"/>
-        <location filename="../settings.qml" line="4155"/>
-        <location filename="../settings.qml" line="4183"/>
-        <location filename="../settings.qml" line="4291"/>
-        <location filename="../settings.qml" line="4335"/>
-        <location filename="../settings.qml" line="4374"/>
-        <location filename="../settings.qml" line="4398"/>
-        <location filename="../settings.qml" line="4422"/>
-        <location filename="../settings.qml" line="4780"/>
-        <location filename="../settings.qml" line="4842"/>
-        <location filename="../settings.qml" line="4974"/>
-        <location filename="../settings.qml" line="5152"/>
-        <location filename="../settings.qml" line="5177"/>
-        <location filename="../settings.qml" line="5201"/>
-        <location filename="../settings.qml" line="5261"/>
-        <location filename="../settings.qml" line="5295"/>
-        <location filename="../settings.qml" line="5323"/>
-        <location filename="../settings.qml" line="5378"/>
-        <location filename="../settings.qml" line="5403"/>
-        <location filename="../settings.qml" line="5511"/>
-        <location filename="../settings.qml" line="5629"/>
-        <location filename="../settings.qml" line="5666"/>
-        <location filename="../settings.qml" line="5718"/>
-        <location filename="../settings.qml" line="5835"/>
-        <location filename="../settings.qml" line="5885"/>
-        <location filename="../settings.qml" line="5922"/>
-        <location filename="../settings.qml" line="5959"/>
-        <location filename="../settings.qml" line="6031"/>
-        <location filename="../settings.qml" line="6146"/>
-        <location filename="../settings.qml" line="6180"/>
-        <location filename="../settings.qml" line="6227"/>
-        <location filename="../settings.qml" line="6260"/>
-        <location filename="../settings.qml" line="6291"/>
-        <location filename="../settings.qml" line="6425"/>
-        <location filename="../settings.qml" line="6463"/>
-        <location filename="../settings.qml" line="6501"/>
-        <location filename="../settings.qml" line="6535"/>
-        <location filename="../settings.qml" line="6569"/>
-        <location filename="../settings.qml" line="6607"/>
-        <location filename="../settings.qml" line="6644"/>
-        <location filename="../settings.qml" line="6683"/>
-        <location filename="../settings.qml" line="6721"/>
-        <location filename="../settings.qml" line="6759"/>
-        <location filename="../settings.qml" line="6909"/>
-        <location filename="../settings.qml" line="6949"/>
-        <location filename="../settings.qml" line="6987"/>
-        <location filename="../settings.qml" line="7158"/>
-        <location filename="../settings.qml" line="7198"/>
-        <location filename="../settings.qml" line="7339"/>
-        <location filename="../settings.qml" line="7664"/>
-        <location filename="../settings.qml" line="7691"/>
-        <location filename="../settings.qml" line="8434"/>
-        <location filename="../settings.qml" line="8469"/>
-        <location filename="../settings.qml" line="8491"/>
-        <location filename="../settings.qml" line="8582"/>
-        <location filename="../settings.qml" line="8619"/>
-        <location filename="../settings.qml" line="8656"/>
-        <location filename="../settings.qml" line="8693"/>
-        <location filename="../settings.qml" line="8730"/>
-        <location filename="../settings.qml" line="8770"/>
-        <location filename="../settings.qml" line="8807"/>
-        <location filename="../settings.qml" line="8856"/>
-        <location filename="../settings.qml" line="8881"/>
-        <location filename="../settings.qml" line="8906"/>
-        <location filename="../settings.qml" line="8931"/>
-        <location filename="../settings.qml" line="8956"/>
-        <location filename="../settings.qml" line="8981"/>
-        <location filename="../settings.qml" line="9006"/>
-        <location filename="../settings.qml" line="9031"/>
-        <location filename="../settings.qml" line="9218"/>
-        <location filename="../settings.qml" line="9255"/>
-        <location filename="../settings.qml" line="9291"/>
-        <location filename="../settings.qml" line="9327"/>
-        <location filename="../settings.qml" line="9363"/>
-        <location filename="../settings.qml" line="9401"/>
-        <location filename="../settings.qml" line="9488"/>
-        <location filename="../settings.qml" line="9842"/>
-        <location filename="../settings.qml" line="9866"/>
-        <location filename="../settings.qml" line="10260"/>
-        <location filename="../settings.qml" line="10283"/>
-        <location filename="../settings.qml" line="10306"/>
-        <location filename="../settings.qml" line="10329"/>
-        <location filename="../settings.qml" line="10352"/>
-        <location filename="../settings.qml" line="10572"/>
-        <location filename="../settings.qml" line="10744"/>
-        <location filename="../settings.qml" line="10767"/>
-        <location filename="../settings.qml" line="10790"/>
-        <location filename="../settings.qml" line="10813"/>
-        <location filename="../settings.qml" line="10836"/>
-        <location filename="../settings.qml" line="11279"/>
-        <location filename="../settings.qml" line="11307"/>
-        <location filename="../settings.qml" line="11386"/>
-        <location filename="../settings.qml" line="11430"/>
-        <location filename="../settings.qml" line="11473"/>
-        <location filename="../settings.qml" line="11501"/>
-        <location filename="../settings.qml" line="11618"/>
-        <location filename="../settings.qml" line="11734"/>
-        <location filename="../settings.qml" line="11806"/>
-        <location filename="../settings.qml" line="11844"/>
-        <location filename="../settings.qml" line="11882"/>
-        <location filename="../settings.qml" line="11921"/>
-        <location filename="../settings.qml" line="11959"/>
-        <location filename="../settings.qml" line="11997"/>
-        <location filename="../settings.qml" line="12043"/>
-        <location filename="../settings.qml" line="12067"/>
-        <location filename="../settings.qml" line="12370"/>
-        <location filename="../settings.qml" line="12408"/>
-        <location filename="../settings.qml" line="12444"/>
-        <location filename="../settings.qml" line="12482"/>
-        <location filename="../settings.qml" line="12600"/>
-        <location filename="../settings.qml" line="12636"/>
-        <location filename="../settings.qml" line="12763"/>
-        <location filename="../settings.qml" line="12808"/>
-        <location filename="../settings.qml" line="13293"/>
-        <location filename="../settings.qml" line="13359"/>
-        <location filename="../settings.qml" line="13390"/>
-        <location filename="../settings.qml" line="13427"/>
-        <location filename="../settings.qml" line="13474"/>
-        <location filename="../settings.qml" line="13521"/>
-        <location filename="../settings.qml" line="13545"/>
-        <location filename="../settings.qml" line="13569"/>
-        <location filename="../settings.qml" line="13602"/>
-        <location filename="../settings.qml" line="13625"/>
-        <location filename="../settings.qml" line="13649"/>
-        <location filename="../settings.qml" line="13672"/>
-        <location filename="../settings.qml" line="13696"/>
-        <location filename="../settings.qml" line="13719"/>
-        <location filename="../settings.qml" line="13743"/>
-        <location filename="../settings.qml" line="13766"/>
-        <location filename="../settings.qml" line="13821"/>
-        <location filename="../settings.qml" line="13845"/>
-        <location filename="../settings.qml" line="13869"/>
-        <location filename="../settings.qml" line="13918"/>
-        <location filename="../settings.qml" line="13940"/>
-        <location filename="../settings.qml" line="13962"/>
-        <location filename="../settings.qml" line="14011"/>
-        <location filename="../settings.qml" line="14033"/>
-        <location filename="../settings.qml" line="14055"/>
-        <location filename="../settings.qml" line="14362"/>
-        <location filename="../settings.qml" line="14425"/>
-        <location filename="../settings.qml" line="14918"/>
-        <location filename="../settings.qml" line="14955"/>
-        <location filename="../settings.qml" line="14990"/>
-        <location filename="../settings.qml" line="15026"/>
-        <location filename="../settings.qml" line="15062"/>
-        <location filename="../settings.qml" line="15099"/>
-        <location filename="../settings.qml" line="15135"/>
-        <location filename="../settings.qml" line="15182"/>
-        <location filename="../settings.qml" line="15206"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayar kaydedildi!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2054"/>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2071"/>
         <source>App Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Uygulama dili:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2105"/>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation type="unfinished"></translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2121"/>
         <source>Player Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağırlık</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2142"/>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin yakılan kaloriyi daha doğru hesaplayabilmesi için ağırlığınızı kilogram cinsinden girin. NOT: Mesafe birimi olarak mili seçerseniz, &quot;Ağırlık için kg kullan&quot; açık değilse ağırlığınızı pound (lbs) cinsinden girmeniz istenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2158"/>
         <source>Player Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Boy</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2190"/>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçersiz biçim! fit&apos;inç biçimini kullanın (ör. 6&apos;2&quot;)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2201"/>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
-        <translation type="unfinished"></translation>
+        <translation>Daha doğru BMR ve aktif kalori hesaplaması için boyunuzu girin. Metrik birimlerde santimetre, İngiliz birimlerinde fit&apos;inç&quot; biçimini (ör. 5&apos;10&quot;) kullanın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2217"/>
         <source>Player Age:</source>
-        <translation type="unfinished"></translation>
+        <translation>Yaş:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2239"/>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yakılan kalorinin daha doğru hesaplanabilmesi için yaşınızı girin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2255"/>
         <source>Gender:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cinsiyet:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2279"/>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yakılan kalorinin daha doğru hesaplanabilmesi için cinsiyetinizi seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2296"/>
         <source>FTP value:</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP değeri:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2318"/>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
-        <translation type="unfinished"></translation>
+        <translation>Belirli güç (watt) seviyelerine göre antrenman yapıyorsanız (örneğin Peloton Power Zone derslerinde) ve bir FTP testi (Functional Threshold Power – fonksiyonel eşik gücü) yaptıysanız FTP değerinizi buraya girin. Bu değer güç bölgelerinizi hesaplamak için kullanılır (Peloton için 1–7, Zwift için 1–6 arası bölgeler).</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2333"/>
         <source>Critical Power Run value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşuda kritik güç değeri:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2354"/>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
-        <translation type="unfinished"></translation>
+        <translation>Belirli güç (watt) seviyelerine göre antrenman yapıyorsanız (örneğin Stryd ile) ve bir CP testi (Critical Power – kritik güç) yaptıysanız CP değerinizi buraya girin. Bu değer RSS hesaplamasında kullanılır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2370"/>
         <source>Nickname:</source>
-        <translation type="unfinished"></translation>
+        <translation>Takma ad:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2391"/>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
-        <translation type="unfinished"></translation>
+        <translation>Buraya veri girmenize gerek yok. Bu alan, QZ&apos;nin gelecekte eklenebilecek bir özelliği için ayrılmıştır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2407"/>
         <source>Email:</source>
-        <translation type="unfinished"></translation>
+        <translation>E-posta:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2428"/>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Her antrenmanın sonunda &quot;Durdur&quot; düğmesine bastığınızda istatistik ve grafikler içeren otomatik bir e-posta almak için e-posta adresinizi girin. E-posta adresinin öncesinde veya sonrasında boşluk olmadığından emin olun; otomatik e-postanın gönderilmemesinin en yaygın nedeni budur. Gizlilik notu: E-posta adresleri geliştirici tarafından toplanmaz, yalnızca cihazınızda yerel olarak saklanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2442"/>
         <source>Use Miles unit in UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Arayüzde mil kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2456"/>
         <source>Turn on if you want QZ to display distance traveled in miles. Default is off and set to kilometers.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin kat edilen mesafeyi mil cinsinden göstermesini istiyorsanız açın. Varsayılan: kapalı (kilometre).</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2470"/>
         <source>Use kg for weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağırlık için kg kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2485"/>
         <source>Turn on if you want to use kilograms (kg) for weight instead of pounds (lbs). Useful for UK users who use miles for distance but kg for weight.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ağırlık için pound (lbs) yerine kilogram (kg) kullanmak istiyorsanız açın. Mesafe için mil, ağırlık için kg kullanan Birleşik Krallık kullanıcıları için kullanışlıdır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2500"/>
-        <location filename="../settings.qml" line="9115"/>
         <source>Pause when App Starts</source>
-        <translation type="unfinished"></translation>
+        <translation>Uygulama açılırken duraklat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2514"/>
         <source>Turn on to set QZ to always open in PAUSE mode. This is important for Peloton classes so that you can sync the start of your QZ workout with the start of the Peloton class. Turn off to have QZ start tracking and timing your workout as soon as it opens.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin her zaman duraklatılmış olarak açılması için açın. Bu, QZ antrenmanınızın başlangıcını Peloton dersinin başlangıcıyla eşitleyebilmeniz için Peloton derslerinde önemlidir. QZ&apos;nin açılır açılmaz antrenmanınızı kaydetmeye ve süreyi saymaya başlaması için kapatın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2528"/>
         <source>Continuous Moving</source>
-        <translation type="unfinished"></translation>
+        <translation>Sürekli hareket</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2542"/>
         <source>Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.</source>
-        <translation type="unfinished"></translation>
+        <translation>Şu durumlar için açın: – Bisiklet veya koşu bandına inip binilen Peloton Bootcamp dersleri ve benzeri antrenmanlar. QZ, cihazdan uzaklaştığınızda da antrenmanınızı kaydetmeye devam eder. – Yoga veya kuvvet antrenmanı gibi cihaz kullanılmayan antrenmanların kaydı. NOT: Bu tür antrenmanların tümü Strava&apos;da &quot;Ride&quot; (sürüş) olarak etiketlenir, ancak etiketi Strava&apos;da değiştirebilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2570"/>
         <source>Heart Rate Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2577"/>
         <source>Heart Rate service outside FTMS</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS dışında nabız servisi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2591"/>
         <source>(For Android Version 10 and above, this setting cannot be changed. This setting can be changed for Android Version 9 and below and for iOS.) When this setting is turned off, QZ sends heart rate data in a format designed to improve compatibility with third-party apps, such as Zwift and Peloton. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Android 10 ve üzeri sürümlerde bu ayar değiştirilemez. Android 9 ve altı sürümlerde ve iOS cihazlarda değiştirilebilir.) Bu ayar kapalıyken QZ, nabız verisini Zwift ve Peloton gibi üçüncü taraf uygulamalarla uyumluluğu artıran bir biçimde gönderir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2605"/>
         <source>Disable HRM from Machinery</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazın nabız sensörünü kapat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2619"/>
         <source>Turn this on to prevent a built-in heart rate monitor (HRM) on your exercise equipment from sending that data to QZ. This allows QZ to connect to your external HRM, such as a chest band or Apple Watch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egzersiz cihazınızdaki yerleşik nabız sensörünün (HRM) verileri QZ&apos;ye göndermesini engellemek için bunu açın. Böylece QZ, göğüs bandı veya Apple Watch gibi harici bir nabız sensörüne bağlanabilir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2633"/>
         <source>Disable KCal from Machinery</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazın kalori verisini kapat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2647"/>
         <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletiniz veya koşu bandınız, yaktığınız kalori hesabını QZ&apos;ye göndermez; bunun yerine QZ&apos;nin daha doğru hesabı kullanılır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2661"/>
         <source>Calculate Active Calories Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca aktif kaloriyi hesapla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2675"/>
         <source>Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple Watch&apos;taki gibi yalnızca aktif kaloriyi (bazal metabolizma hızı hariç) hesaplamak için açın. Kapalıyken BMR dahil toplam kalori hesaplanır. Bu ayar hem ekrandaki değeri hem de Apple Health&apos;e aktarımı etkiler.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2689"/>
         <source>Calculate Calories from Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaloriyi nabıza göre hesapla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2703"/>
         <source>Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaloriyi güç yerine nabız verilerine göre hesaplamak için açın. Doğru kalori tahmini için bağlı bir nabız sensörü gerekir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2717"/>
         <source>Heart Belt Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sensörü adı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2745"/>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple Watch kullanıcıları: &quot;Devre dışı&quot; olarak bırakın. Saatinizdeki uygulamayı açmanız yeterli</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2758"/>
-        <location filename="../settings.qml" line="11312"/>
-        <location filename="../settings.qml" line="11506"/>
-        <location filename="../settings.qml" line="11740"/>
-        <location filename="../settings.qml" line="12769"/>
-        <location filename="../settings.qml" line="13299"/>
-        <location filename="../settings.qml" line="13365"/>
-        <location filename="../settings.qml" line="13433"/>
-        <location filename="../settings.qml" line="13480"/>
         <source>Refresh Devices List</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz listesini yenile</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2765"/>
         <source>Heart Rate Zone Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2775"/>
         <source>Zone 1 %:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge 1 %:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2800"/>
         <source>Zone 2 %:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge 2 %:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2825"/>
         <source>Zone 3 %:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge 3 %:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2850"/>
         <source>Zone 4 %:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge 4 %:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2872"/>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge 5, Bölge 4&apos;ün bitiş yüzdesine ve maksimum nabza göre otomatik olarak hesaplanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2885"/>
         <source>Choose the percentages for where you want your zones 1-4 to end and click OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>1–4 arasındaki bölgelerin hangi yüzdede biteceğini seçin ve &quot;Tamam&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2899"/>
         <source>Heart Rate Max Override</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel maksimum nabız</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2907"/>
         <source>Override Heart Rate Max Calc.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. nabzı elle belirle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2924"/>
         <source>Max Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. nabız</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2946"/>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ, maksimum nabzı yaşa dayalı standart bir formülle hesaplar ve nabız bölgelerini bu maksimum nabza göre belirler. Gerçek maksimum nabzınızı (nabzınızın ulaştığı bilinen en yüksek değer) biliyorsanız bu seçeneği açın ve gerçek maksimum nabzınızı girin. Ardından &quot;Tamam&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2962"/>
         <source>Resting Heart Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Dinlenme nabzı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="2984"/>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dinlenme nabzınızı girin (tamamen dinlenmişken nabzınızın indiği en düşük değer). Antrenman yükünün doğru hesaplanması için kullanılır. Varsayılan: 60 bpm.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3000"/>
         <source>Power from Heart Rate Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabıza göre güç seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3010"/>
         <source>Session 1 Watt:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ölçüm 1 gücü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3035"/>
         <source>Session 1 HR:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ölçüm 1 nabzı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3060"/>
         <source>Session 2 Watt:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ölçüm 2 gücü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3085"/>
         <source>Session 2 HR:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ölçüm 2 nabzı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3108"/>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayarın seçeneklerini görmek için bölümü sağdaki simgeyle genişletin. Bu ayarlar, güç ölçeri olmayan bisikletlerde gücü (watt) hesaplamak için kullanılır: QZ gücü kadansınıza ve nabzınıza göre tahmin eder. QZ&apos;nin gücü nabızdan nasıl hesaplayacağını şöyle kalibre edebilirsiniz: sabit bir tempoda 150 BPM nabızda 100W, 170 BPM&apos;de 150W güç ürettiğinizi biliyorsanız bu değerleri &quot;Ölçüm 1&quot; ve &quot;Ölçüm 2&quot; alanlarına (güç ve nabız) girin; QZ gücünüzü bu eğilim çizgisine göre hesaplar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3126"/>
         <source>Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3137"/>
         <source>Speed calculates on Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızı güce göre hesapla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3150"/>
         <source>QZ calculates speed based on your pedal cadence (RPMs). Enable this setting if you want your speed to be calculated based on your power output (watts), as Zwift and some other apps do. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ hızı pedal kadansınıza (RPM) göre hesaplar. Zwift ve bazı diğer uygulamalarda olduğu gibi hızın güce (watt) göre hesaplanmasını istiyorsanız bu ayarı açın. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3164"/>
         <source>Restore Gears on Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılışta vitesi geri yükle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3179"/>
         <source>QZ will remember the last Gears value and it will restore on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ son vites değerini hatırlar ve açılışta geri yükler</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3194"/>
         <source>Restore Specific Gear Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Belirli bir vitesi geri yükle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3218"/>
         <source>Gear Value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites değeri:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3243"/>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılışta ayarlanacak vites değerini belirtin. Bu ayar, &quot;Açılışta vitesi geri yükle&quot; ayarından önceliklidir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3258"/>
         <source>Rolling Resistance Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Yuvarlanma direnci katsayısı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3280"/>
         <source>0.005 = Clinchers
 0.004 = Tubulars
 0.012 = MTB</source>
-        <translation type="unfinished"></translation>
+        <translation>0.005 = Dış lastik
+0.004 = Tubular
+0.012 = MTB</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3290"/>
-        <source>Bike Weight</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3312"/>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin hızı hesaplarken bisikletinizin ağırlığını da hesaba katmasını sağlar. Örneğin VZfit&apos;te kendinizle yarışıyorsanız bisiklet ağırlığını eklemek, sanal rakibinizle &quot;eşit şartlar&quot; sağlar. QZ&apos;de mesafe mil cinsinden hesaplanıyorsa, &quot;Ağırlık için kg kullan&quot; açık değilse bisiklet ağırlığını pound (lbs) cinsinden girin. Varsayılan birim kilogramdır (kg).</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3328"/>
         <source>Rolling Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Yuvarlanma direnci çarpanı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3352"/>
         <source>Wind Res. Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Hava direnci çarpanı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3374"/>
         <source>Zwift Workout/Erg Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift antrenman / ERG modu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3388"/>
         <source>Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayarı YALNIZCA Zwift&apos;i ERG (antrenman) modunda kullanırken açın. QZ, kadansınıza (RPM) göre hedef güce ulaşmanız için hedef direnci iletir (bisikletiniz destekliyorsa direnci otomatik olarak ayarlar). ERG modunda yol eğimindeki değişiklikler, simülasyon modunun aksine hedef direnci etkilemez. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3404"/>
         <source>Zwift Resistance Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift direnç ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3426"/>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar Zwift&apos;teki &quot;düz yolunuzu&quot; belirler. İletilen tüm direnç değişiklikleri bu ayarı temel alır. Değer kişisel tercihe ve kondisyonunuza bağlıdır. Echelon bisikletleri için önerilen değer 18 ile 20 arasıdır. Varsayılan: 4.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3442"/>
         <source>Zwift Power Offset (W):</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift güç ofseti (W):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3464"/>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift gibi uygulamaların istediği güce watt cinsinden bir ofset ekler. Pozitif değerler gücü artırır, negatif değerler azaltır. Varsayılan: 0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3480"/>
         <source>Zwift Resistance Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift direnç çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3502"/>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
-        <translation type="unfinished"></translation>
+        <translation>(bisikletler ve &quot;Koşu bandı bisiklet olarak&quot; ayarı açık koşu bantları için). Bu ayar, bisikletinizin direncini veya koşu bandınızın hızını Zwift&apos;e göndermeden önce ölçekler. Varsayılan: 1.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3518"/>
         <source>Zwift ERG Watt Up Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG güç artışı filtresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3540"/>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG modunda veya Peloton&apos;da Power Zone antrenmanı sırasında uygulama bir &quot;hedef güç&quot; isteği gönderir. İstenen güç mevcut gücünüzle (kadans ve direnç seviyesinden hesaplanan) eşleşmezse, hedef güce yaklaşmanıza yardımcı olmak için hedef direnciniz değişir. Filtre ne kadar yüksekse hedef direnç o kadar az düzeltilir ve hedef güce ulaşmak için kadansınızı artırmanız gerekir. Güç artışı ve güç düşüşü filtreleri, direnç değişikliği iletilmeden önceki üst ve alt paylardır. Örnek: iki filtre de 10&apos;a ayarlıysa ve hedef güç 100 watt ise, direnç değişikliği yalnızca bisikletiniz 90 wattın altında veya 110 wattın üstünde güç ürettiğinde iletilir. Varsayılan: 10.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3556"/>
         <source>Zwift ERG Watt Down Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift ERG güç düşüşü filtresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3578"/>
         <source>See above. Default is 10.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıya bakın. Varsayılan: 10.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3594"/>
         <source>Min. Resistance:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. direnç:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3616"/>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum hedef direnci belirlemek için bu ayarı kullanın. Örneğin 25&apos;in altındaki bir dirençte sürmek istemiyorsanız 25 girin; QZ hedef direnci 25&apos;in altına ayarlamaz. Varsayılan: 0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3632"/>
         <source>Max. Resistance:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. direnç:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3654"/>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıdakine benzer, ancak maksimum hedef direnci belirler. Varsayılan: 999.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3670"/>
         <source>Resistance at Startup:</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılışta direnç:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3692"/>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
-        <translation type="unfinished"></translation>
+        <translation>(yalnızca direnci elektronik olarak kontrol edilen bisikletler için): QZ&apos;nin açılışta ayarlamasını istediğiniz direnç seviyesini girin. Varsayılan: 1.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3707"/>
         <source>Gears Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3728"/>
         <source>Applies a multiplier to the gears. Default is 1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Viteslere bir çarpan uygular. Varsayılan: 1.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3741"/>
         <source>Custom Gear Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel vites tablosu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3751"/>
         <source>Gears Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3772"/>
         <source>Applies an offset to the gears. Default is 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Viteslere bir ofset uygular. Varsayılan: 0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3786"/>
         <source>Automatic Virtual Shifting</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vites</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3795"/>
         <source>Enable Automatic Virtual Shifting</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vitesi etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3809"/>
         <source>Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans eşiklerine göre otomatik vites değiştirmeyi açın. Açıkken QZ, pedal kadansınıza göre vitesleri otomatik olarak yükseltir veya düşürür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3826"/>
         <source>Profile:</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3842"/>
         <source>Cruise Profile Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir profili ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3855"/>
         <source>Cruise - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir – vites yükseltme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3879"/>
         <source>Cruise - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir – vites yükseltme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3903"/>
         <source>Cruise - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir – vites düşürme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3927"/>
         <source>Cruise - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Seyir – vites düşürme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3948"/>
         <source>Climb Profile Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış profili ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3961"/>
         <source>Climb - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış – vites yükseltme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="3985"/>
         <source>Climb - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış – vites yükseltme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4009"/>
         <source>Climb - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış – vites düşürme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4033"/>
         <source>Climb - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tırmanış – vites düşürme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4054"/>
         <source>Sprint Profile Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint profili ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4067"/>
         <source>Sprint - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – vites yükseltme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4091"/>
         <source>Sprint - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – vites yükseltme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4115"/>
         <source>Sprint - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – vites düşürme kadansı (RPM):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4139"/>
         <source>Sprint - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprint – vites düşürme süresi (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4162"/>
         <source>FTMS Bike:</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS bisiklet:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4188"/>
         <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel bir FTMS bisikletiniz varsa ve kutucuklar QZ ana ekranında görünmüyorsa, burada bisikletinizin Bluetooth adını seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4201"/>
         <source>Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayarın seçeneklerini görmek için bölümü sağdaki simgeyle genişletin. Modelinizi seçin (listede varsa) ve diğer tüm ayarları varsayılan değerlerinde bırakın. Sorun yaşarsanız veya cihazınızın QZ ayarlarıyla ilgili bir sorunuz varsa GitHub&apos;da destek talebi açın ya da QZ Facebook grubunda QZ topluluğuna sorun.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4214"/>
         <source>Wahoo Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4223"/>
         <source>Schwinn Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Schwinn bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4231"/>
         <source>Calc. Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnci hesapla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4245"/>
         <source>Res. Alternative Calc. v2</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternatif direnç hesabı v2</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4258"/>
         <source>Res. Alternative Calc. v3</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternatif direnç hesabı v3</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4274"/>
         <source>Resistance Smoothing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç yumuşatma:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4295"/>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu bisiklet direnci Bluetooth üzerinden göndermediği için QZ onu kadans ve güçten hesaplar. Sonuç biraz &quot;zıplayabilir&quot;; bu ayarla direnç kutucuğundaki değeri filtreleyebilirsiniz. Birim doğrudan direnç seviyesidir: 5 girerseniz direnç değişikliğini yalnızca direnç 5 seviye değiştiğinde görürsünüz.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4310"/>
         <source>Horizon Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizon bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4318"/>
         <source>GR7 Cadence Multiplier:</source>
-        <translation type="unfinished"></translation>
+        <translation>GR7 kadans çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4342"/>
         <source>Echelon Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Echelon bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4355"/>
         <source>Watt Profile:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç profili:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4381"/>
         <source>Resistance Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4405"/>
         <source>Resistance Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4426"/>
         <source>Change gears using knob (Experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vitesleri düğmeyle değiştir (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4443"/>
         <source>Inspire Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Inspire bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4451"/>
         <source>Advanced Formula (15/3/2021)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş formül (15/3/2021)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4465"/>
         <source>Advanced Formula (14/7/2021)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş formül (14/7/2021)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4482"/>
         <source>Renpho Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Renpho bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4490"/>
         <source>New Peloton Formula (11/02/2022)</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni Peloton formülü (11/02/2022)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4503"/>
         <source>Use 0.5 resistance lvls</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç adımı 0.5</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4520"/>
         <source>Hammer Racer Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Hammer Racer bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4526"/>
-        <location filename="../settings.qml" line="4546"/>
         <source>Enable support</source>
-        <translation type="unfinished"></translation>
+        <translation>Desteği etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4541"/>
         <source>Saris/Cycleops Hammer trainer Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Saris/Cycleops Hammer seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4562"/>
         <source>CardioFIT Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>CardioFIT bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4568"/>
-        <source>SP-HT-9600iE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4583"/>
         <source>Yesoul Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Yesoul bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4589"/>
         <source>Yesoul New Peloton Formula</source>
-        <translation type="unfinished"></translation>
+        <translation>Yesoul yeni Peloton formülü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4605"/>
         <source>Snode Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Snode bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4611"/>
-        <source>Snode Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4626"/>
         <source>Skandika Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Skandika bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4634"/>
         <source>Skandika X-2000 Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Skandika X-2000 protokolü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4647"/>
         <source>Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)</source>
-        <translation type="unfinished"></translation>
+        <translation>Skandika X-2000 bisikletleri için açın. Diğer Skandika modelleri için kapatın (örn. HT211212095)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4662"/>
         <source>Fitplus Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitplus bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4671"/>
         <source>Fit Plus Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Fit Plus bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4685"/>
         <source>Virtufit Etappe 2.0 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtufit Etappe 2.0 bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4699"/>
         <source>Sportstech SX600 bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Sportstech SX600 bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4713"/>
         <source>Sportstech ESX500 bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Sportstech ESX500 bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4729"/>
         <source>LifeSpan Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>LifeSpan bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4737"/>
-        <source>LifeSpan C7000i Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4753"/>
         <source>Flywheel Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Flywheel bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4763"/>
         <source>Samples Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sıfır okuma filtresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4785"/>
-        <source>Life Fitness IC8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4799"/>
-        <source>Life Fitness IC5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4815"/>
         <source>Domyos Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyos bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4825"/>
         <source>Cadence Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans filtresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4846"/>
         <source>Ignore FTMS</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS&apos;yi yok say</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4859"/>
         <source>Fix Calories/Km to Console</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Domyos bike switch: QZ sends its own calories and distance values to the bike console display.</extracomment>
+        <translation>Kalori ve km konsoldaki gibi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4872"/>
         <source>Bike 500 wattage profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Bike 500 güç profili</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4885"/>
         <source>Bike 500 wattage profile v2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bike 500 güç profili v2</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4900"/>
         <source>Tacx Neo Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Tacx Neo seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4906"/>
         <source>Peloton Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton yapılandırması</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4920"/>
         <source>Disable Negative Inclination due to gear</source>
-        <translation type="unfinished"></translation>
+        <translation>Vitesten kaynaklı negatif eğimi kapat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4933"/>
         <source>Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıkken QZ, değer bu cihaz için çok düşükse vites değişikliklerini yok sayar. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4948"/>
         <source>Proform/Norditrack Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform/Norditrack seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4957"/>
-        <location filename="../settings.qml" line="12791"/>
         <source>Wheel Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekerlek oranı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="4979"/>
-        <location filename="../settings.qml" line="9527"/>
         <source>Specific Model:</source>
-        <translation type="unfinished"></translation>
+        <translation>Model:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5120"/>
         <source>TDF CBC Jonseed watt table</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF CBC Jonseed güç tablosu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5136"/>
         <source>TDF1 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF1 IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5160"/>
         <source>TDF4 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5184"/>
         <source>TDF Companion IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF Companion IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5206"/>
-        <location filename="../settings.qml" line="9871"/>
-        <location filename="../settings.qml" line="11622"/>
         <source>ADB Remote</source>
-        <translation type="unfinished"></translation>
+        <translation>Uzaktan ADB</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5219"/>
         <source>Use Resistance instead of Inc.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim yerine direnç kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5236"/>
         <source>Computrainer Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Computrainer bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5244"/>
-        <location filename="../settings.qml" line="5279"/>
-        <location filename="../settings.qml" line="11263"/>
-        <location filename="../settings.qml" line="11457"/>
         <source>Serial Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Seri port:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5269"/>
         <source>Kettler USB Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kettler USB bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5333"/>
         <source>M3i Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>M3i bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5344"/>
         <source>Use QT search on Android / iOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Android / iOS&apos;ta Qt aramasını kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5361"/>
         <source>Bike ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet kimliği:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5386"/>
         <source>Speed Buffer Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız yumuşatma (ölçüm sayısı):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5409"/>
         <source>Use KCal from the Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletin kalori verisini kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5426"/>
         <source>Sole Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Sole bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5433"/>
-        <location filename="../settings.qml" line="9956"/>
-        <location filename="../settings.qml" line="10407"/>
-        <location filename="../settings.qml" line="10539"/>
         <source>Miles unit from the device</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz mil cinsinden gönderir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5450"/>
         <source>Technogym Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Technogym bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5458"/>
         <source>Technogym Bike (BIKE 1, BIKE 2, etc)</source>
-        <translation type="unfinished"></translation>
+        <translation>Technogym bisiklet (BIKE 1, BIKE 2 vb.)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5472"/>
         <source>Group Cycle</source>
-        <translation type="unfinished"></translation>
+        <translation>Group Cycle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5494"/>
         <source>ANT+ Bike Device Number (0=Auto):</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ bisiklet cihaz numarası (0=Otomatik):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5519"/>
         <source>Toputure Bikes</source>
-        <translation type="unfinished"></translation>
+        <translation>Toputure bisikletleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5527"/>
-        <source>Toputure TEB1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5541"/>
         <source>Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel SPORT01 anlık güç formülünü yalnızca Toputure TEB1 bisikleti için açın. Cihazın bildirdiği standart FTMS anlık gücünü kullanmak için kapalı bırakın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5559"/>
         <source>Ant+ Options (only for some Android)</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ seçenekleri (yalnızca bazı Android cihazlarda)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5571"/>
         <source>Set 100mm as wheel circumference in settings of ant+ speed sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ hız sensörünün ayarlarında tekerlek çevresini 100 mm olarak ayarlayın</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5584"/>
         <source>Ant+ Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ üzerinden kadans</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5598"/>
         <source>Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+&apos;yı Bluetooth ile birlikte kullanmanız gerekiyorsa bunu açın. Güç de gönderilir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5613"/>
         <source>ANT+ Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ hız ofseti</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5634"/>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ üzerinden gönderilen hızınızı artırabilir veya azaltabilirsiniz. Ofset olarak girdiğiniz sayı hızınıza eklenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5650"/>
         <source>ANT+ Speed Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ hız çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5671"/>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ üzerinden gönderilen hız değerini artırabilir veya azaltabilirsiniz. Örneğin Zwift&apos;te kürek makinesiyle bisiklet sürmek için hızı iki katına çıkararak bisiklet hızına yaklaştırabilirsiniz. Girdiğiniz sayı, gerçek hızınıza uygulanan bir çarpandır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5685"/>
         <source>Ant+ Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ üzerinden nabız</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5701"/>
         <source>ANT+ Heart Device Number (0=Auto):</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ nabız cihazı numarası (0=Otomatik):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5723"/>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar, nabzın QZ yerine ANT+ üzerinden harici bir nabız sensöründen alınmasını sağlar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5736"/>
         <source>Ant+ Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>ANT+ üzerinden bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5750"/>
         <source>Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletinize Bluetooth yerine ANT+ üzerinden bağlanmak için bunu kullanın. Varsayılan: kapalı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5781"/>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5790"/>
         <source>General UI Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel arayüz seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5801"/>
+        <source>Use System Text Size</source>
+        <translation>Sistem yazı boyutunu kullan</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Uygulamanın yazıları, telefon veya tablet ayarlarındaki yazı boyutunu izler (en fazla 150%). Aşağıdan boyut seçmek için kapatın; örneğin antrenman sırasında uzaktan okuduğunuz bir ekran için. Varsayılan: açık.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Yazı boyutu:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Uygulama yazılarının (ayarlar, menüler, iletişim kutuları) yüzde olarak boyutu, 80 ile 170 arası. Varsayılan: 100. Kutucukların kendi boyut ayarı vardır.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Üst çubuğu göster</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5818"/>
         <source>Floating Window Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencere türü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5840"/>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencere düzenini seçin. &quot;Classic&quot; standart floating.htm dosyasını, &quot;Horizontal&quot; ise yatay düzen için hfloating.htm dosyasını kullanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5853"/>
         <source>Allows continuous display of the Start/Pause and Stop buttons across the top of the screen during your workouts. Default is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman sırasında Başlat/Duraklat ve Durdur düğmeleri ekranın üstünde sürekli gösterilir. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5869"/>
         <source>Floating Window Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencere genişliği:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5890"/>
         <source>Android Only: width of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: kayan pencerenin genişliği.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5906"/>
         <source>Floating Window Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencere yüksekliği:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5927"/>
         <source>Android Only: height of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: kayan pencerenin yüksekliği.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5943"/>
         <source>Floating Window % Transparency:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencere saydamlığı (%):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5964"/>
         <source>Android Only: transparency percentage of the floating window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: kayan pencerenin yüzde cinsinden saydamlığı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5978"/>
         <source>Floating Window Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılışta kayan pencere</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5992"/>
         <source>Android Only: if enabled the floating window will start as soon as the fitness devices is connected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: açıkken kayan pencere, fitness cihazı bağlanır bağlanmaz açılır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6005"/>
         <source>Open Floating on a Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayan pencereyi tarayıcıda aç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6014"/>
         <source>Chart Display Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafik görüntüleme modu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6036"/>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekranın altında hangi grafiklerin gösterileceğini seçin: nabız ve güç grafikleri, yalnızca nabız grafiği veya yalnızca güç grafiği.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6051"/>
         <source>iOS Live Activity Left Metric:</source>
-        <translation type="unfinished"></translation>
+        <translation>Canlı Etkinlik sol değeri (iOS):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6072"/>
         <source>iOS Live Activity Right Metric:</source>
-        <translation type="unfinished"></translation>
+        <translation>Canlı Etkinlik sağ değeri (iOS):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6091"/>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca iOS: Canlı Etkinlikler için kompakt Dynamic Island çubuğunda hangi iki değerin gösterileceğini seçin. Varsayılan: solda nabız, sağda güç.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6105"/>
         <source>UI Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Arayüz temaları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6113"/>
         <source>Tiles Icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk simgeleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6129"/>
         <source>Background Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Arka plan rengi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6150"/>
-        <location filename="../settings.qml" line="6184"/>
-        <location filename="../settings.qml" line="6231"/>
-        <location filename="../settings.qml" line="6264"/>
         <source>Please choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir renk seçin</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6163"/>
         <source>Tiles Background Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk arka plan rengi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6194"/>
         <source>Tiles Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk gölgesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6210"/>
         <source>Tiles Shadow Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk gölge rengi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6243"/>
         <source>Statusbar Background Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Durum çubuğu arka plan rengi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6276"/>
         <source>2nd line tile text size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutucuk 2. satır yazı boyutu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6301"/>
         <source>Peloton Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6406"/>
         <source>Difficulty:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zorluk:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6430"/>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton eğitmenleri genellikle hedef eğim, direnç ve/veya hız için bir aralık söyler. QZ&apos;nin ileteceği hedefin zorluğunu bu ayarla seçin. Zorluk &quot;alt sınır&quot;, &quot;üst sınır&quot; veya &quot;ortalama&quot; olarak ayarlanabilir. &quot;Tamam&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6445"/>
         <source>Treadmill Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı seviyesi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6468"/>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton koşu bandı dersleri için zorluk seviyesi. 1 kolay, 10 zor.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6483"/>
         <source>Treadmill Walk Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandında yürüyüş seviyesi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6506"/>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton koşu bandı yürüyüş dersleri için zorluk seviyesi. 1 kolay, 10 zor.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6521"/>
         <source>Walking Min Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. yürüyüş hızı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6540"/>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton yürüyüş dersleri için minimum hız. Kapatmak için 0 girin. Yürüyüş antrenmanlarındaki tüm hedef hızlara uygulanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6555"/>
         <source>Running Min Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. koşu hızı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6574"/>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton koşu dersleri için minimum hız. Kapatmak için 0 girin. Koşu antrenmanlarındaki tüm hedef hızlara uygulanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6589"/>
         <source>Rower Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kürek makinesi seviyesi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6612"/>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kürek makinesi dersleri için zorluk seviyesi. 1 kolay, 10 zor.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6628"/>
         <source>PZP Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP kullanıcı adı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6649"/>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Nisan 2022 itibarıyla bu özellik, Power Zone Pack (PZP) web sitesindeki bir değişiklik nedeniyle çalışmıyor. Yeni bir duyuruya kadar varsayılan &quot;username&quot; değerini koruyun veya geri yükleyin (tırnak işaretleri olmadan, tamamı küçük harfle, tek kelime).</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6665"/>
         <source>PZP Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP şifresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6688"/>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Nisan 2022 itibarıyla bu özellik, Power Zone Pack (PZP) web sitesindeki bir değişiklik nedeniyle çalışmıyor. Yeni bir duyuruya kadar bu ayarı boş bırakın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6704"/>
         <source>Conversion Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dönüşüm çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6726"/>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu değer bir çarpandır. QZ&apos;nin hesapladığı Peloton direncini bisikletinizde gereken göreli eforla eşleştirmek için bu ayarı kullanın. Çoğu durumda varsayılan değerler doğrudur.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6742"/>
         <source>Conversion Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dönüşüm ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6764"/>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin &quot;Peloton direnci&quot; kutucuğunda gösterdiği direnci artırır. QZ&apos;nin bisikletinizin direnç ölçeğinden Peloton ölçeğine yaptığı dönüşüm düşük görünüyorsa, buraya girdiğiniz sayı eforunuzu veya gerçek direnci artırmadan hesaplanan dirence eklenir. (Örnek: QZ Peloton direncini 30 gösteriyorsa ve 5 girerseniz QZ 35 gösterir.)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6778"/>
         <source>Cycling/Running Sensor (Peloton compatibility)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet/koşu sensörü (Peloton uyumluluğu)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6792"/>
         <source>Turn this on compatibility to Peloton over Bluetooth. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth üzerinden Peloton uyumluluğu için bunu açın. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6805"/>
         <source>Auto Start (with intro)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik başlat (girişle)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6819"/>
         <source>Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton&apos;da bir antrenman başlattığınızda QZ&apos;de de antrenmanın otomatik başlaması için bunu açın (giriş bölümü beklenir). Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6832"/>
         <source>Auto Start (without intro)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik başlat (girişsiz)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6846"/>
         <source>Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton&apos;da bir antrenman başlattığınızda QZ&apos;de de antrenmanın otomatik başlaması için bunu açın (giriş bölümü atlanır). Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6890"/>
         <source>Override HR Metric:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız yerine gönderilecek değer:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6914"/>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ varsayılan olarak Peloton&apos;a nabzı iletir. Peloton ekranında görünen değeri değiştirmek için bu ayarı kullanın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6930"/>
         <source>Date on Strava:</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;da tarih:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6954"/>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton dersinin yayın tarihinin Strava&apos;da ders adından önce mi sonra mı gösterileceğini seçmenizi sağlar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6969"/>
         <source>Date Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tarih biçimi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6993"/>
         <source>Activity Link in Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;da etkinlik bağlantısı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7007"/>
         <source>Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin Peloton dersinin bağlantısını kaydedip Strava&apos;da göstermesini istiyorsanız bunu açın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7020"/>
         <source>Spinups Autoresistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Spin-Up&apos;larda otomatik direnç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7034"/>
         <source>By default, QZ treats Spin-UPS in Power Zone rides as an increasing ramp to warm you up. You can disable this, to leave the resistance up to you.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ varsayılan olarak Power Zone sürüşlerindeki Spin-Up&apos;ları sizi ısıtmak için artan bir rampa olarak ele alır. Direnci size bırakmak için bunu kapatabilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7048"/>
         <source>Peloton Auto Sync (Experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton otomatik senkronizasyonu (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7062"/>
         <source>Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca QZ&apos;nin aynı Peloton cihazında çalıştığı Android için. Bu ayar, QZ&apos;deki yapay zekâyı (YZ) etkinleştirir: YZ, Peloton antrenman ekranını okur ve Peloton antrenmanınızla gerçek zamanlı olarak senkron kalmak için Peloton zaman kaydırmasını ayarlar. Bunu bildirmek için ekran kaydıyla ilgili bir açılır pencere görünür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7075"/>
         <source>Peloton Auto Sync Companion (Exp.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Companion ile Peloton otomatik senkronizasyonu (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7089"/>
         <source>This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar, QZ Companion AI uygulamasındaki yapay zekâyı (YZ) etkinleştirir: YZ, Peloton antrenman ekranını okur ve Peloton antrenmanınızla gerçek zamanlı olarak senkron kalmak için Peloton zaman kaydırmasını ayarlar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7132"/>
         <source>Zwift Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7142"/>
-        <location filename="../settings.qml" line="15047"/>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı adı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7164"/>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift&apos;e giriş yaptığınız e-posta adresini girin. E-posta adresinin önünde veya sonunda boşluk olmadığından emin olun. &quot;Tamam&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7180"/>
-        <location filename="../settings.qml" line="15083"/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Şifre:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7204"/>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift&apos;e giriş yaptığınız şifreyi girin. &quot;Tamam&quot; düğmesine basın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7218"/>
         <source>Zwift Play &amp; Click Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play ve Click ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7219"/>
         <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with &apos;Get gears from Zwift&apos; may cause conflicts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play ve Zwift Click ayarları kapatılsın mı? Bu ayarlar &quot;Vitesleri Zwift&apos;ten al&quot; ile birlikte açıksa çakışma olabilir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7231"/>
         <source>Get Gears from Zwift</source>
-        <translation type="unfinished"></translation>
+        <translation>Vitesleri Zwift&apos;ten al</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7254"/>
         <source>This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar, Zwift&apos;in sanal viteslerini doğrudan Zwift arayüzünden tüm bisikletlere getirir. Zwift&apos;te QZ&apos;nin sanal Wahoo cihazını güç ve kadans kaynağı, QZ cihazınızı ise direnç cihazı olarak seçin. MyWhoosh uygulaması için MUTLAKA kapalı olmalıdır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7295"/>
         <source>Align Gear Value on Both Zwift and QZ</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites değerini Zwift ve QZ&apos;de eşitle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7309"/>
         <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan olarak QZ, bisikletin gerçek vitesini gösterir. Bu ayar açıkken QZ, Zwift&apos;te gördüğünüz vitesi gösterir. Bu, bisikletteki gerçek vites değerini etkilemez. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7324"/>
         <source>Poll Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncelleme aralığı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7345"/>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift&apos;ten gelen eğim değişiklikleri arasındaki gecikmeyi saniye olarak belirleyin. Bu değer 5&apos;ten küçük olamaz. Varsayılan: 5</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7358"/>
-        <location filename="../settings.qml" line="7385"/>
         <source>Zwift Treadmill Auto Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift: koşu bandında otomatik eğim</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7372"/>
         <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android ve iOS için: QZ, eğimi Zwift uygulamasından gerçek zamanlı olarak okur ve koşu bandınızın eğimini ayarlar. Zwift antrenmanlarında çalışmaz</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7399"/>
         <source>Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca QZ&apos;nin Zwift ile aynı cihazda çalıştığı PC için. Bu ayar, QZ&apos;deki yapay zekâyı (YZ) etkinleştirir: YZ, eğimi Zwift uygulamasından okur ve koşu bandınızın eğimini ayarlar. Bunu bildirmek için ekran kaydıyla ilgili bir açılır pencere görünür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7412"/>
         <source>Zwift Treadmill Climb Portal</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift: koşu bandında Climb Portal</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7426"/>
         <source>Zwift Treadmill Auto Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift: koşu bandında otomatik antrenman</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7440"/>
         <source>Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca QZ&apos;nin Zwift ile aynı cihazda çalıştığı PC için. Bu ayar, QZ&apos;deki yapay zekâyı (YZ) etkinleştirir: YZ, antrenman sırasında eğimi ve hızı Zwift uygulamasından okur ve koşu bandınızın eğimini ve hızını ayarlar. Bunu bildirmek için ekran kaydıyla ilgili bir açılır pencere görünür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7455"/>
         <source>Rouvy Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Rouvy seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7463"/>
         <source>Rouvy Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Rouvy uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7477"/>
         <source>Wifi Compatibility for Rouvy</source>
-        <translation type="unfinished"></translation>
+        <translation>Rouvy için Wi-Fi uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7493"/>
         <source>Garmin Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7501"/>
         <source>Garmin Bluetooth Sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin Bluetooth sensörü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7515"/>
         <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mac&apos;inizden Garmin cihazınıza veri göndermek istiyorsanız bunu açın. Aksi hâlde kapalı bırakın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7528"/>
         <source>Enable Companion App</source>
-        <translation type="unfinished"></translation>
+        <translation>Companion uygulamasını etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7542"/>
         <source>You have to install the QZ Companion App on your Garmin Watch/Computer first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Önce Garmin saatinize veya bisiklet bilgisayarınıza QZ Companion uygulamasını yükleyin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7555"/>
         <source>Ant+ Bike Over Garmin Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin saati üzerinden ANT+ bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7569"/>
         <source>Use your garmin watch to get the ANT+ metrics from a bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir bisikletin ANT+ verilerini Garmin saatinizle alın</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7590"/>
         <source>Enable Garmin Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin&apos;e yüklemeyi etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7604"/>
         <source>Enable automatic upload of FIT files to Garmin Connect after workouts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmandan sonra FIT dosyaları Garmin Connect&apos;e otomatik olarak yüklenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7617"/>
         <source>Fetch Garmin Workouts on Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Açılışta Garmin antrenmanlarını getir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7631"/>
         <source>Enable automatic download of today&apos;s Garmin workout when QZ starts. Default: enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ açıldığında bugünkü Garmin antrenmanı otomatik olarak indirilir. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7646"/>
         <source>Garmin Email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin e-postası:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7720"/>
         <source>Test Garmin Login</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin girişini test et</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7741"/>
         <source>Garmin MFA Required</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin doğrulama kodu gerekli</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7749"/>
         <source>Garmin has sent a verification code to your email.
 Please enter it below:</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin, e-posta adresinize bir doğrulama kodu gönderdi.
+Kodu aşağıya girin:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7756"/>
         <source>If you don&apos;t receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kod gelmezse Garmin profilinizin gizlilik ayarlarında 2FA&apos;yı açın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7767"/>
         <source>Enter MFA code</source>
-        <translation type="unfinished"></translation>
+        <translation>Doğrulama kodunu girin</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7786"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>İptal</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7795"/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Gönder</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7815"/>
         <source>Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik yüklemeyi etkinleştirmek için Garmin Connect giriş bilgilerinizi girin. Şifreniz cihazda güvenli şekilde saklanır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7828"/>
         <source>Use Garmin device in the FIT file</source>
-        <translation type="unfinished"></translation>
+        <translation>FIT dosyasında Garmin cihazı kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7842"/>
         <source>With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar açıkken QZ, FIT dosyasını bir Garmin cihazı gibi yazar; böylece Garmin bu dosyayı antrenman etkisi hesabında dikkate alır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7855"/>
         <source>Garmin device for FIT file</source>
-        <translation type="unfinished"></translation>
+        <translation>FIT dosyası için Garmin cihazı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8253"/>
         <source>Garmin device UNIT ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Garmin cihazının UNIT ID&apos;si</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8274"/>
         <source>IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder. If you want to see also the Acute load in Garmin Connect leave the default Unit ID here.</source>
-        <translation type="unfinished"></translation>
+        <translation>ÖNEMLİ: Garmin Connect&apos;te gerçek cihazınızı görmek için buraya Garmin cihazınızın gerçek UNIT ID&apos;sini girmeniz gerekir. Cihazınızın UNIT ID&apos;sini Garmin Connect uygulamasında bulabilirsiniz. Varsayılan değer (3313379353) yalnızca bir yer tutucudur. Garmin Connect&apos;te Acute Load&apos;u (akut yük) da görmek istiyorsanız buradaki varsayılan Unit ID&apos;yi değiştirmeyin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8290"/>
         <source>Training Program Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman programı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8303"/>
         <source>Stop Treadmill at the End</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonunda koşu bandını durdur</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8317"/>
         <source>Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca koşu bandı: QZ&apos;nin mevcut antrenman programının sonunda bandı durdurmasını istiyorsanız bunu açın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8330"/>
         <source>Enable Clipboard Workouts</source>
-        <translation type="unfinished"></translation>
+        <translation>Pano antrenmanlarını etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8344"/>
         <source>Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Panoya kopyalanan ZWO/XML antrenmanları algılanır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8358"/>
         <source>Auto Lap on Segment</source>
-        <translation type="unfinished"></translation>
+        <translation>Her segmentte otomatik tur</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8372"/>
         <source>Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.</source>
-        <translation type="unfinished"></translation>
+        <translation>Her antrenman segmenti (satırı) tamamlandığında otomatik olarak tur işaretlenir. Rampa segmentlerinde, her saniye yeni bir tur oluşmaması için tur yalnızca rampanın sonunda işaretlenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8385"/>
         <source>Treadmill Auto-adjust speed by power</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı: hızı güce göre otomatik ayarla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8399"/>
         <source>Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca koşu bandı: gücü sabit tutmak için hızı otomatik olarak ayarlar. Hız, eğim değiştiğinde ayarlanır ve elle yapılan hız değişikliklerine uyum sağlar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8415"/>
         <source>PID on Heart Zone:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi sabitleme (PID):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8439"/>
-        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="8454"/>
         <source>PID on HR min:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme (PID), min.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8476"/>
         <source>PID on HR max:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme (PID), maks.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8496"/>
         <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Nabız bölgesi sabitleme (PID)&quot; ayarı yerine nabız aralığını bu iki ayarla belirleyebilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8509"/>
         <source>PID &apos;Pushy&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme (PID): Agresif</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8523"/>
         <source>Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıkken QZ, sizi bölgede tutmaya çalışırken eforu hep biraz artırmanız için sizi motive eder. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8536"/>
         <source>PID Ignore Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme (PID): eğimi yok say</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8550"/>
         <source>Enabling this the PID will ignore the inclination changes. Default: Disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıkken nabız sabitleme eğim değişikliklerini yok sayar. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8566"/>
         <source>1 mile pace (total time):</source>
-        <translation type="unfinished"></translation>
+        <translation>1 mil temposu (toplam süre):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8587"/>
         <source>Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.</source>
-        <translation type="unfinished"></translation>
+        <translation>1 mil için hedef sürenizi girin ve &quot;Tamam&quot; düğmesine basın. Bu ayar, hız kontrollü bir antrenman programını takip ederken kullanılır. Bu değerler Zwift uygulamasındaki ayarlarla da aynı olmalıdır. Daha fazla bilgi: https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8603"/>
         <source>5 km pace (total time):</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km temposu (toplam süre):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8624"/>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıdaki &quot;1 mil temposu&quot; ayarına bakın; tek fark 1 mil yerine 5 km olmasıdır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8640"/>
         <source>10 km pace (total time):</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km temposu (toplam süre):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8661"/>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıdaki &quot;1 mil temposu&quot; ayarına bakın; tek fark 1 mil yerine 10 km olmasıdır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8677"/>
         <source>Half Marathon pace (total time):</source>
-        <translation type="unfinished"></translation>
+        <translation>Yarı maraton temposu (toplam süre):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8698"/>
         <source>See 1 Mile Pace above; same except half marathon distance instead of 1 mile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıdaki &quot;1 mil temposu&quot; ayarına bakın; tek fark 1 mil yerine yarı maraton mesafesi olmasıdır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8714"/>
         <source>Marathon pace (total time):</source>
-        <translation type="unfinished"></translation>
+        <translation>Maraton temposu (toplam süre):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8735"/>
         <source>See 1 Mile Pace above; same except marathon distance instead of 1 mile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarıdaki &quot;1 mil temposu&quot; ayarına bakın; tek fark 1 mil yerine maraton mesafesi olmasıdır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8751"/>
         <source>Default Pace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan tempo:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8775"/>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
-        <translation type="unfinished"></translation>
+        <translation>ZWO dosyası kesin bir tempo belirtmediğinde kullanılacak varsayılan tempoyu seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8791"/>
         <source>ERG Mode Watt Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG modunda güç adımı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8812"/>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG modunda nabız bölgesi antrenmanı için güç artış adımını belirleyin. Varsayılan: 5 W.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8826"/>
         <source>Training Program Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastgele antrenman programı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8839"/>
         <source>Duration (minutes):</source>
-        <translation type="unfinished"></translation>
+        <translation>Süre (dakika):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8864"/>
         <source>Period (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation>Periyot (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8889"/>
         <source>Speed min.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız, min.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8914"/>
         <source>Speed max.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız, maks.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8939"/>
         <source>Incline min.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim, min.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8964"/>
         <source>Incline max.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim, maks.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8989"/>
         <source>Resistance min.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç, min.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9014"/>
         <source>Resistance max.:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç, maks.:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9036"/>
         <source>Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açın ve antrenman süresini (dakika ve saniye olarak), en yüksek ve en düşük hızı, eğimi (koşu bandı) ve direnci (bisiklet) girin; QZ, seçtiğiniz periyotla hızınızı ve direncinizi veya eğiminizi rastgele değiştirir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9052"/>
         <source>Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9060"/>
         <source>Treadmill as a Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı bisiklet olarak</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9073"/>
         <source>Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift&apos;te sürüş yaparken koşu bandı verilerini bisiklet verilerine dönüştürmek için açın. QZ, koşu bandı verilerinizi Bluetooth üzerinden Zwift&apos;e gönderir; böylece bisikletçi olarak katılabilirsiniz. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9087"/>
         <source>Treadmill Speed Forcing</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı hız kontrolü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9101"/>
         <source>Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options &gt; Difficulty setting. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin, örneğin Peloton derslerinde, eğitmenin hız komutlarına göre koşu bandınızın hızını kontrol etmesi için bunu açın. Hızınız, &quot;Peloton seçenekleri &gt; Zorluk&quot; ayarına bağlı olarak aralığın alt, üst veya orta kısmında olur. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9129"/>
         <source>Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı kullanırken QZ&apos;nin açılışta duraklatma moduna geçmesi için bunu açın. Yalnızca koşu bantları için. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9143"/>
         <source>Direct Distance from Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesafeyi doğrudan koşu bandından al</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9157"/>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesafeyi hızdan hesaplamak yerine doğrudan koşu bandından okumak için bunu açın. Bazı koşu bantları mesafeyi, hıza dayalı hesaplamadan daha doğru bildirir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9171"/>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Doğrudan mesafe: yalnızca artışı ekle</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>“Mesafeyi doğrudan koşu bandından al” ile birlikte çalışır. Koşu bandınızın mesafe sayacı antrenmanlar arasında sıfırlanmıyorsa veya koşu bandı kapatılınca 0’dan yeniden başlıyorsa bunu açın: QZ bağlanmadan önce koşu bandının saydığı mesafe değil, yalnızca antrenman sırasında yürünen mesafe eklenir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
-        <translation type="unfinished"></translation>
+        <translation>Ofset tabanlı zorluk</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9185"/>
         <source>Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Hedef hız&quot; ve &quot;Hedef eğim&quot; kutucuklarında artı/eksi düğmeleriyle mevcut zorluğu artırabilir veya azaltabilirsiniz. Varsayılan olarak, bu ayar kapalıyken hız ve eğim her basışta 3% değişir. Bu ayar açıkken QZ bunun yerine hıza 0.1 veya eğime 0.5 ekler.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9201"/>
         <source>Speed Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız adımı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9223"/>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Hız kutucuğu) Hız kutucuğundaki artı veya eksi düğmesine bastığınızda hızın ne kadar artacağını veya azalacağını (km/h veya mph olarak) belirler. Varsayılan: 0.5 km/h.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9239"/>
         <source>Min. Inclination:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. eğim:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9260"/>
         <source>This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandınızın en düşük eğim değeri yerine bu değer kullanılır (eğim hareketini azaltmak için). Varsayılan: -100</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9275"/>
         <source>Max. Inclination:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. eğim:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9296"/>
         <source>This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandınızın en yüksek eğim değeri yerine bu değer kullanılır (eğim hareketini azaltmak için). Varsayılan: -100</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9311"/>
         <source>Max. Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. hız:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9332"/>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandınızın en yüksek hız değeri yerine bu değer kullanılır (en yüksek hızı sınırlamak için). Varsayılan: 100 km/h (62.1 mph)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9347"/>
         <source>Min. Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. hız:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9368"/>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandınızın en düşük hız değeri yerine bu değer kullanılır (en düşük hızı sınırlamak için). Varsayılan: 0 km/h (0 mph)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9384"/>
         <source>Step Count Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adım sayısı çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9406"/>
         <source>Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalibrasyon için kadanstan hesaplanan adım sayısına uygulanan çarpan. Daha fazla adım saymak için 1.0&apos;ın üstüne çıkarın, daha az adım saymak için 1.0&apos;ın altına indirin. Varsayılan: 1.0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9419"/>
         <source>Inclination Overrides</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word &quot;override&quot;.</extracomment>
+        <translation>Özel eğim değerleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9427"/>
         <source>Overrides the default inclination values sent from the treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandının gönderdiği varsayılan eğim değerleri yerine özel değerler kullanılır</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9440"/>
         <source>Simulate Inclination with Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğimi hızla simüle et</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9454"/>
         <source>For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğimi olmayan koşu bantları için: açıkken QZ, eğim isteklerini hız değişikliklerine dönüştürür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9467"/>
         <source>FTMS Treadmill:</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS koşu bandı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9493"/>
         <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel bir FTMS koşu bandınız varsa ve kutucuklar QZ ana ekranında görünmüyorsa, burada koşu bandınızın Bluetooth adını seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9506"/>
         <source>Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayarın altındaki seçenekleri görmek için bölümü sağdaki simgeyle genişletin. Modelinizi seçin (listede varsa) ve diğer tüm ayarları varsayılan değerde bırakın. Sorun yaşarsanız veya cihazınızın QZ ayarlarıyla ilgili bir sorunuz varsa, GitHub&apos;da destek talebi açmak için buraya dokunun ya da QZ Facebook grubunda QZ topluluğuna sorun.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9520"/>
         <source>Proform/Nordictrack Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform/Nordictrack seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9825"/>
         <source>Proform IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9849"/>
         <source>Nordictrack 2950 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nordictrack 2950 IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9888"/>
         <source>Pafers Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Pafers seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9896"/>
         <source>Pafers Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Pafers koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9926"/>
         <source>GEM Module Options</source>
-        <translation type="unfinished"></translation>
+        <translation>GEM modülü seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9933"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9949"/>
         <source>Echelon Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Echelon seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9973"/>
         <source>KingSmith Options</source>
-        <translation type="unfinished"></translation>
+        <translation>KingSmith seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9981"/>
-        <source>WalkingPad X21</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9996"/>
-        <source>WalkingPad X21 v2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10011"/>
-        <source>WalkingPad X21 v3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10025"/>
-        <source>WalkingPad X21 v4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10039"/>
-        <source>WalkingPad G1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10053"/>
         <source>Hardware Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Fiziksel düğmeler</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10067"/>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandının üzerindeki fiziksel Başlat/Duraklat/Durdur düğmeleri işlenir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10083"/>
         <source>RunnerT Options</source>
-        <translation type="unfinished"></translation>
+        <translation>RunnerT seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10104"/>
-        <source>Zero ZT-2500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10117"/>
-        <source>UMAY S100</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10134"/>
         <source>Domyos Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyos koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10142"/>
         <source>Speed/Inclination Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız/eğim düğmeleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10156"/>
-        <source>T900</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10170"/>
         <source>TS100 (Fixed 15° Inclination)</source>
-        <translation type="unfinished"></translation>
+        <translation>TS100 (sabit 15° eğim)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10184"/>
         <source>RUN100E (Use Requested Inclination)</source>
-        <translation type="unfinished"></translation>
+        <translation>RUN100E (istenen eğimi kullan)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10198"/>
         <source>Sync Start (Old Behavior)</source>
-        <translation type="unfinished"></translation>
+        <translation>Senkron başlatma (eski davranış)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10213"/>
         <source>Distance on Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsoldaki mesafe</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10228"/>
         <source>Fix Distance on Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekrandaki mesafeyi düzelt</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10244"/>
         <source>Remap 5 km/h button:</source>
-        <translation type="unfinished"></translation>
+        <translation>5 km/h düğmesini yeniden ata:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10267"/>
         <source>Remap 10 km/h button:</source>
-        <translation type="unfinished"></translation>
+        <translation>10 km/h düğmesini yeniden ata:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10290"/>
         <source>Remap 16 km/h button:</source>
-        <translation type="unfinished"></translation>
+        <translation>16 km/h düğmesini yeniden ata:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10313"/>
         <source>Remap 22 km/h button:</source>
-        <translation type="unfinished"></translation>
+        <translation>22 km/h düğmesini yeniden ata:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10336"/>
-        <location filename="../settings.qml" line="14346"/>
         <source>Pool time (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncelleme aralığı (ms):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10356"/>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan: 200. Yalnızca hızda veya eğimde ara sıra sorun yaşıyorsanız değiştirin (300 deneyin)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10372"/>
         <source>Sole Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Sole koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10380"/>
         <source>Inclination (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10393"/>
         <source>Fast Inclination (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızlı eğim (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10421"/>
-        <source>Sole F63</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10435"/>
-        <source>Sole F65</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10449"/>
-        <source>Sole TT8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10466"/>
         <source>Technogym Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Technogym seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10474"/>
         <source>MyRun Experimental</source>
-        <translation type="unfinished"></translation>
+        <translation>MyRun (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10491"/>
         <source>Fitshow Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitshow koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10525"/>
         <source>True timer</source>
-        <translation type="unfinished"></translation>
+        <translation>Hassas zamanlayıcı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10555"/>
         <source>User ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı kimliği:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10580"/>
         <source>ESLinker Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ESLinker koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10587"/>
         <source>Cadenza Treadmill (Bodytone)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenza koşu bandı (Bodytone)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10601"/>
         <source>YPOO Mini Change</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO Mini Change</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10614"/>
         <source>Costaway Folding</source>
-        <translation type="unfinished"></translation>
+        <translation>Costaway Folding</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10631"/>
         <source>Horizon Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizon koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10639"/>
-        <source>Paragon X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10653"/>
-        <location filename="../settings.qml" line="10850"/>
         <source>Force Using FTMS</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS kullanımını zorla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10667"/>
         <source>Horizon 7.8 start issue</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizon 7.8 başlatma sorunu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10681"/>
-        <source>Omega Z</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10696"/>
         <source>Disable Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Duraklatmayı kapat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10711"/>
         <source>Supends stats while paused</source>
-        <translation type="unfinished"></translation>
+        <translation>Duraklatıldığında istatistikleri durdurur</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10728"/>
         <source>User 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı 1:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10751"/>
         <source>User 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı 2:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10774"/>
         <source>User 3:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı 3:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10797"/>
         <source>User 4:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı 4:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10820"/>
         <source>User 5:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı 5:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10843"/>
         <source>Bodytone Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Bodytone koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10867"/>
         <source>Bowflex Treadmill Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Bowflex koşu bandı seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10875"/>
         <source>T9 mi/h speed</source>
-        <translation type="unfinished"></translation>
+        <translation>T9: hız mi/h olarak</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10894"/>
         <source>Toorx/iConsole Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Toorx/iConsole seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10902"/>
         <source>TRX ROUTE KEY Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>TRX ROUTE KEY uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10916"/>
-        <source>TRX 65s EVO</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10931"/>
         <source>BH SPADA Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>BH SPADA uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10945"/>
         <source>BH SPADA wattage</source>
-        <translation type="unfinished"></translation>
+        <translation>BH SPADA gücü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10959"/>
-        <source>Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10974"/>
-        <source>Toorx SRX 3500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11016"/>
-        <source>Taurua IC90 Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11031"/>
         <source>JTX Fitness Sprint Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>JTX Fitness Sprint koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11046"/>
         <source>Reebok FR30 Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Reebok FR30 koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11076"/>
         <source>Toorx 3.0 Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Toorx 3.0 uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11091"/>
-        <source>Toorx/iConsole Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11106"/>
         <source>Toorx FTMS Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Toorx FTMS koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11121"/>
         <source>IConcept FTMS Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>IConcept FTMS koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11136"/>
         <source>Toorx FTMS Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Toorx FTMS bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11151"/>
-        <source>JLL IC400 Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11165"/>
         <source>Fytter RI08 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Fytter RI08 bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11179"/>
         <source>Asviva Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Asviva bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11206"/>
         <source>iConsole Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation>iConsole eliptik bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11219"/>
         <source>iConsole Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>iConsole kürek makinesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11232"/>
         <source>Toorx Treadmill Discovery Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Toorx koşu bandı araması tamamlandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11248"/>
         <source>Rower Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kürek makinesi seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11255"/>
         <source>PM3, PM4 Options</source>
-        <translation type="unfinished"></translation>
+        <translation>PM3, PM4 seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11286"/>
         <source>FTMS Rower:</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS kürek makinesi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11318"/>
         <source>Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin FTMS kürek makinenize bağlanmasını zorlamanızı sağlar. Emin değilseniz bunu &quot;Devre dışı&quot; bırakın ve QZ desteğine e-posta gönderin. Varsayılan: &quot;Devre dışı&quot;.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11331"/>
         <source>Proform/Nordictrack Rower Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform/Nordictrack kürek makinesi seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11337"/>
-        <source>Proform Sport RL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11350"/>
-        <source>Proform Rower 750R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11371"/>
         <source>ProForm Rower IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>ProForm kürek makinesi IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11396"/>
         <source>Elliptical Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliptik bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11405"/>
         <source>Domyos Elliptical Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyos eliptik bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11413"/>
         <source>Speed Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız oranı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11435"/>
-        <location filename="../settings.qml" line="11646"/>
         <source>Inclination Supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim desteği</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11449"/>
-        <source>Life Fitness 95xi (CSAFE)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11480"/>
         <source>FTMS Elliptical:</source>
-        <translation type="unfinished"></translation>
+        <translation>FTMS eliptik bisiklet:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11512"/>
         <source>Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin FTMS eliptik bisikletinize bağlanmasını zorlamanızı sağlar. Emin değilseniz bunu &quot;Devre dışı&quot; bırakın ve QZ desteğine e-posta gönderin. Varsayılan: &quot;Devre dışı&quot;.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11540"/>
         <source>Proform/Nordictrack Elliptical Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform/Nordictrack eliptik bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11547"/>
-        <source>Proform Hybrid Trainer XT</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11561"/>
         <source>Proform Hybrid Trainer PFEL03815</source>
-        <translation type="unfinished"></translation>
+        <translation>Proform Hybrid Trainer PFEL03815</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11574"/>
-        <source>Nordictrack C7.5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11587"/>
-        <source>NordicTrack Elliptical SE7i</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11602"/>
         <source>Companion IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>Companion IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11639"/>
         <source>Sole Elliptical Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Sole eliptik bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11660"/>
         <source>E55 elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation>E55 eliptik bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11676"/>
         <source>iConcept Elliptical Options</source>
-        <translation type="unfinished"></translation>
+        <translation>iConcept eliptik bisiklet seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11682"/>
         <source>iConcept elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation>iConcept eliptik bisiklet</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11701"/>
         <source>Advanced Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş ayarlar</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11712"/>
         <source>Manual Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Elle seçilen cihaz:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11746"/>
         <source>Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin ekipmanınıza bağlanmasını zorlamanızı sağlar (aşağıdaki &quot;Bluetooth sorun giderme&quot; bölümüne bakın). Varsayılan: &quot;Devre dışı&quot;.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11759"/>
         <source>Confirm Stop Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanı durdurmayı onayla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11773"/>
         <source>Shows a confirmation popup before stopping the workout from the UI.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arayüzden antrenman durdurulmadan önce bir onay penceresi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11789"/>
         <source>Watt Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11811"/>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekipmanınızı kalibre etmenin bir yolu olarak, Zwift veya benzeri uygulamalarda avatarınızın daha hızlı/yavaş hareket etmesi için güç değerinizi artırabilir/azaltabilirsiniz. Ofset olarak girdiğiniz sayı gücünüze eklenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11827"/>
         <source>Watt Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11849"/>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekipmanınızı kalibre etmenin bir yolu olarak, Zwift veya benzeri uygulamalarda avatarınızın daha hızlı/yavaş hareket etmesi için güç değerinizi artırabilir/azaltabilirsiniz. Örneğin Zwift&apos;te kürek makinesiyle bisiklet sürmek için 2 girerek gücünüzü iki katına çıkarabilir ve bisiklet hızınıza daha iyi yaklaştırabilirsiniz. Girdiğiniz sayı, gerçek gücünüze uygulanan bir çarpandır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11865"/>
         <source>Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ofseti</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11887"/>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekipmanınız güç değil de hız veriyorsa, Zwift&apos;te avatarınızın daha hızlı/yavaş hareket etmesi için hızınızı artırabilir/azaltabilirsiniz. Ofset olarak girdiğiniz sayı hızınıza eklenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11904"/>
         <source>Speed Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11926"/>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekipmanınız güç değil de hız veriyorsa, ekipmanınızı kalibre etmenin bir yolu olarak Zwift veya diğer uygulamalarda avatarınızın daha hızlı/yavaş hareket etmesi için hız değerinizi artırabilir/azaltabilirsiniz. Örneğin Zwift&apos;te kürek makinesiyle bisiklet sürmek için hızınızı iki katına çıkararak bisiklet hızınıza daha iyi yaklaştırabilirsiniz. Girdiğiniz sayı, gerçek hızınıza uygulanan bir çarpandır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11942"/>
         <source>Cadence Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans ofseti</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11964"/>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans değerinizi artırabilir/azaltabilirsiniz. Ofset olarak girdiğiniz sayı kadansınıza eklenir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11980"/>
         <source>Cadence Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12002"/>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekipmanınız güç değil de kadans veriyorsa, ekipmanınızı kalibre etmek için kadans değerinizi artırabilir/azaltabilirsiniz. Girdiğiniz sayı, gerçek kadansınıza uygulanan bir çarpandır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12016"/>
         <source>Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12025"/>
         <source>Strava Upload:</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;ya yükleme:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12051"/>
         <source>Suffix activity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Etkinlik soneki:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12072"/>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan: &quot;QZ&quot;. Diğer Strava kullanıcılarının QZ&apos;yi görmesi için lütfen bunu varsayılan değerde bırakın; bu, uygulamanın tanıtımına ve geliştirilmesine destek olan küçük bir reklamdır. Kaldırmayı seçerseniz, uygulamayı geliştirmeye ve desteklemeye devam edebilmem için lütfen geliştiricinin Patreon veya Buy Me a Coffee hesaplarına katkıda bulunmayı düşünün ya da sol kenar çubuğundaki Swag Bag&apos;e abone olun.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12085"/>
         <source>Strava External Browser Auth</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava harici tarayıcı yetkilendirmesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12099"/>
         <source>QZ can open an external browser to authorize Strava. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ, Strava yetkilendirmesi için harici bir tarayıcı açabilir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12113"/>
         <source>Strava Virtual Activity Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava sanal aktivite etiketi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12127"/>
         <source>Append the Virtual Tag to the Strava Activity</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava aktivitesine sanal aktivite etiketi eklenir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12140"/>
         <source>Strava Treadmill Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava koşu bandı etiketi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12154"/>
         <source>Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandı kullandığınızda Strava aktivitesine koşu bandı etiketi eklenir. Strava&apos;da yükseklik bilgisini görmek istiyorsanız bunu kapatın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12167"/>
         <source>Date Prefix on Strava Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava antrenman adının başında tarih</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12181"/>
         <source>Append the Date to the Strava Activity as a prefix only for non-Peloton workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava aktivitesinin adının başına tarih eklenir (yalnızca Peloton dışı antrenmanlarda)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12195"/>
         <source>Volume buttons change gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Ses tuşlarıyla vites değiştirme</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12209"/>
         <source>Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin çalıştığı cihazın ses tuşlarıyla, Bluetooth kulaklıkla veya Bluetooth uzaktan kumandayla otomatik takip modunda direnci değiştirmenizi sağlar. Bu harici kontrollerle yapılan değişiklikler &quot;Vites&quot; kutucuğunda görünür. Çok kullanışlı bir özellik! Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12222"/>
         <source>Volume buttons debouncing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ses tuşlarında art arda basmaları yok say</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12236"/>
         <source>Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ses tuşlarına art arda 2 veya daha fazla kez basıldığında vites yalnızca 1 kademe değişir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12252"/>
         <source>Power Averaging Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ortalaması modu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12281"/>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
 
 IMPORTANT NOTES:
@@ -5971,300 +6512,243 @@ IMPORTANT NOTES:
 - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!
 - Need to use QZ in bridge mode!
 - For Elite home trainers or those who have a race mode (10hz), if it&apos;s not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazınızın QZ&apos;ye gönderdiği güç (watt) değeri çok dalgalanıyorsa bu ayar güç bölgesi grafiklerini daha düzgün hâle getirir. Güç ölçer pedallarla kullanırken de faydalıdır. Güç sıçramalarını aritmetik ortalamadan daha iyi yumuşatan harmonik ortalama kullanılır. Herhangi bir okuma 0 ise güç hemen 0 olur. Varsayılan: &quot;Kapalı&quot;.
+
+ÖNEMLİ NOTLAR:
+- 1 Hz ile çalışan standart antrenman cihazlarında (yarış modu yok) cihazın ayarlarında ortalama/yumuşatma açmayın
+- Üçüncü taraf uygulamalarda (Rouvy/Zwift/MyWhoosh vb.) ortalamayı kapatın veya uygulamada 1 sn seçin!
+- QZ sanal cihaz (köprü) modunda kullanılmalı!
+- Elite antrenman cihazlarında veya yarış modu (10 Hz) olan cihazlarda bu bazı kullanıcılar için yeterli olmazsa, QZ yumuşatmasına ek olarak Elite/cihaz yumuşatmasını kullanmak sonucu iyileştirir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12295"/>
         <source>Instant Power on Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Duraklatmada anlık güç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12309"/>
         <source>Enables the calculation of watts, even while in Pause mode. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duraklatma modunda bile güç (watt) hesaplanır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12323"/>
         <source>Double Negative Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Negatif eğimi ikiye katla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12337"/>
         <source>Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim özelliği olan bir bisikletiniz varsa, inişlerde negatif eğimi yarı değerde gönderen Zwift hatasını düzeltmek için bunu açın</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12353"/>
         <source>Zwift Inclination Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift eğim ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12375"/>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ofseti ve çarpanı, QZ&apos;nin Zwift çarpanı ayarının yerine veya ona ek olarak, Zwift&apos;in belirlediği eğimi ayarlamak için kullanılır. Örneğin Zwift eğimi 1% yaptığında koşu bandınız eğimi 2% yapabilir. Ofset olarak girdiğiniz sayı, Zwift&apos;in veya başka bir üçüncü taraf uygulamanın gönderdiği eğime eklenir. Varsayılan: 0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12391"/>
         <source>Zwift Inclination Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift eğim çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12413"/>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Çarpan olarak girdiğiniz sayı, Zwift&apos;in veya başka bir üçüncü taraf uygulamanın gönderdiği eğimle çarpılır. Varsayılan: 1.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12428"/>
         <source>Minimum Inclination:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum eğim:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12449"/>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklette ve koşu bandında eğimin belirli bir değerin altına inmesini istemiyorsanız minimum değeri buraya girin. Varsayılan: -999.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12465"/>
         <source>Inclination Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim adımı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12487"/>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Eğim kutucuğu) Hem koşu bantlarında hem bisikletlerde Eğim kutucuğundaki artı veya eksi düğmesine bastığınızda eğimin ne kadar artacağını veya azalacağını belirler. Varsayılan: 0.5.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12500"/>
         <source>Send real inclination to virtual bridge</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerçek eğimi sanal cihaza gönder</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12514"/>
         <source>By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan olarak QZ, sanal Bluetooth/DIRCON cihazına koşu bandının mevcut eğimini gönderir. Bu açıldığında eğim çarpanı ve ofseti hesaba katılmadan eğim gönderilir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12528"/>
         <source>Disable wattage from machinery</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazın güç verisini kapat</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12542"/>
         <source>This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitness cihazınızın kendi güç hesaplamasını QZ&apos;ye göndermesini engeller; bunun yerine QZ&apos;nin daha doğru hesaplaması kullanılır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12555"/>
         <source>Use Resistance instead of Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim yerine direnç kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12569"/>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Akıllı antrenman cihazlarında eğim yerine direnç kullanılır. Vites değiştirdiğinizde Wahoo Climb veya benzeri bir cihazın eğimi değiştirmesini istemiyorsanız bu işe yarar. Varsayılan: kapalı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12584"/>
         <source>AutoLap on Distance:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesafeye göre otomatik tur:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12620"/>
         <source>Inclination Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim gecikmesi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12641"/>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Her değişiklik arasına gecikme ekleyerek eğim değişikliklerini yavaşlatır. Tüm koşu bandı/bisiklet modellerinde uygulanmaz. Varsayılan: 0.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12657"/>
         <source>Accessories</source>
-        <translation type="unfinished"></translation>
+        <translation>Aksesuarlar</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12666"/>
         <source>Cadence Sensor Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans sensörü seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12675"/>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletiniz düzgün çalışıyorsa bu ayarlara dokunmayın!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12688"/>
         <source>Cadence Sensor as a Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans sensörünü bisiklet olarak kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12708"/>
         <source>Cadence Sensor as a Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans sensörünü koşu bandı olarak kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12727"/>
         <source>If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazınızda Bluetooth yoksa bu ayarlar bir kadans sensörü kullanmanızı sağlar; böylece cihazınız QZ ile bisiklet veya koşu bandı olarak çalışır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12741"/>
         <source>Cadence Sensor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans sensörü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12775"/>
         <source>Use this setting to connect QZ to your cadence sensor. Default is Disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;yi kadans sensörünüze bağlamak için bu ayarı kullanın. Varsayılan: &quot;Devre dışı&quot;.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12813"/>
         <source>Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekerlek oranı, QZ&apos;nin kadansınızdan hızınızı hesaplamak için kullandığı çarpandır. Örneğin tekerlek oranına 1 girer ve 30 kadansla pedal çevirirseniz QZ hızınızı 30 km/h olarak gösterir. Varsayılan 0.33 değeri çoğu bisiklet için doğrudur.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12826"/>
-        <source>Rogue Echo Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="12840"/>
         <source>Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rogue Echo Bike için özel güç hesaplamasını açar: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12853"/>
         <source>Custom CSC Resistance/Watt Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel CSC direnç/güç tablosu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12867"/>
         <source>Enable a custom linear resistance/watt table for CSC bikes. Joroto bikes keep using their dedicated resistance power profile. Resistance is clamped using the existing Min. Resistance and Max. Resistance settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>CSC bisikletleri için özel doğrusal direnç/güç tablosunu açar. Joroto bisikletleri kendi direnç-güç profillerini kullanmaya devam eder. Direnç, mevcut &quot;Min. direnç&quot; ve &quot;Maks. direnç&quot; ayarlarıyla sınırlandırılır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12882"/>
         <source>Resistance Level 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç seviyesi 1:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12905"/>
         <source>Watt 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç 1:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12928"/>
         <source>Resistance Level 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç seviyesi 2:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12951"/>
         <source>Watt 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç 2:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12972"/>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ, iki direnç/güç noktasından doğrusal bir denklem oluşturur ve uygulanan direnci mevcut &quot;Min. direnç&quot; ve &quot;Maks. direnç&quot; ayarlarıyla sınırlar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12988"/>
         <source>Power Sensor Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörü seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="12996"/>
         <source>Power Sensor as a Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörünü bisiklet olarak kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13010"/>
         <source>If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletinizde Bluetooth yoksa bu ayar bir güç ölçer pedal sensörü kullanmanızı sağlar; böylece bisikletiniz QZ ile çalışır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13024"/>
         <source>Power Sensor as a Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörünü koşu bandı olarak kullan</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13038"/>
         <source>If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandınızda Bluetooth yoksa bu ayar bir Stryd sensörü (veya benzeri) kullanmanızı sağlar; böylece koşu bandınız QZ ile çalışır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13052"/>
         <source>Doubling Cadence for Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşuda kadansı ikiye katla</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13066"/>
         <source>Some power sensors send cadence divided by 2. This setting will fix this behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazı güç sensörleri kadansı 2&apos;ye bölünmüş olarak gönderir. Bu ayar bunu düzeltir.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13080"/>
         <source>Half Cadence on Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;da yarım kadans</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13094"/>
         <source>Divide the cadence sent to Strava by 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Strava&apos;ya gönderilen kadans 2&apos;ye bölünür.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13107"/>
         <source>Use speed from the power sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızı güç sensöründen al</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13121"/>
         <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;ye bağlı bir Bluetooth koşu bandınız ve ayrıca bir Stryd cihazınız varsa ve hızı koşu bandı yerine Stryd&apos;den almak istiyorsanız bunu açın. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13134"/>
         <source>Use inclination from the power sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğimi güç sensöründen al</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13148"/>
         <source>If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;ye bağlı bir Bluetooth koşu bandınız ve ayrıca bir Runn cihazınız varsa ve eğimi koşu bandı yerine Runn&apos;dan almak istiyorsanız bunu açın. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13161"/>
         <source>Use cadence from the power sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadansı güç sensöründen al</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13175"/>
         <source>If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;ye bağlı bir Bluetooth koşu bandınız ve ayrıca bir güç sensörünüz (ör. Stryd) varsa ve kadansı koşu bandı yerine güç sensöründen almak istiyorsanız bunu açın. Koşu bandının kadans sensörü düşük hızlarda (yürüyüş/hafif koşu) güvenilir değilse faydalıdır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13188"/>
         <source>Add inclination gain factor to the power</source>
-        <translation type="unfinished"></translation>
+        <translation>Güce eğim düzeltmesi ekle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13202"/>
         <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can&apos;t get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;ye bağlı bir Bluetooth koşu bandınız ve ayrıca bir Stryd cihazınız varsa, Stryd varsayılan olarak koşu bandından eğimi alamaz. Bu açıldığında QZ, Stryd&apos;den okunan güce eğim düzeltmesi ekler. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13215"/>
         <source>Power Sensor Speed/Incline Coefficient A:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörü hız/eğim katsayısı A:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13236"/>
         <source>Power Sensor Speed/Incline Coefficient B:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörü hız/eğim katsayısı B:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13257"/>
         <source>Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.
 
 For Stryd sensors use: A = -0.96, B = 1.33
@@ -6276,2597 +6760,2303 @@ Examples with these values:
 If both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).
 
 Default: A = -0.96, B = 1.33</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensöründe eğim hesabı için özel katsayılar, formül: vwatts = (A + B × hız) × eğim.
+
+Stryd sensörleri için: A = -0.96, B = 1.33
+
+Bu değerlerle örnekler:
+• 8 km/h, 10% eğim: (-0.96 + 1.33×8) × 10 = 97 W eklenir
+• 11 km/h, 10% eğim: (-0.96 + 1.33×11) × 10 = 137 W eklenir
+
+A ve B&apos;nin ikisi de 0 ise QZ varsayılan formülü kullanır: 9.8 × ağırlık × (eğim/100).
+
+Varsayılan: A = -0.96, B = 1.33</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13271"/>
         <source>Power Sensor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç sensörü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13305"/>
         <source>Leave on Disabled or select from list of found Bluetooth devices.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Devre dışı&quot; olarak bırakın veya bulunan Bluetooth cihazları listesinden seçin.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13321"/>
         <source>Elite™ Products</source>
-        <translation type="unfinished"></translation>
+        <translation>Elite™ ürünleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13329"/>
         <source>Elite Rizer Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Elite Rizer seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13373"/>
         <source>Difficulty/Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zorluk/çarpan:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13397"/>
         <source>Elite Sterzo Smart Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Elite Sterzo Smart seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13444"/>
         <source>SmartSpin2k Options</source>
-        <translation type="unfinished"></translation>
+        <translation>SmartSpin2k seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13452"/>
         <source>SmartSpin2k device:</source>
-        <translation type="unfinished"></translation>
+        <translation>SmartSpin2k cihazı:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13487"/>
         <source>Peloton Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton bisikleti</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13504"/>
         <source>Shift Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites adımı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13528"/>
         <source>Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. direnç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13552"/>
         <source>Min Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. direnç</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13575"/>
         <source>Advanced SmartSpin2k Calibration</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş SmartSpin2k kalibrasyonu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13585"/>
         <source>Resistance Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ölçümü 1</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13608"/>
         <source>Shift Step Sample 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites adımı ölçümü 1</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13632"/>
         <source>Resistance Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ölçümü 2</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13655"/>
         <source>Shift Step Sample 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites adımı ölçümü 2</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13679"/>
         <source>Resistance Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ölçümü 3</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13702"/>
         <source>Shift Step Sample 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites adımı ölçümü 3</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13726"/>
         <source>Resistance Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ölçümü 4</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13749"/>
         <source>Shift Step Sample 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites adımı ölçümü 4</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13776"/>
         <source>Fitmetria Fitfan™ Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitmetria Fitfan™ seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13785"/>
-        <location filename="../settings.qml" line="13884"/>
-        <location filename="../settings.qml" line="13977"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13802"/>
-        <location filename="../settings.qml" line="13900"/>
-        <location filename="../settings.qml" line="13993"/>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13828"/>
-        <location filename="../settings.qml" line="13924"/>
-        <location filename="../settings.qml" line="14017"/>
         <source>Min. value (0-100):</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. değer (0-100):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13852"/>
-        <location filename="../settings.qml" line="13946"/>
-        <location filename="../settings.qml" line="14039"/>
         <source>Max value (0-100):</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. değer (0-100):</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13876"/>
         <source>Wahoo Kickr HeadWind Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo Kickr HeadWind seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13969"/>
         <source>Elite Aria Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Elite Aria seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14100"/>
         <source>Thinkrider Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Thinkrider seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14108"/>
         <source>Thinkrider Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Thinkrider kumandası</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14122"/>
         <source>Thinkrider VS200 remote controller. Use it to change gears on QZ!</source>
-        <translation type="unfinished"></translation>
+        <translation>Thinkrider VS200 uzaktan kumandası. QZ&apos;de vites değiştirmek için kullanın!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14137"/>
         <source>CYCPLUS Options</source>
-        <translation type="unfinished"></translation>
+        <translation>CYCPLUS seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14159"/>
         <source>CYCPLUS BC2 virtual shifter. Use it to change gears on QZ!</source>
-        <translation type="unfinished"></translation>
+        <translation>CYCPLUS BC2 sanal vites kolu. QZ&apos;de vites değiştirmek için kullanın!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14174"/>
         <source>Zwift Devices Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift cihaz seçenekleri</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14182"/>
         <source>Zwift Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Click</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14196"/>
         <source>Use it to change the gears on QZ!</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;de vites değiştirmek için kullanın!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14209"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14223"/>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
-        <translation type="unfinished"></translation>
+        <translation>Elite Square için de geçerli. QZ&apos;de vites değiştirmek için kullanın!</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14236"/>
         <source>Zwift Play Vibration</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift Play titreşimi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14250"/>
         <source>Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites değiştirirken Zwift Play kumandalarında titreşimli geri bildirim verilir. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14263"/>
         <source>Buttons debouncing</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğmelerde art arda basmaları yok say</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14277"/>
         <source>Debounce the buttons, so you will only see 1 gear step even if you are keep pressing the buttons.  Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğmelere basmaya devam etseniz bile vites yalnızca 1 kademe değişir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14290"/>
         <source>Swap sides</source>
-        <translation type="unfinished"></translation>
+        <translation>Tarafları değiştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14304"/>
         <source>You can swap the left to the right controller and viceversa.  Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol ve sağ kumandanın yerini değiştirebilirsiniz. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14317"/>
         <source>Use Zwift app ratio for gears (Experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift uygulamasının vites oranlarını kullan (deneysel)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14331"/>
         <source>Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin klasik vites algoritması yerine Zwift vites tablosu kullanılır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14366"/>
         <source>Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan: 200 ms. Vitesler daha hızlı tepki versin istiyorsanız düşürün. Uyarı: bu değeri düşürmek QZ&apos;nin çalıştığı cihazda pil tüketimini artırır</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14384"/>
         <source>TTS (Text to Speech) Settings 🔊</source>
-        <translation type="unfinished"></translation>
+        <translation>TTS (metin okuma) ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14393"/>
         <source>Maps 🗺️</source>
-        <translation type="unfinished"></translation>
+        <translation>Haritalar</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14406"/>
         <source>Maps Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Harita türü:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14430"/>
         <source>Loop Start-End-Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Gidiş-dönüş (başlangıç-bitiş-başlangıç)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14487"/>
         <source>Experimental Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Deneysel özellikler</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14498"/>
         <source>Gym Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Spor salonu modu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14512"/>
         <source>Useful in gyms with multiple similar machines. When enabled, QZ scans nearby equipment at startup and asks you which trainer to use before opening any Bluetooth connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Birden çok benzer cihazın bulunduğu spor salonlarında faydalıdır. Açıldığında QZ, başlangıçta yakındaki cihazları tarar ve herhangi bir Bluetooth bağlantısı açmadan önce hangi cihazı kullanacağınızı sorar.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14526"/>
         <source>Relaxed Bluetooth for mad devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorunlu cihazlar için esnek Bluetooth</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14540"/>
         <source>Leave this setting off unless the Support staff asks you to turn it on during troubleshooting. Can improve the Android Bluetooth connection to Zwift. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorun giderme sırasında destek ekibi istemedikçe bu ayarı kapalı bırakın. Android&apos;de Zwift ile Bluetooth bağlantısını iyileştirebilir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14554"/>
         <source>Bluetooth hangs after 30 m</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth 30 dk sonra donuyor</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14568"/>
         <source>Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Sorunlu cihazlar için esnek Bluetooth&quot; ile aynı. Destek ekibi istemedikçe kapalı bırakın. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14582"/>
         <source>Simulate Battery Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Battery Service&apos;i simüle et</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14596"/>
         <source>Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Destek ekibi istemedikçe bunu kapalı bırakın. Cihazınızın pil seviyesini bildiren yeni bir Bluetooth hizmeti ekler. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14625"/>
         <source>Enable Virtual Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal cihazı etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14631"/>
         <source>Virtual Device Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth sanal cihazı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14637"/>
         <source>Virtual Heart Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca sanal nabız</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14651"/>
         <source>Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin üçüncü taraf uygulamalara YALNIZCA nabız verisini göndermesini sağlar. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14665"/>
         <source>Virtual Echelon</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal Echelon</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14679"/>
         <source>Enables QZ to communicate with the Echelon app. This setting can only be used with iOS running QZ and iOS running the Echelon app. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin Echelon uygulamasıyla iletişim kurmasını sağlar. Bu ayar yalnızca hem QZ hem de Echelon uygulaması iOS&apos;ta çalışıyorsa kullanılabilir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14693"/>
         <source>Virtual Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal kürek makinesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14707"/>
         <source>Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin, kürek çekmeyi destekleyen üçüncü taraf uygulamalara (ör. Kinomap ve BitGym) bisiklet profili yerine kürek makinesi Bluetooth profili göndermesini sağlar. Zwift için kapalı olmalıdır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14721"/>
         <source>Virtual Rower as PM5</source>
-        <translation type="unfinished"></translation>
+        <translation>PM5 olarak sanal kürek makinesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14736"/>
         <source>When enabled, the virtual rower will use the Concept2 PM5 protocol instead of FTMS. This provides compatibility with apps like Mywhoosh that only support PM5 rowers. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıldığında sanal kürek makinesi FTMS yerine Concept2 PM5 protokolünü kullanır. Bu, yalnızca PM5 kürek makinelerini destekleyen MyWhoosh gibi uygulamalarla uyumluluk sağlar. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14751"/>
         <source>Force Virtual Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Her zaman sanal koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14765"/>
         <source>When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıldığında QZ, asıl cihaz türünden bağımsız olarak kendini sanal koşu bandı olarak tanıtır. Böylece her cihaz (bisiklet, kürek makinesi, eliptik vb.) üçüncü taraf uygulamalara koşu bandı olarak görünür. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14779"/>
         <source>Zwift Force Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwift: direnç kontrolü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14793"/>
         <source>Enables third-party apps to change the resistance of your equipment. Default is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Üçüncü taraf uygulamaların cihazınızın direncini değiştirmesine izin verir. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14808"/>
         <source>Bike Power Sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet güç sensörü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14822"/>
-        <source>This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <source>This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.</source>
+        <translation>Sanal Bluetooth cihazını standart FTMS&apos;den güç sensörü arayüzüne geçirir. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14836"/>
         <source>Virtual iFit</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal iFit</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14850"/>
         <source>Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.</source>
-        <translation type="unfinished"></translation>
+        <translation>iFit uygulaması için sanal Bluetooth cihazını açar. Bu ayar cihazlardan en az birinin Android olmasını gerektirir. Örneğin iOS&apos;ta QZ ve iOS&apos;ta iFit ile ÇALIŞMAZ, ama iOS&apos;ta QZ ve Android&apos;de iFit ile ÇALIŞIR. Android&apos;de cihazınızın adını Android ayarlarından I_EL olarak değiştirmeyi ve cihazı yeniden başlatmayı unutmayın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14865"/>
         <source>Wahoo direct connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo doğrudan bağlantı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14873"/>
         <source>MyWhoosh Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>MyWhoosh uyumluluğu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14887"/>
         <source>Enables the compatibility of the Wahoo KICKR protocol to MyWhoosh app. Leave the MyWhoosh compatibility disabled in order to use Zwift.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wahoo KICKR protokolünü MyWhoosh uygulamasıyla uyumlu hâle getirir. Zwift&apos;i kullanmak için MyWhoosh uyumluluğunu kapalı bırakın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14902"/>
         <source>ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14923"/>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Birden fazla QZ çalıştırıyorsanız sanal Wahoo cihazının ID&apos;sini değiştirebilirsiniz. Varsayılan: 0</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14939"/>
         <source>Server Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sunucu portu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14965"/>
         <source>MQTT Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14975"/>
         <source>MQTT Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT sunucusu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14995"/>
         <source>Enter the MQTT broker hostname or IP address</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT broker&apos;ının ana bilgisayar adını veya IP adresini girin</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15010"/>
         <source>MQTT Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT portu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15031"/>
         <source>Enter the MQTT broker port (default: 1883)</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT broker&apos;ının portunu girin (varsayılan: 1883)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15067"/>
         <source>Enter the MQTT broker username (if required)</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT broker&apos;ının kullanıcı adını girin (gerekiyorsa)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15104"/>
         <source>Enter the MQTT broker password (if required)</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT broker&apos;ının şifresini girin (gerekiyorsa)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15120"/>
         <source>Device ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihaz ID&apos;si:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15140"/>
         <source>Enter a unique device identifier for MQTT client</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT istemcisi için benzersiz bir cihaz kimliği girin</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15156"/>
         <source>OSC Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15166"/>
         <source>OSC IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IP adresi:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15189"/>
         <source>OSC Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC portu:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15213"/>
         <source>Race Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Yarış modu</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15227"/>
         <source>By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan olarak QZ, verileri Zwift&apos;e veya diğer üçüncü taraf uygulamalara 1000 ms aralıklarla gönderir. Yarış modu açıldığında QZ bunları 100 ms&apos;de bir (10 Hz) gönderir. Elbette darboğaz her zaman bisikletiniz/koşu bandınız olacaktır.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15241"/>
         <source>Run Cadence Sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu kadans sensörü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15255"/>
         <source>Forces the virtual Bluetooth bridge to send only the cadence information instead of the full FTMS metrics. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sanal Bluetooth cihazının tüm FTMS verileri yerine yalnızca kadans bilgisini göndermesini sağlar. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15269"/>
         <source>Template Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Şablon ayarları</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15314"/>
         <source>Android WakeLock</source>
-        <translation type="unfinished"></translation>
+        <translation>Android&apos;i uyanık tut (WakeLock)</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15328"/>
         <source>Forces Android devices to remain awake while QZ is running. Default is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ çalışırken Android cihazın uyku moduna geçmesini engeller. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15342"/>
         <source>iOS Peloton Workaround</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS Peloton geçici çözümü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15356"/>
         <source>This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu ayar iOS cihazlarda HER ZAMAN AÇIK olmalıdır. KAPATILIRSA QZ beklenmedik şekilde çöker. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15369"/>
         <source>iOS Bluetooth Device Native</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS yerel Bluetooth</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15383"/>
         <source>If you are experiencing crash on iOS midride, try to turn this on. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS&apos;ta sürüşün ortasında çökme yaşıyorsanız bunu açmayı deneyin. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15397"/>
         <source>Fake Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Simüle cihaz</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15411"/>
         <source>Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin bir bisiklete bağlıymış gibi davranmasını sağlar. Açık olduğunda QZ kaloriyi nabzınıza göre hesaplar. Bu ayarın kullanım örnekleri: ○ Ekipman gerektirmeyen Peloton derslerinin (ör. kuvvet veya yoga antrenmanı) verilerini kaydetmek için. ○ Cihazınıza bağlanmadan QZ panelindeki kutucukları düzenlemek için. ○ Cihazınıza bağlanmadan QZ Apple Watch uygulamasını kullanmak için.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15425"/>
         <source>Fake Treadmill</source>
-        <translation type="unfinished"></translation>
+        <translation>Simüle koşu bandı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15439"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates a treadmill.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Simüle cihaz&quot; ile aynı, ancak bisiklet yerine koşu bandı simüle eder.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15453"/>
         <source>Use Apple Watch Cadence for Fake Treadmill Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Simüle koşu bandı hızı için Apple Watch kadansı</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15467"/>
         <source>iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories &gt; Cadence Sensor Options. The cycling default is far too high for running - try 0.04-0.15 depending on pace, from walking to running, and tune to taste. Useful with apps like Kinomap or Zwift. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca iOS. &quot;Simüle koşu bandı&quot; modu için: gerçek bir koşu bandı bağlı değilken hız, &quot;Aksesuarlar &gt; Kadans sensörü seçenekleri&quot; altındaki &quot;Tekerlek oranı&quot; ayarı kullanılarak Apple Watch adım kadansından hesaplanır. Bisiklet için olan varsayılan değer koşu için çok yüksektir – tempoya göre (yürüyüşten koşuya) 0.04-0.15 deneyin ve isteğinize göre ayarlayın. Kinomap veya Zwift gibi uygulamalarla faydalıdır. Varsayılan: kapalı.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15481"/>
         <source>Fake Elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation>Simüle eliptik</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15495"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates an elliptical.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Simüle cihaz&quot; ile aynı, ancak bisiklet yerine eliptik bisiklet simüle eder.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15508"/>
         <source>Fake Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Simüle kürek makinesi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15522"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates a rower.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Simüle cihaz&quot; ile aynı, ancak bisiklet yerine kürek makinesi simüle eder.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15536"/>
         <source>iOS Heart Caching</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS nabız önbelleği</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15550"/>
         <source>Leave this on unless you have issues connecting your Bluetooth HRM to QZ. If turning this off does not solve the connection issue, open a support ticket on GitHub. Default is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth nabız sensörünüzü QZ&apos;ye bağlamada sorun yaşamıyorsanız bunu açık bırakın. Kapatmak bağlantı sorununu çözmezse GitHub&apos;da bir destek kaydı açın. Varsayılan: açık.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15564"/>
         <source>Android Notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Android bildirimi</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15578"/>
         <source>Android Only: enable this to force Android to don&apos;t kill QZ when it&apos;s running on background</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: QZ arka planda çalışırken Android&apos;in onu kapatmaması için bunu açın</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15591"/>
         <source>Android Force Documents/QZ Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Android: her zaman Documents/QZ klasörü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15605"/>
         <source>Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca Android: QZ, hata ayıklama günlüğünü ve FIT dosyalarını her zaman /Documents/QZ klasörüne kaydeder</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15619"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Hata ayıklama günlüğü</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15633"/>
         <source>Turn this on to save a debug log to your device for use when requesting help with a bug.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir hata için yardım isterken kullanmak üzere cihaza hata ayıklama günlüğü kaydetmek için açın.</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15650"/>
         <source>Clear History</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçmişi temizle</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15656"/>
         <source>Show Logs Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Günlük klasörünü göster</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="15665"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kayıtlı profillerinize ve ayarlarınıza dokunmadan cihazdaki tüm QZ günlüklerini, QZ .fit dosyalarını ve QZ görüntülerini (QZ bunları her antrenman için kaydeder) siler.</translation>
+    </message>
+    <message>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Şu anda kendi sayfasında gizli: buradan değiştirin</translation>
+    </message>
+    <message>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Bu ayarı değiştirmek için &quot;%1&quot; seçeneğini açın</translation>
+    </message>
+    <message>
+        <source>Male</source>
+        <translation>Erkek</translation>
+    </message>
+    <message>
+        <source>Female</source>
+        <translation>Kadın</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Devre dışı</translation>
+    </message>
+    <message>
+        <source>Bike Weight (%1)</source>
+        <translation>Bisiklet ağırlığı (%1)</translation>
+    </message>
+    <message>
+        <source>OpenBikeControl</source>
+        <translation>OpenBikeControl</translation>
+    </message>
+    <message>
+        <source>Enable OpenBikeControl</source>
+        <translation>OpenBikeControl&apos;u etkinleştir</translation>
+    </message>
+    <message>
+        <source>OpenBikeControl enabled: Wahoo direct connect disabled.</source>
+        <translation>OpenBikeControl açık: Wahoo doğrudan bağlantısı kapalı.</translation>
+    </message>
+    <message>
+        <source>Enable TCP server on port 21587 to send control commands using the OpenBikeControl link protocol</source>
+        <translation>OpenBikeControl link protokolüyle kontrol komutları göndermek için 21587 numaralı bağlantı noktasında TCP sunucusunu etkinleştirin</translation>
+    </message>
+    <message>
+        <source>Override Local Gear Changes</source>
+        <translation>Yerel vites değişimini devre dışı bırak</translation>
+    </message>
+    <message>
+        <source>When enabled, gear shift commands go only to OpenBikeControl clients. When disabled, they go to both OpenBikeControl clients and the local gear system</source>
+        <translation>Açıkken vites komutları yalnızca OpenBikeControl istemcilerine gider. Kapalıyken hem OpenBikeControl istemcilerine hem de QZ&apos;nin kendi vites sistemine gider</translation>
+    </message>
+    <message>
+        <source>Left Controller Buttons</source>
+        <translation>Sol kumanda düğmeleri</translation>
+    </message>
+    <message>
+        <source>Left Up:</source>
+        <translation>Sol yukarı:</translation>
+    </message>
+    <message>
+        <source>Gear Up</source>
+        <translation>Vites yükselt</translation>
+    </message>
+    <message>
+        <source>Gear Down</source>
+        <translation>Vites düşür</translation>
+    </message>
+    <message>
+        <source>Steer Left</source>
+        <translation>Sola dön</translation>
+    </message>
+    <message>
+        <source>Steer Right</source>
+        <translation>Sağa dön</translation>
+    </message>
+    <message>
+        <source>U-Turn</source>
+        <translation>U dönüşü</translation>
+    </message>
+    <message>
+        <source>Camera Angle</source>
+        <translation>Kamera açısı</translation>
+    </message>
+    <message>
+        <source>Emote</source>
+        <translation>İfade</translation>
+    </message>
+    <message>
+        <source>Tuck</source>
+        <translation>Aero pozisyon</translation>
+    </message>
+    <message>
+        <source>Nav Up</source>
+        <translation>Yukarı git</translation>
+    </message>
+    <message>
+        <source>Nav Down</source>
+        <translation>Aşağı git</translation>
+    </message>
+    <message>
+        <source>Nav Left</source>
+        <translation>Sola git</translation>
+    </message>
+    <message>
+        <source>Nav Right</source>
+        <translation>Sağa git</translation>
+    </message>
+    <message>
+        <source>Select/Confirm</source>
+        <translation>Seç/Onayla</translation>
+    </message>
+    <message>
+        <source>Back/Cancel</source>
+        <translation>Geri/İptal</translation>
+    </message>
+    <message>
+        <source>Menu</source>
+        <translation>Menü</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>Ana ekran</translation>
+    </message>
+    <message>
+        <source>Left Down:</source>
+        <translation>Sol aşağı:</translation>
+    </message>
+    <message>
+        <source>Left Left:</source>
+        <translation>Sol sola:</translation>
+    </message>
+    <message>
+        <source>Left Right:</source>
+        <translation>Sol sağa:</translation>
+    </message>
+    <message>
+        <source>Left Shoulder:</source>
+        <translation>Sol omuz düğmesi:</translation>
+    </message>
+    <message>
+        <source>Left Power:</source>
+        <translation>Sol Power Up düğmesi:</translation>
+    </message>
+    <message>
+        <source>Right Controller Buttons</source>
+        <translation>Sağ kumanda düğmeleri</translation>
+    </message>
+    <message>
+        <source>Right Y:</source>
+        <translation>Sağ Y:</translation>
+    </message>
+    <message>
+        <source>Right A:</source>
+        <translation>Sağ A:</translation>
+    </message>
+    <message>
+        <source>Right B:</source>
+        <translation>Sağ B:</translation>
+    </message>
+    <message>
+        <source>Right Z:</source>
+        <translation>Sağ Z:</translation>
+    </message>
+    <message>
+        <source>Right Shoulder:</source>
+        <translation>Sağ omuz düğmesi:</translation>
+    </message>
+    <message>
+        <source>Right Power:</source>
+        <translation>Sağ Power Up düğmesi:</translation>
+    </message>
+    <message>
+        <source>Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured</source>
+        <translation>Not: Sol ve sağ pedal kolları her zaman &quot;Sola dön&quot; / &quot;Sağa dön&quot; olarak çalışır ve değiştirilemez</translation>
+    </message>
+    <message>
+        <source>Custom Inclination to Resistance Table</source>
+        <translation>Özel eğim – direnç tablosu</translation>
+    </message>
+    <message>
+        <source>Cruise</source>
+        <translation>Seyir</translation>
+    </message>
+    <message>
+        <source>Climb</source>
+        <translation>Tırmanış</translation>
+    </message>
+    <message>
+        <source>Sprint</source>
+        <translation>Sprint</translation>
+    </message>
+    <message>
+        <source>Physical resistance knob controls QZ gears</source>
+        <translation>Cihazdaki direnç düğmesi QZ viteslerini değiştirir</translation>
+    </message>
+    <message>
+        <source>Baudrate:</source>
+        <translation>Baud hızı:</translation>
+    </message>
+    <message>
+        <source>Freebeat Bike Options</source>
+        <translation>Freebeat bisiklet seçenekleri</translation>
+    </message>
+    <message>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>İçeriği kamera çentiğinden uzak tut</translation>
+    </message>
+    <message>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>Yatay modda kamera tarafında bir kenar boşluğu bırakır, böylece kamera deliği içeriği kapatmaz. İçeriğin kamera çentiğinin altına uzanması için kapatın. Varsayılan: açık.</translation>
+    </message>
+    <message>
+        <source>Classic</source>
+        <translation>Klasik</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation>Yatay</translation>
+    </message>
+    <message>
+        <source>Both Charts</source>
+        <translation>İki grafik de</translation>
+    </message>
+    <message>
+        <source>Heart Rate Only</source>
+        <translation>Yalnızca nabız</translation>
+    </message>
+    <message>
+        <source>Power Only</source>
+        <translation>Yalnızca güç</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>alt sınır</translation>
+    </message>
+    <message>
+        <source>upper</source>
+        <translation>üst sınır</translation>
+    </message>
+    <message>
+        <source>average</source>
+        <translation>ortalama</translation>
+    </message>
+    <message>
+        <source>Before Title</source>
+        <translation>Başlıktan önce</translation>
+    </message>
+    <message>
+        <source>After Title</source>
+        <translation>Başlıktan sonra</translation>
+    </message>
+    <message>
+        <source>Ask RPE / Feeling after workout</source>
+        <translation>Antrenmandan sonra RPE ve his durumunu sor</translation>
+    </message>
+    <message>
+        <source>Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.</source>
+        <translation>Durdurduktan sonra algılanan zorluğu (RPE) ve nasıl hissettiğinizi değerlendirmek için bir pencere gösterir; değerler FIT dosyasına kaydedilir ve Garmin Connect&apos;te görünür.</translation>
+    </message>
+    <message>
+        <source>Garmin Password:</source>
+        <translation>Garmin şifresi:</translation>
+    </message>
+    <message>
+        <source>Garmin Server:</source>
+        <translation>Garmin sunucusu:</translation>
+    </message>
+    <message>
+        <source>Global (garmin.com)</source>
+        <translation>Küresel (garmin.com)</translation>
+    </message>
+    <message>
+        <source>China (garmin.cn)</source>
+        <translation>Çin (garmin.cn)</translation>
+    </message>
+    <message>
+        <source>Sound on Segment Change</source>
+        <translation>Bölüm değişiminde ses</translation>
+    </message>
+    <message>
+        <source>Play a short sound when a training program starts a new row. Default: disabled.</source>
+        <translation>Antrenman programı yeni bir satıra geçtiğinde kısa bir ses çalınır. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>PID Recovery Zone Lower Limit (%):</source>
+        <translation>Agresif mod: toparlanma bölgesi alt sınırı (%):</translation>
+    </message>
+    <message>
+        <source>Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for &apos;Pushy&apos; mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.</source>
+        <translation>&quot;Agresif&quot; modda 1. bölgenin alt ucunu belirleyen alt nabız sınırı (maksimum nabzın yüzdesi). Bu yüzdenin altında koşu bandı toparlanma alanının en altındadır. Varsayılan: 60.</translation>
+    </message>
+    <message>
+        <source>PID Pushy Zone Limit:</source>
+        <translation>Agresif mod sınırı:</translation>
+    </message>
+    <message>
+        <source>Fraction of zone above the target zone where &apos;Pushy&apos; mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.</source>
+        <translation>Hedef bölgenin üstünde, &quot;Agresif&quot; modun zorlamayı bıraktığı bölge payı. 0.8, PID&apos;nin bölge+0.8 seviyesinde zorlamayı bıraktığı anlamına gelir. Varsayılan: 0.8.</translation>
+    </message>
+    <message>
+        <source>Warmup Speed (pace):</source>
+        <translation>Isınma hızı (tempo):</translation>
+    </message>
+    <message>
+        <source>Cooldown Speed (pace):</source>
+        <translation>Soğuma hızı (tempo):</translation>
+    </message>
+    <message>
+        <source>Rest Speed (pace):</source>
+        <translation>Dinlenme hızı (tempo):</translation>
+    </message>
+    <message>
+        <source>1 mile</source>
+        <translation>1 mil</translation>
+    </message>
+    <message>
+        <source>Half Marathon</source>
+        <translation>Yarı maraton</translation>
+    </message>
+    <message>
+        <source>Marathon</source>
+        <translation>Maraton</translation>
+    </message>
+    <message>
+        <source>Force Running Activity</source>
+        <translation>Her zaman koşu olarak kaydet</translation>
+    </message>
+    <message>
+        <source>Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.</source>
+        <translation>Ortalama hız 6.5 km/h altında olsa bile koşu bandı FIT dosyalarını koşu aktivitesi olarak kaydetmek için açın. Bu, yüksek eğimli koşu bandı antrenmanlarında Garmin&apos;in Training Effect hesaplamasına yardımcı olabilir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Pafers Rower</source>
+        <translation>Pafers kürek makinesi</translation>
+    </message>
+    <message>
+        <source>Flow Fitness Runner DTM2000i</source>
+        <translation>Flow Fitness Runner DTM2000i</translation>
+    </message>
+    <message>
+        <source>WaterRower USB</source>
+        <translation>WaterRower USB</translation>
+    </message>
+    <message>
+        <source>Max Watt:</source>
+        <translation>Maks. güç (W):</translation>
+    </message>
+    <message>
+        <source>Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.</source>
+        <translation>QZ&apos;nin gönderdiği gücü sınırlar. Sınırı kaldırmak için 0 girin. Varsayılan: 9999 W.</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Her zaman</translation>
+    </message>
+    <message>
+        <source>Request</source>
+        <translation>Sor</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Kapalı</translation>
+    </message>
+    <message>
+        <source>3 seconds</source>
+        <translation>3 saniye</translation>
+    </message>
+    <message>
+        <source>5 seconds</source>
+        <translation>5 saniye</translation>
+    </message>
+    <message>
+        <source>You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).</source>
+        <translation>FIT dosyasında mesafeye göre otomatik tur oluşturabilirsiniz. Birim: %1. Varsayılan: 0 (kapalı).</translation>
+    </message>
+    <message>
+        <source>Power sensor speed correction threshold (%):</source>
+        <translation>Güç sensörü hız düzeltme eşiği (%):</translation>
+    </message>
+    <message>
+        <source>Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.</source>
+        <translation>Güç sensörü hızı ile koşu bandı hızı arasında izin verilen en büyük fark; bu farkın üstünde QZ göreli düzeltmeyi uygulamayı bırakır. Varsayılan: 20%.</translation>
+    </message>
+    <message>
+        <source>Heart</source>
+        <translation>Nabız</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>Güç</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Manuel</translation>
+    </message>
+    <message>
+        <source>Gear Controls</source>
+        <translation>Vites düğmeleri</translation>
+    </message>
+    <message>
+        <source>Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.</source>
+        <translation>Her fiziksel düğmeye &quot;Vites yükselt&quot;, &quot;Vites düşür&quot; veya &quot;Devre dışı&quot; atayın. Yukarıdaki &quot;Tarafları değiştir&quot; seçeneğinden önce uygulanır.</translation>
+    </message>
+    <message>
+        <source>Left Shifter Up (LS1):</source>
+        <translation>Sol vites kolu yukarı (LS1):</translation>
+    </message>
+    <message>
+        <source>Left Shifter Down (LS2):</source>
+        <translation>Sol vites kolu aşağı (LS2):</translation>
+    </message>
+    <message>
+        <source>Right Shifter Up (RS1):</source>
+        <translation>Sağ vites kolu yukarı (RS1):</translation>
+    </message>
+    <message>
+        <source>Right Shifter Down (RS2):</source>
+        <translation>Sağ vites kolu aşağı (RS2):</translation>
+    </message>
+    <message>
+        <source>Left Paddle (ZL):</source>
+        <translation>Sol pedal kolu (ZL):</translation>
+    </message>
+    <message>
+        <source>Right Paddle (ZR):</source>
+        <translation>Sağ pedal kolu (ZR):</translation>
+    </message>
+    <message>
+        <source>Power Up (LB):</source>
+        <translation>Power Up (LB):</translation>
+    </message>
+    <message>
+        <source>Ride On (RB):</source>
+        <translation>Ride On (RB):</translation>
+    </message>
+    <message>
+        <source>Virtual Tacx</source>
+        <translation>Sanal Tacx</translation>
+    </message>
+    <message>
+        <source>Enables a virtual bluetooth bridge to the Tacx App.</source>
+        <translation>Tacx uygulaması için sanal Bluetooth cihazını etkinleştirir.</translation>
+    </message>
+    <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation>ft/in</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Nabız sabitleme (PID) ile ayarlanan:</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Hız</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ, sizi seçilen nabız bölgesinde tutmak için koşu bandınızı veya bisikletinizi kontrol eder. Genel &quot;Nabız sabitleme (PID) ile ayarlanan&quot; ayarı, koşu bantlarında hızı veya eğimi seçer; antrenman düzenleyicide bir antrenman aralığı bu ayarı kendi değeriyle değiştirebilir. Nabız sabitleme (PID) kutucuğu yalnızca hedef nabız bölgesini değiştirir.</translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation>5 km</translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation>10 km</translation>
+    </message>
+    <message>
+        <source>Mi</source>
+        <translation>mil</translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Runn/Stryd ile kapalı döngü koşu bandı hız düzeltmesi</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Deneysel: QZ&apos;deki koşu bandı sürücüsü cihazın kendi hız ölçümlerini veriyorsa, QZ&apos;nin kontrol ettiği koşu bandı hızı Runn/Stryd verilerine göre kademeli olarak düzeltilir. &quot;Hızı güç sensöründen al&quot; ayarı gerekir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Kutucuk boyutu:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin. Önceki adı: &quot;Arayüz ölçeği&quot; (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness seçenekleri</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness kullanıcı adı/e-postası:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness şifresi:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness misafir girişi (deneysel)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Hesap gerektirmeyen yapay bir Life Fitness profili kullanır. Açıkken kullanıcı adı, şifre ve önbelleğe alınmış hesap verileri yok sayılır; yalnızca desteklenen misafir girişini test etmek için kullanın.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Antrenman geçmişi grafikleri</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Nabız</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Direnç ve hedef direnç</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton direnci</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Kadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Güç dağılımı</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Hız ve eğim</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Antrenman geçmişindeki sıralarını seçmek için grafikleri yukarı veya aşağı taşıyın. Değişiklikler otomatik olarak kaydedilir.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Yukarı taşı</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Aşağı taşı</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Varsayılan sırayı geri yükle</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio seçenekleri</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Moovio Lynx Konect 2.0 koşu bantları için standart FTMS Request Control komutunu etkinleştirir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Kadans çarpanı</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Yalnızca sanal kürek makinesinin gönderdiği kürek temposuna uygulanan çarpan. Varsayılan: 1.0; BikeERG RPM değerini EXR&apos;nin istediği kürek temposuna dönüştürmek için 0.25 kullanın.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Çarpandan sonra eklenen ofset. Varsayılan: 0.0. QZ&apos;nin kendi kadans göstergesi ve antrenman metrikleri değişmez.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS&apos;ta arka planda çalışma</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Yalnızca iOS. Ekran kapalıyken veya QZ arka plandayken QZ&apos;nin çalışmaya devam etmesini sağlar; böylece Bluetooth bağlantıları ve oturum zamanlayıcıları donmaz. Müziğinizle karıştırılan sessiz bir ses parçası kullanır, bu yüzden dinlediğiniz hiçbir şey kesilmez. Ekran kilitliyken veya QZ arka plandayken antrenman yapmanız gerekiyorsa açın. Varsayılan: kapalı.</translation>
     </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
     <message>
-        <location filename="../settings-shortcuts.qml" line="104"/>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Klavye kısayolları</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="112"/>
         <source>Enable Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Klavye kısayollarını etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="119"/>
         <source>Click on a field and press a key to assign a shortcut. Press Backspace to clear. Preset fields follow the same left-to-right order as the preset buttons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kısayol atamak için bir alana tıklayın ve bir tuşa basın. Temizlemek için Backspace tuşuna basın. Ön ayar alanları, ön ayar düğmeleriyle aynı soldan sağa sırayı izler.</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="129"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Yok</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="178"/>
         <source>General Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Genel kontroller</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="183"/>
         <source>Start / Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Başlat / Duraklat</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="187"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Durdur</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="191"/>
         <source>Lap</source>
-        <translation type="unfinished"></translation>
+        <translation>Tur</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="198"/>
         <source>Main Metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>Ana göstergeler</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="203"/>
         <source>Speed + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="208"/>
         <source>Inclination + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="213"/>
         <source>Resistance + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="218"/>
         <source>Gears + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="223"/>
         <source>Gears Big Buttons + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Büyük vites düğmeleri + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="231"/>
         <source>Target Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kontrolleri</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="236"/>
         <source>Target Resistance + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef direnç + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="241"/>
         <source>Target Power + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef güç + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="246"/>
         <source>Target Zone + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef bölge + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="251"/>
         <source>Target Speed + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="256"/>
         <source>Target Incline + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef eğim + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="264"/>
         <source>Peloton &amp; Others</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton ve diğerleri</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="269"/>
         <source>Peloton Resistance + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton direnci + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="274"/>
         <source>Peloton Offset + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton zaman kaydırması + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="279"/>
         <source>Peloton Remaining + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kalan süre + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="284"/>
         <source>Time to Next + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Sonrakine kalan + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="289"/>
         <source>Fan Speed + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan hızı + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="294"/>
         <source>PID Heart Rate + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız sabitleme + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="299"/>
         <source>Ext. Inclination + / -</source>
-        <translation type="unfinished"></translation>
+        <translation>Harici eğim + / -</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="304"/>
         <source>ERG Mode Toggle</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG modu aç/kapat</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="308"/>
         <source>Power Avg Toggle</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ortalaması aç/kapat</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="312"/>
         <source>Auto-Resistance Toggle</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik direnç aç/kapat</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="316"/>
         <source>AVS Cruise / Climb / Sprint</source>
-        <translation type="unfinished"></translation>
+        <translation>AVS Seyir / Tırmanış / Sprint</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="325"/>
         <source>Preset Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="338"/>
         <source>Preset Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="351"/>
         <source>Preset Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı</translation>
     </message>
     <message>
-        <location filename="../settings-shortcuts.qml" line="364"/>
         <source>Preset Power Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı</translation>
     </message>
 </context>
 <context>
     <name>settings-tiles</name>
     <message>
-        <location filename="../settings-tiles.qml" line="377"/>
         <source>Keyboard Shortcuts ⌨️</source>
-        <translation type="unfinished"></translation>
+        <translation>Klavye kısayolları</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="386"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="393"/>
-        <location filename="../settings-tiles.qml" line="438"/>
-        <location filename="../settings-tiles.qml" line="499"/>
-        <location filename="../settings-tiles.qml" line="545"/>
-        <location filename="../settings-tiles.qml" line="576"/>
-        <location filename="../settings-tiles.qml" line="620"/>
-        <location filename="../settings-tiles.qml" line="665"/>
-        <location filename="../settings-tiles.qml" line="710"/>
-        <location filename="../settings-tiles.qml" line="742"/>
-        <location filename="../settings-tiles.qml" line="774"/>
-        <location filename="../settings-tiles.qml" line="832"/>
-        <location filename="../settings-tiles.qml" line="877"/>
-        <location filename="../settings-tiles.qml" line="922"/>
-        <location filename="../settings-tiles.qml" line="968"/>
-        <location filename="../settings-tiles.qml" line="1014"/>
-        <location filename="../settings-tiles.qml" line="1046"/>
-        <location filename="../settings-tiles.qml" line="1120"/>
-        <location filename="../settings-tiles.qml" line="1153"/>
-        <location filename="../settings-tiles.qml" line="1198"/>
-        <location filename="../settings-tiles.qml" line="1243"/>
-        <location filename="../settings-tiles.qml" line="1288"/>
-        <location filename="../settings-tiles.qml" line="1333"/>
-        <location filename="../settings-tiles.qml" line="1378"/>
-        <location filename="../settings-tiles.qml" line="1456"/>
-        <location filename="../settings-tiles.qml" line="1503"/>
-        <location filename="../settings-tiles.qml" line="1549"/>
-        <location filename="../settings-tiles.qml" line="1595"/>
-        <location filename="../settings-tiles.qml" line="1640"/>
-        <location filename="../settings-tiles.qml" line="1685"/>
-        <location filename="../settings-tiles.qml" line="1731"/>
-        <location filename="../settings-tiles.qml" line="1776"/>
-        <location filename="../settings-tiles.qml" line="1808"/>
-        <location filename="../settings-tiles.qml" line="1840"/>
-        <location filename="../settings-tiles.qml" line="1871"/>
-        <location filename="../settings-tiles.qml" line="1916"/>
-        <location filename="../settings-tiles.qml" line="1960"/>
-        <location filename="../settings-tiles.qml" line="2018"/>
-        <location filename="../settings-tiles.qml" line="2063"/>
-        <location filename="../settings-tiles.qml" line="2108"/>
-        <location filename="../settings-tiles.qml" line="2153"/>
-        <location filename="../settings-tiles.qml" line="2185"/>
-        <location filename="../settings-tiles.qml" line="2230"/>
-        <location filename="../settings-tiles.qml" line="2275"/>
-        <location filename="../settings-tiles.qml" line="2320"/>
-        <location filename="../settings-tiles.qml" line="2365"/>
-        <location filename="../settings-tiles.qml" line="2410"/>
-        <location filename="../settings-tiles.qml" line="2455"/>
-        <location filename="../settings-tiles.qml" line="2500"/>
-        <location filename="../settings-tiles.qml" line="2545"/>
-        <location filename="../settings-tiles.qml" line="2590"/>
-        <location filename="../settings-tiles.qml" line="2622"/>
-        <location filename="../settings-tiles.qml" line="2654"/>
-        <location filename="../settings-tiles.qml" line="2684"/>
-        <location filename="../settings-tiles.qml" line="2716"/>
-        <location filename="../settings-tiles.qml" line="2825"/>
-        <location filename="../settings-tiles.qml" line="2934"/>
-        <location filename="../settings-tiles.qml" line="3043"/>
-        <location filename="../settings-tiles.qml" line="3152"/>
-        <location filename="../settings-tiles.qml" line="3261"/>
-        <location filename="../settings-tiles.qml" line="3374"/>
-        <location filename="../settings-tiles.qml" line="3487"/>
-        <location filename="../settings-tiles.qml" line="3600"/>
-        <location filename="../settings-tiles.qml" line="3713"/>
-        <location filename="../settings-tiles.qml" line="3826"/>
-        <location filename="../settings-tiles.qml" line="3935"/>
-        <location filename="../settings-tiles.qml" line="4044"/>
-        <location filename="../settings-tiles.qml" line="4153"/>
-        <location filename="../settings-tiles.qml" line="4262"/>
-        <location filename="../settings-tiles.qml" line="4370"/>
-        <location filename="../settings-tiles.qml" line="4471"/>
-        <location filename="../settings-tiles.qml" line="4572"/>
-        <location filename="../settings-tiles.qml" line="4673"/>
-        <location filename="../settings-tiles.qml" line="4774"/>
-        <location filename="../settings-tiles.qml" line="4875"/>
-        <location filename="../settings-tiles.qml" line="4976"/>
-        <location filename="../settings-tiles.qml" line="5090"/>
-        <location filename="../settings-tiles.qml" line="5135"/>
-        <location filename="../settings-tiles.qml" line="5180"/>
-        <location filename="../settings-tiles.qml" line="5225"/>
-        <location filename="../settings-tiles.qml" line="5270"/>
-        <location filename="../settings-tiles.qml" line="5344"/>
-        <location filename="../settings-tiles.qml" line="5389"/>
-        <location filename="../settings-tiles.qml" line="5434"/>
-        <location filename="../settings-tiles.qml" line="5479"/>
-        <location filename="../settings-tiles.qml" line="5524"/>
-        <location filename="../settings-tiles.qml" line="5568"/>
-        <location filename="../settings-tiles.qml" line="5611"/>
-        <location filename="../settings-tiles.qml" line="5654"/>
-        <location filename="../settings-tiles.qml" line="5697"/>
-        <location filename="../settings-tiles.qml" line="5741"/>
         <source>order index:</source>
-        <translation type="unfinished"></translation>
+        <translation>sıra numarası:</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="409"/>
-        <location filename="../settings-tiles.qml" line="454"/>
-        <location filename="../settings-tiles.qml" line="515"/>
-        <location filename="../settings-tiles.qml" line="561"/>
-        <location filename="../settings-tiles.qml" line="591"/>
-        <location filename="../settings-tiles.qml" line="636"/>
-        <location filename="../settings-tiles.qml" line="681"/>
-        <location filename="../settings-tiles.qml" line="726"/>
-        <location filename="../settings-tiles.qml" line="758"/>
-        <location filename="../settings-tiles.qml" line="848"/>
-        <location filename="../settings-tiles.qml" line="893"/>
-        <location filename="../settings-tiles.qml" line="938"/>
-        <location filename="../settings-tiles.qml" line="984"/>
-        <location filename="../settings-tiles.qml" line="1030"/>
-        <location filename="../settings-tiles.qml" line="1062"/>
-        <location filename="../settings-tiles.qml" line="1136"/>
-        <location filename="../settings-tiles.qml" line="1169"/>
-        <location filename="../settings-tiles.qml" line="1214"/>
-        <location filename="../settings-tiles.qml" line="1259"/>
-        <location filename="../settings-tiles.qml" line="1304"/>
-        <location filename="../settings-tiles.qml" line="1349"/>
-        <location filename="../settings-tiles.qml" line="1394"/>
-        <location filename="../settings-tiles.qml" line="1472"/>
-        <location filename="../settings-tiles.qml" line="1519"/>
-        <location filename="../settings-tiles.qml" line="1565"/>
-        <location filename="../settings-tiles.qml" line="1611"/>
-        <location filename="../settings-tiles.qml" line="1656"/>
-        <location filename="../settings-tiles.qml" line="1701"/>
-        <location filename="../settings-tiles.qml" line="1747"/>
-        <location filename="../settings-tiles.qml" line="1792"/>
-        <location filename="../settings-tiles.qml" line="1824"/>
-        <location filename="../settings-tiles.qml" line="1856"/>
-        <location filename="../settings-tiles.qml" line="1887"/>
-        <location filename="../settings-tiles.qml" line="1932"/>
-        <location filename="../settings-tiles.qml" line="1975"/>
-        <location filename="../settings-tiles.qml" line="2034"/>
-        <location filename="../settings-tiles.qml" line="2079"/>
-        <location filename="../settings-tiles.qml" line="2124"/>
-        <location filename="../settings-tiles.qml" line="2169"/>
-        <location filename="../settings-tiles.qml" line="2201"/>
-        <location filename="../settings-tiles.qml" line="2246"/>
-        <location filename="../settings-tiles.qml" line="2291"/>
-        <location filename="../settings-tiles.qml" line="2336"/>
-        <location filename="../settings-tiles.qml" line="2381"/>
-        <location filename="../settings-tiles.qml" line="2426"/>
-        <location filename="../settings-tiles.qml" line="2471"/>
-        <location filename="../settings-tiles.qml" line="2516"/>
-        <location filename="../settings-tiles.qml" line="2561"/>
-        <location filename="../settings-tiles.qml" line="2606"/>
-        <location filename="../settings-tiles.qml" line="2638"/>
-        <location filename="../settings-tiles.qml" line="2670"/>
-        <location filename="../settings-tiles.qml" line="2699"/>
-        <location filename="../settings-tiles.qml" line="2732"/>
-        <location filename="../settings-tiles.qml" line="2753"/>
-        <location filename="../settings-tiles.qml" line="2774"/>
-        <location filename="../settings-tiles.qml" line="2808"/>
-        <location filename="../settings-tiles.qml" line="2841"/>
-        <location filename="../settings-tiles.qml" line="2862"/>
-        <location filename="../settings-tiles.qml" line="2883"/>
-        <location filename="../settings-tiles.qml" line="2917"/>
-        <location filename="../settings-tiles.qml" line="2950"/>
-        <location filename="../settings-tiles.qml" line="2971"/>
-        <location filename="../settings-tiles.qml" line="2992"/>
-        <location filename="../settings-tiles.qml" line="3026"/>
-        <location filename="../settings-tiles.qml" line="3059"/>
-        <location filename="../settings-tiles.qml" line="3080"/>
-        <location filename="../settings-tiles.qml" line="3101"/>
-        <location filename="../settings-tiles.qml" line="3135"/>
-        <location filename="../settings-tiles.qml" line="3168"/>
-        <location filename="../settings-tiles.qml" line="3189"/>
-        <location filename="../settings-tiles.qml" line="3210"/>
-        <location filename="../settings-tiles.qml" line="3244"/>
-        <location filename="../settings-tiles.qml" line="3277"/>
-        <location filename="../settings-tiles.qml" line="3298"/>
-        <location filename="../settings-tiles.qml" line="3323"/>
-        <location filename="../settings-tiles.qml" line="3357"/>
-        <location filename="../settings-tiles.qml" line="3390"/>
-        <location filename="../settings-tiles.qml" line="3411"/>
-        <location filename="../settings-tiles.qml" line="3436"/>
-        <location filename="../settings-tiles.qml" line="3470"/>
-        <location filename="../settings-tiles.qml" line="3503"/>
-        <location filename="../settings-tiles.qml" line="3524"/>
-        <location filename="../settings-tiles.qml" line="3549"/>
-        <location filename="../settings-tiles.qml" line="3583"/>
-        <location filename="../settings-tiles.qml" line="3616"/>
-        <location filename="../settings-tiles.qml" line="3637"/>
-        <location filename="../settings-tiles.qml" line="3662"/>
-        <location filename="../settings-tiles.qml" line="3696"/>
-        <location filename="../settings-tiles.qml" line="3729"/>
-        <location filename="../settings-tiles.qml" line="3750"/>
-        <location filename="../settings-tiles.qml" line="3775"/>
-        <location filename="../settings-tiles.qml" line="3809"/>
-        <location filename="../settings-tiles.qml" line="3842"/>
-        <location filename="../settings-tiles.qml" line="3863"/>
-        <location filename="../settings-tiles.qml" line="3884"/>
-        <location filename="../settings-tiles.qml" line="3918"/>
-        <location filename="../settings-tiles.qml" line="3951"/>
-        <location filename="../settings-tiles.qml" line="3972"/>
-        <location filename="../settings-tiles.qml" line="3993"/>
-        <location filename="../settings-tiles.qml" line="4028"/>
-        <location filename="../settings-tiles.qml" line="4060"/>
-        <location filename="../settings-tiles.qml" line="4081"/>
-        <location filename="../settings-tiles.qml" line="4102"/>
-        <location filename="../settings-tiles.qml" line="4136"/>
-        <location filename="../settings-tiles.qml" line="4169"/>
-        <location filename="../settings-tiles.qml" line="4190"/>
-        <location filename="../settings-tiles.qml" line="4211"/>
-        <location filename="../settings-tiles.qml" line="4245"/>
-        <location filename="../settings-tiles.qml" line="4278"/>
-        <location filename="../settings-tiles.qml" line="4299"/>
-        <location filename="../settings-tiles.qml" line="4320"/>
-        <location filename="../settings-tiles.qml" line="4354"/>
-        <location filename="../settings-tiles.qml" line="4385"/>
-        <location filename="../settings-tiles.qml" line="4404"/>
-        <location filename="../settings-tiles.qml" line="4422"/>
-        <location filename="../settings-tiles.qml" line="4454"/>
-        <location filename="../settings-tiles.qml" line="4486"/>
-        <location filename="../settings-tiles.qml" line="4505"/>
-        <location filename="../settings-tiles.qml" line="4523"/>
-        <location filename="../settings-tiles.qml" line="4555"/>
-        <location filename="../settings-tiles.qml" line="4587"/>
-        <location filename="../settings-tiles.qml" line="4606"/>
-        <location filename="../settings-tiles.qml" line="4624"/>
-        <location filename="../settings-tiles.qml" line="4656"/>
-        <location filename="../settings-tiles.qml" line="4688"/>
-        <location filename="../settings-tiles.qml" line="4707"/>
-        <location filename="../settings-tiles.qml" line="4725"/>
-        <location filename="../settings-tiles.qml" line="4757"/>
-        <location filename="../settings-tiles.qml" line="4789"/>
-        <location filename="../settings-tiles.qml" line="4808"/>
-        <location filename="../settings-tiles.qml" line="4826"/>
-        <location filename="../settings-tiles.qml" line="4858"/>
-        <location filename="../settings-tiles.qml" line="4890"/>
-        <location filename="../settings-tiles.qml" line="4909"/>
-        <location filename="../settings-tiles.qml" line="4927"/>
-        <location filename="../settings-tiles.qml" line="4959"/>
-        <location filename="../settings-tiles.qml" line="4991"/>
-        <location filename="../settings-tiles.qml" line="5010"/>
-        <location filename="../settings-tiles.qml" line="5028"/>
-        <location filename="../settings-tiles.qml" line="5060"/>
-        <location filename="../settings-tiles.qml" line="5106"/>
-        <location filename="../settings-tiles.qml" line="5151"/>
-        <location filename="../settings-tiles.qml" line="5196"/>
-        <location filename="../settings-tiles.qml" line="5241"/>
-        <location filename="../settings-tiles.qml" line="5286"/>
-        <location filename="../settings-tiles.qml" line="5360"/>
-        <location filename="../settings-tiles.qml" line="5405"/>
-        <location filename="../settings-tiles.qml" line="5450"/>
-        <location filename="../settings-tiles.qml" line="5495"/>
-        <location filename="../settings-tiles.qml" line="5540"/>
-        <location filename="../settings-tiles.qml" line="5583"/>
-        <location filename="../settings-tiles.qml" line="5626"/>
-        <location filename="../settings-tiles.qml" line="5669"/>
-        <location filename="../settings-tiles.qml" line="5712"/>
-        <location filename="../settings-tiles.qml" line="5757"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="411"/>
-        <location filename="../settings-tiles.qml" line="456"/>
-        <location filename="../settings-tiles.qml" line="517"/>
-        <location filename="../settings-tiles.qml" line="563"/>
-        <location filename="../settings-tiles.qml" line="593"/>
-        <location filename="../settings-tiles.qml" line="638"/>
-        <location filename="../settings-tiles.qml" line="683"/>
-        <location filename="../settings-tiles.qml" line="728"/>
-        <location filename="../settings-tiles.qml" line="760"/>
-        <location filename="../settings-tiles.qml" line="850"/>
-        <location filename="../settings-tiles.qml" line="895"/>
-        <location filename="../settings-tiles.qml" line="940"/>
-        <location filename="../settings-tiles.qml" line="986"/>
-        <location filename="../settings-tiles.qml" line="1032"/>
-        <location filename="../settings-tiles.qml" line="1064"/>
-        <location filename="../settings-tiles.qml" line="1138"/>
-        <location filename="../settings-tiles.qml" line="1171"/>
-        <location filename="../settings-tiles.qml" line="1216"/>
-        <location filename="../settings-tiles.qml" line="1261"/>
-        <location filename="../settings-tiles.qml" line="1306"/>
-        <location filename="../settings-tiles.qml" line="1351"/>
-        <location filename="../settings-tiles.qml" line="1396"/>
-        <location filename="../settings-tiles.qml" line="1474"/>
-        <location filename="../settings-tiles.qml" line="1521"/>
-        <location filename="../settings-tiles.qml" line="1567"/>
-        <location filename="../settings-tiles.qml" line="1613"/>
-        <location filename="../settings-tiles.qml" line="1658"/>
-        <location filename="../settings-tiles.qml" line="1703"/>
-        <location filename="../settings-tiles.qml" line="1749"/>
-        <location filename="../settings-tiles.qml" line="1794"/>
-        <location filename="../settings-tiles.qml" line="1826"/>
-        <location filename="../settings-tiles.qml" line="1858"/>
-        <location filename="../settings-tiles.qml" line="1889"/>
-        <location filename="../settings-tiles.qml" line="1934"/>
-        <location filename="../settings-tiles.qml" line="1977"/>
-        <location filename="../settings-tiles.qml" line="2036"/>
-        <location filename="../settings-tiles.qml" line="2081"/>
-        <location filename="../settings-tiles.qml" line="2126"/>
-        <location filename="../settings-tiles.qml" line="2171"/>
-        <location filename="../settings-tiles.qml" line="2203"/>
-        <location filename="../settings-tiles.qml" line="2248"/>
-        <location filename="../settings-tiles.qml" line="2293"/>
-        <location filename="../settings-tiles.qml" line="2338"/>
-        <location filename="../settings-tiles.qml" line="2383"/>
-        <location filename="../settings-tiles.qml" line="2428"/>
-        <location filename="../settings-tiles.qml" line="2473"/>
-        <location filename="../settings-tiles.qml" line="2518"/>
-        <location filename="../settings-tiles.qml" line="2563"/>
-        <location filename="../settings-tiles.qml" line="2608"/>
-        <location filename="../settings-tiles.qml" line="2640"/>
-        <location filename="../settings-tiles.qml" line="2672"/>
-        <location filename="../settings-tiles.qml" line="2701"/>
-        <location filename="../settings-tiles.qml" line="2734"/>
-        <location filename="../settings-tiles.qml" line="2755"/>
-        <location filename="../settings-tiles.qml" line="2776"/>
-        <location filename="../settings-tiles.qml" line="2810"/>
-        <location filename="../settings-tiles.qml" line="2843"/>
-        <location filename="../settings-tiles.qml" line="2864"/>
-        <location filename="../settings-tiles.qml" line="2885"/>
-        <location filename="../settings-tiles.qml" line="2919"/>
-        <location filename="../settings-tiles.qml" line="2952"/>
-        <location filename="../settings-tiles.qml" line="2973"/>
-        <location filename="../settings-tiles.qml" line="2994"/>
-        <location filename="../settings-tiles.qml" line="3028"/>
-        <location filename="../settings-tiles.qml" line="3061"/>
-        <location filename="../settings-tiles.qml" line="3082"/>
-        <location filename="../settings-tiles.qml" line="3103"/>
-        <location filename="../settings-tiles.qml" line="3137"/>
-        <location filename="../settings-tiles.qml" line="3170"/>
-        <location filename="../settings-tiles.qml" line="3191"/>
-        <location filename="../settings-tiles.qml" line="3212"/>
-        <location filename="../settings-tiles.qml" line="3246"/>
-        <location filename="../settings-tiles.qml" line="3279"/>
-        <location filename="../settings-tiles.qml" line="3303"/>
-        <location filename="../settings-tiles.qml" line="3325"/>
-        <location filename="../settings-tiles.qml" line="3359"/>
-        <location filename="../settings-tiles.qml" line="3392"/>
-        <location filename="../settings-tiles.qml" line="3416"/>
-        <location filename="../settings-tiles.qml" line="3438"/>
-        <location filename="../settings-tiles.qml" line="3472"/>
-        <location filename="../settings-tiles.qml" line="3505"/>
-        <location filename="../settings-tiles.qml" line="3529"/>
-        <location filename="../settings-tiles.qml" line="3551"/>
-        <location filename="../settings-tiles.qml" line="3585"/>
-        <location filename="../settings-tiles.qml" line="3618"/>
-        <location filename="../settings-tiles.qml" line="3642"/>
-        <location filename="../settings-tiles.qml" line="3664"/>
-        <location filename="../settings-tiles.qml" line="3698"/>
-        <location filename="../settings-tiles.qml" line="3731"/>
-        <location filename="../settings-tiles.qml" line="3755"/>
-        <location filename="../settings-tiles.qml" line="3777"/>
-        <location filename="../settings-tiles.qml" line="3811"/>
-        <location filename="../settings-tiles.qml" line="3844"/>
-        <location filename="../settings-tiles.qml" line="3865"/>
-        <location filename="../settings-tiles.qml" line="3886"/>
-        <location filename="../settings-tiles.qml" line="3920"/>
-        <location filename="../settings-tiles.qml" line="3953"/>
-        <location filename="../settings-tiles.qml" line="3974"/>
-        <location filename="../settings-tiles.qml" line="3995"/>
-        <location filename="../settings-tiles.qml" line="4030"/>
-        <location filename="../settings-tiles.qml" line="4062"/>
-        <location filename="../settings-tiles.qml" line="4083"/>
-        <location filename="../settings-tiles.qml" line="4104"/>
-        <location filename="../settings-tiles.qml" line="4138"/>
-        <location filename="../settings-tiles.qml" line="4171"/>
-        <location filename="../settings-tiles.qml" line="4192"/>
-        <location filename="../settings-tiles.qml" line="4213"/>
-        <location filename="../settings-tiles.qml" line="4247"/>
-        <location filename="../settings-tiles.qml" line="4280"/>
-        <location filename="../settings-tiles.qml" line="4301"/>
-        <location filename="../settings-tiles.qml" line="4322"/>
-        <location filename="../settings-tiles.qml" line="4356"/>
-        <location filename="../settings-tiles.qml" line="4387"/>
-        <location filename="../settings-tiles.qml" line="4406"/>
-        <location filename="../settings-tiles.qml" line="4424"/>
-        <location filename="../settings-tiles.qml" line="4456"/>
-        <location filename="../settings-tiles.qml" line="4488"/>
-        <location filename="../settings-tiles.qml" line="4507"/>
-        <location filename="../settings-tiles.qml" line="4525"/>
-        <location filename="../settings-tiles.qml" line="4557"/>
-        <location filename="../settings-tiles.qml" line="4589"/>
-        <location filename="../settings-tiles.qml" line="4608"/>
-        <location filename="../settings-tiles.qml" line="4626"/>
-        <location filename="../settings-tiles.qml" line="4658"/>
-        <location filename="../settings-tiles.qml" line="4690"/>
-        <location filename="../settings-tiles.qml" line="4709"/>
-        <location filename="../settings-tiles.qml" line="4727"/>
-        <location filename="../settings-tiles.qml" line="4759"/>
-        <location filename="../settings-tiles.qml" line="4791"/>
-        <location filename="../settings-tiles.qml" line="4810"/>
-        <location filename="../settings-tiles.qml" line="4828"/>
-        <location filename="../settings-tiles.qml" line="4860"/>
-        <location filename="../settings-tiles.qml" line="4892"/>
-        <location filename="../settings-tiles.qml" line="4911"/>
-        <location filename="../settings-tiles.qml" line="4929"/>
-        <location filename="../settings-tiles.qml" line="4961"/>
-        <location filename="../settings-tiles.qml" line="4993"/>
-        <location filename="../settings-tiles.qml" line="5012"/>
-        <location filename="../settings-tiles.qml" line="5030"/>
-        <location filename="../settings-tiles.qml" line="5062"/>
-        <location filename="../settings-tiles.qml" line="5108"/>
-        <location filename="../settings-tiles.qml" line="5153"/>
-        <location filename="../settings-tiles.qml" line="5198"/>
-        <location filename="../settings-tiles.qml" line="5243"/>
-        <location filename="../settings-tiles.qml" line="5288"/>
-        <location filename="../settings-tiles.qml" line="5317"/>
-        <location filename="../settings-tiles.qml" line="5362"/>
-        <location filename="../settings-tiles.qml" line="5407"/>
-        <location filename="../settings-tiles.qml" line="5452"/>
-        <location filename="../settings-tiles.qml" line="5497"/>
-        <location filename="../settings-tiles.qml" line="5542"/>
-        <location filename="../settings-tiles.qml" line="5585"/>
-        <location filename="../settings-tiles.qml" line="5628"/>
-        <location filename="../settings-tiles.qml" line="5671"/>
-        <location filename="../settings-tiles.qml" line="5714"/>
-        <location filename="../settings-tiles.qml" line="5759"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayar kaydedildi!</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="417"/>
         <source>Speed in kilometers per hour. (To set your speed units to miles, go to Settings &gt; General Options &gt; Use Miles unit in UI).</source>
-        <translation type="unfinished"></translation>
+        <translation>Saatte kilometre cinsinden hız. (Hız birimini mile çevirmek için &quot;Ayarlar &gt; Genel seçenekler &gt; Arayüzde mil kullan&quot; bölümüne gidin).</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="431"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="463"/>
         <source>Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="469"/>
         <source>Enable Cadence color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans rengini etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="483"/>
         <source>Bike pedal cadence changes color to indicate how your cadence compares to the cadence called out in Peloton classes. The tile displays the following colors: white if there is no target cadence in the program, red if your cadence is lower than the target, green if your cadence matches the target, and orange if your cadence is higher than the target.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisiklet pedal kadansı, kadansınızın Peloton derslerinde söylenen kadansla karşılaştırmasını göstermek için renk değiştirir. Kutucuğun renkleri: programda hedef kadans yoksa beyaz, kadansınız hedefin altındaysa kırmızı, hedefle eşleşiyorsa yeşil, hedefin üstündeyse turuncu.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="524"/>
         <source>Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dakikadaki devir sayısı (RPM) olarak bisiklet pedal kadansı ya da ayakkabıya takılan kadans sensörü veya Apple Watch QZ uygulaması kullanılıyorsa koşu bandı kadansı.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="538"/>
         <source>Elevation Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam tırmanış</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="570"/>
         <source>Negative Elevation Gain (Descent)</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam iniş</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="599"/>
         <source>Displays the total negative elevation gain (descent) in meters or feet accumulated during the workout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca biriken toplam inişi metre veya fit cinsinden gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="613"/>
         <source>Calories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalori</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="644"/>
         <source>Estimated calories burned during session, calculated on weight, age, and watts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilo, yaş ve güce göre hesaplanan, antrenman boyunca yakılan tahmini kalori.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="658"/>
         <source>Odometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam mesafe</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="689"/>
         <source>Estimated distance traveled during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca kat edilen tahmini mesafe.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="703"/>
         <source>Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="735"/>
         <source>Average Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="767"/>
         <source>Grade Adjusted Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğime göre düzeltilmiş tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="798"/>
         <source>Current pace per mile or kilometer (Treadmill, Elliptical and Rower)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mil veya kilometre başına güncel tempo (koşu bandı, eliptik ve kürek makinesi)</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="811"/>
         <source>Flat-equivalent pace computed from treadmill incline using the Minetti cost model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minetti enerji maliyeti modeliyle koşu bandı eğiminden hesaplanan, düz zemine eşdeğer tempo.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="825"/>
         <source>Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="856"/>
         <source>Displays your bike’s resistance. The +/- buttons can be used to change resistance, if your bike is compatible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletinizin direncini gösterir. Bisikletiniz destekliyorsa direnci +/- düğmeleriyle değiştirebilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="870"/>
         <source>Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="901"/>
         <source>Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Şu anki eforunuzla ürettiğiniz gücü watt cinsinden gösterir. Bu değere output da denir (örneğin Peloton&apos;da). Ekipmanınız watt bilgisi göndermiyorsa QZ gücü direnç ve kadansa göre hesaplar.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="915"/>
         <source>Weight loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilo kaybı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="946"/>
         <source>Estimation of weight loss during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca tahmini kilo kaybı.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="961"/>
         <source>AVG Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. güç</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="992"/>
         <source>Average watts produced for the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca üretilen ortalama güç.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1007"/>
         <source>AVG Watt Lap</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort. tur gücü</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1070"/>
         <source>Percentage of current FTP and current FTP zone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mevcut FTP&apos;nin yüzdesi ve mevcut FTP bölgesi.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1084"/>
         <source>Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1090"/>
         <source>Show as %FC Max</source>
-        <translation type="unfinished"></translation>
+        <translation>%FC Max olarak göster</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1104"/>
         <source>When enabled, displays heart rate as percentage of maximum heart rate (%FC Max) instead of BPM. AVG and MAX values will also show percentages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıkken nabız, bpm yerine maksimum nabzın yüzdesi (%FC Max) olarak gösterilir. Ortalama ve maksimum değerler de yüzde olarak gösterilir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1146"/>
         <source>Fan</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1177"/>
         <source>Built-in treadmill fan speed (Treadmill only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu bandının dahili fan hızı (yalnızca koşu bandı)</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1191"/>
         <source>Jouls</source>
-        <translation type="unfinished"></translation>
+        <translation>Enerji (kJ)</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1222"/>
         <source>Cumulative power produced during the session in kilojoules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca üretilen toplam enerji, kilojul cinsinden.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1236"/>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçen süre</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1267"/>
         <source>Total time from start of the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenmanın başından itibaren geçen toplam süre.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1281"/>
         <source>Moving Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Hareket süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1312"/>
         <source>Total time moving during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca hareket hâlinde geçen toplam süre.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1326"/>
         <source>Peloton Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kaydırması</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1357"/>
         <source>Allows you to sync resistance and cadence target changes with the Peloton coach’s callouts. If the targets are changing in QZ after the coach’s callouts, use the ‘+’ button to add seconds (essentially speeding QZ up). Use the ‘-’ button to slow QZ down. Use this tile in conjunction with the Remaining Time/Row tile (see below).</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ve kadans hedeflerinin değişimini Peloton eğitmeninin komutlarıyla eşitlemenizi sağlar. QZ&apos;deki hedefler eğitmenin komutlarından sonra değişiyorsa saniye eklemek için &quot;+&quot; düğmesini kullanın (QZ&apos;yi hızlandırır). QZ&apos;yi yavaşlatmak için &quot;-&quot; düğmesini kullanın. Bu kutucuğu &quot;Kalan süre/satır&quot; kutucuğuyla birlikte kullanın (aşağıya bakın).</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1371"/>
         <source>Peloton Remaining</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton kalan süre</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1402"/>
         <source>Displays time remaining in Peloton class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton dersinde kalan süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1449"/>
         <source>Lap Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tur süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1481"/>
         <source>Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1487"/>
         <source>Enable Peloton Resistance color</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton direnç rengini etkinleştir</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1528"/>
         <source>Resistance of your bike converted to the Peloton bike scale of 1 to 100.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bisikletinizin direncinin 1 ile 100 arasındaki Peloton bisiklet ölçeğine çevrilmiş hâli.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1542"/>
         <source>Target Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef direnç</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1573"/>
-        <source>Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings-tiles.qml" line="1588"/>
         <source>Target Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1619"/>
         <source>Displays target resistance converted to the Peloton bike scale of 1 to 100. For example, during a Peloton class, you want the resistance displayed in this tile to match the Peloton Resistance Tile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef direnci 1 ile 100 arasındaki Peloton bisiklet ölçeğine çevrilmiş olarak gösterir. Örneğin bir Peloton dersinde bu kutucuktaki direncin &quot;Peloton direnci&quot; kutucuğuyla eşleşmesi gerekir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1633"/>
         <source>Target Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1664"/>
         <source>Displays target cadence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kadansı gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1678"/>
         <source>Target Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef güç</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1709"/>
         <source>Displays target output (watts) when this information is provided by third-party apps.</source>
-        <translation type="unfinished"></translation>
+        <translation>Üçüncü taraf uygulamalar bu bilgiyi sağladığında hedef gücü (watt) gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1724"/>
         <source>Target Power Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef güç bölgesi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1755"/>
         <source>Displays the target power zone when this information is provided by third-party apps.</source>
-        <translation type="unfinished"></translation>
+        <translation>Üçüncü taraf uygulamalar bu bilgiyi sağladığında hedef güç bölgesini gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1769"/>
         <source>Target Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1801"/>
         <source>Target Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1833"/>
         <source>Target Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef eğim</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1864"/>
         <source>Watt/Kg</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1895"/>
         <source>Calculates your output (watts) divided by your weight. This is the primary metric used by Zwift and similar apps to calculate your virtual speed. NOTE: This is a much better metric to use than Output/Watts when comparing your effort to other users. This is why Peloton’s leaderboard, which uses only Output, is flawed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gücünüzün (watt) kilonuza bölünmesiyle hesaplanır. Zwift ve benzeri uygulamaların sanal hızınızı hesaplarken kullandığı temel ölçüdür. NOT: Eforunuzu diğer kullanıcılarla karşılaştırmak için bu ölçü, yalnızca güçten (output/watt) çok daha iyidir. Bu yüzden yalnızca gücü kullanan Peloton liderlik tablosu kusurludur.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1909"/>
         <source>Gears</source>
-        <translation type="unfinished"></translation>
+        <translation>Vites</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1940"/>
         <source>Allows you to change resistance while in Auto-Follow Mode.This tile allows you override the target resistance sent by third-party apps. For example, you would use the Gears Tile to increase resistance and generate more watts for sprinting in Zwift.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik takip modundayken direnci değiştirmenizi sağlar. Bu kutucukla üçüncü taraf uygulamaların gönderdiği hedef direnç yerine kendi değerinizi kullanabilirsiniz. Örneğin Zwift&apos;te sprint için direnci artırıp daha fazla watt üretmek üzere &quot;Vites&quot; kutucuğunu kullanabilirsiniz.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1953"/>
         <source>Gears Big Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Büyük vites düğmeleri</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1981"/>
         <source>Swap Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Düğmelerin yerini değiştir</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="1997"/>
         <source>It shows 2 big gear buttons on the UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Arayüzde 2 büyük vites düğmesi gösterir</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2011"/>
         <source>Remaining Time/Row</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
+        <translation>Kalan süre/satır</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2042"/>
         <source>Displays the time remaining until the next cadence and/or resistance interval.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir sonraki kadans ve/veya direnç aralığına kalan süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2056"/>
         <source>Next Rows</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.</extracomment>
+        <translation>Sonraki satırlar</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2087"/>
         <source>Displays the next Peloton interval with duration and FTP Zone (in Power Zone classes) or Peloton Resistance (non–Power Zone classes).</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir sonraki Peloton aralığını süresiyle ve FTP bölgesiyle (Power Zone derslerinde) ya da Peloton direnciyle (Power Zone dışındaki derslerde) gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2101"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation>METS</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2132"/>
         <source>Displays metabolic equivalents (METs), a measurement of energy expenditure and amount of oxygen used by the body compared to the body at rest. (e.g., 4 METS requires the body to use 4 times as much oxygen than when at rest, which means it requires more energy and burns more calories).</source>
-        <translation type="unfinished"></translation>
+        <translation>Metabolik eşdeğeri (METs) gösterir: vücudun dinlenme hâline göre enerji harcamasının ve kullandığı oksijen miktarının ölçüsü. (Örneğin 4 METS, vücudun dinlenme hâline göre 4 kat fazla oksijen kullandığı, yani daha fazla enerji harcadığı ve daha fazla kalori yaktığı anlamına gelir).</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2146"/>
         <source>Target METS</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef METS</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2178"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Saat</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2209"/>
         <source>Displays the current time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel saati gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2223"/>
         <source>Strokes Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Çekiş sayısı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2254"/>
         <source>(Rower only) Displays the number of strokes rowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Yalnızca kürek makinesi) Yapılan kürek çekişi sayısını gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2268"/>
-        <source>Strokes Length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings-tiles.qml" line="2299"/>
         <source>(Rower only) Displays the stroke length.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Yalnızca kürek makinesi) Kürek çekişinin uzunluğunu gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2313"/>
         <source>Steering Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Yönlendirme açısı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2344"/>
         <source>(Elite Rizer only) Displays steering angle.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Yalnızca Elite Rizer) Yönlendirme açısını gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2358"/>
         <source>PID HR Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef nabız bölgesi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2389"/>
         <source>Use this tile to display the target heart rate zone in which you’ve chosen to work out in Settings &gt; Training Program Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Ayarlar &gt; Antrenman programı seçenekleri&quot; bölümünde antrenman için seçtiğiniz hedef nabız bölgesini göstermek için bu kutucuğu kullanın.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2403"/>
         <source>External Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Harici eğim</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2434"/>
         <source>(Elite Rizer only) Allows control of the incline of external inclination equipment.</source>
-        <translation type="unfinished"></translation>
+        <translation>(Yalnızca Elite Rizer) Harici eğim cihazının eğimini kontrol etmenizi sağlar.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2448"/>
         <source>Stride Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Adım uzunluğu</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2479"/>
         <source>(requires a compatible footpod with accelerometer; treadmill only) Displays stride while walking or running.</source>
-        <translation type="unfinished"></translation>
+        <translation>(İvmeölçerli uyumlu bir ayak sensörü gerekir; yalnızca koşu bandı) Yürürken veya koşarken adım uzunluğunu gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2493"/>
         <source>Ground Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Yere temas süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2524"/>
         <source>(requires a compatible footpod with accelerometer; treadmill only) Displays time foot is on contact with ground while walking or running.</source>
-        <translation type="unfinished"></translation>
+        <translation>(İvmeölçerli uyumlu bir ayak sensörü gerekir; yalnızca koşu bandı) Yürürken veya koşarken ayağın yere temas ettiği süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2538"/>
         <source>Vertical Oscillation</source>
-        <translation type="unfinished"></translation>
+        <translation>Dikey salınım</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2569"/>
         <source>(requires a compatible footpod with accelerometer; treadmill only) Displays the up and down movement while walking or running.</source>
-        <translation type="unfinished"></translation>
+        <translation>(İvmeölçerli uyumlu bir ayak sensörü gerekir; yalnızca koşu bandı) Yürürken veya koşarken vücudun yukarı-aşağı hareketini gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2583"/>
         <source>Pace Last 500m</source>
-        <translation type="unfinished"></translation>
+        <translation>Son 500 m temposu</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2615"/>
         <source>Step Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Adım sayısı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2647"/>
         <source>Erg Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>ERG modu</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2678"/>
         <source>Running Stress Score</source>
-        <translation type="unfinished"></translation>
+        <translation>Koşu stres puanı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2708"/>
         <source>Preset Resistance 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı 1</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2740"/>
-        <location filename="../settings-tiles.qml" line="2849"/>
-        <location filename="../settings-tiles.qml" line="2958"/>
-        <location filename="../settings-tiles.qml" line="3067"/>
-        <location filename="../settings-tiles.qml" line="3176"/>
-        <location filename="../settings-tiles.qml" line="3285"/>
-        <location filename="../settings-tiles.qml" line="3398"/>
-        <location filename="../settings-tiles.qml" line="3511"/>
-        <location filename="../settings-tiles.qml" line="3624"/>
-        <location filename="../settings-tiles.qml" line="3737"/>
-        <location filename="../settings-tiles.qml" line="3850"/>
-        <location filename="../settings-tiles.qml" line="3959"/>
-        <location filename="../settings-tiles.qml" line="4068"/>
-        <location filename="../settings-tiles.qml" line="4177"/>
-        <location filename="../settings-tiles.qml" line="4286"/>
         <source>value:</source>
-        <translation type="unfinished"></translation>
+        <translation>değer:</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2761"/>
-        <location filename="../settings-tiles.qml" line="2870"/>
-        <location filename="../settings-tiles.qml" line="2979"/>
-        <location filename="../settings-tiles.qml" line="3088"/>
-        <location filename="../settings-tiles.qml" line="3197"/>
-        <location filename="../settings-tiles.qml" line="3310"/>
-        <location filename="../settings-tiles.qml" line="3423"/>
-        <location filename="../settings-tiles.qml" line="3536"/>
-        <location filename="../settings-tiles.qml" line="3649"/>
-        <location filename="../settings-tiles.qml" line="3762"/>
-        <location filename="../settings-tiles.qml" line="3871"/>
-        <location filename="../settings-tiles.qml" line="3980"/>
-        <location filename="../settings-tiles.qml" line="4089"/>
-        <location filename="../settings-tiles.qml" line="4198"/>
-        <location filename="../settings-tiles.qml" line="4307"/>
-        <location filename="../settings-tiles.qml" line="4411"/>
-        <location filename="../settings-tiles.qml" line="4512"/>
-        <location filename="../settings-tiles.qml" line="4613"/>
-        <location filename="../settings-tiles.qml" line="4714"/>
-        <location filename="../settings-tiles.qml" line="4815"/>
-        <location filename="../settings-tiles.qml" line="4916"/>
-        <location filename="../settings-tiles.qml" line="5017"/>
         <source>label:</source>
-        <translation type="unfinished"></translation>
+        <translation>etiket:</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2782"/>
-        <location filename="../settings-tiles.qml" line="2891"/>
-        <location filename="../settings-tiles.qml" line="3000"/>
-        <location filename="../settings-tiles.qml" line="3109"/>
-        <location filename="../settings-tiles.qml" line="3218"/>
-        <location filename="../settings-tiles.qml" line="3331"/>
-        <location filename="../settings-tiles.qml" line="3444"/>
-        <location filename="../settings-tiles.qml" line="3557"/>
-        <location filename="../settings-tiles.qml" line="3670"/>
-        <location filename="../settings-tiles.qml" line="3783"/>
-        <location filename="../settings-tiles.qml" line="3892"/>
-        <location filename="../settings-tiles.qml" line="4002"/>
-        <location filename="../settings-tiles.qml" line="4110"/>
-        <location filename="../settings-tiles.qml" line="4219"/>
-        <location filename="../settings-tiles.qml" line="4328"/>
-        <location filename="../settings-tiles.qml" line="4430"/>
-        <location filename="../settings-tiles.qml" line="4531"/>
-        <location filename="../settings-tiles.qml" line="4632"/>
-        <location filename="../settings-tiles.qml" line="4733"/>
-        <location filename="../settings-tiles.qml" line="4834"/>
-        <location filename="../settings-tiles.qml" line="4935"/>
-        <location filename="../settings-tiles.qml" line="5036"/>
         <source>color:</source>
-        <translation type="unfinished"></translation>
+        <translation>renk:</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2788"/>
-        <location filename="../settings-tiles.qml" line="2897"/>
-        <location filename="../settings-tiles.qml" line="3006"/>
-        <location filename="../settings-tiles.qml" line="3115"/>
-        <location filename="../settings-tiles.qml" line="3224"/>
-        <location filename="../settings-tiles.qml" line="3337"/>
-        <location filename="../settings-tiles.qml" line="3450"/>
-        <location filename="../settings-tiles.qml" line="3563"/>
-        <location filename="../settings-tiles.qml" line="3676"/>
-        <location filename="../settings-tiles.qml" line="3789"/>
-        <location filename="../settings-tiles.qml" line="3898"/>
-        <location filename="../settings-tiles.qml" line="4008"/>
-        <location filename="../settings-tiles.qml" line="4116"/>
-        <location filename="../settings-tiles.qml" line="4225"/>
-        <location filename="../settings-tiles.qml" line="4334"/>
-        <location filename="../settings-tiles.qml" line="4436"/>
-        <location filename="../settings-tiles.qml" line="4537"/>
-        <location filename="../settings-tiles.qml" line="4638"/>
-        <location filename="../settings-tiles.qml" line="4739"/>
-        <location filename="../settings-tiles.qml" line="4840"/>
-        <location filename="../settings-tiles.qml" line="4941"/>
-        <location filename="../settings-tiles.qml" line="5042"/>
         <source>Please choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir renk seçin</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2817"/>
         <source>Preset Resistance 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı 2</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="2926"/>
         <source>Preset Resistance 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı 3</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3035"/>
         <source>Preset Resistance 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı 4</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3144"/>
         <source>Preset Resistance 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç ön ayarı 5</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3253"/>
         <source>Preset Speed 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı 1</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3366"/>
         <source>Preset Speed 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı 2</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3479"/>
         <source>Preset Speed 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı 3</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3592"/>
         <source>Preset Speed 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı 4</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3705"/>
         <source>Preset Speed 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız ön ayarı 5</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3818"/>
         <source>Preset Inclination 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı 1</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="3927"/>
         <source>Preset Inclination 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı 2</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4036"/>
         <source>Preset Inclination 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı 3</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4145"/>
         <source>Preset Inclination 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı 4</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4254"/>
         <source>Preset Inclination 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim ön ayarı 5</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4363"/>
         <source>Preset Power Zone 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 1</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4392"/>
-        <location filename="../settings-tiles.qml" line="4493"/>
-        <location filename="../settings-tiles.qml" line="4594"/>
-        <location filename="../settings-tiles.qml" line="4695"/>
-        <location filename="../settings-tiles.qml" line="4796"/>
-        <location filename="../settings-tiles.qml" line="4897"/>
-        <location filename="../settings-tiles.qml" line="4998"/>
         <source>zone value:</source>
-        <translation type="unfinished"></translation>
+        <translation>bölge değeri:</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4464"/>
         <source>Preset Power Zone 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 2</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4565"/>
         <source>Preset Power Zone 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 3</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4666"/>
         <source>Preset Power Zone 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 4</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4767"/>
         <source>Preset Power Zone 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 5</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4868"/>
         <source>Preset Power Zone 6</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 6</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="4969"/>
         <source>Preset Power Zone 7</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarı 7</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5069"/>
         <source>Power zone presets allow quick access to specific training zones with customizable labels and values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç bölgesi ön ayarları, özelleştirilebilir etiket ve değerlerle belirli antrenman bölgelerine hızlı erişim sağlar.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5083"/>
         <source>Heart Rate Time in Zone 1+</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi 1+ süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5114"/>
         <source>Displays total time spent in heart rate Zone 1 or higher during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca nabız bölgesi 1 veya üstünde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5128"/>
         <source>Heart Rate Time in Zone 2+</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi 2+ süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5159"/>
         <source>Displays total time spent in heart rate Zone 2 or higher during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca nabız bölgesi 2 veya üstünde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5173"/>
         <source>Heart Rate Time in Zone 3+</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi 3+ süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5204"/>
         <source>Displays total time spent in heart rate Zone 3 or higher during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca nabız bölgesi 3 veya üstünde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5218"/>
         <source>Heart Rate Time in Zone 4+</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi 4+ süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5249"/>
         <source>Displays total time spent in heart rate Zone 4 or higher during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca nabız bölgesi 4 veya üstünde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5263"/>
         <source>Heart Rate Time in Zone 5+</source>
-        <translation type="unfinished"></translation>
+        <translation>Nabız bölgesi 5+ süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5294"/>
         <source>Displays total time spent in heart rate Zone 5 or higher during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca nabız bölgesi 5 veya üstünde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5312"/>
         <source>Show individual zone times (instead of cumulative)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bölge sürelerini ayrı ayrı göster (birikimli yerine)</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5323"/>
         <source>When enabled, each zone shows only the time spent in that specific zone. When disabled (default), each zone shows cumulative time spent in that zone or higher.</source>
-        <translation type="unfinished"></translation>
+        <translation>Açıkken her bölge yalnızca o bölgede geçen süreyi gösterir. Kapalıyken (varsayılan) her bölge o bölgede ve üstündeki bölgelerde geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5337"/>
         <source>Core Temperature</source>
-        <translation type="unfinished"></translation>
+        <translation>Vücut iç sıcaklığı</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5368"/>
         <source>Shows Core, Body Temperature and Heat Strain Index from a Core Temperature sensor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vücut iç sıcaklığı sensöründen iç sıcaklığı, cilt sıcaklığını ve ısı stresi indeksini gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5382"/>
         <source>Heat Time in Zone 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Isı bölgesi 1 süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5413"/>
         <source>Displays total time spent in heat Zone 1 during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca ısı bölgesi 1&apos;de geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5427"/>
         <source>Heat Time in Zone 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Isı bölgesi 2 süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5458"/>
         <source>Displays total time spent in heat Zone 2 during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca ısı bölgesi 2&apos;de geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5472"/>
         <source>Heat Time in Zone 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Isı bölgesi 3 süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5503"/>
         <source>Displays total time spent in heat Zone 3 during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca ısı bölgesi 3&apos;te geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5517"/>
         <source>Heat Time in Zone 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Isı bölgesi 4 süresi</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5548"/>
         <source>Displays total time spent in heat Zone 4 during the session.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman boyunca ısı bölgesi 4&apos;te geçen toplam süreyi gösterir.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5562"/>
         <source>Auto Virtual Shifting Cruise</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vites: Seyir</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5591"/>
         <source>Button tile to switch automatic virtual shifting to Cruise profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vitesi &quot;Seyir&quot; profiline geçiren düğme kutucuğu.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5605"/>
         <source>Auto Virtual Shifting Climb</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vites: Tırmanış</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5634"/>
         <source>Button tile to switch automatic virtual shifting to Climb profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vitesi &quot;Tırmanış&quot; profiline geçiren düğme kutucuğu.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5648"/>
         <source>Auto Virtual Shifting Sprint</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vites: Sprint</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5677"/>
         <source>Button tile to switch automatic virtual shifting to Sprint profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik sanal vitesi &quot;Sprint&quot; profiline geçiren düğme kutucuğu.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5691"/>
         <source>Power Averaging</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ortalaması</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5720"/>
         <source>Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Güç ortalaması modları arasında geçiş yapan düğme kutucuğu: &quot;Kapalı&quot;, &quot;Ort. 3 s&quot; (harmonik), &quot;Ort. 5 s&quot; (harmonik). Modlar arasında geçmek için dokunun. Yalnızca bisikletler için.</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5734"/>
         <source>HRV (Heart Rate Variability)</source>
-        <translation type="unfinished"></translation>
+        <translation>HRV (kalp atış hızı değişkenliği)</translation>
     </message>
     <message>
-        <location filename="../settings-tiles.qml" line="5765"/>
         <source>Shows Heart Rate Variability (HRV) from a compatible heart rate belt. Displays RMSSD value in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uyumlu bir göğüs bandından kalp atış hızı değişkenliğini (HRV) gösterir. RMSSD değerini milisaniye cinsinden gösterir.</translation>
+    </message>
+    <message>
+        <source>Enable Pace color</source>
+        <translation>Tempo rengini etkinleştir</translation>
+    </message>
+    <message>
+        <source>Enable Watt color</source>
+        <translation>Güç rengini etkinleştir</translation>
+    </message>
+    <message>
+        <source>Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class&apos;s resistance target up or down for the rest of the ride.</source>
+        <translation>Hedef direnci bisikletinizin direnç ölçeğinde gösterir. Örneğin bir Peloton dersinde veya Zwift oturumunda bu kutucuktaki direncin &quot;Direnç&quot; kutucuğuyla eşleşmesi gerekir. Peloton dersinde (yalnızca bisiklet) +/- düğmeleri dersin hedef direncini sürüşün geri kalanı için yukarı veya aşağı kaydırır.</translation>
+    </message>
+    <message>
+        <source>Stroke Length</source>
+        <translation>Çekiş uzunluğu</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
     </message>
 </context>
 <context>
     <name>settings-treadmill-inclination-override</name>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="63"/>
         <source>Treadmill Inclination Overrides</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word &quot;override&quot;.</extracomment>
+        <translation>Koşu bandı için özel eğim değerleri</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="73"/>
         <source>Inclination Override Gain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel eğim çarpanı:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="87"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="110"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="133"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="155"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="177"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="199"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="221"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="243"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="265"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="287"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="309"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="331"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="353"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="375"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="397"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="419"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="441"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="463"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="485"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="507"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="529"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="551"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="573"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="595"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="617"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="639"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="661"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="683"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="705"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="727"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="749"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="771"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="793"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="89"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="112"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="135"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="157"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="179"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="201"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="223"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="245"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="267"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="289"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="311"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="333"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="355"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="377"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="399"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="421"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="443"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="465"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="487"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="509"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="531"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="553"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="575"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="597"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="619"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="641"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="663"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="685"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="707"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="729"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="751"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="773"/>
-        <location filename="../settings-treadmill-inclination-override.qml" line="795"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayar kaydedildi!</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="96"/>
         <source>Inclination Override Offset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Özel eğim ofseti:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="119"/>
         <source>Override 0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="141"/>
         <source>Override 0.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>0.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="163"/>
         <source>Override 1.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>1.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="185"/>
         <source>Override 1.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>1.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="207"/>
         <source>Override 2.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>2.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="229"/>
         <source>Override 2.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>2.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="251"/>
         <source>Override 3.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>3.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="273"/>
         <source>Override 3.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>3.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="295"/>
         <source>Override 4.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>4.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="317"/>
         <source>Override 4.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>4.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="339"/>
         <source>Override 5.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>5.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="361"/>
         <source>Override 5.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>5.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="383"/>
         <source>Override 6.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>6.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="405"/>
         <source>Override 6.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>6.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="427"/>
         <source>Override 7.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>7.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="449"/>
         <source>Override 7.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>7.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="471"/>
         <source>Override 8.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>8.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="493"/>
         <source>Override 8.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>8.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="515"/>
         <source>Override 9.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>9.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="537"/>
         <source>Override 9.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>9.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="559"/>
         <source>Override 10.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>10.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="581"/>
         <source>Override 10.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>10.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="603"/>
         <source>Override 11.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>11.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="625"/>
         <source>Override 11.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>11.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="647"/>
         <source>Override 12.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>12.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="669"/>
         <source>Override 12.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>12.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="691"/>
         <source>Override 13.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>13.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="713"/>
         <source>Override 13.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>13.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="735"/>
         <source>Override 14.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>14.0% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="757"/>
         <source>Override 14.5%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>14.5% yerine:</translation>
     </message>
     <message>
-        <location filename="../settings-treadmill-inclination-override.qml" line="779"/>
         <source>Override 15.0%:</source>
-        <translation type="unfinished"></translation>
+        <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
+        <translation>15.0% yerine:</translation>
     </message>
 </context>
 <context>
     <name>settings-tts</name>
     <message>
-        <location filename="../settings-tts.qml" line="72"/>
         <source>TTS (Text to Speech) Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>TTS (metin okuma) ayarları</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="80"/>
         <source>TTS Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>TTS etkin</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="96"/>
         <source>Summary Each Seconds:</source>
-        <translation type="unfinished"></translation>
+        <translation>Özet aralığı (saniye):</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="111"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamam</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="113"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayar kaydedildi!</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="118"/>
         <source>TTS Description Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Gösterge adlarını seslendir</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="132"/>
         <source>Actual Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel hız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="146"/>
         <source>Average Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama hız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="160"/>
         <source>Max Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. hız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="174"/>
         <source>Actual Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel eğim</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="188"/>
         <source>Actual Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="202"/>
         <source>Average Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="216"/>
         <source>Max Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="230"/>
         <source>Actual Elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam tırmanış</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="244"/>
         <source>Actual Calories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kalori</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="258"/>
         <source>Actual Odometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam mesafe</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="272"/>
         <source>Actual Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="286"/>
         <source>Average Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="300"/>
         <source>Max Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="314"/>
         <source>Actual Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel direnç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="328"/>
         <source>Average Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama direnç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="342"/>
         <source>Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. direnç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="356"/>
         <source>Actual Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel güç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="370"/>
         <source>Average Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama güç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="384"/>
         <source>Max Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. güç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="398"/>
         <source>Actual FTP</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel FTP</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="440"/>
         <source>Actual Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel nabız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="454"/>
         <source>Average Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama nabız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="468"/>
         <source>Max Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. nabız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="482"/>
         <source>Actual Jouls</source>
-        <translation type="unfinished"></translation>
+        <translation>Enerji</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="496"/>
         <source>Actual Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçen süre</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="510"/>
         <source>Actual Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="524"/>
         <source>Average Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="538"/>
         <source>Max Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="552"/>
         <source>Actual Target Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef Peloton direnci</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="566"/>
         <source>Actual Target Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef kadans</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="580"/>
         <source>Actual Target Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef güç</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="594"/>
         <source>Actual Target Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef bölge</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="608"/>
         <source>Actual Target Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef hız</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="622"/>
         <source>Actual Target Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef tempo</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="636"/>
         <source>Actual Target Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Hedef eğim</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="650"/>
         <source>Actual Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Güncel watt/kg</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="664"/>
         <source>Average Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortalama watt/kg</translation>
     </message>
     <message>
-        <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. watt/kg</translation>
     </message>
 </context>
 </TS>

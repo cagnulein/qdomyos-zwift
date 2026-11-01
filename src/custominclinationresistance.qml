@@ -1,26 +1,27 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     id: customInclinationResistanceWindow
     contentWidth: -1
+    // The column with its top and bottom margins, which are not in its implicit height
+    contentHeight: inclinationColumn.implicitHeight + 2 * inclinationColumn.anchors.topMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     clip: true
 
     property string defaultInclinationResistanceTable: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
     property int rowHeight: 55
     property int controlHeight: 43
 
-    Settings {
-        id: settings
-        property bool custom_inclination_resistance_table_enabled: false
-        property string custom_inclination_resistance_table: defaultInclinationResistanceTable
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     ListModel {
         id: pointListModel
@@ -195,8 +196,15 @@ ScrollView {
     }
 
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 10
+        id: inclinationColumn
+        // Top, left and right only: filling the content item too tied the column height to the
+        // content height made from it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 10
+        anchors.leftMargin: window.contentSideMargin
+        anchors.rightMargin: window.contentSideMargin
         spacing: 10
 
         IndicatorOnlySwitch {
@@ -217,7 +225,8 @@ ScrollView {
             text: qsTr("Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             color: Material.accent
         }
 
@@ -239,6 +248,8 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Inclination (%)")
                         font.bold: true
@@ -254,6 +265,7 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Resistance")
                         font.bold: true

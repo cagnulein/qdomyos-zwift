@@ -162,6 +162,9 @@ void MQTTPublisher::onBluetoothDeviceConnected(bluetoothdevice *device) {
 
 void MQTTPublisher::onBluetoothDeviceDisconnected() {
     m_device = nullptr;
+    // publishWorkoutData() returns early without a device, so it would never report the
+    // disconnection: publish it explicitly.
+    publishToTopic("device/connected", false);
     publishDefaultZwiftControllerStates();
 }
 
@@ -791,9 +794,8 @@ void MQTTPublisher::publishDiscoveryConfig() {
     publishSensorDiscovery("elevation", "Elevation Gain", baseTopic + "elevation", "m", "", "mdi:elevation-rise");
     
     // Binary sensors
-    QString statusBaseTopic = QString("QZ/%1/").arg(m_userNickname);
-    publishBinarySensorDiscovery("connected", "Device Connected", statusBaseTopic + "device/connected", "connectivity", "mdi:bluetooth");
-    publishBinarySensorDiscovery("paused", "Workout Paused", statusBaseTopic + "device/paused", "", "mdi:pause");
+    publishBinarySensorDiscovery("connected", "Device Connected", baseTopic + "device/connected", "connectivity", "mdi:bluetooth");
+    publishBinarySensorDiscovery("paused", "Workout Paused", baseTopic + "device/paused", "", "mdi:pause");
     
     // Control entities based on device type
     if (m_device) {
@@ -901,7 +903,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     }
     
     // Common control entities
-    publishNumberDiscovery("fan_speed", "Fan Speed", statusBaseTopic + "device/fan_speed", controlTopic + "fan_speed", 0, 100, 1, "%", "mdi:fan");
+    publishNumberDiscovery("fan_speed", "Fan Speed", baseTopic + "device/fan_speed", controlTopic + "fan_speed", 0, 100, 1, "%", "mdi:fan");
     
     // Control buttons
     QJsonObject startConfig;
@@ -923,7 +925,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     m_client->publish(QMqttTopicName(stopTopic), QJsonDocument(stopConfig).toJson(QJsonDocument::Compact), 1, true);
     
     // Pause switch
-    publishSwitchDiscovery("pause", "Pause Workout", statusBaseTopic + "device/paused", controlTopic + "pause", "mdi:pause");
+    publishSwitchDiscovery("pause", "Pause Workout", baseTopic + "device/paused", controlTopic + "pause", "mdi:pause");
     
     qDebug() << "Home Assistant discovery configuration published";
 }

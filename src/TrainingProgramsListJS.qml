@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -34,6 +35,15 @@ ColumnLayout {
         }
     }
 
+    // Called by main.qml on the Android back button: leave the workout preview first
+    function handleBack() {
+        if (stackView.depth > 1) {
+            stackView.pop()
+            return true
+        }
+        return false
+    }
+
     function openWorkoutPreview(fileUrl) {
         if (!fileUrl || fileUrl.toString() === "") {
             return
@@ -66,7 +76,7 @@ ColumnLayout {
         isSearching = true
 
         // Call C++ FileSearcher for fast recursive search
-        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo"])
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"])
 
         // Populate search results model
         for (var i = 0; i < results.length; i++) {
@@ -80,9 +90,9 @@ ColumnLayout {
         sourceComponent: Component {
             FileDialog {
                 id: fileDialog
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -108,8 +118,8 @@ ColumnLayout {
     MessageDialog {
         id: deleteDialog
         property url fileUrl: ""
-        text: "Delete workout?"
-        informativeText: "This cannot be undone."
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(fileUrl)) {
@@ -141,7 +151,9 @@ ColumnLayout {
                     spacing: 5
 
                     Text {
-                        text: "Filter"
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        text: qsTr("Filter")
                         color: "white"
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -149,7 +161,14 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
-                        placeholderText: "Search (recursive)..."
+                        // in a Row fillWidth does nothing: the field kept its 120 of Material and
+                        // showed less of the hint as the text grew. It grows with the text, but
+                        // leaves room for the back button on a narrow screen
+                        width: window.textScale !== 1
+                               ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth),
+                                     parent.width - x - (filterBackButton.visible ? filterBackButton.width + parent.spacing : 0)))
+                               : implicitWidth
+                        placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
                             var text = filterField.text.trim()
@@ -177,6 +196,7 @@ ColumnLayout {
                     }
 
                     Button {
+                        id: filterBackButton
                         text: "←"
                         visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
@@ -191,7 +211,7 @@ ColumnLayout {
 
                     FolderListModel {
                         id: folderModel
-                        nameFilters: ["*.xml", "*.zwo"]
+                        nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                         folder: "file://" + rootItem.getWritableAppDir() + 'training'
                         showDotAndDotDot: false
                         showDirs: true
@@ -204,7 +224,8 @@ ColumnLayout {
                     delegate: ItemDelegate {
                         id: workoutDelegate
                         width: ListView.view.width
-                        height: 50
+                        // a bigger text: the row grows with the name and the path of a search result
+                        height: window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -227,7 +248,7 @@ ColumnLayout {
                             Text {
                                 id: fileIcon
                                 text: isItemFolder ? "📁" : "📄"
-                                font.pixelSize: 24
+                                font.pixelSize: window.fontPx(24)
                             }
 
                             ColumnLayout {
@@ -241,7 +262,7 @@ ColumnLayout {
                                           itemFileName.substring(0, itemFileName.length-4) :
                                           itemFileName
                                     color: isItemFolder ? Material.color(Material.Orange) : "white"
-                                    font.pixelSize: 16
+                                    font.pixelSize: window.fontPx(16)
                                     elide: Text.ElideRight
                                 }
 
@@ -249,7 +270,7 @@ ColumnLayout {
                                     Layout.fillWidth: true
                                     text: itemRelativePath
                                     color: Material.color(Material.Grey)
-                                    font.pixelSize: 12
+                                    font.pixelSize: window.fontPx(12)
                                     elide: Text.ElideMiddle
                                     visible: isSearching && itemRelativePath !== ""
                                 }
@@ -257,7 +278,7 @@ ColumnLayout {
 
                             Text {
                                 text: "›"
-                                font.pixelSize: 24
+                                font.pixelSize: window.fontPx(24)
                                 color: Material.color(Material.Grey)
                                 visible: !ListView.isCurrentItem
                             }
@@ -284,7 +305,7 @@ ColumnLayout {
                 Button {
                     Layout.fillWidth: true
                     height: 50
-                    text: "Other folders"
+                    text: qsTr("Other folders")
                     onClicked: {
                         if (Qt.platform.os === "android") {
                             rootItem.openAndroidDocumentPicker("training")
@@ -310,14 +331,14 @@ ColumnLayout {
                     spacing: 10
 
                     Button {
-                        text: "← Back"
+                        text: qsTr("← Back")
                         onClicked: stackView.pop()
                     }
 
                     Item { Layout.fillWidth: true }
 
                     Button {
-                        text: "Delete"
+                        text: qsTr("Delete")
                         visible: pendingWorkoutUrl.toString() !== ""
                         Material.background: Material.Red
                         onClicked: {
@@ -327,7 +348,7 @@ ColumnLayout {
                     }
 
                     Button {
-                        text: "Start Workout"
+                        text: qsTr("Start Workout")
                         highlighted: true
                         Material.background: Material.Green
                         onClicked: {
@@ -344,7 +365,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.margins: 10
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     font.bold: true
                     color: "white"
                     wrapMode: Text.WordWrap
@@ -356,7 +377,7 @@ ColumnLayout {
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 12
+                    font.pixelSize: window.fontPx(12)
                     wrapMode: Text.WordWrap
                     color: Material.color(Material.Grey, Material.Shade400)
                     horizontalAlignment: Text.AlignHCenter
@@ -369,6 +390,15 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+
+                    // a new app language: the page takes its texts when loaded and asks the server
+                    // for the program itself, so a reload loses nothing
+                    Connections {
+                        target: rootItem
+                        function onAppLanguageChanged() {
+                            previewWebView.reload()
+                        }
+                    }
                 }
             }
         }
