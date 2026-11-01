@@ -3712,16 +3712,18 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
                 if (mfgByte == 10) {
-                    // A single right Click V2 has Shift Up but no Shift Down key.
-                    // Reuse B for the opposite gear action; only act on the press edge.
+                    // Map Click V2 B through the existing Right Shift Down action setting.
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB,
                             this, [this, zwiftplay_swap](bool pressed) {
                         if (!pressed)
                             return;
-                        if (zwiftplay_swap)
-                            controllerGearUpWithMyWhoosh();
-                        else
-                            controllerGearDownWithMyWhoosh();
+                        QSettings settings;
+                        const int action = settings.value(QZSettings::zwiftplay_gear_rs2,
+                                                          QZSettings::default_zwiftplay_gear_rs2).toInt();
+                        if (action == 1)
+                            zwiftplay_swap ? controllerGearDownWithMyWhoosh() : controllerGearUpWithMyWhoosh();
+                        else if (action == 2)
+                            zwiftplay_swap ? controllerGearUpWithMyWhoosh() : controllerGearDownWithMyWhoosh();
                     });
                 }
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
