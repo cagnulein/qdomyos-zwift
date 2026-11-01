@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QThread>
 #include <QtXml>
+#include <algorithm>
 #include <chrono>
 #include <math.h>
 
@@ -210,6 +211,111 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
     }
 }
 
+QList<int> proformwifibike::parseGearing(const QString &gearing) {
+    QList<int> out;
+    const QStringList parts = gearing.split(QLatin1Char(','), Qt::SkipEmptyParts);
+    for (const QString &p : parts) {
+        bool ok = false;
+        int v = p.trimmed().toInt(&ok);
+        if (ok && v > 0)
+            out.append(v);
+    }
+    return out;
+}
+
+QList<proformwifibike::ConsoleGear> proformwifibike::buildGearLadder(const QList<int> &frontTeeth,
+                                                                     const QList<int> &rearTeeth, int maxEntries) {
+    struct Entry {
+        ConsoleGear g;
+        double ratio;
+    };
+    QList<Entry> all;
+    for (int f = 0; f < frontTeeth.size(); f++) {
+        for (int r = 0; r < rearTeeth.size(); r++) {
+            all.append({{f + 1, r + 1}, (double)frontTeeth.at(f) / (double)rearTeeth.at(r)});
+        }
+    }
+    std::stable_sort(all.begin(), all.end(), [](const Entry &a, const Entry &b) { return a.ratio < b.ratio; });
+
+    // skip ratios that are almost the same
+    QList<Entry> dedup;
+    for (const Entry &e : all) {
+        if (dedup.isEmpty() || e.ratio > dedup.last().ratio * 1.02)
+            dedup.append(e);
+    }
+
+    // too many gears, pick evenly spaced ones
+    QList<ConsoleGear> ladder;
+    if (maxEntries > 1 && dedup.size() > maxEntries) {
+        for (int i = 0; i < maxEntries; i++) {
+            int idx = qRound((double)i * (dedup.size() - 1) / (double)(maxEntries - 1));
+            ladder.append(dedup.at(idx).g);
+        }
+    } else {
+        for (const Entry &e : dedup)
+            ladder.append(e.g);
+    }
+    return ladder;
+}
+
+// 1-based index of the closest ratio, 0 if unknown
+int proformwifibike::closestLadderIndex(const QList<ConsoleGear> &ladder, const QList<int> &frontTeeth,
+                                        const QList<int> &rearTeeth, int front, int rear) {
+    if (ladder.isEmpty() || front < 1 || rear < 1 || front > frontTeeth.size() || rear > rearTeeth.size())
+        return 0;
+    const double target = (double)frontTeeth.at(front - 1) / (double)rearTeeth.at(rear - 1);
+    int best = 0;
+    double bestDiff = 1e9;
+    for (int i = 0; i < ladder.size(); i++) {
+        const ConsoleGear &g = ladder.at(i);
+        double ratio = (double)frontTeeth.at(g.front - 1) / (double)rearTeeth.at(g.rear - 1);
+        double diff = qAbs(ratio - target);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            best = i + 1;
+        }
+    }
+    return best;
+}
+
+void proformwifibike::rebuildGearLadder() {
+    gearLadder = buildGearLadder(frontTeeth, rearTeeth);
+    qDebug() << "gear ladder size" << gearLadder.size();
+}
+
+// the console drops writes that come too close, so one at a time until it reports the gear we want
+void proformwifibike::syncGearsToConsole() {
+    if (!consoleUsesGears || gearLadder.isEmpty())
+        return;
+    int idx = qBound(1, qRound(gears()), (int)gearLadder.size());
+    if (idx != lastSyncedLadderIndex) {
+        lastSyncedLadderIndex = idx;
+        targetGearIndex = idx;
+        gearWriteTries = 0;
+    }
+    if (targetGearIndex == 0)
+        return;
+    const ConsoleGear &g = gearLadder.at(targetGearIndex - 1);
+    if (g.front == consoleFrontGear && g.rear == consoleRearGear) {
+        targetGearIndex = 0;
+        return;
+    }
+    if (gearWriteTime.isValid() && gearWriteTime.msecsTo(QDateTime::currentDateTime()) < 300)
+        return;
+    if (++gearWriteTries > 10) {
+        targetGearIndex = 0;
+        return;
+    }
+    QString send;
+    if (g.front != consoleFrontGear)
+        send = "{\"type\":\"set\",\"values\":{\"Front Gear\":\"" + QString::number(g.front) + "\"}}";
+    else
+        send = "{\"type\":\"set\",\"values\":{\"Rear Gear\":\"" + QString::number(g.rear) + "\"}}";
+    qDebug() << "syncGearsToConsole" << send;
+    websocket.sendTextMessage(send);
+    gearWriteTime = QDateTime::currentDateTime();
+}
+
 // must be double because it's an inclination
 void proformwifibike::forceResistance(double requestResistance) {
 
@@ -297,14 +403,21 @@ void proformwifibike::innerWriteResistance() {
         setTargetWatts(r);
     }
 
+    if (!erg_mode)
+        syncGearsToConsole();
+
     if (requestInclination != -100 && !erg_mode && inclinationAvailableByHardware()) {
         if (last_mode.compare("MANUAL")) {
             last_mode = "MANUAL";
             setWorkoutType(last_mode);
         }
         emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-        forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
-                                                       // i'm using the gears in the inclination
+        if (consoleUsesGears) {
+            forceResistance(requestInclination);
+        } else {
+            forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
+                                                           // i'm using the gears in the inclination
+        }
         requestInclination = -100;
     }
 }
@@ -507,7 +620,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
-        if(inclinationAvailableByHardware() && !erg_mode)
+        if(inclinationAvailableByHardware() && !erg_mode && !consoleUsesGears)
             incline = incline - gearsModifier();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
@@ -517,10 +630,50 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
-        if(inclinationAvailableByHardware() && !erg_mode)
+        if(inclinationAvailableByHardware() && !erg_mode && !consoleUsesGears)
             incline = incline - gearsModifier();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    }
+
+    if (!values[QStringLiteral("Model")].isUndefined()) {
+        consoleModel = values[QStringLiteral("Model")].toString();
+    }
+    if (!values[QStringLiteral("Features")].isUndefined()) {
+        // only tested on the TDF Pro 5.0 (EBPF01915)
+        consoleUsesGears = consoleModel == QStringLiteral("EBPF01915") &&
+                           values[QStringLiteral("Features")].toString().contains(QStringLiteral("Use Gears"));
+        qDebug() << "consoleUsesGears" << consoleUsesGears;
+    }
+    if (!values[QStringLiteral("Front Gearing")].isUndefined()) {
+        frontTeeth = parseGearing(values[QStringLiteral("Front Gearing")].toString());
+        rebuildGearLadder();
+    }
+    if (!values[QStringLiteral("Rear Gearing")].isUndefined()) {
+        rearTeeth = parseGearing(values[QStringLiteral("Rear Gearing")].toString());
+        rebuildGearLadder();
+    }
+    if (consoleUsesGears) {
+        bool changed = false;
+        if (!values[QStringLiteral("Front Gear")].isUndefined()) {
+            consoleFrontGear = values[QStringLiteral("Front Gear")].toString().toInt();
+            changed = true;
+        }
+        if (!values[QStringLiteral("Rear Gear")].isUndefined()) {
+            consoleRearGear = values[QStringLiteral("Rear Gear")].toString().toInt();
+            changed = true;
+        }
+        // not while we are still moving the console to the gear qz asked for
+        if (changed && targetGearIndex == 0 && !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool()) {
+            int idx = closestLadderIndex(gearLadder, frontTeeth, rearTeeth, consoleFrontGear, consoleRearGear);
+            if (idx > 0 && qRound(gears()) != idx) {
+                qDebug() << "console gear changed" << consoleFrontGear << consoleRearGear << "-> qz gear" << idx;
+                lastSyncedLadderIndex = idx;
+                setGears(idx);
+            } else if (idx > 0) {
+                lastSyncedLadderIndex = idx;
+            }
+        }
     }
 
     if (!values[QStringLiteral("Target Watts")].isUndefined()) {
@@ -547,7 +700,9 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             QJsonValue held = key.value("held");
             if(held.toString().contains(QStringLiteral("-1"))) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-                if(!erg_mode) {
+                if (consoleUsesGears && !erg_mode) {
+                    // the console changes gear by itself
+                } else if(!erg_mode) {
                     double value = 0;
                     if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
                         qDebug() << "LEFT EXTERNAL GEAR DOWN";
