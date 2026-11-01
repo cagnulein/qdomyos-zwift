@@ -6,7 +6,7 @@ The release archive must include **all four native Xcode targets**: `qdomyoszwif
 
 Run it from **Actions → Release iOS to TestFlight → Run workflow** on `master`. Leave `publish` unchecked to create a signed IPA artifact only. Check it to upload the IPA to TestFlight.
 
-To test an open pull request before merging, add the `testflight-upload` label. This label triggers the signed device archive and TestFlight upload for same-repository pull requests targeting `master`. Other pull request updates do not upload automatically, and fork pull requests cannot use the App Store Connect secrets.
+To **check the signed archive without uploading**, add the `ios-archive-check` label to a same-repository pull request. This runs the complete signed device archive/export and bundled-target verification, and retains the IPA as an Actions artifact. Once the archive is validated, add the `testflight-upload` label to build and upload a TestFlight beta. Both labels apply only to same-repository pull requests targeting `master`; fork pull requests cannot use App Store Connect secrets. Other pull request updates do not upload automatically.
 
 ## GitHub Actions secrets
 
