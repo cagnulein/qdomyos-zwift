@@ -39,7 +39,6 @@ platform :ios do
       scheme: "qdomyoszwift",
       configuration: "Release",
       destination: "generic/platform=iOS",
-      sdk: "iphoneos",
       archive_path: "build/ios/qdomyoszwift.xcarchive",
       derived_data_path: "build/ios/DerivedData",
       output_directory: "build/ios/export",
