@@ -153,6 +153,7 @@
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
+#include "devices/trixterxdreambike/trixterxdreambike.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
@@ -205,9 +206,24 @@ class bluetooth : public QObject, public SignalHandler {
      */
     int searchNow();
 
-  private:
+    /**
+     * @brief nonBluetoothDeviceDiscovery Called by the non-bluetooth discovery thread to identify using
+     * discoverNonBluetoothDevices() and connect non-Bluetooth devices.
+     */
+    void nonBluetoothDeviceDiscovery();
+protected:
+    /**
+     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
+     * @return An object for the first non-bluetooth device found.
+     */
+    bluetoothdevice * discoverNonBluetoothDevices();
+private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
+    // Indicates generally discovering, bluetooth and others
+    bool discovering = false;
+    // Indicates the non-bluetooth discovery is active
+    bool discoveringNonBluetooth = false;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
     QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
@@ -358,6 +374,7 @@ class bluetooth : public QObject, public SignalHandler {
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
     QString gymModeSessionDevice = QLatin1String("");
+    trixterxdreambike * trixterXDreambike = nullptr;
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -400,6 +417,13 @@ class bluetooth : public QObject, public SignalHandler {
     void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
     void stopHeartRateBeltDiscovery();
     void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
+
+    /**
+     * @brief findTrixterXDreambike Searches serial ports for a Trixter X-Dream Bike
+     * @param settings The application settings.
+     * @return A trixterxdreambike object if a bike has been found, nullptr otherwise.
+     */
+    class trixterxdreambike * findTrixterXDreambike(const QSettings& settings);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
