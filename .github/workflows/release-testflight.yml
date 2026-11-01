@@ -23,7 +23,8 @@ jobs:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
       (github.event_name == 'pull_request' &&
-       github.event.label.name == 'testflight-upload' &&
+       (github.event.label.name == 'testflight-upload' ||
+        github.event.label.name == 'ios-archive-check') &&
        github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-26
     timeout-minutes: 180
@@ -152,7 +153,7 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          PUBLISH_TO_TESTFLIGHT: ${{ github.event_name == 'pull_request' || inputs.publish }}
+          PUBLISH_TO_TESTFLIGHT: ${{ (github.event_name == 'pull_request' && github.event.label.name == 'testflight-upload') || inputs.publish }}
           TESTFLIGHT_CHANGELOG: "Branch: ${{ github.head_ref || github.ref_name }}"
         run: |
           if [ "$PUBLISH_TO_TESTFLIGHT" = "true" ]; then
