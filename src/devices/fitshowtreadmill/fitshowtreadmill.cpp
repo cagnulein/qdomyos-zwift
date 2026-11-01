@@ -715,7 +715,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 if (!stepCountAvailable)
-                    evaluateStepCount();
+                    evaluateStepCount(true);
                 parseCadence(calculatedCadence);
                 emit debug(QStringLiteral("Current Cadence (calculated from speed): ") +
                            QString::number(Cadence.value()));
