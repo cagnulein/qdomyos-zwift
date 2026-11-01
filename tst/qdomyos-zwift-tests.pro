@@ -59,6 +59,8 @@ SOURCES += \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
+        Devices/TestJkFitness10800Protocol.cpp \
+        Devices/TestJkFitness10800Routing.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
@@ -106,6 +108,8 @@ HEADERS += \
     Devices/TestLifeFitnessWorkout.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
+    Devices/TestJkFitness10800Protocol.h \
+    Devices/TestJkFitness10800Routing.h \
     Devices/TestXcxBikeParser.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
