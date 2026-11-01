@@ -1018,6 +1018,14 @@ Aktualizovat nastavení QZ?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zařízení Zwift: AKTUALIZUJTE FIRMWARE!</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 je připraven</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Inicializace YPOO M5 se nezdařila; je nutné se znovu připojit</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -3758,6 +3766,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Average Strokes Length: %1</source>
         <translation>Průměrná délka záběru: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Cílový výkon QZ přebíjí příkazy aplikace. Ovládání vrátíte aplikaci tak, že QZ pozastavíte a znovu spustíte.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4398,7 +4410,7 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Velikost rozhraní:</translation>
+        <translation type="vanished">Velikost rozhraní:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4410,15 +4422,15 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Mění velikost dlaždic s údaji. Výchozí: 100%. Chcete-li, aby se na obrazovku vešlo více dlaždic, zvolte menší procento, pro jejich zvětšení zvolte víc než 100%. Znak procenta nezadávejte</translation>
+        <translation type="vanished">Mění velikost dlaždic s údaji. Výchozí: 100%. Chcete-li, aby se na obrazovku vešlo více dlaždic, zvolte menší procento, pro jejich zvětšení zvolte víc než 100%. Znak procenta nezadávejte</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Jazyk aplikace:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ. Vyžaduje restart.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5910,6 +5922,14 @@ Zadejte ho níže:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Zapněte, pokud chcete vzdálenost číst přímo z běžeckého pásu místo jejího výpočtu z rychlosti. Některé pásy hlásí vzdálenost přesněji než výpočet z rychlosti. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Vzdálenost z pásu: přičítat jen přírůstek</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funguje spolu s „Vzdálenost přímo z pásu“. Zapněte, pokud počítadlo vzdálenosti vašeho pásu běží dál mezi tréninky nebo po vypnutí pásu začíná znovu od 0: přičte se jen vzdálenost ušlá během tréninku, ne to, co pás napočítal před připojením QZ. Výchozí: vypnuto.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7747,6 +7767,34 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimentální: QZ postupně upravuje rychlost běžeckého pásu, kterou řídí, podle údajů z Runn/Stryd, pokud ovladač pásu poskytuje vlastní měření rychlosti. Vyžaduje nastavení „Rychlost ze snímače výkonu“. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Velikost dlaždic:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Mění velikost dlaždic s údaji. Výchozí: 100%. Chcete-li, aby se na obrazovku vešlo více dlaždic, zvolte menší procento, pro jejich zvětšení zvolte více než 100%. Znak procenta nezadávejte. Dříve pod názvem „Velikost rozhraní“ (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Možnosti Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Uživatelské jméno/e-mail Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Heslo Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Přihlášení jako host Life Fitness (experimentální)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Použije syntetický profil Life Fitness bez účtu. Po zapnutí se uživatelské jméno, heslo a uložená data účtu ignorují; používejte jen pro testování podporovaného přihlášení jako host.</translation>
     </message>
 </context>
 <context>

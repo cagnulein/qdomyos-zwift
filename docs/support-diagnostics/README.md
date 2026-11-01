@@ -11,6 +11,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Android installation and embedded consoles](android-installation.md)
 - [USB and serial-connected machines](usb-serial.md)
 - [External speed and cadence sensors](external-sensors.md)
+- [Rower telemetry and protocol intake](rower-telemetry.md)
 - [Test and beta build verification](test-builds.md)
 - [Profiles and settings storage](profiles.md)
 - [GPX and training program control](training-programs.md)

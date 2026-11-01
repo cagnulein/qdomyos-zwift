@@ -771,6 +771,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    // Applies the app language at once, without a restart: "auto", "en" or a translation code
+    Q_INVOKABLE void setAppLanguage(const QString &language);
+    static void loadAppTranslation(const QString &language);
     Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
     DataObject *tileFromName(QString name);
 
@@ -1024,6 +1027,7 @@ public:
 
   private:
     static homeform *m_singleton;
+    void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
@@ -1155,6 +1159,7 @@ public:
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_overridePowerWarned = false;
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
@@ -1353,6 +1358,8 @@ public:
     void changeOfdevice();
     void changeOflap();
     void androidDocumentPicked(QString kind, QUrl localUrl);
+    // setAppLanguage() applied a new language
+    void appLanguageChanged();
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();

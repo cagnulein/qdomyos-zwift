@@ -1018,6 +1018,14 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>Android notification enabled</source>
         <translation>Notificação do Android ativada</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 pronta</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Falha ao inicializar a YPOO M5; é necessário reconectar</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -3766,6 +3774,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>A potência-alvo do QZ está substituindo os comandos do aplicativo. Pause o QZ e retome para devolver o controle ao aplicativo.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -5574,8 +5586,8 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Idioma do Aplicativo:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ. É necessário reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
@@ -6278,6 +6290,14 @@ Insira-o abaixo:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Ative isso para ler a distância diretamente da esteira em vez de calculá-la a partir da velocidade. Algumas esteiras relatam a distância com mais precisão do que o cálculo baseado na velocidade. Padrão: desativado.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distância direta: somar apenas o aumento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto com “Distância Direta da Esteira”. Ative isso se o contador de distância da sua esteira continua entre os treinos ou recomeça do 0 quando a esteira é desligada: só a distância percorrida durante o treino é somada, não o que a esteira contou antes de o QZ se conectar. Padrão: desativado.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7779,6 +7799,26 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opções Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nome de usuário/e-mail Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Senha Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Login de convidado Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa um perfil sintético da Life Fitness sem conta. Quando ativado, o nome de usuário, a senha e os dados da conta em cache são ignorados; use apenas para testar o login de convidado compatível.</translation>
     </message>
 </context>
 <context>

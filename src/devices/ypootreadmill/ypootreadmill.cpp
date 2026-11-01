@@ -239,9 +239,17 @@ void ypootreadmill::processTelemetry(const QByteArray &value, qint64 now) {
     const uint16_t flags = data[0] | (uint16_t(data[1]) << 8);
     unsigned offset = 4 + ((flags & 2) ? 2 : 0);
     if (flags & 4) {
-        if (directDistance)
-            Distance = (data[offset] | (uint32_t(data[offset + 1]) << 8) |
-                        (uint32_t(data[offset + 2]) << 16)) / 1000.0;
+        const uint32_t meters = data[offset] | (uint32_t(data[offset + 1]) << 8) |
+                                (uint32_t(data[offset + 2]) << 16);
+        // Follow the counter in every mode so enabling increments cannot add old distance.
+        const double increase = ypooM5Distance.updateCounter(now, meters, !isPaused());
+        if (directDistance) {
+            if (settings.value(QZSettings::treadmill_direct_distance_increment,
+                               QZSettings::default_treadmill_direct_distance_increment).toBool())
+                Distance += increase;
+            else
+                Distance = meters / 1000.0;
+        }
         offset += 3;
     }
     const double distance = ypooM5Distance.update(now, Speed.value(), !isPaused());

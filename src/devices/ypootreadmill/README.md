@@ -133,6 +133,11 @@ If `treadmill_direct_distance` is enabled, the driver instead uses the FTMS Tota
 It reads that field as an unsigned 24-bit meter counter and converts it to kilometers.
 Software distance increments do not contribute in this mode.
 
+Enable `treadmill_direct_distance_increment` with `treadmill_direct_distance` to add only increases in the counter.
+Counter resets preserve the accumulated QZ distance; paused samples update the reference without adding distance.
+The first sample after connection establishes a reference, and implausible positive jumps are ignored.
+Both options default to off; speed-based distance and the existing absolute-counter mode remain unchanged.
+
 ## Virtual treadmill
 
 `virtualTreadmillControl()` supplies the forwarding capability and encoded speed/incline ranges to the shared Qt and native iOS interfaces.

@@ -48,6 +48,7 @@ SOURCES += \
         Devices/TestFtmsTreadmillControl.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
+        Devices/TestTrxAppGateUsRowerParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
@@ -61,6 +62,8 @@ SOURCES += \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
+        Devices/TestTargetPowerOverride.cpp \
+        VirtualRowerCadenceTest.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests

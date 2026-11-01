@@ -28,12 +28,15 @@ ColumnLayout {
 
         Accessible.role: Accessible.Button         
         Accessible.name: title 
-        Accessible.description: expanded ? "Expanded" : "Collapsed"
-        Accessible.onPressAction: toggle()
+        // The state follows isOpen; the press action of a screen reader opens or closes the section
+        // like a tap on the header
+        Accessible.description: rootElement.isOpen ? "Expanded" : "Collapsed"
+        Accessible.onPressAction: rootElement.isOpen = !rootElement.isOpen
 
         Rectangle {
             id: indicatRect
-            x: 16; y: 20
+            // Centred on the first line of the title: a fixed y sat below it with a smaller or bigger font
+            x: 16; y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
             width: 8; height: 8
             radius: 8
             color: "white"
@@ -51,7 +54,8 @@ ColumnLayout {
         }
 
         Image {
-            y: 13
+            // Centred on the first line of the title, like the dot
+            y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
             anchors.right: parent.right
             anchors.rightMargin: 20
             width: 30; height: 30

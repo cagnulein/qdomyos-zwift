@@ -61,3 +61,45 @@
 
 - The selected virtual profile determines what Zwift can pair with, even when QZ receives correct data from the rower.
 - In a confirmed rower setup, disabling Virtual Rower and restarting QZ resolved Zwift's no-signal pairing problem.
+
+## Echelon bike needs the manufacturer app to start, or loses resistance control after reconnecting
+
+### Provide first
+
+- Exact Echelon bike/console model, advertised Bluetooth name, QZ platform and **installed build**.
+- Whether QZ itself shows changing cadence/resistance and can change the bike's **physical resistance** before Peloton, Zwift, or another app is opened.
+- Screenshot of **Experimental Settings > Virtual Echelon**, plus the devices running QZ, the Echelon app, and the receiving training app.
+- Describe the **startup and reconnect order**, including whether the bike was power-cycled and whether opening the Echelon app on another device was necessary to unlock resistance.
+
+### If still unclear
+
+- Check whether the installed QZ build supports direct initialization for that bike; do not assume all Echelon models behave alike.
+- With no training app connected, compare one short QZ-only restart with the existing **Virtual Echelon** setting and, where direct initialization is supported, another with it disabled. Record whether QZ gets live metrics **and** physical resistance control after each restart.
+- If neither sequence works, request a QZ debug log spanning bike discovery, initialization, and one **small, safe** resistance change; note the time of any manufacturer-app connection.
+
+### Why it matters
+
+- The manufacturer-app unlock path and QZ's direct bike connection are different workflows. A successful unlock once does not prove resistance will initialize after the next power cycle.
+- In a confirmed case, a newer QZ build with **Virtual Echelon** disabled restored standalone bike operation without first opening the manufacturer's app. The setting and build are therefore important evidence, not universal instructions.
+- Testing physical resistance in QZ before the receiving app separates bike initialization from downstream virtual-device pairing. See the [Echelon troubleshooting FAQ](../faq/bike-troubleshooting.md) for the applicable setup paths.
+
+## Bluetooth virtual trainer works, but Wahoo DIRCON / Wi-Fi pairing fails
+
+### Provide first
+
+- The physical trainer model, QZ platform/build, the receiving app and device, and whether both devices are on the **same local network**.
+- Confirm that QZ already receives live power/cadence and that pairing its **Bluetooth** virtual trainer works, if tested.
+- Screenshot **Experimental Settings > Wahoo DIRCON** and identify whether that option is enabled. Record the current **Virtual Device** settings as well.
+- Screenshot the receiving app's Wi-Fi/network trainer list, including the advertised name and the exact stage of failure (not listed, listed but rejected, connected with no metrics, or disconnected later).
+
+### If still unclear
+
+- If Wahoo DIRCON was disabled, enable it, fully restart QZ, and repeat only the network discovery/pairing test. Note whether the receiving app now sees or accepts the trainer.
+- Confirm the network path separately from Bluetooth pairing; check whether the receiving app has a remembered/old trainer entry before interpreting a rejected connection.
+- Collect a QZ debug log spanning virtual-device startup and the network pairing attempt, with the approximate failure time and the receiving app's message. Avoid changing trainer resistance or gear settings during this comparison.
+
+### Why it matters
+
+- QZ's DIRCON manager is conditional on the **Wahoo DIRCON** setting; a working Bluetooth virtual trainer does not prove that the Wi-Fi trainer service is active.
+- In a reviewed support log, the network trainer appeared in the receiving app but pairing failed while DIRCON was disabled, making the option value a high-value first check.
+- Device discovery, pairing acceptance, and metric streaming are separate stages. See the [integration FAQ](../faq/integrations.md) for supported DIRCON use cases.

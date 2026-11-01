@@ -640,6 +640,14 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
+        ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("48645 RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCD RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("123A RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864 RACER SX", DeviceNameComparison::IgnoreCase)
 
 
         // Starts with DT- and is 14+ characters long.
@@ -819,7 +827,10 @@ void DeviceTestDataIndex::Initialize() {
     // Kettler Classic / MyHomeFIT RFCOMM
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
+        // bluetooth.cpp matches RACER S prefixes regardless of case.
+        ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);
 
 

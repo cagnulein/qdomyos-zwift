@@ -2,7 +2,13 @@
 <manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.22.0" android:versionCode="1404" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
-			<!-- %%INSERT_PERMISSIONS -->
+            <!--
+                QZ declares its Android permissions explicitly below.
+                Do not restore %%INSERT_PERMISSIONS: Qt 5.15 androiddeployqt injects
+                unbounded ACCESS_FINE_LOCATION, which duplicates QZ's API<=30
+                declaration and fails Android Gradle Plugin 9 manifest validation.
+                It would also restore the modern location permission we intentionally removed.
+            -->
 
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
 	      Remove the comment if you do not require these default features. -->
@@ -152,18 +158,32 @@
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 
-<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="36" tools:overrideLibrary="com.google.android.play.agesignals,com.google.android.gms.common,androidx.health.connect.client" />
+<!-- AGP 9 reads minSdk/targetSdk from build.gradle; keep only the library override here. -->
+<uses-sdk tools:overrideLibrary="com.google.android.play.agesignals,com.google.android.gms.common,androidx.health.connect.client" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 <uses-permission android:name="android.permission.RECEIVE_MEDIA_BUTTON" />
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <!-- Qt 5 historically auto-injected these permissions. Keep the legacy
+         Bluetooth/storage declarations when disabling the auto-injection above.
+         Android 12+ uses the separate Nearby devices permissions below. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <!-- Legacy Android requires Location permission for Bluetooth discovery. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+    <!-- QZ uses scan results to identify exercise equipment, not to derive physical location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 17: LAN device discovery/control and local TCP/UDP/mDNS servers. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

@@ -1018,6 +1018,14 @@ Do you want to update QZ settings?</source>
         <source>Android notification enabled</source>
         <translation>Уведомление Android включено</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 готова к работе</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Не удалось инициализировать YPOO M5, нужно переподключиться</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -3758,6 +3766,10 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>фут</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Целевая мощность QZ перебивает команды приложения. Чтобы вернуть управление приложению, поставьте QZ на паузу и продолжите.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4417,8 +4429,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Язык приложения:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную. Требуется перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6252,6 +6264,14 @@ Please enter it below:</source>
         <translation>Включите, чтобы брать дистанцию прямо с беговой дорожки, а не вычислять её по скорости. Некоторые дорожки сообщают дистанцию точнее, чем расчёт по скорости. По умолчанию выключено.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанция с дорожки: только прирост</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Работает вместе с «Дистанция напрямую с дорожки». Включите, если счётчик дистанции вашей дорожки не обнуляется между тренировками или начинает с 0 после выключения дорожки: в тренировку попадёт только пройденное за неё, а не то, что дорожка насчитала до подключения QZ. По умолчанию выключено.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Сложность через смещение</translation>
     </message>
@@ -7759,6 +7779,26 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Гребной тренажёр Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Параметры Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Имя пользователя/почта Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Пароль Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Гостевой вход Life Fitness (экспериментально)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Использует синтетический профиль Life Fitness без учётной записи. Если включено, имя пользователя, пароль и сохранённые данные учётной записи не используются; включайте только для проверки поддерживаемого гостевого входа.</translation>
     </message>
 </context>
 <context>
