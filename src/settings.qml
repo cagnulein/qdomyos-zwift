@@ -3513,7 +3513,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: heartBeltNameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); heartBeltNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); heartBeltNameTextField.showSaved(); rootItem.reconnectHeartRateBelt(settings.heart_rate_belt_name); if (settings.heart_rate_belt_name === "Disabled") window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 

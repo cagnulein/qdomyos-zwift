@@ -42,7 +42,7 @@ void heartratebelt::update() {
         
         // Reconnect after 1 second
         QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
+            if (m_control && !disconnectingForGood) {
                 emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
                 m_control->connectToDevice();
             }
@@ -60,6 +60,12 @@ void heartratebelt::disconnectBluetooth() {
     if (m_control) {
         m_control->disconnectFromDevice();
     }
+}
+
+void heartratebelt::disconnectForGood() {
+    disconnectingForGood = true;
+    updateTimer->stop();
+    disconnectBluetooth();
 }
 
 void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -100,6 +106,9 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
             Heart = (uint8_t)newValue[1];
             index = 2;
         }
+        // 0 is what some chest straps send without skin contact: not a heart rate
+        if (Heart.value() > 0)
+            lastHeartRateTime = QDateTime::currentDateTime();
         emit heartRate((uint8_t)Heart.value());
 
         // Bit 3: Energy Expended Status
@@ -243,8 +252,8 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
 
-    if(homeform::singleton())
-        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
+    // No "connected!" here: nothing is connected yet. bluetooth::connectHeartRateBelt() says it on the first
+    // heart rate
 
     // if(device.name().startsWith(heartRateBeltName))
     {
@@ -298,7 +307,7 @@ void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState
         connectingTime = QDateTime();  // Reset timestamp for other states
     }
     
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState && m_control && !disconnectingForGood) {
         qDebug() << QStringLiteral("trying to connect back again...");
         m_control->connectToDevice();
     }

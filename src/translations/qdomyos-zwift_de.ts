@@ -515,6 +515,18 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
         <translation>%1 (Herzfrequenzsensor) verbunden!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Suche nach %1 (Herzfrequenzsensor)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (Herzfrequenzsensor) nicht gefunden. Prüfe, ob er eingeschaltet ist und die Herzfrequenz sendet.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (Herzfrequenzsensor): keine Herzfrequenz. Prüfe, ob er die Herzfrequenz sendet.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (Trittfrequenzsensor) verbunden!</translation>
     </message>

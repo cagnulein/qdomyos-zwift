@@ -803,6 +803,18 @@ Do you want to update QZ settings?</source>
         <translation>Під’єднано: %1 (пульсометр)!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Пошук: %1 (пульсометр)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Не знайдено: %1 (пульсометр). Перевірте, що він увімкнений і транслює пульс.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (пульсометр): немає пульсу. Перевірте, що він транслює пульс.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Під’єднано: %1 (датчик каденсу)!</translation>
     </message>

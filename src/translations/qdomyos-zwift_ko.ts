@@ -515,6 +515,18 @@ Would you like to enable the required services?</source>
         <translation>%1(심박 센서) 연결됨!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1(심박 센서) 검색 중…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1(심박 센서)을(를) 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1(심박 센서): 심박수 없음. 심박수를 전송하는지 확인하세요.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1(케이던스 센서) 연결됨!</translation>
     </message>

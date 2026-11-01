@@ -515,6 +515,18 @@ Would you like to enable the required services?</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1（心拍センサー）を検索しています...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）が見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）: 心拍数がありません。心拍数を送信しているか確認してください。</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1（ケイデンスセンサー）が接続されました!</translation>
     </message>

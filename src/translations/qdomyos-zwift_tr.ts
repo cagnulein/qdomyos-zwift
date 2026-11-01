@@ -515,6 +515,18 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Aranıyor: %1 (nabız sensörü)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Bulunamadı: %1 (nabız sensörü). Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (nabız sensörü): nabız yok. Nabız yayınladığını kontrol edin.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Bağlandı: %1 (kadans sensörü)</translation>
     </message>

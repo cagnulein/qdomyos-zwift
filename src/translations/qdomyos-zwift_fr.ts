@@ -515,6 +515,18 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <translation>%1 (capteur cardiaque) connecté !</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Recherche de %1 (capteur cardiaque)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (capteur cardiaque) introuvable. Vérifiez qu’il est allumé et qu’il diffuse la fréquence cardiaque.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (capteur cardiaque) : pas de fréquence cardiaque. Vérifiez qu’il diffuse la fréquence cardiaque.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (capteur de cadence) connecté !</translation>
     </message>
