@@ -8,15 +8,20 @@
 #include <QDateTime>
 #include <QMap>
 #include <algorithm>
+#include <cmath>
 #include "qzsettings.h"
 
 struct ergDataPoint {
+    // wattage keeps the historical table value; trainerWattage is the optional paired trainer value.
     uint16_t cadence = 0;
     uint16_t wattage = 0;
     uint16_t resistance = 0;
+    uint16_t trainerWattage = 0;
 
     ergDataPoint() = default;
     ergDataPoint(uint16_t c, uint16_t w, uint16_t r) : cadence(c), wattage(w), resistance(r) {}
+    ergDataPoint(uint16_t c, uint16_t w, uint16_t r, uint16_t trainerW)
+        : cadence(c), wattage(w), resistance(r), trainerWattage(trainerW) {}
 };
 
 Q_DECLARE_METATYPE(ergDataPoint)
@@ -35,13 +40,27 @@ class WattageStats {
   public:
     static const int MAX_SAMPLES = 100;
     static const int MIN_SAMPLES_REQUIRED = 10;
+    static constexpr int MAX_STABLE_PAIRED_DELTA_RANGE = 20;
+    static constexpr int MAX_ABSOLUTE_PAIRED_DELTA = 20;
 
-    void addSample(uint16_t wattage) {
+    void addSample(uint16_t wattage, uint16_t trainerWattage = 0) {
         samples.append(wattage);
         if (samples.size() > MAX_SAMPLES) {
             samples.removeFirst();
         }
+        if (trainerWattage > 0) {
+            trainerSamples.append(trainerWattage);
+            if (trainerSamples.size() > MAX_SAMPLES) {
+                trainerSamples.removeFirst();
+            }
+            pairedDeltas.append(static_cast<int>(trainerWattage) - static_cast<int>(wattage));
+            if (pairedDeltas.size() > MAX_SAMPLES) {
+                pairedDeltas.removeFirst();
+            }
+        }
         medianNeedsUpdate = true;
+        trainerMedianNeedsUpdate = true;
+        pairedDeltaMedianNeedsUpdate = true;
     }
 
     uint16_t getMedian() {
@@ -66,22 +85,85 @@ class WattageStats {
         return samples.size();
     }
 
+    int trainerSampleCount() const {
+        return trainerSamples.size();
+    }
+
+    uint16_t getTrainerMedian() {
+        if (!trainerMedianNeedsUpdate) return cachedTrainerMedian;
+        if (trainerSamples.isEmpty()) return 0;
+
+        QList<uint16_t> sortedSamples = trainerSamples;
+        std::sort(sortedSamples.begin(), sortedSamples.end());
+
+        int middle = sortedSamples.size() / 2;
+        if (sortedSamples.size() % 2 == 0) {
+            cachedTrainerMedian = (sortedSamples[middle - 1] + sortedSamples[middle]) / 2;
+        } else {
+            cachedTrainerMedian = sortedSamples[middle];
+        }
+
+        trainerMedianNeedsUpdate = false;
+        return cachedTrainerMedian;
+    }
+
+    int getPairedDeltaMedian() {
+        if (!pairedDeltaMedianNeedsUpdate) return cachedPairedDeltaMedian;
+        if (pairedDeltas.isEmpty()) return 0;
+
+        QList<int> sortedDeltas = pairedDeltas;
+        std::sort(sortedDeltas.begin(), sortedDeltas.end());
+
+        int middle = sortedDeltas.size() / 2;
+        if (sortedDeltas.size() % 2 == 0) {
+            cachedPairedDeltaMedian = (sortedDeltas[middle - 1] + sortedDeltas[middle]) / 2;
+        } else {
+            cachedPairedDeltaMedian = sortedDeltas[middle];
+        }
+
+        pairedDeltaMedianNeedsUpdate = false;
+        return cachedPairedDeltaMedian;
+    }
+
+    bool hasStablePairedDelta() const {
+        if (pairedDeltas.size() < MIN_SAMPLES_REQUIRED) return false;
+
+        const auto minmax = std::minmax_element(pairedDeltas.cbegin(), pairedDeltas.cend());
+        return (*minmax.second - *minmax.first) <= MAX_STABLE_PAIRED_DELTA_RANGE;
+    }
+
     void clear() {
         samples.clear();
+        trainerSamples.clear();
+        pairedDeltas.clear();
         cachedMedian = 0;
+        cachedTrainerMedian = 0;
+        cachedPairedDeltaMedian = 0;
         medianNeedsUpdate = true;
+        trainerMedianNeedsUpdate = true;
+        pairedDeltaMedianNeedsUpdate = true;
     }
 
   private:
     QList<uint16_t> samples;
+    QList<uint16_t> trainerSamples;
+    QList<int> pairedDeltas;
     uint16_t cachedMedian = 0;
+    uint16_t cachedTrainerMedian = 0;
+    int cachedPairedDeltaMedian = 0;
     bool medianNeedsUpdate = true;
+    bool trainerMedianNeedsUpdate = true;
+    bool pairedDeltaMedianNeedsUpdate = true;
 };
 
 class ergTable : public QObject {
     Q_OBJECT
 
   public:
+    static const int MIN_STABLE_TARGET_MILLISECONDS = 2000;
+    static const uint16_t MAX_PAIRED_RESISTANCE_DIFFERENCE = 3;
+    static const uint16_t MAX_PAIRED_CADENCE_DIFFERENCE = 12;
+
     ergTable(QObject *parent = nullptr) : QObject(parent) {
         loadSettings();
     }
@@ -96,6 +178,8 @@ class ergTable : public QObject {
         consolidatedData.clear();
         lastResistanceValue = 0xFFFF;
         lastResistanceTime = QDateTime::currentDateTime();
+        lastTargetPower = 0;
+        lastTargetChangeTime = QDateTime::currentDateTime();
 
         // Clear the settings completely
         QSettings settings;
@@ -104,20 +188,43 @@ class ergTable : public QObject {
     }
 
     void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance, bool ignoreResistanceTiming = false) {
+        collectData(cadence, wattage, resistance, 0, 0, ignoreResistanceTiming);
+    }
+
+    void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance, uint16_t trainerWattage,
+                     bool ignoreResistanceTiming = false) {
+        collectData(cadence, wattage, resistance, trainerWattage, 0, ignoreResistanceTiming);
+    }
+
+    void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance, uint16_t trainerWattage,
+                     uint16_t targetPower, bool ignoreResistanceTiming = false) {
+        const QDateTime now = QDateTime::currentDateTime();
+
+        if (targetPower != lastTargetPower) {
+            lastTargetPower = targetPower;
+            lastTargetChangeTime = now;
+        }
+
+        if (trainerWattage > 0 && targetPower > 0 &&
+            lastTargetChangeTime.msecsTo(now) < MIN_STABLE_TARGET_MILLISECONDS) {
+            qDebug() << "skipping collecting data due to ERG target changing too recently";
+            return;
+        }
+
         if (resistance != lastResistanceValue) {
             qDebug() << "resistance changed";
-            lastResistanceTime = QDateTime::currentDateTime();
+            lastResistanceTime = now;
             lastResistanceValue = resistance;
         }
 
-        if (lastResistanceTime.msecsTo(QDateTime::currentDateTime()) < 1000 && !ignoreResistanceTiming) {
+        if (lastResistanceTime.msecsTo(now) < 1000 && !ignoreResistanceTiming) {
             qDebug() << "skipping collecting data due to resistance changing too fast";
             return;
         }
 
         if (wattage > 0 && cadence > 0) {
             CadenceResistancePair pair{cadence, resistance};
-            wattageData[pair].addSample(wattage);
+            wattageData[pair].addSample(wattage, trainerWattage);
 
             if (wattageData[pair].sampleCount() >= WattageStats::MIN_SAMPLES_REQUIRED) {
                 updateDataTable(pair);
@@ -223,6 +330,90 @@ class ergTable : public QObject {
         return best_resistance_match;
     }
 
+    int32_t trainerPowerForPedalTarget(uint16_t pedalTarget, uint16_t givenCadence,
+                                       uint16_t givenResistance) const {
+        QList<ergDataPoint> pairedPoints;
+        for (const auto &point : consolidatedData) {
+            const int pairedDelta = static_cast<int>(point.trainerWattage) - static_cast<int>(point.wattage);
+            if (point.trainerWattage > 0 &&
+                std::abs(pairedDelta) <= WattageStats::MAX_ABSOLUTE_PAIRED_DELTA) {
+                pairedPoints.append(point);
+            }
+        }
+        if (pairedPoints.isEmpty()) {
+            return 0;
+        }
+
+        uint16_t minResistanceDifference = UINT16_MAX;
+        uint16_t closestResistance = 0;
+        for (const auto &point : pairedPoints) {
+            const uint16_t resistanceDifference =
+                static_cast<uint16_t>(abs(static_cast<int>(point.resistance) - static_cast<int>(givenResistance)));
+            if (resistanceDifference < minResistanceDifference) {
+                minResistanceDifference = resistanceDifference;
+                closestResistance = point.resistance;
+            }
+        }
+
+        if (minResistanceDifference > MAX_PAIRED_RESISTANCE_DIFFERENCE) {
+            return 0;
+        }
+
+        double lowerDelta = 0;
+        double upperDelta = 0;
+        uint16_t lowerCadence = 0;
+        uint16_t upperCadence = 0;
+        bool hasPoint = false;
+
+        for (const auto &point : pairedPoints) {
+            if (point.resistance != closestResistance) {
+                continue;
+            }
+
+            const double delta = static_cast<double>(point.trainerWattage) - point.wattage;
+            hasPoint = true;
+            if (point.cadence <= givenCadence && point.cadence > lowerCadence) {
+                lowerDelta = delta;
+                lowerCadence = point.cadence;
+            }
+            if (point.cadence >= givenCadence && (upperCadence == 0 || point.cadence < upperCadence)) {
+                upperDelta = delta;
+                upperCadence = point.cadence;
+            }
+        }
+
+        if (!hasPoint) {
+            return 0;
+        }
+
+        const uint16_t nearestCadenceDifference = static_cast<uint16_t>(std::min(
+            abs(static_cast<int>(givenCadence) - static_cast<int>(lowerCadence)),
+            abs(static_cast<int>(givenCadence) - static_cast<int>(upperCadence))));
+        if (nearestCadenceDifference > MAX_PAIRED_CADENCE_DIFFERENCE) {
+            return 0;
+        }
+
+        double delta = 0;
+        if (lowerCadence != 0 && upperCadence != 0 && lowerCadence != upperCadence) {
+            const double ratio = (givenCadence - lowerCadence) /
+                                 static_cast<double>(upperCadence - lowerCadence);
+            delta = lowerDelta + ratio * (upperDelta - lowerDelta);
+        } else if (lowerCadence != 0) {
+            delta = lowerDelta;
+        } else if (upperCadence != 0) {
+            delta = upperDelta;
+        } else {
+            for (const auto &point : pairedPoints) {
+                if (point.resistance == closestResistance) {
+                    delta = static_cast<double>(point.trainerWattage) - point.wattage;
+                    break;
+                }
+            }
+        }
+
+        return std::max<int32_t>(0, static_cast<int32_t>(std::lround(pedalTarget + delta)));
+    }
+
     QList<ergDataPoint> getConsolidatedData() const {
         return consolidatedData;
     }
@@ -274,9 +465,20 @@ class ergTable : public QObject {
     uint16_t lastResistanceValue = 0xFFFF;
     uint16_t cadenceResistanceBandStep = 0;
     QDateTime lastResistanceTime = QDateTime::currentDateTime();
+    uint16_t lastTargetPower = 0;
+    QDateTime lastTargetChangeTime = QDateTime::currentDateTime();
 
     void updateDataTable(const CadenceResistancePair& pair) {
-        uint16_t medianWattage = wattageData[pair].getMedian();
+        WattageStats& stats = wattageData[pair];
+        uint16_t medianWattage = stats.getMedian();
+        uint16_t medianTrainerWattage = 0;
+        const int pairedDeltaMedian = stats.getPairedDeltaMedian();
+        if (stats.trainerSampleCount() >= WattageStats::MIN_SAMPLES_REQUIRED &&
+            stats.hasStablePairedDelta() &&
+            std::abs(pairedDeltaMedian) <= WattageStats::MAX_ABSOLUTE_PAIRED_DELTA) {
+            const int pairedTrainerWattage = static_cast<int>(medianWattage) + pairedDeltaMedian;
+            medianTrainerWattage = static_cast<uint16_t>(qBound(0, pairedTrainerWattage, static_cast<int>(UINT16_MAX)));
+        }
 
         // Remove existing point if it exists
         for (int i = consolidatedData.size() - 1; i >= 0; --i) {
@@ -285,7 +487,8 @@ class ergTable : public QObject {
                 // This runs on every metrics update once a pair has enough samples; when the median
                 // did not move there is nothing to update, and rewriting the settings file would
                 // only cost I/O on the main thread.
-                if (consolidatedData[i].wattage == medianWattage)
+                if (consolidatedData[i].wattage == medianWattage &&
+                    consolidatedData[i].trainerWattage == medianTrainerWattage)
                     return;
                 consolidatedData.removeAt(i);
                 break;
@@ -293,11 +496,12 @@ class ergTable : public QObject {
         }
 
         // Add new point
-        consolidatedData.append(ergDataPoint(pair.cadence, medianWattage, pair.resistance));
+        consolidatedData.append(ergDataPoint(pair.cadence, medianWattage, pair.resistance, medianTrainerWattage));
 
         qDebug() << "Added/Updated point:"
                  << "C:" << pair.cadence
                  << "W:" << medianWattage
+                 << "TW:" << medianTrainerWattage
                  << "R:" << pair.resistance;
         saveSettings();
     }
@@ -310,11 +514,12 @@ class ergTable : public QObject {
 
         for (const QString& triple : dataList) {
             QStringList fields = triple.split("|");
-            if (fields.size() == 3) {
+            if (fields.size() == 3 || fields.size() == 4) {
                 uint16_t cadence = fields[0].toUInt();
                 uint16_t wattage = fields[1].toUInt();
                 uint16_t resistance = fields[2].toUInt();
-                consolidatedData.append(ergDataPoint(cadence, wattage, resistance));
+                uint16_t trainerWattage = fields.size() == 4 ? fields[3].toUInt() : 0;
+                consolidatedData.append(ergDataPoint(cadence, wattage, resistance, trainerWattage));
             }
         }
     }
@@ -324,9 +529,10 @@ class ergTable : public QObject {
         QStringList dataStrings;
 
         for (const ergDataPoint& point : consolidatedData) {
-            dataStrings.append(QString("%1|%2|%3").arg(point.cadence)
+            dataStrings.append(QString("%1|%2|%3|%4").arg(point.cadence)
                                    .arg(point.wattage)
-                                   .arg(point.resistance));
+                                   .arg(point.resistance)
+                                   .arg(point.trainerWattage));
         }
 
         settings.setValue(QZSettings::ergDataPoints, dataStrings.join(";"));
