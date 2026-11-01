@@ -1848,6 +1848,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) &&
+                       !fitshowTreadmill && filter) {
+                // T12 Pro advertises FTMS but only accepts FitShow control (Merach HCI capture).
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(fitshowTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(fitshowTreadmill, &fitshowtreadmill::debug, this, &bluetooth::debug);
+                fitshowTreadmill->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, fitshowTreadmill, &fitshowtreadmill::searchingStop);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(fitshowTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
