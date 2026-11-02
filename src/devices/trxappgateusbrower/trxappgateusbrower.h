@@ -41,6 +41,7 @@ class trxappgateusbrower : public rower {
     trxappgateusbrower(bool noWriteResistance = false, bool noHeartService = false, int8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
+    resistance_t maxResistance() override;
 
     struct IConsoleRowerMetrics {
         bool valid = false;
