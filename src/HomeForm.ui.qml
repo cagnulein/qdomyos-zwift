@@ -17,6 +17,8 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+    // The Start/Stop row; Home.qml makes it the header of the tile grid, so it scrolls with the tiles
+    property alias topBar: topBar
     // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
     property string searchStatus: ""
     // Home.qml sets the new values from the settings page in it (the background color of the top bar)

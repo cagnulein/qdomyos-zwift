@@ -1256,26 +1256,39 @@ ApplicationWindow {
         // Opacity, not visible: some pages set headerToolbar.visible themselves
         opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
-        // Set by the tile grid in Home.qml. The toolbar collapses to the status bar inset
-        // (topPadding) with an animation instead of disappearing at once
-        property bool scrolledAway: false
-        // The animation runs on this share and not on the height: the height also changes on
-        // start, when the toolbar gets its real size, and must follow that at once
-        // Moving the tiles keeps it shown: the lock button is on the toolbar
-        property real collapsed: scrolledAway && !window.lockTiles ? 1 : 0
-        Behavior on collapsed { NumberAnimation { id: headerHeightAnimation; duration: 150; easing.type: Easing.OutQuad } }
-        height: implicitHeight - collapsed * (implicitHeight - topPadding)
-        clip: collapsed > 0   // keeps the Material shadow when fully shown
-        // The buttons are centred in the content, which has no height once collapsed: they would
-        // sit on the edge of the status bar, with a line of their pixels showing under it. They
-        // fade out with the collapse and are hidden at its end, from TalkBack as well. The
-        // background goes at the end too: a pixel row of it stayed under the status bar
-        contentItem.opacity: 1 - collapsed
-        contentItem.visible: collapsed < 1
-        background.visible: collapsed < 1
-        // While the height animates the page moves under the finger; Home.qml ignores that movement
-        property bool animating: headerHeightAnimation.running
-        topPadding: getTopPadding()
+        // The toolbar hangs over the pages: in the window layout it is only as tall as the status
+        // bar inset, and the page stack below leaves room for the rest of it (stackView
+        // anchors.topMargin), so every page sits where it did. The tile grid in Home.qml reaches
+        // up under it and slides it away with the scroll (Material "scroll|enterAlways"): barShift
+        // is how much of it has gone up under the status bar. The page never changes size, so the
+        // tiles do not move under the finger
+        property real barShift: 0
+        // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
+        // (the tile grid can still be gliding or snapping under it when one is opened); back on the
+        // home page it is where the scroll left it, not over the Start/Stop row
+        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        // Set, not derived from the style, which counts the height of the background (48) as well
+        implicitHeight: getTopPadding()
+        // The content keeps its height and slides up with the bar
+        topPadding: getTopPadding() - barHidden
+        bottomPadding: barHidden - contentHeight
+        // The background, as tall as the status bar inset and the bar, slides up with it. Negative
+        // insets let it reach past the header: a background.height binding loses to the control's
+        // own resizing at an inset of 0
+        topInset: -barHidden
+        bottomInset: barHidden - contentHeight
+        // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
+        // well; the background goes then too
+        contentItem.opacity: 1 - barHidden / contentHeight
+        contentItem.visible: barHidden < contentHeight
+        background.visible: barHidden < contentHeight
+
+        // The bar takes the touches on it, as a toolbar the height of its content did: drawn
+        // past the height of the header, it would let a tap on the title reach the tiles below
+        MouseArea {
+            anchors.fill: parent
+            z: -1
+        }
         // Clear of the side system bar and the cutout held sideways, as the page stack: with
         // button navigation the bar on the right covered the rightmost button
         leftPadding: getLeftPadding()
@@ -1531,9 +1544,7 @@ ApplicationWindow {
 
         Label {
             text: stackView.currentItem.title
-            // Fixed position: centred in the full bar, it moved on its own when the bar collapsed
-            anchors.horizontalCenter: parent.horizontalCenter
-            y: Math.round((headerToolbar.contentHeight - height) / 2)
+            anchors.centerIn: parent
             // Grows with the text size, but no wider than the room between the nearest shown
             // buttons, centred: a title that does not fit takes a smaller font down to its size at
             // 100 %, and only then an ellipsis. At 100 % it stays as it was
@@ -1891,6 +1902,8 @@ ApplicationWindow {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
+            // Below the toolbar, which hangs over the pages (headerToolbar)
+            anchors.topMargin: headerToolbar.contentHeight
             // Clear of the bottom system bar in any orientation: held sideways with gesture
             // navigation the bar stays at the bottom (with buttons it moves to the side, and the
             // bottom inset is 0 then)
@@ -1898,8 +1911,6 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
-            // Only the tile grid scrolls the toolbar away; any other page gets it back
-            onCurrentItemChanged: headerToolbar.scrolledAway = false
             Connections {
                 target: stackView.currentItem
                 ignoreUnknownSignals: true
