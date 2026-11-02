@@ -219,3 +219,13 @@ If a ProForm 600i is discovered by QZ but the treadmill stops a few seconds afte
 A ProForm 600i owner reported that the **NordicTrack T6.5S v83** profile appeared to work after other profiles caused short starts or stops. They could then connect QZ to MyWhoosh. This is a **model-specific starting point**, not proof that all ProForm 600i firmware versions use that protocol.
 
 **Limitation:** The same user still reported that **automatic incline from MyWhoosh was not working**. Check live speed and the treadmill's basic start/stop behavior first, then test speed and incline control separately at safe settings. Do not assume MyWhoosh auto-incline is supported by this profile without further verification.
+
+## QZ can read my Toorx FTMS treadmill, but its speed controls do not respond. Which settings should I try?
+
+For a Toorx treadmill using QZ's FTMS/iConsole handling, two settings may be needed together:
+
+1. In **QZ Settings > iConsole Options**, enable **Toorx FTMS Treadmill**.
+2. In **QZ Settings > Treadmill Options > FTMS Treadmill**, select the treadmill's advertised Bluetooth name and confirm the selection.
+3. Restart QZ, reconnect the treadmill, and test a small **Speed +** change while standing safely clear of the belt.
+
+A rider explicitly confirmed that enabling **both** settings restored QZ's treadmill speed control. In a separate Runna test, the same setup successfully passed speed commands through QZ for about **10 minutes**. This does **not** confirm every Runna workout transition or long-session reliability: an earlier test reported that Runna stopped sending commands after about 30 seconds, and later automatic speed transitions were not yet tested.
