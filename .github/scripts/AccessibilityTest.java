@@ -207,7 +207,24 @@ public class AccessibilityTest {
             System.out.println("FAIL '" + expect + "' is on screen before '" + button + "' is pressed");
             return false;
         }
-        if (!target.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+        boolean handled = target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        // QZ answers false when its Qt thread is busy for 2 s, as it can be just after a device
+        // connected, and Qt's own press may still run: again for 10 s, unless that one worked
+        for (int i = 0; i < 10 && !handled; i++) {
+            System.out.println("INFO press refused: " + describe(target) + " enabled=" + target.isEnabled()
+                    + " visible=" + target.isVisibleToUser());
+            Thread.sleep(1000);
+            if (expect != null && find(expect, false) != null) {
+                handled = true;
+            } else {
+                AccessibilityNodeInfo again = find(button, true);
+                if (again != null) {
+                    target = again;
+                    handled = target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                }
+            }
+        }
+        if (!handled) {
             System.out.println("FAIL press not handled by QZ: " + describe(target));
             return false;
         }
