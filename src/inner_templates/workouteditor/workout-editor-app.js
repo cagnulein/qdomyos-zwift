@@ -21,6 +21,15 @@
         return fallback || key;
     }
 
+    // A translated screen reader name with its {placeholders} filled in
+    function tAria(key, fallback, values) {
+        let text = t(key, fallback);
+        Object.keys(values).forEach(name => {
+            text = text.split(`{${name}}`).join(values[name]);
+        });
+        return text;
+    }
+
     // Units are stored and compared in English ('W', '% FTP'); only the displayed text is translated
     const UNIT_KEYS = {
         'W': 'unit.w', 'rpm': 'unit.rpm', 'km': 'unit.km', 'mi': 'unit.mi', 'km/h': 'unit.kmh', 'mph': 'unit.mph',
@@ -150,11 +159,16 @@
 
                 // Show dialog
                 this.elements.container.classList.remove('hidden');
+                this.elements.container.setAttribute('aria-hidden', 'false');
 
-                // Focus input if present
-                if (options.input) {
-                    setTimeout(() => this.elements.input.focus(), 100);
-                }
+                // Focus input if present; otherwise focus the confirm button for screen readers.
+                setTimeout(() => {
+                    if (options.input) {
+                        this.elements.input.focus();
+                    } else {
+                        this.elements.confirmBtn.focus();
+                    }
+                }, 100);
 
                 // Handle buttons
                 const handleConfirm = () => {
@@ -185,6 +199,7 @@
                     this.elements.cancelBtn.removeEventListener('click', handleCancel);
                     this.elements.input.removeEventListener('keypress', handleKeyPress);
                     this.elements.container.classList.add('hidden');
+                    this.elements.container.setAttribute('aria-hidden', 'true');
                 };
 
                 this.elements.confirmBtn.addEventListener('click', handleConfirm);
@@ -217,10 +232,12 @@
         cacheDom();
         bindEvents();
         // The interval fields and the chart legend are built in JavaScript, and the translations
-        // usually arrive after the first render: rebuild them once they are here
+        // usually arrive after the first render: rebuild them once they are here (updateStatus for
+        // the screen reader name of the chart)
         document.addEventListener('qz-translations-updated', () => {
             renderIntervals();
             updateChart();
+            updateStatus();
         });
         bootstrap();
         if (window.QZ_OFFLINE) {
@@ -249,6 +266,7 @@
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+        selectors.workoutChart = document.getElementById('workoutChart');
 
         // Initialize custom dialog system for iOS WebView compatibility
         dialog.init();
@@ -801,6 +819,8 @@
         state.intervals.forEach((row, index) => {
             const card = document.createElement('div');
             card.className = 'interval-card';
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('aria-labelledby', `interval-title-${index}`);
             if (row.__selected) {
                 card.classList.add('selected');
             }
@@ -819,6 +839,7 @@
             selectBox.type = 'checkbox';
             selectBox.checked = !!row.__selected;
             selectBox.title = t('workoutEditor.selectInterval', 'Select interval');
+            selectBox.setAttribute('aria-label', tAria('workoutEditor.selectIntervalLabel', 'Select interval {number}', { number: index + 1 }));
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
@@ -829,6 +850,7 @@
 
             const title = document.createElement('div');
             title.className = 'card-header-name';
+            title.id = `interval-title-${index}`;
             title.textContent = row.name ? `${row.name}` : t('workoutEditor.intervalNumber', 'Interval {number}').replace('{number}', index + 1);
             headerLeft.appendChild(title);
 
@@ -836,10 +858,11 @@
 
             const actions = document.createElement('div');
             actions.className = 'card-actions';
-            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0));
-            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1));
-            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index)));
-            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1));
+            const intervalNumber = { number: index + 1 };
+            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, tAria('workoutEditor.moveIntervalUpLabel', 'Move interval {number} up', intervalNumber)));
+            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, tAria('workoutEditor.moveIntervalDownLabel', 'Move interval {number} down', intervalNumber)));
+            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index), false, tAria('workoutEditor.copyIntervalLabel', 'Copy interval {number}', intervalNumber)));
+            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1, tAria('workoutEditor.deleteIntervalLabel', 'Delete interval {number}', intervalNumber)));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -875,6 +898,7 @@
                     enableCheckbox.checked = isEnabled;
                     enableCheckbox.dataset.index = index;
                     enableCheckbox.dataset.key = field.key;
+                    enableCheckbox.setAttribute('aria-label', tAria('workoutEditor.enableFieldLabel', 'Enable {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     enableCheckbox.addEventListener('change', (e) => {
                         const checked = e.target.checked;
                         row['__enabled_' + field.key] = checked;
@@ -914,6 +938,7 @@
                 }
 
                 const labelText = document.createElement('span');
+                labelText.id = `interval-${index}-${field.key}-label`;
                 labelText.textContent = resolveFieldLabel(field, row);
                 labelWrap.appendChild(labelText);
                 fieldWrap.appendChild(labelWrap);
@@ -925,6 +950,8 @@
                     checkbox.dataset.index = index;
                     checkbox.dataset.key = field.key;
                     checkbox.dataset.type = field.type;
+                    checkbox.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
+                    checkbox.setAttribute('aria-label', tAria('workoutEditor.fieldLabel', '{field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
                 } else if (field.type === 'select') {
@@ -953,9 +980,12 @@
                     inputWrapper.className = 'field-with-buttons';
 
                     const input = document.createElement('input');
+                    input.id = `interval-${index}-${field.key}`;
                     input.dataset.index = index;
                     input.dataset.key = field.key;
                     input.dataset.type = field.type;
+                    input.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
+                    input.setAttribute('aria-label', tAria('workoutEditor.fieldLabel', '{field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     if (field.type === 'duration') {
                         input.type = 'text';
                         input.value = value !== undefined && value !== null ? value : '00:05:00';
@@ -997,12 +1027,14 @@
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = t('common.decrease', 'Decrease');
+                        decreaseBtn.setAttribute('aria-label', tAria('workoutEditor.decreaseFieldLabel', 'Decrease {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
 
                         const increaseBtn = document.createElement('button');
                         increaseBtn.textContent = '+';
                         increaseBtn.type = 'button';
                         increaseBtn.title = t('common.increase', 'Increase');
+                        increaseBtn.setAttribute('aria-label', tAria('workoutEditor.increaseFieldLabel', 'Increase {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                         increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
 
                         inputWrapper.appendChild(decreaseBtn);
@@ -1066,10 +1098,14 @@
         return label;
     }
 
-    function actionButton(text, handler, disabled) {
+    function actionButton(text, handler, disabled, ariaLabel) {
         const btn = document.createElement('button');
         btn.className = 'small';
+        btn.type = 'button';
         btn.textContent = text;
+        if (ariaLabel) {
+            btn.setAttribute('aria-label', ariaLabel);
+        }
         if (disabled) {
             btn.disabled = true;
         }
@@ -1757,8 +1793,16 @@
 
     function updateStatus() {
         const totalSeconds = state.intervals.reduce((acc, interval) => acc + parseDuration(interval.duration), 0);
-        selectors.statusDuration.textContent = formatDuration(totalSeconds);
+        const formattedDuration = formatDuration(totalSeconds);
+        selectors.statusDuration.textContent = formattedDuration;
         selectors.statusIntervals.textContent = String(state.intervals.length);
+        if (selectors.workoutChart) {
+            selectors.workoutChart.setAttribute('aria-label', tAria('workoutEditor.chartDescription', '{name} preview chart. {count} intervals. Total duration {duration}.', {
+                name: selectors.name.value.trim() || t('workoutEditor.untitledWorkout', 'Untitled Workout'),
+                count: state.intervals.length,
+                duration: formattedDuration
+            }));
+        }
     }
 
     function formatDuration(totalSeconds) {

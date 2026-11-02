@@ -7,6 +7,7 @@
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
 #include "ios/ios_background_keepalive.h"
+#include "ios/ios_accessibility_helper.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -5626,6 +5627,7 @@ void homeform::Plus(const QString &name) {
                 speed = speed + (((double)rest) / 10.0);
 
             ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
+            announceToVoiceOver((!miles ? tr("Speed %1 kilometers per hour") : tr("Speed %1 miles per hour")).arg(speed, 0, 'f', 1));
         }
     } else if (name.contains(QStringLiteral("external_inclination"))) {
         double elite_rizer_gain =
@@ -5642,6 +5644,7 @@ void homeform::Plus(const QString &name) {
                     step = ((treadmill *)bluetoothManager->device())->minStepInclination();
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 double step =
                     settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
@@ -5650,13 +5653,14 @@ void homeform::Plus(const QString &name) {
                     step = ((elliptical *)bluetoothManager->device())->minStepInclination();
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() + step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             } else if (bluetoothManager->device()->deviceType() == BIKE) {
                 double step =
                     settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
                         .toDouble();
-                ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + step,
-                                        ((bike *)bluetoothManager->device())->currentInclination().value() + step);
+                double perc = ((bike *)bluetoothManager->device())->currentInclination().value() + step;
+                ((bike *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             }
         }
     } else if (name.contains(QStringLiteral("pid_hr"))) {
@@ -5740,6 +5744,7 @@ void homeform::Plus(const QString &name) {
                     emit manualCscBikeResistanceAdjusted(raw);
                 }
                 ((bike *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             } else if (dev->deviceType() == ROWING) {
                 double g = ((rower *)dev)->gears();
                 double target = current + 1; // device-space target
@@ -5747,6 +5752,7 @@ void homeform::Plus(const QString &name) {
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
                 ((rower *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             } else if (dev->deviceType() == ELLIPTICAL) {
                 double g = ((elliptical *)dev)->gears();
                 double target = current + 1; // device-space target
@@ -5755,6 +5761,7 @@ void homeform::Plus(const QString &name) {
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
                 ((elliptical *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
@@ -5937,6 +5944,7 @@ void homeform::Minus(const QString &name) {
                 else
                     speed = speed - (((double)rest) / 10.0);
                 ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
+                announceToVoiceOver((!miles ? tr("Speed %1 kilometers per hour") : tr("Speed %1 miles per hour")).arg(speed, 0, 'f', 1));
             }
         }
     } else if (name.contains(QStringLiteral("external_inclination"))) {
@@ -5955,6 +5963,7 @@ void homeform::Minus(const QString &name) {
                     step = ((treadmill *)bluetoothManager->device())->minStepInclination();
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 double step =
                     settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
@@ -5963,13 +5972,14 @@ void homeform::Minus(const QString &name) {
                     step = ((elliptical *)bluetoothManager->device())->minStepInclination();
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() - step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             } else if (bluetoothManager->device()->deviceType() == BIKE) {
                 double step =
                     settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
                         .toDouble();
-                ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - step,
-                                        ((bike *)bluetoothManager->device())->currentInclination().value() - step);
+                double perc = ((bike *)bluetoothManager->device())->currentInclination().value() - step;
+                ((bike *)bluetoothManager->device())->changeInclination(perc, perc);
+                announceToVoiceOver(tr("Inclination %1 percent").arg(perc, 0, 'f', 1));
             }
         }
     } else if (name.contains(QStringLiteral("pid_hr"))) {
@@ -6048,6 +6058,7 @@ void homeform::Minus(const QString &name) {
                     emit manualCscBikeResistanceAdjusted(raw);
                 }
                 ((bike *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             } else if (dev->deviceType() == ROWING) {
                 double g = ((rower *)dev)->gears();
                 double target = current - 1; // device-space target
@@ -6055,6 +6066,7 @@ void homeform::Minus(const QString &name) {
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
                 ((rower *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             } else if (dev->deviceType() == ELLIPTICAL) {
                 double g = ((elliptical *)dev)->gears();
                 double target = current - 1; // device-space target
@@ -6063,6 +6075,7 @@ void homeform::Minus(const QString &name) {
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
                 ((elliptical *)dev)->changeResistance(raw);
+                announceToVoiceOver(tr("Resistance %1").arg(target, 0, 'f', 0));
             }
         }
     } else if (name.contains(QStringLiteral("target_power"))) {
@@ -6147,7 +6160,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     m_overridePower = false;
     m_overridePowerWarned = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool() || isVoiceOverRunning())
         m_speech.say("Start pressed");
 
     if (!paused && !stopped) {
@@ -6325,7 +6338,7 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool() || isVoiceOverRunning())
         m_speech.say("Stop pressed");
 
     if (bluetoothManager->device()) {
@@ -8726,7 +8739,7 @@ void homeform::update() {
                 }
             }
 
-            if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+            if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool() || isVoiceOverRunning()) {
                 static double tts_speed_played = 0;
                 bool description =
                     settings.value(QZSettings::tts_description_enabled, QZSettings::default_tts_description_enabled)
@@ -11137,6 +11150,71 @@ void homeform::clearWebViewCache() {
     lockscreen::clearWebViewCache();
     qDebug() << "iOS: WebView cache cleared";
 #endif
+#endif
+}
+
+void homeform::notifyAccessibilityScreenChanged() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen::postAccessibilityScreenChanged();
+#endif
+#endif
+}
+
+void homeform::prepareEmbeddedWebViewForVoiceOver() {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::prepareEmbeddedWebViewForVoiceOver();
+#endif
+}
+
+void homeform::setDrawerAccessibilityModal(bool modal) {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::setDrawerAccessibilityModal(modal);
+#else
+    Q_UNUSED(modal)
+#endif
+}
+
+bool homeform::isVoiceOverRunning() {
+#ifdef Q_OS_IOS
+    return ios_accessibility_helper::isVoiceOverRunning();
+#else
+    return false;
+#endif
+}
+
+void homeform::announceToVoiceOver(const QString &text) {
+    if (isVoiceOverRunning())
+        m_speech.say(text);
+}
+
+void homeform::onNativeWorkoutEditorClosedStatic() {
+    // Invoked from the iOS main thread by the native editor's Close button.
+    // Re-emit on the Qt object via a queued call so QML can pop the page safely.
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "nativeWorkoutEditorClosed",
+                                  Qt::QueuedConnection);
+    }
+}
+
+void homeform::presentNativeWorkoutEditor() {
+#ifdef Q_OS_IOS
+    QSettings settings;
+    int port = settings.value(QStringLiteral("template_inner_QZWS_port"), 6666).toInt();
+    if (port == 0) {
+        qDebug() << "presentNativeWorkoutEditor: QZWS port not ready";
+        return;
+    }
+    QString url = QStringLiteral("http://localhost:%1/workouteditor/index.html").arg(port);
+    qDebug() << "presentNativeWorkoutEditor:" << url;
+    ios_accessibility_helper::setWorkoutEditorClosedCallback(&homeform::onNativeWorkoutEditorClosedStatic);
+    ios_accessibility_helper::presentNativeWorkoutEditor(url.toUtf8().constData());
+#endif
+}
+
+void homeform::dismissNativeWorkoutEditor() {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::dismissNativeWorkoutEditor();
 #endif
 }
 

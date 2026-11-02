@@ -874,4 +874,7 @@ double lockscreen::systemFontScale() {
                                                 compatibleWithTraitCollection:traits];
     return scaled > 0 ? scaled / body : 1.0;
 }
+void lockscreen::postAccessibilityScreenChanged() {
+    UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+}
 #endif
