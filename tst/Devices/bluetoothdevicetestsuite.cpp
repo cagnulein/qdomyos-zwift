@@ -283,8 +283,8 @@ TEST_P(MerachT12PriorityTestSuite, FitShowTakesPriorityOverFitPlus) {
     const auto *fitPlusData = DeviceTestDataIndex::GetTestData(DeviceIndex::FitPlusVirtufitEtappeX100);
     ASSERT_NE(nullptr, fitPlusData);
 
-    const auto fitPlusConfigs = this->getConfigurations(fitPlusData, QStringLiteral("X100-"), true);
-    const auto merachConfigs = this->getConfigurations(this->testParam, QStringLiteral("mrk-t12-1562"), true);
+    auto fitPlusConfigs = this->getConfigurations(fitPlusData, QStringLiteral("X100-"), true);
+    auto merachConfigs = this->getConfigurations(this->testParam, QStringLiteral("mrk-t12-1562"), true);
     ASSERT_FALSE(fitPlusConfigs.empty());
     ASSERT_FALSE(merachConfigs.empty());
 
@@ -293,12 +293,12 @@ TEST_P(MerachT12PriorityTestSuite, FitShowTakesPriorityOverFitPlus) {
     this->testSettings.loadFrom(fitPlusConfigs[0]);
     this->applyCiSafeRuntimeSettings();
     this->testDeviceDetection(fitPlusData, bt, *fitPlusConfigs[0].DeviceInfo(), true, false,
-                              "FitPlus bike should be detected first");
+                              QStringLiteral("FitPlus bike should be detected first"));
 
     this->testSettings.loadFrom(merachConfigs[0]);
     this->applyCiSafeRuntimeSettings();
     this->testDeviceDetection(this->testParam, bt, *merachConfigs[0].DeviceInfo(), true, true,
-                              "Merach T12 should use FitShow even when FitPlus was detected first");
+                              QStringLiteral("Merach T12 should use FitShow even when FitPlus was detected first"));
 }
 
 INSTANTIATE_TEST_SUITE_P(MerachT12Priority, MerachT12PriorityTestSuite,
