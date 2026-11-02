@@ -2351,6 +2351,12 @@ void homeform::loadAppTranslation(const QString &language) {
             return false;
         }
         if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+            // A file with no translated strings loads fine but would keep the app in English:
+            // skip it, so a regional locale falls back to its language (pt_BR -> pt)
+            if (translator->isEmpty()) {
+                qDebug() << "Translation file is empty for" << sourceLabel << ":" << localeKey;
+                return false;
+            }
             QCoreApplication::installTranslator(translator);
             qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
             return true;
@@ -2366,6 +2372,11 @@ void homeform::loadAppTranslation(const QString &language) {
         if (!loaded && locale.contains(QLatin1Char('_'))) {
             loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
         }
+        // Qt names the Norwegian locales nb_NO and nn_NO, the translation file is "no" (QTBUG-107781)
+        const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
+        if (!loaded && (languageCode == QStringLiteral("nb") || languageCode == QStringLiteral("nn"))) {
+            loaded = tryLoadTranslation(QStringLiteral("no"), QStringLiteral("language"));
+        }
         if (!loaded) {
             qDebug() << "No translation available for locale:" << locale << "- using default (English)";
         }
@@ -2379,6 +2390,13 @@ void homeform::setAppLanguage(const QString &language) {
     sortTiles();
     // the web pages took their texts when they were loaded: the open ones ask for them again
     emit appLanguageChanged();
+#ifdef Q_OS_ANDROID
+    // and so did the notification, which is up once a device is connected
+    QSettings settings;
+    if (bluetoothManager && bluetoothManager->device() &&
+        settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool())
+        android_notification_apply(true);
+#endif
 }
 
 // The tile titles, in the current language and units: set when the tiles are made and again in
@@ -10950,7 +10968,8 @@ void homeform::android_notification_apply(bool enabled) {
     if (enabled) {
         // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
         // start right away and the running workout doesn't need a restart
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString(tr("QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());

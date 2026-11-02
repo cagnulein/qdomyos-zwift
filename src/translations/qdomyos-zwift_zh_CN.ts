@@ -3800,7 +3800,12 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotify 歌曲:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 正在运行</translation>
     </message>
 </context>
 <context>
@@ -7874,79 +7879,79 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>训练历史图表</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">心率</translation>
+        <translation>心率</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">阻力与目标阻力</translation>
+        <translation>阻力与目标阻力</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Peloton 阻力</translation>
+        <translation>Peloton 阻力</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">踏频</translation>
+        <translation>踏频</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">功率分布</translation>
+        <translation>功率分布</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">速度与坡度</translation>
+        <translation>速度与坡度</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>上下移动图表以选择它们在训练历史中的顺序。更改会自动保存。</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>上移</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>下移</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>恢复默认顺序</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio 选项</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>为 Moovio Lynx Konect 2.0 跑步机启用标准 FTMS Request Control 命令。默认关闭。</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>踏频增益</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>仅应用于虚拟划船机发送的桨频的倍数。默认值为 1.0；使用 0.25 可将 BikeERG 的 RPM 转换为 EXR 请求的桨频。</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>在增益之后加上的偏移量。默认值为 0.0。QZ 内部的踏频显示和训练指标保持不变。</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS 后台保持运行</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>仅限 iOS。在屏幕关闭或 QZ 位于后台时保持 QZ 运行，使蓝牙连接和训练计时器不会冻结。它使用与您的音乐混合播放的静音音轨，因此您正在收听的内容不会被打断。如果需要在锁屏状态下或 QZ 位于后台时训练，请启用此项。默认关闭。</translation>
     </message>
 </context>
 <context>

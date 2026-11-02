@@ -3784,7 +3784,12 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spotify şarkıları:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ çalışıyor</translation>
     </message>
 </context>
 <context>
@@ -7814,79 +7819,79 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman geçmişi grafikleri</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Nabız</translation>
+        <translation>Nabız</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Direnç ve hedef direnç</translation>
+        <translation>Direnç ve hedef direnç</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Peloton direnci</translation>
+        <translation>Peloton direnci</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Kadans</translation>
+        <translation>Kadans</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Güç dağılımı</translation>
+        <translation>Güç dağılımı</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Hız ve eğim</translation>
+        <translation>Hız ve eğim</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Antrenman geçmişindeki sıralarını seçmek için grafikleri yukarı veya aşağı taşıyın. Değişiklikler otomatik olarak kaydedilir.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Yukarı taşı</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Aşağı taşı</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsayılan sırayı geri yükle</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio seçenekleri</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Moovio Lynx Konect 2.0 koşu bantları için standart FTMS Request Control komutunu etkinleştirir. Varsayılan: kapalı.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Kadans çarpanı</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca sanal kürek makinesinin gönderdiği kürek temposuna uygulanan çarpan. Varsayılan: 1.0; BikeERG RPM değerini EXR&apos;nin istediği kürek temposuna dönüştürmek için 0.25 kullanın.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Çarpandan sonra eklenen ofset. Varsayılan: 0.0. QZ&apos;nin kendi kadans göstergesi ve antrenman metrikleri değişmez.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>iOS&apos;ta arka planda çalışma</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yalnızca iOS. Ekran kapalıyken veya QZ arka plandayken QZ&apos;nin çalışmaya devam etmesini sağlar; böylece Bluetooth bağlantıları ve oturum zamanlayıcıları donmaz. Müziğinizle karıştırılan sessiz bir ses parçası kullanır, bu yüzden dinlediğiniz hiçbir şey kesilmez. Ekran kilitliyken veya QZ arka plandayken antrenman yapmanız gerekiyorsa açın. Varsayılan: kapalı.</translation>
     </message>
 </context>
 <context>

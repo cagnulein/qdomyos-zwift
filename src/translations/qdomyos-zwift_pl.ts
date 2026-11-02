@@ -3784,7 +3784,12 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
     </message>
     <message>
         <source>Spotify songs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwory Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ działa</translation>
     </message>
 </context>
 <context>
@@ -7814,79 +7819,79 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Workout History Charts</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykresy w historii treningów</translation>
     </message>
     <message>
         <source>Heart Rate</source>
-        <translation type="unfinished">Tętno</translation>
+        <translation>Tętno</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance</source>
-        <translation type="unfinished">Opór i opór docelowy</translation>
+        <translation>Opór i opór docelowy</translation>
     </message>
     <message>
         <source>Peloton Resistance</source>
-        <translation type="unfinished">Opór Peloton</translation>
+        <translation>Opór Peloton</translation>
     </message>
     <message>
         <source>Cadence</source>
-        <translation type="unfinished">Kadencja</translation>
+        <translation>Kadencja</translation>
     </message>
     <message>
         <source>Power Distribution</source>
-        <translation type="unfinished">Rozkład mocy</translation>
+        <translation>Rozkład mocy</translation>
     </message>
     <message>
         <source>Speed and Inclination</source>
-        <translation type="unfinished">Prędkość i nachylenie</translation>
+        <translation>Prędkość i nachylenie</translation>
     </message>
     <message>
         <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuwaj wykresy w górę lub w dół, aby wybrać ich kolejność w historii treningów. Zmiany są zapisywane automatycznie.</translation>
     </message>
     <message>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę</translation>
     </message>
     <message>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół</translation>
     </message>
     <message>
         <source>Restore default order</source>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć domyślną kolejność</translation>
     </message>
     <message>
         <source>Moovio Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje Moovio</translation>
     </message>
     <message>
         <source>Lynx Konect 2.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Lynx Konect 2.0</translation>
     </message>
     <message>
         <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącza standardowe polecenie FTMS Request Control dla bieżni Moovio Lynx Konect 2.0. Domyślnie: wyłączone.</translation>
     </message>
     <message>
         <source>Cadence Gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Mnożnik kadencji</translation>
     </message>
     <message>
         <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mnożnik stosowany tylko do tempa wiosłowania wysyłanego przez wirtualny ergometr wioślarski. Domyślnie: 1.0; użyj 0.25, aby przeliczyć RPM BikeERG na tempo wiosłowania żądane przez EXR.</translation>
     </message>
     <message>
         <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesunięcie dodawane po mnożniku. Domyślnie: 0.0. Kadencja wyświetlana w QZ i wskaźniki treningu pozostają bez zmian.</translation>
     </message>
     <message>
         <source>iOS Background Keep Alive</source>
-        <translation type="unfinished"></translation>
+        <translation>Praca w tle na iOS</translation>
     </message>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko iOS. Utrzymuje działanie QZ przy wyłączonym ekranie lub w tle, aby połączenia Bluetooth i liczniki czasu sesji się nie zawieszały. Używa cichej ścieżki dźwiękowej miksowanej z Twoją muzyką, więc nic, czego słuchasz, nie zostanie przerwane. Włącz, jeśli trenujesz z zablokowanym ekranem lub z QZ w tle. Domyślnie: wyłączone.</translation>
     </message>
 </context>
 <context>
