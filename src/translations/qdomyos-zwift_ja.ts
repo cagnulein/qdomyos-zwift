@@ -3798,6 +3798,11 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation>Spotifyの曲:</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ を実行中</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

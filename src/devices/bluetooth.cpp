@@ -3933,7 +3933,10 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool()) {
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        // the context of homeform: the same text as android_notification_apply, translated once
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification =
+            QAndroidJniObject::fromString(QCoreApplication::translate("homeform", "QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
