@@ -2451,7 +2451,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         gearInclinationSent = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

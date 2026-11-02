@@ -1119,7 +1119,7 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

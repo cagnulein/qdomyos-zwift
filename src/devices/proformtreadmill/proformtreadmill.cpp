@@ -10064,6 +10064,6 @@ void proformtreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

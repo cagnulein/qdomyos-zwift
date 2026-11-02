@@ -596,7 +596,7 @@ void nautiluselliptical::controllerStateChanged(QLowEnergyController::Controller
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

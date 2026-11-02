@@ -307,6 +307,6 @@ void eliterizer::controllerStateChanged(QLowEnergyController::ControllerState st
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

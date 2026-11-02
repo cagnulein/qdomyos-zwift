@@ -985,6 +985,6 @@ void ftmsrower::controllerStateChanged(QLowEnergyController::ControllerState sta
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
