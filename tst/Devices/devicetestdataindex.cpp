@@ -469,8 +469,7 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
         ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
-        ->excluding<horizontreadmill>()
-        ->excluding<fitplusbike>();
+        ->excluding<horizontreadmill>();
 
 
     // FitShow SW
