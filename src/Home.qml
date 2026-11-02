@@ -359,10 +359,69 @@ HomeForm {
         focus: true
         model: appModel
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
+        // While the tiles are being moved the gap above the first row is part of the content,
+        // so it scrolls away with the tiles instead of staying as an empty band
+        topMargin: window.lockTiles ? 30 : 0
+        onTopMarginChanged: if (contentY <= 0) contentY = -topMargin
         interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
-        onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
+        // Tiles are cut off at the top of the grid instead of being drawn over the Start/Stop row
+        clip: true
+
+        // The app toolbar scrolls away while the tiles scroll down and comes back when they
+        // scroll up (Material "hide on scroll"). It follows the finger, not the end of the
+        // movement, and main.qml animates the collapse, so the page does not jump.
+        // Hysteresis: the toolbar toggles only after the user has scrolled toolbarToggleDistance
+        // in one direction since the last toggle. Collapsing it moves the page under the finger
+        // by toolbarShift, which a per-frame check reads as scrolling back, and slow scrolling
+        // made the toolbar flicker. The distance must stay larger than that shift, so it is
+        // derived from it (a larger font makes the toolbar taller).
+        readonly property real toolbarShift: headerToolbar.implicitHeight - headerToolbar.topPadding
+        readonly property real toolbarToggleDistance: toolbarShift + 40
+        property real toolbarTurnY: 0
+        // The first row can be in full view with the toolbar gone: going back up within that row
+        // leaves the toolbar away, and at the top it takes a pull past the edge to bring it back
+        readonly property real toolbarPull: 40
+        onContentYChanged: {
+            if (window.lockTiles || contentY < -toolbarPull) {
+                headerToolbar.scrolledAway = false
+                toolbarTurnY = contentY
+                return
+            }
+            if (contentY <= 0) {
+                toolbarTurnY = contentY
+                return
+            }
+            // Movement of our own making: the view is not being scrolled by the user, or it is
+            // resizing while the toolbar animates
+            if (!(draggingVertically || flickingVertically) || headerToolbar.animating) {
+                toolbarTurnY = contentY
+                return
+            }
+            if (!headerToolbar.scrolledAway) {
+                // Only while the tiles still overflow once the toolbar is gone, and not while the
+                // view is pulled past its end: a list that fits would then keep the toolbar away
+                // with nothing to scroll back
+                if (contentY - toolbarTurnY > toolbarToggleDistance
+                        && contentHeight - height > toolbarShift
+                        && contentY <= originY + contentHeight - height) {
+                    headerToolbar.scrolledAway = true
+                    toolbarTurnY = contentY
+                } else if (contentY < toolbarTurnY) {
+                    toolbarTurnY = contentY
+                }
+            } else {
+                if (toolbarTurnY - contentY > toolbarToggleDistance && !atYEnd && contentY >= cellHeight) {
+                    headerToolbar.scrolledAway = false
+                    toolbarTurnY = contentY
+                } else if (contentY > toolbarTurnY) {
+                    // Not past the end: after pulling beyond it the view springs back, and the
+                    // first move up would otherwise bring the toolbar back at once
+                    toolbarTurnY = Math.min(contentY, originY + contentHeight - height)
+                }
+            }
+        }
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             // Nothing to recompute: cellWidth and the grid width follow the page width
@@ -736,7 +795,7 @@ HomeForm {
                 )
             } else if (loc.mouseY < edgeZone) {
                 var factor2 = (edgeZone - loc.mouseY) / edgeZone
-                gridView.contentY = Math.max(0, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
+                gridView.contentY = Math.max(-gridView.topMargin, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
             } else {
                 running = false
             }
@@ -753,7 +812,8 @@ HomeForm {
 
         function indexAtMouse(mx, my) {
             var cols = gridView.tileColumns
-            var adjustedY = my + gridView.contentY
+            // The gap above the first row counts as the first row
+            var adjustedY = Math.max(0, my + gridView.contentY)
             var col = Math.floor((mx - gridView.x) / gridView.cellWidth)
             if (col < 0 || col >= cols) return -1
             var row = Math.floor(adjustedY / gridView.cellHeight)
@@ -803,7 +863,7 @@ HomeForm {
                 // No drag in progress: scroll the grid like a normal flick
                 var dy = mouseY - lastScrollY
                 if (Math.abs(dy) > 5) isSwiping = true
-                gridView.contentY = Math.max(0,
+                gridView.contentY = Math.max(-gridView.topMargin,
                     Math.min(gridView.contentHeight - gridView.height,
                              gridView.contentY - dy))
                 lastScrollY = mouseY
