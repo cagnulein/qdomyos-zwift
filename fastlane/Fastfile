@@ -54,8 +54,11 @@ platform :ios do
     # Fail before uploading to TestFlight if a generated Xcode project or
     # export silently omits the Watch app, its extension or the iOS widget.
     ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
-    sh("python3 .github/scripts/verify_ios_distribution.py " \
-       "--archive build/ios/qdomyoszwift.xcarchive " \
+    repo_root = File.expand_path("..", __dir__)
+    verifier = File.join(repo_root, ".github/scripts/verify_ios_distribution.py")
+    archive = File.join(repo_root, "build/ios/qdomyoszwift.xcarchive")
+    sh("python3 #{Shellwords.escape(verifier)} " \
+       "--archive #{Shellwords.escape(archive)} " \
        "--ipa #{Shellwords.escape(ipa_path)}")
 
     {
