@@ -130,6 +130,7 @@ Page {
                     Accessible.description: qsTr("Start workout")
                     Accessible.focusable: page.enabled && !drawer.opened
                     Accessible.ignored: !page.enabled || drawer.opened
+                    Accessible.onPressAction: start.clicked()
                 }
                 ColorOverlay {
                     anchors.fill: start
@@ -162,6 +163,7 @@ Page {
                     Accessible.description: qsTr("Stop workout")
                     Accessible.focusable: page.enabled && !drawer.opened
                     Accessible.ignored: !page.enabled || drawer.opened
+                    Accessible.onPressAction: stop.clicked()
                 }
                 ColorOverlay {
                     anchors.fill: stop
