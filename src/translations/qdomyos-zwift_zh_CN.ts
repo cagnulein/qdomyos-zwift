@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ 需要启用蓝牙和定位服务。
+        <translation type="vanished">QZ 需要启用蓝牙和定位服务。
 在 Android 上，定位服务是必需的，以便应用查找蓝牙设备。
 不会使用 GPS。
 
@@ -197,7 +197,7 @@ Would you like to enable them?</source>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>下次是否需要提醒您启用定位服务？</translation>
+        <translation type="vanished">下次是否需要提醒您启用定位服务？</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>增加数值： </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ 需要启用蓝牙才能发现健身设备。在 Android 11 及更早版本中，搜索蓝牙设备还需要位置权限和开启定位服务。QZ 不会使用您的位置数据。在 Android 12 及更高版本中，授予“附近的设备”权限即可在不访问位置信息的情况下搜索蓝牙设备。
+
+是否要启用所需的服务？</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>下次是否需要提醒您启用蓝牙或定位服务？</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Would you like to do that now?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1（心率传感器）已连接！</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>正在搜索 %1（心率传感器）...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>未找到 %1（心率传感器）。请确认它已开启并正在广播心率。</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心率传感器）：没有心率。请确认它正在广播心率。</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -1005,6 +1029,14 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Android notification enabled</source>
         <translation>已启用 Android 通知</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 已就绪</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 初始化失败，需要重新连接</translation>
     </message>
 </context>
 <context>
@@ -3762,6 +3794,19 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ 目标功率正在覆盖应用的指令。暂停 QZ 后再继续，即可将控制权交还给应用。</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify 歌曲:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 正在运行</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -5602,8 +5647,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>应用语言:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。需要重启。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>选择自动以匹配设备语言，或为 QZ 选择特定语言。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6282,6 +6327,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>打开此项可直接从跑步机读取距离，而不是根据速度计算。有些跑步机报告的距离比基于速度的计算更准确。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距离：仅累加增量</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>与“直接读取跑步机距离”配合使用。如果跑步机的距离计数在两次训练之间不清零，或关机后从 0 重新开始计数，请打开此项：只累加训练期间走过的距离，不计入 QZ 连接前跑步机已计的距离。默认关闭。</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7803,6 +7856,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers 划船机</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness 选项</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness 用户名/邮箱:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness 密码:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness 访客登录 (实验性)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>使用无需账户的合成 Life Fitness 配置文件。启用后将忽略用户名、密码和缓存的账户数据；仅用于测试受支持的访客登录。</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>心率</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>阻力与目标阻力</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton 阻力</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>踏频</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>功率分布</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>速度与坡度</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>上下移动图表以选择它们在训练历史中的顺序。更改会自动保存。</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>上移</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>下移</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>恢复默认顺序</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio 选项</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>为 Moovio Lynx Konect 2.0 跑步机启用标准 FTMS Request Control 命令。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>踏频增益</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>仅应用于虚拟划船机发送的桨频的倍数。默认值为 1.0；使用 0.25 可将 BikeERG 的 RPM 转换为 EXR 请求的桨频。</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>在增益之后加上的偏移量。默认值为 0.0。QZ 内部的踏频显示和训练指标保持不变。</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS 后台保持运行</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>仅限 iOS。在屏幕关闭或 QZ 位于后台时保持 QZ 运行，使蓝牙连接和训练计时器不会冻结。它使用与您的音乐混合播放的静音音轨，因此您正在收听的内容不会被打断。如果需要在锁屏状态下或 QZ 位于后台时训练，请启用此项。默认关闭。</translation>
     </message>
 </context>
 <context>

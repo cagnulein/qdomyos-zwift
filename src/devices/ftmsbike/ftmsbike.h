@@ -229,6 +229,7 @@ class ftmsbike : public bike {
     bool MOK_FITNESS = false;
     bool TUNTURI_E50_168 = false;
     bool SOLE_B94 = false;
+    bool VIFHTR = false;
 
     uint8_t secondsToResetTimer = 5;
 

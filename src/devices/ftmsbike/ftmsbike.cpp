@@ -407,8 +407,8 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 ||
-           INCONDI_S150I || FS_SB_RCR) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
+           INCONDI_S150I || FS_SB_RCR || HS_5000L) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -2321,6 +2321,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("FS-SB-RCR")) {
             qDebug() << QStringLiteral("FS-SB-RCR found - keeping native resistance levels");
             FS_SB_RCR = true;
+        } else if (device.name().toUpper().startsWith("GB3.0-")) {
+            // GB3.0 advertises target power, but 0x05 does not change resistance.
+            // Its tested 0x04 commands use the generic two-byte resistance-level format.
+            qDebug() << QStringLiteral("Gymstick GB3.0 found - using FTMS resistance-level control");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
@@ -2362,6 +2368,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 20;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
+            qDebug() << QStringLiteral("VIFHTR found - using 32-level resistance control in 0.1 units");
+            VIFHTR = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
         }
 
 

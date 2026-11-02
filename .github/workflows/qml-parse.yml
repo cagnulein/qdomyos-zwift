@@ -1,0 +1,29 @@
+name: QML parse
+
+on:
+  pull_request:
+    paths:
+      - 'src/**.qml'
+      - 'tools/check_qml_parse.py'
+      - 'tests/test_check_qml_parse.py'
+      - '.github/workflows/qml-parse.yml'
+  workflow_dispatch:
+
+jobs:
+  check-qml-parse:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install the QML compiler
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends qtdeclarative5-dev-tools
+
+      - name: Test the checker
+        run: python3 -m unittest tests/test_check_qml_parse.py -v
+
+      - name: Compile every QML file
+        run: python3 tools/check_qml_parse.py --github

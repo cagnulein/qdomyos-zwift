@@ -19,9 +19,12 @@ Page {
     property alias row: row
     // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
     property string searchStatus: ""
+    // Home.qml sets the new values from the settings page in it (the background color of the top bar)
+    property alias homeFormSettings: settings
 
     Settings {
 	     id: settings
+	     Component.onCompleted: window.retakeSettingsSnapshot(settings)
 		  property real ui_zoom: 100.0
 		  property bool theme_tile_icon_enabled: true
 		  property string theme_background_color: "#303030"
@@ -72,11 +75,8 @@ Page {
                             enabled: rootItem.device
                             smooth: true
 
-                            // VoiceOver accessibility
-                            Accessible.role: Accessible.Indicator
-                            Accessible.name: qsTr("Bluetooth connection")
-                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
-                            Accessible.focusable: true
+                            // VoiceOver accessibility: the MouseArea below is the button, read once
+                            Accessible.ignored: true
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -84,10 +84,19 @@ Page {
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
                         }
                         // No device yet: a tap searches right away instead of waiting for the next search
-                        // (with a device connected bluetoothSearchNow() does nothing)
+                        // (with a device connected bluetoothSearchNow() does nothing). With a device connected the tap
+                        // looks for the chosen heart rate sensor again (reconnectHeartRateBelt() waits for the device)
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: rootItem.bluetoothSearchNow()
+                            onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
+
+                            // VoiceOver/TalkBack: a button that searches. The state is in the name: TalkBack (Qt 5.15)
+                            // reads no description when the name is set
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Bluetooth connection") + ": " + (rootItem.device ? qsTr("Device connected") : qsTr("Device not connected"))
+                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
+                            Accessible.focusable: true
+                            Accessible.onPressAction: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                         }
                     }
                     Image {

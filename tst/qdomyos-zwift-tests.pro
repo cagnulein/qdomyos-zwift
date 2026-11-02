@@ -5,6 +5,8 @@ include(gtest_dependency.pri)
 
 TEMPLATE = app
 
+RESOURCES += Devices/ypoom5distance.qrc
+
 CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG += thread
@@ -40,8 +42,13 @@ SOURCES += \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
+        Devices/TestYpooM5Control.cpp \
+        Devices/TestYpooTreadmill.cpp \
+        Devices/TestYpooM5Distance.cpp \
+        Devices/TestFtmsTreadmillControl.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
+        Devices/TestTrxAppGateUsRowerParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
@@ -53,7 +60,10 @@ SOURCES += \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestKettlerClassicProtocol.cpp \
         Devices/TestFitPlusBikeResistance.cpp \
+        Devices/TestTargetPowerOverride.cpp \
+        VirtualRowerCadenceTest.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests

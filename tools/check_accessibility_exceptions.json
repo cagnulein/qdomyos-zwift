@@ -1,0 +1,6 @@
+{
+  "_": "False findings of check_accessibility.py. Key: the QML file; value: a list of {rule, anchor, why}. A finding of `rule` is skipped when `anchor` is one of the element's own lines, without indentation (e.g. \"id: dayCell\", \"text: qsTr(\\\"OK\\\")\" or a handler line). `why` says why it is not a problem.",
+  "src/WebPelotonAuth.qml": [
+    {"rule": "tap-only", "anchor": "popupPelotonConnectedWeb.close();", "why": "a tap anywhere closes the 'account connected' message, for a finger only; the screen reader closes it with Back"}
+  ]
+}

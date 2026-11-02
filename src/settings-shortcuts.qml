@@ -3,7 +3,6 @@ import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
@@ -25,75 +24,10 @@ ScrollView {
         }
     }
 
-    Settings {
-        id: settings
-        property bool shortcuts_enabled: false
-        property string shortcut_speed_plus: ""
-        property string shortcut_speed_minus: ""
-        property string shortcut_inclination_plus: ""
-        property string shortcut_inclination_minus: ""
-        property string shortcut_resistance_plus: ""
-        property string shortcut_resistance_minus: ""
-        property string shortcut_peloton_resistance_plus: ""
-        property string shortcut_peloton_resistance_minus: ""
-        property string shortcut_target_resistance_plus: ""
-        property string shortcut_target_resistance_minus: ""
-        property string shortcut_target_power_plus: ""
-        property string shortcut_target_power_minus: ""
-        property string shortcut_target_zone_plus: ""
-        property string shortcut_target_zone_minus: ""
-        property string shortcut_target_speed_plus: ""
-        property string shortcut_target_speed_minus: ""
-        property string shortcut_target_incline_plus: ""
-        property string shortcut_target_incline_minus: ""
-        property string shortcut_fan_plus: ""
-        property string shortcut_fan_minus: ""
-        property string shortcut_peloton_offset_plus: ""
-        property string shortcut_peloton_offset_minus: ""
-        property string shortcut_peloton_remaining_plus: ""
-        property string shortcut_peloton_remaining_minus: ""
-        property string shortcut_remaining_time_plus: ""
-        property string shortcut_remaining_time_minus: ""
-        property string shortcut_gears_plus: ""
-        property string shortcut_gears_minus: ""
-        property string shortcut_pid_hr_plus: ""
-        property string shortcut_pid_hr_minus: ""
-        property string shortcut_ext_incline_plus: ""
-        property string shortcut_ext_incline_minus: ""
-        property string shortcut_biggears_plus: ""
-        property string shortcut_biggears_minus: ""
-        property string shortcut_avs_cruise: ""
-        property string shortcut_avs_climb: ""
-        property string shortcut_avs_sprint: ""
-        property string shortcut_power_avg: ""
-        property string shortcut_erg_mode: ""
-        property string shortcut_preset_resistance_1: ""
-        property string shortcut_preset_resistance_2: ""
-        property string shortcut_preset_resistance_3: ""
-        property string shortcut_preset_resistance_4: ""
-        property string shortcut_preset_resistance_5: ""
-        property string shortcut_preset_speed_1: ""
-        property string shortcut_preset_speed_2: ""
-        property string shortcut_preset_speed_3: ""
-        property string shortcut_preset_speed_4: ""
-        property string shortcut_preset_speed_5: ""
-        property string shortcut_preset_inclination_1: ""
-        property string shortcut_preset_inclination_2: ""
-        property string shortcut_preset_inclination_3: ""
-        property string shortcut_preset_inclination_4: ""
-        property string shortcut_preset_inclination_5: ""
-        property string shortcut_preset_powerzone_1: ""
-        property string shortcut_preset_powerzone_2: ""
-        property string shortcut_preset_powerzone_3: ""
-        property string shortcut_preset_powerzone_4: ""
-        property string shortcut_preset_powerzone_5: ""
-        property string shortcut_preset_powerzone_6: ""
-        property string shortcut_preset_powerzone_7: ""
-        property string shortcut_auto_resistance: ""
-        property string shortcut_lap: ""
-        property string shortcut_start_stop: ""
-        property string shortcut_stop: ""
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     ColumnLayout {
         id: mainLayout

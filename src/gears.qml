@@ -3,27 +3,23 @@ import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The column with its margins, which are not in its implicit height
+    contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     id: gearSettingsWindow
     visible: true
     clip: true
 
     // Properties
-    Settings {
-        id: settings
-        property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-        property int gear_crankset_size: 42
-        property int gear_cog_size: 14
-        property string gear_wheel_size: "700 x 18C"
-        property real gear_circumference: 2070
-        property bool wahoo_without_wheel_diameter: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     property int selectedCranksetSize: settings.gear_crankset_size
     property int selectedCogSize: settings.gear_cog_size
@@ -87,8 +83,8 @@ ScrollView {
         settings.gear_configuration = gearRowsToString(gearRows)
     }
 
-    onSettingsChanged: {
-        console.log("onSettingsChanged")
+    onGearSettingsChanged: {
+        console.log("onGearSettingsChanged")
         updateSettings()
     }
 
@@ -312,15 +308,22 @@ ScrollView {
         var temp = gearRows
         gearRows = []
         gearRows = temp
+        // Without it the table kept the removed gears and the reset was not saved
+        gearConfigurationChanged(gearRows)
     }
 
-    // Signals to notify when values change
-    signal settingsChanged()
+    // Signals to notify when values change (not settingsChanged: that is the change signal of
+    // the settings property)
+    signal gearSettingsChanged()
     signal gearConfigurationChanged(var gearRows)
     signal restoreDefaultWheelDiameter()
 
     ColumnLayout {
-        anchors.fill: parent
+        // Not tied to the bottom: the column height would come from the content height made from
+        // it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: 20
         spacing: 20
         id: chainringColumn
@@ -396,7 +399,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCranksetSize = value
                         console.log("Crankset Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -424,7 +427,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCogSize = value
                         console.log("Cog Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -541,7 +544,7 @@ ScrollView {
                           selectedWheelSize = model.get(currentIndex).text
                           selectedCircumference = model.get(currentIndex).circumference
                           console.log("wheelSizeCombo changed");
-                          settingsChanged()
+                          gearSettingsChanged()
                       }
                   }
                 }
@@ -611,11 +614,12 @@ ScrollView {
             title: qsTr("Virtual Gear Table")
             Accessible.focusable: true
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height
+            // The table is as tall as its rows and the page scrolls as one: the table had the rest
+            // of the page, but the page is as tall as its content, so the rest was nothing and only
+            // the header of the table showed
 
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
 
                 // Updated Buttons Row
@@ -720,7 +724,10 @@ ScrollView {
                 ListView {
                     id: gearTable
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: contentHeight
+                    // The page margins are not in the implicit height: never squeeze the rows
+                    Layout.minimumHeight: contentHeight
+                    interactive: false
                     clip: true
                     property int currentRow: -1
                     model: ListModel {

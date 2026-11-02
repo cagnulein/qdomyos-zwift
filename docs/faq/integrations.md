@@ -18,7 +18,9 @@ On Android devices that rely on an external USB ANT+ stick, the ANT stack may al
 
 If you do not need the Garmin watch to receive the treadmill data live, QZ can record the workout itself and upload the generated **FIT activity** to Garmin Connect.
 
-In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the Garmin Connect integration in QZ and use QZ to record the session; the completed activity will be pushed automatically to Garmin Connect and it will count as training effect and Vo2Max.
+In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the **Garmin Connect** integration in QZ, verify the login, and record the session; QZ can then upload the completed **FIT activity** to Garmin Connect.
+
+**For Garmin Training Effect-related FIT data**, enable the optional **Garmin device / Training Effect** setting in QZ's Garmin options before recording. This setting is **disabled by default**. The FIT exporter then writes Garmin device identity and training-effect-related fields instead of its ordinary device identity. A user confirmed that ordinary Garmin Connect login and activity upload worked; the optional setting's effect on their Training Effect display was **not separately confirmed**. Garmin Connect determines which metrics it accepts and displays, so a VO2max estimate or Training Effect score is **not guaranteed** merely by uploading a workout.
 
 Choose **ANT+ SDM/footpod** when you want the watch itself to see and record the treadmill speed/distance during the workout. Choose **Garmin Connect FIT upload** when your main goal is simply to have the finished activity and its metrics in Garmin Connect.
 
@@ -215,3 +217,12 @@ An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android 
 If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
 
 In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
+
+
+## Can QZ and ROUVY run on the same Android tablet and connect through QZ's virtual Bluetooth trainer?
+
+**Not with the usual QZ virtual-Bluetooth-to-ROUVY pairing workflow.** In a reported Android tablet setup, both apps could launch, but ROUVY did not discover QZ's virtual trainer on that same tablet. The established working arrangement used **QZ on an Android phone** and **ROUVY on a separate computer**.
+
+For this workflow, connect the physical trainer to QZ on the first device, keep QZ's virtual device and virtual Bluetooth enabled, and select **QZ's virtual trainer** as the power/controllable device in ROUVY on the second device. Do not pair ROUVY directly to the physical trainer if you want QZ to act as the bridge.
+
+**Zwift is different:** QZ can be kept running alongside Zwift on a supported Android device using the **Android Notification** setting under Experimental Settings, subject to Android's background/battery restrictions. That same-device Zwift capability should not be taken as evidence that ROUVY supports the same local virtual-Bluetooth pairing.

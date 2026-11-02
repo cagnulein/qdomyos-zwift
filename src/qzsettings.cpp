@@ -420,6 +420,8 @@ const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_devic
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
+const QString QZSettings::virtual_device_rower_cadence_gain = QStringLiteral("virtual_device_rower_cadence_gain");
+const QString QZSettings::virtual_device_rower_cadence_offset = QStringLiteral("virtual_device_rower_cadence_offset");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
@@ -941,6 +943,7 @@ const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_for
 const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
 const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
+const QString QZSettings::proform_treadmill_sport_55 = QStringLiteral("proform_treadmill_sport_55");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 const QString QZSettings::gear_configuration = QStringLiteral("gear_configuration");
 const QString QZSettings::default_gear_configuration = QStringLiteral("1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true");
@@ -1176,6 +1179,7 @@ const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftpla
 const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
 const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
 
+const QString QZSettings::ios_background_keepalive = QStringLiteral("ios_background_keepalive");
 const QString QZSettings::renpho_bike_knob_gears = QStringLiteral("renpho_bike_knob_gears");
 
 // MyWhoosh Link settings
@@ -1333,8 +1337,19 @@ const QString QZSettings::android_notification_prompt_disabled = QStringLiteral(
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 const QString QZSettings::ui_text_scale = QStringLiteral("ui_text_scale");
 const QString QZSettings::ui_text_scale_system = QStringLiteral("ui_text_scale_system");
+const QString QZSettings::treadmill_direct_distance_increment = QStringLiteral("treadmill_direct_distance_increment");
 
-const uint32_t allSettingsCount = 1030;
+const QString QZSettings::history_chart_power_order = QStringLiteral("history_chart_power_order");
+const QString QZSettings::history_chart_heart_order = QStringLiteral("history_chart_heart_order");
+const QString QZSettings::history_chart_resistance_order = QStringLiteral("history_chart_resistance_order");
+const QString QZSettings::history_chart_peloton_resistance_order = QStringLiteral("history_chart_peloton_resistance_order");
+const QString QZSettings::history_chart_cadence_order = QStringLiteral("history_chart_cadence_order");
+const QString QZSettings::history_chart_power_distribution_order = QStringLiteral("history_chart_power_distribution_order");
+const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral("history_chart_speed_inclination_order");
+
+const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
+
+const uint32_t allSettingsCount = 1043;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2095,6 +2110,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
+    {QZSettings::proform_treadmill_sport_55, QZSettings::default_proform_treadmill_sport_55},
     {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
     {QZSettings::gear_configuration, QZSettings::default_gear_configuration},
     {QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size},
@@ -2380,6 +2396,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
     {QZSettings::watt_max, QZSettings::default_watt_max},
     {QZSettings::android_landscape_cutout_margin, QZSettings::default_android_landscape_cutout_margin},
@@ -2391,6 +2408,17 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::life_fitness_guest_login, QZSettings::default_life_fitness_guest_login},
     {QZSettings::ui_text_scale, QZSettings::default_ui_text_scale},
     {QZSettings::ui_text_scale_system, QZSettings::default_ui_text_scale_system},
+    {QZSettings::treadmill_direct_distance_increment, QZSettings::default_treadmill_direct_distance_increment},
+    {QZSettings::history_chart_power_order, QZSettings::default_history_chart_power_order},
+    {QZSettings::history_chart_heart_order, QZSettings::default_history_chart_heart_order},
+    {QZSettings::history_chart_resistance_order, QZSettings::default_history_chart_resistance_order},
+    {QZSettings::history_chart_peloton_resistance_order, QZSettings::default_history_chart_peloton_resistance_order},
+    {QZSettings::history_chart_cadence_order, QZSettings::default_history_chart_cadence_order},
+    {QZSettings::history_chart_power_distribution_order, QZSettings::default_history_chart_power_distribution_order},
+    {QZSettings::history_chart_speed_inclination_order, QZSettings::default_history_chart_speed_inclination_order},
+    {QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0},
+    {QZSettings::virtual_device_rower_cadence_gain, QZSettings::default_virtual_device_rower_cadence_gain},
+    {QZSettings::virtual_device_rower_cadence_offset, QZSettings::default_virtual_device_rower_cadence_offset},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

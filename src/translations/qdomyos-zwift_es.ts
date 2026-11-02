@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ requiere que Bluetooth y los servicios de ubicación estén activados.
+        <translation type="vanished">QZ requiere que Bluetooth y los servicios de ubicación estén activados.
 Los servicios de ubicación son necesarios en Android para que la aplicación pueda encontrar dispositivos Bluetooth.
 El GPS no se utilizará.
 
@@ -197,7 +197,7 @@ El GPS no se utilizará.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>¿Te gustaría que te recordáramos habilitar los Servicios de Ubicación la próxima vez?</translation>
+        <translation type="vanished">¿Te gustaría que te recordáramos habilitar los Servicios de Ubicación la próxima vez?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>Aumentar el valor de </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ necesita que Bluetooth esté activado para detectar equipos de ejercicio. En Android 11 y versiones anteriores, para buscar dispositivos Bluetooth también se requieren el permiso de ubicación y los servicios de ubicación activados. QZ no utiliza tus datos de ubicación. En Android 12 y versiones posteriores, el permiso «Dispositivos cercanos» permite buscar dispositivos Bluetooth sin acceder a la ubicación.
+
+¿Quieres activar los servicios necesarios?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>¿Quieres que la próxima vez te recordemos activar Bluetooth o los servicios de ubicación?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Would you like to do that now?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>¡%1 (sensor de frecuencia cardíaca) conectado!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Buscando %1 (sensor de frecuencia cardíaca)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensor de frecuencia cardíaca) no encontrado. Comprueba que esté encendido y transmitiendo la frecuencia cardíaca.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensor de frecuencia cardíaca): sin frecuencia cardíaca. Comprueba que esté transmitiendo la frecuencia cardíaca.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -1005,6 +1029,14 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Android notification enabled</source>
         <translation>Notificación de Android activada</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 lista</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Error al inicializar la YPOO M5; es necesario volver a conectar</translation>
     </message>
 </context>
 <context>
@@ -3754,6 +3786,19 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <source>feet</source>
         <translation>ft</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>La potencia objetivo de QZ está anulando los comandos de la app. Pausa QZ y reanúdalo para devolver el control a la app.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Canciones de Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ está en funcionamiento</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -5574,8 +5619,8 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Idioma de la aplicación:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ. Se requiere reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Selecciona Automático para seguir el idioma de tu dispositivo o elige un idioma específico para QZ.</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6262,6 +6307,14 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Activa esto para leer la distancia directamente de la cinta de correr en lugar de calcularla a partir de la velocidad. Algunas cintas de correr reportan la distancia con más precisión que el cálculo basado en la velocidad. Predeterminado: apagado.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Distancia directa: sumar solo el incremento</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Funciona junto con «Distancia directa de la cinta de correr». Activa esto si el contador de distancia de tu cinta sigue sumando entre entrenamientos o vuelve a empezar desde 0 al apagar la cinta: solo se suma la distancia recorrida durante el entrenamiento, no lo que la cinta contó antes de que QZ se conectara. Predeterminado: apagado.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7771,6 +7824,102 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Pafers Rower</source>
         <translation>Remo Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Opciones de Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Nombre de usuario/correo electrónico de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Contraseña de Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inicio de sesión como invitado de Life Fitness (experimental)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Usa un perfil sintético de Life Fitness sin cuenta. Si se activa, se ignoran el nombre de usuario, la contraseña y los datos de cuenta guardados; úsalo solo para probar el inicio de sesión como invitado compatible.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Gráficos del historial de entrenamientos</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Frecuencia cardíaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Resistencia vs. resistencia objetivo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Resistencia Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadencia</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Distribución de potencia</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Velocidad e inclinación</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Mueve los gráficos hacia arriba o hacia abajo para elegir su orden en el historial de entrenamientos. Los cambios se guardan automáticamente.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Subir</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Bajar</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Restablecer el orden predeterminado</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Opciones de Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Activa el comando FTMS estándar Request Control para las cintas de correr Moovio Lynx Konect 2.0. Por defecto, está desactivado.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Ganancia de cadencia</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Multiplicador que se aplica solo a la frecuencia de palada enviada por el remo virtual. Por defecto, 1.0; usa 0.25 para convertir las RPM de BikeERG en la frecuencia de palada que solicita EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Desfase que se suma después de la ganancia. Por defecto, 0.0. La cadencia que muestra QZ y las métricas del entrenamiento no cambian.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Mantener activo en segundo plano (iOS)</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Solo iOS. Mantiene QZ en funcionamiento con la pantalla apagada o en segundo plano, para que las conexiones Bluetooth y los temporizadores de la sesión no se congelen. Usa una pista de audio silenciosa mezclada con tu música, así que no se interrumpe lo que estés escuchando. Actívalo si necesitas entrenar con la pantalla bloqueada o con QZ en segundo plano. Por defecto, está desactivado.</translation>
     </message>
 </context>
 <context>

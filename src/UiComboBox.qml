@@ -15,6 +15,26 @@ ComboBox {
         return v
     }
 
+    // A settings row binds the saved setting here instead of displayText (savedText) or
+    // currentIndex (savedIndex); the list shows it and shows it again whenever the setting
+    // changes (after OK too). `dirty` - another item is picked than the saved one, the OK button
+    // of the row is enabled by it: a grey OK means there is nothing to save. A list without
+    // either (the wizard) is never dirty
+    property var savedText: undefined
+    property var savedIndex: undefined
+    property bool dirty: (savedText !== undefined && displayText !== String(savedText))
+                         || (savedIndex !== undefined && currentIndex !== savedIndex)
+    // ValueComboBox shows a saved raw value through its `value`
+    function showSaved() {
+        if (savedText !== undefined)
+            displayText = savedText
+        if (savedIndex !== undefined)
+            currentIndex = savedIndex
+    }
+    onSavedTextChanged: control.showSaved()
+    onSavedIndexChanged: control.showSaved()
+    Component.onCompleted: control.showSaved()
+
     // Width of the widest item, measured when the list opens
     property real widestItem: 0
 

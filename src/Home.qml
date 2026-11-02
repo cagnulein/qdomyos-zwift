@@ -30,6 +30,7 @@ HomeForm {
 
     Settings {
         id: settings
+        Component.onCompleted: window.retakeSettingsSnapshot(settings)
         property real ui_zoom: 100.0
         property bool theme_tile_icon_enabled: true
         property string theme_tile_background_color: "#303030"
@@ -39,6 +40,26 @@ HomeForm {
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
         property bool trainprogram_sound_on_segment: false
+    }
+
+    // The settings page writes through its own Settings copy, and a copy reads the stored values
+    // only when it is created, so the tile size and the tile colors waited for a restart (#466).
+    // The settings page sends each new value here (settings.qml), and it is set in both copies.
+    // Assigning one key makes Qt.labs.settings write the whole copy back, so every key of these
+    // copies that the settings page can change is sent, and none of them is left stale.
+    Connections {
+        target: window
+        function onTileSettingChanged(key, value) {
+            if (settings[key] !== undefined && settings[key] !== value) {
+                // skipLocationServicesDialog is written back too. homeform.cpp resets it when the
+                // GPS is on (Android), after this copy has read it: apply the same rule here
+                if (Qt.platform.os === "android" && typeof rootItem !== "undefined" && rootItem.locationServices())
+                    settings.skipLocationServicesDialog = false
+                settings[key] = value
+            }
+            if (homeFormSettings[key] !== undefined && homeFormSettings[key] !== value)
+                homeFormSettings[key] = value
+        }
     }
 
     SoundEffect {
@@ -239,7 +260,7 @@ HomeForm {
     MessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
-        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
+        informativeText: qsTr("QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.\n\nWould you like to enable the required services?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -255,7 +276,7 @@ HomeForm {
     MessageDialog {
         id: remindLocationServicesDialog
         text: qsTr("Reminder Preference")
-        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
+        informativeText: qsTr("Would you like to be reminded about enabling Bluetooth or Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -285,6 +306,8 @@ HomeForm {
         if (rootItem.rpeFeelPopupEnabled()) {
             rpeFeelPopup.selectedRpe = 5;
             rpeFeelPopup.selectedFeel = 50;
+            // A change of language rebuilds the list and moves it to the first item
+            feelCombo.currentIndex = 2;
             rpeFeelPopup.open();
         } else {
             finish_stop();

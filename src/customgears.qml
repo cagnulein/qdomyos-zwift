@@ -3,22 +3,22 @@ import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The column with its top and bottom margins, which are not in its implicit height
+    contentHeight: customGearsColumn.implicitHeight + 2 * customGearsColumn.anchors.topMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     id: customGearSettingsWindow
     visible: true
     clip: true
 
-    Settings {
-        id: settings
-        property bool gears_custom_table_enabled: false
-        property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     ListModel {
         id: gearListModel
@@ -107,8 +107,13 @@ ScrollView {
     }
 
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 10
+        id: customGearsColumn
+        // Top, left and right only: filling the content item too tied the column height to the
+        // content height made from it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 10
         anchors.leftMargin: window.contentSideMargin
         anchors.rightMargin: window.contentSideMargin
         spacing: 10
