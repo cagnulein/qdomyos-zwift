@@ -72,6 +72,10 @@ ColumnLayout {
         Accessible.role: Accessible.CheckBox
         Accessible.checkable: true
         Accessible.checked: rootElement.isOpen
+        Accessible.onPressAction: {
+            indicatCbx.checked = !indicatCbx.checked
+            indicatCbx.clicked()
+        }
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {

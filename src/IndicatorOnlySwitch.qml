@@ -13,6 +13,10 @@ SwitchDelegate {
     Accessible.role: Accessible.CheckBox
     Accessible.checkable: true
     Accessible.checked: root.checked
+    Accessible.onPressAction: {
+        root.checked = !root.checked
+        root.clicked()
+    }
 
     // Preserve Material styling while making translated setting titles responsive.
     function configureTextItem(item) {
