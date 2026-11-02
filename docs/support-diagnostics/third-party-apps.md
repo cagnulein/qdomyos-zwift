@@ -66,6 +66,8 @@
 6. Perform one clearly identifiable control action and keep the test short.
 7. Stop QZ and provide the complete debug log, together with the action performed and the approximate time it happened.
 
+On Android, a **QZ-backup-*.fit** workout recording is **not** a Bluetooth debug log. Ask for the **debug-*.log** file from the same reproduction, not a FIT export. If the file cannot be found, first ask for the Android version and a screenshot of the file manager at the phone's top-level **Documents/QZ** folder; do not assume that the app-private **Android/data** path is accessible. Check whether **Debug Log** was enabled in Experimental Settings and, if necessary, whether **Android Force Documents/QZ Folder** was selected. The exact location can vary with the Android version and QZ settings.
+
 If a QZ option is suspected of changing the behavior, run separate short tests with the option enabled and disabled rather than changing several settings during one recording.
 
 ### Why it matters
@@ -211,6 +213,7 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - Fitness machine model, QZ version and platform, receiving app and version, and which device runs each app.
 - At the moment of disconnection, do QZ's live speed/power/cadence tiles also freeze or fall to zero, or do they continue updating while only the receiving app loses the connection?
+- Record the receiving app's **exact error message and time to failure** (for example, an incompatibility warning after about 30 seconds). For treadmill integrations such as Runna, state separately whether **speed** commands and **incline** commands work during the initial connected period.
 - Does the connection recover on its own, after re-pairing in the receiving app, or only after fully restarting QZ?
 - Was QZ in the foreground with the screen awake, or in the background or with the screen locked?
 
@@ -219,9 +222,29 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Confirm that no manufacturer app or second phone is also connected directly to the physical machine. Record whether the receiving app uses QZ's virtual Bluetooth device or a network connection.
 - Capture one QZ debug log that includes a disconnection, and provide the approximate elapsed time of the failure and whether the QZ metrics stopped. Keep the test configuration unchanged.
 - If QZ continues to receive live metrics, capture the receiving app's pairing/disconnection screen and retry its virtual-device connection separately before changing machine-specific settings.
+- If the receiving app initially controls speed but later rejects the virtual treadmill, record the QZ build source and version, the FTMS treadmill selection, and whether QZ's **own** speed/incline buttons still control the machine after the warning. Capture one timed debug log spanning the warning.
 
 ### Why it matters
 
 - If QZ metrics stop, investigate the physical machine-to-QZ connection; if QZ metrics continue, investigate the QZ-to-training-app link instead.
 - Foreground state, competing connections, recovery behavior, and a timestamped log distinguish intermittent Bluetooth loss from downstream virtual-device or app lifecycle problems.
 - In a reported multi-minute session, resistance and incline worked until intermittent disconnects; checking QZ's own tiles established that the physical machine connection, not just the receiving app's pairing, had dropped.
+
+## Virtual gears repeatedly shift down while pedaling despite manual gear changes
+
+### Provide first
+
+- Trainer model, QZ version, connected controller (for example, Zwift Ride/Click), and whether the Gears tile changes when the rider presses a manual shift button.
+- Report whether the gear immediately returns toward the easiest gear **only while pedaling** or also while stopped, plus the approximate cadence at which it happens.
+- Screenshot **Automatic Virtual Shifting** enablement, the selected shifting profile, and that profile's **gear-down cadence threshold** and **time below threshold**. Do not assume that a controller vibration means the controller itself initiated the downshift.
+
+### If still unclear
+
+- Compare one short test with Automatic Virtual Shifting enabled against another with it disabled, leaving the trainer and controller pairing unchanged. Note the physical resistance and gear tile after one manual upshift in each test.
+- Provide a QZ debug log spanning a few seconds of pedaling and one deliberate manual shift. Include cadence, approximate time, gear number, and whether a controller vibration repeats.
+- If automatic shifting is intended, report the cadence thresholds and delay for the active profile rather than changing several values simultaneously.
+
+### Why it matters
+
+- QZ implements automatic virtual shifting using cadence thresholds and delays. Cadence persistently below the downshift threshold can cause repeated automatic downshift attempts even when manual controls work.
+- In a confirmed case, cadence around **30–37 RPM** was below the configured **65 RPM / 2-second** downshift rule, explaining repeated returns to gear 1 and controller vibration. The diagnostic distinction is automatic shifting versus lost controller input; the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) covers the corresponding configuration.
