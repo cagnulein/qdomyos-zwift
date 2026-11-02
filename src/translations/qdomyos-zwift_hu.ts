@@ -4424,6 +4424,20 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <source>Please choose a file</source>
         <translation>Válasszon fájlt</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo virtuális fokozatok</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>A virtuális fokozatok szimulálásához a QZ módosítja az edzőgépben tárolt kerékkerületet.
+Ez az érték a QZ bezárása után is az edzőgépben maradhat, és amíg nem állítják vissza, befolyásolhatja az edzőgép működését más alkalmazásokban.
+
+Ennek elkerüléséhez nyissa meg a Beállítások &gt; Kerékpár beállításai &gt; Wahoo beállításai oldalt, kapcsolja be a „Kerékátmérő-protokoll nélkül” lehetőséget (a virtuális fokozatok ezután a meredekségen keresztül működnek), majd csatlakoztatott edzőgép mellett koppintson az „Alapértelmezett beállítás visszaállítása az edzőgépen” gombra.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

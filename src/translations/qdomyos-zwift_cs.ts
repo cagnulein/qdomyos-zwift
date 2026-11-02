@@ -4440,6 +4440,20 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <source>Please choose a file</source>
         <translation>Vyberte soubor</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuální převody Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Pro simulaci virtuálních převodů QZ mění obvod kola uložený v trenažéru.
+Tato hodnota může v trenažéru zůstat i po zavření QZ a ovlivňovat jeho chování v jiných aplikacích, dokud nebude obnovena.
+
+Chcete-li tomu zabránit, přejděte do Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo, zapněte „Bez protokolu průměru kola“ (virtuální převody pak fungují přes stoupání) a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

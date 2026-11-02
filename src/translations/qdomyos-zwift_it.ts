@@ -4448,6 +4448,20 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
         <source>Don&apos;t ask again</source>
         <translation>Non chiedere più</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Marce virtuali Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Per simulare le marce virtuali, QZ modifica la circonferenza della ruota memorizzata nel rullo.
+Questo valore può rimanere nel rullo dopo la chiusura di QZ e influire sul suo funzionamento in altre app finché non viene ripristinato.
+
+Per evitarlo, vai in Impostazioni &gt; Opzioni bici &gt; Opzioni Wahoo, attiva «Senza Protocollo Diametro Ruota» (le marce virtuali funzioneranno allora tramite la pendenza) e, con il rullo connesso, tocca «Ripristina le impostazioni predefinite del rullo».</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

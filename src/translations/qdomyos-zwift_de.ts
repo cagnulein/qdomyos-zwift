@@ -4448,6 +4448,20 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <source>Don&apos;t ask again</source>
         <translation>Nicht mehr fragen</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuelle Gänge bei Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Um virtuelle Gänge zu simulieren, ändert QZ den im Trainer gespeicherten Radumfang.
+Dieser Wert kann nach dem Schließen von QZ im Trainer bleiben und das Verhalten des Trainers in anderen Apps beeinflussen, bis er zurückgesetzt wird.
+
+Um das zu verhindern: Einstellungen &gt; Fahrradoptionen &gt; Wahoo Optionen, „Ohne Laufrad-Durchmesser-Protokoll“ (virtuelle Gänge laufen dann über die Steigung) einschalten und bei verbundenem Trainer auf „Standardeinstellung des Trainers wiederherstellen“ tippen.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

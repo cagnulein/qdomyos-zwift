@@ -6784,6 +6784,17 @@ QString homeform::signal() {
     return QStringLiteral("icons/icons/signal-1.png");
 }
 
+// A Wahoo trainer gets its wheel circumference written at connection: tell the user once. The flag
+// lives only here, not in a QML Settings: writing a property of a Qt.labs.settings copy saves all
+// the properties of that copy, which would bring back the values it read at startup
+void homeform::showWahooWheelNotice() {
+    QSettings settings;
+    if (settings.value(QZSettings::wahoo_wheel_notice_shown, QZSettings::default_wahoo_wheel_notice_shown).toBool())
+        return;
+    settings.setValue(QZSettings::wahoo_wheel_notice_shown, true);
+    emit wahooWheelNoticeRequested();
+}
+
 void homeform::handleRestoreDefaultWheelDiameter() {
     if (bluetoothManager && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == BIKE) {

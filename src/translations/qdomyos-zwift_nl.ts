@@ -4440,6 +4440,20 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <source>Please choose a file</source>
         <translation>Kies een bestand</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuele versnellingen van Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Om virtuele versnellingen te simuleren, wijzigt QZ de wielomtrek die in de trainer is opgeslagen.
+Deze waarde kan in de trainer blijven staan nadat je QZ hebt gesloten en kan de trainer in andere apps beïnvloeden totdat de waarde is hersteld.
+
+Om dit te voorkomen: ga naar Instellingen &gt; Fietsopties &gt; Wahoo-opties, schakel ‘Zonder wieldiameterprotocol’ (virtuele versnellingen werken dan via het hellingspercentage) in en tik, terwijl de trainer verbonden is, op ‘Standaardinstelling van de trainer herstellen’.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

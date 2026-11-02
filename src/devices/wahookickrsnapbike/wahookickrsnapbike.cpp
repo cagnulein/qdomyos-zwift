@@ -254,6 +254,10 @@ void wahookickrsnapbike::update() {
         QThread::msleep(700);
 
         if (!wahooWithoutWheelDiameter) {
+            // the KICKR SNAP rejected this write in the only log we have
+            if (!KICKR_SNAP && homeform::singleton())
+                homeform::singleton()->showWahooWheelNotice();
+
             QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t e[20];
             memcpy(e, d.constData(), d.length());

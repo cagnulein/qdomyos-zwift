@@ -4448,6 +4448,20 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <source>Don&apos;t ask again</source>
         <translation>No volver a preguntar</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Marchas virtuales de Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Para simular marchas virtuales, QZ cambia la circunferencia de rueda guardada en el rodillo.
+Este valor puede permanecer en el rodillo después de cerrar QZ y afectar a su funcionamiento en otras aplicaciones hasta que se restaure.
+
+Para evitarlo, ve a Ajustes &gt; Opciones de bicicleta &gt; Opciones de Wahoo, activa «Sin cambio de diámetro de rueda» (las marchas virtuales funcionarán entonces a través de la pendiente) y, con el rodillo conectado, pulsa «Restaurar la configuración predeterminada del rodillo».</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

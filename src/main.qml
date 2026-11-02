@@ -1064,6 +1064,24 @@ ApplicationWindow {
         visible: false
     }
 
+    // virtual gears on a Wahoo trainer change a value stored in the trainer: say it once
+    UiMessageDialog {
+        id: popupWahooWheel
+        text: qsTr("Wahoo Virtual Gears")
+        informativeText: qsTr("To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.\nThis value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.\n\nTo stop this, go to Settings > Bike Options > Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.")
+        buttons: (MessageDialog.Ok)
+        onOkClicked: this.visible = false
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onWahooWheelNoticeRequested() {
+            popupWahooWheel.visible = true
+        }
+    }
+
     // a new workout history database was started (first start, reinstall, database removed):
     // the workouts of a previous install may still be in the QZ folder, hidden from the app
     MessageDialog {

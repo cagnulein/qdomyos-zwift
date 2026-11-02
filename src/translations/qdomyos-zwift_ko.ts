@@ -4440,6 +4440,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <source>Please choose a file</source>
         <translation>파일을 선택하세요</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo 가상 기어</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
+This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+
+To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>가상 기어를 구현하기 위해 QZ는 트레이너에 저장된 휠 둘레를 변경합니다.
+이 값은 QZ를 닫은 후에도 트레이너에 남아 있을 수 있으며, 복원할 때까지 다른 앱에서 트레이너 동작에 영향을 줄 수 있습니다.
+
+이를 막으려면 [설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]에서 [휠 지름 없는 프로토콜]을 켜고 (이후 가상 기어는 경사를 통해 작동합니다), 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
