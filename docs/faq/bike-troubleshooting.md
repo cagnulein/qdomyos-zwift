@@ -97,16 +97,16 @@ The unlock step may need to be repeated after the bike is power-cycled. In a con
 
 If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
 
-## Can a newer QZ build unlock an Echelon EX-7S without opening the Echelon app on a second device?
+## Can a newer QZ build unlock an Echelon EX-3 or EX-7S without opening the Echelon app on a second device?
 
-Yes, on a QZ build that includes **direct Echelon unlock**. If you previously needed the official Echelon app on a second phone or tablet to start an EX-7S session, update QZ to a build with direct unlock support and try this sequence:
+Yes, on a QZ build that includes **direct Echelon unlock**. If you previously needed the official Echelon app on a second phone or tablet to start an EX-3 or EX-7S session, update QZ to a build with direct unlock support and try this sequence:
 
 1. Open **QZ Settings > Experimental Settings** and **disable Virtual Echelon**.
 2. Save the setting, fully close QZ, and restart it.
 3. Connect QZ to the Echelon bike and check that cadence and resistance update and that the bike responds to resistance changes.
 4. Start Peloton (or your other training app) on the separate device and use the QZ connection as usual.
 
-An EX-7S owner explicitly confirmed that this setup worked after updating QZ, **without reopening the Echelon app**. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
+**Confirmed on two models:** An EX-7S owner reported that this setup worked after updating QZ without reopening the Echelon app. Separately, an **EX-3** owner affected by the firmware lock installed the **iOS TestFlight beta**, kept **Virtual Echelon disabled**, and confirmed that Zwift riding worked again without the second-device unlock. Close the official Echelon app on other devices so it does not hold the Bluetooth connection. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
 
 
 ## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
@@ -192,7 +192,7 @@ Yes. **Automatic Virtual Shifting** can change QZ's virtual gear when cadence cr
 3. If the target previously fell repeatedly during pedalling but now stays at the requested value, review the automatic-shifting cadence thresholds before turning the feature back on.
 4. Test third-party ERG or terrain control separately; fixing local automatic shifts does not prove that MyWhoosh or another app is sending power/resistance commands.
 
-**Confirmed result:** One rider's low cadence (about 40–55 RPM) stayed below an automatic downshift threshold of 65 RPM, triggering repeated downshifts and roughly 5 W reductions until the target reached zero. After correcting the unwanted Automatic Virtual Shifting configuration, the rider reported QZ working. The cadence thresholds and feature enablement are also present in QZ's settings code.
+**Confirmed results:** One rider's low cadence (about 40–55 RPM) stayed below an automatic downshift threshold of 65 RPM, triggering repeated downshifts and roughly 5 W reductions until the target reached zero. After correcting the unwanted Automatic Virtual Shifting configuration, the rider reported QZ working. In another confirmed Zwift Ride/KICKR CORE 2 case, a cadence of **30–37 RPM** with a **65 RPM / 2-second** downshift threshold repeatedly returned the virtual gear to **1** and made the controller vibrate every two seconds, even at the lowest gear. Disabling Automatic Virtual Shifting restored manual shifting. If you see repeated gear-down vibrations **only while pedalling**, check this setting before changing the gear table or re-pairing the controller. The cadence thresholds and feature enablement are present in QZ's settings code.
 
 ## QZ reads my Domyos X12 bike's data, but changing Target Resistance does not move the bike. What can I try?
 
