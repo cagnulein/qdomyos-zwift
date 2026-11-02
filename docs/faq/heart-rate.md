@@ -22,7 +22,9 @@ When using QZ Garmin Companion on a Garmin watch with QZ on an iPhone, enable **
 
 Start Garmin Companion on the watch, reconnect QZ and confirm the QZ Heart Rate tile updates before recording. This combination was confirmed working with a supported elliptical and Garmin watch: the watch's heart rate appeared in QZ and in the resulting Garmin Connect activity.
 
-Garmin Companion supplies watch data such as heart rate to QZ; it does not mirror the fitness machine's workout metrics onto the watch screen. For heart rate alone, the watch's Bluetooth HR Broadcast feature is another option; do not enable both input paths at the same time.
+Garmin Companion supplies watch data such as heart rate to QZ; it does not mirror the fitness machine's workout metrics onto the watch screen. For heart rate alone, the watch's Bluetooth HR Broadcast feature is another option **on watches that support Bluetooth HR broadcasting**; do not enable both input paths at the same time.
+
+**Garmin vívoactive 4 on Android:** This model's heart-rate broadcast is ANT+, so do not expect it to appear as a Bluetooth belt under **Heart Rate Belt Name**. Instead, use the **QZ Garmin Companion** watch app, enable **Garmin Companion** in QZ on Android, and leave **Heart Rate Belt Name** disabled. A user confirmed that simply **opening the companion app on the watch**, without pressing its Start button, made heart rate appear in QZ after updating to the QZ Android beta. The beta update may have contributed; the exact reason the previous configuration failed was not isolated.
 
 ## Can QZ on an iPhone receive heart rate from a Garmin watch without pairing QZ to the watch as a bike sensor?
 
