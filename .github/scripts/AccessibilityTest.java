@@ -188,6 +188,17 @@ public class AccessibilityTest {
         String button = sign < 0 ? press : press.substring(0, sign);
         String expect = sign < 0 ? null : press.substring(sign + 1);
         AccessibilityNodeInfo target = find(button, true);
+        // the tiles show once the device is connected, later when a window of another app (Health
+        // Connect on API 35+) was over QZ: wait for the button up to 30 s, then for its page
+        boolean waited = target == null;
+        for (int i = 0; i < 60 && target == null; i++) {
+            Thread.sleep(500);
+            target = find(button, true);
+        }
+        if (waited && target != null) {
+            waitForSettledNodes();
+            target = find(button, true);
+        }
         if (target == null) {
             System.out.println("FAIL no button '" + button + "' on screen");
             return false;
@@ -289,8 +300,9 @@ public class AccessibilityTest {
         StringBuilder out = new StringBuilder();
         Rect bounds = new Rect();
         for (AccessibilityNodeInfo node : nodes) {
-            if (node.isClickable()) {
-                node.getBoundsInScreen(bounds);
+            node.getBoundsInScreen(bounds);
+            // a button with no size is not on the page, whatever its name says about a device
+            if (node.isClickable() && !bounds.isEmpty()) {
                 out.append(node.getContentDescription()).append(' ').append(bounds.toShortString()).append('\n');
             }
         }
