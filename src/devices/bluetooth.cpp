@@ -3275,7 +3275,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && !ftmsRower && !isConfiguredFtmsRowerDevice &&
-                       !iconsole_elliptical && !horizonTreadmill && !fitPlusBike && filter) {
+                       !iconsole_elliptical && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
