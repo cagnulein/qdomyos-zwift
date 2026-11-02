@@ -3493,6 +3493,18 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Trainingen geïmporteerd: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Kan het bestand niet naar de QZ-map kopiëren.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Trainingsprogramma&apos;s hersteld: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Al in de geschiedenis: %1.</translation>
     </message>
@@ -4041,6 +4053,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Trainingen van een eerdere installatie staan mogelijk nog in de QZ-map.
+Wil je ernaar zoeken?
+
+Geef in het volgende venster toegang tot de QZ-map.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Trainingsprogramma&apos;s</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
 Wil je ernaar zoeken?
 
 Geef in het volgende venster toegang tot de QZ-map.</translation>

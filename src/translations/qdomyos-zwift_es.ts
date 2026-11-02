@@ -3615,6 +3615,18 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Entrenamientos importados: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>No se pudo copiar el archivo a la carpeta QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Programas de entrenamiento restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>No se encontraron programas de entrenamiento de una instalación anterior.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Ya en el historial: %1.</translation>
     </message>
@@ -4143,6 +4155,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Los entrenamientos de una instalación anterior pueden seguir en la carpeta QZ.
+¿Quieres buscarlos?
+
+En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Programas de entrenamiento</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Los programas de entrenamiento de una instalación anterior pueden seguir en la carpeta QZ.
 ¿Quieres buscarlos?
 
 En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>

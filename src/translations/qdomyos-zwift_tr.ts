@@ -3493,6 +3493,18 @@ This may take a few moments on first startup.</source>
         <translation>İçe aktarılan antrenman: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Dosya QZ klasörüne kopyalanamadı.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Geri yüklenen antrenman programı: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Geçmişte zaten var: %1.</translation>
     </message>
@@ -4041,6 +4053,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Önceki bir kurulumdan kalan antrenmanlar QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Antrenman programları</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
 Bunlar aransın mı?
 
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>

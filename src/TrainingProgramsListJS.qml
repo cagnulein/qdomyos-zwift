@@ -57,6 +57,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
+        rootItem.trainingProgramsPageOpened()
     }
 
     // Model for search results
@@ -145,6 +146,16 @@ ColumnLayout {
 
             ColumnLayout {
                 spacing: 5
+
+                // programs of a previous install were copied back into the training folder
+                Connections {
+                    target: rootItem
+                    function onTrainingProgramsRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
 
                 Row {
                     Layout.fillWidth: true

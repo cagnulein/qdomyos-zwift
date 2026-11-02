@@ -31,6 +31,7 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
     private static final int DOCUMENT_PICKER_FIT_REQUEST_CODE = 4105;
     private static final int DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE = 4106;
+    private static final int DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE = 4107;
     private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
@@ -348,7 +349,8 @@ public class CustomQtActivity extends QtActivity {
             || requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE
-            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE;
+            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE;
     }
 
     // Folder of the QZ files on Android 14+ (Documents/QZ) as a document of the external storage
@@ -474,6 +476,160 @@ public class CustomQtActivity extends QtActivity {
         }, "FitFolderImport").start();
     }
 
+    // Training programs left in Documents/QZ/training by a previous install: this install does
+    // not see them in the folder and cannot replace them, so the list of programs is empty and
+    // the bundled ones are not copied again. Through a grant on the QZ folder each such file is
+    // copied as this install's own one under the same name, and the old file is removed.
+    // allowPicker false: use a saved grant only, never open the picker; returns false when there
+    // is no saved grant with write access. allowPicker true (the user agreed): always open the
+    // picker, a saved grant may be the one that restored nothing.
+    public boolean openTrainingFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        if (allowPicker) {
+            launchFitFolderPicker(requestCode);
+            return true;
+        }
+        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+            String treeId = "";
+            try {
+                treeId = android.provider.DocumentsContract.getTreeDocumentId(permission.getUri());
+            } catch (Exception ignored) {
+                // a granted single document, not a folder
+            }
+            if (permission.isReadPermission() && permission.isWritePermission()
+                && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
+                Intent data = new Intent();
+                data.setData(permission.getUri());
+                handleTrainingFolderResult(requestCode, RESULT_OK, data);
+                return true;
+            }
+        }
+        pendingImportDirectories.remove(requestCode);
+        return false;
+    }
+
+    // Passes the restored files, one path per line, to the native side; an empty string when
+    // nothing was restored (another folder picked, or no file of a previous install).
+    private void handleTrainingFolderResult(final int requestCode, final int resultCode, Intent data) {
+        final String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            nativeOnDocumentPicked(requestCode, resultCode, "");
+            return;
+        }
+        final Uri treeUri = data.getData();
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            Log.d(TAG, "takePersistableUriPermission failed " + e);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder restored = new StringBuilder();
+                try {
+                    String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+                    String trainingId = null;
+                    if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                        trainingId = findChildDocument(treeUri, rootId, "training");
+                    } else if ((QZ_DOCUMENTS_TREE_ID + "/training").equals(rootId)) {
+                        trainingId = rootId;
+                    }
+                    if (trainingId != null && !destinationDir.isEmpty()) {
+                        restoreTrainingFiles(treeUri, trainingId, new java.io.File(destinationDir), restored);
+                    }
+                    Log.d(TAG, "handleTrainingFolderResult root=" + rootId + " training=" + trainingId);
+                } catch (Exception e) {
+                    Log.d(TAG, "handleTrainingFolderResult failed " + e);
+                }
+                nativeOnDocumentPicked(requestCode, RESULT_OK, restored.toString());
+            }
+        }, "TrainingFolderRestore").start();
+    }
+
+    private String findChildDocument(Uri treeUri, String parentId, String childName) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                if (childName.equals(cursor.getString(1))) {
+                    return cursor.getString(0);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "findChildDocument failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    // Walks the folder and its subfolders; a file the app can already read is its own and stays.
+    // The copy is written first under a hidden temporary name and takes the real name only once
+    // the old file is gone, so a failure at any step leaves the old file in place.
+    private void restoreTrainingFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                if (documentId == null || name == null || name.isEmpty() || name.startsWith(".restore_")) {
+                    continue;
+                }
+                java.io.File local = new java.io.File(localDir, name);
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    restoreTrainingFiles(treeUri, documentId, local, restored);
+                    continue;
+                }
+                if (local.exists() && ContentHelper.isReadable(local)) {
+                    continue;
+                }
+                if (!localDir.exists() && !localDir.mkdirs()) {
+                    Log.d(TAG, "restoreTrainingFiles could not create " + localDir);
+                    return;
+                }
+                java.io.File temporary = new java.io.File(localDir, ".restore_" + name);
+                Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+                if (!ContentHelper.copyContentToFile(this, documentUri, temporary.getAbsolutePath())) {
+                    temporary.delete();
+                    continue;
+                }
+                if (local.exists() && !deleteTreeDocument(treeUri, documentId)) {
+                    temporary.delete();
+                    continue;
+                }
+                if (!temporary.renameTo(local)
+                    && !ContentHelper.copyContentToFile(this, Uri.fromFile(temporary), local.getAbsolutePath())) {
+                    // the old file is already gone: the copy stays under the temporary name
+                    Log.d(TAG, "restoreTrainingFiles kept " + temporary + ", could not rename it");
+                    continue;
+                }
+                temporary.delete();
+                if (restored.length() > 0) {
+                    restored.append('\n');
+                }
+                restored.append(local.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "restoreTrainingFiles failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
     private void releaseFolderGrant(Uri treeUri) {
         try {
             getContentResolver().releasePersistableUriPermission(treeUri,
@@ -542,10 +698,10 @@ public class CustomQtActivity extends QtActivity {
         try {
             boolean deleted = android.provider.DocumentsContract.deleteDocument(getContentResolver(),
                 android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
-            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " deleted=" + deleted);
+            Log.d(TAG, "deleteTreeDocument " + documentId + " deleted=" + deleted);
             return deleted;
         } catch (Exception e) {
-            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " failed " + e);
+            Log.d(TAG, "deleteTreeDocument " + documentId + " failed " + e);
             return false;
         }
     }
@@ -603,6 +759,10 @@ public class CustomQtActivity extends QtActivity {
     private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE) {
             handleFitFolderResult(requestCode, resultCode, data, false);
+            return;
+        }
+        if (requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE) {
+            handleTrainingFolderResult(requestCode, resultCode, data);
             return;
         }
         String destinationDir = pendingImportDirectories.get(requestCode, "");

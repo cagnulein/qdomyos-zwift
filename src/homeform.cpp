@@ -230,6 +230,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
+constexpr int AndroidDocumentPickerTrainingFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -1408,12 +1409,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    // a folder import without any workout still has to tell the user so
-    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
-        requestCode != AndroidDocumentPickerFitRequestCode) {
-        return;
-    }
-
+    // an empty path goes through as well: a folder import without any workout and a picked file
+    // that could not be copied both have to tell the user so
     QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
                               Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
@@ -9281,8 +9278,31 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
+    if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
+        int restored = 0;
+        for (const QString &path : localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+            if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
+                restored++;
+            }
+        }
+        qDebug() << "training programs restored:" << restored;
+        const bool quiet = m_trainingRestoreQuiet;
+        m_trainingRestoreQuiet = false;
+        if (restored > 0) {
+            setToastRequested(tr("Training programs restored: %1.").arg(restored));
+        } else if (!quiet) {
+            // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
+            setToastRequested(tr("No training programs of a previous installation were found."));
+        } else if (quiet && trainingFolderHasLockedFiles()) {
+            // the saved grant restored nothing (folder moved or renamed): the user picks it again
+            emit trainingRestoreOfferRequested();
+        }
+        emit trainingProgramsRestored();
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        setToastRequested(tr("The file could not be copied to the QZ folder."));
         return;
     }
 
@@ -9396,6 +9416,64 @@ QString homeform::historyDatabasePath() {
     }
     qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
     return chosen;
+}
+
+// After a reinstall (Android 14+) the files a previous install left in the training folder
+// still answer to their names but cannot be opened, and the folder list leaves them out. The
+// bundled programs, always copied at the first start, show it: one of them (or its deletion
+// marker) that exists and does not open belongs to a previous install.
+bool homeform::trainingFolderHasLockedFiles() {
+#ifdef Q_OS_ANDROID
+    const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QDirIterator itZwo(QStringLiteral(":/zwo/"));
+    while (itZwo.hasNext()) {
+        itZwo.next();
+        const QStringList paths = {trainingDir + itZwo.fileName(),
+                                   trainingDir + QStringLiteral(".deleted_") + itZwo.fileName()};
+        for (const QString &path : paths) {
+            QFile file(path);
+            if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+                qDebug() << "training folder: file of a previous install" << path;
+                return true;
+            }
+        }
+    }
+#endif
+    return false;
+}
+
+bool homeform::startTrainingFolderRestore(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDestinationDir =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openTrainingFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerTrainingFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openTrainingFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+void homeform::trainingProgramsPageOpened() {
+    if (m_trainingRestoreTried || !trainingFolderHasLockedFiles()) {
+        return;
+    }
+    m_trainingRestoreTried = true;
+    m_trainingRestoreQuiet = true;
+    if (!startTrainingFolderRestore(false)) {
+        m_trainingRestoreQuiet = false;
+        emit trainingRestoreOfferRequested();
+    }
+}
+
+void homeform::restoreTrainingPrograms() {
+    m_trainingRestoreQuiet = false;
+    startTrainingFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {

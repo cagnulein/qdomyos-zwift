@@ -3607,6 +3607,18 @@ This may take a few moments on first startup.</source>
         <translation>Імпортовано тренувань: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Не вдалося скопіювати файл у папку QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Відновлено програм тренувань: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Програм тренувань попереднього встановлення не знайдено.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Уже є в історії: %1.</translation>
     </message>
@@ -4135,6 +4147,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Тренування попереднього встановлення можуть залишатися в папці QZ.
+Знайти їх?
+
+У наступному вікні дозвольте доступ до папки QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Програми тренувань</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
 Знайти їх?
 
 У наступному вікні дозвольте доступ до папки QZ.</translation>

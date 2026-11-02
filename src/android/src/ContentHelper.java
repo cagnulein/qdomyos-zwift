@@ -122,8 +122,13 @@ public class ContentHelper {
 
         File destinationFile = new File(destinationDir, fileName);
         if (destinationFile.exists() && !destinationFile.delete()) {
-            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath());
-            return "";
+            // after a reinstall a file of the previous install keeps its name in the folder, but
+            // this install can neither replace nor read it: the picked file goes under a free name,
+            // and picking it again reuses that copy. Size -1: a copy is reused only when its content
+            // is the same, an edited file of the same length must not open the old copy
+            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath()
+                + ", importing under another name");
+            return importContentToAppDirKeepExisting(context, uri, fileName, -1, destinationDirPath);
         }
 
         if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
@@ -198,8 +203,19 @@ public class ContentHelper {
         if (others == null) {
             return null;
         }
+        // under FUSE passthrough (seen on Android 15) length() of a recently written file can stay
+        // 0 for a long time: the size of file is counted from its content, and another file
+        // reporting 0 is compared by content too
+        long length = contentLength(file);
+        if (length < 0) {
+            return null;
+        }
         for (File other : others) {
-            if (other.equals(file) || !other.isFile() || other.length() != file.length()) {
+            if (other.equals(file) || !other.isFile()) {
+                continue;
+            }
+            long otherLength = other.length();
+            if (otherLength != length && otherLength != 0) {
                 continue;
             }
             if (sameContent(other, file)) {
@@ -207,6 +223,30 @@ public class ContentHelper {
             }
         }
         return null;
+    }
+
+    // Number of bytes read from file, -1 when it cannot be read.
+    private static long contentLength(File file) {
+        java.io.FileInputStream in = null;
+        try {
+            in = new java.io.FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                total += read;
+            }
+            return total;
+        } catch (Exception e) {
+            return -1;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private static boolean sameContent(File a, File b) {
@@ -263,7 +303,8 @@ public class ContentHelper {
         return total;
     }
 
-    private static boolean isReadable(File file) {
+    // false for a file of a previous install: still listed under its name, but not openable
+    public static boolean isReadable(File file) {
         java.io.FileInputStream stream = null;
         try {
             stream = new java.io.FileInputStream(file);
