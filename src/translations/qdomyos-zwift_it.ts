@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ richiede che siano attivi sia il Bluetooth sia i servizi di localizzazione.
+        <translation type="vanished">QZ richiede che siano attivi sia il Bluetooth sia i servizi di localizzazione.
 I servizi di localizzazione sono necessari su Android per consentire all&apos;app di trovare dispositivi Bluetooth.
 Il GPS non verrà utilizzato.
 
@@ -197,7 +197,7 @@ Vuoi attivarli?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Vuoi ricevere un promemoria per abilitare i servizi di posizione la prossima volta?</translation>
+        <translation type="vanished">Vuoi ricevere un promemoria per abilitare i servizi di posizione la prossima volta?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Desideri farlo ora?</translation>
     <message>
         <source>Increase the value of </source>
         <translation>Aumenta il valore di </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ ha bisogno del Bluetooth attivo per rilevare gli attrezzi fitness. Su Android 11 e versioni precedenti, per rilevare i dispositivi Bluetooth sono necessari anche il permesso di accesso alla posizione e i servizi di localizzazione attivi. QZ non utilizza i tuoi dati di posizione. Su Android 12 e versioni successive, il permesso «Dispositivi nelle vicinanze» consente di rilevare i dispositivi Bluetooth senza accedere alla posizione.
+
+Vuoi attivare i servizi necessari?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Vuoi ricevere un promemoria per attivare il Bluetooth o i servizi di localizzazione la prossima volta?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Desideri farlo ora?</translation>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1 (sensore FC) connesso!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Ricerca di %1 (sensore FC)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (sensore FC) non trovato. Verifica che sia acceso e che trasmetta la frequenza cardiaca.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensore FC): nessuna frequenza cardiaca. Verifica che trasmetta la frequenza cardiaca.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -3766,6 +3790,15 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>La potenza target di QZ sta sovrascrivendo i comandi dell&apos;app. Metti in pausa QZ e riprendi per restituire il controllo all&apos;app.</translation>
     </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Brani Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ è in esecuzione</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -6118,11 +6151,11 @@ Inseriscilo qui sotto:</translation>
     </message>
     <message>
         <source>Direct Distance: add only the increase</source>
-        <translation>Distanza diretta: somma solo l'incremento</translation>
+        <translation>Distanza diretta: somma solo l&apos;incremento</translation>
     </message>
     <message>
         <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
-        <translation>Funziona insieme a «Distanza diretta dal tapis roulant». Attiva questo se il contatore della distanza del tuo tapis roulant continua tra un allenamento e l'altro o riparte da 0 quando il tapis roulant viene spento: viene sommata solo la distanza percorsa durante l'allenamento, non quella contata dal tapis roulant prima che QZ si collegasse. Predefinito: disattivato.</translation>
+        <translation>Funziona insieme a «Distanza diretta dal tapis roulant». Attiva questo se il contatore della distanza del tuo tapis roulant continua tra un allenamento e l&apos;altro o riparte da 0 quando il tapis roulant viene spento: viene sommata solo la distanza percorsa durante l&apos;allenamento, non quella contata dal tapis roulant prima che QZ si collegasse. Predefinito: disattivato.</translation>
     </message>
     <message>
         <source>Max. Speed:</source>
@@ -7799,6 +7832,82 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Usa un profilo Life Fitness sintetico senza account. Se attivo, nome utente, password e dati dell&apos;account in cache vengono ignorati; usare solo per testare l&apos;accesso ospite supportato.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Grafici della cronologia allenamenti</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Frequenza cardiaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Resistenza e resistenza obiettivo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Resistenza Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadenza</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Distribuzione della potenza</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Velocità e inclinazione</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Sposta i grafici in alto o in basso per sceglierne l&apos;ordine nella cronologia allenamenti. Le modifiche vengono salvate automaticamente.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Sposta su</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Sposta giù</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Ripristina ordine predefinito</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Opzioni Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Abilita il comando FTMS standard Request Control per i tapis roulant Moovio Lynx Konect 2.0. Di default è disattivato.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Guadagno Cadenza</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Moltiplicatore applicato solo alla frequenza di voga inviata dal rematore virtuale. Il valore predefinito è 1.0; usa 0.25 per convertire gli RPM del BikeERG nella frequenza di voga richiesta da EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Offset aggiunto dopo il guadagno. Il valore predefinito è 0.0. La cadenza mostrata da QZ e le metriche dell&apos;allenamento restano invariate.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Mantieni attivo in background su iOS</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Solo iOS. Mantiene QZ attivo con lo schermo spento o in background, così le connessioni Bluetooth e i timer della sessione non si bloccano. Usa una traccia audio silenziosa mixata con la tua musica, quindi ciò che stai ascoltando non viene interrotto. Attivalo se devi allenarti con lo schermo bloccato o con QZ in background. Di default è disattivato.</translation>
     </message>
 </context>
 <context>

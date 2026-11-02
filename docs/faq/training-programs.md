@@ -124,3 +124,9 @@ In **QZ Settings > Tiles Options**, enable **Peloton Offset** and **Remaining Ti
 - Press **-** if QZ's transitions are **ahead**.
 
 A treadmill user explicitly confirmed that the **Peloton Offset** tile aligned the transitions of a QZ workout with a workout in Zwift. The tile adjusts QZ's interval timing; it does **not** eliminate Bluetooth/network latency between Zwift, QZ and the treadmill, and it does not change the external workout itself.
+
+## Does switching on Auto Resistance by itself make a bike change resistance during an interval workout?
+
+**No.** The **Auto Resistance** toggle allows QZ to apply supported resistance/power requests, but it does not start a training program or create interval targets on its own. Open and **start** a QZ resistance-based workout, or connect a supported training app that sends resistance or ERG targets through QZ. A bike must also accept remote resistance commands for the physical load to change.
+
+When diagnosing a bike that displays cadence, power, and resistance but does not physically change load, first pedal continuously and try the **Resistance** tile's **+ / −** controls. This tests direct resistance requests; the **Target Resistance** tile is not the same test. Verify the change by physical effort, not only by the displayed target or a Bluetooth acknowledgement. Only after direct resistance control works should you rely on automatic interval changes. QZ's current bike control logic and training-program flow distinguish these actions; this is **code-verified usage guidance**, not a claim that every bike implements remote control.

@@ -14,16 +14,17 @@ on:
         required: true
         default: false
 
-concurrency:
-  group: release-testflight
-  cancel-in-progress: false
+# Keep each release request independent. GitHub's concurrency group can cancel
+# an older *pending* run when a newer one arrives, even with
+# cancel-in-progress: false. Do not use workflow-level concurrency here.
 
 jobs:
   release-ios:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
       (github.event_name == 'pull_request' &&
-       github.event.label.name == 'testflight-upload' &&
+       (github.event.label.name == 'testflight-upload' ||
+        github.event.label.name == 'ios-archive-check') &&
        github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-26
     timeout-minutes: 180
@@ -75,6 +76,54 @@ jobs:
           fi
           echo "ASC_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
+      - name: Install persistent iOS development signing identity
+        env:
+          IOS_DEVELOPMENT_CERTIFICATE_BASE64: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_BASE64 }}
+          IOS_DEVELOPMENT_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+        run: |
+          if [ -z "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" ] || [ -z "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" ]; then
+            echo "IOS_DEVELOPMENT_CERTIFICATE_BASE64 and IOS_DEVELOPMENT_CERTIFICATE_PASSWORD GitHub secrets are required."
+            exit 1
+          fi
+
+          KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+          CERTIFICATE_PATH="$RUNNER_TEMP/ios-signing.p12"
+          printf '%s' "$IOS_DEVELOPMENT_CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -D > "$CERTIFICATE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_DEVELOPMENT_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" "$HOME/Library/Keychains/login.keychain-db"
+          security default-keychain -d user -s "$KEYCHAIN_PATH"
+
+          CERTIFICATE_SUBJECT="$(security find-certificate -a -p "$KEYCHAIN_PATH" | openssl x509 -noout -subject -nameopt RFC2253)"
+          case "$CERTIFICATE_SUBJECT" in
+            *"CN=Apple Development:"*) ;;
+            *)
+              echo "The uploaded .p12 does not contain an Apple Development certificate."
+              exit 1
+              ;;
+          esac
+          case "$CERTIFICATE_SUBJECT" in
+            *"OU=6335M7T29D"*) ;;
+            *)
+              echo "The uploaded Apple Development certificate is not for team 6335M7T29D."
+              exit 1
+              ;;
+          esac
+
+          IDENTITIES="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")"
+          case "$IDENTITIES" in
+            *"Apple Development:"*) ;;
+            *)
+              echo "The imported keychain does not contain a usable Apple Development identity."
+              exit 1
+              ;;
+          esac
+
       - name: Run the Xcode Cloud setup scripts
         env:
           CI_PRIMARY_REPOSITORY_PATH: ${{ github.workspace }}
@@ -93,16 +142,18 @@ jobs:
           bash ci_post_clone.sh
           bash ci_pre_xcodebuild.sh
 
-      - name: Prepare the generated Xcode project for iOS builds
+      - name: Verify all distribution targets before archiving
         run: |
-          python3 .github/scripts/ios_simulator_project.py \
-            build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+          # Unlike simulator CI, TestFlight must keep the WatchKit dependency
+          # and its embed phase, plus the iOS widget extension.
+          python3 .github/scripts/verify_ios_distribution.py \
+            --project build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 
       - name: Build and upload to TestFlight
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          PUBLISH_TO_TESTFLIGHT: ${{ github.event_name == 'pull_request' || inputs.publish }}
+          PUBLISH_TO_TESTFLIGHT: ${{ (github.event_name == 'pull_request' && github.event.label.name == 'testflight-upload') || inputs.publish }}
           TESTFLIGHT_CHANGELOG: "Branch: ${{ github.head_ref || github.ref_name }}"
         run: |
           if [ "$PUBLISH_TO_TESTFLIGHT" = "true" ]; then
@@ -127,3 +178,12 @@ jobs:
           if [ -n "$ASC_API_KEY_PATH" ]; then
             rm -f "$ASC_API_KEY_PATH"
           fi
+
+      - name: Remove temporary iOS signing assets
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          security default-keychain -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
+          security list-keychains -d user -s "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/ios-signing.p12"

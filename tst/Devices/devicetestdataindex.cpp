@@ -464,6 +464,14 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Merach T12 Pro: FTMS is advertised but control uses FitShow.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowMerachT12)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
+        ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
+        ->excluding<horizontreadmill>()
+        ->excluding<fitplusbike>();
+
 
     // FitShow SW
     RegisterNewDeviceTestData(DeviceIndex::FitShowSW)
