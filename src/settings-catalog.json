@@ -1283,7 +1283,7 @@
     {
       "key": "tile_pace_order",
       "name": "order index",
-      "description": null,
+      "description": "Current pace per mile or kilometer (Treadmill, Elliptical and Rower)",
       "parent": "tile_pace_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -13590,7 +13590,7 @@
     {
       "key": "tile_grade_adjusted_pace_order",
       "name": "order index",
-      "description": "Current pace per mile or kilometer (Treadmill, Elliptical and Rower)",
+      "description": "Flat-equivalent pace computed from treadmill incline using the Minetti cost model.",
       "parent": "tile_grade_adjusted_pace_enabled",
       "type": "integer",
       "qmlType": "int",
