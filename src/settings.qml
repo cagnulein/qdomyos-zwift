@@ -6582,18 +6582,20 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Serial Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: daumSerialPortTextField
-                                    text: settings.daum_serialport
+                                    savedText: settings.daum_serialport
+                                    Accessible.name: labelDaumSerialPort.text + " " + text
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.daum_serialport = text
+                                    onAccepted: { settings.daum_serialport = text; window.settings_restart_to_apply = true; }
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okDaumSerialPortButton
                                     text: qsTr("OK")
+                                    enabled: daumSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.daum_serialport = daumSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -6615,22 +6617,25 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
+                                    id: labelDaumResistanceDelay
                                     text: qsTr("Resistance Polling Delay:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: daumResistanceDelayTextField
-                                    text: settings.inclination_delay_seconds
+                                    savedText: settings.inclination_delay_seconds
+                                    Accessible.name: labelDaumResistanceDelay.text + " " + text
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.inclination_delay_seconds = text
+                                    onAccepted: if (valid) settings.inclination_delay_seconds = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: daumResistanceDelayTextField.valid && daumResistanceDelayTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.inclination_delay_seconds = daumResistanceDelayTextField.text; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.inclination_delay_seconds = daumResistanceDelayTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -11427,20 +11432,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Inclination Filter (%):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: trainProgramInclinationFilterTextField
-                            text: settings.trainprogram_inclination_filter
+                            savedText: settings.trainprogram_inclination_filter
+                            Accessible.name: labelTrainProgramInclinationFilter.text + " " + text
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.trainprogram_inclination_filter = text
+                            onAccepted: if (valid) settings.trainprogram_inclination_filter = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okTrainProgramInclinationFilter
                             text: qsTr("OK")
+                            enabled: trainProgramInclinationFilterTextField.valid && trainProgramInclinationFilterTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_inclination_filter = trainProgramInclinationFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_inclination_filter = trainProgramInclinationFilterTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
