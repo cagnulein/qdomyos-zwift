@@ -1023,6 +1023,11 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Dump the full UI accessibility tree, useful to write/parse automated UI tests
+            echo "Dumping UI hierarchy..."
+            adb shell uiautomator dump /sdcard/ui.xml
+            adb pull /sdcard/ui.xml ui_dump.xml
+
             # Back button test (single presses navigate back, a double press on the home page exits)
             sh .github/scripts/android_back_button_test.sh
 
@@ -1046,7 +1051,8 @@ jobs:
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
-          if-no-files-found: warn                
+            ui_dump.xml
+          if-no-files-found: warn
 
   ios-build:
     # The type of runner that the job will run on
@@ -1129,7 +1135,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+          qmake CONFIG+=debug CONFIG+=iphonesimulator "LIBS+=-framework WebKit" \
             && make -j4
 
       - name: Show ccache stats
