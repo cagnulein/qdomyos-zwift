@@ -1,5 +1,6 @@
 #include "trainprogramtestsuite.h"
 #include "trainprogram.h"
+#include <QTemporaryDir>
 
 namespace {
 trainrow timedRow(int seconds) {
@@ -59,4 +60,41 @@ void TrainProgramTestSuite::test_gpxInclinationFilterSuppressesSmallChanges() {
 
 void TrainProgramTestSuite::test_gpxInclinationFilterAllowsThresholdChanges() {
     EXPECT_TRUE(trainprogram::shouldSendGpxInclination(1.0, 1.5, 0.5));
+}
+
+void TrainProgramTestSuite::test_pidHrModeRoundTripsKnownValues() {
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("default")), treadmill_pid_hr_mode::Default);
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("speed")), treadmill_pid_hr_mode::Speed);
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("inclination")), treadmill_pid_hr_mode::Inclination);
+    EXPECT_EQ(trainprogram::pidHrModeToString(treadmill_pid_hr_mode::Inclination), QStringLiteral("inclination"));
+}
+
+void TrainProgramTestSuite::test_pidHrModeWorkoutOverrideTakesPrecedence() {
+    trainrow row;
+    row.pidHrMode = treadmill_pid_hr_mode::Inclination;
+
+    EXPECT_EQ(trainprogram::effectivePidHrMode(row, treadmill_pid_hr_mode::Speed),
+              treadmill_pid_hr_mode::Inclination);
+
+    row.pidHrMode = treadmill_pid_hr_mode::Default;
+    EXPECT_EQ(trainprogram::effectivePidHrMode(row, treadmill_pid_hr_mode::Inclination),
+              treadmill_pid_hr_mode::Inclination);
+}
+
+void TrainProgramTestSuite::test_pidHrModeAndMaxInclinationRoundTripThroughXml() {
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE(temporaryDir.isValid());
+
+    trainrow row;
+    row.duration = QTime(0, 0, 10);
+    row.pidHrMode = treadmill_pid_hr_mode::Inclination;
+    row.maxInclination = 12.5;
+
+    const QString filename = temporaryDir.filePath(QStringLiteral("pid-incline.xml"));
+    ASSERT_TRUE(trainprogram::saveXML(filename, {row}, TREADMILL));
+
+    const QList<trainrow> loaded = trainprogram::loadXML(filename, TREADMILL);
+    ASSERT_EQ(loaded.size(), 1);
+    EXPECT_EQ(loaded.first().pidHrMode, treadmill_pid_hr_mode::Inclination);
+    EXPECT_DOUBLE_EQ(loaded.first().maxInclination, 12.5);
 }

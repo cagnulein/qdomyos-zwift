@@ -140,7 +140,35 @@ bool lockscreen::appleWatchAppInstalled() {
 }
 
 void lockscreen::setTimerDisabled() {
-     [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+
+    // Qt's UIScene lifecycle can activate a window without calling the
+    // UIApplicationDelegate activation callback. Reassert the awake setting
+    // for both application and scene activation, including after unlock.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        void (^restoreIdleTimer)(NSNotification *) = ^(NSNotification *notification) {
+            UIApplication *application = [UIApplication sharedApplication];
+            const bool wasDisabled = application.idleTimerDisabled;
+            application.idleTimerDisabled = YES;
+            qDebug() << "QZ iOS idle timer on activation:"
+                     << QString::fromUtf8(notification.name.UTF8String)
+                     << "wasDisabled:" << wasDisabled
+                     << "nowDisabled:" << static_cast<bool>(application.idleTimerDisabled);
+        };
+        // These observers intentionally live until the process exits.
+        [center addObserverForName:UIApplicationDidBecomeActiveNotification
+                           object:nil
+                            queue:[NSOperationQueue mainQueue]
+                       usingBlock:restoreIdleTimer];
+        if (@available(iOS 13.0, *)) {
+            [center addObserverForName:UISceneDidActivateNotification
+                               object:nil
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:restoreIdleTimer];
+        }
+    });
 }
 
 void lockscreen::request()
@@ -339,12 +367,13 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
-                                       bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
+                                       double elevationGain, bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
                                        const char *compactLeadingMetric, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
     const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
+    qDebug() << "Apple Health workout elevation gain:" << elevationGain;
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0 heartRate:heartRate];
+        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:elevationGain heartRate:heartRate];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
@@ -488,6 +517,22 @@ uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
         return [_virtualtreadmill_zwift lastChangeRequestedSpeed];
     }
     return 0;
+}
+
+void lockscreen::virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange,
+                                                             const QByteArray &inclineRange) {
+    [_virtualtreadmill_zwift
+        enableControlPointForwardingWithSpeedRange:[NSData dataWithBytes:speedRange.constData() length:speedRange.size()]
+        inclineRange:[NSData dataWithBytes:inclineRange.constData() length:inclineRange.size()]];
+}
+
+QByteArray lockscreen::virtualtreadmill_takeControlPointWrite() {
+    NSData *data = [_virtualtreadmill_zwift takeControlPointWrite];
+    return data ? QByteArray(static_cast<const char *>(data.bytes), static_cast<int>(data.length)) : QByteArray();
+}
+
+void lockscreen::virtualtreadmill_clearControlPointWrites() {
+    [_virtualtreadmill_zwift clearControlPointWrites];
 }
 
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
@@ -817,5 +862,16 @@ void lockscreen::clearWebViewCache() {
     for (NSHTTPCookie *cookie in cookieStorage.cookies) {
         [cookieStorage deleteCookie:cookie];
     }
+}
+
+double lockscreen::systemFontScale() {
+    // Body text is 17 pt at the default Dynamic Type size. The size category is passed in:
+    // outside a UIKit call the current trait collection may still hold the old one
+    const CGFloat body = 17.0;
+    UITraitCollection *traits = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:
+                                     UIApplication.sharedApplication.preferredContentSizeCategory];
+    const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
+                                                compatibleWithTraitCollection:traits];
+    return scaled > 0 ? scaled / body : 1.0;
 }
 #endif

@@ -898,7 +898,7 @@ void domyosrower::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
             qDebug() << "forcing FTMS rower since it has FTMS service but not the main domyos service";
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("FTMS rower found, restart the app to apply the change");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS rower found, restart the app to apply the change"));
             delete ftmsService;
         }
 
@@ -1012,6 +1012,6 @@ void domyosrower::controllerStateChanged(QLowEnergyController::ControllerState s
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

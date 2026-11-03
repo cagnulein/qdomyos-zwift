@@ -39,7 +39,7 @@ class MainController: WKInterfaceController {
     }
     
     @IBAction func changeSport(_ value: Int) {
-        self.sport = value
+        sport = value
         UserDefaults.standard.set(value, forKey: "sport")
         UserDefaults.standard.synchronize()
     }
@@ -71,19 +71,30 @@ extension MainController {
     
     @IBAction func startWorkout() {
         if(!MainController.start){
-            MainController.start = true
-            startButton.setTitle("Stop")
-            WorkoutTracking.authorizeHealthKit()
-            WorkoutTracking.shared.setSport(sport)
-            WorkoutTracking.shared.startWorkOut()
-            WorkoutTracking.shared.delegate = self
-            
-            WatchKitConnection.shared.delegate = self
-            WatchKitConnection.shared.startSession()
+            let selectedSport = sport
+            let workoutName = ["Bike", "Run", "Walk", "Elliptical", "Rowing"][selectedSport]
+            let startAction = WKAlertAction(title: "Start", style: .default) { [weak self] in
+                guard let self = self else { return }
+                MainController.start = true
+                self.startButton.setTitle("Stop")
+                self.cmbSports.setEnabled(false)
+                self.cmbSports.setHidden(true)
+                WorkoutTracking.authorizeHealthKit()
+                WorkoutTracking.shared.setSport(selectedSport)
+                WorkoutTracking.shared.startWorkOut()
+                WorkoutTracking.shared.delegate = self
+
+                WatchKitConnection.shared.delegate = self
+                WatchKitConnection.shared.startSession()
+            }
+            let cancelAction = WKAlertAction(title: "Cancel", style: .cancel) {}
+            presentAlert(withTitle: "Start Workout", message: "Start \(workoutName) workout?", preferredStyle: .alert, actions: [cancelAction, startAction])
         }
         else {
             MainController.start = false
             startButton.setTitle("Start")
+            cmbSports.setEnabled(true)
+            cmbSports.setHidden(false)
             WorkoutTracking.shared.stopWorkOut()
         }
     }

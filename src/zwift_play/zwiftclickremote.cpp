@@ -44,7 +44,7 @@ void zwiftclickremote::update() {
         countRxTimeout++;
         if(countRxTimeout == 10) {
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+                homeform::singleton()->setToastRequested(QObject::tr("Zwift device: UPGRADE THE FIRMWARE!"));
         }
     }
 }
@@ -348,7 +348,7 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         initDone = false;
 
         if(m_control)
-            m_control->connectToDevice();
+            connectBackLater();
     }
 }
 

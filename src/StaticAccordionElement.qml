@@ -20,11 +20,13 @@ ColumnLayout {
         color: "red"
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true;
-        height: 48
+        height: window.textScale !== 1 ? Math.max(48, accordionText.y + accordionText.height + 13) : 48
+        Layout.preferredHeight: height
 
         Rectangle{
            id:indicatRect
-           x: 16; y: 20
+           // Centred on the first line of the title: a fixed y sat below it with a smaller or bigger font
+           x: 16; y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
            width: 8; height: 8
            radius: 8
            color: "white"
@@ -34,28 +36,26 @@ ColumnLayout {
             id: accordionText
             x:34;y:13
             color: "#FFFFFF"
+            font: window.headerFont
             text: rootElement.title
+            // A bigger text can run under the arrow: a long title wraps, and the header grows
+            width: window.textScale !== 1 ? indicatImg.x - x - 8 : implicitWidth
+            wrapMode: window.labelWrap
         }
         Image {
-            y:13
+            // Centred on the first line of the title, like the dot
+            y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
             anchors.right:  parent.right
             anchors.rightMargin: 20
             width: 30; height: 30
             id: indicatImg
-            source: "qrc:/icons/arrow-collapse-vertical.png"
+            // Bound to isOpen: a section opened from code (a search result) shows the right arrow
+            source: rootElement.isOpen ? "qrc:/icons/arrow-expand-vertical.png" : "qrc:/icons/arrow-collapse-vertical.png"
         }
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                rootElement.isOpen = !rootElement.isOpen
-                if(rootElement.isOpen)
-                {
-                    indicatImg.source = "qrc:/icons/arrow-expand-vertical.png"
-                }else{
-                    indicatImg.source = "qrc:/icons/arrow-collapse-vertical.png"
-                }
-            }
+            onClicked: rootElement.isOpen = !rootElement.isOpen
         }
     }
 

@@ -22,7 +22,7 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
                 visible: true
                 onAccepted: {
@@ -64,14 +64,15 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
                         Text {
                             id: fileTextBox
                             color: Material.color(Material.Grey)
-                            font.pixelSize: Qt.application.font.pixelSize * 1.6
+                            font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                             text: fileName.substring(0, fileName.length-4)
+                            leftPadding: window.contentSideMargin
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -122,7 +123,7 @@ ColumnLayout {
         id: searchButton
         height: 50
         width: parent.width
-        text: "Other folders"
+        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'settings')

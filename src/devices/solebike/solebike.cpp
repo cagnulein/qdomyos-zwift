@@ -527,7 +527,7 @@ void solebike::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
             qDebug() << "forcing FTMS bike since Sole main service is missing but FTMS service is available";
             if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change"));
             }
             delete ftmsService;
         } else {
@@ -616,6 +616,6 @@ void solebike::controllerStateChanged(QLowEnergyController::ControllerState stat
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

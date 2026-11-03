@@ -12,6 +12,9 @@ public:
     void test_gpxInclinationFilterIsDisabledAtZero();
     void test_gpxInclinationFilterSuppressesSmallChanges();
     void test_gpxInclinationFilterAllowsThresholdChanges();
+    void test_pidHrModeRoundTripsKnownValues();
+    void test_pidHrModeWorkoutOverrideTakesPrecedence();
+    void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -40,6 +43,18 @@ TEST_F(TrainProgramTestSuite, GpxInclinationFilterSuppressesSmallChanges) {
 
 TEST_F(TrainProgramTestSuite, GpxInclinationFilterAllowsThresholdChanges) {
     this->test_gpxInclinationFilterAllowsThresholdChanges();
+}
+
+TEST_F(TrainProgramTestSuite, PidHrModeRoundTripsKnownValues) {
+    this->test_pidHrModeRoundTripsKnownValues();
+}
+
+TEST_F(TrainProgramTestSuite, PidHrModeWorkoutOverrideTakesPrecedence) {
+    this->test_pidHrModeWorkoutOverrideTakesPrecedence();
+}
+
+TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
+    this->test_pidHrModeAndMaxInclinationRoundTripThroughXml();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

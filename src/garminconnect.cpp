@@ -1442,6 +1442,7 @@ bool GarminConnect::refreshOAuth2Token()
     bool success = exchangeForOAuth2Token();
 
     if (success) {
+        saveTokensToSettings();
         qDebug() << "GarminConnect: OAuth2 token refreshed successfully using OAuth1!";
     } else {
         qDebug() << "GarminConnect: OAuth2 refresh failed:" << m_lastError;

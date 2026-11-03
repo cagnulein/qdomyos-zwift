@@ -67,6 +67,7 @@ class DirconProcessorClient : public QObject {
     QList<quint16> char_notify;
     QTcpSocket *sock;
     QByteArray buffer;
+    qint64 lastDataMs = 0; // last packet from the client, for the disconnection log
 };
 
 class DirconProcessor : public QObject {
@@ -82,14 +83,26 @@ class DirconProcessor : public QObject {
     QMdnsEngine::Hostname *mdnsHostname = 0;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool rouvy_compatibility = false;
+    // Read once like rouvy_compatibility: the setting applies after a restart, and
+    // sendCharacteristicNotification() runs for every characteristic on every bikeTimer tick.
+    bool wahoo_rgt_dircon = false;
     // Last 0x2AD2 payload CharacteristicNotifier2AD2 produced, replayed to a client the
     // moment it connects. Empty until the notifier has run at least once, which is the
     // signal that no device is attached yet and there is nothing truthful to say.
     QByteArray last2AD2Notification;
     // Set when a client subscribes to 0x2AD2, flushed once its enable-response is written.
     bool pending2AD2Greeting = false;
+    // Android cuts the network of an app in the background without a foreground service: the
+    // client connection dies with NetworkError and the listening socket with it, so the client
+    // can't come back. Then the server and the mDNS announcement are rebuilt on resume - in every
+    // processor, not only the one whose client fell: the listening sockets of the others (an HRM
+    // nobody was connected to) are gone as well. Bumped by the loss, compared on resume.
+    static int networkLostGeneration;
+    int handledNetworkLostGeneration = 0;
+    int restartAttempts = 0;
     bool initServer();
     void initAdvertising();
+    void restartServer();
     DirconPacket processPacket(DirconProcessorClient *client, const DirconPacket &pkt);
     QString convertUUIDFromUINT16ToString (quint16 uuid);
 
@@ -103,6 +116,7 @@ class DirconProcessor : public QObject {
     void tcpDataAvailable();
     void tcpDisconnected();
     void tcpNewConnection();
+    void applicationStateChanged(Qt::ApplicationState state);
   signals:
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);

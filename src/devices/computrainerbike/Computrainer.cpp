@@ -81,7 +81,13 @@ Computrainer::Computrainer(QObject *parent, QString devname) : QThread(parent) {
     memcpy(SS_Command, ss_command, 56);
 }
 
-Computrainer::~Computrainer() {}
+Computrainer::~Computrainer() {
+    // the thread may still be in run() when the owner is deleted;
+    // destroying a running QThread aborts the process
+    requestInterruption();
+    stop();
+    wait(6000); // Android rawRead may block for up to 5 s
+}
 
 /* ----------------------------------------------------------------------
  * SET
@@ -631,7 +637,7 @@ void Computrainer::run() {
         pvars.unlock();
 
         /* time to shut up shop */
-        if (!(curstatus & CT_RUNNING)) {
+        if (!(curstatus & CT_RUNNING) || isInterruptionRequested()) {
             qDebug() << "time to shut up shop";
             // time to stop!
             closePort(); // need to release that file handle!!
