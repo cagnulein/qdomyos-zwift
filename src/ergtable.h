@@ -199,16 +199,30 @@ class ergTable : public QObject {
         if (cadence == 0)
             return 1;
 
+        // Only calibrated resistance levels are valid candidates. estimateWattage()
+        // otherwise borrows the closest level and can make level 1 look like level 34.
+        const auto hasData = [this](uint16_t resistance) {
+            return std::any_of(consolidatedData.cbegin(), consolidatedData.cend(),
+                               [resistance](const ergDataPoint &point) {
+                                   return point.resistance == resistance;
+                               });
+        };
+
         uint16_t best_resistance_match = 1;
-        int min_watt_difference = 1000; 
+        int min_watt_difference = 1000;
 
-        for (uint16_t i = 1; i < maxResistance; i++) {
+        for (uint32_t i = 1; i <= maxResistance; i++) {
+            if (!hasData(i))
+                continue;
+
             uint16_t current_watts = estimateWattage(cadence, i);
-            uint16_t next_watts = estimateWattage(cadence, i + 1);
 
-            if (current_watts <= power && next_watts >= power) {
-                qDebug() << current_watts << next_watts << power;
-                return i;
+            if (i < maxResistance && hasData(i + 1)) {
+                uint16_t next_watts = estimateWattage(cadence, i + 1);
+                if (current_watts <= power && next_watts >= power) {
+                    qDebug() << current_watts << next_watts << power;
+                    return i;
+                }
             }
 
             int diff = abs(current_watts - power);
