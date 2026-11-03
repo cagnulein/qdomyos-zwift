@@ -659,6 +659,8 @@ TEST_F(ErgTableTestSuite, TestSparseDrumFitWorkoutPowerTargets) {
     EXPECT_EQ(37, erg.resistanceFromPowerRequest(84, 82, 100));
     // The same workout sent 84 W with QZ's +2 W offset at 75 RPM.
     EXPECT_EQ(37, erg.resistanceFromPowerRequest(86, 75, 100));
+    // At 93 RPM, the old lookup also returned 1 despite stored calibration data.
+    EXPECT_EQ(37, erg.resistanceFromPowerRequest(86, 93, 100));
     // No cadence should retain the existing safe fallback.
     EXPECT_EQ(1, erg.resistanceFromPowerRequest(84, 0, 100));
 }
