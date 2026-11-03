@@ -136,6 +136,7 @@ class trainprogram : public QObject {
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static bool shouldSendGpxInclination(double lastSentInclination, double nextInclination, double filter);
     static bool isBlockingTransitionRow(const trainrow &row);
     static QString pidHrModeToString(treadmill_pid_hr_mode mode);
     static treadmill_pid_hr_mode pidHrModeFromString(const QString &value);
