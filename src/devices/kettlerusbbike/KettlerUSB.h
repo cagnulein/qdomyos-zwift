@@ -129,9 +129,9 @@ class KettlerUSB : public QThread {
     QString rawRead();
     void flushSerialBuffer(); // Flush any pending data in serial buffer
 
-#ifdef Q_OS_ANDROID
+    // Bytes received but not yet returned as a complete line (all platforms:
+    // a single read() on a USB serial adapter often returns part of a line)
     QByteArray rxBuffer;
-#endif
 };
 
 class KettlerSleeper : public QThread {

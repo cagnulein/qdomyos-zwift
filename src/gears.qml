@@ -1,28 +1,25 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The column with its margins, which are not in its implicit height
+    contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     id: gearSettingsWindow
     visible: true
     clip: true
 
     // Properties
-    Settings {
-        id: settings
-        property string gear_configuration: "1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true"
-        property int gear_crankset_size: 42
-        property int gear_cog_size: 14
-        property string gear_wheel_size: "700 x 18C"
-        property real gear_circumference: 2070
-        property bool wahoo_without_wheel_diameter: false
-    }
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
 
     property int selectedCranksetSize: settings.gear_crankset_size
     property int selectedCogSize: settings.gear_cog_size
@@ -86,8 +83,8 @@ ScrollView {
         settings.gear_configuration = gearRowsToString(gearRows)
     }
 
-    onSettingsChanged: {
-        console.log("onSettingsChanged")
+    onGearSettingsChanged: {
+        console.log("onGearSettingsChanged")
         updateSettings()
     }
 
@@ -311,22 +308,29 @@ ScrollView {
         var temp = gearRows
         gearRows = []
         gearRows = temp
+        // Without it the table kept the removed gears and the reset was not saved
+        gearConfigurationChanged(gearRows)
     }
 
-    // Signals to notify when values change
-    signal settingsChanged()
+    // Signals to notify when values change (not settingsChanged: that is the change signal of
+    // the settings property)
+    signal gearSettingsChanged()
     signal gearConfigurationChanged(var gearRows)
     signal restoreDefaultWheelDiameter()
 
     ColumnLayout {
-        anchors.fill: parent
+        // Not tied to the bottom: the column height would come from the content height made from
+        // it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: 20
         spacing: 20
         id: chainringColumn
 
         // Wahoo Options
         GroupBox {
-            title: "Wahoo Options"
+            title: qsTr("Wahoo Options")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -350,7 +354,8 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     color: Material.accent
                 }
             }
@@ -358,12 +363,12 @@ ScrollView {
 
         // Crankset Size
         GroupBox {
-            title: "Chainring Size"
+            title: qsTr("Chainring Size")
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
-                    text: "Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride"
+                    text: qsTr("Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
@@ -376,7 +381,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCranksetSize = value
                         console.log("Crankset Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -384,12 +389,12 @@ ScrollView {
 
         // Cog Size
         GroupBox {
-            title: "Cog Size"
+            title: qsTr("Cog Size")
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
-                    text: "Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog"
+                    text: qsTr("Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
@@ -401,7 +406,7 @@ ScrollView {
                     onValueChanged: {
                         selectedCogSize = value
                         console.log("Cog Size changed");
-                        settingsChanged()
+                        gearSettingsChanged()
                     }
                 }
             }
@@ -409,13 +414,18 @@ ScrollView {
 
         // Wheel Size
         GroupBox {
-            title: "Virtual Wheel Size"
+            title: qsTr("Virtual Wheel Size")
             Layout.fillWidth: true
 
             ColumnLayout {
-                ComboBox {
+                // With a bigger text the column took the width of the button label in one line and
+                // the button ran past the screen edge: it takes the width of the box instead
+                width: window.textScale !== 1 ? parent.width : implicitWidth
+                UiComboBox {
                        id: wheelSizeCombo
                        width: parent.width
+                       // the box was as wide as at 100 % and cut the wheel size ("700 x 1…")
+                       Layout.fillWidth: window.textScale !== 1
                        currentIndex: initialWheelSizeIndex
                        textRole: "text"
                        model: ListModel {
@@ -511,22 +521,24 @@ ScrollView {
                           selectedWheelSize = model.get(currentIndex).text
                           selectedCircumference = model.get(currentIndex).circumference
                           console.log("wheelSizeCombo changed");
-                          settingsChanged()
+                          gearSettingsChanged()
                       }
                   }
                 }
 
                 // Restore Default Wheel Diameter Button
                 Button {
-                    text: "Restore Default Setting to the Trainer"
+                    text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    // with a bigger text the label wraps in two lines
+                    Layout.preferredHeight: window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50
                     font.bold: true
                     background: Rectangle {
                         color: "#9C27B0"
                         radius: 4
                     }
                     contentItem: Text {
+                        wrapMode: window.labelWrap
                         text: parent.text
                         font: parent.font
                         color: "white"
@@ -542,14 +554,14 @@ ScrollView {
         }
 
         GroupBox {
-        title: "Preset Gear Profiles"
+        title: qsTr("Preset Gear Profiles")
         Layout.fillWidth: true
 
-            ComboBox {
+            UiComboBox {
                 id: profileCombo
                 width: parent.width
                 textRole: "text"
-                displayText: currentIndex < 0 ? "Select a profile..." : model.get(currentIndex).text
+                displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
                 model: ListModel {
                  id: profileModel
                 }
@@ -574,32 +586,37 @@ ScrollView {
 
         // Gear Table GroupBox
         GroupBox {
-            title: "Virtual Gear Table"
+            title: qsTr("Virtual Gear Table")
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height
+            // The table is as tall as its rows and the page scrolls as one: the table had the rest
+            // of the page, but the page is as tall as its content, so the rest was nothing and only
+            // the header of the table showed
 
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
 
                 // Updated Buttons Row
-                RowLayout {
+                // With a bigger text three buttons in a row cut their labels ("Add…"): one under
+                // another, each the full width
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    spacing: 10
+                    Layout.preferredHeight: window.textScale > 1 ? -1 : 40
+                    columns: window.textScale > 1 ? 1 : 3
+                    columnSpacing: 10
+                    rowSpacing: 10
 
                     Button {
-                        text: "Add Gear"
+                        text: qsTr("Add Gear")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: addNewGear()
                     }
 
                     Button {
-                        text: "Clear Selected Gear and Following"
+                        text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: {
                             if (gearTable.currentRow >= 0) {
                                 clearGearsFromIndex(gearTable.currentRow)
@@ -608,9 +625,9 @@ ScrollView {
                     }
 
                     Button {
-                        text: "Reset All Gears"
+                        text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: window.fontPx(40)
                         onClicked: initializeGearRows()
                     }
                 }
@@ -618,7 +635,7 @@ ScrollView {
                 // Table Header (same as before)
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
+                    Layout.preferredHeight: window.fontPx(40)
                     color: "#f0f0f0"
                     border.width: 1
                     border.color: "#cccccc"
@@ -634,8 +651,10 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                // a plain Text does not inherit the window font: the text size while it is not 100 %
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
-                                text: "Gear"
+                                text: qsTr("Gear")
                                 font.bold: true
                                 color: "black"
                             }
@@ -649,8 +668,9 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
-                                text: "Chainring"
+                                text: qsTr("Chainring")
                                 font.bold: true
                                 color: "black"
                             }
@@ -664,8 +684,9 @@ ScrollView {
                             color: "transparent"
 
                             Text {
+                                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                 anchors.centerIn: parent
-                                text: "Rear Cog"
+                                text: qsTr("Rear Cog")
                                 font.bold: true
                                 color: "black"
                             }
@@ -677,7 +698,10 @@ ScrollView {
                 ListView {
                     id: gearTable
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: contentHeight
+                    // The page margins are not in the implicit height: never squeeze the rows
+                    Layout.minimumHeight: contentHeight
+                    interactive: false
                     clip: true
                     property int currentRow: -1
                     model: ListModel {
@@ -704,7 +728,8 @@ ScrollView {
 
                     delegate: Rectangle {
                         width: gearTable.width
-                        height: 40
+                        // the rows, the fields and their -/+ grow with the text
+                        height: window.fontPx(40)
                         color: gearTable.currentRow === index ? "#e0e0e0" : "white"
 
                         MouseArea {
@@ -724,6 +749,7 @@ ScrollView {
                                 color: "transparent"
 
                                 Text {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                     anchors.centerIn: parent
                                     text: gear
                                     color: "black"
@@ -741,8 +767,12 @@ ScrollView {
                                 SpinBox {
                                     id: cranksetSpinBox
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    // with a bigger text the field takes the cell and grows with the row
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    // Material pads 8 above and 16 below: the number sat 4 px over the middle
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: crankset
@@ -766,7 +796,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -774,14 +805,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -789,7 +821,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
@@ -811,8 +843,10 @@ ScrollView {
                                 SpinBox {
                                     id: cogSpinBox
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.8
-                                    height: 30
+                                    width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
+                                    height: window.fontPx(30)
+                                    topPadding: window.textScale !== 1 ? 0 : 8
+                                    bottomPadding: window.textScale !== 1 ? 0 : 16
                                     from: 1
                                     to: 999
                                     value: cog
@@ -836,7 +870,8 @@ ScrollView {
                                     up.indicator: Rectangle {
                                         x: parent.width - width
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.up.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -844,14 +879,15 @@ ScrollView {
                                             text: "+"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 
                                     down.indicator: Rectangle {
                                         x: 0
                                         height: parent.height
-                                        width: height
+                                        // square, but at most a quarter of the field: the number keeps the middle
+                                        width: window.textScale !== 1 ? Math.min(height, parent.width / 4) : height
                                         color: parent.down.pressed ? "#e4e4e4" : "#f6f6f6"
                                         border.color: "#cccccc"
 
@@ -859,7 +895,7 @@ ScrollView {
                                             text: "-"
                                             color: "black"
                                             anchors.centerIn: parent
-                                            font.pixelSize: 12
+                                            font.pixelSize: window.fontPx(12)
                                         }
                                     }
 

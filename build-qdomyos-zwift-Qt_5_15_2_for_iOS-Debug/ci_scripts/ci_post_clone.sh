@@ -4,6 +4,10 @@ set -e
 echo "=== QDomyos-Zwift CI Post Clone Script ==="
 echo "Installing Qt 5.15.2 EXACTLY and preparing environment"
 
+# Xcode 27 requires the Qt 5.15.2 iOS QPA with the UIScene backport.
+QT_ARCHIVE_NAME="qt-5.15.2-xcode27-uiscene.tar.xz"
+QT_ARCHIVE_URL="https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2-iOS27/$QT_ARCHIVE_NAME"
+
 # Exit if not on macOS (sanity check)
 if [[ "$OSTYPE" != "darwin"* ]]; then
     echo "ERROR: This script must run on macOS"
@@ -60,11 +64,11 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         # Download precompiled Qt 5.15.2 from your GitHub release
         echo "Downloading precompiled Qt 5.15.2 from GitHub..."
         cd /tmp
-        curl -L "https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2/qt-5.15.2.tar.xz" -o qt-5.15.2.tar.xz
+        curl -L "$QT_ARCHIVE_URL" -o "$QT_ARCHIVE_NAME"
         
-        if [[ -f "qt-5.15.2.tar.xz" ]]; then
+        if [[ -f "$QT_ARCHIVE_NAME" ]]; then
             echo "Extracting precompiled Qt 5.15.2..."
-            tar -mxf qt-5.15.2.tar.xz
+            tar -mxf "$QT_ARCHIVE_NAME"
             
             cd 5.15.2 || { echo "Extraction failed or directory not found"; exit 1; }
 

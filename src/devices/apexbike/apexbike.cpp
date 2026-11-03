@@ -13,7 +13,10 @@
 using namespace std::chrono_literals;
 
 bool apexbike::usesWlt8266bmDistanceCounterMetrics(const QString &deviceName) {
-    return deviceName.startsWith(QStringLiteral("WLT8266BM_"), Qt::CaseInsensitive);
+    // WLT8266BM bikes report cadence and distance in 0x31 packets.
+    // Their 0x30 packet is a counter and must not be used as distance.
+    Q_UNUSED(deviceName);
+    return false;
 }
 
 bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue) {
@@ -577,6 +580,6 @@ void apexbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

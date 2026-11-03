@@ -269,6 +269,6 @@ void sramaxscontroller::controllerStateChanged(QLowEnergyController::ControllerS
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

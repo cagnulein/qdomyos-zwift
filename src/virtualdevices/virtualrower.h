@@ -34,6 +34,7 @@ class virtualrower : public virtualdevice {
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
     bool connected() override;
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -44,6 +45,10 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *servicePM5DeviceInfo = nullptr;
     QLowEnergyService *servicePM5GAP = nullptr;
     QLowEnergyService *servicePM5Control = nullptr;
+    QLowEnergyService *serviceEchelonDiscovery = nullptr;
+    QLowEnergyService *serviceEchelon = nullptr;
+    QLowEnergyService *serviceEchelonDIS = nullptr;
+    QLowEnergyService *serviceEchelonDFU = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
@@ -51,10 +56,16 @@ class virtualrower : public virtualdevice {
     QLowEnergyServiceData serviceDataPM5DeviceInfo;
     QLowEnergyServiceData serviceDataPM5GAP;
     QLowEnergyServiceData serviceDataPM5Control;
+    QLowEnergyServiceData serviceDataEchelonDiscovery;
+    QLowEnergyServiceData serviceDataEchelon;
+    QLowEnergyServiceData serviceDataEchelonDIS;
+    QLowEnergyServiceData serviceDataEchelonDFU;
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 
     bool pm5Mode = false;
+    double virtualRowerCadenceGain = 1.0;
+    double virtualRowerCadenceOffset = 0.0;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -62,8 +73,13 @@ class virtualrower : public virtualdevice {
 
     bool noHeartService = false;
 
+    bool echelonInitDone = false;
+    int echelonLastResistance = -1;
+
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
+    void echelonWriteStatus();
+    void echelonWriteResistance();
     void setupPM5Services();
     QByteArray buildPM5GeneralStatus();
     QByteArray buildPM5AdditionalStatus();

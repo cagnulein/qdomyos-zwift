@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "mywhooshlink.h"
 #include <QSettings>
 #include <QStringList>
 #include <cmath>
@@ -45,6 +46,16 @@ int bike::powerZoneValueToWatts(double zoneValue, double ftp) {
     return qRound(ftp * powerZoneValueToFtpPercentage(zoneValue));
 }
 
+bool bike::targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                           bool autoResistance) {
+    // an app that sends its own target power (ERG) is followed by the tile, so there is nothing to warn about;
+    // the conflict is an app driving slope or resistance while the tile keeps re-sending its power.
+    // With auto resistance off the app's grade and resistance are dropped (changeInclination/changeResistance),
+    // so the tile has nothing to fight.
+    const bool externalControllerActive = lastAppFrame > 0 && now <= lastAppFrame + 2000;
+    return autoResistance && externalControllerActive && !appErgMode;
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {
@@ -57,8 +68,9 @@ void bike::changeResistance(resistance_t resistance) {
     qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
     lastRawRequestedResistanceValue = resistance;
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
     if (autoResistanceEnable) {
-        double v = (resistance * m_difficult) + gearsModifier();
+        double v = (resistance * m_difficult) + gearModifier;
         if ((double)v > zwift_erg_resistance_up) {
             qDebug() << "zwift_erg_resistance_up filter enabled!";
             v = (resistance_t)zwift_erg_resistance_up;
@@ -69,7 +81,7 @@ void bike::changeResistance(resistance_t resistance) {
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gearsModifier();
+    RequestedResistance = resistance * m_difficult + gearModifier;
 }
 
 void bike::changeInclination(double grade, double percentage) {
@@ -209,6 +221,7 @@ void bike::setGears(double gears) {
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    const double previousGears = m_gears;
     if (!gears_custom_table_enabled) {
         gears -= gears_offset;
     }
@@ -216,6 +229,24 @@ void bike::setGears(double gears) {
         gears = qRound(gears);
     }
     qDebug() << "setGears" << gears;
+
+    virtualbike *virtualBike = VirtualBike();
+    const qint64 lastFtmsFrame = virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0;
+    const bool externalControllerActive =
+        lastFtmsFrame > 0 && QDateTime::currentMSecsSinceEpoch() <= lastFtmsFrame + 2000;
+    const bool ergModeActive =
+        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    if (!externalControllerActive && ergModeActive && RequestedPower.value() > 0 && homeform::singleton()) {
+        if (gears > m_gears) {
+            qDebug() << "Standalone ERG: translating gear up to target power jog";
+            homeform::singleton()->keyboardPlus(QStringLiteral("target_power"));
+            return;
+        } else if (gears < m_gears) {
+            qDebug() << "Standalone ERG: translating gear down to target power jog";
+            homeform::singleton()->keyboardMinus(QStringLiteral("target_power"));
+            return;
+        }
+    }
 
     // Gear boundary handling with smart clamping logic:
     // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
@@ -282,6 +313,25 @@ void bike::setGears(double gears) {
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
+    }
+
+    
+    if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
+        !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
+        const bool uiAligned = settings.value(QZSettings::zwift_gear_ui_aligned,
+                                              QZSettings::default_zwift_gear_ui_aligned).toBool();
+        if (uiAligned) {
+            MyWhooshLink::instance()->syncGearValue(qRound(m_gears));
+        } else {
+            const int steps = qAbs(qRound(m_gears - previousGears));
+            for (int i = 0; i < steps; ++i) {
+                if (m_gears > previousGears) {
+                    MyWhooshLink::instance()->handleGearUp(true);
+                } else if (m_gears < previousGears) {
+                    MyWhooshLink::instance()->handleGearDown(true);
+                }
+            }
+        }
     }
 
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
@@ -670,10 +720,13 @@ void bike::updateSlopeTargetPower(bool force) {
         return;
     }
 
-    // Apply gear offset to grade (0.5 scaling factor)
-    double grade = m_currentSlopePercent + (gearsModifier() / 2.0);
+    // Apply virtual gear offset to grade (0.5 scaling factor). Physical
+    // gearboxes already apply their ratio mechanically and must not be
+    // counted a second time in the software physics model.
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
+    double grade = m_currentSlopePercent + (gearModifier / 2.0);
 
-    // Get current speed (with fallback to cadence-based estimation)
+    // Get current speed for slope calculations with fallback to cadence-based estimation
     double speedKmh = getCurrentSpeedForSlope();
 
     // Compute required power using physics model

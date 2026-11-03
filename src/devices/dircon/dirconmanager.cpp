@@ -42,7 +42,9 @@ using namespace std::chrono_literals;
 #define DM_BT(A) QByteArrayLiteral(A)
 
 #define DM_CHAR_OP(OP, P1, P2, P3, ZWIFT_ENABLED)                                                                     \
-    OP(FITNESS_MACHINE_CYCLE, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x83\x14\x00\x00\x0C\xE0\x00\x00"),             \
+    /* 0x5483 adds bit 14, power measurement. 0x2AD2 always carried power (flags bit 6); \
+       clients that trust this field - MyWhoosh does, Rouvy does not - saw 0 W. */       \
+    OP(FITNESS_MACHINE_CYCLE, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x83\x54\x00\x00\x0C\xE0\x00\x00"),             \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                     \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \

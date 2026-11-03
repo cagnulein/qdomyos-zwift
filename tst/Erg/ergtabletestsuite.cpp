@@ -592,3 +592,21 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     this->test_wattageEstimation(inputs, expected);
 
 }
+
+void ErgTableTestSuite::test_resistanceCadenceBanding() {
+
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    erg.loadDefaultData(QStringLiteral("80|100|1;80|120|2;85|130|1;85|150|2"));
+
+    EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 84, 3));
+
+    erg.setCadenceResistanceBandStep(5);
+
+    EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 80, 3));
+    EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 84, 3));
+    EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 85, 3));
+}

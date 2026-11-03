@@ -42,27 +42,34 @@ ApplicationWindow {
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+        // AndroidStatusBar.height is always the top inset in the current orientation
+        // (getSystemWindowInsets() returns orientation-aware values)
+        return AndroidStatusBar.height;
     }
 
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+        // navigationBarHeight is always the bottom inset in the current orientation
+        return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
-    
+
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
+
+    // Side margin for text, after the Material 3 window margins (16 on compact windows
+    // under 600 wide, 24 on wider ones) but tighter: 12 and 16. Keeps text clear of
+    // rounded screen corners and of the edges covered by protective glass.
+    // A property rather than a function, so .ui.qml forms can bind to it.
+    readonly property int contentSideMargin: width < 600 ? 12 : 16
 
     function isConfiguringShortcuts() {
         // Check if a TextField in the shortcuts settings has active focus
@@ -86,6 +93,23 @@ ApplicationWindow {
     }
     function stripBluetoothDeviceName(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
+    // A Settings object that loads a store without one of its keys snapshots its properties for
+    // the write in the middle of the load (Qt.labs.settings): the properties declared after that
+    // key still have their defaults, and 500 ms later the defaults are written over their values.
+    // The change signal of that key, emitted once the load is over, takes the snapshot again
+    // without changing a value
+    function retakeSettingsSnapshot(copy) {
+        for (var key in copy) {
+            var type = typeof copy[key]
+            if (type !== "boolean" && type !== "number" && type !== "string")
+                continue
+            if (key === "objectName" || key === "category" || key === "fileName" || copy.value(key) !== undefined)
+                continue
+            copy[key + "Changed"]()
+            return
+        }
     }
 
     function maybeOpenGymModePopup() {
@@ -121,6 +145,8 @@ ApplicationWindow {
     signal restoreSettings()
     signal saveProfile(string profilename)
     signal restart()
+    // Sent by the settings page when a key of the home page copy changes (Home.qml)
+    signal tileSettingChanged(string key, var value)
     signal volumeUp()
     signal volumeDown()
     signal keyMediaPrevious()
@@ -133,8 +159,14 @@ ApplicationWindow {
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
 
+    // rootItem comes from homeform, created only after this file is loaded (main.cpp): for about
+    // a second the bindings on it fail and keep their defaults - every header button shown in a
+    // squashed bar. The header and the page wait for it
+    readonly property bool rootReady: typeof rootItem !== "undefined" && rootItem !== null
+
     Settings {
         id: settings
+        Component.onCompleted: retakeSettingsSnapshot(settings)
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
         property bool volume_change_gears: false
@@ -209,6 +241,78 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
+        property bool android_landscape_cutout_prompt_shown: false
+        property int ui_text_scale: 100
+        property bool ui_text_scale_system: true
+    }
+
+    // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
+    // system text size by default, capped so the fixed-height rows still fit; otherwise ui_text_scale.
+    // Qt 5.15 applies neither by itself, and Qt.application.font is constant, so the size goes
+    // through the window font, which the labels, fields, buttons, lists and menus inherit
+    readonly property bool systemTextScaleAvailable: Qt.platform.os === "android" || Qt.platform.os === "ios"
+    readonly property real systemTextScaleCap: 1.5
+    property real systemTextScale: AndroidStatusBar.systemFontScale()
+    readonly property real textScale: systemTextScaleAvailable && settings.ui_text_scale_system
+        ? Math.max(0.8, Math.min(systemTextScaleCap, systemTextScale))
+        : Math.max(0.8, Math.min(1.7, settings.ui_text_scale / 100))
+    // At 100 % every size stays exactly as before
+    function fontPx(base) { return textScale === 1 ? base : Math.round(base * textScale) }
+    // On iOS the app font is not the one of the controls: Qt gives it the size of the body text,
+    // 17 px at the default system text size and more with a bigger one (Dynamic Type), while the
+    // controls keep 14 px. So the controls are scaled from 14 and a plain Text from 17
+    readonly property bool iosTextSize: Qt.platform.os === "ios"
+    readonly property int iosBodyPx: 17
+    readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
+    // Size of the hints under the settings. Where the app font has no pixel size (desktop)
+    // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
+    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+        : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
+        : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
+    // The window font is set only for a size other than 100 % and reset otherwise
+    readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
+    // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
+    // size (above); on desktop the app font has a point size (in QML "pointSize": there is no
+    // "pointSizeF"), so a Text is scaled from that, in pixels
+    readonly property int plainFontPx: textScale === 1 ? 0
+        : iosTextSize ? Math.round(iosBodyPx * textScale)
+        : Qt.application.font.pixelSize > 0 || !(Qt.application.font.pointSize > 0) ? scaledFontPx
+        : Math.round(Qt.application.font.pointSize * Screen.logicalPixelDensity * 25.4 / 72 * textScale)
+    // Base of a plain Text that is a multiple of the text size (the file names in profiles)
+    readonly property int plainBasePx: iosTextSize ? iosBodyPx : appFontPx
+    // Font of the section headers of the settings: a plain Text, which does not inherit the window
+    // font. At 100 % the app font, the one a Text takes by itself
+    readonly property font headerFont: textScale === 1 ? Qt.application.font
+        : Qt.font({ family: Qt.application.font.family, pixelSize: plainFontPx })
+    // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
+    // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
+    // and then take the width of the screen and the height of the text
+    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // Space under the hint of a setting: a wrapped label of the next one fills its row and
+    // touched the hint above it, the two read as one block
+    readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
+    function applyTextScale() {
+        if (scaledFontPx > 0)
+            font.pixelSize = scaledFontPx
+        else
+            font = undefined
+    }
+    onScaledFontPxChanged: applyTextScale()
+    Component.onCompleted: applyTextScale()
+    // The settings page has its own Settings object, which this one does not hear about until a
+    // restart: the text size options are written through here, so the size changes at once
+    function setTextScaleOption(key, value) {
+        settings[key] = value
+    }
+    // The system text size is changed in the phone settings, while QZ is in the background
+    Connections {
+        target: Qt.application
+        function onStateChanged() {
+            if (Qt.application.state === Qt.ApplicationActive)
+                window.systemTextScale = AndroidStatusBar.systemFontScale()
+        }
     }
 
 
@@ -257,12 +361,69 @@ ApplicationWindow {
         id: toast
     }
 
+    property bool lapPromptVisible: false
+    property string lapPromptText: ""
+
+    function isLapPromptMessage(message) {
+        var lowerMessage = message.toLowerCase()
+        return (lowerMessage.indexOf("press") >= 0 && lowerMessage.indexOf("lap") >= 0) ||
+               (lowerMessage.indexOf("lap") >= 0 && lowerMessage.indexOf("continue") >= 0 &&
+                lowerMessage.indexOf("received") < 0)
+    }
+
+    Rectangle {
+        id: lapPromptOverlay
+        z: Infinity
+        visible: window.lapPromptVisible
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 32, 520)
+        height: Math.max(96, lapPromptLabel.implicitHeight + 44)
+        radius: 8
+        color: "#9C27B0"
+        border.color: "white"
+        border.width: 3
+        opacity: visible ? 1 : 0
+
+        Label {
+            id: lapPromptLabel
+            anchors.fill: parent
+            anchors.margins: 16
+            text: window.lapPromptText
+            color: "white"
+            font.bold: true
+            font.pixelSize: window.fontPx(26)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+        }
+
+        SequentialAnimation on scale {
+            running: lapPromptOverlay.visible
+            loops: Animation.Infinite
+            NumberAnimation { from: 1.0; to: 1.05; duration: 450; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 1.05; to: 1.0; duration: 450; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Timer {
+        id: lapPromptAutoClose
+        interval: 15000
+        repeat: false
+        onTriggered: window.lapPromptVisible = false
+    }
+
     Timer {
         interval: 1
         repeat: false
         running: (rootItem.toastRequested !== "")
         onTriggered: {
-            toast.show(rootItem.toastRequested);
+            if (window.isLapPromptMessage(rootItem.toastRequested)) {
+                window.lapPromptText = rootItem.toastRequested;
+                window.lapPromptVisible = true;
+                lapPromptAutoClose.restart();
+            } else {
+                toast.show(rootItem.toastRequested);
+            }
             rootItem.toastRequested = "";
         }
     }
@@ -304,30 +465,65 @@ ApplicationWindow {
         }
     }*/
 
-    Keys.onBackPressed: {
-        if(OS_VERSION === "Android") {
-            toast.show("Pressed it quickly to close the app!")
-            timer.pressBack();
+    // Shared by the toolbar "◄" button and the Android back button.
+    // stepInsidePage: pages with their own inner navigation (Wizard, training programs
+    // list) first go back one step there, via their handleBack().
+    // Returns false when there is nothing to go back to (home page).
+    function navigateBack(stepInsidePage) {
+        if (stepInsidePage && stackView.currentItem && typeof stackView.currentItem.handleBack === "function" &&
+                stackView.currentItem.handleBack()) {
+            return true
         }
-    }
-    Timer{
-        id: timer
+        if (stackView.depth <= 1) {
+            return false
+        }
 
-        property bool backPressed: false
-        repeat: false
-        interval: 200//ms
-        onTriggered: backPressed = false
-        function pressBack(){
-            if(backPressed){
-                timer.stop()
-                backPressed = false
-                Qt.callLater(Qt.quit)
-            }
-            else{
-                backPressed = true
-                timer.start()
-            }
+        var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                stackView.currentItem &&
+                typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                stackView.currentItem.profileSaveReminderNeeded()
+        var activeProfileName = settings.profile_name
+
+        if(window.settings_restart_to_apply === true) {
+            window.settings_restart_to_apply = false;
+            popupRestartApp.visible = true;
         }
+
+        stackView.pop()
+        toolButtonLoadSettings.visible = false;
+        toolButtonSaveSettings.visible = false;
+        rootItem.sortTiles()
+        if (remindToSaveProfile) {
+            toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+        }
+        return true
+    }
+
+    // On Android an unhandled back key closes the window, which quits the app.
+    // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
+    // Popups and the drawer close themselves on back before this is reached.
+    // Android 16+ with targetSdk 36 no longer sends the back key to the app unless
+    // AndroidManifest.xml sets android:enableOnBackInvokedCallback="false".
+    onClosing: {
+        if (OS_VERSION !== "Android") {
+            return
+        }
+        if (navigateBack(true)) {
+            close.accepted = false
+            return
+        }
+        if (backToExitTimer.running) {
+            return  // second press within the interval: let the app close
+        }
+        close.accepted = false
+        backToExitTimer.start()
+        toast.show(qsTr("Press back again to exit"), backToExitTimer.interval)
+    }
+
+    Timer {
+        id: backToExitTimer
+        repeat: false
+        interval: 2000 // ms
     }
 
     Popup {
@@ -336,8 +532,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
 		 y: Math.round((parent.height - height) / 2)
-		 width: 380
-         height: 60
+		 width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupText.height + topPadding + bottomPadding) : 60
 		 modal: true
 		 focus: true
 		 palette.text: "white"
@@ -353,8 +549,11 @@ ApplicationWindow {
 		 Column {
              anchors.horizontalCenter: parent.horizontalCenter
 		 Label {
+		     id: popupText
              anchors.horizontalCenter: parent.horizontalCenter
 		     text: qsTr("Program has been loaded correctly. Press start to begin!")
+		     width: window.textScale !== 1 ? popup.availableWidth : implicitWidth
+		     wrapMode: window.labelWrap
 		 }
 		 }
 	}
@@ -380,8 +579,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupClassificaHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -398,8 +597,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupClassificaHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
+             width: window.textScale !== 1 ? popupClassificaHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -410,13 +612,17 @@ ApplicationWindow {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        height: Math.min(parent.height - 40, 260)
+        // with a bigger text the content is taller: Skip fell out
+        height: window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+            : Math.min(parent.height - 40, 260)
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
         onOpened: refresh_bluetooth_devices_clicked()
 
         Column {
+            id: gymModeColumn
             anchors.fill: parent
             anchors.margins: 18
             spacing: 14
@@ -424,7 +630,7 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 text: qsTr("Select Your Gym Device")
-                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 10)
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
@@ -437,13 +643,14 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ComboBox {
+            ValueComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
                 model: rootItem.bluetoothDevices
-                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                labels: ({ "Disabled": qsTr("Disabled") })
+                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
-                font.pixelSize: Qt.application.font.pixelSize + 8
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
                     var selectedDevice = stripBluetoothDeviceName(currentValue)
@@ -488,8 +695,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupWhatsOnZwiftHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -514,8 +721,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupWhatsOnZwiftHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
+             width: window.textScale !== 1 ? popupWhatsOnZwiftHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -526,8 +736,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupLoadSettingsText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -543,8 +753,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLoadSettingsText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Settings has been loaded correctly. Restart the app!")
+             width: window.textScale !== 1 ? popupLoadSettings.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -555,8 +768,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupSaveFileText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -572,8 +785,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupSaveFileText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+             width: window.textScale !== 1 ? popupSaveFile.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -587,8 +803,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupStravaConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -604,10 +820,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupStravaConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupStravaConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -621,8 +839,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupPelotonConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -638,10 +856,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupPelotonConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupPelotonConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -661,8 +881,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 580
-         height: 230
+         width: window.textScale !== 1 ? Math.min(580, parent.width - 32) : 580
+         height: window.textScale !== 1 ? Math.max(230, popupLicenseText.height + topPadding + bottomPadding) : 230
          modal: true
          focus: true
          palette.text: "white"
@@ -678,10 +898,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLicenseText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 570
-             height: 220
+             width: window.textScale !== 1 ? popupLicense.availableWidth : 570
+             height: window.textScale !== 1 ? undefined : 220
              text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -694,6 +916,75 @@ ApplicationWindow {
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
         visible: false
+    }
+
+    // In landscape the camera side keeps an empty margin as wide as the cutout. The first time
+    // it happens (the cutout inset is wider than the system bar one), ask once whether to let
+    // the content go under the cutout instead. The delay lets the rotation settle first.
+    readonly property bool landscapeCutoutPromptDue: Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31 &&
+        (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) &&
+        settings.android_landscape_cutout_margin && !settings.android_landscape_cutout_prompt_shown &&
+        // the cutout safe inset also covers curved (waterfall) edges, which are not a camera
+        (AndroidStatusBar.leftInset > Math.max(AndroidStatusBar.systemBarLeftInset, AndroidStatusBar.waterfallLeftInset) ||
+         AndroidStatusBar.rightInset > Math.max(AndroidStatusBar.systemBarRightInset, AndroidStatusBar.waterfallRightInset))
+
+    Timer {
+        interval: 5000
+        running: window.landscapeCutoutPromptDue
+        onTriggered: {
+            settings.android_landscape_cutout_prompt_shown = true
+            popupLandscapeCutout.visible = true
+        }
+    }
+
+    MessageDialog {
+        id: popupLandscapeCutout
+        text: qsTr("Camera Cutout")
+        informativeText: qsTr("In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.\nDo you want to use the full screen width instead?\n\nYou can change it later in Settings > General UI Options > Keep Content Clear of the Camera Cutout.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.android_landscape_cutout_margin = false
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    // a new workout history database was started (first start, reinstall, database removed):
+    // the workouts of a previous install may still be in the QZ folder, hidden from the app
+    MessageDialog {
+        id: popupHistoryRecovery
+        text: qsTr("Workout History")
+        informativeText: qsTr("Workouts of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.importFitFolder()
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onHistoryRecoveryOfferRequested() {
+            popupHistoryRecovery.visible = true
+        }
+    }
+
+    // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
+    MessageDialog {
+        id: popupRestartAppDetected
+        text: ""
+        informativeText: qsTr("Restart now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onRestartToApplyRequested(message) {
+            popupRestartAppDetected.text = message;
+            popupRestartAppDetected.visible = true;
+        }
     }
 
     MessageDialog {
@@ -717,9 +1008,17 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
-                         "\n\nDo you want to open the workout preview?"
+        text: qsTr("Garmin FTP Update")
+        informativeText: rootItem.garminFtpPromptMessage
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_accept_ftp_update(); }
+        onNoClicked: { rootItem.garmin_dismiss_ftp_update(); }
+        visible: rootItem.garminFtpPromptRequested
+    }
+
+    MessageDialog {
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("Workout found in clipboard:\n%1\n\nDo you want to open the workout preview?").arg(rootItem.clipboardWorkoutPromptName)
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             var workoutUrl = rootItem.clipboard_workout_url()
@@ -742,8 +1041,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("The clipboard workout has ended.\n\nDo you want to delete the file?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: rootItem.clipboard_delete_finished_workout()
         onNoClicked: rootItem.clipboard_keep_finished_workout()
@@ -751,8 +1050,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Echelon Unlock"
-        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        text: qsTr("Echelon Unlock")
+        informativeText: qsTr("The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
         onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
@@ -784,16 +1083,20 @@ ApplicationWindow {
             spacing: 12
 
             Label {
+                id: echelonEnableTitle
                 width: parent.width
-                text: "Echelon Locked Bike"
+                text: qsTr("Echelon Locked Bike")
                 font.bold: true
-                font.pixelSize: 20
+                font.pixelSize: window.fontPx(20)
                 wrapMode: Text.WordWrap
             }
 
             ScrollView {
                 width: parent.width
-                height: parent.height - buttonsRow.height - 52
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - buttonsRow.height - echelonEnableTitle.height - 2 * parent.spacing
+                    : parent.height - buttonsRow.height - 52
                 clip: true
 
                 TextArea {
@@ -802,10 +1105,10 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     text:
-                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
-                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
-                        "After initialization, return to QZ and everything will work normally.\n\n" +
-                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                        qsTr("Your bike is locked by Echelon, but QZ can unlock it.\n\n") +
+                        qsTr("Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n") +
+                        qsTr("After initialization, return to QZ and everything will work normally.\n\n") +
+                        qsTr("You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?")
                 }
             }
 
@@ -816,13 +1119,89 @@ ApplicationWindow {
                 layoutDirection: Qt.RightToLeft
 
                 Button {
-                    text: "Yes"
+                    text: qsTr("Yes")
                     onClicked: rootItem.echelon_enable_virtual_bridge()
                 }
 
                 Button {
-                    text: "No"
+                    text: qsTr("No")
                     onClicked: rootItem.echelon_dismiss_enable_prompt()
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: androidNotificationPopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        width: Math.min(window.width - 40, 460)
+        height: Math.min(window.height - 60, 380)
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        visible: rootItem.androidNotificationPromptRequested
+
+        background: Rectangle {
+            radius: 8
+            color: Material.background
+            border.color: Material.accent
+            border.width: 1
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            Label {
+                id: androidNotificationTitle
+                width: parent.width
+                text: qsTr("Connection lost in the background")
+                font.bold: true
+                font.pixelSize: window.fontPx(20)
+                wrapMode: Text.WordWrap
+            }
+
+            ScrollView {
+                width: parent.width
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - androidNotificationButtons.height - androidNotificationTitle.height - 2 * parent.spacing
+                    : parent.height - androidNotificationButtons.height - 52
+                clip: true
+
+                TextArea {
+                    width: androidNotificationPopup.width - 56
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    text:
+                        qsTr("Android cut QZ's network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.\n\n") +
+                        qsTr("The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.")
+                }
+            }
+
+            // Flow, not Row: three buttons don't fit one row on a phone once translated
+            Flow {
+                id: androidNotificationButtons
+                width: parent.width
+                spacing: 12
+                layoutDirection: Qt.RightToLeft
+
+                Button {
+                    text: qsTr("Enable")
+                    onClicked: rootItem.android_notification_prompt_enable()
+                }
+
+                Button {
+                    text: qsTr("Not now")
+                    onClicked: rootItem.android_notification_prompt_dismiss(false)
+                }
+
+                Button {
+                    text: qsTr("Don't ask again")
+                    onClicked: rootItem.android_notification_prompt_dismiss(true)
                 }
             }
         }
@@ -862,8 +1241,44 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        // Opacity, not visible: some pages set headerToolbar.visible themselves
+        opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
-        topPadding: getTopPadding()
+        // The toolbar hangs over the pages: in the window layout it is only as tall as the status
+        // bar inset, and the page stack below leaves room for the rest of it (stackView
+        // anchors.topMargin), so every page sits where it did. The tile grid in Home.qml reaches
+        // up under it and slides it away with the scroll (Material "scroll|enterAlways"): barShift
+        // is how much of it has gone up under the status bar. The page never changes size, so the
+        // tiles do not move under the finger
+        property real barShift: 0
+        // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
+        // (the tile grid can still be gliding or snapping under it when one is opened); back on the
+        // home page it is where the scroll left it, not over the Start/Stop row
+        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        // Set, not derived from the style, which counts the height of the background (48) as well
+        implicitHeight: getTopPadding()
+        // The content keeps its height and slides up with the bar
+        topPadding: getTopPadding() - barHidden
+        bottomPadding: barHidden - contentHeight
+        // The background, as tall as the status bar inset and the bar, slides up with it. Negative
+        // insets let it reach past the header: a background.height binding loses to the control's
+        // own resizing at an inset of 0
+        topInset: -barHidden
+        bottomInset: barHidden - contentHeight
+        // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
+        // well; the background goes then too
+        contentItem.opacity: 1 - barHidden / contentHeight
+        contentItem.visible: barHidden < contentHeight
+        background.visible: barHidden < contentHeight
+
+        // The bar takes the touches on it, as a toolbar the height of its content did: drawn
+        // past the height of the header, it would let a tap on the title reach the tiles below
+        MouseArea {
+            anchors.fill: parent
+            z: -1
+        }
+        // Clear of the side system bar and the cutout held sideways, as the page stack: with
+        // button navigation the bar on the right covered the rightmost button
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
 
@@ -871,18 +1286,15 @@ ApplicationWindow {
             id: toolButton
             icon.source: "icons/icons/icon.png"
             text: stackView.depth > 1 ? "◄" : "◄"
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            // The header is as tall as this button. On iOS the app font already carries the system
+            // text size (53 px at the largest one), so the arrow is scaled from the body size, as
+            // the rest of the text, and keeps the same cap
+            font.pixelSize: window.iosTextSize ? window.fontPx(Math.round(window.iosBodyPx * 1.6)) : Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
+                    // Back to the settings search results after one of them was opened, as the
+                    // back key does; the other pages keep their own back buttons
+                    navigateBack(!!(stackView.currentItem && stackView.currentItem.searchReturn))
                 } else {
                     drawer.open()
                 }
@@ -894,6 +1306,9 @@ ApplicationWindow {
             icon.source: "icons/icons/mini-display.png"
             onClicked: { console.log("floating!"); floatingOpen(); }
             anchors.left: toolButton.right
+            // The header is as tall as the back arrow, which grows with the text size (iOS):
+            // the icon buttons stay in its middle, in line with the arrow and the title
+            anchors.verticalCenter: parent.verticalCenter
             visible: OS_VERSION === "Android" ? true : false
         }
 
@@ -903,8 +1318,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popupAutoResistanceText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -920,8 +1335,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popupAutoResistanceText
                  anchors.horizontalCenter: parent.horizontalCenter
-                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
+                 width: window.textScale !== 1 ? popupAutoResistance.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -938,8 +1356,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popuplockTilesText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -955,8 +1373,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popuplockTilesText
                  anchors.horizontalCenter: parent.horizontalCenter
                  text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
+                 width: window.textScale !== 1 ? popuplockTiles.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -983,18 +1404,41 @@ ApplicationWindow {
                 drawer.close()
             }
             anchors.right: toolButtonSaveSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
         ToolButton {
             id: toolButtonSettingsSearch
-            text: "\uD83D\uDD0D"
-            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            Accessible.name: qsTr("Search settings")
+            // A drawn magnifier instead of the emoji: the emoji is blank on devices without a
+            // glyph for it. Painted once, again only when the colour changes
+            Canvas {
+                id: settingsSearchIcon
+                property color color: toolButtonSettingsSearch.Material.foreground
+                anchors.centerIn: parent
+                // Drawn at the pixel density of the screen and scaled down, so it stays sharp
+                width: 24 * Screen.devicePixelRatio
+                height: 24 * Screen.devicePixelRatio
+                scale: 1 / Screen.devicePixelRatio
+                onColorChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.reset()
+                    // Material Symbols "search", viewBox 0 -960 960 960
+                    ctx.scale(width / 960, height / 960)
+                    ctx.translate(0, 960)
+                    ctx.path = "M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                    ctx.fillStyle = color
+                    ctx.fill()
+                }
+            }
             onClicked: {
                 if (headerToolbar.settingsPageActive)
                     stackView.currentItem.showSettingsSearch()
             }
             anchors.right: toolButtonLoadSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: headerToolbar.settingsPageActive
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
@@ -1008,6 +1452,7 @@ ApplicationWindow {
                 popupSaveFile.open()
             }
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
@@ -1035,6 +1480,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.mapsVisible
         }      
 
@@ -1052,6 +1498,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.videoIconVisible
         }
 
@@ -1060,6 +1507,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/chart.png" )
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.chartIconVisible
         }
 
@@ -1068,6 +1516,7 @@ ApplicationWindow {
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
             anchors.right: toolButtonAutoResistance.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: !toolButtonSaveSettings.visible
         }
 
@@ -1076,6 +1525,7 @@ ApplicationWindow {
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
             visible: !headerToolbar.settingsPageActive
             width: visible ? implicitWidth : 0
         }
@@ -1083,6 +1533,32 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
+            // Grows with the text size, but no wider than the room between the nearest shown
+            // buttons, centred: a title that does not fit takes a smaller font down to its size at
+            // 100 %, and only then an ellipsis. At 100 % it stays as it was
+            width: window.textScale !== 1 ? Math.min(implicitWidth, titleRoom) : implicitWidth
+            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
+            minimumPixelSize: window.appFontPx
+            // The line keeps the height of the full size: a smaller font in its middle, not at its top
+            verticalAlignment: window.textScale !== 1 ? Text.AlignVCenter : Text.AlignTop
+            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
+            readonly property real titleRoom: {
+                var c = parent.width / 2, room = c
+                var left = [toolButton, toolButtonFloating]
+                var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
+                             toolButtonVideo, toolButtonChart, toolButtonLockTiles, toolButtonAutoResistance]
+                for (var i = 0; i < left.length; i++)
+                    if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
+                        room = Math.min(room, c - (left[i].x + left[i].width))
+                // The search of the settings comes and goes with the scroll: its place is kept on the
+                // settings page all the time, or the title grew and shrank with it
+                for (var j = 0; j < right.length; j++) {
+                    var held = right[j] === toolButtonSettingsSearch && headerToolbar.settingsPageActive
+                    if ((held || (right[j].visible && right[j].opacity > 0)) && right[j].width > 0)
+                        room = Math.min(room, right[j].x - c)
+                }
+                return Math.max(0, 2 * (room - 4))
+            }
         }
     }
 
@@ -1125,9 +1601,6 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                         });
                          drawer.close()
                     }
                 }
@@ -1289,7 +1762,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.5"
+                    text: "version 2.22.0"
                     width: parent.width
                 }
 
@@ -1360,11 +1833,6 @@ ApplicationWindow {
                             if (stackView.currentItem.openGarminSection) {
                                 stackView.currentItem.openGarminSection()
                             }
-                            if (stackView.currentItem.peloton_connect_clicked) {
-                                stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    peloton_connect_clicked()
-                                });
-                            }
                         }
                         drawer.close()
                     }
@@ -1394,7 +1862,7 @@ ApplicationWindow {
 
                     FileDialog {
                         id: fileDialogGPX
-                         title: "Please choose a file"
+                         title: qsTr("Please choose a file")
                          folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)
@@ -1415,15 +1883,36 @@ ApplicationWindow {
     Item {
         anchors.fill: parent
         Accessible.ignored: true
+        opacity: window.rootReady ? 1 : 0
 
         StackView {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
-            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            // Below the toolbar, which hangs over the pages (headerToolbar)
+            anchors.topMargin: headerToolbar.contentHeight
+            // Clear of the bottom system bar in any orientation: held sideways with gesture
+            // navigation the bar stays at the bottom (with buttons it moves to the side, and the
+            // bottom inset is 0 then)
+            anchors.bottomMargin: getBottomPadding()
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
+            Connections {
+                target: stackView.currentItem
+                ignoreUnknownSignals: true
+                function onPeloton_connect_clicked() {
+                    if (rootItem.isPelotonLoggedIn()) {
+                        pelotonLogoutConfirm.visible = true
+                    } else {
+                        stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
+                        peloton_connect_clicked()
+                    }
+                }
+            }
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
             Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {

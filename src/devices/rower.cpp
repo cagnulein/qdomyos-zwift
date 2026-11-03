@@ -12,7 +12,18 @@ void rower::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 void rower::changeResistance(resistance_t resistance) {
+    // Target Resistance changes the difficulty multiplier and then feeds the current
+    // hardware resistance back into this method. If telemetry changes at the same
+    // time, keep the previous raw request as the stable base instead of multiplying
+    // the new telemetry value by the new difficulty.
+    if (lastRawRequestedResistanceValue != -1 &&
+        lastRawRequestedResistanceDifficult != m_difficult &&
+        resistance == currentResistance().value()) {
+        resistance = lastRawRequestedResistanceValue;
+    }
+
     lastRawRequestedResistanceValue = resistance;
+    lastRawRequestedResistanceDifficult = m_difficult;
     if (autoResistanceEnable) {
         requestResistance = (resistance * m_difficult) + gears();;
         emit resistanceChanged(requestResistance);

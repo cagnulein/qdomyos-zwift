@@ -175,6 +175,8 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|/Users/cagnulein/Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5\.15\.2/ios"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5\.15\.2/ios-simulator-arm64"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     # 2. Fix source file paths to relative (must be before general fix)
     sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj
@@ -212,6 +214,22 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|lib\([a-zA-Z0-9_]*\)_debug\.a|lib\1.a|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|-l\([a-zA-Z0-9_]*\)_debug|-l\1|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Replaced all _debug library references with release versions"
+
+    # The UIScene delegate is registered through Objective-C runtime metadata.
+    # Force-load the patched QPA so the linker cannot dead-strip it.
+    QIOS_FORCE_LOAD_FLAG="-Wl,-force_load,/tmp/Qt-5.15.2/ios/plugins/platforms/libqios.a"
+    QIOS_FORCE_LOAD_QT_FLAG='"-Wl,-force_load,$(QZ_QT_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",'
+    if ! grep -Fq -e "$QIOS_FORCE_LOAD_FLAG" qdomyoszwift.xcodeproj/project.pbxproj && \
+       ! grep -Fq -e "$QIOS_FORCE_LOAD_QT_FLAG" qdomyoszwift.xcodeproj/project.pbxproj; then
+        awk -v flag="$QIOS_FORCE_LOAD_FLAG" '
+            { print }
+            /"-Wl,-e,_qt_main_wrapper",/ {
+                print "\t\t\t\t\t\"" flag "\",";
+            }
+        ' qdomyoszwift.xcodeproj/project.pbxproj > qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp
+        mv qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp qdomyoszwift.xcodeproj/project.pbxproj
+        echo "Added force-load for the patched qios plugin"
+    fi
 
     # Add ALL necessary Qt library search paths
     # qmake generates these but they might be missing from the committed project

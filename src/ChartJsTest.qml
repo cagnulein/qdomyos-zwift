@@ -26,10 +26,24 @@ ColumnLayout {
         }
     }
 
+    // a new app language: the page asks for its texts again (no reload, it may be saving the charts)
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
     Timer {
         id: chartJscheckStartFromWeb
         interval: 200; running: true; repeat: true
         onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; stackView.pop(); }}
+    }
+
+    Timer {
+        id: sendMailFallback
+        interval: 10000; running: true; repeat: false
+        onTriggered: rootItem.sendMail()
     }
 
     Button {
@@ -38,8 +52,9 @@ ColumnLayout {
         width: parent.width
         text: "Close"
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        // nothing listens to popupclose(): back the same way as the toolbar arrow
         onClicked: {
-            popupclose();
+            window.navigateBack(false);
         }
         anchors {
             bottom: parent.bottom

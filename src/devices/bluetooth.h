@@ -25,9 +25,11 @@
 #include "devices/antbike/antbike.h"
 #include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
+#include "devices/volavabike/volavabike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
+#include "devices/freebeatboombike/freebeatboombike.h"
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 #include "devices/chronobike/chronobike.h"
@@ -35,6 +37,8 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/kettlerusbbike/kettlerusbbike.h"
+#include "devices/daumbike/daumbike.h"
+#include "devices/freebeatbike/freebeatbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
@@ -62,6 +66,7 @@
 #include "devices/faketreadmill/faketreadmill.h"
 #include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
+#include "devices/fitplusrower/fitplusrower.h"
 
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
@@ -71,6 +76,7 @@
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
+#include "devices/ypootreadmill/ypootreadmill.h"
 #include "devices/iconceptbike/iconceptbike.h"
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
@@ -97,6 +103,7 @@
 #include "devices/octaneelliptical/octaneelliptical.h"
 #include "devices/octanetreadmill/octanetreadmill.h"
 #include "devices/pafersbike/pafersbike.h"
+#include "devices/pafersrower/pafersrower.h"
 #include "devices/paferstreadmill/paferstreadmill.h"
 #include "devices/pelotonbike/pelotonbike.h"
 #include "devices/pitpatbike/pitpatbike.h"
@@ -131,6 +138,7 @@
 #include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
+#include "devices/kettlerc12bike/kettlerc12bike.h"
 
 #include "devices/renphobike/renphobike.h"
 #include "devices/tacxneo2/tacxneo2.h"
@@ -142,6 +150,7 @@
 #include "templateinfosenderbuilder.h"
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#include "devices/kettlerclassicbike/kettlerclassicbike.h"
 #include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
@@ -149,9 +158,12 @@
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
+#include "devices/waterrowerusb/waterrowerusb.h"
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
+#include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
 #include "devices/ziprotreadmill/ziprotreadmill.h"
@@ -182,13 +194,28 @@ class bluetooth : public QObject, public SignalHandler {
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
+    // Search for the equipment, for the status line on the home page
+    bool isSearching() const;
+    qint64 nextSearchMs() const { return nextRescanMs; }
+    bool searchStopped() const { return rescanStopped; }
+    /**
+     * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
+     * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
+     * @return 0 if the search started or there is nothing to do (a device is connected, discovery is off or
+     * already running), otherwise the seconds until the scheduled search.
+     */
+    int searchNow();
+
   private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
+    QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
+    volavabike *volavaBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
@@ -197,9 +224,12 @@ class bluetooth : public QObject, public SignalHandler {
     crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
+    freebeatboombike *freebeatBoomBike = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
+    daumbike *daumBike = nullptr;
+    freebeatbike *freebeatBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
 #endif
@@ -213,6 +243,7 @@ class bluetooth : public QObject, public SignalHandler {
     toorxtreadmill *toorx = nullptr;
     iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
+    kettlerclassicbike *kettlerClassicBike = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
@@ -245,6 +276,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    ypootreadmill *ypooTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
@@ -268,15 +300,18 @@ class bluetooth : public QObject, public SignalHandler {
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
+    kettlerc12bike *kettlerC12Bike = nullptr;
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
     schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
+    fitplusrower *fitPlusRower = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    waterrowerusb *waterRowerUSB = nullptr;
     sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
@@ -288,6 +323,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     pafersbike *pafersBike = nullptr;
+    pafersrower *pafersRower = nullptr;
     paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     pitpatbike *pitpatBike = nullptr;
@@ -301,6 +337,8 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
+    xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     kineticinroadbike *kineticInroadBike = nullptr;
@@ -360,10 +398,24 @@ class bluetooth : public QObject, public SignalHandler {
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
+    void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
+    void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
+    void stopHeartRateBeltDiscovery();
+    void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
 
-#ifdef Q_OS_WIN
     QTimer discoveryTimeout;
-#endif
+    bool discoveryFinishedHandled = false;
+    int rescanCount = 0;
+    qint64 rescanStartedMs = 0;
+    // Android: while Bluetooth is off, asks the adapter every 2 s whether it is on again
+    QTimer bluetoothOffPoll;
+    QTimer rescanTimer;
+    qint64 nextRescanMs = 0;
+    bool rescanStopped = false;
+    // Android 7.0 and later ignore the scan starts after the 5th one in this window
+    static constexpr qint64 scanStartWindowMs = 30000;
+    QList<qint64> scanStartsMs;
+    void pruneScanStarts(qint64 now);
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
@@ -378,13 +430,44 @@ class bluetooth : public QObject, public SignalHandler {
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
+    void manualDeviceNotFound(QString name);
     void searchingStop();
     void ftmsAccessoryConnected(smartspin2k *d);
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+    void zwiftClickPlus();
+    void zwiftClickMinus();
+    void zwiftPlayPlus();
+    void zwiftPlayMinus();
+    void zwiftPlayLeftUp(bool pressed);
+    void zwiftPlayLeftDown(bool pressed);
+    void zwiftPlayLeftLeft(bool pressed);
+    void zwiftPlayLeftRight(bool pressed);
+    void zwiftPlayLeftShoulder(bool pressed);
+    void zwiftPlayLeftPower(bool pressed);
+    void zwiftPlayLeftPaddle(int value);
+    void zwiftRideLeftShiftUp(bool pressed);
+    void zwiftRideLeftShiftDown(bool pressed);
+    void zwiftRideLeftPower(bool pressed);
+    void zwiftRideLeftPowerUp(bool pressed);
+    void zwiftRideLeftOnOff(bool pressed);
+    void zwiftPlayRightY(bool pressed);
+    void zwiftPlayRightZ(bool pressed);
+    void zwiftPlayRightA(bool pressed);
+    void zwiftPlayRightB(bool pressed);
+    void zwiftPlayRightShoulder(bool pressed);
+    void zwiftPlayRightPower(bool pressed);
+    void zwiftPlayRightPaddle(int value);
+    void zwiftRideRightZAlt(bool pressed);
+    void zwiftRideRightShiftUp(bool pressed);
+    void zwiftRideRightShiftDown(bool pressed);
+    void zwiftRideRightPower(bool pressed);
+    void zwiftRideRightPowerUp(bool pressed);
+    void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
+    void reconnectHeartRateBelt(const QString &name = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);
@@ -398,6 +481,10 @@ class bluetooth : public QObject, public SignalHandler {
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
+    void controllerGearDown();
+    void controllerGearUp();
+    void controllerGearDownWithMyWhoosh();
+    void controllerGearUpWithMyWhoosh();
     void gearDown();
     void gearUp();
     void gearFailedDown();

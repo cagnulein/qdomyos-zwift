@@ -1,6 +1,6 @@
 # Settings Catalog
 
-`src/settings-catalog.json` is a generated catalog of every persistent setting declared in the settings QML files:
+`src/settings-catalog.json` is a manually maintained catalog of every persistent setting declared in the settings QML files:
 
 - `src/settings.qml`
 - `src/settings-tiles.qml`
@@ -48,16 +48,24 @@ Each virtual setting contains:
 
 ## Updating
 
-When adding, removing, or renaming a setting in any settings QML file, regenerate the catalog:
+When adding, removing, or renaming a setting in any settings QML file, update the catalog by hand in the same change.
 
-```bash
-python tools/generate_settings_catalog.py
-```
+For a new persistent setting:
 
-Then validate that the catalog still exactly covers the QML declarations:
+- Add the QML property at the end of the property list.
+- Add one matching entry to `src/settings-catalog.json`.
+- Increment top-level `settingCount`.
+- Keep `key`, `qmlType`, `defaultValue`, and `defaultExpression` aligned with the QML declaration.
+- Set `parent`, `name`, `description`, `control`, and `options` from the visible UI control.
 
-```bash
-python tools/generate_settings_catalog.py --check
-```
+For a removed setting, delete its catalog entry and decrement `settingCount`. For a rename, update the catalog key in the same commit as the QML and `QZSettings` changes.
 
-The check fails if any QML setting is missing from the catalog, if the catalog contains an undeclared setting, if a setting is duplicated, or if declaration metadata no longer matches the QML sources.
+The settings search translates `name`, `description`, `parent` and the list texts by their exact English text, so a catalog text that differs from the page stays in English. `tools/check_settings_catalog.py` warns about these in a PR, without failing it, and only about what the PR adds:
+
+- `name`, `description`, list `labels`, string list `values`: the same text on a settings page (`name` also with a trailing `:`). Copy the text of the label or hint, including when it changes on the page. `values` are what gets stored, so never change them to match a text: if the page shows another text for a value, add `labels`.
+- `parent`: the title of a section on a page, or the key of a setting.
+- A list with numeric `values` needs `labels` if the page shows texts for the numbers.
+
+Some warnings are expected, the check needs no change for them: a label with a value in it (`qsTr("Bike Weight (%1)")`), which the catalog keeps without the value, and a setting with no label of its own on the page.
+
+A new settings page goes in `translationContexts` in `src/settings.qml`, or the search does not translate its texts, and in `SETTINGS_PAGES` in the check.

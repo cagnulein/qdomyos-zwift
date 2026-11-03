@@ -31,10 +31,11 @@ cd "$PROJECT_ROOT"
 
 # Update translation files
 echo "Updating translation files..."
-echo "Running: lupdate src/qdomyos-zwift.pri"
+echo "Running: lupdate src/qdomyos-zwift.pri -locations none"
 echo ""
 
-lupdate src/qdomyos-zwift.pri
+# Avoid churn from QML/C++ source line shifts: runtime .qm files do not need locations.
+lupdate src/qdomyos-zwift.pri -locations none
 
 echo ""
 echo "SUCCESS: Translation files updated successfully!"

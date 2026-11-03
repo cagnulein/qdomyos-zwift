@@ -14,6 +14,15 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "profile") {
+                profile_open_clicked(localUrl)
+            }
+        }
+    }
+
     Settings {
         id: settings
         property string profile_name: "default"
@@ -119,10 +128,13 @@ ColumnLayout {
 
     RowLayout {
         spacing: 10
+        Layout.leftMargin: window.contentSideMargin
+        Layout.rightMargin: window.contentSideMargin
         Label {
             id: labelProfileName
             text: qsTr("Profile name")
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         TextField {
             id: profileNameTextField
@@ -144,7 +156,7 @@ ColumnLayout {
         }
         Button {
             id: saveProfileNameButton
-            text: "Save"
+            text: qsTr("Save")
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
@@ -194,14 +206,15 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
                         Text {
                             id: fileTextBox
                             color: Material.color(Material.Grey)
-                            font.pixelSize: Qt.application.font.pixelSize * 1.6
+                            font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.plainBasePx * 1.6) : window.plainFontPx)
                             text: fileName.substring(0, fileName.length-4)
+                            leftPadding: window.contentSideMargin
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -263,12 +276,15 @@ ColumnLayout {
         id: searchButton
         height: 50
         width: parent.width
-        text: "Other folders"
+        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("profile")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom
