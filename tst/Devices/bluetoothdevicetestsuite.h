@@ -146,7 +146,7 @@ INSTANTIATE_TEST_SUITE_P(AllDevicesDetection, BluetoothDeviceTestSuite,
 // Use this for debugging a single test data set.
 
 INSTANTIATE_TEST_SUITE_P(SelectedDevicesDetection, BluetoothDeviceTestSuite,
-                         testing::Values(DeviceIndex::TrixterXDreambike),
+                         testing::Values(DeviceIndex::TacxNeo2Bike),
                          [](const testing::TestParamInfo<QString>& item) {return DeviceIndex::Identifier(item.param).toStdString(); });
 #endif
 

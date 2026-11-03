@@ -207,24 +207,9 @@ class bluetooth : public QObject, public SignalHandler {
      */
     int searchNow();
 
-    /**
-     * @brief nonBluetoothDeviceDiscovery Called by the non-bluetooth discovery thread to identify using
-     * discoverNonBluetoothDevices() and connect non-Bluetooth devices.
-     */
-    void nonBluetoothDeviceDiscovery();
-protected:
-    /**
-     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
-     * @return An object for the first non-bluetooth device found.
-     */
-    bluetoothdevice * discoverNonBluetoothDevices();
-private:
+  private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
-    // Indicates generally discovering, bluetooth and others
-    bool discovering = false;
-    // Indicates the non-bluetooth discovery is active
-    bool discoveringNonBluetooth = false;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
     QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
@@ -413,6 +398,7 @@ private:
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
+    bool trixterXDreambikeAvailable(class trixterxdreambike **bike);
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
@@ -420,12 +406,6 @@ private:
     void stopHeartRateBeltDiscovery();
     void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
 
-    /**
-     * @brief findTrixterXDreambike Searches serial ports for a Trixter X-Dream Bike
-     * @param settings The application settings.
-     * @return A trixterxdreambike object if a bike has been found, nullptr otherwise.
-     */
-    class trixterxdreambike * findTrixterXDreambike(const QSettings& settings);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;

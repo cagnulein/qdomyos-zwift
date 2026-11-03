@@ -85,9 +85,4 @@ BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::skip(const QStri
     return this;
 }
 
-BluetoothDeviceTestDataBuilder *BluetoothDeviceTestDataBuilder::useNonBluetoothDiscovery(bool use) {
-    this->usingNonBluetoothDiscovery = use;
-    return this;
-}
-
 

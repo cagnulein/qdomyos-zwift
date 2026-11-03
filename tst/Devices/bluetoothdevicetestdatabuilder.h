@@ -157,12 +157,4 @@ public:
      * @return
      */
     BluetoothDeviceTestDataBuilder * skip(const QString& reason=nullptr);
-
-    /**
-     * @brief Specifies that detection should use non-blueooth discovery.
-     * @param use (Optional) indicates whether to use non-bluetooth discovery.
-     * @return
-     */
-    BluetoothDeviceTestDataBuilder * useNonBluetoothDiscovery(bool use=true);
-
 };

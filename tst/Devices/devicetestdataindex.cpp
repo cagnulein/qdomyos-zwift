@@ -1408,8 +1408,7 @@ void DeviceTestDataIndex::Initialize() {
             trixterxdreamserial::serialDataSourceFactory = TrixterXDreamBikeStub::create;
         })
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::trixter_xdream_bike_enabled)
-        ->useNonBluetoothDiscovery();
+        ->configureSettingsWith(QZSettings::trixter_xdream_bike_enabled);
 
     // True Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TrueTreadmill)

@@ -3,8 +3,6 @@
 
 QString BluetoothDeviceTestData::Name() const { return this->name; }
 
-bool BluetoothDeviceTestData::UseNonBluetoothDiscovery() const { return this->usingNonBluetoothDiscovery; }
-
 DeviceTypeId BluetoothDeviceTestData::ExpectedDeviceType() const {
     if(this->expectedDeviceType<0)
         throw std::domain_error("Expected device not set");

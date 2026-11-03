@@ -29,7 +29,6 @@ protected:
     ConfigurationApplicatorMultiple applicatorMultiple=nullptr;
     ConfigurationApplicatorSingle applicatorSingle=nullptr;
     DeviceTestInitializer initializer=nullptr;
-    bool usingNonBluetoothDiscovery = false;
     std::function<bool(bluetoothdevice*)> isExpectedDevice=nullptr;
     DeviceTypeId expectedDeviceType=-1;
     BluetoothDeviceTestData();
@@ -39,12 +38,6 @@ public:
      * @return
      */
     QString Name() const;
-
-    /**
-     * @brief Indicates if non-bluetooth discovery should be used. Default: false
-     * @return
-     */
-    bool UseNonBluetoothDiscovery() const;
 
     /**
      * @brief Gets a unique identifier
