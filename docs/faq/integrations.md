@@ -18,7 +18,9 @@ On Android devices that rely on an external USB ANT+ stick, the ANT stack may al
 
 If you do not need the Garmin watch to receive the treadmill data live, QZ can record the workout itself and upload the generated **FIT activity** to Garmin Connect.
 
-In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the Garmin Connect integration in QZ and use QZ to record the session; the completed activity will be pushed automatically to Garmin Connect and it will count as training effect and Vo2Max.
+In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the **Garmin Connect** integration in QZ, verify the login, and record the session; QZ can then upload the completed **FIT activity** to Garmin Connect.
+
+**For Garmin Training Effect-related FIT data**, enable the optional **Garmin device / Training Effect** setting in QZ's Garmin options before recording. This setting is **disabled by default**. The FIT exporter then writes Garmin device identity and training-effect-related fields instead of its ordinary device identity. A user confirmed that ordinary Garmin Connect login and activity upload worked; the optional setting's effect on their Training Effect display was **not separately confirmed**. Garmin Connect determines which metrics it accepts and displays, so a VO2max estimate or Training Effect score is **not guaranteed** merely by uploading a workout.
 
 Choose **ANT+ SDM/footpod** when you want the watch itself to see and record the treadmill speed/distance during the workout. Choose **Garmin Connect FIT upload** when your main goal is simply to have the finished activity and its metrics in Garmin Connect.
 
@@ -224,3 +226,11 @@ In a confirmed iPhone/bike support case, Garmin Connect uploads already worked a
 For this workflow, connect the physical trainer to QZ on the first device, keep QZ's virtual device and virtual Bluetooth enabled, and select **QZ's virtual trainer** as the power/controllable device in ROUVY on the second device. Do not pair ROUVY directly to the physical trainer if you want QZ to act as the bridge.
 
 **Zwift is different:** QZ can be kept running alongside Zwift on a supported Android device using the **Android Notification** setting under Experimental Settings, subject to Android's background/battery restrictions. That same-device Zwift capability should not be taken as evidence that ROUVY supports the same local virtual-Bluetooth pairing.
+
+## Garmin Connect or Strava shows twice the running cadence displayed in QZ. How can I fix the exported activity?
+
+If QZ displays the correct running cadence during a treadmill workout, but **Garmin Connect and Strava show approximately double that cadence** after upload, open **QZ Settings > Power Sensor options** and enable **Half Cadence on Strava**. Record and export a **new, short test workout** to verify the resulting cadence; changing this setting does not modify previously uploaded activities.
+
+Despite its name, this option also affects cadence written into the exported FIT activity used by Garmin Connect, not just Strava. It does **not** halve the live cadence shown on the QZ dashboard. A treadmill user explicitly confirmed that enabling it fixed doubled cadence in **both Garmin Connect and Strava**, while the live QZ reading had already been correct.
+
+Use this only when the exported cadence is actually doubled; do not enable it to correct an inaccurate live cadence reading or a separately recorded activity from a watch.
