@@ -216,9 +216,11 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Record the receiving app's **exact error message and time to failure** (for example, an incompatibility warning after about 30 seconds). For treadmill integrations such as Runna, state separately whether **speed** commands and **incline** commands work during the initial connected period.
 - Does the connection recover on its own, after re-pairing in the receiving app, or only after fully restarting QZ?
 - Was QZ in the foreground with the screen awake, or in the background or with the screen locked?
+- On Android, provide the phone model and OS, background/battery restrictions, and whether headphones or a watch were also connected over Bluetooth.
 
 ### If still unclear
 
+- If QZ metrics also stop, compare one ride with QZ alone in the foreground and the screen awake, with optional Bluetooth accessories disconnected. Then restore the receiving app and accessories one at a time, recording which change first reproduces the failure.
 - Confirm that no manufacturer app or second phone is also connected directly to the physical machine. Record whether the receiving app uses QZ's virtual Bluetooth device or a network connection.
 - Capture one QZ debug log that includes a disconnection, and provide the approximate elapsed time of the failure and whether the QZ metrics stopped. Keep the test configuration unchanged.
 - If QZ continues to receive live metrics, capture the receiving app's pairing/disconnection screen and retry its virtual-device connection separately before changing machine-specific settings.
@@ -228,6 +230,7 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - If QZ metrics stop, investigate the physical machine-to-QZ connection; if QZ metrics continue, investigate the QZ-to-training-app link instead.
 - Foreground state, competing connections, recovery behavior, and a timestamped log distinguish intermittent Bluetooth loss from downstream virtual-device or app lifecycle problems.
+- A QZ-only baseline isolates incoming machine telemetry from the receiving-app connection; testing accessories separately avoids assuming they cause Bluetooth interference.
 - In a reported multi-minute session, resistance and incline worked until intermittent disconnects; checking QZ's own tiles established that the physical machine connection, not just the receiving app's pairing, had dropped.
 
 ## Virtual gears repeatedly shift down while pedaling despite manual gear changes
