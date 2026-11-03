@@ -464,6 +464,13 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Merach T12 Pro: FTMS is advertised but control uses FitShow.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowMerachT12)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
+        ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
+        ->excluding<horizontreadmill>();
+
 
     // FitShow SW
     RegisterNewDeviceTestData(DeviceIndex::FitShowSW)
@@ -574,6 +581,7 @@ void DeviceTestDataIndex::Initialize() {
         "YS_G1_", // Yesoul S3
         "YS_G1MPLUS", // Yesoul G1M Plus
         "DS25-", // Bodytone DS25
+        "DFIT-L-B-", // DFIT FTMS bike (e.g. DFIT-L-B-02066)
         "GB3.0-", // Gymstick GB3.0: generic FTMS bike using resistance levels
         "SCHWINN 510T",
         "3G CARDIO ",

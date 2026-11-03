@@ -144,3 +144,24 @@
 - A valid imported program and an active general workout timer do not establish that the training-program playback has started.
 - In a confirmed bike case, the XML contained alternating resistance targets but no commands were issued until the session was restarted; a subsequent log showed both targets sent and acknowledged by the bike.
 - This intake distinguishes a program start-state problem from malformed XML, disabled auto-resistance, and a physical bike-control failure. See the [XML playback FAQ](../faq/training-programs.md) for the known workaround.
+
+
+## ERG intervals work, but resistance or virtual gears stop responding in Free Ride blocks
+
+### Provide first
+
+- Bike/trainer model, QZ platform/build, and the training app or QZ workout used.
+- The exact **interval sequence** that fails (for example, ERG → Free Ride → ERG), which mode works initially, and the first transition where control stops.
+- During the Free Ride block, state whether the QZ **Gears** tile changes on each press and whether **physical resistance** changes. Confirm whether the next ERG block resumes control.
+- A screenshot of the workout's ERG and Free Ride blocks and the relevant QZ workout/ERG and virtual-gearing settings, without changing them between tests.
+
+### If still unclear
+
+- Run a short, low-intensity workout containing both transitions. Note the approximate timestamps when ERG ends, Free Ride begins, a gear button is pressed, and ERG resumes.
+- Provide one QZ debug log that spans the entire ERG → Free Ride → ERG sequence, rather than a log captured only during a working ERG interval.
+- Compare whether QZ switches its requested control mode at the transition and whether the trainer responds to the first Free Ride gear/resistance command. Test a newer build only if support provides one, keeping the same workout and settings.
+
+### Why it matters
+
+- ERG target-power control and Free Ride simulation/gear control can use different command paths; a working ERG interval does not prove that the trainer exits ERG mode correctly.
+- In a confirmed short retest after a mode-transition correction, Free Ride gear changes affected resistance and ERG resumed in the following block. The **transition timing**, not merely the final gear number, was the decisive diagnostic evidence.

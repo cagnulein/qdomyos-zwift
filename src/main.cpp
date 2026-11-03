@@ -865,28 +865,41 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION denied!";
+    // Android 11 and earlier require Location permission for Bluetooth scanning.
+    // The patched Qt backend uses Nearby devices alone on Android 12+ when
+    // BLUETOOTH_SCAN is declared with neverForLocation.
+    const int androidSdkVersion =
+        QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (androidSdkVersion <= 30) {
+        const QString locationPermission = QStringLiteral("android.permission.ACCESS_FINE_LOCATION");
+        if (QtAndroid::checkPermission(locationPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap locationResult =
+                QtAndroid::requestPermissionsSync(QStringList({locationPermission}));
+            if (locationResult.value(locationPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "Bluetooth scanning may be blocked by missing legacy Location permission:"
+                           << locationPermission;
+        }
     }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH denied!";
-    }
+    // BLUETOOTH and BLUETOOTH_ADMIN are legacy, install-time-only permissions.
+    // They are not available on API 31+ once maxSdkVersion=30 is set.
+    if (androidSdkVersion <= 30) {
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+            if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH denied!";
+        }
 
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN denied!";
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+        if (result == QtAndroid::PermissionResult::Denied) {
+            QtAndroid::PermissionResultMap resultHash =
+                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+            if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "BLUETOOTH_ADMIN denied!";
+        }
+
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
@@ -911,6 +924,21 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+
+    // API 37 blocks direct LAN sockets (including TCP, UDP and mDNS) unless the
+    // Nearby devices / Local network permission is granted. Request it before
+    // starting the device managers, which may publish or discover LAN services.
+    // Earlier Android versions have implicit LAN access through INTERNET.
+    if (QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 37) {
+        const QString localNetworkPermission = QStringLiteral("android.permission.ACCESS_LOCAL_NETWORK");
+        if (QtAndroid::checkPermission(localNetworkPermission) == QtAndroid::PermissionResult::Denied) {
+            const QtAndroid::PermissionResultMap localResult =
+                QtAndroid::requestPermissionsSync(QStringList({localNetworkPermission}));
+            if (localResult.value(localNetworkPermission) == QtAndroid::PermissionResult::Denied)
+                qWarning() << "ACCESS_LOCAL_NETWORK denied: LAN-based equipment, DIRCON, and"
+                           << "network discovery may not work. Grant Nearby devices in Android settings.";
+        }
     }
 
     result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
