@@ -6497,6 +6497,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SpinBox {
                                     id: nordictrackadbbike_gear_debounce_ms
+                                    Accessible.name: qsTr("Gear Change Debounce (ms)") + ": " + value
                                     from: 10
                                     to: 1000
                                     stepSize: 50
