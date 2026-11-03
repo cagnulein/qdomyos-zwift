@@ -465,6 +465,7 @@ handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \
 localipaddress.h \
 devices/pelotonbike/pelotonbike.h \
+ devices/pelotonbike/pelotonpowermodel.h \
 devices/schwinn170bike/schwinn170bike.h \
 devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
