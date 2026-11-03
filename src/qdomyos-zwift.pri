@@ -1006,6 +1006,13 @@ DISTFILES += \
 	android/gradlew.bat \
    android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
+	android/res/values/ic_launcher_background.xml \
+	android/res/drawable/ic_launcher_foreground.xml \
+	android/res/drawable/ic_launcher_monochrome.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher_round.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher_round.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
    android/src/FloatingHandler.java \
