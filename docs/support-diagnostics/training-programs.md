@@ -122,3 +122,46 @@
 - The ZWO parser uses `sportType` and `durationType` to interpret running intervals. A confirmed import problem produced an empty graph until the time-based duration metadata was supplied.
 - QZ derives running speed from configured pace values and interval percentages, so an unexpected target can be a **pace-mapping issue** even when the file parses correctly.
 - Separating file parsing, target calculation, and physical treadmill control avoids collecting Bluetooth logs for an import-format problem.
+
+## An XML resistance workout loads, but its interval stays on the first row
+
+### Provide first
+
+- Bike/trainer model, QZ platform and installed build, and the anonymized XML workout (or two consecutive rows with their durations and resistance targets).
+- Explain **how the file was opened** and what was pressed afterward: loading the program, starting the general QZ activity, and starting the training program are distinct actions.
+- State whether the program's current-row/remaining-time display advances, whether **Auto Resistance** is enabled, and whether the bike's physical resistance changes.
+- Give a short expected-versus-observed sequence: for example, first target 6, second target 9 after one minute, but the displayed row never changes.
+
+### If still unclear
+
+- With the bike already connected and reporting live metrics, reproduce a short session lasting beyond the first interval; note each QZ Start/Play/Stop action and the time it occurred.
+- Check whether the program starts only after stopping and restarting the **QZ session** following file selection. Report the difference without assuming that this is required on every build.
+- Provide a QZ debug log starting **before the XML is loaded** and ending after the expected transition. Include the visible row/timer and actual bike resistance at that time.
+- Compare the log's parsed row targets and program-running state with resistance commands **actually sent** to the bike before investigating a rejected command.
+
+### Why it matters
+
+- A valid imported program and an active general workout timer do not establish that the training-program playback has started.
+- In a confirmed bike case, the XML contained alternating resistance targets but no commands were issued until the session was restarted; a subsequent log showed both targets sent and acknowledged by the bike.
+- This intake distinguishes a program start-state problem from malformed XML, disabled auto-resistance, and a physical bike-control failure. See the [XML playback FAQ](../faq/training-programs.md) for the known workaround.
+
+
+## ERG intervals work, but resistance or virtual gears stop responding in Free Ride blocks
+
+### Provide first
+
+- Bike/trainer model, QZ platform/build, and the training app or QZ workout used.
+- The exact **interval sequence** that fails (for example, ERG → Free Ride → ERG), which mode works initially, and the first transition where control stops.
+- During the Free Ride block, state whether the QZ **Gears** tile changes on each press and whether **physical resistance** changes. Confirm whether the next ERG block resumes control.
+- A screenshot of the workout's ERG and Free Ride blocks and the relevant QZ workout/ERG and virtual-gearing settings, without changing them between tests.
+
+### If still unclear
+
+- Run a short, low-intensity workout containing both transitions. Note the approximate timestamps when ERG ends, Free Ride begins, a gear button is pressed, and ERG resumes.
+- Provide one QZ debug log that spans the entire ERG → Free Ride → ERG sequence, rather than a log captured only during a working ERG interval.
+- Compare whether QZ switches its requested control mode at the transition and whether the trainer responds to the first Free Ride gear/resistance command. Test a newer build only if support provides one, keeping the same workout and settings.
+
+### Why it matters
+
+- ERG target-power control and Free Ride simulation/gear control can use different command paths; a working ERG interval does not prove that the trainer exits ERG mode correctly.
+- In a confirmed short retest after a mode-transition correction, Free Ride gear changes affected resistance and ERG resumed in the following block. The **transition timing**, not merely the final gear number, was the decisive diagnostic evidence.

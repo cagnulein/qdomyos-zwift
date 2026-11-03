@@ -29,6 +29,8 @@ If QZ detects the Kettler but all metrics stay at zero, discovery alone is not e
 
 **Note:** The Bluetooth Classic workaround is different from support for newer Kettler models that use BLE. Do not assume every Kettler bike uses the same protocol.
 
+**iPhone/iPad limitation:** QZ on iOS cannot use the Android Bluetooth Classic/SPP discovery path for a legacy RACER S, and the QZ Kettler USB-serial route is not an iOS workaround. If the bike does not advertise a usable BLE service and only offers Bluetooth Classic or legacy USB, use an **Android device** for the QZ-to-bike connection, then run Kinomap or another training app on a separate iPad and pair it with QZ's virtual device. This is a platform/setup limitation, not evidence that the bike is broken.
+
 ## Is a Bodytone DS60 advertising as SMB1 compatible with QZ and MyWhoosh?
 
 Yes. QZ recognizes Bluetooth fitness bikes advertising with an **SMB1** name through its FTMS bike support. A confirmed Bodytone DS60/SMB1 setup connected to QZ and supported automatic resistance control from MyWhoosh through QZ.
@@ -129,3 +131,59 @@ This confirms that the treadmill can be used with QZ; it does **not** independen
 In **QZ Settings > Bike Options**, open **FTMS Bike**, select the SmartSpin2K device (often shown as **SS2K**), and confirm with **OK**. Fully close and restart QZ, then let it connect again.
 
 A rider using a Schwinn IC4 with a SmartSpin2K confirmed that selecting **SS2K** under **FTMS Bike** and restarting QZ resolved the connection problem. Discovery of the device name alone did not mean QZ had connected to its FTMS service.
+
+
+## My BH i.Spada 2 FTMS is detected as an elliptical and Zwift does not change resistance. What should I try?
+
+For a **BH i.Spada 2 FTMS (H9355iZ)** that QZ can control manually but Zwift cannot control, QZ may have selected the elliptical path instead of the FTMS bike path.
+
+1. In **QZ Settings > Bike Options > FTMS Bike**, select the bike's **exact advertised Bluetooth name**.
+2. Press **OK/Save**, then fully close and restart QZ.
+3. Connect QZ to the bike first. Verify live power and cadence and that the **Resistance** tile can control the bike.
+4. In Zwift, select **QZ's virtual bike** as the power source and controllable/resistance device, rather than pairing Zwift directly to the physical bike.
+5. Try a short **ERG workout** to check that changing the target power changes physical resistance.
+
+In a confirmed support case, QZ had initially classified this bike as an elliptical. After explicitly selecting it under **FTMS Bike** and restarting QZ, the rider reported that Zwift ERG could increase resistance. This confirms ERG response in that setup; **automatic simulation-mode gradient changes and Kinomap control were not separately verified**. Do not force unrelated bikes into FTMS unless their protocol supports it.
+
+## Is the DT-SMART90-R treadmill compatible with QZ, and can I prepare workouts on a PC?
+
+A **DT-SMART90-R** owner explicitly confirmed that QZ worked after installation. The treadmill had previously been used with FitShow for structured workouts. As with other compatible treadmills, verify the available live metrics and test any automatic speed or incline commands safely on your particular firmware; the confirmation does not separately establish every control mode.
+
+You can also **author QZ XML workouts on a PC** with a text editor, transfer the file to the phone/tablet, and load it using **Open Train Program** in QZ. See the [XML training-program examples and format reference](../../train-programs-examples/README.md) and the [Workout Editor guide](../workout-editor.md). Alternatively, build the intervals directly in QZ's **Workout Editor**. Test the first program at low speed before relying on automatic treadmill control.
+
+
+## My Hammer Speed Race S advertises as "4864 RACER S" but QZ never connects. Which profile should I use?
+
+Some **Hammer Speed Race S** bikes advertise a numeric-prefix BLE name such as **4864 RACER S**. Do not assume this is the same Bluetooth protocol as an older **Kettler RACER S** without the numeric prefix.
+
+1. Turn the bike on, close Kinomap and any other app that may already be connected, and check the advertised device name and services with nRF Connect.
+2. In **QZ Settings > Bike Options > FTMS Bike**, select the bike's exact advertised name (for example, **4864 RACER S**), then press **OK**.
+3. Fully close and restart QZ. Check whether the bike now connects and reports workout metrics.
+
+**Confirmed result:** A rider with **4864 RACER S** reported that selecting it under **FTMS Bike** and restarting QZ restored connectivity. QZ's discovery code explicitly distinguishes numeric-prefix **RACER S** devices from the plain Kettler **RACER S** naming path. This confirms connection in that setup, not every possible resistance-control or power-accuracy feature.
+
+## Can QZ read data from a REP Strive Air Bike, including its adjustable fan setting?
+
+A **REP Strive Air Bike** was confirmed to connect to QZ and provide **some workout data**. Its Bluetooth interface exposed the standard **FTMS service (0x1826)** and **Indoor Bike Data (0x2AD2)**, which QZ's generic FTMS bike support can read.
+
+Connect the bike to QZ first and check which live metrics update while pedalling. If QZ discovers the bike but does not use the expected profile, inspect its Bluetooth services and consider explicitly selecting the device under **Bike Options > FTMS Bike** before restarting QZ.
+
+**Confirmed fan-position display:** Enable **Resistance** under **QZ Settings > Tiles Options**, then pedal and change the bike's adjustable fan blades. In a follow-up test, the rider explicitly confirmed that the **Resistance** tile tracked the blade setting. This confirms that the setting can be *read* from this bike in QZ; it does **not** establish that QZ can change the fan position remotely. The bike has eight blade positions, but do not assume every console revision reports them identically.
+
+## Can QZ read a Domyos EB900 bike and bridge it to MyWhoosh with Apple Watch heart rate?
+
+**Yes for the QZ bike-data connection.** A Domyos EB900 rider confirmed that QZ on an **iPhone** detected the bike and the **Apple Watch**, and that the QZ dashboard populated after setup. To bridge to **MyWhoosh on a separate iPad**:
+
+1. Connect the EB900 and Apple Watch to QZ on the iPhone and verify live cadence/power in QZ.
+2. Enable **Enable Virtual Device** and **Virtual Device Bluetooth** in QZ's virtual-device settings; save and restart QZ.
+3. On the iPad, pair MyWhoosh's **Power Source** (and **Controllable Trainer**, if offered) with QZ's virtual trainer, often advertised as **Wahoo KICKR 0000**, **not** directly with the EB900. Use QZ's separate virtual heart-rate sensor if MyWhoosh offers one.
+
+The rider reported that the QZ dashboard appeared and the bike recognized the phone. **Automatic resistance control from MyWhoosh was not yet tested**, so do not treat the successful telemetry connection as confirmation of that separate capability. See [MyWhoosh and virtual-device setup](integrations.md) for the general pairing pattern.
+
+## Can a Trinfit T5 Pro treadmill connect to QZ and Kinomap?
+
+A **Trinfit T5 Pro** owner confirmed that QZ connected and communicated with the treadmill on iPhone. The same treadmill was also detected by Kinomap, which changed its incline during an activity **when connected directly**.
+
+If QZ does not discover the treadmill, close Kinomap and any other app using its Bluetooth connection, check that the treadmill is advertising, and retry QZ's scan. To use QZ as a bridge, connect the treadmill to QZ first, then pair QZ's **virtual treadmill** in Kinomap on a **second device**.
+
+**Scope of confirmation:** QZ communication and direct Kinomap incline control were reported; automatic incline control *through the QZ-to-Kinomap bridge*, and Garmin export for this model, were not separately confirmed.

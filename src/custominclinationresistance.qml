@@ -7,9 +7,11 @@ import QtQuick.Controls.Material 2.0
 ScrollView {
     id: customInclinationResistanceWindow
     contentWidth: -1
+    // The column with its top and bottom margins, which are not in its implicit height
+    contentHeight: inclinationColumn.implicitHeight + 2 * inclinationColumn.anchors.topMargin
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     clip: true
 
     property string defaultInclinationResistanceTable: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
@@ -194,8 +196,13 @@ ScrollView {
     }
 
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 10
+        id: inclinationColumn
+        // Top, left and right only: filling the content item too tied the column height to the
+        // content height made from it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 10
         anchors.leftMargin: window.contentSideMargin
         anchors.rightMargin: window.contentSideMargin
         spacing: 10

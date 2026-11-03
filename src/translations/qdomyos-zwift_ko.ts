@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ를 사용하려면 Bluetooth와 위치 서비스를 모두 켜야 합니다.
+        <translation type="vanished">QZ를 사용하려면 Bluetooth와 위치 서비스를 모두 켜야 합니다.
 Android에서는 앱이 Bluetooth 기기를 찾으려면 위치 서비스가 필요합니다.
 GPS는 사용하지 않습니다.
 
@@ -113,7 +113,7 @@ GPS는 사용하지 않습니다.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>다음에 위치 서비스를 켜도록 다시 알림을 받으시겠습니까?</translation>
+        <translation type="vanished">다음에 위치 서비스를 켜도록 다시 알림을 받으시겠습니까?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Save</source>
         <translation>저장</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ가 운동 기구를 검색하려면 Bluetooth를 켜야 합니다. Android 11 이하에서는 Bluetooth 기기 검색을 위해 위치 권한과 위치 서비스 활성화도 필요합니다. QZ는 사용자의 위치 데이터를 사용하지 않습니다. Android 12 이상에서는 &apos;근처 기기&apos; 권한을 통해 위치 정보에 접근하지 않고 Bluetooth 기기를 검색할 수 있습니다.
+
+필요한 서비스를 켜시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>다음에 Bluetooth 또는 위치 서비스를 켜도록 알림을 받으시겠습니까?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Would you like to do that now?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1(심박 센서) 연결됨!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1(심박 센서) 검색 중…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1(심박 센서)을(를) 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1(심박 센서): 심박수 없음. 심박수를 전송하는지 확인하세요.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -1008,11 +1032,11 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
     <message>
         <source>YPOO M5 ready</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5가 준비되었습니다</translation>
     </message>
     <message>
         <source>YPOO M5 initialization failed; reconnect required</source>
-        <translation type="unfinished"></translation>
+        <translation>YPOO M5 초기화에 실패했습니다. 다시 연결해야 합니다</translation>
     </message>
 </context>
 <context>
@@ -3754,6 +3778,19 @@ This may take a few moments on first startup.</source>
         <source>Average Strokes Length: %1</source>
         <translation>평균 스트로크 길이: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ 목표 파워가 앱의 명령을 덮어쓰고 있습니다. 앱에 제어를 돌려주려면 QZ를 일시 중지했다가 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify 노래:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 실행 중</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4413,8 +4450,8 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>앱 언어:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요. 다시 시작해야 합니다.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5906,6 +5943,14 @@ Please enter it below:</source>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>속도로 거리를 계산하는 대신 트레드밀에서 거리를 직접 읽으려면 켜세요. 일부 트레드밀은 속도 기반 계산보다 거리를 더 정확하게 알려 줍니다. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>직접 거리: 증가분만 더하기</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>‘트레드밀에서 직접 거리 읽기’와 함께 사용합니다. 트레드밀의 거리 카운터가 운동 사이에도 계속 올라가거나 트레드밀을 끄면 0부터 다시 시작한다면 켜세요. QZ가 연결되기 전에 트레드밀이 센 거리는 빼고 운동 중에 걸은 거리만 더합니다. 기본값: 꺼짐.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7746,31 +7791,107 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Tile size:</source>
-        <translation type="unfinished"></translation>
+        <translation>타일 크기:</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation type="unfinished"></translation>
+        <translation>측정값을 표시하는 타일의 크기를 바꿉니다. 기본값은 100%입니다. 화면에 타일을 더 많이 표시하려면 더 작은 비율을, 타일을 크게 하려면 100%보다 큰 비율을 선택하세요. 퍼센트 기호는 입력하지 마세요. 이전 이름은 [UI 확대/축소]입니다.</translation>
     </message>
     <message>
         <source>Life Fitness Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 옵션</translation>
     </message>
     <message>
         <source>Life Fitness username/email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 사용자 이름/이메일:</translation>
     </message>
     <message>
         <source>Life Fitness password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 비밀번호:</translation>
     </message>
     <message>
         <source>Life Fitness guest login (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness 게스트 로그인(실험적)</translation>
     </message>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
-        <translation type="unfinished"></translation>
+        <translation>계정 없이 쓰는 가상 Life Fitness 프로필을 사용합니다. 켜면 사용자 이름, 비밀번호, 저장된 계정 데이터는 무시됩니다. 지원되는 게스트 로그인을 테스트할 때만 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>운동 기록 그래프</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>심박수</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>저항 및 목표 저항</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton 저항</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>케이던스</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>파워 분포</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>속도 및 경사도</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>그래프를 위아래로 이동해 운동 기록에서 표시 순서를 정하세요. 변경 사항은 자동으로 저장됩니다.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>위로 이동</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>아래로 이동</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>기본 순서로 복원</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio 옵션</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Moovio Lynx Konect 2.0 트레드밀용 표준 FTMS Request Control 명령을 사용합니다. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>케이던스 배율</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>가상 로잉 머신이 보내는 스트로크 속도에만 적용되는 배율입니다. 기본값: 1.0. BikeERG RPM을 EXR이 요청하는 스트로크 속도로 변환하려면 0.25를 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>배율 적용 후 더하는 보정값입니다. 기본값: 0.0. QZ 내부 케이던스 표시와 운동 지표는 바뀌지 않습니다.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS 백그라운드 유지</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>iOS 전용. 화면이 꺼져 있거나 QZ가 백그라운드에 있을 때도 QZ가 계속 실행되도록 해 Bluetooth 연결과 세션 타이머가 멈추지 않게 합니다. 음악과 함께 재생되는 무음 오디오 트랙을 사용하므로 듣고 있는 음악이 끊기지 않습니다. 화면을 잠근 상태나 QZ를 백그라운드에 둔 상태로 운동해야 한다면 켜세요. 기본값: 꺼짐.</translation>
     </message>
 </context>
 <context>

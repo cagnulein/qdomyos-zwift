@@ -37,6 +37,7 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/kettlerusbbike/kettlerusbbike.h"
+#include "devices/daumbike/daumbike.h"
 #include "devices/freebeatbike/freebeatbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
@@ -209,6 +210,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
+    QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
@@ -225,6 +228,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
+    daumbike *daumBike = nullptr;
     freebeatbike *freebeatBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
@@ -395,6 +399,9 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
     void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
+    void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
+    void stopHeartRateBeltDiscovery();
+    void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
@@ -460,6 +467,7 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
+    void reconnectHeartRateBelt(const QString &name = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);

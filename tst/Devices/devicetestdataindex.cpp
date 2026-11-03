@@ -464,6 +464,13 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<fitshowtreadmill>()
         ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Merach T12 Pro: FTMS is advertised but control uses FitShow.
+    RegisterNewDeviceTestData(DeviceIndex::FitShowMerachT12)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("MRK-T12-1562", DeviceNameComparison::Exact)
+        ->acceptDeviceName("mrk-t12-1562", DeviceNameComparison::Exact)
+        ->excluding<horizontreadmill>();
+
 
     // FitShow SW
     RegisterNewDeviceTestData(DeviceIndex::FitShowSW)
@@ -574,6 +581,7 @@ void DeviceTestDataIndex::Initialize() {
         "YS_G1_", // Yesoul S3
         "YS_G1MPLUS", // Yesoul G1M Plus
         "DS25-", // Bodytone DS25
+        "DFIT-L-B-", // DFIT FTMS bike (e.g. DFIT-L-B-02066)
         "GB3.0-", // Gymstick GB3.0: generic FTMS bike using resistance levels
         "SCHWINN 510T",
         "3G CARDIO ",
@@ -627,6 +635,10 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
         ->expectDevice<ftmsbike>()
         ->acceptDeviceNames(acceptableFTMSNames, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("ZV-C47306", DeviceNameComparison::IgnoreCase) // Sportstech SX600 FTMS
+        ->acceptDeviceName("ZV-AB12CD", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C4730", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C473067", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("DI", DeviceNameComparison::StartsWithIgnoreCase, 2) // Elite smart trainer #1682)
         ->acceptDeviceName("YSV", DeviceNameComparison::StartsWithIgnoreCase, 9) // YSV100783
         ->acceptDeviceName("URSB", DeviceNameComparison::StartsWithIgnoreCase, 7) // URSB005
@@ -640,6 +652,14 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
+        ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("48645 RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCD RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("123A RACER S", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("4864 RACER SX", DeviceNameComparison::IgnoreCase)
 
 
         // Starts with DT- and is 14+ characters long.
@@ -705,7 +725,7 @@ void DeviceTestDataIndex::Initialize() {
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
-        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS", "FIT-RW-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"PM5ROW","PM5XROW","SF-RW"}, DeviceNameComparison::IgnoreCase);
 
     // Horizon GR7 Bike
@@ -819,7 +839,10 @@ void DeviceTestDataIndex::Initialize() {
     // Kettler Classic / MyHomeFIT RFCOMM
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
-        ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
+        // bluetooth.cpp matches RACER S prefixes regardless of case.
+        ->acceptDeviceName("RACER S", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("RACER", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XRACER S", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::bh_spada_2);
 
 

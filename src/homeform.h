@@ -247,6 +247,13 @@ class homeform : public QObject {
     Q_INVOKABLE QString bluetoothSearchStatus();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Heart rate sensor chosen in the settings (name) or a tap on the Bluetooth icon (no name, the saved one):
+    // connect it without a restart
+    Q_INVOKABLE void reconnectHeartRateBelt(const QString &name = QString()) {
+        if (bluetoothManager)
+            bluetoothManager->reconnectHeartRateBelt(name);
+    }
+
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -409,6 +416,8 @@ class homeform : public QObject {
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
         QString freebeatSerialPort =
             settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+        QString daumSerialPort =
+            settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
         QString computrainerSerialPort =
             settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
 
@@ -431,7 +440,7 @@ class homeform : public QObject {
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
                 !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
-                freebeatSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
+                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
 
 
@@ -764,6 +773,9 @@ public:
     }
 
     Q_INVOKABLE void sortTiles();
+    // Applies the app language at once, without a restart: "auto", "en" or a translation code
+    Q_INVOKABLE void setAppLanguage(const QString &language);
+    static void loadAppTranslation(const QString &language);
     Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
     DataObject *tileFromName(QString name);
 
@@ -1017,6 +1029,7 @@ public:
 
   private:
     static homeform *m_singleton;
+    void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
@@ -1148,6 +1161,7 @@ public:
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_overridePowerWarned = false;
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
@@ -1346,6 +1360,8 @@ public:
     void changeOfdevice();
     void changeOflap();
     void androidDocumentPicked(QString kind, QUrl localUrl);
+    // setAppLanguage() applied a new language
+    void appLanguageChanged();
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();
