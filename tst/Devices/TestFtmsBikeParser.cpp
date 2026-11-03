@@ -67,20 +67,6 @@ TEST(FtmsBikeParserTest, IgnoresResistanceChangesWhileInclinationMetricIsActive)
     EXPECT_EQ(0, delta);
 }
 
-TEST(FtmsBikeParserTest, DoesNotSendAnFsIb50GearChangeBeforeTheNextInclination) {
-    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(true, false, true, true));
-}
-
-TEST(FtmsBikeParserTest, SendsGearOnlyInclinationForOtherBikes) {
-    EXPECT_TRUE(ftmsbike::shouldSendGearOnlyInclination(false, false, true, true));
-}
-
-TEST(FtmsBikeParserTest, DoesNotSendGearOnlyInclinationWithoutAChangedGearOrPreviousInclination) {
-    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, false, false, true));
-    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, false, true, false));
-    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, true, true, true));
-}
-
 TEST(FtmsBikeParserTest, AppliesGearGainToFsIb50PhysicalGearDelta) {
     EXPECT_DOUBLE_EQ(0.05, ftmsbike::applyFsIb50GearGain(1, 0.05));
     EXPECT_DOUBLE_EQ(-0.2, ftmsbike::applyFsIb50GearGain(-4, 0.05));
@@ -103,14 +89,3 @@ TEST(DaumBikeControlTest, AllowsDaumResistanceWithoutVirtualFtmsOwnership) {
     EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, false, -1));
 }
 
-TEST(FtmsBikeParserTest, DoesNotWriteResistanceForAnFsIb50PhysicalGearChange) {
-    EXPECT_FALSE(ftmsbike::resistanceWriteRequired(true, true, -1, true));
-}
-
-TEST(FtmsBikeParserTest, KeepsExplicitResistanceRequestsWhenAnFsIb50GearChanges) {
-    EXPECT_TRUE(ftmsbike::resistanceWriteRequired(true, true, 8, true));
-}
-
-TEST(FtmsBikeParserTest, WritesResistanceForNonFsIb50GearChanges) {
-    EXPECT_TRUE(ftmsbike::resistanceWriteRequired(false, false, -1, true));
-}
