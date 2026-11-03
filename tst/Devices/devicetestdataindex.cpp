@@ -635,6 +635,10 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
         ->expectDevice<ftmsbike>()
         ->acceptDeviceNames(acceptableFTMSNames, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("ZV-C47306", DeviceNameComparison::IgnoreCase) // Sportstech SX600 FTMS
+        ->acceptDeviceName("ZV-AB12CD", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C4730", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C473067", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("DI", DeviceNameComparison::StartsWithIgnoreCase, 2) // Elite smart trainer #1682)
         ->acceptDeviceName("YSV", DeviceNameComparison::StartsWithIgnoreCase, 9) // YSV100783
         ->acceptDeviceName("URSB", DeviceNameComparison::StartsWithIgnoreCase, 7) // URSB005
