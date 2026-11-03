@@ -76,12 +76,15 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
         emit deviceConnected(QBluetoothDeviceInfo());
         connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        // The Bike+ is created before homeform connects to bluetoothDeviceConnected.
+        // Notify homeform only when the first sensor update reports discovery,
+        // so both TemplateInfoSenderBuilder timers start and record the session.
+        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this,
+                [this]() { this->signalBluetoothDeviceConnected(pelotonBike); });
         connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
         if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
             emit searchingStop();
         }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(pelotonBike);
     } else if(nordictrack) {
         QTimer::singleShot(5000, this, [this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain]() {
             QSettings settings;
