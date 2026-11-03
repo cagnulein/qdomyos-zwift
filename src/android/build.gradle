@@ -206,11 +206,17 @@ android {
                 'META-INF/NOTICE.txt',
                 'META-INF/notice.txt',
                 'META-INF/ASL2.0',
+                'META-INF/MANIFEST.MF',
+                'META-INF/AL2.0',
+                'META-INF/LGPL2.1',
                 'META-INF/*.kotlin_module'
             ]
+            // Migrated from the Bike+ build's legacy packagingOptions block.
+            pickFirsts += ['**/META-INF/services/**', '**/kotlin/**']
         }
         jniLibs {
             useLegacyPackaging = true
+            pickFirsts += ['**/libprotobuf-lite.so', '**/libprotoc.so']
         }
     }
 
@@ -221,35 +227,6 @@ android {
         targetSdk 37
     }
 
-    // FIXED: Packaging options ottimizzato per gestire i conflitti protobuf
-    packagingOptions {
-        // EXCLUDE problematic META-INF files instead of pickFirst to avoid collisions
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/io.netty.versions.properties'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/AL2.0'
-        exclude 'META-INF/LGPL2.1'
-        
-        // Keep pickFirst only for files that are actually needed
-        pickFirst '**/META-INF/okio.kotlin_module'
-        pickFirst '**/META-INF/*.kotlin_module'
-        
-        // CRITICAL: Handle duplicate protobuf classes - this is crucial for your error
-        pickFirst '**/com/google/protobuf/**'
-        
-        // Handle native libraries
-        pickFirst '**/libprotobuf-lite.so'
-        pickFirst '**/libprotoc.so'
-        
-        // Additional common conflicts
-        pickFirst '**/META-INF/services/**'
-        pickFirst '**/kotlin/**'
-    }
     tasks.all { task ->
         if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
             task.dependsOn copyArm64Directory

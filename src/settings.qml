@@ -2085,7 +2085,6 @@ import AndroidStatusBar 1.0
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
 
-
             // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
@@ -2120,7 +2119,7 @@ import AndroidStatusBar 1.0
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
-            property int bike_power_offset: 0            
+            property int bike_power_offset: 0
             property int chart_display_mode: 0
             property bool zwift_play_vibration: true
             property bool toorxtreadmill_discovery_completed: false
