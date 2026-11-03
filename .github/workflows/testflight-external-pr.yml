@@ -24,7 +24,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: write
     outputs:
       branch: ${{ steps.stage.outputs.branch }}
     steps:
@@ -80,10 +79,8 @@ jobs:
             echo "- Internal build branch: \`$branch\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          # GITHUB_TOKEN-generated labels do not trigger the labeled workflow.
-          # The release job below calls the existing pipeline directly instead.
-          # A tracking draft PR is optional: some repositories disallow PRs
-          # created by GitHub Actions in their Actions settings.
+          # The release job below calls the existing pipeline directly.
+          # The temporary draft PR is optional (GitHub may disallow Actions-created PRs).
           title="TestFlight staging for #$PR_NUMBER"
           body="Temporary TestFlight-only copy of #$PR_NUMBER from $source_repo at $source_sha.
 
@@ -91,10 +88,8 @@ jobs:
           if tracking_url="$(gh pr create --repo "$GITHUB_REPOSITORY" \
               --base master --head "$branch" --draft \
               --title "$title" --body "$body")"; then
-            tracking_number="$(basename "$tracking_url")"
             echo "- Temporary draft PR: $tracking_url" >> "$GITHUB_STEP_SUMMARY"
-            gh pr edit "$tracking_number" --repo "$GITHUB_REPOSITORY" \
-              --add-label testflight-upload || echo "::warning::Could not label temporary PR."
+
           else
             echo "::warning::Temporary PR could not be created; continuing to TestFlight using the internal branch."
             echo "- Temporary PR: unavailable (internal branch is sufficient for the build)" >> "$GITHUB_STEP_SUMMARY"
@@ -109,3 +104,53 @@ jobs:
       checkout_ref: ${{ needs.stage-external-pr.outputs.branch }}
       publish: ${{ inputs.publish }}
     secrets: inherit
+
+  cleanup:
+    name: Close temporary PR and delete build branch
+    needs: [stage-external-pr, release-ios]
+    # Run after successful or failed builds, even if staging partially failed.
+    if: ${{ always() && github.actor == 'cagnulein' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Remove only the temporary resources from this workflow run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          BUILD_RESULT: ${{ needs.release-ios.result }}
+        run: |
+          set -euo pipefail
+          branch="testflight/external-pr-$PR_NUMBER-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+
+          # Reconstruct the branch name so cleanup also covers a failure
+          # after push but before staging could publish its job outputs.
+          if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$branch" >/dev/null 2>&1; then
+            echo "No temporary branch exists for this run."
+            exit 0
+          fi
+
+          failed=0
+          tracking_pr="$(gh pr list --repo "$GITHUB_REPOSITORY" \
+            --head "$branch" --state open --json number \
+            --jq '.[0].number // empty')"
+
+          if [[ -n "$tracking_pr" ]]; then
+            if gh pr close "$tracking_pr" --repo "$GITHUB_REPOSITORY" \
+                --comment "Temporary TestFlight build finished ($BUILD_RESULT). Original PR: #$PR_NUMBER."; then
+              echo "- Closed temporary PR #$tracking_pr" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::Failed to close temporary PR #$tracking_pr."
+              failed=1
+            fi
+          fi
+
+          if gh api --method DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch"; then
+            echo "- Deleted temporary branch \`$branch\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Failed to delete temporary branch $branch."
+            failed=1
+          fi
+
+          exit "$failed"
