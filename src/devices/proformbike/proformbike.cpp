@@ -1746,15 +1746,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 return;
             }
             const uint16_t rawResistance = (uint8_t)newValue.at(10) | ((uint16_t)(uint8_t)newValue.at(11) << 8);
-            if ((rawResistance + 1U) % 500U != 0U) {
-                return;
-            }
             const uint16_t resistanceLevel = (rawResistance + 1U) / 500U;
-            if (resistanceLevel < 1 || resistanceLevel > 20) {
-                return;
+            // An unknown startup resistance must not discard valid power and cadence.
+            if ((rawResistance + 1U) % 500U == 0U && resistanceLevel >= 1 && resistanceLevel <= 20) {
+                Resistance = resistanceLevel;
+                m_pelotonResistance = Resistance.value() * 5;
             }
-            Resistance = resistanceLevel;
-            m_pelotonResistance = Resistance.value() * 5;
         }
 
         // wattage needs to be calculate always as a local variable because it's used as a filter for strange values
