@@ -41,6 +41,7 @@ class pelotonbike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     void changePower(int32_t power) override;
     void changeResistance(resistance_t resistance) override;
+    void changeInclination(double grade, double percentage) override;
     void stop(bool pause) override;
     void setPaused(bool paused) override;
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) override;
