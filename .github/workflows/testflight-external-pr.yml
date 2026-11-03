@@ -1,0 +1,111 @@
+name: Publish external PR to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Number of the external pull request targeting master
+        type: number
+        required: true
+      publish:
+        description: Upload to TestFlight (false builds the IPA without publishing)
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  stage-external-pr:
+    # Do not expose Apple signing material to arbitrary workflow_dispatch users.
+    if: github.actor == 'cagnulein' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      branch: ${{ steps.stage.outputs.branch }}
+    steps:
+      - name: Checkout trusted master
+        uses: actions/checkout@v4
+
+      - name: Mirror the exact external PR commit into this repository
+        id: stage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Enter a valid pull request number."
+            exit 1
+          fi
+
+          pr_json="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          state="$(jq -r '.state' <<< "$pr_json")"
+          base="$(jq -r '.base.ref' <<< "$pr_json")"
+          source_repo="$(jq -r '.head.repo.full_name // empty' <<< "$pr_json")"
+          source_sha="$(jq -r '.head.sha' <<< "$pr_json")"
+
+          if [[ "$state" != "open" || "$base" != "master" || -z "$source_repo" ]]; then
+            echo "::error::PR #$PR_NUMBER must be open, have an accessible head, and target master."
+            exit 1
+          fi
+          if ! [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Invalid PR head SHA."
+            exit 1
+          fi
+
+          # Compare the fetched SHA with the reviewed API SHA. Never silently
+          # build a newer commit pushed by the external contributor.
+          git fetch --no-tags origin "pull/$PR_NUMBER/head"
+          fetched_sha="$(git rev-parse FETCH_HEAD)"
+          if [[ "$fetched_sha" != "$source_sha" ]]; then
+            echo "::error::PR head changed while preparing the build. Run the workflow again after review."
+            exit 1
+          fi
+
+          branch="testflight/external-pr-$PR_NUMBER-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          git switch -c "$branch" "$source_sha"
+          git push origin "HEAD:refs/heads/$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### External PR TestFlight request"
+            echo "- Original PR: #$PR_NUMBER ($source_repo)"
+            echo "- Reviewed head commit: \`$source_sha\`"
+            echo "- Internal build branch: \`$branch\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # GITHUB_TOKEN-generated labels do not trigger the labeled workflow.
+          # The release job below calls the existing pipeline directly instead.
+          # A tracking draft PR is optional: some repositories disallow PRs
+          # created by GitHub Actions in their Actions settings.
+          title="TestFlight staging for #$PR_NUMBER"
+          body="Temporary TestFlight-only copy of #$PR_NUMBER from $source_repo at $source_sha.
+
+          Created by workflow run #$GITHUB_RUN_ID. Do not merge; the source PR remains the review target."
+          if tracking_url="$(gh pr create --repo "$GITHUB_REPOSITORY" \
+              --base master --head "$branch" --draft \
+              --title "$title" --body "$body")"; then
+            tracking_number="$(basename "$tracking_url")"
+            echo "- Temporary draft PR: $tracking_url" >> "$GITHUB_STEP_SUMMARY"
+            gh pr edit "$tracking_number" --repo "$GITHUB_REPOSITORY" \
+              --add-label testflight-upload || echo "::warning::Could not label temporary PR."
+          else
+            echo "::warning::Temporary PR could not be created; continuing to TestFlight using the internal branch."
+            echo "- Temporary PR: unavailable (internal branch is sufficient for the build)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  release-ios:
+    needs: stage-external-pr
+    permissions:
+      contents: read
+    uses: ./.github/workflows/release-testflight.yml
+    with:
+      checkout_ref: ${{ needs.stage-external-pr.outputs.branch }}
+      publish: ${{ inputs.publish }}
+    secrets: inherit
