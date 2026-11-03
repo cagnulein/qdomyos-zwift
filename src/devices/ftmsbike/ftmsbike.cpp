@@ -114,16 +114,6 @@ bool ftmsbike::fsIb50ResistanceGearDelta(resistance_t previousResistance, resist
     return true;
 }
 
-bool ftmsbike::resistanceWriteRequired(bool isFsIb50, bool physicalGearChangePending,
-                                       resistance_t requestedResistance, bool gearChanged) {
-    return requestedResistance != -1 || (gearChanged && (!isFsIb50 || !physicalGearChangePending));
-}
-
-bool ftmsbike::shouldSendGearOnlyInclination(bool isFsIb50, bool hasInclinationRequest, bool gearChanged,
-                                              bool hasLastRequestedInclination) {
-    return !isFsIb50 && !hasInclinationRequest && gearChanged && hasLastRequestedInclination;
-}
-
 double ftmsbike::applyFsIb50GearGain(resistance_t gearDelta, double gearsGain) {
     return static_cast<double>(gearDelta) * gearsGain;
 }
@@ -585,7 +575,7 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         const bool gearChanged = lastGearValue != gears();
-        if (resistanceWriteRequired(FS_IB50, fsIb50PhysicalGearChangePending, requestResistance, gearChanged)) {
+        if (requestResistance != -1 || (gearChanged && (!FS_IB50 || !fsIb50PhysicalGearChangePending))) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -650,9 +640,8 @@ void ftmsbike::update() {
                                                                 // i'm using the gears in the inclination
                 inclinationSent = true;
                 requestInclination = -100;
-            } else if (shouldSendGearOnlyInclination(FS_IB50, requestInclination != -100,
-                                                      lastGearValue != gears(),
-                                                      lastRawRequestedInclinationValue != -100)) {
+            } else if (!FS_IB50 && lastGearValue != gears() &&
+                       lastRawRequestedInclinationValue != -100) {
                 // Non-FS-IB50 bikes keep the legacy immediate gear-only update.
                 forceInclination(lastRawRequestedInclinationValue + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
@@ -660,10 +649,9 @@ void ftmsbike::update() {
             }
         }
 
-        if ((virtualBike && virtualBike->ftmsDeviceConnected()) &&
-            shouldSendGearOnlyInclination(FS_IB50, requestInclination != -100, lastGearValue != gears(),
-                                          lastRawRequestedInclinationValue != -100) &&
-            lastPacketFromFTMS.length() >= 7) {
+        if (virtualBike && virtualBike->ftmsDeviceConnected() && !FS_IB50 &&
+            requestInclination == -100 && lastGearValue != gears() &&
+            lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
