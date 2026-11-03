@@ -60,6 +60,7 @@ SOURCES += \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestFtmsBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
@@ -114,6 +115,7 @@ HEADERS += \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \
+    Devices/TestFtmsBikeParser.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \

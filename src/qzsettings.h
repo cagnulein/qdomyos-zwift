@@ -961,6 +961,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 
@@ -1869,6 +1872,9 @@ class QZSettings {
     static const QString default_kettler_usb_serialport;
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
+
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
 
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;

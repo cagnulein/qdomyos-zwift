@@ -2389,8 +2389,10 @@ import AndroidStatusBar 1.0
             property real virtual_device_rower_cadence_gain: 1.0
             property real virtual_device_rower_cadence_offset: 0.0
             property bool proform_treadmill_sport_55: false
+            property string daum_serialport: ""
+            property real trainprogram_inclination_filter: 0.0
             
-            // from version ?
+                        // from version ?
             property bool trixter_xdream_bike_enabled: false
             property bool trixter_xdream_bike_heartrate_enabled: true
             property bool trixter_xdream_bike_steering_enabled: true
@@ -2400,6 +2402,7 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
+
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -3524,7 +3527,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: heartBeltNameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); heartBeltNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); heartBeltNameTextField.showSaved(); rootItem.reconnectHeartRateBelt(settings.heart_rate_belt_name); if (settings.heart_rate_belt_name === "Disabled") window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6755,6 +6758,94 @@ import AndroidStatusBar 1.0
                         }
                     }
 										}
+
+
+                    AccordionElement {
+                        id: daumBikeAccordion
+                        title: qsTr("Daum Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDaumSerialPort
+                                    text: qsTr("Serial Port:")
+                                    Layout.fillWidth: true
+                                }
+                                SettingsTextField {
+                                    id: daumSerialPortTextField
+                                    savedText: settings.daum_serialport
+                                    Accessible.name: labelDaumSerialPort.text + " " + text
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.daum_serialport = text; window.settings_restart_to_apply = true; }
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDaumSerialPortButton
+                                    text: qsTr("OK")
+                                    enabled: daumSerialPortTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.daum_serialport = daumSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use 'usb'. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDaumResistanceDelay
+                                    text: qsTr("Resistance Polling Delay:")
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: daumResistanceDelayTextField
+                                    savedText: settings.inclination_delay_seconds
+                                    Accessible.name: labelDaumResistanceDelay.text + " " + text
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: if (valid) settings.inclination_delay_seconds = value
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    enabled: daumResistanceDelayTextField.valid && daumResistanceDelayTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.inclination_delay_seconds = daumResistanceDelayTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
 
 
                     AccordionElement {
@@ -11530,6 +11621,45 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelTrainProgramInclinationFilter
+                            text: qsTr("Inclination Filter (%):")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: trainProgramInclinationFilterTextField
+                            savedText: settings.trainprogram_inclination_filter
+                            Accessible.name: labelTrainProgramInclinationFilter.text + " " + text
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: if (valid) settings.trainprogram_inclination_filter = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramInclinationFilter
+                            text: qsTr("OK")
+                            enabled: trainProgramInclinationFilterTextField.valid && trainProgramInclinationFilterTextField.dirty
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_inclination_filter = trainProgramInclinationFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelTrainProgramRandomResistanceMin
                             text: qsTr("Resistance min.:")
                             wrapMode: window.labelWrap
@@ -11780,7 +11910,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                 
+
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
                         text: qsTr("Difficulty offset based")

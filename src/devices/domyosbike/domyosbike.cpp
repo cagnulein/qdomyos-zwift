@@ -941,6 +941,6 @@ void domyosbike::controllerStateChanged(QLowEnergyController::ControllerState st
         writeQueue.clear();
         isWriting = false;
         gattCommunicationChannelService = nullptr;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
+        <translation type="vanished">QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
 Op Android zijn locatievoorzieningen nodig zodat de app Bluetooth-apparaten kan vinden.
 GPS wordt niet gebruikt.
 
@@ -113,7 +113,7 @@ Wil je ze inschakelen?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
+        <translation type="vanished">Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Wil je dat nu doen?</translation>
     <message>
         <source>Save</source>
         <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ heeft ingeschakelde Bluetooth nodig om fitnessapparaten te vinden. Op Android 11 en ouder zijn voor het zoeken naar Bluetooth-apparaten ook locatietoestemming en ingeschakelde locatievoorzieningen vereist. QZ gebruikt je locatiegegevens niet. Op Android 12 en nieuwer maakt de toestemming &apos;Apparaten in de buurt&apos; het zoeken naar Bluetooth-apparaten mogelijk zonder toegang tot je locatie.
+
+Wil je de vereiste voorzieningen inschakelen?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Wil je dat nu doen?</translation>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1 (hartslagsensor) verbonden!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Zoeken naar %1 (hartslagsensor)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor) niet gevonden. Controleer of hij aan staat en de hartslag uitzendt.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor): geen hartslag. Controleer of hij de hartslag uitzendt.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -3757,6 +3781,15 @@ Bij de eerste start kan dit even duren.</translation>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Het QZ-doelvermogen overschrijft de opdrachten van de app. Pauzeer QZ en hervat het om de besturing aan de app terug te geven.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify-nummers:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ is actief</translation>
     </message>
 </context>
 <context>
@@ -7783,6 +7816,82 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Gebruikt een synthetisch Life Fitness-profiel zonder account. Als dit is ingeschakeld, worden gebruikersnaam, wachtwoord en opgeslagen accountgegevens genegeerd; gebruik dit alleen om het ondersteunde inloggen als gast te testen.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Grafieken in trainingsgeschiedenis</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Hartslag</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Weerstand vs. doelweerstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton-weerstand</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Vermogensverdeling</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Snelheid en helling</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Verplaats de grafieken omhoog of omlaag om hun volgorde in de trainingsgeschiedenis te kiezen. Wijzigingen worden automatisch opgeslagen.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Omhoog</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Omlaag</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Standaardvolgorde herstellen</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio-opties</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Schakelt de standaard FTMS-opdracht Request Control in voor Moovio Lynx Konect 2.0-loopbanden. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Cadansfactor</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Vermenigvuldiger die alleen wordt toegepast op de slagfrequentie die de virtuele roeitrainer verstuurt. Standaard: 1.0; gebruik 0.25 om BikeERG-RPM om te rekenen naar de slagfrequentie die de EXR vraagt.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Correctie die na de factor wordt opgeteld. Standaard: 0.0. De cadansweergave in QZ en de trainingsgegevens blijven ongewijzigd.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS: actief blijven op achtergrond</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Alleen iOS. Houdt QZ actief als het scherm uit is of QZ op de achtergrond draait, zodat Bluetooth-verbindingen en sessietimers niet bevriezen. Er wordt een stil audiospoor gebruikt dat met je muziek wordt gemengd, dus waar je naar luistert, wordt niet onderbroken. Schakel dit in als je wilt trainen met een vergrendeld scherm of met QZ op de achtergrond. Standaard: uit.</translation>
     </message>
 </context>
 <context>

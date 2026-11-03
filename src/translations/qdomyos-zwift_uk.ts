@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>Для роботи QZ потрібно ввімкнути Bluetooth і служби геолокації.
+        <translation type="vanished">Для роботи QZ потрібно ввімкнути Bluetooth і служби геолокації.
 На Android геолокація потрібна, щоб застосунок міг знаходити Bluetooth-пристрої.
 GPS не використовуватиметься.
 
@@ -197,7 +197,7 @@ GPS не використовуватиметься.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Нагадати про ввімкнення геолокації наступного разу?</translation>
+        <translation type="vanished">Нагадати про ввімкнення геолокації наступного разу?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>Збільшити значення параметра </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>Для пошуку фітнес-обладнання QZ потрібен увімкнений Bluetooth. В Android 11 і попередніх версіях для пошуку Bluetooth-пристроїв також потрібні дозвіл на доступ до місцезнаходження й увімкнені служби геолокації. QZ не використовує дані про ваше місцезнаходження. В Android 12 і новіших версіях дозвіл «Пристрої поблизу» дає змогу знаходити Bluetooth-пристрої без доступу до місцезнаходження.
+
+Увімкнути необхідні служби?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Нагадати про ввімкнення Bluetooth або служб геолокації наступного разу?</translation>
     </message>
 </context>
 <context>
@@ -789,6 +801,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>Під’єднано: %1 (пульсометр)!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Пошук: %1 (пульсометр)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Не знайдено: %1 (пульсометр). Перевірте, що він увімкнений і транслює пульс.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (пульсометр): немає пульсу. Перевірте, що він транслює пульс.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -3757,6 +3781,15 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Цільова потужність QZ перебиває команди застосунку. Щоб повернути керування застосунку, поставте QZ на паузу і продовжте.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Пісні Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ працює</translation>
     </message>
 </context>
 <context>
@@ -7787,6 +7820,82 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Використовує синтетичний профіль Life Fitness без облікового запису. Якщо увімкнено, ім’я користувача, пароль і збережені дані облікового запису не використовуються; вмикайте лише для перевірки підтримуваного гостьового входу.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Графіки історії тренувань</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Пульс</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Опір і цільовий опір</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Опір Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Каденс</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Розподіл потужності</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Швидкість і нахил</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Переміщуйте графіки вгору або вниз, щоб вибрати їхній порядок в історії тренувань. Зміни зберігаються автоматично.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Перемістити вгору</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Перемістити вниз</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Відновити типовий порядок</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Параметри Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Вмикає стандартну команду FTMS Request Control для бігових доріжок Moovio Lynx Konect 2.0. Типово вимкнено.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Коефіцієнт каденсу</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Множник, що застосовується лише до темпу веслування, який передає віртуальний гребний тренажер. Типово 1.0; значення 0.25 переводить об/хв BikeERG у темп веслування, який запитує EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Зміщення, що додається після коефіцієнта. Типово 0.0. Каденс, який показує QZ, і показники тренування не змінюються.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Фонова робота на iOS</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Лише для iOS. QZ продовжує працювати з вимкненим екраном або у фоні, щоб з’єднання Bluetooth і таймери сесії не завмирали. Для цього використовується беззвучна звукова доріжка, що змішується з вашою музикою, тож те, що ви слухаєте, не переривається. Увімкніть, якщо тренуєтеся із заблокованим екраном або з QZ у фоні. Типово вимкнено.</translation>
     </message>
 </context>
 <context>
