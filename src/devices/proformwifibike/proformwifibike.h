@@ -50,6 +50,19 @@ class proformwifibike : public bike {
     bool inclinationAvailableByHardware() override;
     bool inclinationAvailableBySoftware() override { return true; }
     bool connected() override;
+    double maxGears() override { return consoleUsesGears && !gearLadder.isEmpty() ? gearLadder.size() : defaultMaxGears(); }
+    double minGears() override { return consoleUsesGears && !gearLadder.isEmpty() ? 1.0 : -9999.0; }
+
+    // front/rear are 1-based, like the console reports them
+    struct ConsoleGear {
+        int front;
+        int rear;
+    };
+    static QList<int> parseGearing(const QString &gearing);
+    static QList<ConsoleGear> buildGearLadder(const QList<int> &frontTeeth, const QList<int> &rearTeeth,
+                                              int maxEntries = 24);
+    static int closestLadderIndex(const QList<ConsoleGear> &ladder, const QList<int> &frontTeeth,
+                                  const QList<int> &rearTeeth, int front, int rear);
 
   private:
     QWebSocket websocket;
@@ -89,6 +102,20 @@ class proformwifibike : public bike {
     bool noHeartService = false;
 
     bool tdf2 = false;
+
+    bool consoleUsesGears = false;
+    QString consoleModel;
+    QList<int> frontTeeth;
+    QList<int> rearTeeth;
+    QList<ConsoleGear> gearLadder;
+    int consoleFrontGear = 0;
+    int consoleRearGear = 0;
+    int lastSyncedLadderIndex = 0;
+    int targetGearIndex = 0;
+    int gearWriteTries = 0;
+    QDateTime gearWriteTime;
+    void rebuildGearLadder();
+    void syncGearsToConsole();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
