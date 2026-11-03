@@ -9,7 +9,10 @@
 //   answers true; Qt 5.15 alone answers false for a button) and checks what each press shows.
 // Every line it prints starts with OK, FAIL or INFO; the last one is DONE.
 //
-//   CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest <press> [<press> ...]
+//   CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest [--scroll] <press> [<press> ...]
+//
+// With --scroll a node below the screen must show within 30 s (the tiles of a device always reach
+// below it, some seconds after it connected), so the scroll to the focus is checked, not passed over.
 //
 // A press is the start of a button's description, optionally with "=" and the start of the
 // description of a node that the press must show within 5 s and that must still be there 2 s later
@@ -22,11 +25,13 @@ import android.os.Looper;
 import android.view.accessibility.AccessibilityNodeInfo;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AccessibilityTest {
     private static final String PACKAGE = "org.cagnulen.qdomyoszwift";
     private static UiAutomation automation;
+    private static boolean scrollRequired;
 
     public static void main(String[] args) throws Exception {
         // AccessibilityInteractionClient makes a Handler on the main looper, which app_process lacks
@@ -48,6 +53,10 @@ public class AccessibilityTest {
     }
 
     private static void run(String[] presses) throws Exception {
+        if (presses.length > 0 && presses[0].equals("--scroll")) {
+            scrollRequired = true;
+            presses = Arrays.copyOfRange(presses, 1, presses.length);
+        }
         if (presses.length == 0) {
             System.out.println("FAIL no button to press given");
             return;
@@ -57,11 +66,10 @@ public class AccessibilityTest {
             AccessibilityNodeInfo root = automation.getRootInActiveWindow();
             CharSequence active = root == null ? null : root.getPackageName();
             String nativeText = firstText(root);
-            // the images where QZ cannot show its page (no Bluetooth, API < 30) are skipped by
-            // android_accessibility_test.sh before this runs
             if (active == null || !active.toString().equals(PACKAGE)) {
                 System.out.println("FAIL the active window is " + active + ", not QZ");
             } else if (nativeText != null) {
+                // e.g. the native "Permissions Required" dialog, if the job did not answer it in the settings
                 System.out.println("FAIL a native window of QZ is in front: '" + nativeText + "'");
             } else {
                 System.out.println("FAIL no accessibility node of QZ with a description: Qt accessibility is off");
@@ -120,17 +128,32 @@ public class AccessibilityTest {
         }
         Rect screen = new Rect();
         root.getBoundsInScreen(screen);
-        AccessibilityNodeInfo lowest = null;
-        Rect bounds = new Rect();
-        int bottom = screen.bottom;
-        for (AccessibilityNodeInfo node : nodes) {
-            node.getBoundsInScreen(bounds);
-            if (node.isFocusable() && bounds.bottom > bottom) {
-                lowest = node;
-                bottom = bounds.bottom;
+        AccessibilityNodeInfo lowest = lowestBelow(nodes, screen);
+        // the tiles of a device show some seconds after it connected, later than the page settles:
+        // wait for them up to 30 s, as a press waits for its button, then for the page
+        for (int i = 0; scrollRequired && lowest == null && i < 60; i++) {
+            Thread.sleep(500);
+            if (lowestBelow(appNodes(), screen) != null) {
+                nodes = waitForSettledNodes();
+                if (nodes == null) {
+                    System.out.println("FAIL the screen of QZ did not stop changing in 30 s after the tiles showed");
+                    return false;
+                }
+                lowest = lowestBelow(nodes, screen);
+                break;
             }
         }
+        Rect bounds = new Rect();
+        int bottom = screen.bottom;
+        if (lowest != null) {
+            lowest.getBoundsInScreen(bounds);
+            bottom = bounds.bottom;
+        }
         if (lowest == null) {
+            if (scrollRequired) {
+                System.out.println("FAIL no focusable node below the screen in 30 s: the scroll to the focus is not checked");
+                return false;
+            }
             System.out.println("INFO every node is on the screen: no scroll to the focus to check");
             return true;
         }
@@ -140,14 +163,15 @@ public class AccessibilityTest {
             return false;
         }
         // the scroll runs on the Qt thread, which can be busy for seconds after a start while a
-        // device connects (7 s seen on the API 36 emulator): wait for it up to 15 s
+        // device connects (7 s seen on the API 36 emulator, 17 s in a Bluetooth call of the
+        // virtual device on API 35, while the page looked settled): wait for it up to 30 s
         AccessibilityNodeInfo moved = null;
         boolean inView = false;
-        for (int i = 0; i < 30 && !inView; i++) {
+        for (int i = 0; i < 60 && !inView; i++) {
             Thread.sleep(500);
             // the same node, or, when the view made its item anew while scrolling (a GridView
             // does), the node with the same whole description; a read between the old item and
-            // the new one finds neither, so a miss is only a miss once the 15 s are over
+            // the new one finds neither, so a miss is only a miss once the 30 s are over
             moved = null;
             for (AccessibilityNodeInfo node : appNodes()) {
                 if (node.equals(lowest)) {
@@ -180,6 +204,21 @@ public class AccessibilityTest {
         System.out.println("OK scrolled into view on focus: '" + description + "' from bottom " + bottom
                 + " to " + bounds.toShortString());
         return true;
+    }
+
+    // The focusable node that ends lowest below the screen, or null
+    private static AccessibilityNodeInfo lowestBelow(List<AccessibilityNodeInfo> nodes, Rect screen) {
+        AccessibilityNodeInfo lowest = null;
+        Rect bounds = new Rect();
+        int bottom = screen.bottom;
+        for (AccessibilityNodeInfo node : nodes) {
+            node.getBoundsInScreen(bounds);
+            if (node.isFocusable() && bounds.bottom > bottom) {
+                lowest = node;
+                bottom = bounds.bottom;
+            }
+        }
+        return lowest;
     }
 
     private static boolean press(String press) throws Exception {
