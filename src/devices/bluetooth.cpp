@@ -113,7 +113,11 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     // Dedicated Peloton Bike+ branch: retain its direct sensor integration while
     // keeping master's latest Bluetooth discovery and reconnection logic.
+#ifdef Q_OS_ANDROID
     const bool pelotonSensorBranch = true;
+#else
+    const bool pelotonSensorBranch = false;
+#endif
     if ((pelotonSensorBranch ||
          (!gymMode && settings.value(QZSettings::peloton_bike_ocr,
                                       QZSettings::default_peloton_bike_ocr).toBool())) && !pelotonBike) {
