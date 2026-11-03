@@ -96,6 +96,7 @@ void pelotonbike::resetErg() {
     m_ergExpectedResistance = -1;
     m_ergLastObservedResistance = -1;
     m_ergCadenceSince = -1;
+    m_ergPedalingSince = -1;
     m_ergUnexpectedResistance = -1;
     m_ergUnexpectedSamples = 0;
     requestResistance = -1;
@@ -202,6 +203,7 @@ void pelotonbike::updateErg(float power, float cadence, float resistance) {
     // Do not command the brake without steady pedaling. Recompute the initial
     // target after a stop rather than resuming an obsolete motor ramp.
     if (cadence < 25.0f || power <= 0.0f) {
+        m_ergPedalingSince = -1;
         m_ergCadenceSince = -1;
         m_ergFeedForwardPending = true;
         m_ergGoalResistance = -1;
@@ -209,6 +211,16 @@ void pelotonbike::updateErg(float power, float cadence, float resistance) {
         m_ergLastObservedResistance = current;
         return;
     }
+    if (cadence < 50.0f) {
+        m_ergPedalingSince = -1;
+        m_ergCadenceSince = -1;
+        m_ergFeedForwardPending = true;
+        m_ergGoalResistance = -1;
+        m_ergLastObservedResistance = current;
+        return;
+    }
+    if (m_ergPedalingSince < 0)
+        m_ergPedalingSince = now;
     if (m_ergExpectedResistance != -1) {
         if (current == m_ergExpectedResistance) {
             m_ergLastObservedResistance = current;
@@ -231,7 +243,11 @@ void pelotonbike::updateErg(float power, float cadence, float resistance) {
         }
         if (m_ergCadenceSince < 0)
             m_ergCadenceSince = now;
-        if (now - m_ergCadenceSince < 1500) {
+        // Grupetto defers large increases during the first 15 seconds of
+        // pedaling so the rider's rising cadence does not cause an overshoot.
+        if (now - m_ergCadenceSince < 1500 ||
+            (m_ergTargetWatts - power >= 15 &&
+             now - m_ergPedalingSince < 15000)) {
             m_ergLastObservedResistance = current;
             return;
         }
