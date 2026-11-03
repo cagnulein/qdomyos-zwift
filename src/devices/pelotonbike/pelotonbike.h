@@ -14,11 +14,13 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 #include <QUdpSocket>
 
 #include "devices/bike.h"
+#include "pelotonpowermodel.h"
 #include "virtualdevices/virtualbike.h"
 
 #ifdef Q_OS_ANDROID
@@ -36,9 +38,17 @@ class pelotonbike : public bike {
     pelotonbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     bool inclinationAvailableByHardware() override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    void changePower(int32_t power) override;
+    void changeResistance(resistance_t resistance) override;
+    void stop(bool pause) override;
+    void setPaused(bool paused) override;
+    void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) override;
 
   private:
     bool forceResistance(double resistance);
+    void updateErg(float power, float cadence, float resistance);
+    void resetErg();
     uint16_t watts() override;
     double getDouble(QString v);
     
@@ -66,6 +76,29 @@ class pelotonbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool pelotonSensorInitialized = false;
+
+    // Grupetto Bike+ model and ERG motor controller (native Affernet telemetry).
+    PelotonPowerModel m_powerModel;
+    QElapsedTimer m_ergClock;
+    bool m_ergActive = false;
+    bool m_ergPowerCommand = false;
+    bool m_ergFeedForwardPending = false;
+    bool m_ergFeedForwardRamp = false;
+    int m_ergTargetWatts = 0;
+    int m_ergGoalResistance = -1;
+    int m_ergExpectedResistance = -1;
+    int m_ergLastObservedResistance = -1;
+    int m_ergStableResistance = -1;
+    int m_ergUnexpectedResistance = -1;
+    int m_ergUnexpectedSamples = 0;
+    qint64 m_ergCadenceSince = -1;
+    qint64 m_ergStableSince = 0;
+    qint64 m_ergWriteSince = 0;
+    qint64 m_ergLastWrite = -1000;
+    qint64 m_ergSettleUntil = 0;
+    qint64 m_ergLastPowerSample = 0;
+    float m_ergFilteredPower = 0.0f;
+    float m_ergCorrectedResistance = 0.0f;
 
     QUdpSocket* pelotonOCRsocket = nullptr;
 
