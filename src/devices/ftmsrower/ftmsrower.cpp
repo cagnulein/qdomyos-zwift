@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || SF_RW || ROWER || MRK_R06 || ICONSOLE_PLUS) {
+        if(I_ROWER || SF_RW || ROWER || MRK_R06 || ICONSOLE_PLUS || SPORTSTECH_PROWER) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
@@ -882,6 +882,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
             I_ROWER = true;
             qDebug() << "I_ROWER found!";
+        } else if (deviceName.startsWith(QStringLiteral("FIT-RW-"))) {
+            SPORTSTECH_PROWER = true;
+            qDebug() << "Sportstech PROwer found! requesting FTMS control before start";
         } else if (device.name().toUpper().startsWith(QStringLiteral("SF-RW"))) {
             SF_RW = true;
             qDebug() << "SF_RW found!";
