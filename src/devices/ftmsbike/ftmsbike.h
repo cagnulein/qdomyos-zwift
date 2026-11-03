@@ -77,10 +77,6 @@ class ftmsbike : public bike {
     static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
                                            qint64 msecsSinceInclinationCommand,
                                            qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
-    static bool resistanceWriteRequired(bool isFsIb50, bool physicalGearChangePending,
-                                        resistance_t requestedResistance, bool gearChanged);
-    static bool shouldSendGearOnlyInclination(bool isFsIb50, bool hasInclinationRequest, bool gearChanged,
-                                              bool hasLastRequestedInclination);
     static double applyFsIb50GearGain(resistance_t gearDelta, double gearsGain);
     bool connected() override;
 
