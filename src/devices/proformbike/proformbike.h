@@ -101,6 +101,7 @@ class proformbike : public bike {
     bool nordictrack_vr21 = false;
     bool proform_bike_325_csx_PFEX439210INT_0 = false;
     bool nordictrack_gx_le = false;
+    bool nordictrack_vx450 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
