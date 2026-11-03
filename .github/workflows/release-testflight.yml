@@ -13,6 +13,18 @@ on:
         type: boolean
         required: true
         default: false
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: Internal branch to build for an explicitly approved external PR
+        type: string
+        required: false
+        default: ''
+      publish:
+        description: Upload the signed IPA to App Store Connect TestFlight
+        type: boolean
+        required: false
+        default: false
 
 # Keep each release request independent. GitHub's concurrency group can cancel
 # an older *pending* run when a newer one arrives, even with
@@ -35,6 +47,8 @@ jobs:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
         with:
+          # Empty for normal PR/dispatch runs; set by the manual external-PR caller.
+          ref: ${{ inputs.checkout_ref || github.ref }}
           submodules: recursive
 
       - name: Select the Xcode version used by Xcode Cloud scripts
@@ -154,7 +168,7 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           PUBLISH_TO_TESTFLIGHT: ${{ (github.event_name == 'pull_request' && github.event.label.name == 'testflight-upload') || inputs.publish }}
-          TESTFLIGHT_CHANGELOG: "Branch: ${{ github.head_ref || github.ref_name }}"
+          TESTFLIGHT_CHANGELOG: "Branch: ${{ inputs.checkout_ref || github.head_ref || github.ref_name }}"
         run: |
           if [ "$PUBLISH_TO_TESTFLIGHT" = "true" ]; then
             fastlane ios testflight
