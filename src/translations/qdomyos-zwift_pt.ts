@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensor de FC encontrado: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensores de FC encontrados: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Conectar</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Escolher</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Agora não</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Escolha um sensor de FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -5645,6 +5676,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Atualizar Lista de Dispositivos</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Sugerir um sensor de FC encontrado por perto</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Sem cinta cardíaca escolhida e sem frequência cardíaca, o QZ procura um sensor de FC nos primeiros 5 minutos após a conexão do equipamento e sugere conectá-lo.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>

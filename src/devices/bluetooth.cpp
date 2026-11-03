@@ -78,6 +78,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             this->startDiscovery();
         }
     });
+    connect(&heartRateSensorScanTimer, &QTimer::timeout, this, &bluetooth::heartRateSensorScan);
 
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -3467,6 +3468,13 @@ void bluetooth::connectedAndDiscovered() {
             }
         }
 
+        // the first scan after 15 s: the heart rate of the machine, a watch app or the sensor just connected has
+        // come by then
+        if (!heartRateSensorScanStartedMs) {
+            heartRateSensorScanStartedMs = QDateTime::currentMSecsSinceEpoch();
+            heartRateSensorScanTimer.start(15000);
+        }
+
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().startsWith(ftmsAccessoryName))) && !ftmsAccessory &&
                 !ftmsAccessoryName.startsWith(QStringLiteral("Disabled")) &&
@@ -4289,6 +4297,78 @@ void bluetooth::stopHeartRateBeltDiscovery() {
     hrmDiscoveryAgent->stop();
     hrmDiscoveryAgent->deleteLater();
     hrmDiscoveryAgent = nullptr;
+}
+
+// The search for the fitness machine stops as soon as the machine is found, so a heart rate sensor switched on later
+// (or a moment after the machine) was never seen. While no heart rate comes from any source, this scans for 10 s
+// once a minute during the first 5 minutes after the machine connected: the chosen sensor connects as soon as it is
+// found; with none chosen, a sensor broadcasting heart rate nearby is offered on the home page (heartRateSensorFound).
+void bluetooth::heartRateSensorScan() {
+    heartRateSensorScanTimer.setInterval(60000);
+
+    QSettings settings;
+    const QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    const bool noSensorChosen = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
+    const bool suggest =
+        settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool();
+
+    if (QDateTime::currentMSecsSinceEpoch() - heartRateSensorScanStartedMs > 5 * 60 * 1000) {
+        qDebug() << "heart rate sensor scan: 5 minutes over";
+        heartRateSensorScanTimer.stop();
+        return;
+    }
+
+    // the machine is reconnecting (or a search started from the settings page is still running):
+    // the next minute, not the end of the scans
+    if (!this->device() || hrmDiscoveryAgent)
+        return;
+
+    // a sensor already created reconnects by itself
+    if (heartRateBelt || this->device()->currentHeart().value() > 0 || (noSensorChosen && !suggest)) {
+        qDebug() << "heart rate sensor scan: done";
+        heartRateSensorScanTimer.stop();
+        return;
+    }
+
+    // Apple platforms give no address, a device UUID instead
+    auto addressOf = [](const QBluetoothDeviceInfo &b) {
+        return b.address().isNull() ? b.deviceUuid().toString() : b.address().toString();
+    };
+    qDebug() << "heart rate sensor scan: no heart rate, looking for" << heartRateBeltName;
+    const QString machineAddress = addressOf(this->device()->bluetoothDevice);
+    hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    // empty: a search from the settings page replaces this one instead of waiting for it
+    hrmDiscoveryName.clear();
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+            [this, heartRateBeltName, noSensorChosen, machineAddress, addressOf](const QBluetoothDeviceInfo &b) {
+                if (heartRateBelt || !this->device() || b.name().isEmpty())
+                    return;
+                if (!noSensorChosen) {
+                    if (b.name().startsWith(heartRateBeltName)) {
+                        stopHeartRateBeltDiscovery();
+                        connectHeartRateBelt(b);
+                    }
+                    return;
+                }
+                if (!deviceHasService(b, QBluetoothUuid(QBluetoothUuid::HeartRate)))
+                    return;
+                const QString address = addressOf(b);
+                // fitness machines may have a heart rate service too
+                if (address == machineAddress)
+                    return;
+                qDebug() << "heart rate sensor scan: found" << b.name() << address << "rssi" << b.rssi();
+                if (b.rssi() < heartRateSensorSuggestMinRssi)
+                    return;
+                emit heartRateSensorFound(b.name(), address, b.rssi());
+            });
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this,
+            [this]() { stopHeartRateBeltDiscovery(); });
+    connect(hrmDiscoveryAgent,
+            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+            [this]() { stopHeartRateBeltDiscovery(); });
+    hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+    startHeartRateBeltScan(hrmDiscoveryAgent);
 }
 
 void bluetooth::restart() {

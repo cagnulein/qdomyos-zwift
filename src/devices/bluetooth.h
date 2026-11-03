@@ -402,6 +402,13 @@ class bluetooth : public QObject, public SignalHandler {
     void connectHeartRateBelt(const QBluetoothDeviceInfo &b);
     void stopHeartRateBeltDiscovery();
     void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
+    void heartRateSensorScan();
+
+    // heartRateSensorScan() runs during the first 5 minutes after the fitness machine first connects
+    QTimer heartRateSensorScanTimer;
+    qint64 heartRateSensorScanStartedMs = 0;
+    // weaker sensors are someone else's (another bike in the gym), not the user's own
+    static constexpr int heartRateSensorSuggestMinRssi = -80;
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
@@ -432,6 +439,9 @@ class bluetooth : public QObject, public SignalHandler {
     void deviceFound(QString name);
     void manualDeviceNotFound(QString name);
     void searchingStop();
+    // A heart rate sensor nearby while none is chosen and no heart rate comes (heartRateSensorScan()).
+    // address: the Bluetooth address, the device UUID on iOS
+    void heartRateSensorFound(const QString &name, const QString &address, int rssi);
     void ftmsAccessoryConnected(smartspin2k *d);
 
     void bluetoothDeviceConnected(bluetoothdevice *b);

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Capteur cardiaque trouvé : %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Capteurs cardiaques trouvés : %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connecter</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Choisir</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Pas maintenant</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne plus demander</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Choisissez un capteur cardiaque</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4428,6 +4459,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Utilisateurs d&apos;Apple Watch : laissez-le désactivé ! Ouvrez simplement l&apos;application sur votre montre</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Proposer un capteur cardiaque trouvé à proximité</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Si aucune ceinture cardiaque n&apos;est choisie et qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque pendant les 5 premières minutes après la connexion de l&apos;appareil et propose de le connecter.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

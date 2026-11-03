@@ -3453,6 +3453,10 @@ class QZSettings {
     static const QString moovio_lynx_konect_2_0;
     static constexpr bool default_moovio_lynx_konect_2_0 = false;
 
+    // With no heart rate sensor chosen, offer one QZ finds nearby in the first 5 minutes; off after "Don't ask again"
+    static const QString heart_rate_belt_suggest;
+    static constexpr bool default_heart_rate_belt_suggest = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

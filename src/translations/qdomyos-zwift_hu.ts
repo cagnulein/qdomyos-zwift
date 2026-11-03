@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulzusmérő található: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Talált pulzusmérők: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Csatlakoztatás</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Kiválasztás</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Most nem</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne kérdezze újra</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Válasszon pulzusmérőt</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4567,6 +4598,14 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     <message>
         <source>Refresh Devices List</source>
         <translation>Eszközlista frissítése</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Közeli pulzusmérő felajánlása</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Ha nincs kiválasztva pulzusmérő, és nem érkezik pulzus, a QZ az edzőgép csatlakozása utáni első 5 percben pulzusmérőt keres a közelben, és felajánlja a csatlakoztatását.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

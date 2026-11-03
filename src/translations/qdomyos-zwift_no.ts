@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulsmåler funnet: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Pulsmålere funnet: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Koble til</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Velg</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Ikke nå</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ikke spør igjen</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Velg en pulsmåler</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4567,6 +4598,14 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
     <message>
         <source>Refresh Devices List</source>
         <translation>Oppdater enhetslisten</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Foreslå en pulsmåler i nærheten</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Når ingen pulsmåler er valgt og ingen puls kommer inn, søker QZ etter en pulsmåler de første 5 minuttene etter at treningsapparatet er tilkoblet, og tilbyr å koble den til.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

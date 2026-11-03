@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Hartslagsensor gevonden: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Hartslagsensoren gevonden: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Verbinden</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Kiezen</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Niet nu</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Niet meer vragen</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Kies een hartslagsensor</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4608,6 +4639,14 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     <message>
         <source>Refresh Devices List</source>
         <translation>Apparatenlijst vernieuwen</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Hartslagsensor in de buurt voorstellen</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Als er geen hartslagband is gekozen en er geen hartslag binnenkomt, zoekt QZ in de eerste 5 minuten na het verbinden van het fitnesstoestel naar een hartslagsensor en stelt voor om die te verbinden.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

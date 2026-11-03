@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Znaleziono pulsometr: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Znalezione pulsometry: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Połącz</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Wybierz</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Nie teraz</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Nie pytaj ponownie</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Wybierz pulsometr</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4608,6 +4639,14 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
     <message>
         <source>Refresh Devices List</source>
         <translation>Odśwież listę urządzeń</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Proponuj pulsometr znaleziony w pobliżu</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Gdy nie wybrano pulsometru i nie ma tętna, QZ przez pierwsze 5 minut po połączeniu urządzenia treningowego szuka pulsometru w pobliżu i proponuje jego połączenie.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

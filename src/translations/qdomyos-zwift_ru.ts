@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Найден пульсометр: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Найдено пульсометров: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Выбрать</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Не сейчас</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Больше не спрашивать</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Выберите пульсометр</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -6404,6 +6435,14 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>Наклон</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Предлагать найденный пульсометр</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Если пульсометр не выбран и пульса нет, QZ в первые 5 минут после подключения тренажёра ищет пульсометр рядом и предлагает его подключить.</translation>
     </message>
     <message>
         <source>Tile size:</source>

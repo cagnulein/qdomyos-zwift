@@ -890,6 +890,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 .arg(name));
     });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::heartRateSensorFound, this, &homeform::heartRateSensorFound);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
@@ -1998,6 +1999,57 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
         return;
 
     bluetoothManager->selectGymModeDevice(deviceName);
+}
+
+// A heart rate sensor nearby while none is chosen: offered on the home page, the strongest first
+// (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
+void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi) {
+    QSettings settings;
+    if (heartRateSensorsDismissed.contains(address) ||
+        (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0) ||
+        !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool() ||
+        !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled")))
+        return;
+
+    QVariantMap sensor;
+    sensor[QStringLiteral("name")] = name;
+    sensor[QStringLiteral("address")] = address;
+    sensor[QStringLiteral("rssi")] = rssi;
+    int i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("address")).toString() != address)
+        i++;
+    if (i < m_heartRateSensorSuggestions.size())
+        m_heartRateSensorSuggestions.removeAt(i);
+    auto strength = [](int rssi) { return rssi < 0 ? rssi : -1000; };
+    i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           strength(m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("rssi")).toInt()) >=
+               strength(rssi))
+        i++;
+    m_heartRateSensorSuggestions.insert(i, sensor);
+    emit heartRateSensorSuggestionsChanged();
+}
+
+void homeform::heartRateSensorSuggestionConnect(const QString &name) {
+    m_heartRateSensorSuggestions.clear();
+    emit heartRateSensorSuggestionsChanged();
+    QSettings settings;
+    settings.setValue(QZSettings::heart_rate_belt_name, name);
+    reconnectHeartRateBelt(name);
+}
+
+void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
+    for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
+        heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
+    m_heartRateSensorSuggestions.clear();
+    emit heartRateSensorSuggestionsChanged();
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::heart_rate_belt_suggest, false);
+    }
 }
 
 bool homeform::hasConnectedDevice() const {
@@ -6519,6 +6571,13 @@ void homeform::update() {
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
         emit stopColorChanged(stopColor());
+    }
+
+    // the heart rate came from elsewhere (a watch app, the machine): nothing to offer any more
+    if (!m_heartRateSensorSuggestions.isEmpty() && bluetoothManager->device() &&
+        bluetoothManager->device()->currentHeart().value() > 0) {
+        m_heartRateSensorSuggestions.clear();
+        emit heartRateSensorSuggestionsChanged();
     }
 
     if (bluetoothManager->device()) {

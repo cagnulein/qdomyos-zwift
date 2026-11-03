@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nalezen snímač tepu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Nalezené snímače tepu: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Připojit</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Vybrat</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Teď ne</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Už se neptat</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Vyberte snímač tepu</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -4608,6 +4639,14 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     <message>
         <source>Refresh Devices List</source>
         <translation>Obnovit seznam zařízení</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Nabízet snímač tepu nalezený poblíž</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Když není vybrán snímač tepu a tep nepřichází, QZ během prvních 5 minut po připojení trenažéru hledá snímač tepu poblíž a nabídne jeho připojení.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensore FC trovato: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensori FC trovati: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connetti</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Scegli</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Non ora</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Non chiedere più</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Scegli un sensore FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -6648,6 +6679,14 @@ NOTE IMPORTANTI:
     <message>
         <source>Email:</source>
         <translation>Indirizzo email:</translation>
+    </message>
+    <message>
+        <source>Offer a Heart Rate Sensor Found Nearby</source>
+        <translation>Proponi un sensore FC trovato nelle vicinanze</translation>
+    </message>
+    <message>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
+        <translation>Se non è scelta alcuna fascia cardio e non arriva la frequenza cardiaca, QZ cerca un sensore FC nei primi 5 minuti dopo la connessione dell&apos;attrezzo e propone di connetterlo.</translation>
     </message>
     <message>
         <source>Custom Gear Table</source>
