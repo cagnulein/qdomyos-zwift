@@ -92,6 +92,7 @@ class pelotonbike : public bike {
     int m_ergUnexpectedResistance = -1;
     int m_ergUnexpectedSamples = 0;
     qint64 m_ergCadenceSince = -1;
+    qint64 m_ergPedalingSince = -1;
     qint64 m_ergStableSince = 0;
     qint64 m_ergWriteSince = 0;
     qint64 m_ergLastWrite = -1000;
