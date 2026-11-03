@@ -156,6 +156,11 @@ void pelotonbike::changeResistance(resistance_t resistance) {
     bike::changeResistance(resistance);
 }
 
+void pelotonbike::changeInclination(double grade, double percentage) {
+    resetErg(); // Simulation/slope control replaces the ERG power target.
+    bike::changeInclination(grade, percentage);
+}
+
 void pelotonbike::stop(bool pause) {
     resetErg();
     bike::stop(pause);
