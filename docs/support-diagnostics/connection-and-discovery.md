@@ -54,6 +54,7 @@
 
 - Exact machine model, Bluetooth name, and firmware revision if available.
 - QZ version and screenshots of relevant machine-specific and generic FTMS settings.
+- Screenshot **Advanced Settings > Manual Device** with its exact selected device or connection mode; confirm it matches the actual machine rather than an unrelated Wi-Fi or other protocol option.
 - On Android, whether **Garmin Options > ANT Bike Garmin** is enabled, particularly when a supported FTMS bike is detected but power and cadence remain zero.
 - Identify which QZ metrics update during a short workout.
 
@@ -61,12 +62,13 @@
 
 - Capture a short QZ debug log after restarting QZ.
 - Identify which device handler QZ selected for the machine.
-- Compare only one setting change at a time, restarting between tests.
+- Compare only one setting change at a time, restarting between tests. If Manual Device is set to an unrelated connection mode, select the matching machine, restart QZ, and check live metrics before opening another training app.
 - If ANT Bike Garmin is enabled, run a short QZ-only pedaling test with that option disabled and QZ restarted, keeping the selected bike and other settings unchanged. Report whether live power and cadence appear. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the known configuration check.
 
 ### Why it matters
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
+- In a confirmed case, selecting an unrelated Wi-Fi mode under Manual Device prevented bike metrics; choosing the matching bike mode restored the data. Recording the exact selected value is more useful than knowing only that a manual device was configured.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
 - A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
 
@@ -187,3 +189,23 @@
 - QZ's manual-device filter compares discovered Bluetooth names against the configured name. A saved selection for an earlier machine can exclude a replacement even when its advertisement is visible.
 - In a confirmed treadmill replacement case, clearing stale app configuration restored the connection; checking the old manual-device selection first would have isolated the cause without resetting unrelated settings.
 - Distinguishing discovery from active workout telemetry prevents troubleshooting the receiving app before QZ has connected to the machine.
+
+
+## Android trainer is detected, but power and cadence stay at zero after a previous pairing
+
+### Provide first
+
+- Trainer model, advertised Bluetooth name, Android version, and installed QZ build.
+- Confirm that QZ finds the trainer, but its Power and Cadence tiles remain at zero **while pedaling**. Include a screenshot of **Advanced Settings > Manual Device** if it is set.
+- State whether the trainer appears as a saved/paired device in **Android system Bluetooth settings**, and whether another phone or fitness app might still be connected.
+
+### If still unclear
+
+- Compare one QZ-only test with other training apps closed and nearby paired devices disconnected. Note whether power and cadence start updating.
+- If Android has a saved trainer pairing, note whether the same QZ-only test changes after forgetting that saved pairing and power-cycling the trainer. See the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) for the established pairing-reset procedure.
+- If metrics still remain at zero, collect a short QZ debug log from a fresh connection attempt while pedaling; if possible, compare a second phone without changing the trainer firmware.
+
+### Why it matters
+
+- Finding a Bluetooth advertisement and selecting the correct Manual Device do not prove that the phone established a usable telemetry session.
+- A confirmed Android KICKR CORE case recovered live metrics after clearing its old system-level Bluetooth pairing. Recording the saved-pairing state separates that failure from a wrong device handler or a competing app connection.

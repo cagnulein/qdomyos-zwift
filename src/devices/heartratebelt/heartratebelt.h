@@ -34,13 +34,24 @@ class heartratebelt : public treadmill {
     heartratebelt();
     ~heartratebelt();
     bool connected() override;
+    // Last heart rate notification: a watch that stops broadcasting can keep the link up, so connected()
+    // alone does not tell whether the heart rate still comes
+    QDateTime lastHeartRateTime;
+    // When this sensor was created: a sensor still connecting has no heart rate yet but is not silent
+    QDateTime createdTime = QDateTime::currentDateTime();
+    // Another sensor was chosen: disconnects without the automatic reconnection
+    void disconnectForGood();
 
   private:
+    bool disconnectingForGood = false;
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyService *gattBatteryService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QDateTime connectingTime;  // Timestamp when entering connecting state
     static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
+    // No heart rate this long after the last one: the sensor is silent and its heart rate becomes 0
+    static const int NO_HEART_RATE_TIMEOUT = 10000;
+    bool heartRateSilent = false;  // 0 already sent for the silence, waiting for the heart rate to come back
     QTimer* updateTimer;  // Timer for periodic updates
     uint8_t battery_level = 0;
 

@@ -29,6 +29,8 @@ If QZ detects the Kettler but all metrics stay at zero, discovery alone is not e
 
 **Note:** The Bluetooth Classic workaround is different from support for newer Kettler models that use BLE. Do not assume every Kettler bike uses the same protocol.
 
+**iPhone/iPad limitation:** QZ on iOS cannot use the Android Bluetooth Classic/SPP discovery path for a legacy RACER S, and the QZ Kettler USB-serial route is not an iOS workaround. If the bike does not advertise a usable BLE service and only offers Bluetooth Classic or legacy USB, use an **Android device** for the QZ-to-bike connection, then run Kinomap or another training app on a separate iPad and pair it with QZ's virtual device. This is a platform/setup limitation, not evidence that the bike is broken.
+
 ## Is a Bodytone DS60 advertising as SMB1 compatible with QZ and MyWhoosh?
 
 Yes. QZ recognizes Bluetooth fitness bikes advertising with an **SMB1** name through its FTMS bike support. A confirmed Bodytone DS60/SMB1 setup connected to QZ and supported automatic resistance control from MyWhoosh through QZ.
@@ -166,4 +168,22 @@ A **REP Strive Air Bike** was confirmed to connect to QZ and provide **some work
 
 Connect the bike to QZ first and check which live metrics update while pedalling. If QZ discovers the bike but does not use the expected profile, inspect its Bluetooth services and consider explicitly selecting the device under **Bike Options > FTMS Bike** before restarting QZ.
 
-**Not yet confirmed:** The bike's **eight adjustable fan-blade positions** are shown on its own console, but it is not established that those positions are exposed in standard FTMS resistance data or in the manufacturer's additional Bluetooth service. Do not promise that QZ can display or control fan position without a separate protocol test.
+**Confirmed fan-position display:** Enable **Resistance** under **QZ Settings > Tiles Options**, then pedal and change the bike's adjustable fan blades. In a follow-up test, the rider explicitly confirmed that the **Resistance** tile tracked the blade setting. This confirms that the setting can be *read* from this bike in QZ; it does **not** establish that QZ can change the fan position remotely. The bike has eight blade positions, but do not assume every console revision reports them identically.
+
+## Can QZ read a Domyos EB900 bike and bridge it to MyWhoosh with Apple Watch heart rate?
+
+**Yes for the QZ bike-data connection.** A Domyos EB900 rider confirmed that QZ on an **iPhone** detected the bike and the **Apple Watch**, and that the QZ dashboard populated after setup. To bridge to **MyWhoosh on a separate iPad**:
+
+1. Connect the EB900 and Apple Watch to QZ on the iPhone and verify live cadence/power in QZ.
+2. Enable **Enable Virtual Device** and **Virtual Device Bluetooth** in QZ's virtual-device settings; save and restart QZ.
+3. On the iPad, pair MyWhoosh's **Power Source** (and **Controllable Trainer**, if offered) with QZ's virtual trainer, often advertised as **Wahoo KICKR 0000**, **not** directly with the EB900. Use QZ's separate virtual heart-rate sensor if MyWhoosh offers one.
+
+The rider reported that the QZ dashboard appeared and the bike recognized the phone. **Automatic resistance control from MyWhoosh was not yet tested**, so do not treat the successful telemetry connection as confirmation of that separate capability. See [MyWhoosh and virtual-device setup](integrations.md) for the general pairing pattern.
+
+## Can a Trinfit T5 Pro treadmill connect to QZ and Kinomap?
+
+A **Trinfit T5 Pro** owner confirmed that QZ connected and communicated with the treadmill on iPhone. The same treadmill was also detected by Kinomap, which changed its incline during an activity **when connected directly**.
+
+If QZ does not discover the treadmill, close Kinomap and any other app using its Bluetooth connection, check that the treadmill is advertising, and retry QZ's scan. To use QZ as a bridge, connect the treadmill to QZ first, then pair QZ's **virtual treadmill** in Kinomap on a **second device**.
+
+**Scope of confirmation:** QZ communication and direct Kinomap incline control were reported; automatic incline control *through the QZ-to-Kinomap bridge*, and Garmin export for this model, were not separately confirmed.
