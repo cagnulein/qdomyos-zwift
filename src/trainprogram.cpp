@@ -88,6 +88,7 @@ QString trainrow::toString() const {
     QString rv;
     rv += QStringLiteral("duration = %1").arg(duration.toString());
     rv += QStringLiteral(" distance = %1").arg(distance);
+    rv += QStringLiteral(" elevationGain = %1").arg(elevationGain);
     rv += QStringLiteral(" speed = %1").arg(speed);
     rv += QStringLiteral(" lower_speed = %1").arg(lower_speed);     // used for peloton
     rv += QStringLiteral(" average_speed = %1").arg(average_speed); // used for peloton
@@ -281,7 +282,7 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
         return 0;
     }
 
-    if (rows.at(row).distance == -1)
+    if (rows.at(row).distance == -1 && rows.at(row).elevationGain <= 0)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
                 (rows.at(row).duration.hour() * 3600));
     else {
@@ -952,6 +953,7 @@ void trainprogram::scheduler() {
     }
 
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
+    const double elevationFromTheDevice = bluetoothManager->device()->elevationGain().value();
 
     if(ticks < 0) {
         qDebug() << "waiting for the start...";
@@ -962,7 +964,9 @@ void trainprogram::scheduler() {
     if (ticks == 1 && currentStep == 0) {
         rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
+        currentStepElevation = 0;
         lastOdometer = odometerFromTheDevice;
+        lastElevationGain = elevationFromTheDevice;
         emit intervalTransitionApplied();
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
@@ -1159,7 +1163,8 @@ void trainprogram::scheduler() {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
         
-        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine >= currentStep) {
+        if ((calculateDistanceForRow(calculatedLine) > 0 || rows.at(calculatedLine).elevationGain > 0) &&
+            calculatedLine >= currentStep) {
             break;
         }
 
@@ -1183,31 +1188,45 @@ void trainprogram::scheduler() {
     }
 
     bool distanceEvaluation = false;
+    bool elevationEvaluation = false;
     int sameIteration = 0;
 
     do {
 
         currentStepDistance += (odometerFromTheDevice - lastOdometer);
         lastOdometer = odometerFromTheDevice;
+        currentStepElevation += qMax(0.0, elevationFromTheDevice - lastElevationGain);
+        lastElevationGain = elevationFromTheDevice;
 
         if(currentStep >= rows.length()) {
             qDebug() << "currentStep greater than row.length" << currentStep << rows.length();
             end();
             return;
         }
-        bool distanceStep = (rows.at(currentStep).distance > 0);
-        distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
+        const bool distanceStep = rows.at(currentStep).distance > 0;
+        const bool elevationStep = rows.at(currentStep).elevationGain > 0;
+        distanceEvaluation = distanceStep && currentStepDistance >= rows.at(currentStep).distance;
+        elevationEvaluation = elevationStep && elevationTargetReached(currentStepElevation, rows.at(currentStep).elevationGain);
         qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
                  << QStringLiteral("distanceStep") << distanceStep << QStringLiteral("distanceEvaluation")
                  << distanceEvaluation << QStringLiteral("rows distance") << rows.at(currentStep).distance
+                 << QStringLiteral("currentStepElevation") << currentStepElevation
+                 << QStringLiteral("elevationEvaluation") << elevationEvaluation
                  << QStringLiteral("same iteration") << sameIteration;
 
-        if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
+        if ((calculatedLine != currentStep && !distanceStep && !elevationStep) ||
+            distanceEvaluation || elevationEvaluation) {
             if (isBlockingTransitionRow(rows.at(calculatedLine)) || calculateTimeForRow(calculatedLine) ||
-                calculateDistanceForRow(calculatedLine) > 0) {
+                calculateDistanceForRow(calculatedLine) > 0 || rows.at(calculatedLine).elevationGain > 0) {
 
-                if(rows.at(currentStep).distance != -1)
+                if (distanceStep)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
+
+                // Carry overshoot only to an immediately following elevation-based row.
+                if (elevationStep && currentStep + 1 < rows.length() && rows.at(currentStep + 1).elevationGain > 0)
+                    lastElevationGain = elevationFromTheDevice - elevationCarryOver(currentStepElevation, rows.at(currentStep).elevationGain);
+                else
+                    lastElevationGain = elevationFromTheDevice;
 
                 rows[currentStep].ended = QDateTime::currentDateTime();
 
@@ -1220,7 +1239,7 @@ void trainprogram::scheduler() {
                     emit lap();
                 }
 
-                if (!distanceStep)
+                if (!distanceStep && !elevationStep)
                     currentStep = calculatedLine;
                 else
                     currentStep++;
@@ -1236,6 +1255,7 @@ void trainprogram::scheduler() {
                 rows[currentStep].started = QDateTime::currentDateTime();
 
                 currentStepDistance = 0;
+                currentStepElevation = 0;
                 applyCurrentStepSettings();
             } else {
                 end();
@@ -1351,7 +1371,7 @@ void trainprogram::scheduler() {
         }
 
         sameIteration++;
-    } while (distanceEvaluation);
+    } while (distanceEvaluation || elevationEvaluation);
 }
 
 void trainprogram::end() {
@@ -1475,6 +1495,8 @@ bool trainprogram::advanceBlockingStep(const QString &toastMessage) {
 
     currentStep++;
     currentStepDistance = 0;
+    currentStepElevation = 0;
+    lastElevationGain = bluetoothManager && bluetoothManager->device() ? bluetoothManager->device()->elevationGain().value() : 0;
     lastLapButtonToastStep = -1;
     lastLapButtonToastTick = ticks;
 
@@ -1708,6 +1730,8 @@ void trainprogram::goToPreviousRow() {
 
     rows[currentStep].started = QDateTime::currentDateTime();
     currentStepDistance = 0;
+    currentStepElevation = 0;
+    lastElevationGain = bluetoothManager && bluetoothManager->device() ? bluetoothManager->device()->elevationGain().value() : 0;
     applyCurrentStepSettings();
 }
 
@@ -1744,8 +1768,12 @@ void trainprogram::restart() {
         }
     }
 
-    if (bluetoothManager && bluetoothManager->device())
+    if (bluetoothManager && bluetoothManager->device()) {
         lastOdometer = bluetoothManager->device()->odometer();
+        lastElevationGain = bluetoothManager->device()->elevationGain().value();
+    }
+    currentStepDistance = 0;
+    currentStepElevation = 0;
     ticks = 0;
     offset = 0;
     currentStep = 0;
@@ -1827,7 +1855,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
         }
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
-            if (row.distance >= 0) {
+            if (row.elevationGain > 0) {
+                stream.writeAttribute(QStringLiteral("elevationGain"), QString::number(row.elevationGain));
+            } else if (row.distance >= 0) {
                 stream.writeAttribute(QStringLiteral("distance"), QString::number(row.distance));
             } else {
                 stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
@@ -2076,6 +2106,13 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("distance"))) {
                 row.distance = atts.value(QStringLiteral("distance")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("elevationGain"))) {
+                const double target = atts.value(QStringLiteral("elevationGain")).toDouble();
+                if (target > 0) {
+                    row.elevationGain = target;
+                    row.distance = -1;
+                }
             }
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
