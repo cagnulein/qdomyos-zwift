@@ -16,12 +16,20 @@
 //
 // A press is the start of a button's description, optionally with "=" and the start of the
 // description of a node that the press must show within 5 s and that must still be there 2 s later
-// (a second press, e.g. by auto repeat, would replace it). "_" stands for a space.
-// Example: Start=First-time_setup Increase_Resistance=Resistance:_1
+// (a second press, e.g. by auto repeat, would replace it). "_" stands for a space. A press that
+// starts with "tap:" taps the middle of the node instead, as TalkBack does with a node it cannot
+// press (in Qt 5.15 a ComboBox, or an ItemDelegate without Accessible.onPressAction); the node need
+// not be clickable, but must be on the screen. "see:" and a description presses nothing: a node
+// with that description must show within 5 s.
+// Example: Start=First-time_setup Increase_Resistance=Resistance:_1 tap:Settings=Tiles_Options
+//          see:Speed,_order_index:_0
 import android.app.UiAutomation;
 import android.graphics.Rect;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
+import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -222,21 +230,28 @@ public class AccessibilityTest {
     }
 
     private static boolean press(String press) throws Exception {
+        if (press.startsWith("see:")) {
+            return see(press.substring("see:".length()).replace('_', ' '));
+        }
+        boolean tap = press.startsWith("tap:");
+        if (tap) {
+            press = press.substring("tap:".length());
+        }
         press = press.replace('_', ' ');
         int sign = press.indexOf('=');
         String button = sign < 0 ? press : press.substring(0, sign);
         String expect = sign < 0 ? null : press.substring(sign + 1);
-        AccessibilityNodeInfo target = find(button, true);
+        AccessibilityNodeInfo target = find(button, !tap);
         // the tiles show once the device is connected, later when a window of another app (Health
         // Connect on API 35+) was over QZ: wait for the button up to 30 s, then for its page
         boolean waited = target == null;
         for (int i = 0; i < 60 && target == null; i++) {
             Thread.sleep(500);
-            target = find(button, true);
+            target = find(button, !tap);
         }
         if (waited && target != null) {
             waitForSettledNodes();
-            target = find(button, true);
+            target = find(button, !tap);
         }
         if (target == null) {
             System.out.println("FAIL no button '" + button + "' on screen");
@@ -246,14 +261,29 @@ public class AccessibilityTest {
             System.out.println("FAIL '" + expect + "' is on screen before '" + button + "' is pressed");
             return false;
         }
-        boolean handled = target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        if (tap) {
+            if (!tap(target)) {
+                return false;
+            }
+        }
+        boolean handled = tap || target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
         // QZ answers false when its Qt thread is busy for 2 s, as it can be just after a device
-        // connected, and Qt's own press may still run: again for 10 s, unless that one worked
+        // connected, and Qt's own press may still run; Qt 5.15 answers false for an item that is
+        // not a button too (e.g. NewPageElement), though it ran its press. So wait for what the
+        // press shows up to 5 s before pressing again, else a second page opens over the first;
+        // again for 10 tries, unless that one worked
         for (int i = 0; i < 10 && !handled; i++) {
             System.out.println("INFO press refused: " + describe(target) + " enabled=" + target.isEnabled()
                     + " visible=" + target.isVisibleToUser());
-            Thread.sleep(1000);
-            if (expect != null && find(expect, false) != null) {
+            for (int j = 0; j < (expect == null ? 2 : 10) && !handled; j++) {
+                Thread.sleep(500);
+                handled = expect != null && find(expect, false) != null;
+            }
+            if (handled) {
+                System.out.println("INFO '" + expect + "' showed after the refused press");
+            } else if (!target.refresh() || !target.isVisibleToUser()) {
+                // the press ran and its page went away: it must not be pressed again
+                System.out.println("INFO '" + button + "' went away after the press: its page changed");
                 handled = true;
             } else {
                 AccessibilityNodeInfo again = find(button, true);
@@ -293,12 +323,70 @@ public class AccessibilityTest {
         return true;
     }
 
+    // A node with this description must show within 5 s, nothing is pressed
+    private static boolean see(String text) throws Exception {
+        AccessibilityNodeInfo shown = find(text, false);
+        for (int i = 0; i < 10 && shown == null; i++) {
+            Thread.sleep(500);
+            shown = find(text, false);
+        }
+        if (shown == null) {
+            System.out.println("FAIL no '" + text + "' in 5 s");
+            for (AccessibilityNodeInfo node : appNodes()) {
+                System.out.println("INFO node " + describe(node));
+            }
+            return false;
+        }
+        System.out.println("OK seen " + describe(shown));
+        return true;
+    }
+
+    // A tap of a finger in the middle of the node, which must be on the screen
+    private static boolean tap(AccessibilityNodeInfo node) throws Exception {
+        AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+        Rect screen = new Rect();
+        if (root != null) {
+            root.getBoundsInScreen(screen);
+        }
+        Rect bounds = new Rect();
+        node.getBoundsInScreen(bounds);
+        if (bounds.isEmpty() || !screen.contains(bounds.centerX(), bounds.centerY())) {
+            System.out.println("FAIL cannot tap " + describe(node) + ": its middle is off the screen "
+                    + bounds.toShortString() + ", screen " + screen.toShortString());
+            return false;
+        }
+        long down = SystemClock.uptimeMillis();
+        boolean injected = true;
+        int[] actions = {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP};
+        for (int action : actions) {
+            if (action == MotionEvent.ACTION_UP) {
+                Thread.sleep(100);
+            }
+            MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                    bounds.exactCenterX(), bounds.exactCenterY(), 0);
+            event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+            injected &= automation.injectInputEvent(event, true);
+            event.recycle();
+        }
+        if (!injected) {
+            System.out.println("FAIL tap not injected on " + describe(node));
+            return false;
+        }
+        System.out.println("INFO tapped " + describe(node) + " at " + bounds.centerX() + "," + bounds.centerY());
+        return true;
+    }
+
     // The first node whose description starts with the text, and not with a longer number
-    // ("Resistance: 1" is not "Resistance: 12"); a button must be clickable
+    // ("Resistance: 1" is not "Resistance: 12"); a button must be clickable. A node with no
+    // size is not shown: Qt keeps the items of a hidden page (one under the top page of a
+    // StackView) and of a closed section in the tree, with empty bounds
     private static AccessibilityNodeInfo find(String text, boolean clickable) {
+        Rect bounds = new Rect();
         for (AccessibilityNodeInfo node : appNodes()) {
             CharSequence description = node.getContentDescription();
-            if ((!clickable || node.isClickable()) && description != null && startsWith(description.toString(), text)) {
+            node.getBoundsInScreen(bounds);
+            if ((!clickable || node.isClickable()) && description != null && !bounds.isEmpty()
+                    && startsWith(description.toString(), text)) {
                 return node;
             }
         }

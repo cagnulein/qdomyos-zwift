@@ -6,7 +6,7 @@
 # that is not found, a press that QZ did not handle or that did not show what it should.
 # Usage: android_accessibility_test.sh [--fake-bike] <press> [<press> ...]
 # A press is described in AccessibilityTest.java; it goes through the device's shell unquoted, so
-# letters, digits and "_ = : - ." only. With --fake-bike QZ is restarted first with only
+# letters, digits, "◄" and "_ = : , - ." only. With --fake-bike QZ is restarted first with only
 # the fake bike of its settings turned on, so the home page has tiles with - and + (the settings
 # the tests before made are dropped); it comes up without a Bluetooth adapter too, so the run is
 # never skipped, and it must check the scroll to the focus. The output of every run is added to

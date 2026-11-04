@@ -1055,6 +1055,12 @@ jobs:
             sh .github/scripts/android_app_start_test.sh
             sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
             sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+            # On the tiles settings (from the menu, as a screen reader gets there): the order field
+            # of a tile is read with its number, an item of its list is picked (the field itself is
+            # tapped, as TalkBack does: Qt 5.15 gives a ComboBox no press; the numbers shown in the
+            # fields are nodes too, but only an item of the list can be pressed), and the switch of
+            # a tile that is off turns it on, which shows its order field
+            sh .github/scripts/android_accessibility_test.sh ◄=Settings tap:Settings=Tiles_Options Tiles_Options=Speed,_order_index: see:Speed,_order_index:_0 tap:Speed,_order_index:_0 2=Speed,_order_index:_2 Gears=Gears,_order_index:_26
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
