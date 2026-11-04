@@ -20,3 +20,21 @@
 - A blue Bluetooth connection or a recognized rower name does not establish that the correct packet format is being decoded. The iConsole-compatible device handlers use protocol-specific services and packet layouts.
 - Distance advancing while stationary, a frozen stroke counter, or implausible power during gentle strokes points to incoming telemetry interpretation; **correct QZ values but zero values in EXR** points instead to the virtual-device path.
 - A confirmed rower comparison progressed from no metrics, to implausible values, to realistic metrics and a working EXR connection after a protocol-specific test build. Capturing the idle-to-rowing transition makes this distinction possible without requesting a long log first.
+
+## Rower is detected but remains at zero, or Start flashes briefly
+
+### Provide first
+
+- Provide the rower's exact model, advertised BLE name, QZ version/platform, and a screenshot of **Rower Options** showing the physical **FTMS Rower** selection and any **Fake Rower** setting.
+- Confirm whether QZ shows live stroke rate, distance, or power when rowing **without** a receiving app. Describe what happens when Start is pressed, including any brief button flash.
+- State whether the rower is being used as a real Bluetooth machine or whether a simulated rower was intentionally selected.
+
+### If still unclear
+
+- Disable any unintended fake/simulated rower selection, restart QZ, and compare the QZ-only metrics with the intended physical FTMS rower setting. Record the exact setting values before and after.
+- If telemetry is still absent, provide one short debug log from discovery through the first strokes and a BLE scanner screenshot showing the advertised device and services. Continue with the telemetry checks above.
+
+### Why it matters
+
+- A simulated rower profile can mask the intended physical-device selection. In one support log, the enabled fake rower option was identified after a recognized FTMS rower showed no values and Start briefly flashed; the configuration mismatch was confirmed, although a successful retest was not yet established.
+- Verifying the physical-versus-simulated device choice before requesting protocol traces avoids investigating a BLE parser that QZ may not be using.
