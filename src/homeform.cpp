@@ -1,4 +1,5 @@
 #include "homeform.h"
+#include "verticalascentrate.h"
 #include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
@@ -537,6 +538,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     elevation = new DataObject(QString(),
                                QStringLiteral("icons/icons/elevationgain.png"), QStringLiteral("0"), false,
                                QStringLiteral("elevation"), 48, labelFontSize);
+    vam = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
+                         QStringLiteral("0"), false, QStringLiteral("vam"), 48, labelFontSize);
     calories = new DataObject(QString(), QStringLiteral("icons/icons/kcal.png"),
                               QStringLiteral("0"), false, QStringLiteral("calories"), 48, labelFontSize);
     odometer = new DataObject(QString(),
@@ -2425,6 +2428,7 @@ void homeform::setTileNames() {
     negative_inclination->setName(tr("Descent (%1)").arg(meters));
     cadence->setName(tr("Cadence (rpm)"));
     elevation->setName(tr("Elev. Gain (%1)").arg(meters));
+    vam->setName(tr("VAM (m/h)"));
     calories->setName(tr("Calories (KCal)"));
     odometer->setName(tr("Odometer (%1)").arg(unit));
     pace->setName(tr("Pace (m/%1)").arg(unit));
@@ -2513,6 +2517,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
                 dataList.append(elevation);
+            }
+
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -2920,6 +2930,12 @@ void homeform::sortTiles() {
                 dataList.append(elevation);
             }
 
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
+            }
+
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elapsed_order, 0).toInt() == i) {
                 elapsed->setGridId(i);
@@ -3313,6 +3329,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
                 dataList.append(elevation);
+            }
+
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -3794,6 +3816,12 @@ void homeform::sortTiles() {
                 dataList.append(elevation);
             }
 
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
+            }
+
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elapsed_order, 0).toInt() == i) {
                 elapsed->setGridId(i);
@@ -4158,6 +4186,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
                 dataList.append(elevation);
+            }
+
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -4534,6 +4568,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
                 dataList.append(elevation);
+            }
+
+            if (settings.value(QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled).toBool() &&
+                settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
+                vam->setGridId(i);
+                dataList.append(vam);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -7627,21 +7667,37 @@ void homeform::update() {
             this->negative_inclination->setSecondLine("");
         }
 
-        // Elevation gain (ascent)
+        // Elevation gain (ascent), plus progress when the active interval has a D+ target.
+        const auto dev = bluetoothManager->device();
         elevation->setValue(
-            QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion,
+            QString::number(dev->elevationGain().value() * meter_feet_conversion,
                             'f', (miles ? 0 : 1)));
-        // Check if speed and inclination are not zero before showing rate
-        if (bluetoothManager->device()->currentSpeed().value() > 0 &&
-            bluetoothManager->device()->currentInclination().value() > 0) {
+
+        if (trainProgram && trainProgram->isStarted() && trainProgram->currentRow().elevationGain > 0) {
+            const double target = trainProgram->currentRow().elevationGain;
+            const double progress = qMin(target, trainProgram->currentRowElevationGain());
+            elevation->setSecondLine(tr("%1 / %2 m (%3%) - %4 m left")
+                                         .arg(QString::number(progress, 'f', 1))
+                                         .arg(QString::number(target, 'f', 1))
+                                         .arg(QString::number(progress * 100.0 / target, 'f', 0))
+                                         .arg(QString::number(qMax(0.0, target - progress), 'f', 1)));
+        } else if (!dev->isPaused() && dev->currentSpeed().value() > 0 &&
+                   dev->currentInclination().value() > 0) {
             elevation->setSecondLine(
-                QString::number(bluetoothManager->device()->elevationGain().rate1s() * 60.0 *
+                QString::number(dev->elevationGain().rate1s() * 60.0 *
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
         } else {
             elevation->setSecondLine("");
         }
+
+        const double instantVam = instantaneousVam(dev->currentSpeed().value(),
+                                                   dev->currentInclination().value(), dev->isPaused());
+        const double movingSeconds = QTime(0, 0, 0).secsTo(dev->movingTime());
+        vam->setValue(QString::number(instantVam, 'f', 0));
+        vam->setSecondLine(tr("AVG: %1 m/h")
+                               .arg(QString::number(averageVam(dev->elevationGain().value(), movingSeconds), 'f', 0)));
 
         watt->setSecondLine(
             QObject::tr("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
