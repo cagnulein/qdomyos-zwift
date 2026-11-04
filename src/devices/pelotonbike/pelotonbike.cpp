@@ -157,7 +157,11 @@ void pelotonbike::changeResistance(resistance_t resistance) {
 }
 
 void pelotonbike::changeInclination(double grade, double percentage) {
+    // GPX slope updates may immediately follow a changeResistance() request.
+    // Stop ERG without discarding that explicit resistance request before update() sends it.
+    const resistance_t pendingResistance = requestResistance;
     resetErg(); // Simulation/slope control replaces the ERG power target.
+    requestResistance = pendingResistance;
     bike::changeInclination(grade, percentage);
 }
 
