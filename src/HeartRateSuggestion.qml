@@ -4,7 +4,8 @@ import QtQuick.Controls.Material 2.12
 
 // A heart rate sensor QZ found nearby while none is chosen (homeform::heartRateSensorSuggestions).
 // A bar at the bottom rather than a dialog: it leaves the tiles free, so it may show during a workout.
-// Several sensors: "Choose" opens the list. No answer in 20 s counts as "Not now".
+// Several sensors: "Choose" opens the list. It stays until answered or the heart rate comes: on a phone left on the
+// handlebar the user is busy with the sensor, and a bar that went away by itself was missed.
 Rectangle {
     id: bar
 
@@ -28,18 +29,8 @@ Rectangle {
     border.width: 1
 
     onSensorsChanged: {
-        if (sensors.length > 0 && !list.opened)
-            autoClose.restart()
-        else
-            autoClose.stop()
         if (sensors.length === 0)
             list.close()
-    }
-
-    Timer {
-        id: autoClose
-        interval: 20000
-        onTriggered: rootItem.heartRateSensorSuggestionDismiss(false)
     }
 
     // the bar takes the taps, not the tiles under it
@@ -76,7 +67,6 @@ Rectangle {
                     if (bar.sensors.length === 1) {
                         rootItem.heartRateSensorSuggestionConnect(bar.sensors[0].name)
                     } else {
-                        autoClose.stop()
                         list.open()
                     }
                 }
@@ -103,12 +93,8 @@ Rectangle {
         height: Math.min(window.height - 60, listColumn.implicitHeight + topPadding + bottomPadding)
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
+        // closed without a choice: the bar is still there
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        // closed without a choice: the bar is still there, and goes away by itself as before
-        onClosed: {
-            if (bar.sensors.length > 0)
-                autoClose.restart()
-        }
 
         background: Rectangle {
             radius: 8

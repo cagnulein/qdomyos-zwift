@@ -2023,6 +2023,8 @@ void homeform::heartRateSensorFound(const QString &name, const QString &address,
         i++;
     if (i < m_heartRateSensorSuggestions.size())
         m_heartRateSensorSuggestions.removeAt(i);
+    else
+        qDebug() << "heart rate sensor offered:" << name << address << "rssi" << rssi;
     auto strength = [](int rssi) { return rssi < 0 ? rssi : -1000; };
     i = 0;
     while (i < m_heartRateSensorSuggestions.size() &&
@@ -2034,6 +2036,7 @@ void homeform::heartRateSensorFound(const QString &name, const QString &address,
 }
 
 void homeform::heartRateSensorSuggestionConnect(const QString &name) {
+    qDebug() << "heart rate sensor offer: Connect" << name;
     m_heartRateSensorSuggestions.clear();
     emit heartRateSensorSuggestionsChanged();
     QSettings settings;
@@ -2042,6 +2045,7 @@ void homeform::heartRateSensorSuggestionConnect(const QString &name) {
 }
 
 void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
+    qDebug() << "heart rate sensor offer:" << (dontAskAgain ? "Don't ask again" : "Not now");
     for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
         heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
     m_heartRateSensorSuggestions.clear();
@@ -6576,6 +6580,7 @@ void homeform::update() {
     // the heart rate came from elsewhere (a watch app, the machine): nothing to offer any more
     if (!m_heartRateSensorSuggestions.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->currentHeart().value() > 0) {
+        qDebug() << "heart rate sensor offer: withdrawn, the heart rate comes";
         m_heartRateSensorSuggestions.clear();
         emit heartRateSensorSuggestionsChanged();
     }

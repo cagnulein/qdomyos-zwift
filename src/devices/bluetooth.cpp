@@ -4346,6 +4346,7 @@ void bluetooth::heartRateSensorScan() {
                     return;
                 if (!noSensorChosen) {
                     if (b.name().startsWith(heartRateBeltName)) {
+                        qDebug() << "heart rate sensor scan: the chosen sensor found, connecting" << b.name();
                         stopHeartRateBeltDiscovery();
                         connectHeartRateBelt(b);
                     }
