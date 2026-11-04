@@ -27,6 +27,10 @@ static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent)
 
 treadmill::treadmill() {}
 
+void treadmill::setTrainingProgram(const QList<trainrow> &rows) {
+    Q_UNUSED(rows);
+}
+
 // The virtual FTMS interface advertises broad capabilities so training apps can
 // request targets even when the attached treadmill's limits are unknown. The
 // existing QZ speed/incline settings and the physical driver remain responsible
