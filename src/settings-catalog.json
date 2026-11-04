@@ -13110,7 +13110,7 @@
     },
     {
       "key": "life_fitness_username",
-      "name": "Life Fitness service username/email",
+      "name": "Life Fitness username/email",
       "description": "Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.",
       "parent": "Life Fitness Options",
       "type": "string",
@@ -13124,7 +13124,7 @@
     },
     {
       "key": "life_fitness_password",
-      "name": "Life Fitness service password",
+      "name": "Life Fitness password",
       "description": "Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.",
       "parent": "Life Fitness Options",
       "type": "string",
@@ -16197,8 +16197,8 @@
     },
     {
       "key": "life_fitness_guest_login",
-      "name": "Life Fitness guest login",
-      "description": "Experimental account-free Life Fitness BLE login. When enabled, cloud credentials and cached account profile data are ignored.",
+      "name": "Life Fitness guest login (experimental)",
+      "description": "Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.",
       "parent": "Life Fitness Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -16365,8 +16365,8 @@
     },
     {
       "key": "virtual_device_rower_cadence_gain",
-      "name": "Virtual Rower Cadence Gain",
-      "description": "Multiplier applied only to the stroke rate sent by the Virtual Rower. QZ's internal cadence display and workout metrics remain unchanged.",
+      "name": "Cadence Gain",
+      "description": "Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.",
       "parent": "Rower Options",
       "type": "number",
       "qmlType": "real",
@@ -16379,8 +16379,8 @@
     },
     {
       "key": "virtual_device_rower_cadence_offset",
-      "name": "Virtual Rower Cadence Offset",
-      "description": "Offset added after the gain to the stroke rate sent by the Virtual Rower. QZ's internal cadence display and workout metrics remain unchanged.",
+      "name": "Cadence Offset",
+      "description": "Offset added after the gain. Default is 0.0. QZ's internal cadence display and workout metrics remain unchanged.",
       "parent": "Rower Options",
       "type": "number",
       "qmlType": "real",
@@ -16409,7 +16409,7 @@
     {
       "key": "daum_serialport",
       "name": "Serial Port",
-      "description": "Serial port used by classic Daum ergometers such as the 8008 TRS 3.",
+      "description": "Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use 'usb'. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.",
       "parent": "Daum Bike Options",
       "type": "string",
       "qmlType": "string",
