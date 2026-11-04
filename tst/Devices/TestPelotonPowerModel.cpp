@@ -38,3 +38,39 @@ TEST(PelotonBikeErgPowerModel, LearnsOnlyPlausiblePerBikeSteadyReadings) {
     model.learn(40, initial * 1.20f, 90.0f);
     EXPECT_NEAR(initial * 1.12f, model.predictedWatts(40, 90.0f), 0.1f);
 }
+
+#include <QSettings>
+#include "devices/pelotonbike/pelotonbike.h"
+
+namespace {
+class PelotonBikePendingResistanceProbe : public pelotonbike {
+  public:
+    PelotonBikePendingResistanceProbe() : pelotonbike(false, true) {}
+    resistance_t pendingResistance() const { return requestResistance; }
+};
+}
+
+TEST(PelotonBikeGpx, InclinationUpdateDoesNotDropQueuedResistance) {
+    QSettings settings;
+    const QVariant previousVirtualDeviceSetting = settings.value(QZSettings::virtual_device_enabled);
+    settings.setValue(QZSettings::virtual_device_enabled, false);
+
+    {
+        PelotonBikePendingResistanceProbe bike;
+        bike.setAutoResistance(true);
+        bike.changeResistance(32); // The GPX scheduler sends this first.
+        const resistance_t pending = bike.pendingResistance();
+        EXPECT_GE(pending, 0);
+        bike.changeInclination(1.09502, 1.09502); // Then sends the GPX grade.
+        EXPECT_EQ(pending, bike.pendingResistance());
+
+        // Stop must still cancel the pending request, so no stale motor write survives.
+        bike.stop(false);
+        EXPECT_EQ(-1, bike.pendingResistance());
+    }
+
+    if (previousVirtualDeviceSetting.isValid())
+        settings.setValue(QZSettings::virtual_device_enabled, previousVirtualDeviceSetting);
+    else
+        settings.remove(QZSettings::virtual_device_enabled);
+}
