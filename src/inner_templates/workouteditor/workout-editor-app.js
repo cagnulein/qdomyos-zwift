@@ -35,6 +35,7 @@
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
         { key: 'distance', labelKey: 'workoutEditor.distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
+        { key: 'elevationGain', labelKey: 'workoutEditor.elevationGain', label: 'Elevation Gain (m)', type: 'number', step: 1, min: 1, group: 'basic', devices: ['treadmill'], defaultValue: 200 },
         { key: 'speed', labelKey: 'workoutEditor.speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
         { key: 'pace', labelKey: 'workoutEditor.pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', labelKey: 'workoutEditor.incline', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 40, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
@@ -89,6 +90,7 @@
     // Default values that indicate a field should not be enabled
     const DEFAULT_DISABLED_VALUES = {
         distance: -1,
+        elevationGain: -1,
         speed: -1,
         cadence: -1,
         resistance: -1,
@@ -662,7 +664,7 @@
             out['__enabled_powerrampunit'] = true;
             // powerfrom/powerto already read by the FIELD_DEFS loop above
         }
-        out.__enabled_duration = out.__enabled_distance === true ? false : true;
+        out.__enabled_duration = out.__enabled_distance !== true && out.__enabled_elevationGain !== true;
         out.__selected = false;
         return out;
     }
@@ -781,6 +783,7 @@
             base.__enabled_pidHRMode = true;
             base.__enabled_duration = true;
             base.__enabled_distance = false;
+            base.__enabled_elevationGain = false;
             break;
         case 'jumprope':
         case 'stairclimber':
@@ -892,11 +895,16 @@
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
                             }
-                            // Duration and distance are mutually exclusive.
+                            // Exactly one of duration, distance and elevation gain may be enabled.
                             if (field.key === 'distance') {
-                                row['__enabled_duration'] = false;
+                                row.__enabled_duration = false;
+                                row.__enabled_elevationGain = false;
+                            } else if (field.key === 'elevationGain') {
+                                row.__enabled_duration = false;
+                                row.__enabled_distance = false;
                             } else if (field.key === 'duration') {
-                                row['__enabled_distance'] = false;
+                                row.__enabled_distance = false;
+                                row.__enabled_elevationGain = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -1332,6 +1340,7 @@
     function intervalErrors(row) {
         const errors = [];
         const durationEnabled = row.__enabled_duration !== false;
+        const elevationEnabled = row.__enabled_elevationGain === true;
         FIELD_DEFS.forEach(field => {
             if (field.linkedTo || !isFieldValidForDevice(field, state.device)) {
                 return;
@@ -1341,7 +1350,9 @@
             if (!enabled) {
                 return;
             }
-            if ((field.key === 'duration' && !durationEnabled) || (field.key === 'distance' && durationEnabled)) {
+            if ((field.key === 'duration' && !durationEnabled) ||
+                (field.key === 'distance' && (durationEnabled || elevationEnabled)) ||
+                (field.key === 'elevationGain' && (durationEnabled || !elevationEnabled))) {
                 return;
             }
             // The power ramp is saved only when both ends are enabled
@@ -1536,6 +1547,7 @@
         const list = [];
         for (const interval of state.intervals) {
             const durationEnabled = interval.__enabled_duration !== false;
+            const elevationEnabled = interval.__enabled_elevationGain === true;
             const distanceEnabled = interval.__enabled_distance !== false;
             const row = {};
             if (durationEnabled) {
@@ -1545,6 +1557,13 @@
                     return null;
                 }
                 row.duration = formatDuration(durationSec);
+            } else if (elevationEnabled) {
+                const target = Number(interval.elevationGain);
+                if (!isFinite(target) || target < 1) {
+                    announce(t('workoutEditor.invalidElevationGain', 'Enter a positive elevation gain target in meters'), true);
+                    return null;
+                }
+                row.elevationGain = target;
             } else {
                 const distance = Number(interval.distance);
                 if (!distanceEnabled || !isFinite(distance) || distance <= 0) {
@@ -1594,7 +1613,8 @@
                 if (!isEnabled) {
                     return;
                 }
-                if (field.key === 'distance' && durationEnabled) {
+                if ((field.key === 'distance' && (durationEnabled || elevationEnabled)) ||
+                    (field.key === 'elevationGain' && (durationEnabled || !elevationEnabled))) {
                     return;
                 }
                 const value = interval[field.key];
@@ -1688,12 +1708,14 @@
         }));
 
         state.intervals.forEach(interval => {
-            // For treadmill: if distance is used instead of duration, calculate duration from speed
+            // A D+ interval has no known duration: 60 seconds is only a chart placeholder, never an ETA.
             let duration;
             const hasDistance = interval.__enabled_distance !== false && interval.distance > 0;
             const hasSpeed = interval.__enabled_speed !== false && interval.speed > 0;
 
-            if (state.device === 'treadmill' && hasDistance && hasSpeed) {
+            if (state.device === 'treadmill' && interval.__enabled_elevationGain === true) {
+                duration = 60;
+            } else if (state.device === 'treadmill' && hasDistance && hasSpeed) {
                 // Calculate duration from distance and speed: duration (sec) = distance (km) / speed (km/h) * 3600
                 duration = (parseFloat(interval.distance) / parseFloat(interval.speed)) * 3600;
             } else {
@@ -1756,8 +1778,9 @@
     }
 
     function updateStatus() {
-        const totalSeconds = state.intervals.reduce((acc, interval) => acc + parseDuration(interval.duration), 0);
-        selectors.statusDuration.textContent = formatDuration(totalSeconds);
+        const hasOpenEnded = state.intervals.some(interval => interval.__enabled_distance === true || interval.__enabled_elevationGain === true);
+        const totalSeconds = state.intervals.reduce((acc, interval) => acc + (interval.__enabled_duration !== false ? parseDuration(interval.duration) : 0), 0);
+        selectors.statusDuration.textContent = hasOpenEnded ? '--:--' : formatDuration(totalSeconds);
         selectors.statusIntervals.textContent = String(state.intervals.length);
     }
 
