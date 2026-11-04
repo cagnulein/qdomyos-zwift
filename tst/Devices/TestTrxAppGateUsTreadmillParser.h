@@ -415,10 +415,10 @@ TEST(TrxAppGateUsTreadmillParserTest, RejectsDurationRescalingAndUnrepresentable
     EXPECT_TRUE(frames.isEmpty());
     row.duration = QTime(0, 5, 0);
     trainrow second = row;
-    row.duration = QTime(0, 4, 30);
-    second.duration = QTime(0, 5, 30);
+    row.duration = QTime(0, 4, 45);
+    second.duration = QTime(0, 5, 15);
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row, second}, &frames, &error));
-    EXPECT_TRUE(error.contains(QStringLiteral("whole-minute")));
+    EXPECT_TRUE(error.contains(QStringLiteral("30-second")));
     row.duration = QTime(0, 20, 0);
     row.speed = -1;
     EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames, &error));
@@ -483,4 +483,54 @@ TEST(TrxAppGateUsTreadmillParserTest, LimitsExperimentalSessionToCapturedTx90Nam
     EXPECT_FALSE(trxappgateusbtreadmill::isIconsoleTx90DeviceName(QStringLiteral("iConsole+0011")));
     EXPECT_FALSE(trxappgateusbtreadmill::isIconsoleTx90DeviceName(QStringLiteral("iConsole+0014-other")));
     EXPECT_FALSE(trxappgateusbtreadmill::isIconsoleTx90DeviceName(QStringLiteral("iConsole+")));
+}
+
+// Keep every captured program parameter unchanged except the duration tables.
+TEST(TrxAppGateUsTreadmillParserTest, TenMinuteTestChangesOnlyDurationFrames) {
+    QList<trainrow> rows;
+    const QList<double> speeds = {3, 4, 5, 4, 3};
+    const QList<double> inclines = {0, 0, 1, 1, 0};
+    for (int i = 0; i < 20; ++i) {
+        trainrow row;
+        row.duration = QTime(0, 1, 0);
+        row.speed = speeds.at(i % 5);
+        row.inclination = inclines.at(i % 5);
+        rows.append(row);
+    }
+    QList<QByteArray> verifiedFrames;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &verifiedFrames));
+    for (trainrow &row : rows) {
+        row.duration = QTime(0, 0, 30);
+    }
+    QList<QByteArray> testFrames;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &testFrames));
+    ASSERT_EQ(testFrames.size(), 8);
+    for (int i : {0, 1, 2, 3, 4, 7}) {
+        EXPECT_EQ(testFrames.at(i), verifiedFrames.at(i));
+    }
+    EXPECT_EQ(testFrames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
+    EXPECT_EQ(testFrames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, ExpandsConstantTenMinuteTestWithoutRescaling) {
+    trainrow row;
+    row.duration = QTime(0, 10, 0);
+    row.speed = 3;
+    QList<QByteArray> frames;
+    ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames));
+    ASSERT_EQ(frames.size(), 8);
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, KeepsTwentyMinuteRowsAlignedToVerifiedMinuteSlots) {
+    trainrow first;
+    first.duration = QTime(0, 9, 30);
+    first.speed = 3;
+    trainrow second = first;
+    second.duration = QTime(0, 10, 30);
+    QList<QByteArray> frames;
+    QString error;
+    EXPECT_FALSE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({first, second}, &frames, &error));
+    EXPECT_TRUE(error.contains(QStringLiteral("whole-minute")));
+    EXPECT_TRUE(frames.isEmpty());
 }

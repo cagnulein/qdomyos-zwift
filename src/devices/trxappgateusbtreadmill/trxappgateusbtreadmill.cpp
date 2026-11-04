@@ -251,9 +251,6 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         if (row.speed < 0.0 || row.speed > 254.9) {
             return fail(QStringLiteral("iConsole program speed is outside the encodable range"));
         }
-        if (durationSeconds % 60 != 0) {
-            return fail(QStringLiteral("iConsole programs currently require whole-minute rows"));
-        }
         const double speed = row.speed;
         const double incline = !std::isfinite(row.inclination) || row.inclination == -200.0
                                    ? 0.0
@@ -262,21 +259,27 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         totalDurationSeconds += durationSeconds;
     }
 
-    // The successful TX90 capture programs twenty one-minute slots and the
-    // console starts at 19:59. A4's 0x15 is held at the observed value: do not
-    // assume it is independent of duration or silently change the timeline.
-    if (totalDurationSeconds != 1200) {
-        return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes; duration is not rescaled"));
+    // Twenty one-minute slots are hardware-verified. The ten-minute test keeps
+    // all twenty slots and A4's observed 0x15, changing only A9/AA durations.
+    // A4's meaning and half-minute slots still require hardware validation.
+    if (totalDurationSeconds != 1200 && totalDurationSeconds != 600) {
+        return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes or the ten-minute test; duration is not rescaled"));
     }
+    const int slotDurationSeconds = totalDurationSeconds == 600 ? 30 : 60;
 
     QList<double> speedSlots;
     QByteArray inclinePayload;
     QList<int> slotDurations;
     for (const WorkoutStage &stage : stages) {
-        for (int minute = 0; minute < stage.durationSeconds / 60; ++minute) {
+        if (stage.durationSeconds % slotDurationSeconds != 0) {
+            return fail(slotDurationSeconds == 60
+                            ? QStringLiteral("iConsole twenty-minute programs require whole-minute rows")
+                            : QStringLiteral("iConsole ten-minute test requires rows in whole 30-second multiples"));
+        }
+        for (int slot = 0; slot < stage.durationSeconds / slotDurationSeconds; ++slot) {
             speedSlots.append(stage.speed);
             inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
-            slotDurations.append(60);
+            slotDurations.append(slotDurationSeconds);
         }
     }
 
