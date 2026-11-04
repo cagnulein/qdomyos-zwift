@@ -104,10 +104,10 @@ private slots:
             refresh_token_expiration = now.toMSecsSinceEpoch() + (refresh_expires_in - 5) * 1000;
 
             qDebug() << "Access Token received successfully";
-            emit tokenReceived(true, "Zwift Login OK!");
+            emit tokenReceived(true, QObject::tr("Zwift Login OK!"));
         } else {
             qDebug() << "Error fetching token: " << reply->errorString();
-            emit tokenReceived(false, "Zwift Auth Failed!");
+            emit tokenReceived(false, QObject::tr("Zwift Auth Failed!"));
         }
 
         reply->deleteLater();

@@ -39,6 +39,10 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+function powerZoneLabel(number) {
+    return t('chart.powerZoneShort', 'power z{number}').replace('{number}', number);
+}
+
 var firstElapsedTargetPower = 0;
 var trainingProgramRows = [];
 var trainingProgramDurations = [];
@@ -498,13 +502,13 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => powerZoneLabelPositions.includes(value) ?
-                            value === powerZoneLabelPositions[0] ? 'power z1' :
-                            value === powerZoneLabelPositions[1] ? 'power z2' :
-                            value === powerZoneLabelPositions[2] ? 'power z3' :
-                            value === powerZoneLabelPositions[3] ? 'power z4' :
-                            value === powerZoneLabelPositions[4] ? 'power z5' :
-                            value === powerZoneLabelPositions[5] ? 'power z6' :
-                            value === powerZoneLabelPositions[6] ? 'power z7' : undefined : undefined,
+                            value === powerZoneLabelPositions[0] ? powerZoneLabel(1) :
+                            value === powerZoneLabelPositions[1] ? powerZoneLabel(2) :
+                            value === powerZoneLabelPositions[2] ? powerZoneLabel(3) :
+                            value === powerZoneLabelPositions[3] ? powerZoneLabel(4) :
+                            value === powerZoneLabelPositions[4] ? powerZoneLabel(5) :
+                            value === powerZoneLabelPositions[5] ? powerZoneLabel(6) :
+                            value === powerZoneLabelPositions[6] ? powerZoneLabel(7) : undefined : undefined,
                         color: 'black',
                         padding: -70,
                         align: 'end',

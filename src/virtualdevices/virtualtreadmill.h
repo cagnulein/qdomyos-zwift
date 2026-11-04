@@ -35,6 +35,8 @@ class virtualtreadmill : public virtualdevice {
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected() override;
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
+    void clearControlPointWrites();
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -43,8 +45,10 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyService *serviceDIS = nullptr;
     QLowEnergyService *serviceWahoo = nullptr;
+    QLowEnergyService *serviceEchelon = nullptr;
+    QLowEnergyService *serviceEchelonDFU = nullptr;
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QLowEnergyService *genericAccessServer = nullptr;
     QLowEnergyService *genericAttributeService = nullptr;
 #endif       
@@ -56,8 +60,10 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataDIS;
     QLowEnergyServiceData serviceDataWahoo;
+    QLowEnergyServiceData serviceDataEchelon;
+    QLowEnergyServiceData serviceDataEchelonDFU;
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QLowEnergyServiceData genericAccessServerData;
     QLowEnergyServiceData genericAttributeServiceData;
 #endif      
@@ -79,10 +85,21 @@ class virtualtreadmill : public virtualdevice {
     bool noHeartService = false;
 
     bool m_autoInclinationEnabled = false;
+    bool forwardControlPointWrites = false;
+    bool echelonInitDone = false;
+    bool echelonLastRunning = false;
+    qint32 echelonLastSpeed = -1;
+    int echelonLastInclination = -1;
 
     bool ftmsServiceEnable();
     bool ftmsTreadmillEnable();
     bool RSCEnable();
+    bool isEchelonVirtualEnabled() const;
+    void writeEchelonCharacteristic(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+    void echelonWriteStatus();
+    void echelonWriteSpeed();
+    void echelonWriteInclination();
+    void echelonWriteRunningState();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

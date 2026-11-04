@@ -8,6 +8,7 @@
 #include <QDirIterator>
 #include <QSqlDatabase>
 #include <QDateTime>
+#include <QSet>
 
 const QString FitDatabaseProcessor::DB_CONNECTION_NAME = "FitProcessor";
 
@@ -140,6 +141,36 @@ void FitDatabaseProcessor::processFile(const QString& filePath) {
     }
 
     emit fileProcessed(filePath);
+}
+
+void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
+    int added = 0;
+    int alreadyInHistory = 0;
+    int unreadable = 0;
+    if (!db.isOpen() && !initializeDatabase()) {
+        emit importFinished(0, 0, 0, false);
+        return;
+    }
+    // the counts are workouts, not files: copies of one workout (same bytes) count once
+    QSet<QString> seenHashes;
+    for (const QString& filePath : filePaths) {
+        const QString hash = getFileHash(filePath);
+        if (!hash.isEmpty()) {
+            if (seenHashes.contains(hash)) {
+                continue;
+            }
+            seenHashes.insert(hash);
+        }
+        if (isFileProcessed(filePath)) {
+            alreadyInHistory++;
+        } else if (processFitFile(filePath)) {
+            added++;
+            emit fileProcessed(filePath);
+        } else {
+            unreadable++;
+        }
+    }
+    emit importFinished(added, alreadyInHistory, unreadable, true);
 }
 
 void FitDatabaseProcessor::stopProcessing() {
@@ -383,6 +414,8 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
 
 void FitDatabaseProcessor::doWork() {
     if (!initializeDatabase()) {
+        // without this the history page waits for the processing forever
+        emit processingStopped();
         return;
     }
 

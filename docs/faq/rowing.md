@@ -48,3 +48,38 @@ Use PM5 mode only when you specifically need Concept2/PM5 compatibility.
 Open **QZ Settings > Tiles** and enable **Pace Last 500m**.
 
 The tile shows rowing pace as the time needed to cover 500 metres, the standard pace format commonly used for rowing.
+
+## Can I use an external Bluetooth cadence sensor, such as a Magene S3, with a virtual rower?
+
+QZ supports selecting an external Bluetooth cadence sensor as a cadence source in supported rowing setups. The **Cadence Sensor Name** option can override cadence reported by the rower; QZ can then advertise a **Virtual Rower** to a compatible training app.
+
+1. Put the cadence sensor in its cadence broadcasting mode and confirm it is visible over Bluetooth.
+2. Select the sensor in QZ's **Cadence Sensor Name** setting.
+3. Enable **Virtual Rower** and pair the training app with QZ's virtual rowing device.
+4. Verify that cadence/stroke-rate values update while the sensor moves.
+
+A cycling cadence sensor measures rotations, not actual rowing strokes. Its placement and movement therefore determine whether the resulting stroke-rate values are meaningful. This is a supported input/virtual-device configuration, not a guarantee of accurate rowing power, pace, or stroke detection from the sensor alone.
+
+## Can a BH Fitness AQUO Dual / Pafers rower automatically change resistance during a QZ workout?
+
+Yes, in QZ builds that support **Resistance** in the **Rower Workout Editor**, compatible Pafers rowers can follow programmed resistance levels.
+
+1. In **QZ Settings > Rower**, remove the Pafers device from **FTMS Rower** or set that selector to **Disabled**.
+2. Enable **Pafers Rower** under **Pafers Options**, restart QZ, and confirm that live rowing metrics and manual resistance changes work.
+3. Open **Workout Editor** and select **Rower**.
+4. Enable **Resistance** for the intervals that should change the machine level; for example, enter levels **3**, **5**, then **3** in consecutive intervals.
+5. Save and start the workout and verify the rower's physical resistance changes at the interval boundaries.
+
+**Resistance** and **Power (W)** are different targets. Entering only a watt target is not a substitute for setting explicit resistance levels. A BH Fitness AQUO Dual R309U support user confirmed that the rower automatically changed resistance during timed intervals, including on an Android 8.1 tablet. See also `docs/workout-editor.md`.
+
+## My Concept2 PM5 shows power in QZ, but Zwift shows zero watts. Should Virtual Rower be enabled?
+
+**No, not when using QZ as a virtual bike for Zwift.** QZ can read a Concept2 PM5 rower while advertising a virtual bike to Zwift. The **Virtual Rower** option changes the advertised profile to a rowing device, which is useful for some rowing apps but should be **off for this Zwift workflow**.
+
+1. Connect the PM5 to QZ and confirm that watts and stroke rate change on the QZ dashboard while rowing.
+2. In **QZ Settings > Experimental Settings**, disable **Virtual Rower**. Keep the normal **Virtual Device / Virtual Bluetooth Device** enabled.
+3. Fully restart QZ, let it reconnect to the PM5, and start rowing briefly.
+4. On a separate device running Zwift, pair the virtual trainer advertised by QZ (often named **Wahoo KICKR 0000**) as **Power Source**. Do not pair Zwift directly to the physical PM5 when QZ is the bridge.
+5. Check live wattage in Zwift, not just the connected icon.
+
+**Confirmed result:** A PM5 user could see watts in QZ while Zwift showed zero power. Disabling **Virtual Rower** and restarting QZ restored the Zwift connection and power data. For MyWhoosh, EXR, or Kinomap rowing, use the app-specific Virtual Rower/PM5 guidance above instead.

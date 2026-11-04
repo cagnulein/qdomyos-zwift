@@ -13,7 +13,6 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import org.cagnulen.qdomyoszwift.QLog;
 import android.os.Bundle;
@@ -26,7 +25,7 @@ public class WearableMessageListenerService extends Service implements
     private GoogleApiClient googleApiClient;
     private MessageClient mWearableClient;
     private String TAG = "WearableMessageListenerService";
-    private static int heart_rate = 0;
+    private static volatile int heart_rate = 0;
 
     @Override
     public void onCreate() {
@@ -68,26 +67,14 @@ public class WearableMessageListenerService extends Service implements
                 QLog.d(TAG, "DataItem deleted: " + event.getDataItem().getUri());
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
                 QLog.d(TAG, "DataItem changed: " + event.getDataItem().getUri() + " " + event.getDataItem().getUri().getPath());
-                if(event.getDataItem().getUri().getPath().equals("/qz")) {
-                    new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                DataItemBuffer result = Wearable.DataApi.getDataItems(googleApiClient).await();
-                                   if (result.getStatus().isSuccess()) {
-                                       if (result.getCount() == 1) {
-                                           heart_rate = DataMap.fromByteArray(result.get(0).getData())
-                                                   .getInt("heart_rate", 0);
-                                       } else {
-                                           QLog.e(TAG, "Unexpected number of DataItems found.\n"
-                                                    + "\tExpected: 1\n"
-                                                    + "\tActual: " + result.getCount());
-                                       }
-                                   } else {
-                                       QLog.d(TAG, "onHandleIntent: failed to get current alarm state");
-                                   }
-                                QLog.d(TAG, "Heart: " + heart_rate);
-                            }
-                        }).start();
+                if ("/qz".equals(event.getDataItem().getUri().getPath())) {
+                    try {
+                        heart_rate = DataMap.fromByteArray(event.getDataItem().getData())
+                                .getInt("heart_rate", 0);
+                        QLog.d(TAG, "Heart from " + event.getDataItem().getUri() + ": " + heart_rate);
+                    } catch (RuntimeException e) {
+                        QLog.e(TAG, "Invalid heart rate DataItem " + event.getDataItem().getUri() + ": " + e);
+                    }
                 }
             }
         }

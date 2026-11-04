@@ -23,6 +23,35 @@ static const QString kPelotonRedirectUri = QStringLiteral("https://www.qzfitness
 static constexpr quint16 kPelotonDesktopRelayPort = 18080;
 #endif
 
+QStringList peloton::spotifyTracksFromRide(const QJsonObject &ride) {
+    QStringList tracks;
+    const QJsonArray songs = ride.value(QStringLiteral("playlist")).toObject().value(QStringLiteral("songs")).toArray();
+    for (const QJsonValue &songValue : songs) {
+        const QJsonObject song = songValue.toObject();
+        const QString title = song.value(QStringLiteral("title")).toString().trimmed();
+        if (title.isEmpty()) {
+            continue;
+        }
+
+        QStringList artists;
+        const QJsonArray artistArray = song.value(QStringLiteral("artists")).toArray();
+        for (const QJsonValue &artistValue : artistArray) {
+            const QString artist = artistValue.toObject().value(QStringLiteral("artist_name")).toString().trimmed();
+            if (!artist.isEmpty()) {
+                artists.append(artist);
+            }
+        }
+
+        const QString artistText = artists.join(QStringLiteral(", "));
+        const QString searchText = artistText.isEmpty() ? title : title + QStringLiteral(" ") + artistText;
+        const QString spotifyUrl = QStringLiteral("https://open.spotify.com/search/") +
+                                   QString::fromUtf8(QUrl::toPercentEncoding(searchText));
+        tracks.append(artistText.isEmpty() ? QStringLiteral("%1: %2").arg(title, spotifyUrl)
+                                           : QStringLiteral("%1 - %2: %3").arg(title, artistText, spotifyUrl));
+    }
+    return tracks;
+}
+
 #define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
@@ -926,7 +955,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
-        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         emit loginState(false);
         return;
     }
@@ -947,7 +976,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
             tempRefreshToken.clear();
             qDebug() << "Assigned temporary tokens to new user:" << user_id;
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Welcome " + document[QStringLiteral("username")].toString());
+                homeform::singleton()->setToastRequested(QObject::tr("Welcome %1").arg(document[QStringLiteral("username")].toString()));
             }
         } else {
             settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
@@ -1101,7 +1130,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
         return;
     } else if (workout.isNull() && workout_retry_count >= 3) {
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Error: Failed to load workout data after 3 attempts");
+            homeform::singleton()->setToastRequested(QObject::tr("Error: Failed to load workout data after 3 attempts"));
     }
     workout_retry_count = 0;
 
@@ -1144,6 +1173,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject ride = document.object();
+    current_spotify_tracks = spotifyTracksFromRide(ride);
 
     // ride.pedaling_start_offset and instructor_cues[0].offset.start is
     // generally 60s for the intro, but let's ignore this since we assume
@@ -2562,7 +2592,7 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
 #if !defined(Q_OS_ANDROID)
         if (!ensureDesktopRelayServer()) {
             if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Peloton desktop relay failed!");
+                homeform::singleton()->setToastRequested(QObject::tr("Peloton desktop relay failed!"));
             }
             return;
         }
@@ -2576,7 +2606,8 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
 
 void peloton::replyDataReceived(const QByteArray &v) {
 
-    qDebug() << v;
+    // The OAuth body contains access and refresh tokens; avoid logging it.
+    qDebug() << QStringLiteral("Peloton reply received:") << v.size() << QStringLiteral("bytes");
 
     QByteArray data;
     QSettings settings;
@@ -2696,7 +2727,7 @@ void peloton::handleOAuthCallbackUrl(const QUrl &url) {
     if (!pelotonPendingState.isEmpty() && state != pelotonPendingState) {
         qDebug() << "Peloton OAuth callback state mismatch" << "received=XXXX expected=XXXX";
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
         return;
     }
@@ -2837,9 +2868,9 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
 
     if (reply->error() != QNetworkReply::NoError) {
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return false;
     }
 
@@ -2856,7 +2887,7 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
 
     if (tempAccessToken.isEmpty()) {
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
         return false;
     }
@@ -2886,7 +2917,7 @@ void peloton::completeOAuthLogin() {
 #endif
     if(homeform::singleton()) {
         homeform::singleton()->setPelotonPopupVisible(true);
-        homeform::singleton()->setToastRequested("Peloton Login OK!");
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Login OK!"));
     }
 
     if(!timer->isActive()) {
@@ -3063,14 +3094,15 @@ void peloton::peloton_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         return;
     }
 
     // lets extract the access token, and possibly a new refresh token
     QByteArray r = reply->readAll();
-    qDebug() << QStringLiteral("Got response:") << r.data();
+    // the body has the access and refresh tokens; users may attach logs to public issues
+    qDebug() << QStringLiteral("Got response:") << r.size() << QStringLiteral("bytes");
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
@@ -3088,7 +3120,7 @@ void peloton::peloton_refreshtoken() {
     tempRefreshToken = refresh_token;
     tempExpiresAt = QDateTime::currentDateTime();
     
-    homeform::singleton()->setToastRequested("Peloton Login OK!");
+    homeform::singleton()->setToastRequested(QObject::tr("Peloton Login OK!"));
     
 }
 

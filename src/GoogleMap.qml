@@ -24,6 +24,27 @@ ColumnLayout {
         }
     }
 
+    // a new app language: the page asks for its texts again
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
+    Button {
+        id: closeButton
+        height: 50
+        width: parent.width
+        text: "Close"
+        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        onClicked: {
+            popupclose();
+        }
+        anchors {
+            bottom: parent.bottom
+        }
+    }
      Component.onCompleted: {
          headerToolbar.visible = true;
      }

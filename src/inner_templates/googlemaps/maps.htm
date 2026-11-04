@@ -137,6 +137,10 @@ viewer.trackedEntity = bike;
     }
     loadMapMetricSettings();
 
+    function t(key, fallback) {
+        return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+    }
+
     function a() {
     onWorkout = false;
     let el = new MainWSQueueElement({
@@ -198,19 +202,21 @@ viewer.trackedEntity = bike;
 																}
 				}
 
-            let metricsLines = [];
-            if (mapMetricSettings.speed) metricsLines.push("🏃Speed: " + speed.toFixed(2));
-            if (mapMetricSettings.cadence) metricsLines.push("🚴Cadence:" + cadence.toFixed(0));
-            if (mapMetricSettings.heart) metricsLines.push("💓Heart:" + hr.toFixed(0));
-            if (mapMetricSettings.calories) metricsLines.push("🔥Calories:" + calories.toFixed(1));
-            if (mapMetricSettings.odometer) metricsLines.push("📏Odometer:" + odometer.toFixed(2));
-            if (mapMetricSettings.watt) metricsLines.push("⚡Watt:" + watt.toFixed(0));
-            if (mapMetricSettings.elapsed) metricsLines.push("⏲️Elapsed:" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0"));
-            if (mapMetricSettings.inclination) metricsLines.push("📐Inclination:" + inclination.toFixed(1));
-            if (mapMetricSettings.resistance) metricsLines.push("🧲Resistance:" + resistance.toFixed(0));
-            if (mapMetricSettings.altitude) metricsLines.push("✈️Altitude:" + altitude.toFixed(1));
-            if (mapMetricSettings.elevation) metricsLines.push("⛰️Elevation:" + elevation.toFixed(2));
-            $('#metricsText').html(metricsLines.join("<br>"));
+
+        let metricsLines = [];
+        if (mapMetricSettings.speed) metricsLines.push("🏃" + t('metric.speedTitle', 'Speed') + ": " + speed.toFixed(2));
+        if (mapMetricSettings.cadence) metricsLines.push("🚴" + t('metric.cadenceTitle', 'Cadence') + ":" + cadence.toFixed(0));
+        if (mapMetricSettings.heart) metricsLines.push("💓" + t('metric.heart', 'Heart') + ":" + hr.toFixed(0));
+        if (mapMetricSettings.calories) metricsLines.push("🔥" + t('metric.caloriesTitle', 'Calories') + ":" + calories.toFixed(1));
+        if (mapMetricSettings.odometer) metricsLines.push("📏" + t('metric.odometer', 'Odometer') + ":" + odometer.toFixed(2));
+        if (mapMetricSettings.watt) metricsLines.push("⚡" + t('metric.watt', 'Watt') + ":" + watt.toFixed(0));
+        if (mapMetricSettings.elapsed) metricsLines.push("⏲️" + t('metric.elapsed', 'Elapsed') + ":" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0"));
+        if (mapMetricSettings.inclination) metricsLines.push("📐" + t('metric.inclinationTitle', 'Inclination') + ":" + inclination.toFixed(1));
+        if (mapMetricSettings.resistance) metricsLines.push("🧲" + t('metric.resistanceTitle', 'Resistance') + ":" + resistance.toFixed(0));
+        if (mapMetricSettings.altitude) metricsLines.push("✈️" + t('metric.altitude', 'Altitude') + ":" + altitude.toFixed(1));
+        if (mapMetricSettings.elevation) metricsLines.push("⛰️" + t('metric.elevationTitle', 'Elevation') + ":" + elevation.toFixed(2));
+        $('#metricsText').html(metricsLines.join("<br>"));
+
 		  }
 		  return null;
 		}, 15000, 3);

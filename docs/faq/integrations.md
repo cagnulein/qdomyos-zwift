@@ -18,7 +18,9 @@ On Android devices that rely on an external USB ANT+ stick, the ANT stack may al
 
 If you do not need the Garmin watch to receive the treadmill data live, QZ can record the workout itself and upload the generated **FIT activity** to Garmin Connect.
 
-In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the Garmin Connect integration in QZ and use QZ to record the session; the completed activity will be pushed automatically to Garmin Connect and it will count as training effect and Vo2Max.
+In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Configure the **Garmin Connect** integration in QZ, verify the login, and record the session; QZ can then upload the completed **FIT activity** to Garmin Connect.
+
+**For Garmin Training Effect-related FIT data**, enable the optional **Garmin device / Training Effect** setting in QZ's Garmin options before recording. This setting is **disabled by default**. The FIT exporter then writes Garmin device identity and training-effect-related fields instead of its ordinary device identity. A user confirmed that ordinary Garmin Connect login and activity upload worked; the optional setting's effect on their Training Effect display was **not separately confirmed**. Garmin Connect determines which metrics it accepts and displays, so a VO2max estimate or Training Effect score is **not guaranteed** merely by uploading a workout.
 
 Choose **ANT+ SDM/footpod** when you want the watch itself to see and record the treadmill speed/distance during the workout. Choose **Garmin Connect FIT upload** when your main goal is simply to have the finished activity and its metrics in Garmin Connect.
 
@@ -36,6 +38,8 @@ When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **
 **Wahoo HRM** is only QZ's virtual heart-rate device, so select it only in MyWhoosh's heart-rate field if you also want QZ to forward heart rate.
 
 In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
+
+If QZ receives cadence and calculates speed but MyWhoosh cannot discover its virtual trainer, verify **Enable Virtual Device** and **Virtual Device Bluetooth** are both enabled in QZ's virtual-device settings. Save and restart QZ, then look for QZ under **Power Source** in MyWhoosh rather than **Speed Sensor**. In a confirmed support case, enabling the previously disabled virtual device restored the connection.
 
 ## Can I use a Bluetooth power meter or trainer power service as the bike source in QZ?
 
@@ -92,6 +96,8 @@ For this setup:
 4. Start QZ and verify that the controllers are connected, then pair the QZ virtual trainer in Kinomap.
 
 If the controllers appear connected but gear changes do not work in Kinomap, check **FTMS Bike** first. Selecting a trainer model there can make QZ use the wrong bike path for this setup. In a confirmed support case, changing **FTMS Bike** from a KICKR model back to **Disabled** restored virtual shifting immediately.
+
+If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
 
 ## Can I use QZ virtual gears with Rouvy?
 
@@ -171,6 +177,20 @@ If QZ still reports a successful Peloton login but stops recognizing an active P
 
 In a confirmed support case, signing out and back in did not restore workout detection, while changing the Peloton password did and the integration immediately started working again.
 
+## Can QZ send cadence and heart rate to Peloton?
+
+Yes, but use the **native Peloton app on iOS or Android** for this setup. QZ can expose cadence and heart-rate data through its Peloton compatibility path so that the native mobile app can receive them from QZ.
+
+The **Peloton web app in a browser does not accept this live sensor data from QZ**. If you are using Peloton in a web browser, switching QZ settings will not make cadence or heart rate appear there.
+
+For a supported bike or trainer:
+
+1. Connect the physical equipment and, if needed, the heart-rate sensor to QZ.
+2. Enable the Peloton compatibility option in QZ.
+3. Run the native Peloton app on the device that will receive the virtual sensor data and pair the QZ-exposed cadence/heart-rate devices there.
+
+This distinction is important when troubleshooting a setup that works in QZ but shows no live metrics in Peloton: first confirm whether Peloton is running as the native mobile app or in a web browser.
+
 ## Kinomap keeps reconnecting to an old device or does not use QZ correctly. What should I check?
 
 When QZ is acting as the bridge between a physical bike and Kinomap, Kinomap should connect to the **virtual device exposed by QZ**, not directly to the physical bike.
@@ -187,3 +207,30 @@ A useful two-device setup is:
 4. In Kinomap, add the equipment again using **FTMS** and select QZ's virtual device.
 
 In a confirmed support case, Kinomap had retained old connections and was interfering with the intended QZ bridge. Cleaning up those saved connections and using the FTMS path restored the expected connection and resistance behavior.
+
+## My Garmin watch finds QZ as a Bluetooth sensor on iPhone but cannot pair. Will Garmin Upload still work?
+
+**Yes, the two connections have different purposes.** A Garmin watch may *discover* QZ's virtual Bluetooth advertisement without successfully connecting to it as a usable bike sensor. Seeing the device name in the Garmin sensor search does not guarantee that the watch supports the specific Bluetooth service and pairing path exposed by QZ.
+
+An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android ANT+ sensor-broadcast method to send cycling or treadmill metrics directly to a Garmin watch. Enabling QZ's **Garmin Bluetooth Sensor** compatibility option does not add ANT+ to an iPhone or guarantee that every Garmin watch can connect over Bluetooth.
+
+If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
+
+In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
+
+
+## Can QZ and ROUVY run on the same Android tablet and connect through QZ's virtual Bluetooth trainer?
+
+**Not with the usual QZ virtual-Bluetooth-to-ROUVY pairing workflow.** In a reported Android tablet setup, both apps could launch, but ROUVY did not discover QZ's virtual trainer on that same tablet. The established working arrangement used **QZ on an Android phone** and **ROUVY on a separate computer**.
+
+For this workflow, connect the physical trainer to QZ on the first device, keep QZ's virtual device and virtual Bluetooth enabled, and select **QZ's virtual trainer** as the power/controllable device in ROUVY on the second device. Do not pair ROUVY directly to the physical trainer if you want QZ to act as the bridge.
+
+**Zwift is different:** QZ can be kept running alongside Zwift on a supported Android device using the **Android Notification** setting under Experimental Settings, subject to Android's background/battery restrictions. That same-device Zwift capability should not be taken as evidence that ROUVY supports the same local virtual-Bluetooth pairing.
+
+## Garmin Connect or Strava shows twice the running cadence displayed in QZ. How can I fix the exported activity?
+
+If QZ displays the correct running cadence during a treadmill workout, but **Garmin Connect and Strava show approximately double that cadence** after upload, open **QZ Settings > Power Sensor options** and enable **Half Cadence on Strava**. Record and export a **new, short test workout** to verify the resulting cadence; changing this setting does not modify previously uploaded activities.
+
+Despite its name, this option also affects cadence written into the exported FIT activity used by Garmin Connect, not just Strava. It does **not** halve the live cadence shown on the QZ dashboard. A treadmill user explicitly confirmed that enabling it fixed doubled cadence in **both Garmin Connect and Strava**, while the live QZ reading had already been correct.
+
+Use this only when the exported cadence is actually doubled; do not enable it to correct an inaccurate live cadence reading or a separately recorded activity from a watch.
