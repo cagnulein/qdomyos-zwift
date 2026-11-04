@@ -4302,7 +4302,7 @@ void bluetooth::stopHeartRateBeltDiscovery() {
 // The search for the fitness machine stops as soon as the machine is found, so a heart rate sensor switched on later
 // (or a moment after the machine) was never seen. While no heart rate comes from any source, this scans for 10 s
 // once a minute during the first 5 minutes after the machine connected: the chosen sensor connects as soon as it is
-// found; with none chosen, a sensor broadcasting heart rate nearby is offered on the home page (heartRateSensorFound).
+// found; with none chosen, a sensor broadcasting heart rate nearby is offered in a bar (heartRateSensorFound).
 void bluetooth::heartRateSensorScan() {
     heartRateSensorScanTimer.setInterval(60000);
 
@@ -4319,8 +4319,8 @@ void bluetooth::heartRateSensorScan() {
         return;
     }
 
-    // the machine is reconnecting (or a search started from the settings page is still running):
-    // the next minute, not the end of the scans
+    // the machine object is being recreated (restart()), or a search of reconnectHeartRateBelt() is still running
+    // or waiting for the Android limit: the next minute, not the end of the scans
     if (!this->device() || hrmDiscoveryAgent)
         return;
 
@@ -4338,7 +4338,7 @@ void bluetooth::heartRateSensorScan() {
     qDebug() << "heart rate sensor scan: no heart rate, looking for" << heartRateBeltName;
     const QString machineAddress = addressOf(this->device()->bluetoothDevice);
     hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    // empty: a search from the settings page replaces this one instead of waiting for it
+    // empty: a search of reconnectHeartRateBelt() replaces this one instead of waiting for it
     hrmDiscoveryName.clear();
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
             [this, heartRateBeltName, noSensorChosen, machineAddress, addressOf](const QBluetoothDeviceInfo &b) {

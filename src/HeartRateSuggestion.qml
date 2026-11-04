@@ -3,7 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 
 // A heart rate sensor QZ found nearby while none is chosen (homeform::heartRateSensorSuggestions).
-// A bar at the bottom rather than a dialog: it leaves the tiles free, so it may show during a workout.
+// A bar at the bottom rather than a dialog: it covers only the bottom of the page, so it may show during a workout.
 // Several sensors: "Choose" opens the list. It stays until answered or the heart rate comes: on a phone left on the
 // handlebar the user is busy with the sensor, and a bar that went away by itself was missed.
 Rectangle {

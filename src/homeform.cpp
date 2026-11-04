@@ -2001,7 +2001,7 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
     bluetoothManager->selectGymModeDevice(deviceName);
 }
 
-// A heart rate sensor nearby while none is chosen: offered on the home page, the strongest first
+// A heart rate sensor nearby while none is chosen: offered in a bar over the pages, the strongest first
 // (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
 void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi) {
     QSettings settings;
