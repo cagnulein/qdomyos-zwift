@@ -352,6 +352,7 @@ const QString QZSettings::trainprogram_speed_min = QStringLiteral("trainprogram_
 const QString QZSettings::trainprogram_speed_max = QStringLiteral("trainprogram_speed_max");
 const QString QZSettings::trainprogram_incline_min = QStringLiteral("trainprogram_incline_min");
 const QString QZSettings::trainprogram_incline_max = QStringLiteral("trainprogram_incline_max");
+const QString QZSettings::trainprogram_inclination_filter = QStringLiteral("trainprogram_inclination_filter");
 const QString QZSettings::trainprogram_resistance_min = QStringLiteral("trainprogram_resistance_min");
 const QString QZSettings::trainprogram_resistance_max = QStringLiteral("trainprogram_resistance_max");
 const QString QZSettings::watt_offset = QStringLiteral("watt_offset");
@@ -685,6 +686,8 @@ const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_serialport = QStringLiteral("kettler_usb_serialport");
 const QString QZSettings::default_kettler_usb_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_baudrate = QStringLiteral("kettler_usb_baudrate");
+const QString QZSettings::daum_serialport = QStringLiteral("daum_serialport");
+const QString QZSettings::default_daum_serialport = QStringLiteral("");
 const QString QZSettings::freebeat_serialport = QStringLiteral("freebeat_serialport");
 const QString QZSettings::default_freebeat_serialport = QStringLiteral("");
 const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
@@ -1349,7 +1352,7 @@ const QString QZSettings::history_chart_speed_inclination_order = QStringLiteral
 
 const QString QZSettings::moovio_lynx_konect_2_0 = QStringLiteral("moovio_lynx_konect_2_0");
 
-const uint32_t allSettingsCount = 1043;
+const uint32_t allSettingsCount = 1045;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1620,6 +1623,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::trainprogram_speed_max, QZSettings::default_trainprogram_speed_max},
     {QZSettings::trainprogram_incline_min, QZSettings::default_trainprogram_incline_min},
     {QZSettings::trainprogram_incline_max, QZSettings::default_trainprogram_incline_max},
+    {QZSettings::trainprogram_inclination_filter, QZSettings::default_trainprogram_inclination_filter},
     {QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min},
     {QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max},
     {QZSettings::watt_offset, QZSettings::default_watt_offset},
@@ -1884,6 +1888,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
     {QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport},
     {QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport},
+    {QZSettings::daum_serialport, QZSettings::default_daum_serialport},
     {QZSettings::kettler_usb_baudrate, QZSettings::default_kettler_usb_baudrate},
     {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
     {QZSettings::powr_sensor_running_cadence_half_on_strava,

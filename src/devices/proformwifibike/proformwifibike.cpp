@@ -36,7 +36,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, in
     ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
         qDebug() << "disconnected!";
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-        connectToDevice();
+        connectToDeviceLater();
     });
 
     ergModeSupported = true; // IMPORTANT, only for this bike
@@ -88,6 +88,17 @@ void proformwifibike::connectToDevice() {
     websocket.open(QUrl("ws://" +
                         settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString() +
                         "/control"));
+}
+
+void proformwifibike::connectToDeviceLater() {
+    if (reconnectPending)
+        return;
+    reconnectPending = true;
+    QTimer::singleShot(1000, this, [this]() {
+        reconnectPending = false;
+        if (websocket.state() == QAbstractSocket::UnconnectedState)
+            connectToDevice();
+    });
 }
 
 /*

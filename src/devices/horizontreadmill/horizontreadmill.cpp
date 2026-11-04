@@ -2864,7 +2864,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().startsWith(QStringLiteral("FS-"))) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
-            maxInclination = 40.0;
+            // FS- console range is -6..48 (approximately -3.5%..46% physical grade; support case 2026-10-31).
+            minInclination = -6.0;
+            maxInclination = 48.0;
         } else if (device.name().toUpper().startsWith(QStringLiteral("SF-T"))) {
             qDebug() << QStringLiteral("SF-T treadmill found");
             SF_TREADMILL = true;
@@ -2934,7 +2936,7 @@ void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

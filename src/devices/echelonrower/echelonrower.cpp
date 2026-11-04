@@ -747,6 +747,6 @@ void echelonrower::controllerStateChanged(QLowEnergyController::ControllerState 
         qDebug() << QStringLiteral("trying to connect back again...");
         resetDirectUnlockState();
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
