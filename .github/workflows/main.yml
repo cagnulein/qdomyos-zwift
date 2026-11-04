@@ -846,7 +846,7 @@ jobs:
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
-          name: fdroid-android-trial
+          name: fdroid-android-peloton-bike-trial
           path: apk-debug
 
       - name: Setup Java for Android Emulator
