@@ -251,3 +251,23 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - QZ implements automatic virtual shifting using cadence thresholds and delays. Cadence persistently below the downshift threshold can cause repeated automatic downshift attempts even when manual controls work.
 - In a confirmed case, cadence around **30–37 RPM** was below the configured **65 RPM / 2-second** downshift rule, explaining repeated returns to gear 1 and controller vibration. The diagnostic distinction is automatic shifting versus lost controller input; the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) covers the corresponding configuration.
+
+## Runna reports a treadmill incompatibility warning despite speed control working
+
+### Provide first
+
+- Identify the treadmill, QZ version/platform, Runna version, and the device running each app.
+- Before starting Runna, confirm that the treadmill's speed and distance update in QZ. Then report **QZ's own elapsed workout timer and paused/running state** while the belt is moving; do not substitute the treadmill console's timer.
+- Record the exact Runna warning and **which workout transition** triggers it (initial start, about 30 seconds later, warm-up to interval, or a speed/incline step). State whether speed and incline commands still reach the treadmill while the warning is visible.
+- State the startup order: treadmill powered on, QZ connected, QZ workout started, belt moving, Runna paired, Runna workout started.
+
+### If still unclear
+
+- At a safe, low speed, compare one short session where QZ's workout timer is confirmed advancing **before** Runna begins. Check again at the first automatic speed change or warm-up transition; do not alter other options.
+- Supply a screenshot showing QZ elapsed time and the Runna warning or workout stage, plus a QZ debug log spanning startup and the failing transition. Include approximate timestamps and whether QZ reports a paused session.
+- If QZ elapsed time remains at zero while speed/distance advance, investigate QZ session state before interpreting Runna's warning as a failed treadmill command. If the timer advances but the warning persists, compare incoming Runna control requests and QZ's physical treadmill responses.
+
+### Why it matters
+
+- A moving belt and successful speed commands do not prove that QZ's workout session is running. A paused/zero-time QZ session can coexist with live distance and control traffic.
+- In a reproduced Runna investigation, QZ received speed/incline commands while its workout timer stayed at zero; a subsequent test starting QZ's workout first produced advancing elapsed time and working Runna control. Capturing the workout transition and session state narrows the failure without requesting unrelated settings.
