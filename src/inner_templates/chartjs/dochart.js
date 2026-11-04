@@ -223,8 +223,11 @@ function process_arr(arr) {
     $('.summary_calories').text(Math.floor(calories) + ' ' + t('unit.kcal', 'kcal'));
     $('.summary_distance').text((distance * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.km', 'km') : t('unit.mi', 'mi')));
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
-    // Use resistance_avg for ellipticals (deviceType 4), peloton_resistance_avg for bikes/rowers
-    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' ' + t('unit.level', 'lvl'));
+    // Use the native resistance when this bike does not provide a converted Peloton percentage.
+    // In particular, the Bike+ reports its motor resistance in resistance_avg only.
+    const summaryResistanceAvg = (deviceType === 4 || !Number.isFinite(peloton_resistance_avg) || peloton_resistance_avg <= 0)
+        ? resistance_avg : peloton_resistance_avg;
+    $('.summary_resistance_avg').text(Math.floor(summaryResistanceAvg) + ' ' + t('unit.level', 'lvl'));
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
