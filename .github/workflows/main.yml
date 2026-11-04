@@ -901,6 +901,15 @@ jobs:
             # Wait for app to start
             sleep 90
 
+            # A Qt loader failure can leave the Java process running behind an error dialog.
+            adb shell uiautomator dump /sdcard/window.xml >/dev/null
+            adb shell cat /sdcard/window.xml > window.xml
+            if grep -qi 'Your application encountered a fatal error' window.xml; then
+              echo "Qt reported a fatal startup error"
+              adb logcat -d -v threadtime | tail -n 500
+              exit 1
+            fi
+
             # Verify the app is running
             echo "Checking if app is running..."
             # Use different ps commands for different Android versions
