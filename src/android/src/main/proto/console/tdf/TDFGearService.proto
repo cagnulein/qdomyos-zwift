@@ -1,0 +1,29 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "console/tdf/TDFChainRingConfig.proto";
+import "console/tdf/TDFGearConfig.proto";
+import "console/tdf/TDFGear.proto";
+import "console/tdf/TDFRearCassetteConfig.proto";
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.console.tdf";
+option java_outer_classname = "TDFGearServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+service TDFGearService {
+    rpc IsSupported(Empty) returns (BooleanResponse) {}
+    rpc ResetGearConfig(Empty) returns (TDFGearConfigResult) {}
+    rpc ResetGearAndGearConfig(Empty) returns (BooleanResponse) {}
+    rpc SetGearConfig(TDFGearConfig) returns (TDFGearConfigResult) {}
+    rpc GetGearConfig(Empty) returns (TDFGearConfigResult) {}
+    rpc ListFrontGearConfigs(Empty) returns (TDFChainRingConfigsResult) {}
+    rpc ListRearGearConfigs(Empty) returns (TDFRearCassetteConfigsResult) {}
+    rpc GearConfigChangedSubscription(Empty) returns (stream TDFGearConfig) {}
+
+    rpc SetGear(TDFGear) returns (TDFGearResult) {}
+    rpc GetCurrentGear(Empty) returns (TDFGearResult) {}
+    rpc GearChangedSubscription(Empty) returns (stream TDFGear) {}
+
+    rpc GetGearRatio(Empty) returns (FloatResponse) {}
+    rpc GearRatioChangedSubscription(Empty) returns (stream FloatResponse) {}
+}

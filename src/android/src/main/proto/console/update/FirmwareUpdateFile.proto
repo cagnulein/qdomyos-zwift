@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.update";
+option java_outer_classname = "FirmwareUpdateFileProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "console/update/FirmwareType.proto";
+
+message FirmwareUpdateFile {
+  FirmwareType updateType = 1;
+  string filePath = 2;
+  string fileName = 3;
+  string version = 4;
+  int32 partNumber = 5;
+  bool forceUpdate = 6;
+}

@@ -111,17 +111,27 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                                         !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor ||
                                         waterrower_usb_ctor;
 
-    if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
-        !pelotonBike) {
+    // Dedicated Peloton Bike+ branch: retain its direct sensor integration while
+    // keeping master's latest Bluetooth discovery and reconnection logic.
+#ifdef Q_OS_ANDROID
+    const bool pelotonSensorBranch = true;
+#else
+    const bool pelotonSensorBranch = false;
+#endif
+    if ((pelotonSensorBranch ||
+         (!gymMode && settings.value(QZSettings::peloton_bike_ocr,
+                                      QZSettings::default_peloton_bike_ocr).toBool())) && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
         emit deviceConnected(QBluetoothDeviceInfo());
         connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        // The constructor runs before homeform connects to this signal. Wait
+        // for the Bike+ discovery callback to start workout template recording.
+        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this,
+                [this]() { this->signalBluetoothDeviceConnected(pelotonBike); });
         connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
         if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
             emit searchingStop();
         }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(pelotonBike);
     }/* else if (fake_bike) {
         fakeBike = new fakebike(noWriteResistance, noHeartService, false);
         emit deviceConnected(QBluetoothDeviceInfo());

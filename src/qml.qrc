@@ -11,6 +11,7 @@
         <file>qtquickcontrols2.conf</file>
         <file>Home.qml</file>
         <file>settings.qml</file>
+        <file>GrupettoDisclaimer.qml</file>
         <file>settings-catalog.json</file>
         <file>settings-index-worker.js</file>
         <file>AccordionElement.qml</file>

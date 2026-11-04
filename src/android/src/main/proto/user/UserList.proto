@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "UserListProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "user/User.proto";
+import "util/IFitError.proto";
+
+message UserList {
+  repeated User users = 1;
+}
+
+message UserListResult {
+  oneof errorOrUserList {
+    IFitError error = 1;
+    UserList userList = 2;
+  }
+}

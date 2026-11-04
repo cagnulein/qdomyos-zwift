@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.appnavigation";
+option java_outer_classname = "ForegroundFqnsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ForegroundFqns {
+  string currentFqn = 1;
+  repeated string historyFqns = 2;
+  ForegroundFqn currentlyForegrounded = 3;
+  repeated ForegroundFqn foregroundHistory = 4;
+}
+
+message ForegroundFqn {
+  string fqn = 1;
+  int64 timestamp = 2;
+}

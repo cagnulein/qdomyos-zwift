@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.idlelockout";
+option java_outer_classname = "IdleModeLockoutProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+
+enum IdleModeLockoutState {
+  LOCK_STATE_UNKNOWN = 0;
+  LOCK_STATE_UNLOCKED = 1;
+  LOCK_STATE_LOCKED = 2;
+}
+
+message IdleModeLockoutMessage {
+  IdleModeLockoutState state = 1;
+}
+
+message IdleModeLockoutResult {
+  oneof errorOrIdleModeLockoutState {
+    IFitError error = 1;
+    IdleModeLockoutState idleModeLockoutState = 2;
+  }
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.update";
+option java_outer_classname = "FirmwareUpdateStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum FirmwareUpdateState {
+  FIRMWARE_UPDATE_STATE_UNKNOWN = 0;
+  FIRMWARE_UPDATE_STATE_IDLE = 1;
+  FIRMWARE_UPDATE_STATE_PREPARING = 2;
+  FIRMWARE_UPDATE_STATE_UPDATING = 3;
+  FIRMWARE_UPDATE_STATE_VERIFYING = 4;
+  FIRMWARE_UPDATE_STATE_SUCCESSFUL = 5;
+  FIRMWARE_UPDATE_STATE_FAILED = 6;
+}

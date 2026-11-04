@@ -1,0 +1,10 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "RequiredTermsVersion";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message RequiredTermsVersionResult {
+    int32 requiredTermsVersion = 1;
+}

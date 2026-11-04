@@ -1,0 +1,23 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "SubscriptionProviderProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum SubscriptionProviderType {
+  NONE = 0;
+  ICON = 1;
+  SHOP = 2;
+  AMAZON = 3;
+  ANDROID = 4;
+  ANDROID_TV = 5;
+  IOS = 6;
+  ROKU = 7;
+  FIRE_TV = 8;
+  TV_OS = 9;
+}
+
+message SubscriptionProvider {
+  SubscriptionProviderType subscriptionProvider = 1;
+}

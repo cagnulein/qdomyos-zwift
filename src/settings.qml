@@ -1226,7 +1226,7 @@ import AndroidStatusBar 1.0
             property bool horizon_paragon_x: false
 
             // from version 2.10.18
-            property real treadmill_step_speed: 0.5
+            property real treadmill_step_speed: 0.1
             property real treadmill_step_incline: 0.5
 
             // from version 2.10.19
@@ -1511,7 +1511,7 @@ import AndroidStatusBar 1.0
             property bool gpx_loop: false
 
             // from version 2.12.6
-            property bool android_notification: false
+            property bool android_notification: true
 
             // from version 2.12.8
             property bool kingsmith_encrypt_v4: false
@@ -1582,7 +1582,7 @@ import AndroidStatusBar 1.0
 
             // from version 2.12.59
             property bool peloton_workout_ocr: false
-            property bool peloton_bike_ocr: false
+            property bool peloton_bike_ocr: true
 
             // from version 2.12.60
             property double treadmill_inclination_override_0: 0.0
@@ -1835,7 +1835,7 @@ import AndroidStatusBar 1.0
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 3.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
@@ -2391,6 +2391,9 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
+            property bool grupetto_disclaimer_shown: false
 
         }
 
@@ -5405,6 +5408,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -5496,6 +5500,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: RowLayout {
                             spacing: 10
                             Label {
@@ -5530,6 +5535,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         //width: 640
                         //anchors.top: acc1.bottom
                         //anchors.topMargin: 10
@@ -5640,6 +5646,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                         IndicatorOnlySwitch {
@@ -5679,6 +5686,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -5730,6 +5738,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: IndicatorOnlySwitch {
                             id: hammerBikeDelegate
                             text: qsTr("Enable support")
@@ -5772,6 +5781,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: IndicatorOnlySwitch {
                             id: spht9600iEBikeDelegate
                             text: "SP-HT-9600iE"
@@ -5793,6 +5803,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: IndicatorOnlySwitch {
                             id: yesoulBikeDelegate
                             text: qsTr("Yesoul New Peloton Formula")
@@ -5815,6 +5826,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: IndicatorOnlySwitch {
                             id: snodeBikeDelegate
                             text: "Snode Bike"
@@ -5873,6 +5885,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent:
 												ColumnLayout {
                             spacing: 0
@@ -5964,6 +5977,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             RowLayout {
@@ -6029,6 +6043,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             RowLayout {
@@ -6461,6 +6476,36 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrackadbbike_resistance = checked; }
                             }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Gears Control Resistance (Separate Inc/Gear)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrackadbbike_gear_resistance_mode
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrackadbbike_gear_resistance_mode = checked; }
+                            }
+                            RowLayout {
+                                visible: settings.nordictrackadbbike_gear_resistance_mode
+                                Label {
+                                    text: qsTr("Gear Change Debounce (ms):")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: nordictrackadbbike_gear_debounce_ms
+                                    Accessible.name: qsTr("Gear Change Debounce (ms)") + ": " + value
+                                    from: 10
+                                    to: 1000
+                                    stepSize: 50
+                                    editable: true
+                                    value: settings.nordictrackadbbike_gear_debounce_ms
+                                    onValueChanged: settings.nordictrackadbbike_gear_debounce_ms = value
+                                }
+                            }
                         }
                     }
 
@@ -6470,6 +6515,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         RowLayout {
                             spacing: 10
                             Label {
@@ -6698,6 +6744,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         //width: 640
                         //anchors.top: acc1.bottom
                         //anchors.topMargin: 10
@@ -6797,6 +6844,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -6821,6 +6869,7 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -11540,6 +11589,7 @@ import AndroidStatusBar 1.0
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
+                visible: false
                 accordionContent: ColumnLayout {
                     spacing: 0
                     IndicatorOnlySwitch {
@@ -14208,6 +14258,7 @@ import AndroidStatusBar 1.0
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
+                visible: false
                 accordionContent: ColumnLayout {
                     spacing: 0
 

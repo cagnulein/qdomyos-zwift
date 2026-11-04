@@ -1,0 +1,22 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "ControlTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ControlType {
+  CONTROL_TYPE_UNKNOWN = 0;
+  CONTROL_TYPE_INCLINE = 1;
+  CONTROL_TYPE_MPS = 2;
+  CONTROL_TYPE_RESISTANCE = 3;
+  CONTROL_TYPE_GEAR = 4;
+  CONTROL_TYPE_AMPLITUDE = 5;
+  CONTROL_TYPE_CALORIES = 6;
+  CONTROL_TYPE_FREQUENCY = 7;
+  CONTROL_TYPE_RELATIVERESISTANCE = 8;
+  CONTROL_TYPE_RPM = 9;
+  CONTROL_TYPE_SPM = 10;
+  CONTROL_TYPE_WATTS = 11;
+  CONTROL_TYPE_ZONE = 12;
+}

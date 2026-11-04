@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "CaloriesPerHourServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message CaloriesPerHourMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastCph = 3;
+  double maxCph = 4;
+  double avgCph = 5;
+  double minCph = 6;
+}
+
+message CaloriesPerHourMetricList {
+  repeated CaloriesPerHourMetric metrics = 1;
+}
+
+service CaloriesPerHourService {
+  // check whether CaloriesPerHour is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current CaloriesPerHour relative to the current workout
+  rpc GetCaloriesPerHour(Empty) returns (CaloriesPerHourMetric) {}
+
+  // subscribe to CaloriesPerHour updates relative to the current workout
+  rpc CaloriesPerHourSubscription(Empty) returns (stream CaloriesPerHourMetric) {}
+
+  // gets a list of all of the CaloriesPerHour changes for the given workout ID
+  rpc GetCaloriesPerHourHistory(WorkoutID) returns (CaloriesPerHourMetricList) {}
+}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.calibration";
+option java_outer_classname = "InclineCalibrationProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+
+enum CalibrateInclineState {
+  CALIBRATE_INCLINE_STATE_DONE = 0;
+  CALIBRATE_INCLINE_STATE_FAILED = 1;
+  CALIBRATE_INCLINE_STATE_IN_PROGRESS = 2;
+  CALIBRATE_INCLINE_STATE_WAITING = 3;
+}
+
+message InclineCalibrationStateResult {
+  CalibrateInclineState state = 1;
+}
+
+message InclineCalibrationStartedResult {
+  oneof errorOrBool {
+    IFitError error = 1;
+    bool calibrationStarted = 2;
+  }
+}

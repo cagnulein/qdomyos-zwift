@@ -1,0 +1,39 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "DemoModeServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+import "util/Util.proto";
+
+message DemoMode {
+  bool demoModeEnabled = 1;
+}
+
+message DemoModeResult {
+  oneof errorOrDemoMode {
+    IFitError error = 1;
+    DemoMode demoMode = 2;
+  }
+}
+
+message DemoModeScreensaverVolume {
+  float volume = 1;
+}
+
+message DemoModeScreensaverVolumeResult {
+  oneof errorOrDemoModeScreensaverVolume {
+    IFitError error = 1;
+    DemoModeScreensaverVolume demoModeScreensaverVolume = 2;
+  }
+}
+
+service DemoModeService {
+  rpc DemoModeChanged(Empty) returns (stream DemoMode) {}
+  rpc SetDemoMode(DemoMode) returns (DemoModeResult) {}
+  rpc GetDemoMode(Empty) returns (DemoModeResult) {}
+  rpc SetDemoModeScreensaverVolume(DemoModeScreensaverVolume) returns (DemoModeScreensaverVolumeResult) {}
+  rpc GetDemoModeScreensaverVolume(Empty) returns (DemoModeScreensaverVolumeResult) {}
+}

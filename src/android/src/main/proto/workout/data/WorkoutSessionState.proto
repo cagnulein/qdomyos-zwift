@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/WorkoutState.proto";
+import "workout/data/WorkoutSessionItem.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutSessionStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message WorkoutSessionState {
+  optional WorkoutSessionItem currentWorkoutItem = 1;
+  WorkoutState currentWorkoutState = 2;
+  optional WorkoutSessionItem previousWorkoutItem = 3;
+  WorkoutState previousWorkoutState = 4;
+  optional WorkoutSessionItem nextWorkoutItem = 5;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.activepulse";
+option java_outer_classname = "ActivePulseActiveStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ActivePulseActiveState {
+  ACTIVE_PULSE_STATE_INACTIVE = 0;
+  ACTIVE_PULSE_STATE_ACTIVE = 1;
+  ACTIVE_PULSE_STATE_INACTIVE_UNAVAILABLE_ON_CONSOLE_TYPE = 2;
+  ACTIVE_PULSE_STATE_INACTIVE_PREMIUM_USER_REQUIRED = 3;
+  ACTIVE_PULSE_STATE_INACTIVE_NO_WORKOUT_RUNNING = 4;
+  ACTIVE_PULSE_STATE_INACTIVE_NO_SCALED_CONTROLS = 5;
+  ACTIVE_PULSE_STATE_INACTIVE_NO_HEART_RATE_DATA = 6;
+  ACTIVE_PULSE_STATE_INACTIVE_MAX_HEART_RATE_TEST = 7;
+}

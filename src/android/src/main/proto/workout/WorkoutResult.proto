@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "WorkoutResultProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message WorkoutResult {
+  oneof errorOrSuccess {
+    IFitError error = 1;
+    bool success = 2;
+  }
+}
