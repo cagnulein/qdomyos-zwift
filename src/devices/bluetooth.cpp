@@ -507,27 +507,6 @@ bool bluetooth::gymModeEnabled() const {
     return settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
 }
 
-bool bluetooth::trixterXDreambikeAvailable(trixterxdreambike **bike)
-{
-    QSettings settings;
-
-    bool trixterxdreambikeEnabled = settings.value(QZSettings::trixter_xdream_bike_enabled, false).toBool();
-    bike = nullptr;
-
-    if(trixterxdreambikeEnabled) {
-        debug("Looking for Trixter X-Dream Bike");
-        *bike = trixterxdreambike::tryCreate(this->noWriteResistance, this->noHeartService, false);
-
-        if(*bike) return true;
-
-        debug("Failed to find a Trixter X-Dream Bike");
-    } else {
-        debug("Not looking for Trixter X-Dream Bike - disabled in settings");
-    }
-
-    return false;
-}
-
 bool bluetooth::cscSensorAvaiable() {
 
     QSettings settings;
