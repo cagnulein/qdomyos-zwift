@@ -1298,6 +1298,10 @@ QZの設定を更新しますか?</translation>
         <translation>その他のフォルダー</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>プログラムを復元</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 戻る</translation>
     </message>

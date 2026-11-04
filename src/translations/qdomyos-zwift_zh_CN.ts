@@ -1298,6 +1298,10 @@ Do you want to update QZ settings?</source>
         <translation>其他文件夹</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>恢复训练计划</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 返回</translation>
     </message>

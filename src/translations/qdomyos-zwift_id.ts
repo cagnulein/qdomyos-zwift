@@ -1263,6 +1263,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>

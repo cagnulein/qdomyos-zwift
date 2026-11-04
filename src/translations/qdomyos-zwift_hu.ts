@@ -1270,6 +1270,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Egyéb mappák</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Programok visszaállítása</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Vissza</translation>
     </message>
@@ -3466,15 +3470,15 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>A fájlt nem sikerült a QZ-mappába másolni.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visszaállított edzésprogramok: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem található edzésprogram egy korábbi telepítésből.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4031,14 +4035,17 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Training Programs</source>
-        <translation type="unfinished"></translation>
+        <translation>Edzésprogramok</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
+Megkeresi őket?
+
+A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
     </message>
     <message>
         <source>Restart now?</source>

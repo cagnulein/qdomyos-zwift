@@ -1298,6 +1298,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>다른 폴더</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>프로그램 복원</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 뒤로</translation>
     </message>

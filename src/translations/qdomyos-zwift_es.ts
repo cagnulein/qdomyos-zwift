@@ -1298,6 +1298,10 @@ Do you want to update QZ settings?</source>
         <translation>Otras carpetas</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Restaurar programas</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Atrás</translation>
     </message>

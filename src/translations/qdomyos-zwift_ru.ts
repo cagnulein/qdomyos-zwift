@@ -1298,6 +1298,10 @@ Do you want to update QZ settings?</source>
         <translation>Другие папки</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Восстановить программы</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Назад</translation>
     </message>

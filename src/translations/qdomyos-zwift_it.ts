@@ -1298,6 +1298,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <translation>Altre cartelle</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Ripristina programmi</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Indietro</translation>
     </message>

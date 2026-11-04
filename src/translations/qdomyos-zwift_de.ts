@@ -1298,6 +1298,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Andere Ordner</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Programme wiederherstellen</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Zurück</translation>
     </message>

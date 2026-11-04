@@ -1270,6 +1270,10 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Gjenopprett programmer</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Tilbake</translation>
     </message>
@@ -3466,15 +3470,15 @@ Dette kan ta litt tid ved første oppstart.</translation>
     </message>
     <message>
         <source>The file could not be copied to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen kunne ikke kopieres til QZ-mappen.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjenopprettede treningsprogrammer: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fant ingen treningsprogrammer fra en tidligere installasjon.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4031,14 +4035,17 @@ Tillat tilgang til QZ-mappen i neste vindu.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation type="unfinished"></translation>
+        <translation>Treningsprogrammer</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Treningsprogrammer fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
+Vil du se etter dem?
+
+Tillat tilgang til QZ-mappen i neste vindu.</translation>
     </message>
     <message>
         <source>Restart now?</source>
