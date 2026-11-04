@@ -883,6 +883,8 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    # A run takes 5-10 min; an emulator that went offline for adb left a job waiting until it was cancelled
+    timeout-minutes: 30
     continue-on-error: ${{ matrix.flaky || false }}
     strategy:
       fail-fast: false
@@ -893,8 +895,9 @@ jobs:
             target: default
             arch: x86
             android-version: "Android 7.0"
+          # google_apis: the default image has no WebView, and QZ stops at start without one
           - api-level: 26
-            target: default
+            target: google_apis
             arch: x86
             android-version: "Android 8.0"
           - api-level: 28
@@ -971,6 +974,8 @@ jobs:
       # package identifier to the emulator runner when installing the SDK.
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
+        # Below the job limit, so a hung run still ends with its log and uploads what it saved
+        timeout-minutes: 25
         with:
           api-level: ${{ matrix.emulator-api-level || matrix.api-level }}
           target: ${{ matrix.target }}
@@ -1013,6 +1018,13 @@ jobs:
             adb shell settings put secure location_mode 3 || true
             adb shell settings put secure location_providers_allowed +gps,+network || true
             adb shell cmd location set-location-enabled true || true
+
+            # The images without Bluetooth (API < 30) would keep the "Permissions Required" dialog over the app:
+            # answer it as a user who said "No" and "don't remind me" (skipLocationServicesDialog), before the first start
+            printf '[General]\nskipLocationServicesDialog=true\n' > qz.conf
+            adb push qz.conf /data/local/tmp/qz.conf
+            adb shell "run-as org.cagnulen.qdomyoszwift mkdir -p 'files/.config/Roberto Viola'"
+            adb shell "run-as org.cagnulen.qdomyoszwift cp /data/local/tmp/qz.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'"
 
             # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
             sh .github/scripts/android_app_start_test.sh

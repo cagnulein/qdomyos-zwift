@@ -8,7 +8,9 @@
 # A press is described in AccessibilityTest.java; it goes through the device's shell unquoted, so
 # letters, digits and "_ = : - ." only. With --fake-bike QZ is restarted first with only
 # the fake bike of its settings turned on, so the home page has tiles with - and + (the settings
-# the tests before made are dropped). The output of every run is added to accessibility_test.txt.
+# the tests before made are dropped); it comes up without a Bluetooth adapter too, so the run is
+# never skipped, and it must check the scroll to the focus. The output of every run is added to
+# accessibility_test.txt.
 
 PKG=org.cagnulen.qdomyoszwift
 FAKE_BIKE=0
@@ -17,6 +19,9 @@ if [ "$1" = "--fake-bike" ]; then
   shift
 fi
 PRESSES="$*"
+# the tiles of the fake bike reach below the screen: its run must check the scroll to the focus
+SCROLL=""
+[ "$FAKE_BIKE" = 1 ] && SCROLL="--scroll"
 
 # On failure save the logcat first: the job stops here and does not reach its own logcat lines
 fail() {
@@ -30,19 +35,23 @@ API=$(adb shell getprop ro.build.version.sdk | tr -d '\r')
 [ -n "$API" ] || fail "cannot read the API level from the emulator"
 echo "Accessibility test on API $API: $PRESSES"
 
-# As the back button test: the API < 30 images have no Bluetooth, so QZ keeps its native
-# "Permissions Required" dialog over its page and there is nothing of Qt to test
-if [ "$API" -lt 30 ]; then
-  echo "SKIPPED: no Bluetooth on this emulator image, the Permissions Required dialog blocks the app"
-  exit 0
-fi
-
 [ -f a11y-test.jar ] || fail "a11y-test.jar was not built"
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar > /dev/null || fail "cannot push a11y-test.jar"
 
+# Crash lines of QZ: a Java crash ("Process: <package>, PID"), a native one (">>> <package> <<<"), an
+# ANR ("ANR in <package>") and ART's "No implementation found" for a native function CustomQtActivity
+# calls (it catches the UnsatisfiedLinkError itself). Counted before the run, the new start of the fake
+# bike run included, so an earlier one does not count and one in the first seconds after the start does.
+qz_crashes() {
+  adb logcat -d | grep -F -e "Process: $PKG" -e ">>> $PKG <<<" -e "ANR in $PKG" \
+    -e "No implementation found for" | grep -c -F -e "qdomyoszwift"
+}
+crashes_before=$(qz_crashes)
+
 if [ "$FAKE_BIKE" = 1 ]; then
   adb shell am force-stop $PKG
-  printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\n' > qz.conf
+  # skipLocationServicesDialog: as the job's own settings, no "Permissions Required" dialog on the images without Bluetooth
+  printf '[General]\napplewatch_fakedevice=true\nbluetooth_lastdevice_name=Fake\nskipLocationServicesDialog=true\n' > qz.conf
   adb push qz.conf /data/local/tmp/qz.conf > /dev/null || fail "cannot push qz.conf"
   adb shell "run-as $PKG mkdir -p 'files/.config/Roberto Viola'"
   adb shell "run-as $PKG cp /data/local/tmp/qz.conf 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" \
@@ -52,20 +61,13 @@ if [ "$FAKE_BIKE" = 1 ]; then
   sleep 20
 fi
 
-# Crash lines of QZ: a Java crash ("Process: <package>, PID"), a native one (">>> <package> <<<"),
-# and ART's "No implementation found" for a native function CustomQtActivity calls (it catches the
-# UnsatisfiedLinkError itself). Counted before the test, so an earlier one does not count.
-qz_crashes() {
-  adb logcat -d | grep -F -e "Process: $PKG" -e ">>> $PKG <<<" \
-    -e "No implementation found for" | grep -c -F -e "qdomyoszwift"
-}
-crashes_before=$(qz_crashes)
-
 # A new start can open a screen of another app over QZ (e.g. Health Connect permissions on
 # API 35+) or a system dialog: close it with back presses until a window of QZ has the focus
 for i in 1 2 3 4 5; do
   FOCUS=$(adb shell dumpsys window | grep -m 1 mCurrentFocus | tr -d '\r')
   case "$FOCUS" in
+    # "qdomyos-zwift has stopped": QZ crashed before this run (a crash dialog of another app is closed below)
+    *"Application Error: $PKG"*) fail "a crash dialog is in front, QZ crashed before this run ($FOCUS)" ;;
     *$PKG*) break ;;
     *"=null"*) echo "No window has the focus, waiting ($i)" ;;
     *) echo "Not QZ in front ($FOCUS), pressing back ($i)"; adb shell input keyevent KEYCODE_BACK ;;
@@ -73,7 +75,7 @@ for i in 1 2 3 4 5; do
   sleep 5
 done
 
-timeout 240 adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest $PRESSES" \
+timeout 240 adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest $SCROLL $PRESSES" \
   | tr -d '\r' > accessibility_test_run.txt
 cat accessibility_test_run.txt
 cat accessibility_test_run.txt >> accessibility_test.txt
