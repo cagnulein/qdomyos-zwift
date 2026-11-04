@@ -574,6 +574,9 @@ class bluetoothdevice : public QObject {
 
     QLowEnergyController *m_control = nullptr;
 
+    // Reconnect asynchronously instead of calling connectToDevice() inside stateChanged().
+    void connectBackLater();
+
     /**
      * @brief elapsed A metric object to get and set the elapsed time for the session. Units: seconds
      */
@@ -871,6 +874,7 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+    bool connectBackPending = false;
 
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift
