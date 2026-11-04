@@ -966,6 +966,56 @@ jobs:
             qdomyos_logcat.txt
           if-no-files-found: warn                
 
+  android-emulator-arm64-test:
+    runs-on: macos-14
+    needs: android-build
+    timeout-minutes: 40
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-peloton-bike-trial
+          path: apk-debug
+
+      - name: Run Android 10 ARM64 emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: google_apis_playstore
+          arch: arm64-v8a
+          profile: pixel_2
+          disable-animations: true
+          script: |
+            adb install apk-debug/android-debug.apk
+            adb logcat -c
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+            sleep 90
+            adb shell uiautomator dump /sdcard/window.xml
+            adb shell cat /sdcard/window.xml > window.xml
+            adb logcat -d -v threadtime > full_logcat.txt
+            adb shell screencap -p /sdcard/screenshot.png
+            adb pull /sdcard/screenshot.png
+            if grep -qi 'Your application encountered a fatal error' window.xml; then
+              echo "Qt reported a fatal startup error"
+              exit 1
+            fi
+            if grep -E 'FATAL EXCEPTION|Fatal signal|UnsatisfiedLinkError' full_logcat.txt | grep -iE 'qdomyos|qtproject|QtActivity|QtLoader'; then
+              echo "Android reported an application startup error"
+              exit 1
+            fi
+            adb shell pidof org.cagnulen.qdomyoszwift
+
+      - name: Upload ARM64 emulator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-arm64-api29-evidence
+          path: |
+            window.xml
+            full_logcat.txt
+            screenshot.png
+          if-no-files-found: warn
+
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-14
