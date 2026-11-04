@@ -1,10 +1,11 @@
-"""Let the committed Xcode project build for the iOS simulator.
+"""Prepare the generated Xcode project for iOS app builds in CI.
 
 usage: python3 ios_simulator_project.py <project.pbxproj>
 
-The app embeds a WatchKit 2 app (product types watchapp2 and watchkit2-extension), and Xcode
-has no such product types for the "iOS Simulator" platform. The app target stops depending on
-the watch app and stops embedding it; everything else stays as Xcode Cloud builds it.
+The app embeds a WatchKit 2 app (product types watchapp2 and watchkit2-extension). Xcode cannot
+resolve these targets while building the app for iOS or the iOS Simulator in this CI setup, so
+the app target stops depending on and embedding the watch app. Everything else stays as Xcode
+Cloud builds it.
 """
 import sys
 

@@ -2348,6 +2348,12 @@ void homeform::loadAppTranslation(const QString &language) {
             return false;
         }
         if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+            // A file with no translated strings loads fine but would keep the app in English:
+            // skip it, so a regional locale falls back to its language (pt_BR -> pt)
+            if (translator->isEmpty()) {
+                qDebug() << "Translation file is empty for" << sourceLabel << ":" << localeKey;
+                return false;
+            }
             QCoreApplication::installTranslator(translator);
             qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
             return true;
@@ -2363,6 +2369,11 @@ void homeform::loadAppTranslation(const QString &language) {
         if (!loaded && locale.contains(QLatin1Char('_'))) {
             loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
         }
+        // Qt names the Norwegian locales nb_NO and nn_NO, the translation file is "no" (QTBUG-107781)
+        const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
+        if (!loaded && (languageCode == QStringLiteral("nb") || languageCode == QStringLiteral("nn"))) {
+            loaded = tryLoadTranslation(QStringLiteral("no"), QStringLiteral("language"));
+        }
         if (!loaded) {
             qDebug() << "No translation available for locale:" << locale << "- using default (English)";
         }
@@ -2376,6 +2387,13 @@ void homeform::setAppLanguage(const QString &language) {
     sortTiles();
     // the web pages took their texts when they were loaded: the open ones ask for them again
     emit appLanguageChanged();
+#ifdef Q_OS_ANDROID
+    // and so did the notification, which is up once a device is connected
+    QSettings settings;
+    if (bluetoothManager && bluetoothManager->device() &&
+        settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool())
+        android_notification_apply(true);
+#endif
 }
 
 // The tile titles, in the current language and units: set when the tiles are made and again in
@@ -6124,6 +6142,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     m_overridePower = false;
+    m_overridePowerWarned = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6260,6 +6279,9 @@ void homeform::Stop() {
     QSettings settings;
 
     m_startRequested = false;
+    // like Start/Pause, Stop gives the load back to the external app or the bike
+    m_overridePower = false;
+    m_overridePowerWarned = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -7314,6 +7336,18 @@ void homeform::update() {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+
+                virtualbike *virtualBike = ((bike *)bluetoothManager->device())->VirtualBike();
+                if (!m_overridePowerWarned &&
+                    bike::targetPowerOverridesExternalApp(
+                        virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0,
+                        QDateTime::currentMSecsSinceEpoch(),
+                        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(),
+                        bluetoothManager->device()->autoResistance())) {
+                    m_overridePowerWarned = true;
+                    qDebug() << QStringLiteral("target power tile is overriding the external app commands");
+                    setToastRequested(tr("QZ target power is overriding the app's commands. Pause QZ and resume it to give control back to the app."));
+                }
             }
 
         } else if (bluetoothManager->device()->deviceType() == ROWING) {
@@ -10276,7 +10310,7 @@ void homeform::strava_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
@@ -10394,7 +10428,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     QHttpPart externalIdPart;
     externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                              QVariant(QStringLiteral("form-data; name=\"external_id\"")));
-    externalIdPart.setBody(filename.toStdString().c_str());
+    externalIdPart.setBody(filename.toUtf8());
     multiPart->append(externalIdPart);
 
     QHttpPart filePart;
@@ -11012,7 +11046,8 @@ void homeform::android_notification_apply(bool enabled) {
     if (enabled) {
         // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
         // start right away and the running workout doesn't need a restart
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString(tr("QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
