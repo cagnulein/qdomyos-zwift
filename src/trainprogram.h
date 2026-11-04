@@ -108,6 +108,12 @@ class trainprogram : public QObject {
     QTime totalElapsedTime();
     int currentRowElapsedSeconds() const;
     double currentRowElevationGain() const { return currentStepElevation; }
+    bool hasElevationTargets() const {
+        for (const trainrow &row : rows) {
+            if (row.elevationGain > 0) return true;
+        }
+        return false;
+    }
     static bool elevationTargetReached(double progress, double target) { return target > 0 && progress >= target; }
     static double elevationCarryOver(double progress, double target) { return target > 0 ? qMax(0.0, progress - target) : 0.0; }
     QTime currentRowElapsedTime();

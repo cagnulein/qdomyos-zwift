@@ -2479,6 +2479,9 @@ QTime trainprogram::currentRowElapsedTime() {
 }
 
 QTime trainprogram::currentRowRemainingTime() {
+    // A vertical gain target has no predictable completion time: grade and speed may change.
+    if (currentStep < rows.length() && rows.at(currentStep).elevationGain > 0)
+        return QTime(0, 0, 0);
     uint32_t calculatedLine;
     uint32_t calculatedElapsedTime = 0;
 
