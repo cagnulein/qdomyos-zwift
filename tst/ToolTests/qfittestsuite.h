@@ -31,6 +31,11 @@ public:
     void test_recordAltitudeIncludesDescent();
 
     /**
+     * @brief Test FIT GPS coordinates survive a save/open round trip without semicircle overflow
+     */
+    void test_recordGpsCoordinatesRoundTrip();
+
+    /**
      * @brief Test that FIT files can be processed by the database
      */
     void test_databaseReadability();
@@ -66,6 +71,10 @@ TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
 
 TEST_F(QFitTestSuite, TestRecordAltitudeIncludesDescent) {
     this->test_recordAltitudeIncludesDescent();
+}
+
+TEST_F(QFitTestSuite, TestRecordGpsCoordinatesRoundTrip) {
+    this->test_recordGpsCoordinatesRoundTrip();
 }
 
 TEST_F(QFitTestSuite, TestDatabaseReadability) {
