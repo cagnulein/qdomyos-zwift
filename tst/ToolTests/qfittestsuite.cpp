@@ -147,6 +147,80 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
     qDebug() << "✓ New format developer fields test passed";
 }
 
+void QFitTestSuite::test_recordAltitudeIncludesDescent() {
+    QString filename = tempDir->filePath("test_descent_altitude.fit");
+    QList<SessionLine> session;
+    QDateTime startTime = QDateTime::currentDateTime();
+    const double elevationGain[] = {0.0, 10.0, 10.0, 20.0};
+    const double negativeElevationGain[] = {0.0, 0.0, 5.0, 5.0};
+
+    for (int i = 0; i < 4; ++i) {
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.01;
+        line.speed = 10.0;
+        line.cadence = 60;
+        line.elevationGain = elevationGain[i];
+        line.negativeElevationGain = negativeElevationGain[i];
+        session.append(line);
+    }
+
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING);
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    QList<SessionLine> decoded;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(filename, &decoded, &sport);
+
+    ASSERT_EQ(decoded.size(), 4);
+    const double expectedNetElevation[] = {0.0, 10.0, 5.0, 15.0};
+    for (int i = 0; i < 4; ++i) {
+        EXPECT_FALSE(decoded.at(i).coordinate.isValid())
+            << "A FIT record without GPS positions must not acquire a valid coordinate";
+        EXPECT_NEAR(decoded.at(i).elevationGain, expectedNetElevation[i], 0.25);
+    }
+}
+
+void QFitTestSuite::test_recordGpsCoordinatesRoundTrip() {
+    const QString filename = tempDir->filePath("test_gps_coordinates.fit");
+    QList<SessionLine> session;
+    const QDateTime startTime = QDateTime::currentDateTime();
+    const QGeoCoordinate coordinates[] = {
+        QGeoCoordinate(44.529, 10.866, 275.5),
+        QGeoCoordinate(-33.865, 151.209, 21.25)
+    };
+
+    for (int i = 0; i < 2; ++i) {
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.01;
+        line.speed = 10.0;
+        line.cadence = 60;
+        line.elevationGain = 0.0;
+        line.negativeElevationGain = 0.0;
+        line.coordinate = coordinates[i];
+        session.append(line);
+    }
+
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING);
+    ASSERT_TRUE(QFile::exists(filename));
+
+    QList<SessionLine> decoded;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(filename, &decoded, &sport);
+
+    ASSERT_EQ(decoded.size(), 2);
+    for (int i = 0; i < 2; ++i) {
+        const QGeoCoordinate &actual = decoded.at(i).coordinate;
+        EXPECT_TRUE(actual.isValid());
+        EXPECT_NEAR(actual.latitude(), coordinates[i].latitude(), 0.00001);
+        EXPECT_NEAR(actual.longitude(), coordinates[i].longitude(), 0.00001);
+        EXPECT_NEAR(actual.altitude(), coordinates[i].altitude(), 0.25);
+    }
+}
+
 void QFitTestSuite::test_databaseReadability() {
     // Create a FIT file with new format
     QString filename = createNewFormatFitFile();
