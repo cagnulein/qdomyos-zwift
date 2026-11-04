@@ -2720,6 +2720,10 @@ import AndroidStatusBar 1.0
                                 delegate: ItemDelegate {
                                     width: ListView.view.width
                                     text: modelData
+                                    // a screen reader can pick it: Qt 5.15 gives an ItemDelegate no
+                                    // accessible action, as the items of UiComboBox
+                                    Accessible.name: text
+                                    Accessible.onPressAction: clicked()
                                     contentItem: Label {
                                         text: modelData
                                         font: searchSettingComboBox.font
@@ -2758,6 +2762,9 @@ import AndroidStatusBar 1.0
                                 delegate: ItemDelegate {
                                     width: ListView.view.width
                                     text: modelData
+                                    // as the list above
+                                    Accessible.name: text
+                                    Accessible.onPressAction: clicked()
                                     contentItem: Label {
                                         text: modelData
                                         font: searchVirtualComboBox.font
