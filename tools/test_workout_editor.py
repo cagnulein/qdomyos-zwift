@@ -45,7 +45,7 @@ def main() -> None:
 
     # Elevation-based targets are exclusive to treadmill and must survive editor save/load.
     elevation_field = re.search(
-        r"\\{ key: 'elevationGain'.*?devices: \\[(?P<devices>[^]]+)\\]",
+        r"\{ key: 'elevationGain'.*?devices: \[(?P<devices>[^]]+)\]",
         source,
     )
     assert elevation_field, "Workout Editor must expose an elevation gain field"
