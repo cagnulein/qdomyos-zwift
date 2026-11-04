@@ -37,12 +37,14 @@ int rowDurationSecondsForPreview(const trainrow &row) {
     const int explicitDuration = QTime(0, 0, 0).secsTo(row.duration);
     if (explicitDuration > 0)
         return explicitDuration;
-    if (trainprogram::isBlockingTransitionRow(row))
+    if (trainprogram::isBlockingTransitionRow(row) || row.elevationGain > 0)
         return OPEN_ENDED_PREVIEW_SECONDS;
     return 0;
 }
 
 QString openEndedRowLabel(const trainrow &row) {
+    if (row.elevationGain > 0)
+        return QStringLiteral("+%1 m").arg(row.elevationGain);
     if (row.waitForLap)
         return QStringLiteral("Lap");
     if (row.HRabove > 0)
@@ -57,13 +59,14 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("duration")] = row.duration.toString();                                             \
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
     item[QStringLiteral("visual_duration_s")] = rowDurationSecondsForPreview(row);                          \
-    item[QStringLiteral("openEnded")] = trainprogram::isBlockingTransitionRow(row) &&                       \
+    item[QStringLiteral("openEnded")] = (trainprogram::isBlockingTransitionRow(row) || row.elevationGain > 0) && \
                                         QTime(0,0,0).secsTo(row.duration) == 0;                              \
-    item[QStringLiteral("segmentLabel")] = trainprogram::isBlockingTransitionRow(row) &&                    \
+    item[QStringLiteral("segmentLabel")] = (trainprogram::isBlockingTransitionRow(row) || row.elevationGain > 0) && \
                                            QTime(0,0,0).secsTo(row.duration) == 0 ?                          \
                                            openEndedRowLabel(row) : QStringLiteral("");                      \
     item[QStringLiteral("waitForLap")] = row.waitForLap;                                                     \
     item[QStringLiteral("distance")] = row.distance;                                                        \
+    item[QStringLiteral("elevationGain")] = row.elevationGain;                                              \
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
     item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
@@ -687,7 +690,8 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
         // Build data arrays
         for (const trainrow &r : rows) {
             const int duration = rowDurationSecondsForPreview(r);
-            const bool openEnded = trainprogram::isBlockingTransitionRow(r) && QTime(0, 0, 0).secsTo(r.duration) == 0;
+            const bool openEnded = (trainprogram::isBlockingTransitionRow(r) || r.elevationGain > 0) &&
+                                   QTime(0, 0, 0).secsTo(r.duration) == 0;
             const QString segmentLabel = openEnded ? openEndedRowLabel(r) : QStringLiteral("");
             const int segmentStart = watts.size();
 
@@ -1131,12 +1135,20 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     for (const auto &r : qAsConst(rows)) {
         QJsonObject row = r.toObject();
         trainrow tR;
-        if (row.contains(QStringLiteral("duration")) || row.contains(QStringLiteral("distance"))) {
+        if (row.contains(QStringLiteral("duration")) || row.contains(QStringLiteral("distance")) ||
+            row.contains(QStringLiteral("elevationGain"))) {
             if (row.contains(QStringLiteral("duration"))) {
                 tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
             }
             if (row.contains(QStringLiteral("distance"))) {
                 tR.distance = row[QStringLiteral("distance")].toDouble();
+            }
+            if (row.contains(QStringLiteral("elevationGain"))) {
+                const double target = row[QStringLiteral("elevationGain")].toDouble();
+                if (target > 0) {
+                    tR.elevationGain = target;
+                    tR.distance = -1;
+                }
             }
             if (row.contains(QStringLiteral("speed"))) {
                 tR.speed = row[QStringLiteral("speed")].toDouble();
@@ -1836,6 +1848,20 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         }
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
+        obj.setProperty(QStringLiteral("target_elevation_m"), -1);
+        obj.setProperty(QStringLiteral("interval_elevation_m"), 0);
+        obj.setProperty(QStringLiteral("remaining_elevation_m"), 0);
+        if (auto *program = homeform::singleton()->trainingProgram()) {
+            if (program->isStarted()) {
+                const trainrow step = program->currentRow();
+                if (step.elevationGain > 0) {
+                    const double progress = program->currentRowElevationGain();
+                    obj.setProperty(QStringLiteral("target_elevation_m"), step.elevationGain);
+                    obj.setProperty(QStringLiteral("interval_elevation_m"), progress);
+                    obj.setProperty(QStringLiteral("remaining_elevation_m"), qMax(0.0, step.elevationGain - progress));
+                }
+            }
+        }
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), (device->wattsMetricforUI()));
         dep = device->wattsMetric();
