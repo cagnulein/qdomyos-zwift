@@ -2367,6 +2367,24 @@ jobs:
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+
+          # Keep Bike+ nightly version codes monotonic without altering the store build.
+          BIKE_PLUS_MANIFEST="${{ github.workspace }}/output/android/AndroidManifest.xml"
+          BIKE_PLUS_GRADLE="${{ github.workspace }}/output/android/build.gradle"
+          test -f "$BIKE_PLUS_MANIFEST" && test -f "$BIKE_PLUS_GRADLE"
+          BASE_VERSION_CODE=$(sed -nE 's/.*android:versionCode="([0-9]+)".*/\1/p' "$BIKE_PLUS_MANIFEST" | head -n 1)
+          if [ -z "$BASE_VERSION_CODE" ] || [ -z "${GITHUB_RUN_NUMBER:-}" ]; then
+            echo "Unable to determine Peloton Bike+ nightly versionCode" >&2
+            exit 1
+          fi
+          PELOTON_NIGHTLY_VERSION_CODE=$((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))
+          sed -i -E "s/android:versionCode=\"[0-9]+\"/android:versionCode=\"$PELOTON_NIGHTLY_VERSION_CODE\"/" "$BIKE_PLUS_MANIFEST"
+          # Gradle overrides the merged manifest's versionCode on recent Android plugins.
+          sed -i -E "/^[[:space:]]*defaultConfig[[:space:]]*\{/a\\        versionCode = $PELOTON_NIGHTLY_VERSION_CODE" "$BIKE_PLUS_GRADLE"
+          grep -Fq "android:versionCode=\"$PELOTON_NIGHTLY_VERSION_CODE\"" "$BIKE_PLUS_MANIFEST"
+          grep -Fq "versionCode = $PELOTON_NIGHTLY_VERSION_CODE" "$BIKE_PLUS_GRADLE"
+          echo "PELOTON_NIGHTLY_VERSION_CODE=$PELOTON_NIGHTLY_VERSION_CODE" >> "$GITHUB_ENV"
+          echo "Peloton Bike+ APK versionCode: $PELOTON_NIGHTLY_VERSION_CODE"
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-9.3.1"
@@ -2389,6 +2407,38 @@ jobs:
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
+      - name: Sign Peloton Bike+ APK with persistent Android key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # Fail instead of publishing an APK signed by a different ephemeral debug key.
+          if [ -z "$SIGNING_KEY" ] || [ -z "$SIGNING_ALIAS" ] || [ -z "$KEY_STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::Persistent Android signing secrets are required for Peloton Bike+ nightlies"
+            exit 1
+          fi
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk"
+          SIGNED_APK="${RUNNER_TEMP}/android-debug-peloton-bike-plus-signed.apk"
+          KEYSTORE="${RUNNER_TEMP}/peloton-bike-plus-signing.jks"
+          trap 'rm -f "$KEYSTORE" "$SIGNED_APK"' EXIT
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$KEYSTORE"
+          test -s "$KEYSTORE"
+          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -type f -name apksigner | sort -V | tail -n 1)
+          AAPT=$(find /usr/local/lib/android/sdk/build-tools -type f -name aapt | sort -V | tail -n 1)
+          test -n "$APKSIGNER" && test -n "$AAPT"
+          "$APKSIGNER" sign \
+            --ks "$KEYSTORE" \
+            --ks-key-alias "$SIGNING_ALIAS" \
+            --ks-pass "pass:$KEY_STORE_PASSWORD" \
+            --key-pass "pass:$KEY_PASSWORD" \
+            --out "$SIGNED_APK" \
+            "$APK_PATH"
+          "$APKSIGNER" verify --verbose --print-certs "$SIGNED_APK"
+          "$AAPT" dump badging "$SIGNED_APK" | grep -F "versionCode='$PELOTON_NIGHTLY_VERSION_CODE'"
+          mv "$SIGNED_APK" "$APK_PATH"
       - name: Archive peloton-bike-plus binary
         uses: actions/upload-artifact@v4
         with:
