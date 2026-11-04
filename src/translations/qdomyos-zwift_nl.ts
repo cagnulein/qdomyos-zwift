@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
+        <translation type="vanished">QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
 Op Android zijn locatievoorzieningen nodig zodat de app Bluetooth-apparaten kan vinden.
 GPS wordt niet gebruikt.
 
@@ -113,7 +113,7 @@ Wil je ze inschakelen?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
+        <translation type="vanished">Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Wil je dat nu doen?</translation>
     <message>
         <source>Save</source>
         <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ heeft ingeschakelde Bluetooth nodig om fitnessapparaten te vinden. Op Android 11 en ouder zijn voor het zoeken naar Bluetooth-apparaten ook locatietoestemming en ingeschakelde locatievoorzieningen vereist. QZ gebruikt je locatiegegevens niet. Op Android 12 en nieuwer maakt de toestemming &apos;Apparaten in de buurt&apos; het zoeken naar Bluetooth-apparaten mogelijk zonder toegang tot je locatie.
+
+Wil je de vereiste voorzieningen inschakelen?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Wil je dat nu doen?</translation>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>%1 (hartslagsensor) verbonden!</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Zoeken naar %1 (hartslagsensor)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor) niet gevonden. Controleer of hij aan staat en de hartslag uitzendt.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor): geen hartslag. Controleer of hij de hartslag uitzendt.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -1005,6 +1029,14 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift-apparaat: WERK DE FIRMWARE BIJ!</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 gereed</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Initialisatie van YPOO M5 mislukt; opnieuw verbinden vereist</translation>
     </message>
 </context>
 <context>
@@ -3746,6 +3778,19 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Average Strokes Length: %1</source>
         <translation>Gemiddelde slaglengte: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Het QZ-doelvermogen overschrijft de opdrachten van de app. Pauzeer QZ en hervat het om de besturing aan de app terug te geven.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify-nummers:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ is actief</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4386,7 +4431,7 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Interfacezoom:</translation>
+        <translation type="vanished">Interfacezoom:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,15 +4443,15 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee</translation>
+        <translation type="vanished">Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Taal van de app:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Kies Auto om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ. Opnieuw starten vereist.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5230,6 +5275,22 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Algemene interface-opties</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Tekstgrootte van het systeem gebruiken</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>De tekst van de app volgt de tekstgrootte uit de instellingen van je telefoon of tablet, tot maximaal 150%. Schakel dit uit om hieronder zelf de grootte te kiezen, bijvoorbeeld voor een scherm dat je tijdens een training van een afstand leest. Standaard: aan.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Tekstgrootte:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Grootte van de tekst van de app (instellingen, menu&apos;s, dialoogvensters) in procenten, van 80 tot 170. Standaard: 100. De tegels hebben een eigen instelling voor hun grootte.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Bovenste balk tonen</translation>
     </message>
@@ -5882,6 +5943,14 @@ Voer de code hieronder in:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Schakel dit in om de afstand rechtstreeks van de loopband te lezen in plaats van die uit de snelheid te berekenen. Sommige loopbanden geven de afstand nauwkeuriger door dan de berekening op basis van snelheid. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Afstand van de loopband: alleen de toename optellen</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Werkt samen met ‘Afstand rechtstreeks van de loopband’. Schakel dit in als de afstandsteller van je loopband tussen trainingen doorloopt of na het uitschakelen van de loopband weer bij 0 begint: alleen de afstand die tijdens de training is afgelegd wordt opgeteld, niet wat de loopband telde voordat QZ verbinding maakte. Standaard: uit.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7719,6 +7788,110 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Experimenteel: corrigeert de door QZ ingestelde loopbandsnelheid geleidelijk op basis van Runn/Stryd, als het stuurprogramma eigen snelheidsmetingen van het apparaat levert. Vereist ‘Snelheid van de vermogenssensor gebruiken’. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Tegelgrootte:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Hiermee wijzig je de grootte van de tegels met je meetwaarden. Standaard: 100%. Kies een kleiner percentage om meer tegels op je scherm te krijgen, of een percentage boven 100% om ze groter te maken. Typ het procentteken niet mee. Heette vroeger ‘Interfacezoom’.</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness-opties</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness-gebruikersnaam/e-mailadres:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness-wachtwoord:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Inloggen als gast bij Life Fitness (experimenteel)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Gebruikt een synthetisch Life Fitness-profiel zonder account. Als dit is ingeschakeld, worden gebruikersnaam, wachtwoord en opgeslagen accountgegevens genegeerd; gebruik dit alleen om het ondersteunde inloggen als gast te testen.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Grafieken in trainingsgeschiedenis</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Hartslag</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Weerstand vs. doelweerstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton-weerstand</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Vermogensverdeling</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Snelheid en helling</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Verplaats de grafieken omhoog of omlaag om hun volgorde in de trainingsgeschiedenis te kiezen. Wijzigingen worden automatisch opgeslagen.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Omhoog</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Omlaag</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Standaardvolgorde herstellen</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio-opties</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Schakelt de standaard FTMS-opdracht Request Control in voor Moovio Lynx Konect 2.0-loopbanden. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Cadansfactor</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Vermenigvuldiger die alleen wordt toegepast op de slagfrequentie die de virtuele roeitrainer verstuurt. Standaard: 1.0; gebruik 0.25 om BikeERG-RPM om te rekenen naar de slagfrequentie die de EXR vraagt.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Correctie die na de factor wordt opgeteld. Standaard: 0.0. De cadansweergave in QZ en de trainingsgegevens blijven ongewijzigd.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS: actief blijven op achtergrond</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Alleen iOS. Houdt QZ actief als het scherm uit is of QZ op de achtergrond draait, zodat Bluetooth-verbindingen en sessietimers niet bevriezen. Er wordt een stil audiospoor gebruikt dat met je muziek wordt gemengd, dus waar je naar luistert, wordt niet onderbroken. Schakel dit in als je wilt trainen met een vergrendeld scherm of met QZ op de achtergrond. Standaard: uit.</translation>
     </message>
 </context>
 <context>

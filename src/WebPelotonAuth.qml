@@ -55,8 +55,10 @@ Item {
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        width: 380
-        height: 120
+        // With a bigger text: as wide as the screen allows, as tall as the text; the fixed
+        // size cut the text
+        width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+        height: window.textScale !== 1 ? Math.max(120, connectedText.height + topPadding + bottomPadding) : 120
         modal: true
         focus: true
         palette.text: "white"
@@ -73,9 +75,11 @@ Item {
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             Label {
+                id: connectedText
+                wrapMode: window.labelWrap
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: 370
-                height: 120
+                width: window.textScale !== 1 ? popupPelotonConnectedWeb.availableWidth : 370
+                height: window.textScale !== 1 ? undefined : 120
                 text: qsTr("Your Peloton account is now connected!")
             }
         }

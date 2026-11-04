@@ -101,7 +101,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ için hem Bluetooth hem de konum hizmetleri açık olmalıdır.
+        <translation type="vanished">QZ için hem Bluetooth hem de konum hizmetleri açık olmalıdır.
 Android&apos;de uygulamanın Bluetooth cihazlarını bulabilmesi için konum hizmetleri gereklidir.
 GPS kullanılmaz.
 
@@ -113,7 +113,7 @@ Bunlar açılsın mı?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Konum hizmetlerini açmak bir dahaki sefere hatırlatılsın mı?</translation>
+        <translation type="vanished">Konum hizmetlerini açmak bir dahaki sefere hatırlatılsın mı?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Save</source>
         <translation>Kaydet</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ&apos;nin fitness ekipmanlarını bulabilmesi için Bluetooth&apos;un açık olması gerekir. Android 11 ve önceki sürümlerde Bluetooth cihazlarını keşfetmek için ayrıca konum izni ve konum hizmetlerinin açık olması gerekir. QZ konum verilerinizi kullanmaz. Android 12 ve sonraki sürümlerde &apos;Yakındaki cihazlar&apos; izni, konuma erişim olmadan Bluetooth cihazlarının keşfedilmesini sağlar.
+
+Gerekli hizmetleri açmak ister misiniz?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Bir dahaki sefere Bluetooth&apos;u veya konum hizmetlerini açmanız hatırlatılsın mı?</translation>
     </message>
 </context>
 <context>
@@ -501,6 +513,18 @@ Would you like to do that now?</source>
     <message>
         <source>%1 (HR sensor) connected!</source>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Aranıyor: %1 (nabız sensörü)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Bulunamadı: %1 (nabız sensörü). Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (nabız sensörü): nabız yok. Nabız yayınladığını kontrol edin.</translation>
     </message>
     <message>
         <source>%1 (cadence sensor) connected!</source>
@@ -1005,6 +1029,14 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift cihazı: ÜRÜN YAZILIMINI GÜNCELLEYİN!</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 hazır</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5 başlatılamadı; yeniden bağlanmak gerekiyor</translation>
     </message>
 </context>
 <context>
@@ -3746,6 +3778,19 @@ This may take a few moments on first startup.</source>
         <source>Average Strokes Length: %1</source>
         <translation>Ortalama çekiş uzunluğu: %1</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZ hedef gücü uygulamanın komutlarını geçersiz kılıyor. Kontrolü uygulamaya geri vermek için QZ&apos;yi duraklatıp devam ettirin.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify şarkıları:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ çalışıyor</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4386,7 +4431,7 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
-        <translation>Arayüz ölçeği:</translation>
+        <translation type="vanished">Arayüz ölçeği:</translation>
     </message>
     <message>
         <source>OK</source>
@@ -4398,15 +4443,15 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation>Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin</translation>
+        <translation type="vanished">Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin</translation>
     </message>
     <message>
         <source>App Language:</source>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin. Yeniden başlatma gerekir.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -5230,6 +5275,22 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Genel arayüz seçenekleri</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Sistem yazı boyutunu kullan</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Uygulamanın yazıları, telefon veya tablet ayarlarındaki yazı boyutunu izler (en fazla 150%). Aşağıdan boyut seçmek için kapatın; örneğin antrenman sırasında uzaktan okuduğunuz bir ekran için. Varsayılan: açık.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Yazı boyutu:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Uygulama yazılarının (ayarlar, menüler, iletişim kutuları) yüzde olarak boyutu, 80 ile 170 arası. Varsayılan: 100. Kutucukların kendi boyut ayarı vardır.</translation>
+    </message>
+    <message>
         <source>Top Bar Enabled</source>
         <translation>Üst çubuğu göster</translation>
     </message>
@@ -5882,6 +5943,14 @@ Kodu aşağıya girin:</translation>
     <message>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
         <translation>Mesafeyi hızdan hesaplamak yerine doğrudan koşu bandından okumak için bunu açın. Bazı koşu bantları mesafeyi, hıza dayalı hesaplamadan daha doğru bildirir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Doğrudan mesafe: yalnızca artışı ekle</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>“Mesafeyi doğrudan koşu bandından al” ile birlikte çalışır. Koşu bandınızın mesafe sayacı antrenmanlar arasında sıfırlanmıyorsa veya koşu bandı kapatılınca 0’dan yeniden başlıyorsa bunu açın: QZ bağlanmadan önce koşu bandının saydığı mesafe değil, yalnızca antrenman sırasında yürünen mesafe eklenir. Varsayılan: kapalı.</translation>
     </message>
     <message>
         <source>Difficulty offset based</source>
@@ -7719,6 +7788,110 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
         <translation>Deneysel: QZ&apos;deki koşu bandı sürücüsü cihazın kendi hız ölçümlerini veriyorsa, QZ&apos;nin kontrol ettiği koşu bandı hızı Runn/Stryd verilerine göre kademeli olarak düzeltilir. &quot;Hızı güç sensöründen al&quot; ayarı gerekir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Tile size:</source>
+        <translation>Kutucuk boyutu:</translation>
+    </message>
+    <message>
+        <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
+        <translation>Ölçümlerinizi gösteren kutucukların boyutunu değiştirir. Varsayılan: 100%. Ekrana daha fazla kutucuk sığdırmak için daha küçük bir yüzde, kutucukları büyütmek için 100&apos;den büyük bir yüzde seçin. Yüzde işaretini girmeyin. Önceki adı: &quot;Arayüz ölçeği&quot; (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness seçenekleri</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitness kullanıcı adı/e-postası:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitness şifresi:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitness misafir girişi (deneysel)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Hesap gerektirmeyen yapay bir Life Fitness profili kullanır. Açıkken kullanıcı adı, şifre ve önbelleğe alınmış hesap verileri yok sayılır; yalnızca desteklenen misafir girişini test etmek için kullanın.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Antrenman geçmişi grafikleri</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Nabız</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Direnç ve hedef direnç</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton direnci</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Kadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Güç dağılımı</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Hız ve eğim</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Antrenman geçmişindeki sıralarını seçmek için grafikleri yukarı veya aşağı taşıyın. Değişiklikler otomatik olarak kaydedilir.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Yukarı taşı</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Aşağı taşı</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Varsayılan sırayı geri yükle</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio seçenekleri</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Moovio Lynx Konect 2.0 koşu bantları için standart FTMS Request Control komutunu etkinleştirir. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Kadans çarpanı</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Yalnızca sanal kürek makinesinin gönderdiği kürek temposuna uygulanan çarpan. Varsayılan: 1.0; BikeERG RPM değerini EXR&apos;nin istediği kürek temposuna dönüştürmek için 0.25 kullanın.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Çarpandan sonra eklenen ofset. Varsayılan: 0.0. QZ&apos;nin kendi kadans göstergesi ve antrenman metrikleri değişmez.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS&apos;ta arka planda çalışma</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Yalnızca iOS. Ekran kapalıyken veya QZ arka plandayken QZ&apos;nin çalışmaya devam etmesini sağlar; böylece Bluetooth bağlantıları ve oturum zamanlayıcıları donmaz. Müziğinizle karıştırılan sessiz bir ses parçası kullanır, bu yüzden dinlediğiniz hiçbir şey kesilmez. Ekran kilitliyken veya QZ arka plandayken antrenman yapmanız gerekiyorsa açın. Varsayılan: kapalı.</translation>
     </message>
 </context>
 <context>

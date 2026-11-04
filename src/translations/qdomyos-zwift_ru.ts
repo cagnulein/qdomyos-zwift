@@ -185,7 +185,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>Для работы QZ нужно включить Bluetooth и службы геолокации.
+        <translation type="vanished">Для работы QZ нужно включить Bluetooth и службы геолокации.
 На Android геолокация нужна, чтобы приложение могло находить Bluetooth-устройства.
 GPS использоваться не будет.
 
@@ -197,7 +197,7 @@ GPS использоваться не будет.
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Напомнить о включении геолокации в следующий раз?</translation>
+        <translation type="vanished">Напомнить о включении геолокации в следующий раз?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +232,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>Увеличить значение параметра </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>Для обнаружения фитнес-оборудования QZ требуется включённый Bluetooth. На Android 11 и более ранних версиях для поиска Bluetooth-устройств также необходимы разрешение на доступ к местоположению и включённые службы геолокации. QZ не использует данные о вашем местоположении. На Android 12 и более новых версиях разрешение «Устройства поблизости» позволяет находить Bluetooth-устройства без доступа к местоположению.
+
+Включить необходимые службы?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Напомнить о включении Bluetooth или служб геолокации в следующий раз?</translation>
     </message>
 </context>
 <context>
@@ -791,6 +803,18 @@ Do you want to update QZ settings?</source>
         <translation>Подключено: %1 (пульсометр)!</translation>
     </message>
     <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Поиск: %1 (пульсометр)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Не найдено: %1 (пульсометр). Проверьте, что он включён и транслирует пульс.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (пульсометр): нет пульса. Проверьте, что он транслирует пульс.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Подключено: %1 (датчик каденса)!</translation>
     </message>
@@ -1005,6 +1029,14 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Android notification enabled</source>
         <translation>Уведомление Android включено</translation>
+    </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5 готова к работе</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>Не удалось инициализировать YPOO M5, нужно переподключиться</translation>
     </message>
 </context>
 <context>
@@ -3746,6 +3778,19 @@ This may take a few moments on first startup.</source>
         <source>feet</source>
         <translation>фут</translation>
     </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>Целевая мощность QZ перебивает команды приложения. Чтобы вернуть управление приложению, поставьте QZ на паузу и продолжите.</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Песни Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ работает</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4405,8 +4450,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Язык приложения:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную. Требуется перезапуск.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Выберите «Авто», чтобы использовать язык устройства, или задайте язык QZ вручную.</translation>
     </message>
     <message>
         <source>Player Weight</source>
@@ -6240,6 +6285,14 @@ Please enter it below:</source>
         <translation>Включите, чтобы брать дистанцию прямо с беговой дорожки, а не вычислять её по скорости. Некоторые дорожки сообщают дистанцию точнее, чем расчёт по скорости. По умолчанию выключено.</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>Дистанция с дорожки: только прирост</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>Работает вместе с «Дистанция напрямую с дорожки». Включите, если счётчик дистанции вашей дорожки не обнуляется между тренировками или начинает с 0 после выключения дорожки: в тренировку попадёт только пройденное за неё, а не то, что дорожка насчитала до подключения QZ. По умолчанию выключено.</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>Сложность через смещение</translation>
     </message>
@@ -6359,6 +6412,22 @@ Please enter it below:</source>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
         <translation>Меняет размер плиток с показателями. По умолчанию 100%. Чтобы на экране помещалось больше плиток, выберите меньший процент, а чтобы увеличить их – больше 100%. Знак процента не вводите. Раньше называлась «Масштаб интерфейса» (UI Zoom).</translation>
+    </message>
+    <message>
+        <source>Use System Text Size</source>
+        <translation>Размер текста как в системе</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Размер текста приложения берётся из настроек телефона или планшета, но не больше 150%. Выключите, чтобы задать размер ниже – например, для экрана, который читают издалека во время тренировки. По умолчанию включено.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Размер текста:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Размер текста приложения (настройки, меню, диалоги) в процентах, от 80 до 170. По умолчанию – 100. У плиток своя настройка размера.</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7731,6 +7800,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Pafers Rower</source>
         <translation>Гребной тренажёр Pafers</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Параметры Life Fitness</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Имя пользователя/почта Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Пароль Life Fitness:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Гостевой вход Life Fitness (экспериментально)</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>Использует синтетический профиль Life Fitness без учётной записи. Если включено, имя пользователя, пароль и сохранённые данные учётной записи не используются; включайте только для проверки поддерживаемого гостевого входа.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Графики истории тренировок</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Пульс</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Сопротивление и целевое сопротивление</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Сопротивление Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Каденс</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Распределение мощности</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Скорость и наклон</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Перемещайте графики вверх или вниз, чтобы выбрать их порядок в истории тренировок. Изменения сохраняются автоматически.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Переместить вверх</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Переместить вниз</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Восстановить порядок по умолчанию</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Параметры Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Включает стандартную команду FTMS Request Control для беговых дорожек Moovio Lynx Konect 2.0. По умолчанию выключено.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Коэффициент каденса</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Множитель, который применяется только к темпу гребли, передаваемому виртуальным гребным тренажёром. По умолчанию 1.0; значение 0.25 переводит об/мин BikeERG в темп гребли, который запрашивает EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Смещение, которое прибавляется после коэффициента. По умолчанию 0.0. Каденс, который показывает QZ, и показатели тренировки не меняются.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Фоновая работа на iOS</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Только для iOS. QZ продолжает работать при выключенном экране или в фоне, чтобы подключения Bluetooth и таймеры сессии не замирали. Для этого используется беззвучная звуковая дорожка, которая смешивается с вашей музыкой, поэтому то, что вы слушаете, не прерывается. Включите, если тренируетесь с заблокированным экраном или с QZ в фоне. По умолчанию выключено.</translation>
     </message>
 </context>
 <context>

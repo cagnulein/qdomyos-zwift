@@ -961,6 +961,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 
@@ -1181,6 +1184,16 @@ class QZSettings {
      */
     static const QString virtual_device_rower_pm5;
     static constexpr bool default_virtual_device_rower_pm5 = false;
+    /**
+     *@brief Gain applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_gain;
+    static constexpr double default_virtual_device_rower_cadence_gain = 1.0;
+    /**
+     *@brief Offset applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_offset;
+    static constexpr double default_virtual_device_rower_cadence_offset = 0.0;
     /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
@@ -1860,6 +1873,9 @@ class QZSettings {
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
 
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
+
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
 
@@ -2512,6 +2528,9 @@ class QZSettings {
 
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString proform_treadmill_sport_55;
+    static constexpr bool default_proform_treadmill_sport_55 = false;
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
@@ -3381,6 +3400,8 @@ class QZSettings {
     static const QString zwiftplay_gear_rb; // Ride On (RB)
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
+    static const QString ios_background_keepalive;
+    static constexpr bool default_ios_background_keepalive = false;
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
 
@@ -3398,6 +3419,39 @@ class QZSettings {
     // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
     static const QString android_notification_v2;
     static constexpr bool default_android_notification_v2 = true;
+
+    // Size of the text of the app (not the tiles), in percent (80-170), used when ui_text_scale_system is off
+    static const QString ui_text_scale;
+    static constexpr int default_ui_text_scale = 100;
+
+    // Android and iOS: the text of the app follows the system text size instead of ui_text_scale
+    static const QString ui_text_scale_system;
+    static constexpr bool default_ui_text_scale_system = true;
+
+    // With treadmill_direct_distance: add only the increase of the treadmill distance counter, so a counter
+    // already running when QZ connects, or reset on the treadmill during the workout, does not change the
+    // workout distance. Off: the counter is the workout distance, as before
+    static const QString treadmill_direct_distance_increment;
+    static constexpr bool default_treadmill_direct_distance_increment = false;
+
+    // Chart positions in the Workout History preview.
+    static const QString history_chart_power_order;
+    static constexpr int default_history_chart_power_order = 0;
+    static const QString history_chart_heart_order;
+    static constexpr int default_history_chart_heart_order = 1;
+    static const QString history_chart_resistance_order;
+    static constexpr int default_history_chart_resistance_order = 2;
+    static const QString history_chart_peloton_resistance_order;
+    static constexpr int default_history_chart_peloton_resistance_order = 3;
+    static const QString history_chart_cadence_order;
+    static constexpr int default_history_chart_cadence_order = 4;
+    static const QString history_chart_power_distribution_order;
+    static constexpr int default_history_chart_power_distribution_order = 5;
+    static const QString history_chart_speed_inclination_order;
+    static constexpr int default_history_chart_speed_inclination_order = 6;
+
+    static const QString moovio_lynx_konect_2_0;
+    static constexpr bool default_moovio_lynx_konect_2_0 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

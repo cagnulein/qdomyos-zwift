@@ -1571,7 +1571,7 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
             readyToStart = false;
             requestStart = -1;
         }
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

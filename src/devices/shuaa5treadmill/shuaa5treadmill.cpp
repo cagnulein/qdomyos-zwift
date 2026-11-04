@@ -568,6 +568,6 @@ void shuaa5treadmill::controllerStateChanged(QLowEnergyController::ControllerSta
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

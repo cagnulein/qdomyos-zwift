@@ -60,17 +60,15 @@ To isolate this kind of problem:
 
 If control still drops, note whether the **QZ-to-bike** connection or only the **training-app-to-QZ control path** is affected, check for other devices/apps connecting to the bike, and collect a QZ debug log covering the failure.
 
-## QZ keeps finding or searching for the wrong nearby fitness device. How can I force the intended trainer or bike?
+## QZ keeps searching for the wrong device, or for my old treadmill after I replace it. What should I check?
 
-If several supported Bluetooth fitness devices are nearby and QZ selects or keeps searching for the wrong one, use the **Manual Device** setting to restrict discovery to the device you actually want to use.
+**Manual Device** in **QZ Settings > Advanced Settings** restricts Bluetooth discovery to the selected machine. This is useful when multiple fitness devices are nearby, but a saved selection for an old treadmill or bike can prevent QZ from connecting to its replacement.
 
-1. Open **QZ Settings > Advanced Settings**.
-2. Set **Manual Device** to the Bluetooth name of the intended bike or trainer.
-3. Fully close and restart QZ, then let it reconnect.
+1. Open **QZ Settings > Advanced Settings > Manual Device**.
+2. To allow automatic discovery, change it to **Disabled**. Alternatively, select the **new** machine's advertised Bluetooth name if you want to force that device.
+3. Fully close and restart QZ. Turn on the intended machine and confirm QZ connects to it.
 
-QZ stores this selection as its device filter and uses it instead of unrestricted automatic discovery. To return to automatic device selection later, set **Manual Device** back to **Disabled**.
-
-In a confirmed support case, QZ was searching for a different nearby fitness machine instead of the intended smart trainer. Selecting the trainer under **Manual Device** restored the expected connection.
+A rider replacing a treadmill confirmed that clearing QZ's Android app data restored connection; the previous treadmill was subsequently identified as the saved **Manual Device**. Check and clear that filter **before** resetting app data, since a data reset may remove local settings and profiles. In another confirmed case, selecting the intended trainer under **Manual Device** restored discovery among multiple nearby machines.
 
 ## MyWhoosh connects to QZ for my Echelon bike, but power stays at 0 W. What should I check?
 
@@ -98,6 +96,18 @@ Yes. For Echelon bikes that require the manufacturer's initialization before the
 The unlock step may need to be repeated after the bike is power-cycled. In a confirmed support case with an Echelon EX-7s, this two-device sequence reliably unlocked the bike and QZ then operated normally.
 
 If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
+
+## Can a newer QZ build unlock an Echelon EX-3 or EX-7S without opening the Echelon app on a second device?
+
+Yes, on a QZ build that includes **direct Echelon unlock**. If you previously needed the official Echelon app on a second phone or tablet to start an EX-3 or EX-7S session, update QZ to a build with direct unlock support and try this sequence:
+
+1. Open **QZ Settings > Experimental Settings** and **disable Virtual Echelon**.
+2. Save the setting, fully close QZ, and restart it.
+3. Connect QZ to the Echelon bike and check that cadence and resistance update and that the bike responds to resistance changes.
+4. Start Peloton (or your other training app) on the separate device and use the QZ connection as usual.
+
+**Confirmed on two models:** An EX-7S owner reported that this setup worked after updating QZ without reopening the Echelon app. Separately, an **EX-3** owner affected by the firmware lock installed the **iOS TestFlight beta**, kept **Virtual Echelon disabled**, and confirmed that Zwift riding worked again without the second-device unlock. Close the official Echelon app on other devices so it does not hold the Bluetooth connection. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
+
 
 ## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
 
@@ -157,7 +167,7 @@ An old system-level Bluetooth pairing can leave stale service information on a p
 3. Power-cycle the trainer and reopen QZ to let it discover and connect again.
 4. If the issue persists, try QZ with the trainer on a second phone to distinguish phone-specific Bluetooth cache behavior from a trainer problem.
 
-A KICKR CORE support user confirmed that connectivity worked again after the pairing/cache troubleshooting. The reply did not isolate which check was decisive, so this is a diagnostic workaround, not a guaranteed fix.
+**Confirmed Android fix:** A KICKR CORE 2 owner explicitly reported that deleting the saved KICKR pairing in **Android Bluetooth settings** restored QZ's connection and live metrics. Let QZ discover the trainer again instead of manually re-pairing it in Android first. This confirms the pairing reset for that phone, not a universal cause of all KICKR failures. A separate Zwift Ride handlebar-shifting issue remained unresolved and should be diagnosed independently.
 
 ## My Thinkrider X5 shows virtual gear changes in Zwift but the trainer does not change resistance. What should I check?
 
@@ -172,3 +182,27 @@ The Schwinn IC4 is supported by QZ. Its QZ driver receives cadence and power ove
 Under **Bike Options**, QZ offers Schwinn resistance conversion variants and a resistance smoothing setting. Compare the QZ and console values at a steady cadence before adjusting the mapping. These settings change the reported resistance representation, not the physical knob calibration.
 
 **Watt Gain** and **Watt Offset** can adjust power reported by QZ but cannot calibrate the bike's own power sensor. The **speed calculated from power** setting can also make QZ speed and distance differ from the console. These behaviors are verified in QZ's Schwinn IC4 driver and metric settings; no customer-specific calibration fix was confirmed.
+
+## My ERG target power keeps falling by about 5 W while I pedal. Could Automatic Virtual Shifting be responsible?
+
+Yes. **Automatic Virtual Shifting** can change QZ's virtual gear when cadence crosses its configured thresholds. In a standalone ERG/power-target setup, repeated downshifts can also reduce the **target power** in small steps. This is different from normal instantaneous power fluctuations while pedalling.
+
+1. In **QZ Settings**, find **Automatic Virtual Shifting** and temporarily disable it. Restart QZ if needed.
+2. Enable the **Target Watt / Target Power** dashboard tile under **Tiles Options**. Set a target (for example, 100 W), then compare the displayed target while stopped and while pedalling.
+3. If the target previously fell repeatedly during pedalling but now stays at the requested value, review the automatic-shifting cadence thresholds before turning the feature back on.
+4. Test third-party ERG or terrain control separately; fixing local automatic shifts does not prove that MyWhoosh or another app is sending power/resistance commands.
+
+**Confirmed results:** One rider's low cadence (about 40–55 RPM) stayed below an automatic downshift threshold of 65 RPM, triggering repeated downshifts and roughly 5 W reductions until the target reached zero. After correcting the unwanted Automatic Virtual Shifting configuration, the rider reported QZ working. In another confirmed Zwift Ride/KICKR CORE 2 case, a cadence of **30–37 RPM** with a **65 RPM / 2-second** downshift threshold repeatedly returned the virtual gear to **1** and made the controller vibrate every two seconds, even at the lowest gear. Disabling Automatic Virtual Shifting restored manual shifting. If you see repeated gear-down vibrations **only while pedalling**, check this setting before changing the gear table or re-pairing the controller. The cadence thresholds and feature enablement are present in QZ's settings code.
+
+## QZ reads my Domyos X12 bike's data, but changing Target Resistance does not move the bike. What can I try?
+
+First confirm QZ receives cadence and power and that the bike has **electronically controlled resistance**. Test the **Resistance** tile's + / − controls while pedalling: if **Target Resistance** changes in QZ but the physical resistance stays unchanged, try **QZ Settings > Bike Options > Domyos Options > Ignore FTMS**. Enable it, fully restart QZ, reconnect, and repeat the manual resistance test.
+
+A Domyos X12 rider explicitly confirmed that enabling **Ignore FTMS** restored physical resistance control. This is a device-specific workaround, **not** a recommendation to disable FTMS on every bike. The same rider also needed to adjust **Zwift Resistance Offset** when a workout immediately requested maximum resistance; see the [resistance baseline guidance](#zwift-auto-resistance-is-working-but-flat-resistance-or-gradient-changes-feel-wrong-which-settings-should-i-adjust) rather than copying someone else's offset value blindly.
+
+
+## My Keiser M3i stops showing metrics in QZ after previously working. Could the Manual Device selection be wrong?
+
+Check **QZ Settings > Advanced Settings > Manual Device** before reinstalling the app. If it is set to **WiFi** while you are using a Keiser M3i, change the selection to the **M3** bike entry, then return to the dashboard and pedal to check for live data. Keep other apps from connecting directly to the bike during the test.
+
+**Confirmed result:** In an Android Keiser M3i setup, the dashboard fields reappeared immediately after changing the advanced device selection from **WiFi** to **M3**. This establishes that QZ was receiving bike data again; the downstream MyWhoosh connection was not separately confirmed in that reply. QZ also has a dedicated M3i bike implementation. If you later connect MyWhoosh, run it on a separate device and pair it to QZ's virtual trainer rather than directly to the bike.
