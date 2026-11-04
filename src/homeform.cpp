@@ -6765,11 +6765,15 @@ void homeform::update() {
             }
 
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + tr(" sec."));
-            peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
+            peloton_remaining->setValue(trainProgram->hasElevationTargets()
+                                            ? QStringLiteral("--:--")
+                                            : trainProgram->remainingTime().toString("h:mm:ss"));
             peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) +
                                              tr(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
-                trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
+                trainProgram->currentRow().elevationGain > 0
+                    ? QStringLiteral("--:--")
+                    : trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             remaningTimeTrainingProgramCurrentRow->setSecondLine(
                 trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")) +
                 QStringLiteral(" (") + QString::number(trainProgram->currentLogicalStep()) +
