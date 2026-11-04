@@ -43,7 +43,20 @@ def main() -> None:
         "Rower resistance must remain opt-in for existing workouts"
     )
 
-    print("Workout Editor rower resistance regression checks passed")
+    # Elevation-based targets are exclusive to treadmill and must survive editor save/load.
+    elevation_field = re.search(
+        r"\\{ key: 'elevationGain'.*?devices: \\[(?P<devices>[^]]+)\\]",
+        source,
+    )
+    assert elevation_field, "Workout Editor must expose an elevation gain field"
+    assert "'treadmill'" in elevation_field.group("devices")
+    assert "out.__enabled_elevationGain !== true" in source
+    assert "row.__enabled_elevationGain = false" in source
+    assert "row.elevationGain = target" in source
+    assert "interval.__enabled_elevationGain === true" in source
+    assert "duration = 60;" in source, "D+ chart duration is illustrative, not an ETA"
+
+    print("Workout Editor rower resistance and elevation target regression checks passed")
 
 
 if __name__ == "__main__":
