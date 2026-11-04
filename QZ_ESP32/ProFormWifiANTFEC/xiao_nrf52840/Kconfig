@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+source "Kconfig.zephyr"
+
+menuconfig QZ_PROFORM_ANT_FEC
+    bool "QZ ProForm Wi-Fi ANT+ FE-C bridge"
+    default y
+    select ANT
+    select ANT_CHANNEL_CONFIG
+    select ANT_KEY_MANAGER
