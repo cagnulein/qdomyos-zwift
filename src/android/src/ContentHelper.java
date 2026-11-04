@@ -249,45 +249,72 @@ public class ContentHelper {
         }
     }
 
-    private static boolean sameContent(File a, File b) {
-        java.io.FileInputStream inA = null;
-        java.io.FileInputStream inB = null;
+    static boolean sameContent(File a, File b) {
+        InputStream inA = null;
+        InputStream inB = null;
         try {
             inA = new java.io.FileInputStream(a);
             inB = new java.io.FileInputStream(b);
-            byte[] bufA = new byte[8192];
-            byte[] bufB = new byte[8192];
-            while (true) {
-                int readA = readFully(inA, bufA);
-                int readB = readFully(inB, bufB);
-                if (readA != readB) {
-                    return false;
-                }
-                if (readA <= 0) {
-                    return true;
-                }
-                for (int i = 0; i < readA; i++) {
-                    if (bufA[i] != bufB[i]) {
-                        return false;
-                    }
-                }
-            }
+            return sameBytes(inA, inB);
         } catch (Exception e) {
             // unreadable (a file of a previous install): not a copy this install can use
             return false;
         } finally {
-            try {
-                if (inA != null) {
-                    inA.close();
-                }
-            } catch (Exception ignored) {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    // The document behind uri holds the same bytes as file: a copy is checked this way before
+    // the document it was made from is removed.
+    public static boolean sameContent(Context context, Uri uri, File file) {
+        if (context == null || uri == null || file == null) {
+            return false;
+        }
+        InputStream inA = null;
+        InputStream inB = null;
+        try {
+            inA = context.getContentResolver().openInputStream(uri);
+            if (inA == null) {
+                return false;
             }
-            try {
-                if (inB != null) {
-                    inB.close();
-                }
-            } catch (Exception ignored) {
+            inB = new java.io.FileInputStream(file);
+            return sameBytes(inA, inB);
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "sameContent failed " + e);
+            return false;
+        } finally {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    private static boolean sameBytes(InputStream inA, InputStream inB) throws java.io.IOException {
+        byte[] bufA = new byte[8192];
+        byte[] bufB = new byte[8192];
+        while (true) {
+            int readA = readFully(inA, bufA);
+            int readB = readFully(inB, bufB);
+            if (readA != readB) {
+                return false;
             }
+            if (readA <= 0) {
+                return true;
+            }
+            for (int i = 0; i < readA; i++) {
+                if (bufA[i] != bufB[i]) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private static void closeQuietly(InputStream in) {
+        try {
+            if (in != null) {
+                in.close();
+            }
+        } catch (Exception ignored) {
         }
     }
 

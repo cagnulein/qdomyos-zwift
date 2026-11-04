@@ -739,10 +739,14 @@ public:
     // the workout history page was shown: a pending offer to recover the workouts of a
     // previous install is made there (historyRecoveryOfferRequested)
     Q_INVOKABLE void historyPageOpened();
-    // the list of training programs was shown: programs of a previous install hidden in the
-    // training folder are restored with a saved folder grant, or the user is asked once
+    // the list of training programs was shown: copies a restore left under a temporary name are
+    // finished; once per run, with a saved folder grant the folder is checked for programs of a
+    // previous install, and without one the user is asked if a bundled program shows them
     // (trainingRestoreOfferRequested)
     Q_INVOKABLE void trainingProgramsPageOpened();
+    // the user asked to look for programs of a previous install (a button of the list): the
+    // same question as the automatic one; none while the quiet restore runs
+    Q_INVOKABLE void offerTrainingRestore();
     // the user agreed: the folder picker opens, even with a saved grant
     Q_INVOKABLE void restoreTrainingPrograms();
     bool fitImportRunning() const { return m_fitImportRunning; }
@@ -1130,6 +1134,8 @@ public:
     void maybeOfferHistoryRecovery();
     bool startTrainingFolderRestore(bool allowPicker);
     static bool trainingFolderHasLockedFiles();
+    static int restoredTrainingProgramCount(const QString &paths);
+    void recoverTrainingRestoreCopies();
     int historyWorkoutCount();
     QString m_historyDatabasePath;
     bool m_historyDatabaseIsNew = false;
@@ -1141,7 +1147,8 @@ public:
     bool m_fitImportRunning = false;
     // one attempt per run: a restore that finds nothing must not repeat on every visit
     bool m_trainingRestoreTried = false;
-    // restore through a saved grant: no toast when nothing was restored
+    // restore through a saved grant, true while it runs: no toast when nothing was restored,
+    // and no question on request meanwhile
     bool m_trainingRestoreQuiet = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;

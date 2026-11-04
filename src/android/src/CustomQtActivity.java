@@ -715,6 +715,11 @@ public class CustomQtActivity extends QtActivity {
     // is no saved grant with write access. allowPicker true (the user agreed): always open the
     // picker, a saved grant may be the one that restored nothing.
     public boolean openTrainingFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
+        // one pass at a time: two passes over the same files share the temporary copies
+        if (trainingRestoreRunning) {
+            Log.d(TAG, "openTrainingFolderPicker: a restore is running");
+            return false;
+        }
         pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
         if (allowPicker) {
             launchFitFolderPicker(requestCode);
@@ -755,6 +760,7 @@ public class CustomQtActivity extends QtActivity {
         } catch (Exception e) {
             Log.d(TAG, "takePersistableUriPermission failed " + e);
         }
+        trainingRestoreRunning = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -774,6 +780,7 @@ public class CustomQtActivity extends QtActivity {
                 } catch (Exception e) {
                     Log.d(TAG, "handleTrainingFolderResult failed " + e);
                 }
+                trainingRestoreRunning = false;
                 nativeOnDocumentPicked(requestCode, RESULT_OK, restored.toString());
             }
         }, "TrainingFolderRestore").start();
@@ -802,9 +809,13 @@ public class CustomQtActivity extends QtActivity {
     }
 
     // Walks the folder and its subfolders; a file the app can already read is its own and stays.
-    // The copy is written first under a hidden temporary name and takes the real name only once
-    // the old file is gone, so a failure at any step leaves the old file in place.
+    // The copy is written first under a hidden temporary name (.restore_<name>) and compared
+    // with the old file byte for byte; only then is the old file removed and the copy takes the
+    // real name. A failure before the removal leaves the old file in place; a copy left under
+    // the temporary name after it is finished by recoverRestoreCopies() on the next pass or
+    // the next visit of the list.
     private void restoreTrainingFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+        recoverRestoreCopies(localDir, false, restored);
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         android.database.Cursor cursor = null;
         try {
@@ -815,7 +826,9 @@ public class CustomQtActivity extends QtActivity {
             while (cursor != null && cursor.moveToNext()) {
                 String documentId = cursor.getString(0);
                 String name = cursor.getString(1);
-                if (documentId == null || name == null || name.isEmpty() || name.startsWith(".restore_")) {
+                // a .restore_<name> of this install is readable and skipped below; one of a previous
+                // install is restored like any file and finished by recoverRestoreCopies()
+                if (documentId == null || name == null || name.isEmpty()) {
                     continue;
                 }
                 java.io.File local = new java.io.File(localDir, name);
@@ -830,9 +843,15 @@ public class CustomQtActivity extends QtActivity {
                     Log.d(TAG, "restoreTrainingFiles could not create " + localDir);
                     return;
                 }
-                java.io.File temporary = new java.io.File(localDir, ".restore_" + name);
+                java.io.File temporary = new java.io.File(localDir, RESTORE_PREFIX + name);
                 Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
                 if (!ContentHelper.copyContentToFile(this, documentUri, temporary.getAbsolutePath())) {
+                    temporary.delete();
+                    continue;
+                }
+                // the old file goes only once its copy is known to be whole
+                if (!ContentHelper.sameContent(this, documentUri, temporary)) {
+                    Log.d(TAG, "restoreTrainingFiles copy of " + name + " differs from the original, kept the original");
                     temporary.delete();
                     continue;
                 }
@@ -840,13 +859,12 @@ public class CustomQtActivity extends QtActivity {
                     temporary.delete();
                     continue;
                 }
-                if (!temporary.renameTo(local)
-                    && !ContentHelper.copyContentToFile(this, Uri.fromFile(temporary), local.getAbsolutePath())) {
-                    // the old file is already gone: the copy stays under the temporary name
+                if (!moveRestoreCopy(temporary, local)) {
+                    // the old file is already gone: the copy stays under the temporary name, and
+                    // recoverRestoreCopies() gives it the real name later
                     Log.d(TAG, "restoreTrainingFiles kept " + temporary + ", could not rename it");
                     continue;
                 }
-                temporary.delete();
                 if (restored.length() > 0) {
                     restored.append('\n');
                 }
@@ -859,6 +877,99 @@ public class CustomQtActivity extends QtActivity {
                 cursor.close();
             }
         }
+    }
+
+    private static final String RESTORE_PREFIX = ".restore_";
+    // a folder pass is running: its temporary copies are not left over yet
+    private volatile boolean trainingRestoreRunning = false;
+
+    // Copies a restore left under the temporary name in directory and its subfolders (the old
+    // file was already removed when the rename failed or the app stopped) take their real name.
+    // They are this install's own files, so no folder grant is needed. Returns their paths, one
+    // per line; empty while a folder pass is running.
+    public String recoverTrainingRestoreCopies(String directory) {
+        StringBuilder recovered = new StringBuilder();
+        if (directory != null && !directory.isEmpty() && !trainingRestoreRunning) {
+            recoverRestoreCopies(new java.io.File(directory), true, recovered);
+        }
+        return recovered.toString();
+    }
+
+    // For each .restore_<name> in dir: the real name is free – the copy takes it; taken by a
+    // readable file with the same bytes – the copy is dropped; with other bytes – the copy goes
+    // under a free <name>_N, so neither is lost; taken by a file of a previous install – the copy
+    // stays, and the folder pass copies that file again.
+    private void recoverRestoreCopies(java.io.File dir, boolean recursive, StringBuilder recovered) {
+        java.io.File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (java.io.File file : files) {
+            String name = file.getName();
+            if (file.isDirectory()) {
+                if (recursive) {
+                    recoverRestoreCopies(file, true, recovered);
+                }
+                continue;
+            }
+            if (!name.startsWith(RESTORE_PREFIX) || name.length() == RESTORE_PREFIX.length()) {
+                continue;
+            }
+            java.io.File target = new java.io.File(dir, name.substring(RESTORE_PREFIX.length()));
+            java.io.File result = null;
+            if (!target.exists()) {
+                result = moveRestoreCopy(file, target) ? target : null;
+            } else if (!ContentHelper.isReadable(target)) {
+                continue;
+            } else if (ContentHelper.sameContent(file, target)) {
+                file.delete();
+                continue;
+            } else {
+                result = moveRestoreCopyToFreeName(file, target);
+            }
+            Log.d(TAG, "recoverRestoreCopies " + file + " -> " + result);
+            if (result != null) {
+                if (recovered.length() > 0) {
+                    recovered.append('\n');
+                }
+                recovered.append(result.getAbsolutePath());
+            }
+        }
+    }
+
+    // Renames copy to target; when the rename fails, copies the bytes and keeps copy unless
+    // target holds the same bytes. false: copy is still in place and target does not exist.
+    private boolean moveRestoreCopy(java.io.File copy, java.io.File target) {
+        if (copy.renameTo(target)) {
+            return true;
+        }
+        // target is removed below only when this call has just written it
+        if (!copy.isFile()) {
+            return false;
+        }
+        if (ContentHelper.copyContentToFile(this, Uri.fromFile(copy), target.getAbsolutePath())
+            && ContentHelper.sameContent(copy, target)) {
+            copy.delete();
+            return true;
+        }
+        target.delete();
+        return false;
+    }
+
+    // Puts copy under the first free <name>_N next to target, as a picked file with a taken name
+    // gets; null when no name could be used (copy kept).
+    private java.io.File moveRestoreCopyToFreeName(java.io.File copy, java.io.File target) {
+        String fileName = target.getName();
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        for (int attempt = 1; attempt < 100; attempt++) {
+            java.io.File candidate = new java.io.File(target.getParentFile(), base + "_" + attempt + extension);
+            if (!candidate.exists()) {
+                return moveRestoreCopy(copy, candidate) ? candidate : null;
+            }
+        }
+        return null;
     }
 
     private void releaseFolderGrant(Uri treeUri) {

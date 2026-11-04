@@ -9291,12 +9291,7 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         return;
     }
     if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
-        int restored = 0;
-        for (const QString &path : localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
-            if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
-                restored++;
-            }
-        }
+        const int restored = restoredTrainingProgramCount(localPath);
         qDebug() << "training programs restored:" << restored;
         const bool quiet = m_trainingRestoreQuiet;
         m_trainingRestoreQuiet = false;
@@ -9309,7 +9304,10 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
             // the saved grant restored nothing (folder moved or renamed): the user picks it again
             emit trainingRestoreOfferRequested();
         }
-        emit trainingProgramsRestored();
+        // nothing changed in the folder: the list keeps its place
+        if (!localPath.isEmpty()) {
+            emit trainingProgramsRestored();
+        }
         return;
     }
     if (localPath.isEmpty()) {
@@ -9471,16 +9469,68 @@ bool homeform::startTrainingFolderRestore(bool allowPicker) {
 #endif
 }
 
+// restored programs among the paths, one per line, that the Java side passes; deletion
+// markers (.deleted_<name>) are restored too, but are not programs
+int homeform::restoredTrainingProgramCount(const QString &paths) {
+    int restored = 0;
+    for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
+            restored++;
+        }
+    }
+    return restored;
+}
+
+// A copy that an earlier restore left under its temporary name (the old file already removed)
+// takes its real name; this needs no folder grant, so it runs on every visit of the list.
+void homeform::recoverTrainingRestoreCopies() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDirectory =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
+        "recoverTrainingRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverTrainingRestoreCopies") || !recovered.isValid()) {
+        return;
+    }
+    const QString paths = recovered.toString();
+    if (paths.isEmpty()) {
+        return;
+    }
+    const int restored = restoredTrainingProgramCount(paths);
+    qDebug() << "training programs recovered from temporary copies:" << restored;
+    if (restored > 0) {
+        setToastRequested(tr("Training programs restored: %1.").arg(restored));
+    }
+    emit trainingProgramsRestored();
+#endif
+}
+
 void homeform::trainingProgramsPageOpened() {
-    if (m_trainingRestoreTried || !trainingFolderHasLockedFiles()) {
+    recoverTrainingRestoreCopies();
+    if (m_trainingRestoreTried) {
         return;
     }
     m_trainingRestoreTried = true;
+    const bool lockedFiles = trainingFolderHasLockedFiles();
+    // with a saved grant the folder is checked even when no bundled program shows a previous
+    // install: programs of the user alone cannot be told from the file API
     m_trainingRestoreQuiet = true;
-    if (!startTrainingFolderRestore(false)) {
-        m_trainingRestoreQuiet = false;
+    if (startTrainingFolderRestore(false)) {
+        return;
+    }
+    m_trainingRestoreQuiet = false;
+    if (lockedFiles) {
         emit trainingRestoreOfferRequested();
     }
+}
+
+void homeform::offerTrainingRestore() {
+    // the quiet restore of this visit is still running: it reports what it restored itself
+    if (m_trainingRestoreQuiet) {
+        qDebug() << "training programs: a restore is running, no question";
+        return;
+    }
+    emit trainingRestoreOfferRequested();
 }
 
 void homeform::restoreTrainingPrograms() {
