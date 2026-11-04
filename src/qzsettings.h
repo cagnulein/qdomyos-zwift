@@ -782,7 +782,7 @@ class QZSettings {
     static constexpr bool default_yesoul_peloton_formula = false;
 
     static const QString nordictrack_10_treadmill;
-    static const bool default_nordictrack_10_treadmill = true;
+    static constexpr bool default_nordictrack_10_treadmill = true;
 
     static const QString nordictrack_t65s_treadmill;
     static constexpr bool default_nordictrack_t65s_treadmill = false;
@@ -1578,7 +1578,7 @@ class QZSettings {
     static const QString default_horizon_treadmill_profile_user5;
 
     static const QString nordictrack_gx_2_7;
-    static constexpr bool default_nordictrack_gx_2_7 = false;
+    static const bool default_nordictrack_gx_2_7 = false;
 
     static const QString rolling_resistance;
     static constexpr double default_rolling_resistance = 0.005;
