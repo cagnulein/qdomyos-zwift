@@ -6577,12 +6577,24 @@ void homeform::update() {
         emit stopColorChanged(stopColor());
     }
 
-    // the heart rate came from elsewhere (a watch app, the machine): nothing to offer any more
-    if (!m_heartRateSensorSuggestions.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->currentHeart().value() > 0) {
-        qDebug() << "heart rate sensor offer: withdrawn, the heart rate comes";
-        m_heartRateSensorSuggestions.clear();
-        emit heartRateSensorSuggestionsChanged();
+    // nothing to offer any more: the heart rate came from elsewhere (a watch app, the machine), or meanwhile a sensor
+    // was chosen or the offer turned off in Heart Rate Options (Connect on the bar would replace that choice)
+    if (!m_heartRateSensorSuggestions.isEmpty()) {
+        QString withdrawn;
+        if (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0)
+            withdrawn = QStringLiteral("the heart rate comes");
+        else if (!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                      .toString()
+                      .startsWith(QStringLiteral("Disabled")))
+            withdrawn = QStringLiteral("a sensor is chosen");
+        else if (!settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
+                      .toBool())
+            withdrawn = QStringLiteral("the offer is turned off");
+        if (!withdrawn.isEmpty()) {
+            qDebug() << "heart rate sensor offer: withdrawn," << withdrawn;
+            m_heartRateSensorSuggestions.clear();
+            emit heartRateSensorSuggestionsChanged();
+        }
     }
 
     if (bluetoothManager->device()) {
