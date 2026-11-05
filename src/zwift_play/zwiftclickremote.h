@@ -64,6 +64,8 @@ class zwiftclickremote : public bluetoothdevice {
     QTimer *refresh;
 
     uint32_t countRxTimeout = 0;
+    int keepAliveCounter = 0;
+    bool deviceUnlocked = false;
 
 #ifdef Q_OS_IOS
     lockscreen* iOS_zwiftClickRemote = nullptr;
