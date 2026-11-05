@@ -223,7 +223,7 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
-    if(ICSE || HAMMER) {
+    if(ICSE || HAMMER || DRUMFIT) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_RESET};
@@ -455,7 +455,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             Resistance = requestResistance;
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
-           INCONDI_S150I || FS_SB_RCR || HS_5000L) {
+           INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1855,7 +1855,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             }
             
             if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() ||
-                HS_5000L || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK || H9115) {
+                HS_5000L || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK || H9115 || DRUMFIT) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("restricted FTMS bike wants to be subscribed only to FTMS service in order "
@@ -1946,7 +1946,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
         (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() ||
-         HS_5000L || SCH_290R || SMB1 || FIT_BK || WLT_BK || H9115)) {
+         HS_5000L || SCH_290R || SMB1 || FIT_BK || WLT_BK || H9115 || DRUMFIT)) {
         init();
     }
 
@@ -2380,6 +2380,22 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("H9115 LYON")) {
             qDebug() << QStringLiteral("H9115 LYON found");
             H9115 = true;
+        } else if (device.name().toUpper().endsWith(QStringLiteral("DRUMFIT"))) {
+            const QString drumFitPrefix = device.name().left(device.name().length() - QStringLiteral("DRUMFIT").length());
+            bool numericPrefix = !drumFitPrefix.isEmpty();
+            for (const QChar character : drumFitPrefix) {
+                if (!character.isDigit()) {
+                    numericPrefix = false;
+                    break;
+                }
+            }
+            if (numericPrefix) {
+                qDebug() << QStringLiteral("DRUMFIT found");
+                DRUMFIT = true;
+                max_resistance = 32;
+                resistance_lvl_mode = true;
+                ergModeSupported = false;
+            }
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
             YPBM = true;
