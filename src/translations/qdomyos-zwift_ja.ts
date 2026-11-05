@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>心拍センサーが見つかりました: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>心拍センサーが%1台見つかりました</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>接続</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>選択</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>今後表示しない</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>心拍センサーを選択</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -185,7 +216,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZはBluetoothと位置情報サービスの両方が有効になっている必要があります。
+        <translation type="vanished">QZはBluetoothと位置情報サービスの両方が有効になっている必要があります。
 アプリがBluetoothデバイスを見つけるには、Androidでは位置情報サービスが必要です。
 GPSは使用されません。
 
@@ -197,7 +228,7 @@ GPSは使用されません。
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>次回、位置情報サービスを有効にするよう通知しますか？</translation>
+        <translation type="vanished">次回、位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +263,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>値を増やす </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZがフィットネス機器を検出するには、Bluetoothを有効にする必要があります。Android 11以前では、Bluetooth機器の検出に位置情報の権限と位置情報サービスの有効化も必要です。QZは位置情報データを使用しません。Android 12以降では、「付近のデバイス」の権限によって、位置情報へのアクセスなしでBluetooth機器を検出できます。
+
+必要なサービスを有効にしますか？</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>次回、Bluetoothまたは位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
 </context>
 <context>
@@ -503,6 +546,22 @@ Would you like to do that now?</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>心拍センサーを検索しています...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1（心拍センサー）を検索しています...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）が見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心拍センサー）: 心拍数がありません。心拍数を送信しているか確認してください。</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1（ケイデンスセンサー）が接続されました!</translation>
     </message>
@@ -537,6 +596,10 @@ Would you like to do that now?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Rideが接続されました!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>近くに心拍センサーが見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1006,6 +1069,14 @@ QZの設定を更新しますか?</translation>
         <source>Android notification enabled</source>
         <translation>Androidバックグラウンド通知保持を有効にしました</translation>
     </message>
+    <message>
+        <source>YPOO M5 ready</source>
+        <translation>YPOO M5の準備ができました</translation>
+    </message>
+    <message>
+        <source>YPOO M5 initialization failed; reconnect required</source>
+        <translation>YPOO M5の初期化に失敗しました。再接続が必要です</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1264,6 +1335,10 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>プログラムを復元</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3587,6 +3662,18 @@ This may take a few moments on first startup.</source>
         <translation>インポートしたワークアウト: %1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>ファイルをQZフォルダーにコピーできませんでした。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>復元したトレーニングプログラム: %1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>履歴に登録済み: %1。</translation>
     </message>
@@ -3757,6 +3844,19 @@ This may take a few moments on first startup.</source>
     <message>
         <source>feet</source>
         <translation>ft</translation>
+    </message>
+    <message>
+        <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
+        <translation>QZの目標パワーがアプリのコマンドを上書きしています。アプリに制御を戻すには、QZを一時停止してから再開してください。</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotifyの曲:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ を実行中</translation>
     </message>
 </context>
 <context>
@@ -4112,6 +4212,20 @@ In the next window, allow access to the QZ folder.</source>
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>トレーニングプログラム</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
+検索しますか？
+
+次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>バックグラウンドで接続が切れました</translation>
     </message>
@@ -4407,6 +4521,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watchユーザーは、無効のままにしてください！ウォッチでアプリを開くだけです</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>開始時に心拍センサーを探す</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>トレーニング機器の接続後5分間、心拍データがない間は、QZが1分ごとに心拍センサーを探します。選択した心拍計・センサーは見つかり次第接続し、選択されていない場合は近くで見つかったセンサーを提案します。ホーム画面の心拍タイルまたはBluetoothアイコンをタップすると、いつでも検索できます。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -5522,8 +5644,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>アプリ言語:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。再起動が必要です。</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>デバイスの言語設定に従う場合は「自動（システム）」を選択するか、QZ用の特定の言語を選択してください。</translation>
     </message>
     <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
@@ -6292,6 +6414,14 @@ Please enter it below:</source>
         <translation>速度から計算するのではなく、トレッドミルから直接距離を読み取るためにこれをオンにしてください。一部のトレッドミルは、速度に基づく計算よりも正確に距離を報告します。初期設定はオフです。</translation>
     </message>
     <message>
+        <source>Direct Distance: add only the increase</source>
+        <translation>直接距離：増加分のみ加算</translation>
+    </message>
+    <message>
+        <source>Works with Direct Distance from Treadmill. Turn this on if the distance counter of your treadmill keeps running between workouts or starts again from 0 when the treadmill is switched off: only the distance walked during the workout is added, not what the treadmill counted before QZ connected. Default is off.</source>
+        <translation>「トレッドミルからの直接距離」と組み合わせて使います。トレッドミルの距離カウンターがワークアウトの間もリセットされない場合や、電源を切ると0から数え直す場合はオンにしてください。QZが接続する前にトレッドミルが数えた分ではなく、ワークアウト中に歩いた距離だけが加算されます。初期設定はオフです。</translation>
+    </message>
+    <message>
         <source>Difficulty offset based</source>
         <translation>難易度オフセットに基づく</translation>
     </message>
@@ -6403,6 +6533,70 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>傾斜（斜度）</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>仮想アプリの傾斜をバイクの負荷レベルにどう変換するかを設定します。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ が仮想アプリの傾斜を負荷レベルに変換するときに、カスタムの対応表を使用します。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>1 行に「傾斜|負荷レベル」を 1 組。ポイント間は QZ が補間し、設定範囲外では端点の値を使用します。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのユーザー名。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのパスワード。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>現在のカメラアングル</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>現在のエモート</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbikeエミュレーター</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>パワーグラフの位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心拍数グラフの位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>負荷レベルと目標負荷レベルのグラフの位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton換算負荷グラフの位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>ケイデンスグラフの位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>パワー分布グラフの位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>スピードと傾斜のグラフの位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -7807,6 +8001,102 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Pafers Rower</source>
         <translation>Pafers ローイングマシン</translation>
+    </message>
+    <message>
+        <source>Life Fitness Options</source>
+        <translation>Life Fitness連携設定</translation>
+    </message>
+    <message>
+        <source>Life Fitness username/email:</source>
+        <translation>Life Fitnessユーザー名/メール:</translation>
+    </message>
+    <message>
+        <source>Life Fitness password:</source>
+        <translation>Life Fitnessパスワード:</translation>
+    </message>
+    <message>
+        <source>Life Fitness guest login (experimental)</source>
+        <translation>Life Fitnessゲストログイン（実験的）</translation>
+    </message>
+    <message>
+        <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
+        <translation>アカウント不要の合成Life Fitnessプロファイルを使用します。有効にすると、ユーザー名、パスワード、保存済みのアカウントデータは無視されます。サポートされているゲストログインのテストにのみ使用してください。</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>ワークアウト履歴のグラフ</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>心拍数</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>負荷レベルと目標負荷レベル</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton換算負荷</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>ケイデンス</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>パワー分布</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>スピードと傾斜</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>グラフを上下に移動して、ワークアウト履歴での表示順を選択します。変更は自動的に保存されます。</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>上へ移動</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>下へ移動</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>デフォルトの順序に戻す</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio設定</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Moovio Lynx Konect 2.0 トレッドミル向けに、標準の FTMS Request Control コマンドを有効にします。デフォルトはオフです。</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>ケイデンスゲイン</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>バーチャルローイングマシンが送信するストロークレートにのみ適用される倍率です。デフォルトは1.0です。BikeERG の RPM を EXR が要求するストロークレートに変換するには 0.25 を使用します。</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>ゲインの後に加算されるオフセットです。デフォルトは0.0です。QZ 内部のケイデンス表示とワークアウトの指標は変わりません。</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS バックグラウンド維持</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>iOS のみ。画面がオフのときや QZ がバックグラウンドにあるときも QZ を動作させ続け、Bluetooth 接続やセッションタイマーが止まらないようにします。音楽とミックスされる無音のオーディオトラックを使用するため、聴いている音楽は中断されません。画面をロックしたまま、または QZ をバックグラウンドにしたままトレーニングする必要がある場合に有効にしてください。デフォルトはオフです。</translation>
     </message>
 </context>
 <context>

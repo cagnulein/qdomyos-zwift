@@ -259,23 +259,29 @@ ApplicationWindow {
         : Math.max(0.8, Math.min(1.7, settings.ui_text_scale / 100))
     // At 100 % every size stays exactly as before
     function fontPx(base) { return textScale === 1 ? base : Math.round(base * textScale) }
-    readonly property int appFontPx: Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
-    // Size of the hints under the settings. Where the app font has no pixel size (iOS, desktop)
+    // On iOS the app font is not the one of the controls: Qt gives it the size of the body text,
+    // 17 px at the default system text size and more with a bigger one (Dynamic Type), while the
+    // controls keep 14 px. So the controls are scaled from 14 and a plain Text from 17
+    readonly property bool iosTextSize: Qt.platform.os === "ios"
+    readonly property int iosBodyPx: 17
+    readonly property int appFontPx: iosTextSize ? 14 : Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
+    // Size of the hints under the settings. Where the app font has no pixel size (desktop)
     // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
     readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+        : iosTextSize ? Math.round((iosBodyPx - 2) * textScale)
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
     // Size of a plain Text, which takes the app font, not the window font (0 at 100 %). On Android
-    // the app font has a pixel size, the one of the controls. On iOS and desktop it has a point
-    // size of its own (17 on iOS, already scaled by the system text size QZ started with), so a
-    // Text is scaled from that, in pixels, and the start-up system size is taken out of it when
-    // the size follows the system
-    readonly property real startupSystemTextScale: AndroidStatusBar.systemFontScale()
+    // the app font has a pixel size, the one of the controls. On iOS a Text is scaled from the body
+    // size (above); on desktop the app font has a point size (in QML "pointSize": there is no
+    // "pointSizeF"), so a Text is scaled from that, in pixels
     readonly property int plainFontPx: textScale === 1 ? 0
-        : Qt.application.font.pixelSize > 0 || Qt.application.font.pointSizeF <= 0 ? scaledFontPx
-        : Math.round(Qt.application.font.pointSizeF * Screen.logicalPixelDensity * 25.4 / 72 * textScale
-            / (systemTextScaleAvailable && settings.ui_text_scale_system && startupSystemTextScale > 0 ? startupSystemTextScale : 1))
+        : iosTextSize ? Math.round(iosBodyPx * textScale)
+        : Qt.application.font.pixelSize > 0 || !(Qt.application.font.pointSize > 0) ? scaledFontPx
+        : Math.round(Qt.application.font.pointSize * Screen.logicalPixelDensity * 25.4 / 72 * textScale)
+    // Base of a plain Text that is a multiple of the text size (the file names in profiles)
+    readonly property int plainBasePx: iosTextSize ? iosBodyPx : appFontPx
     // Font of the section headers of the settings: a plain Text, which does not inherit the window
     // font. At 100 % the app font, the one a Text takes by itself
     readonly property font headerFont: textScale === 1 ? Qt.application.font
@@ -354,6 +360,8 @@ ApplicationWindow {
     ToastManager {
         id: toast
     }
+
+    HeartRateSuggestion {}
 
     property bool lapPromptVisible: false
     property string lapPromptText: ""
@@ -971,6 +979,21 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
+        function onTrainingRestoreOfferRequested() {
+            popupTrainingRestore.visible = true
+        }
+    }
+
+    // after a reinstall the training programs of the previous install are hidden in the
+    // training folder: with access to the QZ folder QZ copies them back as its own
+    MessageDialog {
+        id: popupTrainingRestore
+        text: qsTr("Training Programs")
+        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.restoreTrainingPrograms()
+        onNoClicked: this.visible = false
+        visible: false
     }
 
     // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
@@ -1250,7 +1273,39 @@ ApplicationWindow {
         // Opacity, not visible: some pages set headerToolbar.visible themselves
         opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
-        topPadding: getTopPadding()
+        // The toolbar hangs over the pages: in the window layout it is only as tall as the status
+        // bar inset, and the page stack below leaves room for the rest of it (stackView
+        // anchors.topMargin), so every page sits where it did. The tile grid in Home.qml reaches
+        // up under it and slides it away with the scroll (Material "scroll|enterAlways"): barShift
+        // is how much of it has gone up under the status bar. The page never changes size, so the
+        // tiles do not move under the finger
+        property real barShift: 0
+        // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
+        // (the tile grid can still be gliding or snapping under it when one is opened); back on the
+        // home page it is where the scroll left it, not over the Start/Stop row
+        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        // Set, not derived from the style, which counts the height of the background (48) as well
+        implicitHeight: getTopPadding()
+        // The content keeps its height and slides up with the bar
+        topPadding: getTopPadding() - barHidden
+        bottomPadding: barHidden - contentHeight
+        // The background, as tall as the status bar inset and the bar, slides up with it. Negative
+        // insets let it reach past the header: a background.height binding loses to the control's
+        // own resizing at an inset of 0
+        topInset: -barHidden
+        bottomInset: barHidden - contentHeight
+        // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
+        // well; the background goes then too
+        contentItem.opacity: 1 - barHidden / contentHeight
+        contentItem.visible: barHidden < contentHeight
+        background.visible: barHidden < contentHeight
+
+        // The bar takes the touches on it, as a toolbar the height of its content did: drawn
+        // past the height of the header, it would let a tap on the title reach the tiles below
+        MouseArea {
+            anchors.fill: parent
+            z: -1
+        }
         // Clear of the side system bar and the cutout held sideways, as the page stack: with
         // button navigation the bar on the right covered the rightmost button
         leftPadding: getLeftPadding()
@@ -1260,7 +1315,10 @@ ApplicationWindow {
             id: toolButton
             icon.source: "icons/icons/icon.png"
             text: stackView.depth > 1 ? "◄" : "◄"
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            // The header is as tall as this button. On iOS the app font already carries the system
+            // text size (53 px at the largest one), so the arrow is scaled from the body size, as
+            // the rest of the text, and keeps the same cap
+            font.pixelSize: window.iosTextSize ? window.fontPx(Math.round(window.iosBodyPx * 1.6)) : Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
                     // Back to the settings search results after one of them was opened, as the
@@ -1277,6 +1335,9 @@ ApplicationWindow {
             icon.source: "icons/icons/mini-display.png"
             onClicked: { console.log("floating!"); floatingOpen(); }
             anchors.left: toolButton.right
+            // The header is as tall as the back arrow, which grows with the text size (iOS):
+            // the icon buttons stay in its middle, in line with the arrow and the title
+            anchors.verticalCenter: parent.verticalCenter
             visible: OS_VERSION === "Android" ? true : false
         }
 
@@ -1372,6 +1433,7 @@ ApplicationWindow {
                 drawer.close()
             }
             anchors.right: toolButtonSaveSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
@@ -1405,6 +1467,7 @@ ApplicationWindow {
                     stackView.currentItem.showSettingsSearch()
             }
             anchors.right: toolButtonLoadSettings.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: headerToolbar.settingsPageActive
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Search settings")
@@ -1418,6 +1481,7 @@ ApplicationWindow {
                 popupSaveFile.open()
             }
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
+            anchors.verticalCenter: parent.verticalCenter
             visible: false
         }
 
@@ -1445,6 +1509,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.mapsVisible
         }      
 
@@ -1462,6 +1527,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.videoIconVisible
         }
 
@@ -1470,6 +1536,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/chart.png" )
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: rootItem.chartIconVisible
         }
 
@@ -1478,6 +1545,7 @@ ApplicationWindow {
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
             anchors.right: toolButtonAutoResistance.left
+            anchors.verticalCenter: parent.verticalCenter
             visible: !toolButtonSaveSettings.visible
         }
 
@@ -1486,6 +1554,7 @@ ApplicationWindow {
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
             visible: !headerToolbar.settingsPageActive
             width: visible ? implicitWidth : 0
         }
@@ -1850,6 +1919,8 @@ ApplicationWindow {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
+            // Below the toolbar, which hangs over the pages (headerToolbar)
+            anchors.topMargin: headerToolbar.contentHeight
             // Clear of the bottom system bar in any orientation: held sideways with gesture
             // navigation the bar stays at the bottom (with buttons it moves to the side, and the
             // bottom inset is 0 then)

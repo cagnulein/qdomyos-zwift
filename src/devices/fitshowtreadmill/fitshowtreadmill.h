@@ -157,6 +157,9 @@ class fitshowtreadmill : public treadmill {
     bool noblepro_connected = false;
     bool fs_connected = false;
     bool tunturi_t80_connected = false;
+    bool merach_t12_connected = false;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
+    QLowEnergyCharacteristic gattMerachUnlockCharacteristic;
 
     metric rawInclination;
 

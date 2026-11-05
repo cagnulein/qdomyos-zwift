@@ -1,10 +1,12 @@
 #include "homeform.h"
+#include <QTranslator>
 #include "devices/lifefitnesstreadmill/lifefitnessworkout.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
+#include "ios/ios_background_keepalive.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -228,6 +230,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
+constexpr int AndroidDocumentPickerTrainingFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -481,23 +484,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         });
     }
     QSettings settings;
-    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
-    // Units shown in the tile names; only displayed, never compared or saved
-    QString unit = tr("km");
-    QString meters = tr("m", "unit: meters");
-    QString weightLossUnit = tr("Kg");
-    QString cm = tr("cm");
-    if (miles) {
-        unit = tr("mi");
-        meters = tr("ft");
-        cm = tr("in", "unit: inches");
-    }
-    // Same condition as the value in update(): with "Use kg for weight" it stays in kg
-    if (miles && !weight_kg_unit) {
-        weightLossUnit = tr("Oz");
-    }
-
 #ifdef Q_OS_ANDROID
     m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
                                               "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
@@ -540,158 +526,158 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
-    speed = new DataObject(tr("Speed (%1/h)").arg(unit),
+    speed = new DataObject(QString(),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                            QStringLiteral("speed"), 48, labelFontSize);
-    inclination = new DataObject(tr("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
+    inclination = new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
-    negative_inclination = new DataObject(tr("Descent (%1)").arg(meters), QStringLiteral("icons/icons/inclination.png"),
+    negative_inclination = new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), false, QStringLiteral("negative_inclination"), 48, labelFontSize);
-    cadence = new DataObject(tr("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
+    cadence = new DataObject(QString(), QStringLiteral("icons/icons/cadence.png"),
                              QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
-    elevation = new DataObject(tr("Elev. Gain (%1)").arg(meters),
+    elevation = new DataObject(QString(),
                                QStringLiteral("icons/icons/elevationgain.png"), QStringLiteral("0"), false,
                                QStringLiteral("elevation"), 48, labelFontSize);
-    calories = new DataObject(tr("Calories (KCal)"), QStringLiteral("icons/icons/kcal.png"),
+    calories = new DataObject(QString(), QStringLiteral("icons/icons/kcal.png"),
                               QStringLiteral("0"), false, QStringLiteral("calories"), 48, labelFontSize);
-    odometer = new DataObject(tr("Odometer (%1)").arg(unit),
+    odometer = new DataObject(QString(),
                               QStringLiteral("icons/icons/odometer.png"), QStringLiteral("0.0"), false,
                               QStringLiteral("odometer"), 48, labelFontSize);
     pace =
-        new DataObject(tr("Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
 
     avg_pace =
-        new DataObject(tr("Avg Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("avg_pace"), 48, labelFontSize);
 
     grade_adjusted_pace =
-        new DataObject(tr("GAP (m/%1)").arg(unit),
+        new DataObject(QString(),
                        QStringLiteral("icons/icons/pace.png"), QStringLiteral("0:00"), false,
                        QStringLiteral("grade_adjusted_pace"), 48, labelFontSize);
 
     target_pace =
-        new DataObject(tr("T.Pace(m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
 
-    pace_last500m = new DataObject(tr("Pace 500m (m/%1)").arg(unit),
+    pace_last500m = new DataObject(QString(),
                                    QStringLiteral("icons/icons/pace.png"), QStringLiteral("0:00"), false,
                                    QStringLiteral("pace"), 48, labelFontSize);
 
-    resistance = new DataObject(tr("Resistance"), QStringLiteral("icons/icons/resistance.png"),
+    resistance = new DataObject(QString(), QStringLiteral("icons/icons/resistance.png"),
                                 QStringLiteral("0"), true, QStringLiteral("resistance"), 48, labelFontSize);
     peloton_resistance =
-        new DataObject(tr("Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/resistance.png"),
                        QStringLiteral("0"), true, QStringLiteral("peloton_resistance"), 48, labelFontSize);
     target_resistance =
-        new DataObject(tr("Target R."), QStringLiteral("icons/icons/resistance.png"), QStringLiteral("0"),
+        new DataObject(QString(), QStringLiteral("icons/icons/resistance.png"), QStringLiteral("0"),
                        true, QStringLiteral("target_resistance"), 48, labelFontSize);
     target_peloton_resistance =
-        new DataObject(tr("T.Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/resistance.png"),
                        QStringLiteral("0"), false, QStringLiteral("target_peloton_resistance"), 48, labelFontSize);
-    target_cadence = new DataObject(tr("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
+    target_cadence = new DataObject(QString(), QStringLiteral("icons/icons/cadence.png"),
                                     QStringLiteral("0"), false, QStringLiteral("target_cadence"), 48, labelFontSize);
-    target_power = new DataObject(tr("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
+    target_power = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"),
                                   QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
-    target_zone = new DataObject(tr("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
+    target_zone = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
                                  true, QStringLiteral("target_zone"), 48, labelFontSize);
-    target_speed = new DataObject(tr("T.Speed (%1/h)").arg(unit),
+    target_speed = new DataObject(QString(),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
     target_incline =
-        new DataObject(tr("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0.0"), true, QStringLiteral("target_inclination"), 48, labelFontSize);
 
-    watt = new DataObject(tr("Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    watt = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("watt"), 48, labelFontSize);
-    weightLoss = new DataObject(tr("Weight Loss(%1)").arg(weightLossUnit),
+    weightLoss = new DataObject(QString(),
                                 QStringLiteral("icons/icons/kcal.png"), QStringLiteral("0"), false,
                                 QStringLiteral("weight_loss"), 48, labelFontSize);
-    avgWatt = new DataObject(tr("AVG Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    avgWatt = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                              false, QStringLiteral("avgWatt"), 48, labelFontSize);
-    avgWattLap = new DataObject(tr("AVG Watt Lap"), QStringLiteral("icons/icons/watt.png"),
+    avgWattLap = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("avgWattLap"), 48, labelFontSize);
-    wattKg = new DataObject(tr("Watt/Kg"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    wattKg = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                             false, QStringLiteral("watt_kg"), 48, labelFontSize);
-    ftp = new DataObject(tr("FTP Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    ftp = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                          QStringLiteral("ftp"), 48, labelFontSize);
-    heart = new DataObject(tr("Heart (bpm)"), QStringLiteral("icons/icons/heart_red.png"),
+    heart = new DataObject(QString(), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), false, QStringLiteral("heart"), 48, labelFontSize);
-    fan = new DataObject(tr("Fan Speed"), QStringLiteral("icons/icons/fan.png"), QStringLiteral("0"), true,
+    fan = new DataObject(QString(), QStringLiteral("icons/icons/fan.png"), QStringLiteral("0"), true,
                          QStringLiteral("fan"), 48, labelFontSize);
-    jouls = new DataObject(tr("KJouls"), QStringLiteral("icons/icons/joul.png"), QStringLiteral("0"), false,
+    jouls = new DataObject(QString(), QStringLiteral("icons/icons/joul.png"), QStringLiteral("0"), false,
                            QStringLiteral("joul"), 48, labelFontSize);
     elapsed =
-        new DataObject(tr("Elapsed"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
+        new DataObject(QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
                        false, QStringLiteral("elapsed"), valueElapsedFontSize, labelFontSize);
     moving_time =
-        new DataObject(tr("Moving T."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
+        new DataObject(QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
                        false, QStringLiteral("moving_time"), valueElapsedFontSize, labelFontSize);
-    datetime = new DataObject(tr("Clock"), QStringLiteral("icons/icons/clock.png"),
+    datetime = new DataObject(QString(), QStringLiteral("icons/icons/clock.png"),
                               QTime::currentTime().toString(QStringLiteral("hh:mm:ss")), false,
                               QStringLiteral("datetime"), valueTimeFontSize, labelFontSize);
-    lapElapsed = new DataObject(tr("Lap Elapsed"), QStringLiteral("icons/icons/clock.png"),
+    lapElapsed = new DataObject(QString(), QStringLiteral("icons/icons/clock.png"),
                                 QStringLiteral("0:00:00"), false, QStringLiteral("lapElapsed"), valueElapsedFontSize,
                                 labelFontSize);
     remaningTimeTrainingProgramCurrentRow = new DataObject(
-        tr("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
+        QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
-    nextRows =
-        //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
-        new DataObject(tr("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
+    nextRows = new DataObject(QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
                        false, QStringLiteral("nextrows"), valueElapsedFontSize, labelFontSize);
 
-    mets = new DataObject(tr("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    mets = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("mets"), 48, labelFontSize);
-    targetMets = new DataObject(tr("Target METS"), QStringLiteral("icons/icons/watt.png"),
+    targetMets = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("targetmets"), 48, labelFontSize);
-    rss = new DataObject(tr("RSS"), QStringLiteral("icons/icons/watt.png"),
+    rss = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("rss"), 48, labelFontSize);
-    steeringAngle = new DataObject(tr("Steering"), QStringLiteral("icons/icons/cadence.png"),
+    steeringAngle = new DataObject(QString(), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("steeringangle"), 48, labelFontSize);
     peloton_offset =
-        new DataObject(tr("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+        new DataObject(QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
     peloton_remaining =
-        new DataObject(tr("Peloton Rem."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+        new DataObject(QString(), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
-    strokesCount = new DataObject(tr("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
+    strokesCount = new DataObject(QString(), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
-    strokesLength = new DataObject(tr("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
+    strokesLength = new DataObject(QString(), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
-    gears = new DataObject(tr("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
+    gears = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
-    biggearsPlus = new DataObject(tr("GearsPlus"), QStringLiteral("icons/icons/elevationgain.png"),
+    biggearsPlus = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
-    biggearsMinus = new DataObject(tr("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
+    biggearsMinus = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
-    autoVirtualShiftingCruise = new DataObject(tr("Cruise"), QStringLiteral("icons/icons/speed.png"),
+    autoVirtualShiftingCruise = new DataObject(QString(), QStringLiteral("icons/icons/speed.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
-    autoVirtualShiftingClimb = new DataObject(tr("Climb"), QStringLiteral("icons/icons/inclination.png"),
+    autoVirtualShiftingClimb = new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
     autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
-    powerAvg = new DataObject(tr("Power Avg"), QStringLiteral("icons/icons/watt.png"),
+    powerAvg = new DataObject(QString(), QStringLiteral("icons/icons/watt.png"),
                              QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, tr("Off"), QStringLiteral("grey"));
-    hrv = new DataObject(tr("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
+    hrv = new DataObject(QString(), QStringLiteral("icons/icons/heart_red.png"),
                          QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
-    pidHR = new DataObject(tr("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
+    pidHR = new DataObject(QString(), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
-    extIncline = new DataObject(tr("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
+    extIncline = new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                                 QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
     instantaneousStrideLengthCM =
-        new DataObject(tr("Stride L.(%1)").arg(cm), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("stride_length"), 48, labelFontSize);
-    groundContactMS = new DataObject(tr("Ground C.(ms)"), QStringLiteral("icons/icons/inclination.png"),
+    groundContactMS = new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                                      QStringLiteral("0"), false, QStringLiteral("ground_contact"), 48, labelFontSize);
     verticalOscillationMM =
-        new DataObject(tr("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("vertical_oscillation"), 48, labelFontSize);
 
     stepCount =
-        new DataObject(tr("Step Count"), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(QString(), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0"), false, QStringLiteral("step_count"), 48, labelFontSize);
+
+    setTileNames();
 
     ergMode = new DataObject(
         "", "", "", false, QStringLiteral("erg_mode"), 48, labelFontSize, QStringLiteral("white"),
@@ -905,6 +891,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 .arg(name));
     });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::heartRateSensorFound, this, &homeform::heartRateSensorFound);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
@@ -1423,12 +1410,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    // a folder import without any workout still has to tell the user so
-    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
-        requestCode != AndroidDocumentPickerFitRequestCode) {
-        return;
-    }
-
+    // an empty path goes through as well: a folder import without any workout and a picked file
+    // that could not be copied both have to tell the user so
     QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
                               Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
@@ -2015,6 +1998,72 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
     bluetoothManager->selectGymModeDevice(deviceName);
 }
 
+// A heart rate sensor nearby while none is chosen: offered in a bar over the pages, the strongest first
+// (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
+// onTap: found by the search a tap on the heart rate tile or the Bluetooth icon started
+void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap) {
+    QSettings settings;
+    if (!bluetooth::heartRateSensorOffered(
+            onTap,
+            settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool(),
+            !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled")),
+            bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0,
+            heartRateSensorsDismissed.contains(address)))
+        return;
+    // the user asked: from now on the bar is the answer to that tap
+    if (onTap)
+        m_heartRateSensorOfferOnTap = true;
+
+    QVariantMap sensor;
+    sensor[QStringLiteral("name")] = name;
+    sensor[QStringLiteral("address")] = address;
+    sensor[QStringLiteral("rssi")] = rssi;
+    int i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("address")).toString() != address)
+        i++;
+    if (i < m_heartRateSensorSuggestions.size())
+        m_heartRateSensorSuggestions.removeAt(i);
+    else
+        qDebug() << "heart rate sensor offered:" << name << address << "rssi" << rssi;
+    auto strength = [](int rssi) { return rssi < 0 ? rssi : -1000; };
+    i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           strength(m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("rssi")).toInt()) >=
+               strength(rssi))
+        i++;
+    m_heartRateSensorSuggestions.insert(i, sensor);
+    emit heartRateSensorSuggestionsChanged();
+}
+
+void homeform::heartRateSensorSuggestionConnect(const QString &name, const QString &address) {
+    qDebug() << "heart rate sensor offer: Connect" << name << address;
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    QSettings settings;
+    settings.setValue(QZSettings::heart_rate_belt_name, name);
+    emit heartRateSensorChosenFromOffer(name);
+    if (bluetoothManager)
+        bluetoothManager->reconnectHeartRateBelt(name, address);
+}
+
+void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
+    qDebug() << "heart rate sensor offer:" << (dontAskAgain ? "Don't ask again" : "Not now");
+    for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
+        heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::heart_rate_belt_suggest, false);
+        emit heartRateSensorOfferTurnedOff();
+    }
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
@@ -2344,11 +2393,165 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
+// Loads the translation for the app language setting: "auto" (or empty) follows the system locale,
+// "en" is the built-in source language and needs no translator. Called at start and on a change.
+void homeform::loadAppTranslation(const QString &language) {
+    static QTranslator *translator = nullptr;
+    if (translator) {
+        QCoreApplication::removeTranslator(translator);
+    } else {
+        translator = new QTranslator(QCoreApplication::instance());
+    }
+
+    QString configuredLanguage = language.trimmed();
+    QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                             configuredLanguage.isEmpty()
+                         ? QLocale::system().name()
+                         : configuredLanguage;
+    locale.replace(QLatin1Char('-'), QLatin1Char('_'));
+
+    auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+        if (localeKey.isEmpty()) {
+            return false;
+        }
+        if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+            // A file with no translated strings loads fine but would keep the app in English:
+            // skip it, so a regional locale falls back to its language (pt_BR -> pt)
+            if (translator->isEmpty()) {
+                qDebug() << "Translation file is empty for" << sourceLabel << ":" << localeKey;
+                return false;
+            }
+            QCoreApplication::installTranslator(translator);
+            qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+            return true;
+        }
+        return false;
+    };
+
+    // "en" is the built-in source language, so we don't load any translator for it.
+    if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+        qDebug() << "Language setting resolves to English. Using built-in source strings.";
+    } else {
+        bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+        if (!loaded && locale.contains(QLatin1Char('_'))) {
+            loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+        }
+        // Qt names the Norwegian locales nb_NO and nn_NO, the translation file is "no" (QTBUG-107781)
+        const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
+        if (!loaded && (languageCode == QStringLiteral("nb") || languageCode == QStringLiteral("nn"))) {
+            loaded = tryLoadTranslation(QStringLiteral("no"), QStringLiteral("language"));
+        }
+        if (!loaded) {
+            qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+        }
+    }
+}
+
+void homeform::setAppLanguage(const QString &language) {
+    loadAppTranslation(language);
+    // qsTr() bindings in QML follow by themselves; the tile titles are set again in sortTiles()
+    engine->retranslate();
+    sortTiles();
+    // the web pages took their texts when they were loaded: the open ones ask for them again
+    emit appLanguageChanged();
+#ifdef Q_OS_ANDROID
+    // and so did the notification, which is up once a device is connected
+    QSettings settings;
+    if (bluetoothManager && bluetoothManager->device() &&
+        settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool())
+        android_notification_apply(true);
+#endif
+}
+
+// The tile titles, in the current language and units: set when the tiles are made and again in
+// sortTiles() (back from the settings, a change of language). A device renames some of them there.
+void homeform::setTileNames() {
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
+    // Units shown in the tile names; only displayed, never compared or saved
+    QString unit = tr("km");
+    QString meters = tr("m", "unit: meters");
+    QString weightLossUnit = tr("Kg");
+    QString cm = tr("cm");
+    if (miles) {
+        unit = tr("mi");
+        meters = tr("ft");
+        cm = tr("in", "unit: inches");
+    }
+    // Same condition as the value in update(): with "Use kg for weight" it stays in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = tr("Oz");
+    }
+
+    speed->setName(tr("Speed (%1/h)").arg(unit));
+    inclination->setName(tr("Inclination (%)"));
+    negative_inclination->setName(tr("Descent (%1)").arg(meters));
+    cadence->setName(tr("Cadence (rpm)"));
+    elevation->setName(tr("Elev. Gain (%1)").arg(meters));
+    calories->setName(tr("Calories (KCal)"));
+    odometer->setName(tr("Odometer (%1)").arg(unit));
+    pace->setName(tr("Pace (m/%1)").arg(unit));
+    avg_pace->setName(tr("Avg Pace (m/%1)").arg(unit));
+    grade_adjusted_pace->setName(tr("GAP (m/%1)").arg(unit));
+    target_pace->setName(tr("T.Pace(m/%1)").arg(unit));
+    pace_last500m->setName(tr("Pace 500m (m/%1)").arg(unit));
+    resistance->setName(tr("Resistance"));
+    peloton_resistance->setName(tr("Peloton R(%)"));
+    target_resistance->setName(tr("Target R."));
+    target_peloton_resistance->setName(tr("T.Peloton R(%)"));
+    target_cadence->setName(tr("T.Cadence(rpm)"));
+    target_power->setName(tr("T.Power(W)"));
+    target_zone->setName(tr("T.Zone"));
+    target_speed->setName(tr("T.Speed (%1/h)").arg(unit));
+    target_incline->setName(tr("T.Incline (%)"));
+    watt->setName(tr("Watts"));
+    weightLoss->setName(tr("Weight Loss(%1)").arg(weightLossUnit));
+    avgWatt->setName(tr("AVG Watts"));
+    avgWattLap->setName(tr("AVG Watt Lap"));
+    wattKg->setName(tr("Watt/Kg"));
+    ftp->setName(tr("FTP Zone"));
+    heart->setName(tr("Heart (bpm)"));
+    fan->setName(tr("Fan Speed"));
+    jouls->setName(tr("KJouls"));
+    elapsed->setName(tr("Elapsed"));
+    moving_time->setName(tr("Moving T."));
+    datetime->setName(tr("Clock"));
+    lapElapsed->setName(tr("Lap Elapsed"));
+    remaningTimeTrainingProgramCurrentRow->setName(tr("Time to Next"));
+    //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
+    nextRows->setName(tr("Next Rows"));
+    mets->setName(tr("METS"));
+    targetMets->setName(tr("Target METS"));
+    rss->setName(tr("RSS"));
+    steeringAngle->setName(tr("Steering"));
+    peloton_offset->setName(tr("Peloton Offset"));
+    peloton_remaining->setName(tr("Peloton Rem."));
+    strokesCount->setName(tr("Strokes Count"));
+    strokesLength->setName(tr("Strokes Length"));
+    gears->setName(tr("Gears"));
+    biggearsPlus->setName(tr("GearsPlus"));
+    biggearsMinus->setName(tr("GearsMinus"));
+    autoVirtualShiftingCruise->setName(tr("Cruise"));
+    autoVirtualShiftingClimb->setName(tr("Climb"));
+    powerAvg->setName(tr("Power Avg"));
+    hrv->setName(tr("HRV (ms)"));
+    pidHR->setName(tr("PID Heart"));
+    extIncline->setName(tr("Ext.Inclin.(%)"));
+    instantaneousStrideLengthCM->setName(tr("Stride L.(%1)").arg(cm));
+    groundContactMS->setName(tr("Ground C.(ms)"));
+    verticalOscillationMM->setName(tr("Vert.Osc.(mm)"));
+    stepCount->setName(tr("Step Count"));
+}
+
 void homeform::sortTiles() {
 
     QSettings settings;
     bool pelotoncadence =
         settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+
+    // Language and units may have changed in the settings; a device renames some tiles below
+    setTileNames();
 
     if (!bluetoothManager || !bluetoothManager->device())
         return;
@@ -5929,23 +6132,29 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
+                const int32_t currentPower = qRound(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
                 m_overridePower = true;
-                ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
+                ((bike *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
+                const int32_t currentPower = qRound(((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
                 m_overridePower = true;
-                ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
+                ((treadmill *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                const int32_t currentPower = qRound(((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                const int32_t nextPower = currentPower > 0 ? qMax(1, currentPower - qRound(powerJog)) : 0;
+                if (nextPower == currentPower) return;
                 m_overridePower = true;
-                ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
+                ((rower *)bluetoothManager->device())->changePower(nextPower);
                 if (trainProgram) {
                     trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
@@ -6000,6 +6209,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     m_overridePower = false;
+    m_overridePowerWarned = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -6020,6 +6230,10 @@ void homeform::Start_inner(bool send_event_to_device) {
     } else {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+        // Keep QZ active in background only when the user explicitly enables it.
+        if (settings.value(QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive)
+                .toBool())
+            iosBackgroundKeepAlive::start();
         if(h && !h->appleWatchAppInstalled() && bluetoothManager->device())
             h->startWorkout(bluetoothManager->device()->deviceType());
 #endif
@@ -6132,6 +6346,9 @@ void homeform::Stop() {
     QSettings settings;
 
     m_startRequested = false;
+    // like Start/Pause, Stop gives the load back to the external app or the bike
+    m_overridePower = false;
+    m_overridePowerWarned = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -6139,24 +6356,29 @@ void homeform::Stop() {
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
+    iosBackgroundKeepAlive::stop();
 #endif
 #endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
+    const auto device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    auto treadmillDevice = device && device->deviceType() == TREADMILL
+        ? static_cast<treadmill *>(device) : nullptr;
     if (stopped) {
+        if (treadmillDevice)
+            treadmillDevice->stopWhenIdle();
         qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
         return;
     }
 
-    if (bluetoothManager->device()) {
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            QTime zero(0, 0, 0, 0);
-            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
-                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
-                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
-                return;
-            }
+    if (treadmillDevice) {
+        QTime zero(0, 0, 0, 0);
+        if (treadmillDevice->currentSpeed().value() == 0.0 &&
+            zero.secsTo(treadmillDevice->elapsedTime()) == 0) {
+            treadmillDevice->stopWhenIdle();
+            qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+            return;
         }
     }
 
@@ -6361,6 +6583,29 @@ void homeform::update() {
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
         emit stopColorChanged(stopColor());
+    }
+
+    // nothing to offer any more: the heart rate came from elsewhere (a watch app, the machine), or meanwhile a sensor
+    // was chosen (Connect on the bar would replace that choice) or, for a bar of the background search, the search
+    // turned off in Heart Rate Options; a bar the user asked for with a tap stays with it off
+    if (!m_heartRateSensorSuggestions.isEmpty()) {
+        QString withdrawn;
+        if (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0)
+            withdrawn = QStringLiteral("the heart rate comes");
+        else if (!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                      .toString()
+                      .startsWith(QStringLiteral("Disabled")))
+            withdrawn = QStringLiteral("a sensor is chosen");
+        else if (!m_heartRateSensorOfferOnTap &&
+                 !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
+                      .toBool())
+            withdrawn = QStringLiteral("the background search is turned off");
+        if (!withdrawn.isEmpty()) {
+            qDebug() << "heart rate sensor offer: withdrawn," << withdrawn;
+            m_heartRateSensorSuggestions.clear();
+            m_heartRateSensorOfferOnTap = false;
+            emit heartRateSensorSuggestionsChanged();
+        }
     }
 
     if (bluetoothManager->device()) {
@@ -7181,6 +7426,18 @@ void homeform::update() {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+
+                virtualbike *virtualBike = ((bike *)bluetoothManager->device())->VirtualBike();
+                if (!m_overridePowerWarned &&
+                    bike::targetPowerOverridesExternalApp(
+                        virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0,
+                        QDateTime::currentMSecsSinceEpoch(),
+                        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(),
+                        bluetoothManager->device()->autoResistance())) {
+                    m_overridePowerWarned = true;
+                    qDebug() << QStringLiteral("target power tile is overriding the external app commands");
+                    setToastRequested(tr("QZ target power is overriding the app's commands. Pause QZ and resume it to give control back to the app."));
+                }
             }
 
         } else if (bluetoothManager->device()->deviceType() == ROWING) {
@@ -9123,8 +9380,29 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
+    if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
+        const int restored = restoredTrainingProgramCount(localPath);
+        qDebug() << "training programs restored:" << restored;
+        const bool quiet = m_trainingRestoreQuiet;
+        m_trainingRestoreQuiet = false;
+        if (restored > 0) {
+            setToastRequested(tr("Training programs restored: %1.").arg(restored));
+        } else if (!quiet) {
+            // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
+            setToastRequested(tr("No training programs of a previous installation were found."));
+        } else if (quiet && trainingFolderHasLockedFiles()) {
+            // the saved grant restored nothing (folder moved or renamed): the user picks it again
+            emit trainingRestoreOfferRequested();
+        }
+        // nothing changed in the folder: the list keeps its place
+        if (!localPath.isEmpty()) {
+            emit trainingProgramsRestored();
+        }
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        setToastRequested(tr("The file could not be copied to the QZ folder."));
         return;
     }
 
@@ -9238,6 +9516,116 @@ QString homeform::historyDatabasePath() {
     }
     qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
     return chosen;
+}
+
+// After a reinstall (Android 14+) the files a previous install left in the training folder
+// still answer to their names but cannot be opened, and the folder list leaves them out. The
+// bundled programs, always copied at the first start, show it: one of them (or its deletion
+// marker) that exists and does not open belongs to a previous install.
+bool homeform::trainingFolderHasLockedFiles() {
+#ifdef Q_OS_ANDROID
+    const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QDirIterator itZwo(QStringLiteral(":/zwo/"));
+    while (itZwo.hasNext()) {
+        itZwo.next();
+        const QStringList paths = {trainingDir + itZwo.fileName(),
+                                   trainingDir + QStringLiteral(".deleted_") + itZwo.fileName()};
+        for (const QString &path : paths) {
+            QFile file(path);
+            if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+                qDebug() << "training folder: file of a previous install" << path;
+                return true;
+            }
+        }
+    }
+#endif
+    return false;
+}
+
+bool homeform::startTrainingFolderRestore(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDestinationDir =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openTrainingFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerTrainingFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openTrainingFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+// restored programs among the paths, one per line, that the Java side passes; deletion
+// markers (.deleted_<name>) are restored too, but are not programs
+int homeform::restoredTrainingProgramCount(const QString &paths) {
+    int restored = 0;
+    for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
+            restored++;
+        }
+    }
+    return restored;
+}
+
+// A copy that an earlier restore left under its temporary name (the old file already removed)
+// takes its real name; this needs no folder grant, so it runs on every visit of the list.
+void homeform::recoverTrainingRestoreCopies() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDirectory =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
+        "recoverTrainingRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverTrainingRestoreCopies") || !recovered.isValid()) {
+        return;
+    }
+    const QString paths = recovered.toString();
+    if (paths.isEmpty()) {
+        return;
+    }
+    const int restored = restoredTrainingProgramCount(paths);
+    qDebug() << "training programs recovered from temporary copies:" << restored;
+    if (restored > 0) {
+        setToastRequested(tr("Training programs restored: %1.").arg(restored));
+    }
+    emit trainingProgramsRestored();
+#endif
+}
+
+void homeform::trainingProgramsPageOpened() {
+    recoverTrainingRestoreCopies();
+    if (m_trainingRestoreTried) {
+        return;
+    }
+    m_trainingRestoreTried = true;
+    const bool lockedFiles = trainingFolderHasLockedFiles();
+    // with a saved grant the folder is checked even when no bundled program shows a previous
+    // install: programs of the user alone cannot be told from the file API
+    m_trainingRestoreQuiet = true;
+    if (startTrainingFolderRestore(false)) {
+        return;
+    }
+    m_trainingRestoreQuiet = false;
+    if (lockedFiles) {
+        emit trainingRestoreOfferRequested();
+    }
+}
+
+void homeform::offerTrainingRestore() {
+    // the quiet restore of this visit is still running: it reports what it restored itself
+    if (m_trainingRestoreQuiet) {
+        qDebug() << "training programs: a restore is running, no question";
+        return;
+    }
+    emit trainingRestoreOfferRequested();
+}
+
+void homeform::restoreTrainingPrograms() {
+    m_trainingRestoreQuiet = false;
+    startTrainingFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {
@@ -10062,7 +10450,7 @@ void homeform::strava_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        qDebug() << QStringLiteral("Got error") << qUtf8Printable(reply->errorString());
         setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
@@ -10180,7 +10568,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     QHttpPart externalIdPart;
     externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                              QVariant(QStringLiteral("form-data; name=\"external_id\"")));
-    externalIdPart.setBody(filename.toStdString().c_str());
+    externalIdPart.setBody(filename.toUtf8());
     multiPart->append(externalIdPart);
 
     QHttpPart filePart;
@@ -10798,7 +11186,8 @@ void homeform::android_notification_apply(bool enabled) {
     if (enabled) {
         // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
         // start right away and the running workout doesn't need a restart
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString(tr("QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
@@ -11170,6 +11559,12 @@ void homeform::sendMail() {
                 stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName +
                 QStringLiteral(" https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
+        }
+        if (!pelotonHandler->current_spotify_tracks.isEmpty()) {
+            textMessage += QStringLiteral("\n") + tr("Spotify songs:") + QStringLiteral("\n");
+            for (const QString &track : qAsConst(pelotonHandler->current_spotify_tracks)) {
+                textMessage += QStringLiteral("- ") + track + QStringLiteral("\n");
+            }
         }
     }
 

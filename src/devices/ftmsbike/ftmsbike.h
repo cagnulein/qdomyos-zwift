@@ -73,7 +73,13 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
+    static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
+    static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                           qint64 msecsSinceInclinationCommand,
+                                           qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
+    static double applyFsIb50GearGain(resistance_t gearDelta, double gearsGain);
     bool connected() override;
+
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
@@ -172,6 +178,10 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     bool native_resistance_received = false;
     QDateTime calculatedResistanceFallbackSince;
+    resistance_t lastFsIb50Resistance = -1;
+    QDateTime lastFsIb50InclinationCommand;
+    bool fsIb50PhysicalGearChangePending = false;
+
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
@@ -218,6 +228,7 @@ class ftmsbike : public bike {
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool FS_IB50 = false;
     bool FS_SB_RCR = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;

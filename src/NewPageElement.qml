@@ -28,12 +28,14 @@ ColumnLayout {
 
         Accessible.role: Accessible.Button 
         Accessible.name: title 
-        Accessible.description: expanded ? "Expanded" : "Collapsed"
-        Accessible.onPressAction: toggle()
+        // The section opens a page, there is nothing to expand: no state, and the press action of a
+        // screen reader opens the page like a tap on the header
+        Accessible.onPressAction: stackView.push(accordionContent, { settings: pageSettings })
 
         Rectangle{
            id:indicatRect
-           x: 16; y: 20
+           // Centred on the first line of the title: a fixed y sat below it with a smaller or bigger font
+           x: 16; y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
            width: 8; height: 8
            radius: 8
            color: "white"
@@ -50,12 +52,12 @@ ColumnLayout {
             wrapMode: window.labelWrap
         }
         Text {
-            // With a bigger text the arrow grew down from the top of its box and sat below the
-            // title: it is centred on the first line of the title instead
-            y: window.textScale !== 1 ? accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2 : 13
+            // The arrow grew down from the top of its box and sat below the title: it is centred
+            // on the first line of the title instead, at any text size
+            y: accordionText.y + (accordionText.height / Math.max(1, accordionText.lineCount) - height) / 2
             anchors.right:  parent.right
             anchors.rightMargin: 20
-            width: 30; height: window.textScale !== 1 ? implicitHeight : 30
+            width: 30; height: implicitHeight
             id: indicatImg
             text: ">"
             font.pixelSize: window.fontPx(24)

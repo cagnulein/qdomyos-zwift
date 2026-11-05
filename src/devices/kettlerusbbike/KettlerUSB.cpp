@@ -486,19 +486,32 @@ QString KettlerUSB::rawRead() {
             rxBuffer.remove(0, lineEnd + 2);
         }
     }
-#elif defined(WIN32)
-    char buffer[256];
-    DWORD cBytes;
-    if (ReadFile(devicePort, buffer, sizeof(buffer) - 1, &cBytes, NULL) && cBytes > 0) {
-        buffer[cBytes] = '\0';
-        result = QString::fromLatin1(buffer);
-    }
 #else
-    char buffer[256];
-    int rc = read(devicePort, buffer, sizeof(buffer) - 1);
-    if (rc > 0) {
-        buffer[rc] = '\0';
-        result = QString::fromLatin1(buffer);
+    // A single read returns whatever the adapter has buffered: often the tail
+    // of one answer and the start of the next. Parsing such a fragment shifted
+    // every field by one (cadence read the speed, power the energy). Collect
+    // bytes until a complete line is there (at most ~500 ms), then return the
+    // newest complete line and keep any partial one for the next call.
+    for (int waited = 0; waited <= 500; waited += 20) {
+        char buffer[256];
+#if defined(WIN32)
+        DWORD cBytes = 0;
+        if (ReadFile(devicePort, buffer, sizeof(buffer), &cBytes, NULL) && cBytes > 0)
+            rxBuffer.append(buffer, (int)cBytes);
+#else
+        int rc = read(devicePort, buffer, sizeof(buffer));
+        if (rc > 0)
+            rxBuffer.append(buffer, rc);
+#endif
+        int lastEnd = rxBuffer.lastIndexOf("\r\n");
+        if (lastEnd >= 0) {
+            QByteArray lines = rxBuffer.left(lastEnd);
+            int prevEnd = lines.lastIndexOf("\r\n");
+            result = QString::fromLatin1(prevEnd >= 0 ? lines.mid(prevEnd + 2) : lines);
+            rxBuffer.remove(0, lastEnd + 2);
+            break;
+        }
+        KettlerSleeper::msleep(20);
     }
 #endif
 
@@ -517,8 +530,10 @@ void KettlerUSB::flushSerialBuffer() {
     // Read and discard any pending data
     QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
 #elif defined(WIN32)
+    rxBuffer.clear();
     PurgeComm(devicePort, PURGE_RXCLEAR | PURGE_TXCLEAR);
 #else
+    rxBuffer.clear();
     tcflush(devicePort, TCIOFLUSH);
 #endif
 }

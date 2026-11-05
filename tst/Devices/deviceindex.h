@@ -90,6 +90,7 @@ public:
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
+    DEFINE_DEVICE(FitShowMerachT12, "FitShow Merach T12 Pro");
     DEFINE_DEVICE(FitShowSW, "FitShow SW");
     DEFINE_DEVICE(FlywheelBike, "Flywheel Bike");
     DEFINE_DEVICE(FlywheelLifeFitnessIC8, "Flywheel Life Fitness IC8");
@@ -174,6 +175,7 @@ public:
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
     DEFINE_DEVICE(YesoulBike, "Yesoul Bike");
+    DEFINE_DEVICE(YpooTreadmill, "Ypoo Treadmill");
     DEFINE_DEVICE(YpooElliptical, "Ypoo Elliptical");
     DEFINE_DEVICE(YpooElliptical2, "Ypoo Elliptical 2");
     DEFINE_DEVICE(YpooElliptical3, "Ypoo Elliptical 3");

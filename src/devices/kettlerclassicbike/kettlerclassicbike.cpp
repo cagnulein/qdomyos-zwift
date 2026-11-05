@@ -54,6 +54,7 @@ void kettlerclassicbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
 
     discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
+    discoveryAgent->setRemoteAddress(device.address());
     connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
             &kettlerclassicbike::serviceDiscovered);
     connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this, &kettlerclassicbike::serviceFinished);

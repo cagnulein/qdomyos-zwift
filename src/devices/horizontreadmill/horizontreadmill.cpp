@@ -33,7 +33,6 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    ypooM5Clock.start();
     connect(refresh, &QTimer::timeout, this, &horizontreadmill::update);
     refresh->start(200ms);
 }
@@ -44,7 +43,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     QEventLoop loop;
     QTimer timeout;
 
-    if (!service || (YPOO_M5 && !characteristic.isValid())) {
+    if (!service) {
         qDebug() << "no gattCustomService available";
         return;
     }
@@ -55,23 +54,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         timeA = timeB = 300; // for the normal treadmills, the timeout must be small, otherwise we are blocking the update timer on iOS
     }
 
-    const bool ypooM5ControlPoint = YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9);
-    if (YPOO_M5)
-        ypooM5WritePending = true;
-
-    if (ypooM5ControlPoint) {
-        // Telemetry and unrelated indications must not complete a control procedure.
-        const uint8_t opcode = data[0];
-        if (opcode == FTMS_REQUEST_CONTROL)
-            ypooM5ControlGranted = false;
-        connect(service, &QLowEnergyService::characteristicChanged, &loop,
-                [&loop, opcode](const QLowEnergyCharacteristic &replyCharacteristic, const QByteArray &reply) {
-                    if (replyCharacteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) && reply.size() >= 3 &&
-                        (uint8_t)reply.at(0) == 0x80 && (uint8_t)reply.at(1) == opcode)
-                        loop.quit();
-                });
-        timeout.singleShot(1000, &loop, SLOT(quit()));
-    } else if (wait_for_response) {
+    if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(timeA, &loop, SLOT(quit())); // 6 seconds are important
     } else {
@@ -94,8 +77,6 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
-    if (YPOO_M5)
-        ypooM5WritePending = false;
 }
 
 void horizontreadmill::waitForAPacket() {
@@ -107,10 +88,6 @@ void horizontreadmill::waitForAPacket() {
 }
 
 void horizontreadmill::btinit() {
-    if (YPOO_M5) {
-        if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
-            virtualTreadmill->clearControlPointWrites();
-    }
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
     horizon_treadmill_profile_users.append(
@@ -903,18 +880,6 @@ void horizontreadmill::btinit() {
         messageID = 0x10;
     }
 
-    if (YPOO_M5) {
-        if (!gattFTMSService || !gattWriteCharControlPointId.isValid() ||
-            !gattWriteCharControlPointIdYpooMiniPro.isValid()) {
-            emit debug(QStringLiteral("YPOO M5: FTMS control/unlock characteristic unavailable"));
-            return;
-        }
-        uint8_t unlock[] = {0x01, 0x00, 0x02, 0x02, 0x00, 0x05, 0x01, 0x01};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, unlock, sizeof(unlock),
-                            QStringLiteral("YPOO M5 unlock"));
-        QThread::msleep(500);
-    }
-
     if(YPOO_MINI_PRO) {
         uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
@@ -929,29 +894,32 @@ void horizontreadmill::btinit() {
         QThread::msleep(200);
     }
 
-    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO || YPOO_M5) {
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
-        if (!YPOO_M5) {
-            QThread::msleep(500);
+    if(anplus_treadmill) {
+        QSettings settings;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
+        if (moovio_lynx_konect_2_0) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
         }
     }
 
-    if (YPOO_M5 && !ypooM5ControlGranted) {
-        emit debug(QStringLiteral("YPOO M5: FTMS control was not granted; motor commands disabled"));
-        return;
+    if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
+        QThread::msleep(500);
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            false);
     }
+
     initDone = true;
 }
 
 float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
 
 void horizontreadmill::update() {
-    if (YPOO_M5 && ypooM5WritePending)
-        return;
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -978,6 +946,8 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
+        const bool moovio_lynx_konect_2_0 =
+            settings.value(QZSettings::moovio_lynx_konect_2_0, QZSettings::default_moovio_lynx_konect_2_0).toBool();
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -1012,11 +982,6 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
-        if (YPOO_M5) {
-            updateYpooM5Control();
-            return;
-        }
-
         // this treadmill can't go below 1
         if(mobvoi_tmp_treadmill && requestSpeed < 1)
             requestSpeed = -1;
@@ -1030,6 +995,12 @@ void horizontreadmill::update() {
                 settings.value(QZSettings::stryd_speed_instead_treadmill,
                                QZSettings::default_stryd_speed_instead_treadmill).toBool();
             const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
+            if (moovio_lynx_konect_2_0) {
+                // ANPLUS-18136 advertises 0.8..20.0 km/h with 0.1 km/h steps.
+                const double requestedSpeed = static_cast<double>(requestSpeed);
+                requestSpeed = qMax(0.8, qMin(20.0, requestedSpeed));
+                qDebug() << "requestSpeed after Moovio supported-range clamp=" << requestSpeed;
+            }
             bool minSpeed =
                 fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
@@ -1058,6 +1029,12 @@ void horizontreadmill::update() {
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
+                if (moovio_lynx_konect_2_0) {
+                    const double currentInclinationValue = currentInclination().value();
+                    requestInclination = requestInclination > currentInclinationValue ? qCeil(requestInclination)
+                                                                                     : qFloor(requestInclination);
+                    qDebug() << "requestInclination after Moovio whole-percent rounding=" << requestInclination;
+                }
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
 
@@ -1264,70 +1241,6 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
     return true;
 }
 
-void horizontreadmill::updateYpooM5Control() {
-    if (!initDone)
-        return;
-
-    // Stop takes priority over simultaneous starts and queued workout targets.
-    if (requestStop != -1 || requestPause != -1) {
-        ypooM5Control.requestStop();
-        requestStart = requestStop = requestPause = -1;
-        requestSpeed = -1;
-        requestInclination = -100;
-    } else {
-        if (requestStart != -1) {
-            ypooM5Control.requestStart();
-            requestStart = -1;
-        }
-        if (requestSpeed != -1) {
-            if (!ypooM5Control.requestSpeed(requestSpeed))
-                emit debug(QStringLiteral("YPOO M5: speed target rejected (range or treadmill stopped)"));
-            requestSpeed = -1;
-        }
-        if (requestInclination != -100) {
-            const double target = treadmillInclinationOverrideReverse(requestInclination);
-            if (YP_M1552 && (target < 0.0 || target > 12.0)) {
-                emit debug(QStringLiteral("YP-M1552: incline target outside 0-12% range"));
-            } else if (!ypooM5Control.requestIncline(target)) {
-                emit debug(QStringLiteral("YPOO M5: incline target rejected (range or treadmill stopped)"));
-            }
-            requestInclination = -100;
-        }
-    }
-
-    const auto command = ypooM5Control.next(ypooM5Clock.elapsed(), YP_M1552);
-    const auto failure = ypooM5Control.takeFailure();
-    if (failure != YpooM5Control::Action::None)
-        emit debug(QStringLiteral("YPOO M5: command %1 not confirmed by telemetry; retries stopped")
-                       .arg(static_cast<int>(failure)));
-
-    switch (command.action) {
-    case YpooM5Control::Action::Start: {
-        lastStart = QDateTime::currentMSecsSinceEpoch();
-        uint8_t start[] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, start, sizeof(start),
-                            QStringLiteral("YPOO M5 start"));
-        horizonPaused = false;
-        break;
-    }
-    case YpooM5Control::Action::Stop: {
-        lastStop = QDateTime::currentMSecsSinceEpoch();
-        uint8_t stop[] = {FTMS_STOP_PAUSE, 0x01};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, stop, sizeof(stop),
-                            QStringLiteral("YPOO M5 stop"));
-        break;
-    }
-    case YpooM5Control::Action::Speed:
-        forceSpeed(command.value);
-        break;
-    case YpooM5Control::Action::Incline:
-        forceIncline(command.value);
-        break;
-    case YpooM5Control::Action::None:
-        break;
-    }
-}
-
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
@@ -1386,7 +1299,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !YPOO_M5 && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1469,7 +1382,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !YPOO_M5 && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1654,17 +1567,8 @@ void horizontreadmill::forceIncline(double requestIncline) {
                 writeS[2] = 0x00;
             }
         } else {
-            if (YP_M1552) {
-                // YP-M1552 firmware uses a 0-21 level scale for 0-12% grade.
-                const double level = YpooM5Control::percentToLevel(requestIncline);
-                const int16_t raw = static_cast<int16_t>(std::lround(level * 10.0));
-                writeS[1] = raw & 0xFF;
-                writeS[2] = raw >> 8;
-            } else {
-                // Preserve the pre-PR encoding for every other Horizon treadmill, including YPTM-U0.
-                writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
-                writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
-            }
+            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
         }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
@@ -1674,6 +1578,33 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
 void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
+
+// treadmill_direct_distance: Distance is the treadmill counter. With treadmill_direct_distance_increment
+// only its increase is added instead: the counter may already be running when QZ connects and may be
+// reset on the treadmill during the workout. While QZ is paused the counter is followed but nothing is
+// added, as with the distance calculated from speed. The counter is followed in both modes, so turning
+// the option on during a workout adds nothing twice
+void horizontreadmill::setDirectDistance(double treadmillDistance, bool increment) {
+    QDateTime now = QDateTime::currentDateTime();
+    if (!increment) {
+        Distance = treadmillDistance;
+    } else if (lastDirectDistance < 0) {
+        qDebug() << "direct distance: first treadmill value" << treadmillDistance;
+    } else if (treadmillDistance < lastDirectDistance) {
+        qDebug() << "direct distance: treadmill counter reset from" << lastDirectDistance << "to" << treadmillDistance;
+    } else {
+        double increase = treadmillDistance - lastDirectDistance;
+        // more than 100 m plus 40 km/h since the last change of the counter is a bad packet
+        double maxIncrease = 0.1 + 40.0 * lastDirectDistanceChanged.msecsTo(now) / 3600000.0;
+        if (increase > maxIncrease)
+            qDebug() << "direct distance: increase ignored" << increase << "max" << maxIncrease;
+        else if (!isPaused())
+            Distance += increase;
+    }
+    if (treadmillDistance != lastDirectDistance)
+        lastDirectDistanceChanged = now;
+    lastDirectDistance = treadmillDistance;
 }
 
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -1693,36 +1624,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
         settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+    bool treadmill_direct_distance_increment =
+        settings.value(QZSettings::treadmill_direct_distance_increment,
+                       QZSettings::default_treadmill_direct_distance_increment).toBool();
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
-
-    if (YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9)) {
-        if (newValue.size() >= 3 && (uint8_t)newValue.at(0) == FTMS_RESPONSE_CODE) {
-            if ((uint8_t)newValue.at(1) == FTMS_STOP_PAUSE)
-                ypooM5Control.stopResponse((uint8_t)newValue.at(2) == FTMS_SUCCESS);
-            else if ((uint8_t)newValue.at(1) == FTMS_REQUEST_CONTROL)
-                ypooM5ControlGranted = (uint8_t)newValue.at(2) == FTMS_SUCCESS;
-        }
-        return;
-    }
-
-    if (YPOO_M5 && characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
-        double reportedSpeed = 0;
-        double reportedIncline = 0;
-        if (!YpooM5Control::readTelemetry(reinterpret_cast<const uint8_t *>(newValue.constData()),
-                                         newValue.size(), reportedSpeed, reportedIncline))
-            return;
-        const bool wasRunning = ypooM5Control.running();
-        ypooM5Control.telemetry(reportedSpeed,
-                                YP_M1552 ? YpooM5Control::levelToPercent(reportedIncline) : reportedIncline,
-                                ypooM5Clock.elapsed());
-        if (!wasRunning && ypooM5Control.running())
-            emit tapeStarted();
-    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
@@ -1918,10 +1828,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -2080,10 +1991,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totalDistance) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             }
             index += 3;
         }
@@ -2100,18 +2012,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if(domyos_treadmill_ts100) {
                 // Domyos TS100 has a fixed 15° inclination
                 Inclination = 15;
-            } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01) {
-                double reportedInclination = (double)(
-                                                  (int16_t)(
-                                                      ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
-                                                      (uint8_t)newValue.at(index)
-                                                      )
-                                                  ) /
-                                              10.0;
-                if (YP_M1552)
-                    reportedInclination = YpooM5Control::levelToPercent(reportedInclination);
-                parseInclination(treadmillInclinationOverride(reportedInclination));
-            } else if(ICONCEPT_FTMS_treadmill || T01) {
+            } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
+                parseInclination(treadmillInclinationOverride((double)(
+                                  (int16_t)(
+                                      ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
+                                      (uint8_t)newValue.at(index)
+                                      )
+                                  ) /
+                                                              10.0));
+            else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
                 if(val1 == 0x3C && val2 == 0x00) {
@@ -2298,10 +2207,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.totDistance && newValue.length() > index + 2) {
             if (treadmill_direct_distance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
+                setDirectDistance(((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)newValue.at(index)))) /
+                                      1000.0,
+                                  treadmill_direct_distance_increment);
             } else {
                 if (firstDistanceCalculated)
                     Distance += ((Speed.value() / 3600000.0) *
@@ -2571,11 +2481,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
                     // anyway to get the FTMS Service at least
                     gattFTMSService = s;
-                } else if(c.uuid() == _YpooMiniProCharId && (YPOO_MINI_PRO ||
-                          (YPOO_M5 && s->serviceUuid() == QBluetoothUuid((quint16)0x1826) &&
-                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
-                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))))) {
-                    qDebug() << QStringLiteral("YPOO unlock characteristic found");
+                } else if(c.uuid() == _YpooMiniProCharId && YPOO_MINI_PRO) {
+                    qDebug() << QStringLiteral("YPOO MINI PRO Control Point found");
                     gattWriteCharControlPointIdYpooMiniPro = c;
                 }
                 /* else if (c.uuid() == _gattInclinationSupported) {
@@ -2591,7 +2498,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattMerachUnlockService = s;
                 } else if (c.properties() & QLowEnergyCharacteristic::Write &&
                     c.uuid() == _gattWriteCharCustomService &&
-                    !BOWFLEX_T9 && !MX_TM && !YPOO_M5 &&
+                    !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2708,16 +2615,6 @@ void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic 
     Q_UNUSED(characteristic);
 
     if (newValue.isEmpty()) {
-        return;
-    }
-
-    if (YPOO_M5) {
-        if (!initDone)
-            return;
-        if ((uint8_t)newValue.at(0) == FTMS_START_RESUME)
-            start();
-        else if ((uint8_t)newValue.at(0) == FTMS_STOP_PAUSE && newValue.size() >= 2)
-            stop(false);
         return;
     }
 
@@ -2920,16 +2817,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YPTM-U0"))) {
-            qDebug() << QStringLiteral("YPOO M5 FTMS unlock mode found");
-            YPOO_M5 = true;
-            minInclination = -6.0;
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YP-M1552-"))) {
-            qDebug() << QStringLiteral("YPOO M5 YP-M1552 FTMS unlock mode found");
-            YPOO_M5 = true;
-            YP_M1552 = true;
-            minInclination = 0.0;
-            maxInclination = 12.0;
         } else if ((device.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")))) {
             qDebug() << QStringLiteral("YPOO-MINI PRO found");
             YPOO_MINI_PRO = true;
@@ -2977,7 +2864,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().startsWith(QStringLiteral("FS-"))) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
-            maxInclination = 40.0;
+            // FS- console range is -6..48 (approximately -3.5%..46% physical grade; support case 2026-10-31).
+            minInclination = -6.0;
+            maxInclination = 48.0;
         } else if (device.name().toUpper().startsWith(QStringLiteral("SF-T"))) {
             qDebug() << QStringLiteral("SF-T treadmill found");
             SF_TREADMILL = true;
@@ -3044,19 +2933,10 @@ bool horizontreadmill::connected() {
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        if (YPOO_M5) {
-            ypooM5Control.reset();
-            ypooM5ControlGranted = false;
-            if (auto virtualTreadmill = qobject_cast<virtualtreadmill *>(VirtualDevice()))
-                virtualTreadmill->clearControlPointWrites();
-            requestStart = requestStop = requestPause = -1;
-            requestSpeed = -1;
-            requestInclination = -100;
-        }
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 
@@ -3721,8 +3601,6 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if (YPOO_M5)
-        return 1.0;
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
     if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE || run_bt_treadmill)

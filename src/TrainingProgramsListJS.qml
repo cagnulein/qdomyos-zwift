@@ -57,6 +57,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
+        rootItem.trainingProgramsPageOpened()
     }
 
     // Model for search results
@@ -146,6 +147,16 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 5
 
+                // programs of a previous install were copied back into the training folder
+                Connections {
+                    target: rootItem
+                    function onTrainingProgramsRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
+
                 Row {
                     Layout.fillWidth: true
                     spacing: 5
@@ -229,8 +240,10 @@ ColumnLayout {
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
-                        property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
-                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                        // || "": while the folder is set again (onTrainingProgramsRestored) the model
+                        // is empty for a moment and get() gives undefined to the rows still shown
+                        property string itemFileName: isSearching ? model.fileName : (folderModel.get(index, "fileName") || "")
+                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
                         background: Rectangle {
@@ -302,16 +315,30 @@ ColumnLayout {
                     focus: true
                 }
 
-                Button {
+                RowLayout {
                     Layout.fillWidth: true
-                    height: 50
-                    text: qsTr("Other folders")
-                    onClicked: {
-                        if (Qt.platform.os === "android") {
-                            rootItem.openAndroidDocumentPicker("training")
-                        } else {
-                            fileDialogLoader.active = true
+
+                    Button {
+                        Layout.fillWidth: true
+                        height: 50
+                        text: qsTr("Other folders")
+                        onClicked: {
+                            if (Qt.platform.os === "android") {
+                                rootItem.openAndroidDocumentPicker("training")
+                            } else {
+                                fileDialogLoader.active = true
+                            }
                         }
+                    }
+
+                    // programs of a previous install that no bundled program points to are
+                    // found only on request
+                    Button {
+                        Layout.fillWidth: true
+                        height: 50
+                        visible: Qt.platform.os === "android"
+                        text: qsTr("Restore programs")
+                        onClicked: rootItem.offerTrainingRestore()
                     }
                 }
             }
@@ -390,6 +417,15 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+
+                    // a new app language: the page takes its texts when loaded and asks the server
+                    // for the program itself, so a reload loses nothing
+                    Connections {
+                        target: rootItem
+                        function onAppLanguageChanged() {
+                            previewWebView.reload()
+                        }
+                    }
                 }
             }
         }

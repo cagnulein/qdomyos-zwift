@@ -537,7 +537,7 @@ void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerStat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         initRequest = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

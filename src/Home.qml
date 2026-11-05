@@ -19,6 +19,13 @@ HomeForm {
         Accessible.role: Accessible.Pane
         Accessible.ignored: true
     }
+    // The Start/Stop row is the header of the grid (see GridView.header below), so it scrolls with
+    // the tiles as one page. It spans the page, not just the grid, so its buttons stay centred
+    topBar.x: -gridView.x
+    topBar.width: gridBox.width
+    // Below the room for the toolbar, which hangs over the top of the grid
+    topBar.y: gridView.barRoom
+
     signal start_clicked;
     signal stop_clicked;
     signal lap_clicked;
@@ -260,7 +267,7 @@ HomeForm {
     MessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
-        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
+        informativeText: qsTr("QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.\n\nWould you like to enable the required services?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -276,7 +283,7 @@ HomeForm {
     MessageDialog {
         id: remindLocationServicesDialog
         text: qsTr("Reminder Preference")
-        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
+        informativeText: qsTr("Would you like to be reminded about enabling Bluetooth or Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -306,6 +313,8 @@ HomeForm {
         if (rootItem.rpeFeelPopupEnabled()) {
             rpeFeelPopup.selectedRpe = 5;
             rpeFeelPopup.selectedFeel = 50;
+            // A change of language rebuilds the list and moves it to the first item
+            feelCombo.currentIndex = 2;
             rpeFeelPopup.open();
         } else {
             finish_stop();
@@ -334,7 +343,26 @@ HomeForm {
         console.log("home.qml completed");
     }
 
+    // The scrolled area: the page, cut off at its edges. It is as wide as the page, so the shadows
+    // of the outer columns stay. It reaches up under the toolbar, which hangs over the page
+    // (main.qml), so the tiles can take its place once it has slid away. Not while the tiles are
+    // being moved: the toolbar stays then, and moving them needs the grid where the page is
+    Item {
+        id: gridBox
+        anchors.fill: parent
+        anchors.topMargin: window.lockTiles ? 0 : -headerToolbar.contentHeight
+        clip: true
+        // The page background reaches up with it: behind the tiles there the window colour would
+        // show, not the theme one
+        Rectangle {
+            width: parent.width
+            height: gridView.barRoom
+            color: settings.theme_background_color
+        }
+    }
+
     GridView {
+        parent: gridBox
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -356,11 +384,92 @@ HomeForm {
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
+        // While the tiles are being moved the gap above the first row is part of the content,
+        // so it scrolls away with the tiles instead of staying as an empty band
+        topMargin: window.lockTiles ? 30 : 0
+        // The room for the toolbar above the Start/Stop row, so at the top it covers nothing, then
+        // the row and the gap under it, part of the content; none while the tiles are being moved
+        // (the row is hidden then and the grid starts below the toolbar)
+        readonly property real barRoom: window.lockTiles ? 0 : headerToolbar.contentHeight
+        readonly property real rowsRoom: window.lockTiles ? 0 : barRoom + rootItem.topBarHeight + 30
+        header: Item {
+            width: gridView.width
+            height: gridView.rowsRoom
+            // Under the tiles, as in the page before: the help text below the row (shown while
+            // searching) reaches down over the tiles. GridView would put the header at z 1, over them
+            z: -1
+            Component.onCompleted: topBar.parent = this
+        }
+        // At the top when the tiles get locked or unlocked: stay at the top, with the row or the gap
+        function keepAtTop() {
+            if (contentY <= 0)
+                contentY = -topMargin - rowsRoom
+        }
+        onTopMarginChanged: keepAtTop()
+        onRowsRoomChanged: keepAtTop()
         interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
-        onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
+
+        // The app toolbar slides away while the tiles scroll down and comes back as soon as they
+        // scroll up, 1:1 with them (Material "scroll|enterAlways"): it hangs over the grid
+        // (main.qml), so the tiles never move under the finger. scrolledNow, not contentY: at
+        // start originY follows contentY later. Past the top or the end the view only springs
+        // back, which does not move the toolbar, and at the top it is always shown
+        readonly property real scrolledNow: contentY - originY
+        property real lastBarScroll: 0
+        onScrolledNowChanged: {
+            var s = Math.min(Math.max(scrolledNow, 0), Math.max(contentHeight - height, 0))
+            var d = s - lastBarScroll
+            lastBarScroll = s
+            if (window.lockTiles || barSnap.running)
+                return
+            // Only the user's scrolling (a drag or its flick) moves it: the grid also moves on a
+            // rotation or a resize, with no snap to follow, and left it half shown
+            if (moving)
+                headerToolbar.barShift = Math.max(0, Math.min(headerToolbar.contentHeight, headerToolbar.barShift + d, s))
+            else
+                headerToolbar.barShift = Math.min(headerToolbar.barShift, s)
+        }
+        // Snap: once the finger is off, a half-shown toolbar goes on to the nearer end (Material
+        // "snap"). Within its room above the Start/Stop row the list goes with it, so the toolbar
+        // never comes to rest over the row: to the top, or to the row under the status bar
+        NumberAnimation { id: barSnap; target: headerToolbar; property: "barShift"; duration: 150; easing.type: Easing.OutQuad }
+        NumberAnimation { id: listSnap; target: gridView; property: "contentY"; duration: 150; easing.type: Easing.OutQuad }
+        onMovementStarted: {
+            barSnap.stop()
+            listSnap.stop()
+        }
+        onMovementEnded: {
+            if (window.lockTiles)
+                return
+            var b = headerToolbar.barShift, h = headerToolbar.contentHeight
+            var s = Math.min(Math.max(scrolledNow, 0), Math.max(contentHeight - height, 0))
+            if (s > 0 && s < h) {
+                // The toolbar follows the list back to the top by itself (barShift <= s). A list
+                // longer than the page by less than the toolbar ends first: then the toolbar goes
+                // only as far as the list, so the last row stays in view
+                var end = Math.min(h, contentHeight - height)
+                var hide = b >= end / 2
+                listSnap.to = originY + (hide ? end : 0)
+                listSnap.start()
+                if (hide) {
+                    barSnap.to = end
+                    barSnap.start()
+                }
+            } else if (b > 0 && b < h) {
+                barSnap.to = b < h / 2 ? 0 : h
+                barSnap.start()
+            }
+        }
+        // Moving the tiles shows the toolbar (main.qml); after it the toolbar starts shown again
+        Connections {
+            target: window
+            function onLockTilesChanged() {
+                listSnap.stop()
+                headerToolbar.barShift = 0
+            }
+        }
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             // Nothing to recompute: cellWidth and the grid width follow the page width
@@ -376,7 +485,8 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // VoiceOver accessibility support
+            // VoiceOver accessibility support. The search on the heart rate tile is its own button (heartTap): a press
+            // action here would make every tile clickable for Android, also the ones that do nothing on a tap
             Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
             Accessible.name: name + (largeButton ? "" : (": " + value))
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
@@ -421,6 +531,24 @@ HomeForm {
                 samples: 16
                 color: settings.theme_tile_shadow_color
                 source: rect
+            }
+
+            // The heart rate tile: a tap does what a tap on the Bluetooth icon does – with no machine yet it searches
+            // for it (bluetoothSearchNow(), nothing with one connected), and it looks for the heart rate sensor
+            // (homeform::reconnectHeartRateBelt()): the chosen one again or, with none chosen, one nearby to offer.
+            // Not while the tiles are being moved (loc takes the presses then).
+            // For TalkBack and VoiceOver a button after the tile, named by the tile only: its value changes on its own,
+            // and on the other tiles there is no such node
+            MouseArea {
+                id: heartTap
+                anchors.fill: rect
+                enabled: identificator === "heart" && !window.lockTiles
+                onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
+                Accessible.role: Accessible.Button
+                Accessible.name: name
+                Accessible.focusable: true
+                Accessible.ignored: !enabled
+                Accessible.onPressAction: { if (enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
             }
 
             Timer {
@@ -734,7 +862,7 @@ HomeForm {
                 )
             } else if (loc.mouseY < edgeZone) {
                 var factor2 = (edgeZone - loc.mouseY) / edgeZone
-                gridView.contentY = Math.max(0, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
+                gridView.contentY = Math.max(-gridView.topMargin, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
             } else {
                 running = false
             }
@@ -751,7 +879,8 @@ HomeForm {
 
         function indexAtMouse(mx, my) {
             var cols = gridView.tileColumns
-            var adjustedY = my + gridView.contentY
+            // The gap above the first row counts as the first row
+            var adjustedY = Math.max(0, my + gridView.contentY)
             var col = Math.floor((mx - gridView.x) / gridView.cellWidth)
             if (col < 0 || col >= cols) return -1
             var row = Math.floor(adjustedY / gridView.cellHeight)
@@ -801,7 +930,7 @@ HomeForm {
                 // No drag in progress: scroll the grid like a normal flick
                 var dy = mouseY - lastScrollY
                 if (Math.abs(dy) > 5) isSwiping = true
-                gridView.contentY = Math.max(0,
+                gridView.contentY = Math.max(-gridView.topMargin,
                     Math.min(gridView.contentHeight - gridView.height,
                              gridView.contentY - dy))
                 lastScrollY = mouseY
