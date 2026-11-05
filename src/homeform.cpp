@@ -2018,13 +2018,13 @@ bool homeform::supportDeviceConnected() const {
 bool homeform::supportMetricsActive() const {
     if (!supportDeviceConnected())
         return false;
-    const auto *device = bluetoothManager->device();
+    auto *device = bluetoothManager->device();
     // No single metric is universal: treadmills report speed, power meters report watts.
     return device->currentSpeed().value() > 0.01 || device->wattsMetric().value() > 0.5;
 }
 
 bool homeform::composeSupportEmail(const QString &description, const QString &reason, bool includeLog) {
-    const auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
     QString deviceName = device ? device->bluetoothDevice.name() : tr("No device detected");
     deviceName.replace(QRegularExpression(QStringLiteral("[\\r\\n]+")), QStringLiteral(" "));
     const QString issue = reason.isEmpty() ? QStringLiteral("Support request") : reason;
@@ -2038,18 +2038,18 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
 
     const QString subject = QStringLiteral("QZ issue | %1 | %2 | %3")
                                 .arg(deviceName.left(60), platform, issue.left(60));
-    QString body = QStringLiteral("Hi Roberto,\\n\\nI need help with QZ.\\n\\n"
-                                  "Problem:\\n%1\\n\\n"
-                                  "Expected behavior:\\n[Please describe what should happen]\\n\\n"
-                                  "--- QZ diagnostics ---\\n"
-                                  "QZ version: %2\\n"
-                                  "Platform: %3 (%4)\\n"
-                                  "Profile: %5\\n"
-                                  "Device: %6\\n"
-                                  "Connection: %7\\n"
-                                  "Speed: %8 km/h\\n"
-                                  "Power: %9 W\\n"
-                                  "Detected situation: %10\\n")
+    QString body = QStringLiteral("Hi Roberto,\n\nI need help with QZ.\n\n"
+                                  "Problem:\n%1\n\n"
+                                  "Expected behavior:\n[Please describe what should happen]\n\n"
+                                  "--- QZ diagnostics ---\n"
+                                  "QZ version: %2\n"
+                                  "Platform: %3 (%4)\n"
+                                  "Profile: %5\n"
+                                  "Device: %6\n"
+                                  "Connection: %7\n"
+                                  "Speed: %8 km/h\n"
+                                  "Power: %9 W\n"
+                                  "Detected situation: %10\n")
                        .arg(description.trimmed().isEmpty()
                                 ? QStringLiteral("[Please describe the issue]")
                                 : description.trimmed().left(4000))
@@ -2067,20 +2067,20 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
     // separate temporary copy in the platform cache for safe Android URI sharing.
     QString attachmentPath;
     if (!includeLog) {
-        body += QStringLiteral("Debug log: not requested.\\n");
+        body += QStringLiteral("Debug log: not requested.\n");
     } else if (!QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
-        body += QStringLiteral("Debug log: disabled. Enable Debug Log and restart QZ before reproducing.\\n");
+        body += QStringLiteral("Debug log: disabled. Enable Debug Log and restart QZ before reproducing.\n");
     } else {
         const QStringList candidates = QDir(getWritableAppDir()).entryList(
             QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
         if (candidates.isEmpty()) {
-            body += QStringLiteral("Debug log: no log file found.\\n");
+            body += QStringLiteral("Debug log: no log file found.\n");
         } else {
             QFile log(getWritableAppDir() + candidates.first());
             constexpr qint64 maxRawBytes = 64LL * 1024 * 1024;
             constexpr qint64 maxCompressedBytes = 10LL * 1024 * 1024;
             if (log.size() > maxRawBytes || !log.open(QIODevice::ReadOnly)) {
-                body += QStringLiteral("Debug log: unavailable or too large to prepare.\\n");
+                body += QStringLiteral("Debug log: unavailable or too large to prepare.\n");
             } else {
                 bool ok = false;
                 const QByteArray compressed = gzipCompress(log.readAll(), &ok);
@@ -2094,14 +2094,14 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
                         attachment.write(compressed) == compressed.size()) {
                         attachment.close();
                         attachmentPath = destination;
-                        body += QStringLiteral("Debug log: attached (gzip).\\n");
+                        body += QStringLiteral("Debug log: attached (gzip).\n");
                     } else {
                         attachment.close();
                         QFile::remove(destination);
-                        body += QStringLiteral("Debug log: attachment could not be written.\\n");
+                        body += QStringLiteral("Debug log: attachment could not be written.\n");
                     }
                 } else {
-                    body += QStringLiteral("Debug log: compression failed or attachment exceeds 10 MB.\\n");
+                    body += QStringLiteral("Debug log: compression failed or attachment exceeds 10 MB.\n");
                 }
             }
         }
@@ -2133,7 +2133,7 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
     // Desktop fallback: mailto cannot attach files. Keep the body and report that
     // the user must manually attach the prepared log.
     if (!attachmentPath.isEmpty())
-        body += QStringLiteral("\\nPlease attach the generated debug log manually: ") + attachmentPath;
+        body += QStringLiteral("\nPlease attach the generated debug log manually: ") + attachmentPath;
     QUrl url(QStringLiteral("mailto:") + recipient);
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("subject"), subject);
