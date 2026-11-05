@@ -1705,6 +1705,19 @@ int main(int argc, char *argv[]) {
         androidAccessibility::registerOverQt();
 #endif
         engine.load(url);
+#ifdef Q_OS_MACOS
+        // CI verification of a distributed .dmg: confirm that the real QML window
+        // loaded, then run the event loop briefly before exiting successfully.
+        if (qEnvironmentVariableIsSet("QZ_CI_GUI_SMOKE_TEST")) {
+            if (engine.rootObjects().isEmpty()) {
+                fputs("QZ_QML_LOAD_FAILED\n", stderr);
+                return 1;
+            }
+            fputs("QZ_QML_LOADED\n", stderr);
+            fflush(stderr);
+            QTimer::singleShot(5000, app.data(), [] { QCoreApplication::quit(); });
+        }
+#endif
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, [] { restoreLostAccessibility(); });
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
