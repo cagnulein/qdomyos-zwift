@@ -878,6 +878,9 @@ import AndroidStatusBar 1.0
                     // A real written as a float by the C++ side reads back as 0.33000001
                     if (!isFinite(value))
                         return ""
+                    var inUnits = searchUnitValueText(entry, value)
+                    if (inUnits.length > 0)
+                        return inUnits
                     return String(value % 1 === 0 ? value : parseFloat(value.toPrecision(7)))
                 }
                 if (entry.type === "string") {
@@ -889,6 +892,77 @@ import AndroidStatusBar 1.0
             } catch (e) {
                 console.log("settings search: no value for " + entry.key + ": " + e)
             }
+            return ""
+        }
+
+        // Numbers whose page shows them in other units than they are kept in. A result shows them
+        // as the page does, with its formula:
+        // - the pace of a distance, kept in seconds per km: the time of the whole distance,
+        //   "00:25:00" for 5 km at 300
+        // - the warmup, cooldown and rest paces, in seconds per km: as hh:mm:ss, "00:07:00" at 420
+        // - with "Use Miles unit in UI": the weights in pounds (unless "Weight in kg"), the height
+        //   in feet'inches, the speeds in mph, the autolap distance in miles
+        readonly property var searchPaceDistances: ({ "pacef_1mile": 1.60934, "pacef_5km": 5, "pacef_10km": 10,
+                                                      "pacef_halfmarathon": 21, "pacef_marathon": 42 })
+        readonly property var searchPaceKeys: ["trainprogram_warmup_speed", "trainprogram_cooldown_speed",
+                                               "trainprogram_rest_speed"]
+        readonly property var searchSpeedKeys: ["treadmill_speed_max", "treadmill_speed_min", "treadmill_step_speed",
+                                                "peloton_treadmill_walking_min_speed",
+                                                "peloton_treadmill_running_min_speed", "autolap_distance"]
+
+        function searchInPounds() {
+            return settings.miles_unit && !settings.weight_kg_unit
+        }
+
+        // The speed values of the tiles page (tile_preset_speed_1_value ... _5_value)
+        function isTileSpeedPreset(key) {
+            return key.indexOf("tile_preset_speed_") === 0 && key.endsWith("_value")
+        }
+
+        // The unit of a value shown converted, "" for any other setting. A pace needs none: its
+        // name says it
+        function searchUnit(entry) {
+            if (entry.catalogKind !== "setting")
+                return ""
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return searchInPounds() ? qsTr("lbs") : qsTr("kg")
+            if (entry.key === "height")
+                return settings.miles_unit ? qsTr("ft/in") : qsTr("cm")
+            if (entry.key === "autolap_distance")
+                return settings.miles_unit ? qsTr("Mi") : qsTr("KM")
+            if (searchSpeedKeys.indexOf(entry.key) >= 0 || isTileSpeedPreset(entry.key))
+                return settings.miles_unit ? qsTr("mph") : qsTr("km/h")
+            return ""
+        }
+
+        // The name of a result with the unit of its value, as the page writes it next to the
+        // field: "Bike Weight (lbs)". A page label made of a translated template ("Bike Weight
+        // (%1)") is taken as it is: Japanese and Chinese put the unit in full-width brackets
+        function searchTitle(entry) {
+            var name = entry._translatedName || entry.name || entry.key
+            var unit = searchUnit(entry)
+            if (unit.length === 0)
+                return name
+            var template = (entry.name || entry.key) + " (%1)"
+            var translated = translatedText(template)
+            return translated !== template ? translated.arg(unit) : name + " (" + unit + ")"
+        }
+
+        // A number as its page shows it, "" when the page shows it as it is kept
+        function searchUnitValueText(entry, value) {
+            if (searchPaceDistances[entry.key] !== undefined)
+                return paceSecondsToTime(value * searchPaceDistances[entry.key])
+            if (searchPaceKeys.indexOf(entry.key) >= 0)
+                return paceSecondsToTime(value)
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return String(Number((searchInPounds() ? value * 2.20462 : value).toFixed(2)))
+            if (entry.key === "height")
+                return settings.miles_unit ? Math.floor(value / 30.48) + "'" + Math.round((value % 30.48) / 2.54) + '"' : ""
+            if (searchSpeedKeys.indexOf(entry.key) >= 0)
+                return (settings.miles_unit ? value * 0.621371 : value).toFixed(1)
+            // The tiles page drops a trailing ".0"
+            if (isTileSpeedPreset(entry.key))
+                return String(Number((settings.miles_unit ? value * 0.621371 : value).toFixed(1)))
             return ""
         }
 
@@ -2614,7 +2688,7 @@ import AndroidStatusBar 1.0
                             anchors.fill: parent
                             onClicked: searchResultFrame.open()
                             Accessible.role: Accessible.Button
-                            Accessible.name: settingsPane.plainTitle(entry._translatedName || entry.name || entry.key) +
+                            Accessible.name: settingsPane.plainTitle(settingsPane.searchTitle(entry)) +
                                              (searchResultFrame.valueText.length > 0 ? ": " + searchResultFrame.valueText : "")
                             Accessible.onPressAction: searchResultFrame.open()
                         }
@@ -2639,7 +2713,7 @@ import AndroidStatusBar 1.0
 
                                     Label {
                                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
-                                        text: entry._translatedName || entry.name || entry.key
+                                        text: settingsPane.searchTitle(entry)
                                         font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
