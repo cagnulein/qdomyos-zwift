@@ -177,7 +177,9 @@ void lockscreen::request()
     [h request];
     zwiftProtobufLayer = [[zwift_protobuf_layer alloc] init];
     if (@available(iOS 13, *)) {
-        Garmin = [[GarminConnect alloc] init];
+        if (!Garmin) {
+            Garmin = [[GarminConnect alloc] init];
+        }
     }
     // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
     if (@available(iOS 17, *)) {
@@ -567,16 +569,33 @@ int lockscreen::virtualrower_getLastFTMSMessage(unsigned char* message) {
 }
 
 void lockscreen::garminconnect_init() {
-    [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
-                                 uiOverrideDelegate:nil];
-    
+    // Initialize the SDK without opening Garmin Connect Mobile. The handoff
+    // backgrounds QZ, potentially interrupting the treadmill's BLE session.
+    static bool initialized = false;
+    if (initialized) {
+        return;
+    }
+    if (@available(iOS 13, *)) {
+        if (!Garmin) {
+            Garmin = [[GarminConnect alloc] init];
+        }
+        [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
+                                         uiOverrideDelegate:nil];
+        initialized = true;
+        [Garmin restorePairedDevices];
+    }
+}
+
+void lockscreen::garminconnect_pair() {
+    // Only a user action may launch Garmin Connect for watch selection.
+    garminconnect_init();
     [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
 }
 
 bool lockscreen::urlParser(const char *url) {
     NSString *sURL = [NSString stringWithCString:url encoding:NSASCIIStringEncoding];
     NSURL *URL = [NSURL URLWithString:[sURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    [Garmin urlParser: URL];
+    return Garmin && [Garmin urlParser:URL];
 }
 
 int lockscreen::getHR() {
