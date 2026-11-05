@@ -874,7 +874,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 #ifndef STEAM_STORE
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
+    // Android and macOS trial builds expire after 15 minutes; keep the
+    // existing Windows timer unchanged.
+#if defined(Q_OS_ANDROID) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    tLicense.start(15 * 60 * 1000);
+#else
     tLicense.start(600000);
+#endif
     licenseRequest();
 #endif
 #endif
