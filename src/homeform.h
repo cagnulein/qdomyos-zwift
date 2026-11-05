@@ -672,6 +672,8 @@ class homeform : public QObject {
     // A virtual device lost its client because Android cut QZ's network in the background
     // (DirCon NetworkError while QZ is not active): offer the Android notification on resume
     void backgroundNetworkLost();
+    // Garmin Connect IQ Companion (watch HR), separate from Garmin Connect FIT upload.
+    Q_INVOKABLE void garmin_companion_pair();
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
