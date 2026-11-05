@@ -34,8 +34,12 @@ extension ConnectIQ {
         return v.Speed;
     }
 
-    @objc public func urlParser(_ url: URL) {
-        v.urlParser(url)
+    @objc public func urlParser(_ url: URL) -> Bool {
+        return v.urlParser(url)
+    }
+
+    @objc public func restorePairedDevices() {
+        v.restorePairedDevices()
     }
 }
 
@@ -45,8 +49,10 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     private static let urlScheme = "org.cagnulein.connectiqcomms-ciq"
     // UUID from `manifest.xml` of the ConnectIQ app.
     private static let watchAppUuid = UUID(uuidString: "feec8674-2795-4e03-a283-0b69a0a291e3")
+    private static let pairedDevicesKey = "QZGarminConnectIQPairedDevices"
 
-    // Device UUID mapped to the CommsApp on that device.
+    // Keep the SDK's registered devices, independently from the watch apps.
+    private var pairedDevices: [UUID: IQDevice] = [:]
     private var apps: [UUID: IQApp] = [:]
 
     @Published private var message = ""
@@ -73,17 +79,64 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
         }
     }
 
+    // Called only after an explicit selection in Garmin Connect Mobile. IQDevice
+    // supports NSSecureCoding, so the SDK's own device identifiers are preserved.
     func urlParser(_ url: URL) -> Bool {
         guard url.scheme == GarminConnectSwift.urlScheme,
-                 let devices = ConnectIQ.shared?.parseDeviceSelectionResponse(from: url) as? [IQDevice] else { return false }
-             registerForDeviceEvents(devices: devices)
+              let devices = ConnectIQ.shared?.parseDeviceSelectionResponse(from: url) as? [IQDevice] else {
+            return false
+        }
+
+        do {
+            let data = try NSKeyedArchiver.archivedData(withRootObject: devices, requiringSecureCoding: true)
+            UserDefaults.standard.set(data, forKey: GarminConnectSwift.pairedDevicesKey)
+            SwiftDebug.qtDebug("GarminConnect: saved \(devices.count) selected device(s)")
+        } catch {
+            SwiftDebug.qtDebug("GarminConnect: failed to save device selection: \(error.localizedDescription)")
+        }
+
+        registerForDeviceEvents(devices: devices)
         SwiftDebug.qtDebug("GarminConnect: urlParser: return true")
-             return true
+        return true
+    }
+
+    // Startup must never invoke showConnectIQDeviceSelection: it opens the
+    // Garmin Connect app and temporarily backgrounds QZ while using BLE.
+    func restorePairedDevices() {
+        guard let data = UserDefaults.standard.data(forKey: GarminConnectSwift.pairedDevicesKey) else {
+            SwiftDebug.qtDebug("GarminConnect: no saved watch; use Pair Garmin Watch from the QZ menu")
+            return
+        }
+
+        do {
+            // IQDevice contains UUID and NSString metadata in its keyed archive.
+            let allowedClasses: [AnyClass] = [NSArray.self, IQDevice.self, NSUUID.self, NSString.self, NSNumber.self]
+            guard let devices = try NSKeyedUnarchiver.unarchivedObject(ofClasses: allowedClasses, from: data)
+                as? [IQDevice] else {
+                SwiftDebug.qtDebug("GarminConnect: invalid saved watch data; pair manually")
+                return
+            }
+            registerForDeviceEvents(devices: devices)
+            SwiftDebug.qtDebug("GarminConnect: restored \(devices.count) paired device(s)")
+        } catch {
+            SwiftDebug.qtDebug("GarminConnect: failed to restore paired devices: \(error.localizedDescription)")
+        }
     }
 
     private func registerForDeviceEvents(devices: [IQDevice]) {
+        let selectedIds = Set(devices.map { $0.uuid })
+        for (uuid, existing) in pairedDevices where !selectedIds.contains(uuid) {
+            ConnectIQ.shared?.unregister(forDeviceEvents: existing, delegate: self)
+            if let app = apps.removeValue(forKey: uuid) {
+                ConnectIQ.shared?.unregister(forAppMessages: app, delegate: self)
+            }
+            pairedDevices.removeValue(forKey: uuid)
+        }
         for device in devices {
-            ConnectIQ.shared?.register(forDeviceEvents: device, delegate: self)
+            if pairedDevices[device.uuid] == nil {
+                ConnectIQ.shared?.register(forDeviceEvents: device, delegate: self)
+            }
+            pairedDevices[device.uuid] = device
         }
     }
 
@@ -93,6 +146,9 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
         case .connected:
             // The `store` is not necessary for sending messages, I suppose it's for when you want the user to download the app.
             // `IQApp` class needs to be instantiated for every IQDevice, you can't share them, it's the app on the specific device.
+            if let previousApp = apps[device.uuid] {
+                ConnectIQ.shared?.unregister(forAppMessages: previousApp, delegate: self)
+            }
             let app = IQApp(uuid: GarminConnectSwift.watchAppUuid, store: nil, device: device)
             apps[device.uuid] = app
             print(device.uuid)
