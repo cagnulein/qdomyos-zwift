@@ -546,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1(심박 센서) 연결됨!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>심박 센서 검색 중…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1(심박 센서) 검색 중…</translation>
     </message>
@@ -592,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 연결됨!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>근처에서 심박 센서를 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4645,8 +4653,8 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>근처에서 찾은 심박 센서 제안</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>심박 벨트를 선택하지 않았고 심박수가 들어오지 않으면, QZ는 운동 기구가 연결된 후 처음 5분 동안 근처의 심박 센서를 찾아 연결을 제안합니다.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>심박 벨트를 선택하지 않았고 심박수가 들어오지 않으면, QZ는 운동 기구가 연결된 후 처음 5분 동안 또는 홈 화면의 Bluetooth 아이콘을 탭할 때 근처의 심박 센서를 찾아 연결을 제안합니다.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

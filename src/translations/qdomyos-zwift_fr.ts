@@ -546,6 +546,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <translation>%1 (capteur cardiaque) connecté !</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Recherche de capteurs cardiaques...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Recherche de %1 (capteur cardiaque)...</translation>
     </message>
@@ -592,6 +596,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride connecté !</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Aucun capteur cardiaque trouvé à proximité. Vérifiez qu’il est allumé et qu’il diffuse la fréquence cardiaque.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4465,8 +4473,8 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Proposer un capteur cardiaque trouvé à proximité</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Si aucune ceinture cardiaque n&apos;est choisie et qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque pendant les 5 premières minutes après la connexion de l&apos;appareil et propose de le connecter.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Si aucune ceinture cardiaque n&apos;est choisie et qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque pendant les 5 premières minutes après la connexion de l&apos;appareil ou quand vous touchez l&apos;icône Bluetooth de la page d&apos;accueil, et propose de le connecter.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

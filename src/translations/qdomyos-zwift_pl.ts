@@ -546,6 +546,10 @@ Czy chcesz włączyć wymagane usługi?</translation>
         <translation>Połączono: %1 (pulsometr)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Wyszukiwanie pulsometrów…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Wyszukiwanie: %1 (pulsometr)…</translation>
     </message>
@@ -592,6 +596,10 @@ Czy chcesz włączyć wymagane usługi?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Połączono Zwift Play/Ride!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nie znaleziono pulsometru w pobliżu. Sprawdź, czy jest włączony i transmituje tętno.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4645,8 +4653,8 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
         <translation>Proponuj pulsometr znaleziony w pobliżu</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Gdy nie wybrano pulsometru i nie ma tętna, QZ przez pierwsze 5 minut po połączeniu urządzenia treningowego szuka pulsometru w pobliżu i proponuje jego połączenie.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Gdy nie wybrano pulsometru i nie ma tętna, QZ przez pierwsze 5 minut po połączeniu urządzenia treningowego lub po dotknięciu ikony Bluetooth na stronie głównej szuka pulsometru w pobliżu i proponuje jego połączenie.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

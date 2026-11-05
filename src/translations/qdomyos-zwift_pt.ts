@@ -546,6 +546,10 @@ Pretende ativar os serviços necessários?</translation>
         <translation>%1 (sensor de FC) conectado!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Procurando sensores de FC...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Procurando %1 (sensor de FC)...</translation>
     </message>
@@ -592,6 +596,10 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride conectado!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenhum sensor de FC encontrado por perto. Verifique se está ligado e transmitindo a frequência cardíaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -5682,8 +5690,8 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Sugerir um sensor de FC encontrado por perto</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Sem cinta cardíaca escolhida e sem frequência cardíaca, o QZ procura um sensor de FC nos primeiros 5 minutos após a conexão do equipamento e sugere conectá-lo.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Sem cinta cardíaca escolhida e sem frequência cardíaca, o QZ procura um sensor de FC nos primeiros 5 minutos após a conexão do equipamento ou ao tocar no ícone Bluetooth da tela inicial, e sugere conectá-lo.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>

@@ -409,6 +409,8 @@ class bluetooth : public QObject, public SignalHandler {
     void stopHeartRateBeltDiscovery();
     void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
     void heartRateSensorScan();
+    void heartRateSensorSearch();
+    void startHeartRateSensorScan(const QString &heartRateBeltName, bool onTap);
     // the Bluetooth address; Apple platforms give none, the device UUID instead
     static QString deviceAddress(const QBluetoothDeviceInfo &b);
 
@@ -417,6 +419,10 @@ class bluetooth : public QObject, public SignalHandler {
     qint64 heartRateSensorScanStartedMs = 0;
     // weaker sensors are someone else's (another bike in the gym), not the user's own
     static constexpr int heartRateSensorSuggestMinRssi = -80;
+    // hrmDiscoveryAgent is the scan a tap on the Bluetooth icon started (heartRateSensorSearch()), and how many
+    // sensors it offered
+    bool hrmDiscoveryOnTap = false;
+    int hrmDiscoveryOffered = 0;
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
@@ -485,6 +491,9 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
+    // Connects the heart rate sensor without a restart. name: the one chosen (OK in Heart Rate Options, Connect on the
+    // offer bar); empty – a tap on the Bluetooth icon: the saved one, or with none chosen a search for one to offer.
+    // address: of the sensor shown on the bar, so another one with the same name is not connected; empty – any.
     void reconnectHeartRateBelt(const QString &name = QString(), const QString &address = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);

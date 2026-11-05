@@ -546,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>心拍センサーを検索しています...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1（心拍センサー）を検索しています...</translation>
     </message>
@@ -592,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Rideが接続されました!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>近くに心拍センサーが見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4489,8 +4497,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>近くで見つかった心拍センサーを提案する</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>心拍計・センサーが選択されておらず心拍データがない場合、QZはトレーニング機器の接続後5分間、近くの心拍センサーを探し、接続を提案します。</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>心拍計・センサーが選択されておらず心拍データがない場合、QZはトレーニング機器の接続後5分間、またはホーム画面のBluetoothアイコンをタップしたときに、近くの心拍センサーを探し、接続を提案します。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

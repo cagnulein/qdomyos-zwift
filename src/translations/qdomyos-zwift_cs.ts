@@ -546,6 +546,10 @@ Chcete zapnout požadované služby?</translation>
         <translation>Připojeno: %1 (snímač tepu)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Hledání snímačů tepu…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Hledání: %1 (snímač tepu)…</translation>
     </message>
@@ -592,6 +596,10 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride připojen!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>V okolí nebyl nalezen žádný snímač tepu. Zkontrolujte, že je zapnutý a vysílá tep.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4645,8 +4653,8 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Nabízet snímač tepu nalezený poblíž</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Když není vybrán snímač tepu a tep nepřichází, QZ během prvních 5 minut po připojení trenažéru hledá snímač tepu poblíž a nabídne jeho připojení.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Když není vybrán snímač tepu a tep nepřichází, QZ během prvních 5 minut po připojení trenažéru nebo po klepnutí na ikonu Bluetooth na hlavní stránce hledá snímač tepu poblíž a nabídne jeho připojení.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

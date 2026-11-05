@@ -546,6 +546,10 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
         <translation>%1 (Herzfrequenzsensor) verbunden!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Suche nach Herzfrequenzsensoren...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Suche nach %1 (Herzfrequenzsensor)...</translation>
     </message>
@@ -592,6 +596,10 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride verbunden!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Kein Herzfrequenzsensor in der Nähe gefunden. Prüfe, ob er eingeschaltet ist und die Herzfrequenz sendet.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -5638,8 +5646,8 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Herzfrequenzsensor in der Nähe anbieten</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Ist kein Herzgurt gewählt und kommt keine Herzfrequenz an, sucht QZ in den ersten 5 Minuten nach dem Verbinden des Trainingsgeräts nach einem Herzfrequenzsensor und bietet an, ihn zu verbinden.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Ist kein Herzgurt gewählt und kommt keine Herzfrequenz an, sucht QZ in den ersten 5 Minuten nach dem Verbinden des Trainingsgeräts oder nach einem Tippen auf das Bluetooth-Symbol auf der Startseite nach einem Herzfrequenzsensor und bietet an, ihn zu verbinden.</translation>
     </message>
     <message>
         <source>Zone 1 %:</source>

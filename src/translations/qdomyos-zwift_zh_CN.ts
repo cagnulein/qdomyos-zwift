@@ -546,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心率传感器）已连接！</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>正在搜索心率传感器...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>正在搜索 %1（心率传感器）...</translation>
     </message>
@@ -592,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 已连接！</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>附近未找到心率传感器。请确认它已开启并正在广播心率。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4493,8 +4501,8 @@ In the next window, allow access to the QZ folder.</source>
         <translation>推荐附近发现的心率传感器</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>未选择心率带且没有心率数据时，QZ 会在健身器材连接后的前 5 分钟内搜索附近的心率传感器，并提示连接。</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>未选择心率带且没有心率数据时，QZ 会在健身器材连接后的前 5 分钟内或点击主页上的蓝牙图标时搜索附近的心率传感器，并提示连接。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

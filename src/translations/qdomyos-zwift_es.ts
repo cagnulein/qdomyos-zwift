@@ -546,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>¡%1 (sensor de frecuencia cardíaca) conectado!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Buscando sensores de frecuencia cardíaca...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Buscando %1 (sensor de frecuencia cardíaca)...</translation>
     </message>
@@ -592,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>¡Zwift Play/Ride conectado!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>No se ha encontrado ningún sensor de frecuencia cardíaca cerca. Comprueba que esté encendido y transmitiendo la frecuencia cardíaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4485,8 +4493,8 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Ofrecer un sensor de frecuencia cardíaca cercano</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Si no hay ninguna banda de frecuencia cardíaca elegida ni llega la frecuencia cardíaca, QZ busca un sensor de frecuencia cardíaca durante los primeros 5 minutos tras conectar la máquina y ofrece conectarlo.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Si no hay ninguna banda de frecuencia cardíaca elegida ni llega la frecuencia cardíaca, QZ busca un sensor de frecuencia cardíaca durante los primeros 5 minutos tras conectar la máquina o al tocar el icono de Bluetooth en la pantalla principal, y ofrece conectarlo.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

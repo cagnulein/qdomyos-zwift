@@ -4187,7 +4187,8 @@ void bluetooth::connectHeartRateBelt(const QBluetoothDeviceInfo &b) {
 // Applies a heart rate sensor chosen while QZ is running, so no restart is needed:
 // drops the old sensor and connects the new one, scanning for it if it was not seen yet.
 // name: the sensor just chosen in the settings page. Its QML Settings object writes the value to QSettings
-// a moment later, so reading it here would still give the old one; empty means take the saved value.
+// a moment later, so reading it here would still give the old one; empty (a tap on the Bluetooth icon) means take
+// the saved value, and with Disabled saved, search for a sensor to offer (heartRateSensorSearch()).
 // address: the one sensor meant (deviceAddress()), as the heart rate sensor bar shows it: of two sensors with the
 // same name the other one is not connected; empty means any sensor whose name starts with the name.
 void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &address) {
@@ -4201,6 +4202,15 @@ void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &addre
     auto isChosen = [heartRateBeltName, address](const QBluetoothDeviceInfo &b) {
         return b.name().startsWith(heartRateBeltName) && (address.isEmpty() || deviceAddress(b) == address);
     };
+
+    // Another tap on the Bluetooth icon while its search for a sensor to offer runs: that search goes on
+    if (name.isEmpty() && hrmDiscoveryAgent && hrmDiscoveryOnTap &&
+        heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        qDebug() << "heart rate sensor search already running";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(QObject::tr("Searching for heart rate sensors..."));
+        return;
+    }
 
     // Already searching for this sensor (or waiting for the Android limit): another tap keeps that scan, also a tap
     // without an address (the Bluetooth icon) during the search for the one sensor of that name
@@ -4255,6 +4265,9 @@ void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &addre
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         settings.setValue(QZSettings::hrm_lastdevice_name, "");
         settings.setValue(QZSettings::hrm_lastdevice_address, "");
+        // a tap on the Bluetooth icon (no name given), not Disabled chosen in Heart Rate Options
+        if (name.isEmpty())
+            heartRateSensorSearch();
         return;
     }
 
@@ -4324,6 +4337,7 @@ void bluetooth::stopHeartRateBeltDiscovery() {
     hrmDiscoveryAgent->stop();
     hrmDiscoveryAgent->deleteLater();
     hrmDiscoveryAgent = nullptr;
+    hrmDiscoveryOnTap = false;
 }
 
 // The search for the fitness machine stops as soon as the machine is found, so a heart rate sensor switched on later
@@ -4359,11 +4373,45 @@ void bluetooth::heartRateSensorScan() {
     }
 
     qDebug() << "heart rate sensor scan: no heart rate, looking for" << heartRateBeltName;
+    startHeartRateSensorScan(heartRateBeltName, false);
+}
+
+// A tap on the Bluetooth icon with no sensor chosen: one scan like those above, at any time (they run only during the
+// first 5 minutes), also offering again the sensors hidden with Not now (homeform::reconnectHeartRateBelt()). A toast
+// says it searches and, when it offers none and no bar is shown, that none was found. With the offer turned off or a
+// heart rate coming there is nothing to offer, and no scan.
+void bluetooth::heartRateSensorSearch() {
+    QSettings settings;
+    // no machine yet: the tap searches for it (homeform::bluetoothSearchNow()), the scans start once it connects
+    if (!this->device())
+        return;
+    if (!settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool()) {
+        qDebug() << "heart rate sensor search: the offer is turned off";
+        return;
+    }
+    if (this->device()->currentHeart().value() > 0) {
+        qDebug() << "heart rate sensor search: the heart rate comes";
+        return;
+    }
+    qDebug() << "heart rate sensor search: on a tap on the Bluetooth icon";
+    // before the scan: a start that fails at once (Bluetooth off, no permission) ends it within start(), and its
+    // "none found" toast must not be replaced by this one
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Searching for heart rate sensors..."));
+    startHeartRateSensorScan(QStringLiteral("Disabled"), true);
+}
+
+// One 10 s scan for the chosen sensor (heartRateBeltName) or, with Disabled, for one to offer.
+// onTap: started by a tap on the Bluetooth icon (heartRateSensorSearch()), not by the timer
+void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool onTap) {
+    const bool noSensorChosen = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     const QString machineAddress = deviceAddress(this->device()->bluetoothDevice);
     hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     // empty: a search of reconnectHeartRateBelt() replaces this one instead of waiting for it
     hrmDiscoveryName.clear();
     hrmDiscoveryAddress.clear();
+    hrmDiscoveryOnTap = onTap;
+    hrmDiscoveryOffered = 0;
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
             [this, heartRateBeltName, noSensorChosen, machineAddress](const QBluetoothDeviceInfo &b) {
                 if (heartRateBelt || !this->device() || b.name().isEmpty())
@@ -4389,13 +4437,25 @@ void bluetooth::heartRateSensorScan() {
                 }
                 if (b.rssi() < heartRateSensorSuggestMinRssi)
                     return;
+                hrmDiscoveryOffered++;
                 emit heartRateSensorFound(b.name(), address, b.rssi());
             });
-    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this,
-            [this]() { stopHeartRateBeltDiscovery(); });
+    auto finished = [this]() {
+        // a bar still showing a sensor found before: not "none found" next to it
+        const bool noneOffered = hrmDiscoveryOnTap && !hrmDiscoveryOffered && homeform::singleton() &&
+                                 homeform::singleton()->heartRateSensorSuggestions().isEmpty();
+        stopHeartRateBeltDiscovery();
+        if (noneOffered) {
+            qDebug() << "heart rate sensor search: none found";
+            if (homeform::singleton())
+                homeform::singleton()->setToastRequested(
+                    QObject::tr("No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate."));
+        }
+    };
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, finished);
     connect(hrmDiscoveryAgent,
             QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
-            [this]() { stopHeartRateBeltDiscovery(); });
+            finished);
     hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
     startHeartRateBeltScan(hrmDiscoveryAgent);
 }

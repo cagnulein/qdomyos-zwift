@@ -566,6 +566,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
         <translation>Zwift Play/Ride csatlakoztatva!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Pulzusmérők keresése...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nem található pulzusmérő a közelben. Ellenőrizze, hogy be van-e kapcsolva, és sugározza-e a pulzust.</translation>
+    </message>
+    <message>
         <source>%1 connected!</source>
         <translation>Csatlakoztatva: %1!</translation>
     </message>
@@ -4604,8 +4612,8 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Közeli pulzusmérő felajánlása</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Ha nincs kiválasztva pulzusmérő, és nem érkezik pulzus, a QZ az edzőgép csatlakozása utáni első 5 percben pulzusmérőt keres a közelben, és felajánlja a csatlakoztatását.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Ha nincs kiválasztva pulzusmérő, és nem érkezik pulzus, a QZ az edzőgép csatlakozása utáni első 5 percben, illetve a kezdőlap Bluetooth ikonjának megérintésekor pulzusmérőt keres a közelben, és felajánlja a csatlakoztatását.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -3571,7 +3571,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.")
+                        text: qsTr("With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint

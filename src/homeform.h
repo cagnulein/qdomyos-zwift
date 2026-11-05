@@ -252,8 +252,12 @@ class homeform : public QObject {
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
     // Heart rate sensor chosen in the settings (name) or a tap on the Bluetooth icon (no name, the saved one):
-    // connect it without a restart
+    // connect it without a restart. With none chosen and the machine connected, the tap searches for one to offer,
+    // also offering again the sensors hidden with Not now (the user asks for it); with no machine it searches for
+    // the machine only, and Not now stays.
     Q_INVOKABLE void reconnectHeartRateBelt(const QString &name = QString()) {
+        if (name.isEmpty() && bluetoothManager && bluetoothManager->device())
+            heartRateSensorsDismissed.clear();
         if (bluetoothManager)
             bluetoothManager->reconnectHeartRateBelt(name);
     }

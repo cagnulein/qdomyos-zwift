@@ -566,6 +566,14 @@ Vill du aktivera de tjänster som krävs?</translation>
         <translation>Zwift Play/Ride ansluten!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Söker efter pulsmätare...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Ingen pulsmätare hittades i närheten. Kontrollera att den är påslagen och sänder puls.</translation>
+    </message>
+    <message>
         <source>%1 connected!</source>
         <translation>Ansluten: %1!</translation>
     </message>
@@ -4604,8 +4612,8 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
         <translation>Föreslå en pulsmätare i närheten</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>När inget pulsbälte är valt och ingen puls kommer in söker QZ efter en pulsmätare under de första 5 minuterna efter att träningsmaskinen anslutits och erbjuder att ansluta den.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>När inget pulsbälte är valt och ingen puls kommer in söker QZ efter en pulsmätare under de första 5 minuterna efter att träningsmaskinen anslutits, eller när du trycker på Bluetooth-ikonen på startsidan, och erbjuder att ansluta den.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

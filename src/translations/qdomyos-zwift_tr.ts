@@ -546,6 +546,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Nabız sensörleri aranıyor…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Aranıyor: %1 (nabız sensörü)…</translation>
     </message>
@@ -592,6 +596,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride bağlandı</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Yakınlarda nabız sensörü bulunamadı. Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4645,8 +4653,8 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Yakında bulunan nabız sensörünü öner</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Nabız sensörü seçilmemişse ve nabız gelmiyorsa QZ, egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca yakında bir nabız sensörü arar ve bağlamayı önerir.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Nabız sensörü seçilmemişse ve nabız gelmiyorsa QZ, egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca veya ana sayfadaki Bluetooth simgesine dokunulduğunda yakındaki bir nabız sensörünü arar ve bağlamayı önerir.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

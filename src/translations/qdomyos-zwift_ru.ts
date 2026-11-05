@@ -834,6 +834,10 @@ Do you want to update QZ settings?</source>
         <translation>Подключено: %1 (пульсометр)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Поиск пульсометров…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Поиск: %1 (пульсометр)…</translation>
     </message>
@@ -880,6 +884,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride подключён!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Пульсометр рядом не найден. Проверьте, что он включён и транслирует пульс.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -6441,8 +6449,8 @@ Please enter it below:</source>
         <translation>Предлагать найденный пульсометр</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects and offers to connect it.</source>
-        <translation>Если пульсометр не выбран и пульса нет, QZ в первые 5 минут после подключения тренажёра ищет пульсометр рядом и предлагает его подключить.</translation>
+        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
+        <translation>Если пульсометр не выбран и пульса нет, QZ в первые 5 минут после подключения тренажёра или по нажатию на значок Bluetooth на главной ищет пульсометр рядом и предлагает его подключить.</translation>
     </message>
     <message>
         <source>Tile size:</source>
