@@ -23,13 +23,17 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.ViewTreeObserver;
+import android.webkit.WebView;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
@@ -373,6 +377,78 @@ public class CustomQtActivity extends QtActivity {
         return 0;
     }
 
+    // WORKAROUND: back from the background a page with a web view (the workout editor) can stay
+    // empty until the page is touched (OnePlus 12, Android 16): the
+    // WebView is in place and visible, but Chromium makes no new frame. On return Qt 5.15 takes the
+    // native WebView of Qt WebView off its layout and adds it back
+    // (QAndroidPlatformForeignWindow::applicationStateChanged -> destroySurface / insertNativeView),
+    // and resumes it with WebView.onResume() (QAndroidWebViewPrivate::onApplicationStateChanged).
+    // Both go to the UI thread from Qt's thread; most likely, when onResume() comes before the
+    // WebView is attached again, the page stays empty. Qt 6.8 still does both the same way.
+    // So each WebView Qt adds is paused with the activity and resumed after the activity resumes;
+    // a WebView attached to the window again is paused and resumed once more, because onResume()
+    // does nothing on a WebView that Qt has already resumed. No reload: the page keeps its state
+    // and scroll position. Redrawing the view from outside (invalidate, clip, layout) did not
+    // reliably make Chromium draw; onPause() + onResume() did.
+    private final Set<WebView> watchedWebViews = Collections.newSetFromMap(new WeakHashMap<WebView, Boolean>());
+    private boolean activityResumed = false;
+
+    private void watchWebViews(View view) {
+        if (view instanceof WebView) {
+            final WebView webView = (WebView) view;
+            if (watchedWebViews.add(webView)) {
+                webView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View v) {
+                        if (activityResumed) {
+                            Log.d(TAG, "WebView attached again: onPause + onResume");
+                            webView.onPause();
+                            webView.onResume();
+                        }
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View v) {
+                    }
+                });
+            }
+            return;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                watchWebViews(group.getChildAt(i));
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        activityResumed = false;
+        for (WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            webView.onPause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        activityResumed = true;
+        for (final WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            // posted: from API 24 a view Qt has taken off the window runs it when it is attached
+            // again, before that on the next traversal; the attach listener covers both
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (activityResumed) {
+                        webView.onResume();
+                    }
+                }
+            });
+        }
+    }
+
     // Called by Qt from its own thread at start: whether Android has accessibility on (main.cpp
     // turns Qt's accessibility on again when Qt lost that report)
     public static boolean accessibilityOn(Context context) {
@@ -389,7 +465,8 @@ public class CustomQtActivity extends QtActivity {
         HealthConnectHelper.initialize(this);
         registerBackCallback();
 
-        // Wrap Qt's accessibility view as soon as Qt adds it, before TalkBack moves over it
+        // Wrap Qt's accessibility view as soon as Qt adds it, before TalkBack moves over it, and
+        // watch each WebView Qt adds (paused and resumed with the activity)
         accessibilityActivity = this;
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -398,6 +475,7 @@ public class CustomQtActivity extends QtActivity {
                         if (accessibilityEnabled()) {
                             qtAccessibilityView();
                         }
+                        watchWebViews(getWindow().getDecorView());
                     }
                 });
 
