@@ -43,6 +43,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QAccessible>
+#include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
 #include <QKeyEvent>
 #include <QQuickItem>
@@ -52,7 +53,17 @@
 #include <QThread>
 #include <QTimer>
 #include <QtAndroid>
+#include <QtMath>
+#include <QVector>
+#include <QWindow>
 #include <jni.h>
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+#include <QtCore/private/qjni_p.h>
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/private/qhighdpiscaling_p.h>
+#include <qpa/qplatformaccessibility.h>
+#include <qpa/qplatformintegration.h>
+#endif
 #endif
 
 #ifdef Q_OS_MACOS
@@ -676,6 +687,444 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
     return click->button;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+// Qt 5.15 runs the functions its accessibility layer gives Java (QtNativeAccessibility) on the
+// Android UI thread, while the QML items and accessible interfaces they read are made and
+// destroyed on the Qt thread. A screen reader that reads a page Qt is building or removing (the
+// settings of the tiles: some 90 items) crashes QZ (QTBUG-95764; here in QAccessibleCache), and
+// turning accessibility on while QZ is open makes Qt Quick objects on the wrong thread
+// (QTBUG-144911). Qt runs them on the Qt thread since 6.2.4 and 5.15.9 (qtbase e0c61193ea), and
+// setActive() too since 6.8.10 (4708e204c2). Here they are registered over Qt's own: the code of
+// Qt 5.15.0's androidjniaccessibility.cpp, with what touches Qt objects moved to the Qt thread.
+// Unlike Qt 6 the wait is limited, as for nativeAccessibleClick() above: Qt 5.15.0's accessibility
+// layer takes no guard against a Qt thread that waits for the Android UI thread (QTBUG-105958; Qt 6
+// also skips the wait while the event loop is stopped, QTBUG-102594, which QZ's manifest turns off
+// with android.app.background_running). After 2 s a read gives up with the answer for an object
+// that is gone, the next reads answer that at once until the Qt thread runs again, and then
+// TalkBack is told to read the tree anew. A press or scroll waits for the lookup only, not for
+// what it runs.
+namespace androidAccessibility {
+
+static QAtomicInt qtThreadStuck; // 1 after a read gave up, until the Qt thread runs again
+
+// The result of func run on the Qt thread, or fallback when that thread did not start it within
+// 2 s (it is not run then). On the Qt thread func is run directly.
+template <typename T, typename Func> static T runOnQtThread(const T &fallback, Func func) {
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return fallback;
+    if (QThread::currentThread() == app->thread())
+        return func();
+    if (qtThreadStuck.loadAcquire())
+        return fallback;
+    struct Call {
+        QSemaphore done;
+        QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
+        T result;
+    };
+    const QSharedPointer<Call> call = QSharedPointer<Call>::create();
+    call->result = fallback;
+    QMetaObject::invokeMethod(
+        app,
+        [call, func] {
+            if (!call->state.testAndSetOrdered(0, 1))
+                return;
+            call->result = func();
+            call->done.release();
+        },
+        Qt::QueuedConnection);
+    if (!call->done.tryAcquire(1, 2000)) {
+        if (call->state.testAndSetOrdered(0, 2)) {
+            qtThreadStuck.storeRelease(1);
+            qWarning() << "accessibility: the Qt thread did not answer in 2 s, answering empty until it runs";
+            // queued after the flag is set, so it is cleared once the Qt thread runs again; the
+            // empty answers given meanwhile are what TalkBack cached, so it reads the tree anew
+            QMetaObject::invokeMethod(
+                app,
+                [] {
+                    if (qtThreadStuck.fetchAndStoreOrdered(0) == 1 && QAccessible::isActive())
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                                  "accessibilityTreeChanged", "()V");
+                },
+                Qt::QueuedConnection);
+            return fallback;
+        }
+        // started just now: a read of the accessibility tree does not wait for this thread
+        call->done.acquire();
+    }
+    return call->result;
+}
+
+// The rest runs on the Qt thread, unless said otherwise
+
+static QAccessibleInterface *interfaceFromId(jint objectId) {
+    if (objectId == -1) {
+        QWindow *window = QGuiApplication::focusWindow();
+        return window ? window->accessibleRoot() : nullptr;
+    }
+    return QAccessible::accessibleInterface(QAccessible::Id(objectId));
+}
+
+// QAccessibleBridgeUtils of Qt 5.15.0: a value control can be stepped up and down
+static QStringList effectiveActionNames(QAccessibleInterface *iface) {
+    QStringList actions;
+    if (QAccessibleActionInterface *actionIface = iface->actionInterface())
+        actions = actionIface->actionNames();
+    if (iface->valueInterface()) {
+        if (!actions.contains(QAccessibleActionInterface::increaseAction()))
+            actions << QAccessibleActionInterface::increaseAction();
+        if (!actions.contains(QAccessibleActionInterface::decreaseAction()))
+            actions << QAccessibleActionInterface::decreaseAction();
+    }
+    return actions;
+}
+
+static void performEffectiveAction(QAccessibleInterface *iface, const QString &actionName) {
+    if (QAccessibleActionInterface *actionIface = iface->actionInterface()) {
+        if (actionIface->actionNames().contains(actionName)) {
+            actionIface->doAction(actionName);
+            return;
+        }
+    }
+    QAccessibleValueInterface *valueIface = iface->valueInterface();
+    if (!valueIface)
+        return;
+    bool ok;
+    const QVariant current = valueIface->currentValue();
+    double step = valueIface->minimumStepSize().toDouble(&ok);
+    if (!ok || qFuzzyIsNull(step)) {
+        const double min = valueIface->minimumValue().toDouble(&ok);
+        if (!ok)
+            return;
+        const double max = valueIface->maximumValue().toDouble(&ok);
+        if (!ok)
+            return;
+        step = (max - min) / 10;
+        if (current.userType() != QMetaType::Float && current.userType() != QMetaType::Double)
+            step = qCeil(step);
+    }
+    const double value = current.toDouble(&ok);
+    if (!ok)
+        return;
+    if (actionName == QAccessibleActionInterface::decreaseAction())
+        step = -step;
+    valueIface->setCurrentValue(value + step);
+}
+
+static QString accessibleDescription(QAccessibleInterface *iface) {
+    QString description;
+    if (iface && iface->isValid()) {
+        description = iface->text(QAccessible::Name);
+        if (description.isEmpty())
+            description = iface->text(QAccessible::Description);
+        if (description.isEmpty()) {
+            description = iface->text(QAccessible::Value);
+            if (description.isEmpty()) {
+                if (QAccessibleValueInterface *valueIface = iface->valueInterface())
+                    description = valueIface->currentValue().toString();
+            }
+        }
+    }
+    return description;
+}
+
+// What populateNode() sets on an AccessibilityNodeInfo
+struct NodeData {
+    bool valid = false;
+    QString description;
+    bool hasSelection = false;
+    int selectionStart = 0;
+    int selectionEnd = 0;
+    bool enabled = false;
+    bool checkable = false;
+    bool checked = false;
+    bool focusable = false;
+    bool focused = false;
+    bool visible = false;
+    bool clickable = false;
+    bool increase = false;
+    bool decrease = false;
+};
+
+static NodeData nodeData(jint objectId) {
+    NodeData data;
+    QAccessibleInterface *iface = interfaceFromId(objectId);
+    if (!iface || !iface->isValid())
+        return data;
+    data.valid = true;
+    const QAccessible::State state = iface->state();
+    const QStringList actions = effectiveActionNames(iface);
+    data.clickable = actions.contains(QAccessibleActionInterface::pressAction()) ||
+                     actions.contains(QAccessibleActionInterface::toggleAction());
+    data.increase = actions.contains(QAccessibleActionInterface::increaseAction());
+    data.decrease = actions.contains(QAccessibleActionInterface::decreaseAction());
+    data.description = accessibleDescription(iface);
+    if (QAccessibleTextInterface *textIface = iface->textInterface()) {
+        if (textIface->selectionCount() > 0) {
+            data.hasSelection = true;
+            textIface->selection(0, &data.selectionStart, &data.selectionEnd);
+        }
+    }
+    data.enabled = !state.disabled;
+    data.checkable = state.checkable;
+    data.checked = state.checked;
+    data.focusable = state.focusable;
+    data.focused = state.focused;
+    data.visible = !state.invisible;
+    return data;
+}
+
+// Runs a press or a scroll later on the Qt thread, as the press of a finger would
+static void performLater(jint objectId, const QString &actionName) {
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [objectId, actionName] {
+            QAccessibleInterface *iface = interfaceFromId(objectId);
+            if (iface && iface->isValid())
+                performEffectiveAction(iface, actionName);
+        },
+        Qt::QueuedConnection);
+}
+
+// The functions Java calls, on the Android UI thread
+
+static jclass rectClass = nullptr;
+static jmethodID rectConstructor = nullptr;
+static jmethodID addActionMethod = nullptr;
+static jmethodID setCheckableMethod = nullptr;
+static jmethodID setCheckedMethod = nullptr;
+static jmethodID setClickableMethod = nullptr;
+static jmethodID setContentDescriptionMethod = nullptr;
+static jmethodID setEnabledMethod = nullptr;
+static jmethodID setFocusableMethod = nullptr;
+static jmethodID setFocusedMethod = nullptr;
+static jmethodID setScrollableMethod = nullptr;
+static jmethodID setTextSelectionMethod = nullptr;
+static jmethodID setVisibleToUserMethod = nullptr;
+
+// Not waited for (Qt 6.8.10); on the Qt thread (restoreLostAccessibility()) it applies at once
+static void setActive(JNIEnv *, jclass, jboolean active) {
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return;
+    const bool on = active;
+    const auto apply = [on] {
+        QPlatformIntegration *integration = QGuiApplicationPrivate::platformIntegration();
+        QPlatformAccessibility *accessibility = integration ? integration->accessibility() : nullptr;
+        if (accessibility)
+            accessibility->setActive(on);
+    };
+    if (QThread::currentThread() == app->thread())
+        apply();
+    else
+        QMetaObject::invokeMethod(app, apply, Qt::QueuedConnection);
+}
+
+static jintArray childIdListForAccessibleObject(JNIEnv *env, jclass, jint objectId) {
+    const QVector<jint> ids = runOnQtThread(QVector<jint>(), [objectId] {
+        QVector<jint> ids;
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid()) {
+            const int count = iface->childCount();
+            for (int i = 0; i < count; ++i) {
+                QAccessibleInterface *child = iface->child(i);
+                if (child && child->isValid())
+                    ids.append(jint(QAccessible::uniqueId(child)));
+            }
+        }
+        return ids;
+    });
+    jintArray array = env->NewIntArray(jsize(ids.size()));
+    env->SetIntArrayRegion(array, 0, jsize(ids.size()), ids.constData());
+    return array;
+}
+
+static jint parentId(JNIEnv *, jclass, jint objectId) {
+    return runOnQtThread(jint(-1), [objectId] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid()) {
+            QAccessibleInterface *parent = iface->parent();
+            if (parent && parent->isValid()) {
+                if (parent->role() == QAccessible::Application)
+                    return jint(-1);
+                return jint(QAccessible::uniqueId(parent));
+            }
+        }
+        return jint(-1);
+    });
+}
+
+static jstring descriptionForAccessibleObject(JNIEnv *env, jclass, jint objectId) {
+    const QString description =
+        runOnQtThread(QString(), [objectId] { return accessibleDescription(interfaceFromId(objectId)); });
+    return env->NewString(reinterpret_cast<const jchar *>(description.constData()), jsize(description.size()));
+}
+
+static jobject screenRect(JNIEnv *env, jclass, jint objectId) {
+    const QRect rect = runOnQtThread(QRect(), [objectId] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid())
+            return QHighDpi::toNativePixels(iface->rect(), iface->window());
+        return QRect();
+    });
+    return env->NewObject(rectClass, rectConstructor, rect.left(), rect.top(), rect.right(), rect.bottom());
+}
+
+static jint hitTest(JNIEnv *, jclass, jfloat x, jfloat y) {
+    return runOnQtThread(jint(-1), [x, y] {
+        QAccessibleInterface *root = interfaceFromId(-1);
+        if (root && root->isValid()) {
+            const QPoint pos = QHighDpi::fromNativePixels(QPoint(int(x), int(y)), root->window());
+            QAccessibleInterface *child = root->childAt(pos.x(), pos.y());
+            QAccessibleInterface *lastChild = nullptr;
+            while (child && child != lastChild) {
+                lastChild = child;
+                child = child->childAt(pos.x(), pos.y());
+            }
+            if (lastChild)
+                return jint(QAccessible::uniqueId(lastChild));
+        }
+        return jint(-1);
+    });
+}
+
+// Qt 5.15.0 answers false after a press too
+static jboolean clickAction(JNIEnv *, jclass, jint objectId) {
+    const auto press = [objectId] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        if (iface && iface->isValid() && iface->actionInterface()) {
+            if (iface->actionInterface()->actionNames().contains(QAccessibleActionInterface::pressAction()))
+                iface->actionInterface()->doAction(QAccessibleActionInterface::pressAction());
+            else
+                iface->actionInterface()->doAction(QAccessibleActionInterface::toggleAction());
+        }
+    };
+    QCoreApplication *app = QCoreApplication::instance();
+    if (app)
+        QMetaObject::invokeMethod(app, press, Qt::QueuedConnection);
+    return false;
+}
+
+static jboolean scroll(jint objectId, const QString &actionName) {
+    const bool scrollable = runOnQtThread(false, [objectId, actionName] {
+        QAccessibleInterface *iface = interfaceFromId(objectId);
+        return iface && iface->isValid() && effectiveActionNames(iface).contains(actionName);
+    });
+    if (scrollable)
+        performLater(objectId, actionName);
+    return scrollable;
+}
+
+static jboolean scrollForward(JNIEnv *, jclass, jint objectId) {
+    return scroll(objectId, QAccessibleActionInterface::increaseAction());
+}
+
+static jboolean scrollBackward(JNIEnv *, jclass, jint objectId) {
+    return scroll(objectId, QAccessibleActionInterface::decreaseAction());
+}
+
+static jboolean populateNode(JNIEnv *env, jclass, jint objectId, jobject node) {
+    const NodeData data = runOnQtThread(NodeData(), [objectId] { return nodeData(objectId); });
+    if (!data.valid)
+        return false;
+    if (data.hasSelection)
+        env->CallVoidMethod(node, setTextSelectionMethod, data.selectionStart, data.selectionEnd);
+    env->CallVoidMethod(node, setEnabledMethod, jboolean(data.enabled));
+    env->CallVoidMethod(node, setCheckableMethod, jboolean(data.checkable));
+    env->CallVoidMethod(node, setCheckedMethod, jboolean(data.checked));
+    env->CallVoidMethod(node, setFocusableMethod, jboolean(data.focusable));
+    env->CallVoidMethod(node, setFocusedMethod, jboolean(data.focused));
+    env->CallVoidMethod(node, setVisibleToUserMethod, jboolean(data.visible));
+    env->CallVoidMethod(node, setScrollableMethod, jboolean(data.increase || data.decrease));
+    env->CallVoidMethod(node, setClickableMethod, jboolean(data.clickable));
+    if (data.clickable)
+        env->CallVoidMethod(node, addActionMethod, jint(16)); // ACTION_CLICK
+    if (data.increase)
+        env->CallVoidMethod(node, addActionMethod, jint(4096)); // ACTION_SCROLL_FORWARD
+    if (data.decrease)
+        env->CallVoidMethod(node, addActionMethod, jint(8192)); // ACTION_SCROLL_BACKWARD
+    jstring description =
+        env->NewString(reinterpret_cast<const jchar *>(data.description.constData()), jsize(data.description.size()));
+    env->CallVoidMethod(node, setContentDescriptionMethod, description);
+    env->DeleteLocalRef(description);
+    return true;
+}
+
+// On the Qt thread in main(), once QApplication exists; Qt's own functions answer until then
+static void registerOverQt() {
+    QAndroidJniEnvironment env;
+    // a lookup that fails leaves an exception, and no JNI call may follow it: each is cleared at once
+    const auto findClass = [&env](const char *name) {
+        jclass found = env->FindClass(name);
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            return jclass(nullptr);
+        }
+        return found;
+    };
+    const auto findMethod = [&env](jclass clazz, const char *name, const char *signature) {
+        jmethodID found = env->GetMethodID(clazz, name, signature);
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            return jmethodID(nullptr);
+        }
+        return found;
+    };
+    jclass nativeClass =
+        QJNIEnvironmentPrivate::findClass("org/qtproject/qt5/android/accessibility/QtNativeAccessibility", env);
+    if (env->ExceptionCheck())
+        env->ExceptionClear();
+    jclass nodeClass = findClass("android/view/accessibility/AccessibilityNodeInfo");
+    jclass rect = findClass("android/graphics/Rect");
+    if (!nativeClass || !nodeClass || !rect) {
+        qWarning() << "accessibility: Qt's accessibility classes not found, its functions stay on the Android UI thread";
+        return;
+    }
+    rectClass = static_cast<jclass>(env->NewGlobalRef(rect));
+    rectConstructor = findMethod(rect, "<init>", "(IIII)V");
+    addActionMethod = findMethod(nodeClass, "addAction", "(I)V");
+    setCheckableMethod = findMethod(nodeClass, "setCheckable", "(Z)V");
+    setCheckedMethod = findMethod(nodeClass, "setChecked", "(Z)V");
+    setClickableMethod = findMethod(nodeClass, "setClickable", "(Z)V");
+    setContentDescriptionMethod = findMethod(nodeClass, "setContentDescription", "(Ljava/lang/CharSequence;)V");
+    setEnabledMethod = findMethod(nodeClass, "setEnabled", "(Z)V");
+    setFocusableMethod = findMethod(nodeClass, "setFocusable", "(Z)V");
+    setFocusedMethod = findMethod(nodeClass, "setFocused", "(Z)V");
+    setScrollableMethod = findMethod(nodeClass, "setScrollable", "(Z)V");
+    setTextSelectionMethod = findMethod(nodeClass, "setTextSelection", "(II)V");
+    setVisibleToUserMethod = findMethod(nodeClass, "setVisibleToUser", "(Z)V");
+    env->DeleteLocalRef(nodeClass);
+    env->DeleteLocalRef(rect);
+    if (!rectConstructor || !addActionMethod || !setCheckableMethod || !setCheckedMethod || !setClickableMethod ||
+        !setContentDescriptionMethod || !setEnabledMethod || !setFocusableMethod || !setFocusedMethod ||
+        !setScrollableMethod || !setTextSelectionMethod || !setVisibleToUserMethod) {
+        qWarning() << "accessibility: a method of AccessibilityNodeInfo not found, Qt's functions stay on the Android UI thread";
+        return;
+    }
+    static const JNINativeMethod methods[] = {
+        {"setActive", "(Z)V", reinterpret_cast<void *>(setActive)},
+        {"childIdListForAccessibleObject", "(I)[I", reinterpret_cast<void *>(childIdListForAccessibleObject)},
+        {"parentId", "(I)I", reinterpret_cast<void *>(parentId)},
+        {"descriptionForAccessibleObject", "(I)Ljava/lang/String;",
+         reinterpret_cast<void *>(descriptionForAccessibleObject)},
+        {"screenRect", "(I)Landroid/graphics/Rect;", reinterpret_cast<void *>(screenRect)},
+        {"hitTest", "(FF)I", reinterpret_cast<void *>(hitTest)},
+        {"populateNode", "(ILandroid/view/accessibility/AccessibilityNodeInfo;)Z", reinterpret_cast<void *>(populateNode)},
+        {"clickAction", "(I)Z", reinterpret_cast<void *>(clickAction)},
+        {"scrollForward", "(I)Z", reinterpret_cast<void *>(scrollForward)},
+        {"scrollBackward", "(I)Z", reinterpret_cast<void *>(scrollBackward)},
+    };
+    if (env->RegisterNatives(nativeClass, methods, sizeof(methods) / sizeof(methods[0])) < 0) {
+        env->ExceptionClear();
+        qWarning() << "accessibility: RegisterNatives failed, Qt's functions stay on the Android UI thread";
+        return;
+    }
+    qDebug() << "accessibility: Qt's accessibility functions run on the Qt thread";
+}
+
+} // namespace androidAccessibility
+#endif
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
 // Before 5.15.3 Qt sends a screen reader on Android no event at all (its notifyAccessibilityUpdate()
 // is a FIXME), so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
@@ -686,7 +1135,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
 // that is moving is connected to it. Both start one zero timer, so the many items a page shows at
 // once give CustomQtActivity a single call. None of this runs while accessibility is off.
 // The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
-// Android UI thread, so a show or hide that comes from there starts it through a queued call.
+// Android UI thread (unless androidAccessibility::registerOverQt() moved them to the Qt thread),
+// so a show or hide that comes from there starts it through a queued call.
 static QTimer *accessibilityRefreshTimer() {
     static QTimer *timer = nullptr;
     if (!timer) {
@@ -1251,6 +1701,9 @@ int main(int argc, char *argv[]) {
         FileSearcher fileSearcher;
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
+#if defined(Q_OS_ANDROID) && QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
+        androidAccessibility::registerOverQt();
+#endif
         engine.load(url);
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, [] { restoreLostAccessibility(); });

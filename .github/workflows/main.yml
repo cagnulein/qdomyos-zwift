@@ -965,9 +965,11 @@ jobs:
           SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
           echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
           JAR=$SDK/platforms/android-35/android.jar
-          mkdir -p a11y-test-classes
+          mkdir -p a11y-test-classes a11y-stress-classes
           javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
           $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+          javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-stress-classes .github/scripts/AccessibilityStressTest.java
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-stress.jar a11y-stress-classes/*.class
 
       # The Android 17 SDK and system image use android-37.0, not android-37.
       # Keep matrix.api-level = 37 for test names/artifacts but provide the
@@ -1055,6 +1057,9 @@ jobs:
             sh .github/scripts/android_app_start_test.sh
             sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
             sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+            # Accessibility stress test: the tile settings page opened and closed 40 times while the
+            # tree is read without pause, then accessibility turned on and off 20 times
+            sh .github/scripts/android_accessibility_stress_test.sh 40 20
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
@@ -1075,6 +1080,7 @@ jobs:
             screenshot_back_*.png
             process_list.txt
             accessibility_test.txt
+            accessibility_stress_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
           if-no-files-found: warn                
