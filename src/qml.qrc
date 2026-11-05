@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>HomeForm.ui.qml</file>
         <file>main.qml</file>
+        <file>SupportHelpButton.qml</file>
         <file>EmailValidator.qml</file>
         <file>SettingsNumberField.qml</file>
         <file>SettingsFormatField.qml</file>
