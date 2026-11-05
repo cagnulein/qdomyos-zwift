@@ -230,6 +230,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
+constexpr int AndroidDocumentPickerTrainingFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -890,6 +891,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 .arg(name));
     });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::heartRateSensorFound, this, &homeform::heartRateSensorFound);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
@@ -1408,12 +1410,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    // a folder import without any workout still has to tell the user so
-    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
-        requestCode != AndroidDocumentPickerFitRequestCode) {
-        return;
-    }
-
+    // an empty path goes through as well: a folder import without any workout and a picked file
+    // that could not be copied both have to tell the user so
     QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
                               Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
@@ -1998,6 +1996,72 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
         return;
 
     bluetoothManager->selectGymModeDevice(deviceName);
+}
+
+// A heart rate sensor nearby while none is chosen: offered in a bar over the pages, the strongest first
+// (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
+// onTap: found by the search a tap on the heart rate tile or the Bluetooth icon started
+void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap) {
+    QSettings settings;
+    if (!bluetooth::heartRateSensorOffered(
+            onTap,
+            settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool(),
+            !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled")),
+            bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0,
+            heartRateSensorsDismissed.contains(address)))
+        return;
+    // the user asked: from now on the bar is the answer to that tap
+    if (onTap)
+        m_heartRateSensorOfferOnTap = true;
+
+    QVariantMap sensor;
+    sensor[QStringLiteral("name")] = name;
+    sensor[QStringLiteral("address")] = address;
+    sensor[QStringLiteral("rssi")] = rssi;
+    int i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("address")).toString() != address)
+        i++;
+    if (i < m_heartRateSensorSuggestions.size())
+        m_heartRateSensorSuggestions.removeAt(i);
+    else
+        qDebug() << "heart rate sensor offered:" << name << address << "rssi" << rssi;
+    auto strength = [](int rssi) { return rssi < 0 ? rssi : -1000; };
+    i = 0;
+    while (i < m_heartRateSensorSuggestions.size() &&
+           strength(m_heartRateSensorSuggestions.at(i).toMap().value(QStringLiteral("rssi")).toInt()) >=
+               strength(rssi))
+        i++;
+    m_heartRateSensorSuggestions.insert(i, sensor);
+    emit heartRateSensorSuggestionsChanged();
+}
+
+void homeform::heartRateSensorSuggestionConnect(const QString &name, const QString &address) {
+    qDebug() << "heart rate sensor offer: Connect" << name << address;
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    QSettings settings;
+    settings.setValue(QZSettings::heart_rate_belt_name, name);
+    emit heartRateSensorChosenFromOffer(name);
+    if (bluetoothManager)
+        bluetoothManager->reconnectHeartRateBelt(name, address);
+}
+
+void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
+    qDebug() << "heart rate sensor offer:" << (dontAskAgain ? "Don't ask again" : "Not now");
+    for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
+        heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
+    m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
+    emit heartRateSensorSuggestionsChanged();
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::heart_rate_belt_suggest, false);
+        emit heartRateSensorOfferTurnedOff();
+    }
 }
 
 bool homeform::hasConnectedDevice() const {
@@ -6521,6 +6585,29 @@ void homeform::update() {
         emit stopColorChanged(stopColor());
     }
 
+    // nothing to offer any more: the heart rate came from elsewhere (a watch app, the machine), or meanwhile a sensor
+    // was chosen (Connect on the bar would replace that choice) or, for a bar of the background search, the search
+    // turned off in Heart Rate Options; a bar the user asked for with a tap stays with it off
+    if (!m_heartRateSensorSuggestions.isEmpty()) {
+        QString withdrawn;
+        if (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0)
+            withdrawn = QStringLiteral("the heart rate comes");
+        else if (!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                      .toString()
+                      .startsWith(QStringLiteral("Disabled")))
+            withdrawn = QStringLiteral("a sensor is chosen");
+        else if (!m_heartRateSensorOfferOnTap &&
+                 !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
+                      .toBool())
+            withdrawn = QStringLiteral("the background search is turned off");
+        if (!withdrawn.isEmpty()) {
+            qDebug() << "heart rate sensor offer: withdrawn," << withdrawn;
+            m_heartRateSensorSuggestions.clear();
+            m_heartRateSensorOfferOnTap = false;
+            emit heartRateSensorSuggestionsChanged();
+        }
+    }
+
     if (bluetoothManager->device()) {
 
         double inclination = 0;
@@ -9293,8 +9380,29 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
+    if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
+        const int restored = restoredTrainingProgramCount(localPath);
+        qDebug() << "training programs restored:" << restored;
+        const bool quiet = m_trainingRestoreQuiet;
+        m_trainingRestoreQuiet = false;
+        if (restored > 0) {
+            setToastRequested(tr("Training programs restored: %1.").arg(restored));
+        } else if (!quiet) {
+            // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
+            setToastRequested(tr("No training programs of a previous installation were found."));
+        } else if (quiet && trainingFolderHasLockedFiles()) {
+            // the saved grant restored nothing (folder moved or renamed): the user picks it again
+            emit trainingRestoreOfferRequested();
+        }
+        // nothing changed in the folder: the list keeps its place
+        if (!localPath.isEmpty()) {
+            emit trainingProgramsRestored();
+        }
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        setToastRequested(tr("The file could not be copied to the QZ folder."));
         return;
     }
 
@@ -9408,6 +9516,116 @@ QString homeform::historyDatabasePath() {
     }
     qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
     return chosen;
+}
+
+// After a reinstall (Android 14+) the files a previous install left in the training folder
+// still answer to their names but cannot be opened, and the folder list leaves them out. The
+// bundled programs, always copied at the first start, show it: one of them (or its deletion
+// marker) that exists and does not open belongs to a previous install.
+bool homeform::trainingFolderHasLockedFiles() {
+#ifdef Q_OS_ANDROID
+    const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QDirIterator itZwo(QStringLiteral(":/zwo/"));
+    while (itZwo.hasNext()) {
+        itZwo.next();
+        const QStringList paths = {trainingDir + itZwo.fileName(),
+                                   trainingDir + QStringLiteral(".deleted_") + itZwo.fileName()};
+        for (const QString &path : paths) {
+            QFile file(path);
+            if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+                qDebug() << "training folder: file of a previous install" << path;
+                return true;
+            }
+        }
+    }
+#endif
+    return false;
+}
+
+bool homeform::startTrainingFolderRestore(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDestinationDir =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openTrainingFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerTrainingFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openTrainingFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+// restored programs among the paths, one per line, that the Java side passes; deletion
+// markers (.deleted_<name>) are restored too, but are not programs
+int homeform::restoredTrainingProgramCount(const QString &paths) {
+    int restored = 0;
+    for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
+            restored++;
+        }
+    }
+    return restored;
+}
+
+// A copy that an earlier restore left under its temporary name (the old file already removed)
+// takes its real name; this needs no folder grant, so it runs on every visit of the list.
+void homeform::recoverTrainingRestoreCopies() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDirectory =
+        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
+        "recoverTrainingRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverTrainingRestoreCopies") || !recovered.isValid()) {
+        return;
+    }
+    const QString paths = recovered.toString();
+    if (paths.isEmpty()) {
+        return;
+    }
+    const int restored = restoredTrainingProgramCount(paths);
+    qDebug() << "training programs recovered from temporary copies:" << restored;
+    if (restored > 0) {
+        setToastRequested(tr("Training programs restored: %1.").arg(restored));
+    }
+    emit trainingProgramsRestored();
+#endif
+}
+
+void homeform::trainingProgramsPageOpened() {
+    recoverTrainingRestoreCopies();
+    if (m_trainingRestoreTried) {
+        return;
+    }
+    m_trainingRestoreTried = true;
+    const bool lockedFiles = trainingFolderHasLockedFiles();
+    // with a saved grant the folder is checked even when no bundled program shows a previous
+    // install: programs of the user alone cannot be told from the file API
+    m_trainingRestoreQuiet = true;
+    if (startTrainingFolderRestore(false)) {
+        return;
+    }
+    m_trainingRestoreQuiet = false;
+    if (lockedFiles) {
+        emit trainingRestoreOfferRequested();
+    }
+}
+
+void homeform::offerTrainingRestore() {
+    // the quiet restore of this visit is still running: it reports what it restored itself
+    if (m_trainingRestoreQuiet) {
+        qDebug() << "training programs: a restore is running, no question";
+        return;
+    }
+    emit trainingRestoreOfferRequested();
+}
+
+void homeform::restoreTrainingPrograms() {
+    m_trainingRestoreQuiet = false;
+    startTrainingFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {

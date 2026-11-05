@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Найден пульсометр: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Найдено пульсометров: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Выбрать</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Не сейчас</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Больше не спрашивать</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Выберите пульсометр</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1038,6 +1069,14 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Не удалось инициализировать YPOO M5, нужно переподключиться</translation>
     </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Поиск пульсометров…</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Пульсометр рядом не найден. Проверьте, что он включён и транслирует пульс.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1296,6 +1335,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation>Другие папки</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Восстановить программы</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3607,6 +3650,18 @@ This may take a few moments on first startup.</source>
         <translation>Импортировано тренировок: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Не удалось скопировать файл в папку QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Восстановлено программ тренировок: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Программы тренировок прошлой установки не найдены.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Уже в истории: %1.</translation>
     </message>
@@ -4140,6 +4195,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Тренировки прошлой установки могут оставаться в папке QZ.
+Найти их?
+
+В следующем окне разрешите доступ к папке QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Программы тренировок</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Программы тренировок прошлой установки могут оставаться в папке QZ.
 Найти их?
 
 В следующем окне разрешите доступ к папке QZ.</translation>
@@ -6406,6 +6475,70 @@ Please enter it below:</source>
         <translation>Наклон</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Настройте, как наклон из виртуального приложения переводится в сопротивление велотренажёра.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Использовать своё соответствие, когда QZ переводит наклон из виртуального приложения в сопротивление.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Одна пара «наклон|сопротивление» на строку. Между точками QZ рассчитывает значения, а за пределами заданного диапазона берёт крайнюю точку.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Имя пользователя учётной записи Life Fitness для входа в сервис. Хранится только на устройстве и никогда не пишется в журнал отладки.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Пароль учётной записи Life Fitness для входа в сервис. Хранится только на устройстве и никогда не пишется в журнал отладки.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Текущий ракурс камеры</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Текущая эмоция</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Эмулятор Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Позиция графика мощности</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Позиция графика пульса</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Позиция графика сопротивления и целевого сопротивления</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Позиция графика сопротивления Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Позиция графика каденса</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Позиция графика распределения мощности</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Позиция графика скорости и наклона</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Размер плиток:</translation>
     </message>
@@ -7896,6 +8029,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Только для iOS. QZ продолжает работать при выключенном экране или в фоне, чтобы подключения Bluetooth и таймеры сессии не замирали. Для этого используется беззвучная звуковая дорожка, которая смешивается с вашей музыкой, поэтому то, что вы слушаете, не прерывается. Включите, если тренируетесь с заблокированным экраном или с QZ в фоне. По умолчанию выключено.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Искать пульсометр при старте</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>В первые 5 минут после подключения тренажёра, пока пульса нет, QZ раз в минуту ищет пульсометр: выбранный подключает, как только найдёт, а если пульсометр не выбран, предлагает найденный рядом. Нажатие на плитку пульса или значок Bluetooth на главной запускает поиск в любой момент.</translation>
     </message>
 </context>
 <context>

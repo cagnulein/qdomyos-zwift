@@ -485,8 +485,9 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // VoiceOver accessibility support
-            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            // VoiceOver accessibility support. The heart rate tile is a button: a tap looks for the sensor (heartTap)
+            Accessible.role: largeButton || identificator === "heart" ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            Accessible.onPressAction: { if (heartTap.enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
             Accessible.name: name + (largeButton ? "" : (": " + value))
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
             Accessible.focusable: true
@@ -530,6 +531,18 @@ HomeForm {
                 samples: 16
                 color: settings.theme_tile_shadow_color
                 source: rect
+            }
+
+            // The heart rate tile: a tap does what a tap on the Bluetooth icon does – with no machine yet it searches
+            // for it (bluetoothSearchNow(), nothing with one connected), and it looks for the heart rate sensor
+            // (homeform::reconnectHeartRateBelt()): the chosen one again or, with none chosen, one nearby to offer.
+            // Not while the tiles are being moved (loc takes the presses then)
+            MouseArea {
+                id: heartTap
+                anchors.fill: rect
+                enabled: identificator === "heart" && !window.lockTiles
+                onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
+                Accessible.ignored: true
             }
 
             Timer {

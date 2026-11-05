@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1041,
+  "settingCount": 1042,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -3445,7 +3445,7 @@
     {
       "key": "power_avg_5s",
       "name": "Power Averaging Mode",
-      "description": "If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off. IMPORTANT NOTES: - No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available) - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app! - Need to use QZ in bridge mode! - For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.",
+      "description": "If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.",
       "parent": "Advanced Settings",
       "type": "boolean",
       "qmlType": "bool",
@@ -13017,7 +13017,7 @@
     {
       "key": "power_avg_3s",
       "name": "Power Averaging Mode",
-      "description": "If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off. IMPORTANT NOTES: - No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available) - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app! - Need to use QZ in bridge mode! - For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.",
+      "description": "If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.",
       "parent": "Advanced Settings",
       "type": "boolean",
       "qmlType": "bool",
@@ -14714,7 +14714,7 @@
     },
     {
       "key": "shortcut_start_stop",
-      "name": "Start / Stop",
+      "name": "Start / Pause",
       "description": null,
       "parent": "Keyboard Shortcuts",
       "type": "string",
@@ -16433,6 +16433,20 @@
       "defaultExpression": "0.0",
       "options": null,
       "restartRequired": false
+    },
+    {
+      "key": "heart_rate_belt_suggest",
+      "name": "Search for a Heart Rate Sensor at Start",
+      "description": "During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.",
+      "parent": "Heart Rate Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
     }
   ],
   "legacyHierarchy": {
@@ -17166,6 +17180,7 @@
       "heart_max_override_enable": "heartRatemaxOverrideAccordion",
       "heart_max_override_value": "heartRatemaxOverrideAccordion",
       "heart_rate_belt_name": "heartRateOptionsAccordion",
+      "heart_rate_belt_suggest": "heartRateOptionsAccordion",
       "heart_rate_resting": "heartRatemaxOverrideAccordion",
       "heart_rate_zone1": "heartRateZoneAccordion",
       "heart_rate_zone2": "heartRateZoneAccordion",
@@ -17785,6 +17800,7 @@
       "heart_max_override_enable": "settings.qml",
       "heart_max_override_value": "settings.qml",
       "heart_rate_belt_name": "settings.qml",
+      "heart_rate_belt_suggest": "settings.qml",
       "heart_rate_resting": "settings.qml",
       "heart_rate_zone1": "settings.qml",
       "heart_rate_zone2": "settings.qml",
@@ -18795,6 +18811,7 @@
       "heart_max_override_enable": 3736,
       "heart_max_override_value": 3751,
       "heart_rate_belt_name": 3547,
+      "heart_rate_belt_suggest": 3560,
       "heart_rate_resting": 3789,
       "heart_rate_zone1": 3602,
       "heart_rate_zone2": 3627,
