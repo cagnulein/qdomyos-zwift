@@ -595,7 +595,28 @@ import AndroidStatusBar 1.0
         readonly property var translationContexts: [
             "settings", "settings-tiles", "settings-tts",
             "settings-shortcuts", "settings-treadmill-inclination-override",
-            "homeform"
+            "custominclinationresistance", "homeform"
+        ]
+
+        // Catalog texts that no settings page shows: listed here only so that lupdate takes them
+        // into the settings context and the search can show them translated
+        readonly property var catalogOnlyTexts: [
+            QT_TR_NOOP("Configure how virtual-app inclination maps to bike resistance."),
+            QT_TR_NOOP("Use a custom mapping when QZ converts virtual-app inclination into resistance."),
+            QT_TR_NOOP("One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range."),
+            QT_TR_NOOP("Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Camera Action"),
+            QT_TR_NOOP("Emote Action"),
+            QT_TR_NOOP("Wattbike Emulator"),
+            QT_TR_NOOP("Power Chart Position"),
+            QT_TR_NOOP("Heart Rate Chart Position"),
+            QT_TR_NOOP("Resistance vs Target Resistance Chart Position"),
+            QT_TR_NOOP("Peloton Resistance Chart Position"),
+            QT_TR_NOOP("Cadence Chart Position"),
+            QT_TR_NOOP("Power Distribution Chart Position"),
+            QT_TR_NOOP("Speed and Inclination Chart Position"),
+            QT_TR_NOOP("Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.")
         ]
 
         // Try to find a translation for a catalog entry name by probing common QML contexts.
@@ -2391,6 +2412,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
+            property bool heart_rate_belt_suggest: false
 
         }
 
@@ -2406,6 +2428,14 @@ import AndroidStatusBar 1.0
             function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
             function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
             function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+        }
+
+        // The heart rate sensor bar (HeartRateSuggestion.qml) saves its answer from C++, and this copy does not
+        // read QSettings again: take the new value, so Heart Rate Options shows it while this page is open
+        Connections {
+            target: rootItem
+            function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
+            function onHeartRateSensorOfferTurnedOff() { settings.heart_rate_belt_suggest = false }
         }
 
 
@@ -3539,6 +3569,40 @@ import AndroidStatusBar 1.0
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchHeartRateBeltSuggestDelegate
+                        text: qsTr("Search for a Heart Rate Sensor at Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.heart_rate_belt_suggest
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.heart_rate_belt_suggest = checked
+                    }
+                    // a tap on the switch replaces its binding: "Don't ask again" on the bar after that still shows here
+                    Connections {
+                        target: settings
+                        function onHeart_rate_belt_suggestChanged() { switchHeartRateBeltSuggestDelegate.checked = settings.heart_rate_belt_suggest }
+                    }
+
+                    Label {
+                        text: qsTr("During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -18686,10 +18750,14 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)
                         color: Material.backgroundColor
+                        // The Loader of AccordionElement creates the content each time the section opens,
+                        // so the template entries are made from there: the content is a component, its
+                        // id is not reachable from the accordion's own Component.onCompleted
                         accordionContent: ColumnLayout {
                             id: templateSettingsContent
+                            Component.onCompleted: templateSettingsAccordion.createTemplates(templateSettingsContent)
                         }
-                        Component.onCompleted: function() {
+                        function createTemplates(parentItem) {
                             let template_ids = settings.value("template_user_ids", []);
                             console.log("template_ids current val "+template_ids);
                             if (template_ids) {
@@ -18706,12 +18774,13 @@ import AndroidStatusBar 1.0
                                         if (component) {
                                             let key_enabled = "template_" + template_id + "_enabled";
                                             console.log("Creating component object for id "+template_id);
-                                            let template_object = component.createObject(null,
+                                            // parentItem owns it, so it is not garbage collected and goes with the section
+                                            let template_object = component.createObject(parentItem,
                                                                                          {
                                                                                              settings: settings,
                                                                                              templateId: template_id
                                                                                          });
-                                            let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                            let accordionCheck = accordionCheckComponent.createObject(parentItem,
                                                                                                       {
                                                                                                           title: template_id +" (" + template_type +")",
                                                                                                           settings: settings,

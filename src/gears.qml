@@ -331,11 +331,24 @@ ScrollView {
         // Wahoo Options
         GroupBox {
             title: qsTr("Wahoo Options")
+            // the title is a stop of its own, as the controls in the group are
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 IndicatorOnlySwitch {
                     id: wahooWithoutWheelDiameterDelegate
+                    // a switch a screen reader can turn: Qt 5.15 gives a SwitchDelegate no action of
+                    // its own (and puts back its ListItem role), so it is not even a pressable node,
+                    // and a tap in the middle of the row misses the indicator of IndicatorOnlySwitch.
+                    // On Android CustomQtActivity presses it as a button; the handler is for the rest
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     text: qsTr("Without Wheel Diameter Protocol")
                     spacing: 0
                     bottomPadding: 0
@@ -350,6 +363,8 @@ ScrollView {
                 }
 
                 Label {
+                    // a stop of its own: otherwise TalkBack reads the whole group in one go
+                    Accessible.focusable: true
                     text: qsTr("Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -364,10 +379,12 @@ ScrollView {
         // Crankset Size
         GroupBox {
             title: qsTr("Chainring Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -375,6 +392,7 @@ ScrollView {
                 }
 
                 SpinBox {
+                    Accessible.name: qsTr("Chainring Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCranksetSize
@@ -390,16 +408,19 @@ ScrollView {
         // Cog Size
         GroupBox {
             title: qsTr("Cog Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
                 }
                 SpinBox {
+                    Accessible.name: qsTr("Cog Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCogSize
@@ -415,6 +436,7 @@ ScrollView {
         // Wheel Size
         GroupBox {
             title: qsTr("Virtual Wheel Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -423,6 +445,7 @@ ScrollView {
                 width: window.textScale !== 1 ? parent.width : implicitWidth
                 UiComboBox {
                        id: wheelSizeCombo
+                       Accessible.name: qsTr("Virtual Wheel Size") + ": " + displayText
                        width: parent.width
                        // the box was as wide as at 100 % and cut the wheel size ("700 x 1…")
                        Layout.fillWidth: window.textScale !== 1
@@ -555,10 +578,12 @@ ScrollView {
 
         GroupBox {
         title: qsTr("Preset Gear Profiles")
+        Accessible.focusable: true
         Layout.fillWidth: true
 
             UiComboBox {
                 id: profileCombo
+                Accessible.name: qsTr("Preset Gear Profiles") + ": " + displayText
                 width: parent.width
                 textRole: "text"
                 displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
@@ -587,6 +612,7 @@ ScrollView {
         // Gear Table GroupBox
         GroupBox {
             title: qsTr("Virtual Gear Table")
+            Accessible.focusable: true
             Layout.fillWidth: true
             // The table is as tall as its rows and the page scrolls as one: the table had the rest
             // of the page, but the page is as tall as its content, so the rest was nothing and only
@@ -718,11 +744,34 @@ ScrollView {
                     }
 
                     function updateGearListModel() {
-                        gearListModel.clear()
+                        var activeRows = []
                         for (var i = 0; i < gearRows.length; i++) {
                             if (gearRows[i].active) {
-                                gearListModel.append(gearRows[i])
+                                activeRows.push(gearRows[i])
                             }
+                        }
+                        // one cell edited: update that row only, so the rows (and the cell
+                        // TalkBack is on) are not made anew
+                        if (activeRows.length === gearListModel.count) {
+                            var changed = -1
+                            var changedRows = 0
+                            for (var j = 0; j < activeRows.length; j++) {
+                                var row = gearListModel.get(j)
+                                if (row.gear !== activeRows[j].gear || row.crankset !== activeRows[j].crankset || row.cog !== activeRows[j].cog) {
+                                    changed = j
+                                    changedRows++
+                                }
+                            }
+                            if (changedRows <= 1) {
+                                if (changed >= 0) {
+                                    gearListModel.set(changed, activeRows[changed])
+                                }
+                                return
+                            }
+                        }
+                        gearListModel.clear()
+                        for (var k = 0; k < activeRows.length; k++) {
+                            gearListModel.append(activeRows[k])
                         }
                     }
 
@@ -740,19 +789,37 @@ ScrollView {
                         Row {
                             anchors.fill: parent
 
-                            // Gear Number (non-editable)
-                            Rectangle {
+                            // Gear Number (non-editable). A tap anywhere on the row chooses it (the
+                            // MouseArea above); for a screen reader the number is the button that
+                            // does, so "Delete Selected and Following" can be used with TalkBack too
+                            AbstractButton {
                                 width: parent.width / 3
                                 height: parent.height
-                                border.width: 1
-                                border.color: "#cccccc"
-                                color: "transparent"
+                                focusPolicy: Qt.NoFocus
+                                Accessible.name: qsTr("Gear") + " " + gear
+                                // checked on the chosen row, so a screen reader says it; a press
+                                // toggles it, so the binding is put back after choosing the row
+                                checkable: true
+                                checked: gearTable.currentRow === index
+                                onClicked: {
+                                    gearTable.currentRow = index
+                                    checked = Qt.binding(function() { return gearTable.currentRow === index })
+                                }
 
-                                Text {
+                                background: Rectangle {
+                                    border.width: 1
+                                    border.color: "#cccccc"
+                                    color: "transparent"
+                                }
+
+                                contentItem: Text {
+                                    // a plain Text does not inherit the window font: the text size while it is not 100 %
                                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
-                                    anchors.centerIn: parent
                                     text: gear
                                     color: "black"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    Accessible.ignored: true
                                 }
                             }
 
@@ -766,6 +833,19 @@ ScrollView {
 
                                 SpinBox {
                                     id: cranksetSpinBox
+                                    // the column headers are shortened in some languages to fit; the
+                                    // name a screen reader speaks uses the full label of the field above
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring Size") + ": " + value
+                                    // TalkBack changes the value with increase()/decrease(), which do not emit
+                                    // valueModified, the signal that saves the table
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
                                     // with a bigger text the field takes the cell and grows with the row
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
@@ -842,6 +922,15 @@ ScrollView {
 
                                 SpinBox {
                                     id: cogSpinBox
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Cog Size") + ": " + value
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
                                     width: window.textScale !== 1 ? parent.width - 8 : parent.width * 0.8
                                     height: window.fontPx(30)

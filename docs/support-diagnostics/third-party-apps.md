@@ -251,3 +251,44 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - QZ implements automatic virtual shifting using cadence thresholds and delays. Cadence persistently below the downshift threshold can cause repeated automatic downshift attempts even when manual controls work.
 - In a confirmed case, cadence around **30–37 RPM** was below the configured **65 RPM / 2-second** downshift rule, explaining repeated returns to gear 1 and controller vibration. The diagnostic distinction is automatic shifting versus lost controller input; the [bike troubleshooting FAQ](../faq/bike-troubleshooting.md) covers the corresponding configuration.
+
+## Runna reports a treadmill incompatibility warning despite speed control working
+
+### Provide first
+
+- Identify the treadmill, QZ version/platform, Runna version, and the device running each app.
+- Before starting Runna, confirm that the treadmill's speed and distance update in QZ. Then report **QZ's own elapsed workout timer and paused/running state** while the belt is moving; do not substitute the treadmill console's timer.
+- Record the exact Runna warning and **which workout transition** triggers it (initial start, about 30 seconds later, warm-up to interval, or a speed/incline step). State whether speed and incline commands still reach the treadmill while the warning is visible.
+- State the startup order: treadmill powered on, QZ connected, QZ workout started, belt moving, Runna paired, Runna workout started.
+
+### If still unclear
+
+- At a safe, low speed, compare one short session where QZ's workout timer is confirmed advancing **before** Runna begins. Check again at the first automatic speed change or warm-up transition; do not alter other options.
+- Supply a screenshot showing QZ elapsed time and the Runna warning or workout stage, plus a QZ debug log spanning startup and the failing transition. Include approximate timestamps and whether QZ reports a paused session.
+- If QZ elapsed time remains at zero while speed/distance advance, investigate QZ session state before interpreting Runna's warning as a failed treadmill command. If the timer advances but the warning persists, compare incoming Runna control requests and QZ's physical treadmill responses.
+
+### Why it matters
+
+- A moving belt and successful speed commands do not prove that QZ's workout session is running. A paused/zero-time QZ session can coexist with live distance and control traffic.
+- In a reproduced Runna investigation, QZ received speed/incline commands while its workout timer stayed at zero; a subsequent test starting QZ's workout first produced advancing elapsed time and working Runna control. Capturing the workout transition and session state narrows the failure without requesting unrelated settings.
+
+## ROUVY or another virtual ride continues moving when the rider stops pedaling
+
+### Provide first
+
+- Exact bike/trainer model, QZ build and platform, and the receiving app/version. State whether both apps run on one device or on separate devices.
+- While **not pedaling**, report the simultaneous **Cadence, Power, and Speed** values shown in QZ and whether the receiving app's avatar/video continues moving. Repeat briefly while pedaling normally; report which values change.
+- Screenshot the receiving app's paired **Power**, **Cadence**, **Speed**, and **Controllable** sources, and whether any source points directly to the physical bike rather than QZ.
+- Clarify whether the issue is motion at zero **cadence**, zero **power**, or both; these are not interchangeable observations.
+
+### If still unclear
+
+- With the receiving app closed, repeat a short QZ-only test alternating stationary and gentle pedaling, noting the times and whether any metrics remain nonzero after stopping.
+- Reopen the receiving app with only the intended QZ virtual trainer paired and repeat the same stop/start sequence. Record whether the virtual ride moves despite QZ showing zero power, or whether QZ itself continues reporting nonzero telemetry.
+- If the behavior remains unexplained, provide a QZ debug log covering both transitions and the pairing screen; include approximate timestamps. Avoid changing several sensor or simulation settings at once.
+
+### Why it matters
+
+- A video that advances while stationary does not by itself prove a QZ control or Bluetooth failure. The source of the speed/power signal must be identified before choosing a remedy.
+- Comparing QZ's live values with the receiving app's pairing roles separates stale or unexpected physical-machine telemetry from an independently selected sensor or receiving-app motion behavior.
+- A stop/start comparison is more informative than an average-speed screenshot, especially when QZ and the receiving app run on the same Android device.

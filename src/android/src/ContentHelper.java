@@ -122,8 +122,13 @@ public class ContentHelper {
 
         File destinationFile = new File(destinationDir, fileName);
         if (destinationFile.exists() && !destinationFile.delete()) {
-            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath());
-            return "";
+            // after a reinstall a file of the previous install keeps its name in the folder, but
+            // this install can neither replace nor read it: the picked file goes under a free name,
+            // and picking it again reuses that copy. Size -1: a copy is reused only when its content
+            // is the same, an edited file of the same length must not open the old copy
+            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath()
+                + ", importing under another name");
+            return importContentToAppDirKeepExisting(context, uri, fileName, -1, destinationDirPath);
         }
 
         if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
@@ -198,8 +203,19 @@ public class ContentHelper {
         if (others == null) {
             return null;
         }
+        // under FUSE passthrough (seen on Android 15) length() of a recently written file can stay
+        // 0 for a long time: the size of file is counted from its content, and another file
+        // reporting 0 is compared by content too
+        long length = contentLength(file);
+        if (length < 0) {
+            return null;
+        }
         for (File other : others) {
-            if (other.equals(file) || !other.isFile() || other.length() != file.length()) {
+            if (other.equals(file) || !other.isFile()) {
+                continue;
+            }
+            long otherLength = other.length();
+            if (otherLength != length && otherLength != 0) {
                 continue;
             }
             if (sameContent(other, file)) {
@@ -209,45 +225,96 @@ public class ContentHelper {
         return null;
     }
 
-    private static boolean sameContent(File a, File b) {
-        java.io.FileInputStream inA = null;
-        java.io.FileInputStream inB = null;
+    // Number of bytes read from file, -1 when it cannot be read.
+    private static long contentLength(File file) {
+        java.io.FileInputStream in = null;
+        try {
+            in = new java.io.FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                total += read;
+            }
+            return total;
+        } catch (Exception e) {
+            return -1;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    static boolean sameContent(File a, File b) {
+        InputStream inA = null;
+        InputStream inB = null;
         try {
             inA = new java.io.FileInputStream(a);
             inB = new java.io.FileInputStream(b);
-            byte[] bufA = new byte[8192];
-            byte[] bufB = new byte[8192];
-            while (true) {
-                int readA = readFully(inA, bufA);
-                int readB = readFully(inB, bufB);
-                if (readA != readB) {
-                    return false;
-                }
-                if (readA <= 0) {
-                    return true;
-                }
-                for (int i = 0; i < readA; i++) {
-                    if (bufA[i] != bufB[i]) {
-                        return false;
-                    }
-                }
-            }
+            return sameBytes(inA, inB);
         } catch (Exception e) {
             // unreadable (a file of a previous install): not a copy this install can use
             return false;
         } finally {
-            try {
-                if (inA != null) {
-                    inA.close();
-                }
-            } catch (Exception ignored) {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    // The document behind uri holds the same bytes as file: a copy is checked this way before
+    // the document it was made from is removed.
+    public static boolean sameContent(Context context, Uri uri, File file) {
+        if (context == null || uri == null || file == null) {
+            return false;
+        }
+        InputStream inA = null;
+        InputStream inB = null;
+        try {
+            inA = context.getContentResolver().openInputStream(uri);
+            if (inA == null) {
+                return false;
             }
-            try {
-                if (inB != null) {
-                    inB.close();
-                }
-            } catch (Exception ignored) {
+            inB = new java.io.FileInputStream(file);
+            return sameBytes(inA, inB);
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "sameContent failed " + e);
+            return false;
+        } finally {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    private static boolean sameBytes(InputStream inA, InputStream inB) throws java.io.IOException {
+        byte[] bufA = new byte[8192];
+        byte[] bufB = new byte[8192];
+        while (true) {
+            int readA = readFully(inA, bufA);
+            int readB = readFully(inB, bufB);
+            if (readA != readB) {
+                return false;
             }
+            if (readA <= 0) {
+                return true;
+            }
+            for (int i = 0; i < readA; i++) {
+                if (bufA[i] != bufB[i]) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private static void closeQuietly(InputStream in) {
+        try {
+            if (in != null) {
+                in.close();
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -263,7 +330,8 @@ public class ContentHelper {
         return total;
     }
 
-    private static boolean isReadable(File file) {
+    // false for a file of a previous install: still listed under its name, but not openable
+    public static boolean isReadable(File file) {
         java.io.FileInputStream stream = null;
         try {
             stream = new java.io.FileInputStream(file);

@@ -2,6 +2,8 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private sql concurrent
+# Android: Qt's accessibility functions for Java run on the Qt thread (main.cpp, androidAccessibility)
+android: QT += gui-private
 
 qtHaveModule(httpserver) {
     QT += httpserver

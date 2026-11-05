@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulsmätare hittad: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Pulsmätare hittade: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Anslut</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Välj</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Inte nu</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Fråga inte igen</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Välj en pulsmätare</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -533,6 +564,14 @@ Vill du aktivera de tjänster som krävs?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride ansluten!</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Söker efter pulsmätare...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Ingen pulsmätare hittades i närheten. Kontrollera att den är påslagen och sänder puls.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1268,6 +1307,10 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Återställ program</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3465,6 +3508,18 @@ Det kan ta en stund vid första starten.</translation>
         <translation>Importerade träningspass: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Filen kunde inte kopieras till QZ-mappen.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Återställda träningsprogram: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Inga träningsprogram från en tidigare installation hittades.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Redan i historiken: %1.</translation>
     </message>
@@ -4018,6 +4073,20 @@ Vill du söka efter dem?
 Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>Träningsprogram</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Träningsprogram från en tidigare installation kan finnas kvar i QZ-mappen.
+Vill du leta efter dem?
+
+Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
+    </message>
+    <message>
         <source>Restart now?</source>
         <translation>Starta om nu?</translation>
     </message>
@@ -4409,6 +4478,70 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
         <translation>Appspråk:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Ställ in hur lutningen från den virtuella appen omvandlas till cykelns motstånd.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Använd en egen omvandling när QZ omvandlar lutningen från den virtuella appen till motstånd.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ett par lutning|motstånd per rad. QZ räknar ut värdena mellan punkterna och använder ändpunkten utanför det angivna intervallet.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Användarnamn för Life Fitness-kontot som används för att logga in i tjänsten. Sparas bara lokalt och skrivs aldrig till felsökningsloggar.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Lösenord för Life Fitness-kontot som används för att logga in i tjänsten. Sparas bara lokalt och skrivs aldrig till felsökningsloggar.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuell kameravinkel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuell emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Placering av effektdiagram</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Placering av pulsdiagram</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Placering av diagram för motstånd och målmotstånd</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Placering av Peloton-motståndsdiagram</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Placering av kadensdiagram</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Placering av effektfördelningsdiagram</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Placering av diagram för hastighet och lutning</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Diagrammets plats i ordningen i träningshistoriken. Ordningen ändras med knapparna upp och ned i Allmänna gränssnittsalternativ.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Välj Auto om du vill följa enhetens språk eller välj ett visst språk för QZ.</translation>
     </message>
@@ -4567,6 +4700,14 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     <message>
         <source>Refresh Devices List</source>
         <translation>Uppdatera enhetslistan</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Sök efter en pulsmätare vid start</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Under de första 5 minuterna efter att träningsmaskinen anslutits söker QZ, så länge ingen puls kommer in, efter en pulsmätare en gång i minuten: det valda pulsbältet ansluts så snart det hittas, och är inget valt erbjuds en pulsmätare i närheten. Ett tryck på pulspanelen eller Bluetooth-ikonen på startsidan söker när som helst.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

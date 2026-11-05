@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensore FC trovato: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensori FC trovati: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connetti</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Scegli</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Non ora</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Non chiedere più</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Scegli un sensore FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Vuoi attivare i servizi necessari?</translation>
         <translation>%1 (sensore FC) connesso!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Ricerca di sensori FC...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Ricerca di %1 (sensore FC)...</translation>
     </message>
@@ -561,6 +596,10 @@ Vuoi attivare i servizi necessari?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride connesso!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nessun sensore FC trovato nelle vicinanze. Verifica che sia acceso e che trasmetta la frequenza cardiaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1296,6 +1335,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     <message>
         <source>Other folders</source>
         <translation>Altre cartelle</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Ripristina programmi</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3615,6 +3658,18 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <translation>Allenamenti importati: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Impossibile copiare il file nella cartella QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Programmi di allenamento ripristinati: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Nessun programma di allenamento di un&apos;installazione precedente trovato.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Già nella cronologia: %1.</translation>
     </message>
@@ -4148,6 +4203,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Gli allenamenti di un&apos;installazione precedente potrebbero trovarsi ancora nella cartella QZ.
+Vuoi cercarli?
+
+Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Programmi di allenamento</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>I programmi di allenamento di un&apos;installazione precedente potrebbero trovarsi ancora nella cartella QZ.
 Vuoi cercarli?
 
 Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translation>
@@ -6622,6 +6691,70 @@ NOTE IMPORTANTI:
         <translation>Lingua dell&apos;app:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Configura come l&apos;inclinazione dell&apos;app virtuale viene convertita nella resistenza della bici.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Usa una corrispondenza personalizzata quando QZ converte l&apos;inclinazione dell&apos;app virtuale in resistenza.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Una coppia inclinazione|resistenza per riga. QZ interpola tra i punti e fuori dall&apos;intervallo configurato usa l&apos;estremo.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nome utente dell&apos;account Life Fitness per l&apos;accesso al servizio. Salvato solo sul dispositivo e mai scritto nei log di debug.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Password dell&apos;account Life Fitness per l&apos;accesso al servizio. Salvata solo sul dispositivo e mai scritta nei log di debug.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Angolo camera attuale</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Emote attuale</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulatore Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posizione del grafico della potenza</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posizione del grafico della frequenza cardiaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posizione del grafico resistenza e resistenza obiettivo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posizione del grafico della resistenza Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posizione del grafico della cadenza</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posizione del grafico della distribuzione della potenza</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posizione del grafico velocità e inclinazione</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posizione di questo grafico nella cronologia allenamenti. L&apos;ordine si cambia con i pulsanti su e giù in Opzioni Interfaccia Utente.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ.</translation>
     </message>
@@ -6648,6 +6781,14 @@ NOTE IMPORTANTI:
     <message>
         <source>Email:</source>
         <translation>Indirizzo email:</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Cerca un sensore FC all&apos;avvio</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nei primi 5 minuti dopo la connessione dell&apos;attrezzo, finché non arriva la frequenza cardiaca, QZ cerca un sensore FC una volta al minuto: connette la fascia cardio scelta appena la trova oppure, se non ne è scelta nessuna, ne propone una trovata nelle vicinanze. Toccando il riquadro della frequenza cardiaca o l&apos;icona Bluetooth nella pagina principale si cerca in qualsiasi momento.</translation>
     </message>
     <message>
         <source>Custom Gear Table</source>

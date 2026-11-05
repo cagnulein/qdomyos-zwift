@@ -87,7 +87,8 @@ Page {
                         }
                         // No device yet: a tap searches right away instead of waiting for the next search
                         // (with a device connected bluetoothSearchNow() does nothing). With a device connected the tap
-                        // looks for the chosen heart rate sensor again (reconnectHeartRateBelt() waits for the device)
+                        // looks for the chosen heart rate sensor again (reconnectHeartRateBelt() waits for the device),
+                        // with none chosen for one to offer
                         MouseArea {
                             anchors.fill: parent
                             onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
