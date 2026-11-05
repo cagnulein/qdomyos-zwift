@@ -154,7 +154,7 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: cadenceColorEnabled
                     text: qsTr("Enable Cadence color")
-                    // Screen reader: Qt 5.15 gives a SwitchDelegate no accessible action, so TalkBack's
+                    // Screen reader: Qt 5.15 gives a SwitchDelegate only a toggle action, so TalkBack's
                     // swipe passed over it; the press action makes it a stop and turns it as a tap does
                     // (as Qt 6.11.2 does itself, QTBUG-144350)
                     Accessible.name: text
