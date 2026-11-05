@@ -79,6 +79,7 @@ class lockscreen {
     // garmin
     bool urlParser(const char *url);
     void garminconnect_init();
+    void garminconnect_pair();
     int getHR();
     int getFootCad();
     int getPower();
