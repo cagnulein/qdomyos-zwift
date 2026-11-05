@@ -33,7 +33,14 @@ ComboBox {
     }
     onSavedTextChanged: control.showSaved()
     onSavedIndexChanged: control.showSaved()
-    Component.onCompleted: control.showSaved()
+    Component.onCompleted: {
+        control.showSaved()
+        // Screen reader: the text inside the box (the Material style's TextField) is a node of
+        // its own, so a TalkBack swipe also stopped on it and read the bare value ("75"); the box
+        // itself already reads its name and value. None of these boxes is editable
+        if (!control.editable && control.contentItem)
+            control.contentItem.Accessible.ignored = true
+    }
 
     // Width of the widest item, measured when the list opens
     property real widestItem: 0

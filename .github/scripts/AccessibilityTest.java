@@ -20,9 +20,10 @@
 // starts with "tap:" taps the middle of the node instead, as TalkBack does with a node it cannot
 // press (in Qt 5.15 a ComboBox, or an ItemDelegate without Accessible.onPressAction); the node need
 // not be clickable, but must be on the screen. "see:" and a description presses nothing: a node
-// with that description must show within 5 s.
+// with that description must show within 5 s. "none:" and a text presses nothing either: no node
+// on the screen may read exactly that text (its description or text).
 // Example: Start=First-time_setup Increase_Resistance=Resistance:_1 tap:Settings=Tiles_Options
-//          see:Speed,_order_index:_0
+//          see:Speed,_order_index:_0 none:0
 import android.app.UiAutomation;
 import android.graphics.Rect;
 import android.os.HandlerThread;
@@ -233,6 +234,9 @@ public class AccessibilityTest {
         if (press.startsWith("see:")) {
             return see(press.substring("see:".length()).replace('_', ' '));
         }
+        if (press.startsWith("none:")) {
+            return none(press.substring("none:".length()).replace('_', ' '));
+        }
         boolean tap = press.startsWith("tap:");
         if (tap) {
             press = press.substring("tap:".length());
@@ -338,6 +342,25 @@ public class AccessibilityTest {
             return false;
         }
         System.out.println("OK seen " + describe(shown));
+        return true;
+    }
+
+    // No node on the screen may read exactly this text, e.g. the bare value of a field, a stop of
+    // its own read without the label of the field
+    private static boolean none(String text) {
+        Rect bounds = new Rect();
+        for (AccessibilityNodeInfo node : appNodes()) {
+            node.getBoundsInScreen(bounds);
+            CharSequence description = node.getContentDescription();
+            CharSequence shownText = node.getText();
+            if (!bounds.isEmpty() && ((description != null && text.equals(description.toString()))
+                    || (shownText != null && text.equals(shownText.toString())))) {
+                System.out.println("FAIL '" + text + "' is a node of its own: " + describe(node)
+                        + " " + bounds.toShortString());
+                return false;
+            }
+        }
+        System.out.println("OK no node '" + text + "'");
         return true;
     }
 
