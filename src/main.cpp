@@ -31,6 +31,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QList>
+#include <QQuickWindow>
+#include <QTimer>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
@@ -47,11 +49,9 @@
 #include <QAndroidJniObject>
 #include <QKeyEvent>
 #include <QQuickItem>
-#include <QQuickWindow>
 #include <QSemaphore>
 #include <QSharedPointer>
 #include <QThread>
-#include <QTimer>
 #include <QtAndroid>
 #include <QtMath>
 #include <QVector>
@@ -1709,8 +1709,11 @@ int main(int argc, char *argv[]) {
         // CI verification of a distributed .dmg: confirm that the real QML window
         // loaded, then run the event loop briefly before exiting successfully.
         if (qEnvironmentVariableIsSet("QZ_CI_GUI_SMOKE_TEST")) {
-            if (engine.rootObjects().isEmpty()) {
-                fputs("QZ_QML_LOAD_FAILED\n", stderr);
+            QQuickWindow *window = engine.rootObjects().isEmpty()
+                                       ? nullptr
+                                       : qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst());
+            if (!window || !window->isVisible()) {
+                fputs("QZ_QML_WINDOW_NOT_VISIBLE\n", stderr);
                 return 1;
             }
             fputs("QZ_QML_LOADED\n", stderr);
