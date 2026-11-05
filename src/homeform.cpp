@@ -53,6 +53,10 @@
 #include <QRandomGenerator>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSysInfo>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
 #include <QThread>
 #include <QTime>
 #include <QTimer>
@@ -63,6 +67,12 @@
 #include <QXmlStreamReader>
 #include <algorithm>
 #include <chrono>
+
+#ifdef Q_OS_IOS
+// Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
+extern "C" void qzComposeSupportEmail(const char *recipient, const char *subject,
+                                       const char *body, const char *attachmentPath);
+#endif
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
@@ -2000,6 +2010,139 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
+
+bool homeform::supportDeviceConnected() const {
+    return bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->connected();
+}
+
+bool homeform::supportMetricsActive() const {
+    if (!supportDeviceConnected())
+        return false;
+    const auto *device = bluetoothManager->device();
+    // No single metric is universal: treadmills report speed, power meters report watts.
+    return device->currentSpeed().value() > 0.01 || device->wattsMetric().value() > 0.5;
+}
+
+bool homeform::composeSupportEmail(const QString &description, const QString &reason, bool includeLog) {
+    const auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    QString deviceName = device ? device->bluetoothDevice.name() : tr("No device detected");
+    deviceName.replace(QRegularExpression(QStringLiteral("[\\r\\n]+")), QStringLiteral(" "));
+    const QString issue = reason.isEmpty() ? QStringLiteral("Support request") : reason;
+#if defined(Q_OS_IOS)
+    const QString platform = QStringLiteral("iOS");
+#elif defined(Q_OS_ANDROID)
+    const QString platform = QStringLiteral("Android");
+#else
+    const QString platform = QSysInfo::prettyProductName();
+#endif
+
+    const QString subject = QStringLiteral("QZ issue | %1 | %2 | %3")
+                                .arg(deviceName.left(60), platform, issue.left(60));
+    QString body = QStringLiteral("Hi Roberto,\\n\\nI need help with QZ.\\n\\n"
+                                  "Problem:\\n%1\\n\\n"
+                                  "Expected behavior:\\n[Please describe what should happen]\\n\\n"
+                                  "--- QZ diagnostics ---\\n"
+                                  "QZ version: %2\\n"
+                                  "Platform: %3 (%4)\\n"
+                                  "Profile: %5\\n"
+                                  "Device: %6\\n"
+                                  "Connection: %7\\n"
+                                  "Speed: %8 km/h\\n"
+                                  "Power: %9 W\\n"
+                                  "Detected situation: %10\\n")
+                       .arg(description.trimmed().isEmpty()
+                                ? QStringLiteral("[Please describe the issue]")
+                                : description.trimmed().left(4000))
+                       .arg(QApplication::applicationVersion())
+                       .arg(platform, QSysInfo::prettyProductName())
+                       .arg(QSettings().value(QZSettings::profile_name, QZSettings::default_profile_name).toString())
+                       .arg(deviceName)
+                       .arg(supportDeviceConnected() ? QStringLiteral("Connected") : QStringLiteral("Not connected"))
+                       .arg(device ? QString::number(device->currentSpeed().value(), 'f', 2) : QStringLiteral("n/a"))
+                       .arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : QStringLiteral("n/a"))
+                       .arg(issue);
+
+    // Never send anything automatically: the user reviews the native compose screen.
+    // Reuse the same gzip format as the existing workout-summary email, but keep a
+    // separate temporary copy in the platform cache for safe Android URI sharing.
+    QString attachmentPath;
+    if (!includeLog) {
+        body += QStringLiteral("Debug log: not requested.\\n");
+    } else if (!QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
+        body += QStringLiteral("Debug log: disabled. Enable Debug Log and restart QZ before reproducing.\\n");
+    } else {
+        const QStringList candidates = QDir(getWritableAppDir()).entryList(
+            QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+        if (candidates.isEmpty()) {
+            body += QStringLiteral("Debug log: no log file found.\\n");
+        } else {
+            QFile log(getWritableAppDir() + candidates.first());
+            constexpr qint64 maxRawBytes = 64LL * 1024 * 1024;
+            constexpr qint64 maxCompressedBytes = 10LL * 1024 * 1024;
+            if (log.size() > maxRawBytes || !log.open(QIODevice::ReadOnly)) {
+                body += QStringLiteral("Debug log: unavailable or too large to prepare.\\n");
+            } else {
+                bool ok = false;
+                const QByteArray compressed = gzipCompress(log.readAll(), &ok);
+                const QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+                if (ok && !compressed.isEmpty() && compressed.size() <= maxCompressedBytes &&
+                    QDir().mkpath(cache)) {
+                    const QString destination = QDir(cache).filePath(
+                        QStringLiteral("qz-support-%1.log.gz").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+                    QFile attachment(destination);
+                    if (attachment.open(QIODevice::WriteOnly) &&
+                        attachment.write(compressed) == compressed.size()) {
+                        attachment.close();
+                        attachmentPath = destination;
+                        body += QStringLiteral("Debug log: attached (gzip).\\n");
+                    } else {
+                        attachment.close();
+                        QFile::remove(destination);
+                        body += QStringLiteral("Debug log: attachment could not be written.\\n");
+                    }
+                } else {
+                    body += QStringLiteral("Debug log: compression failed or attachment exceeds 10 MB.\\n");
+                }
+            }
+        }
+    }
+
+    const QString recipient = QStringLiteral("roberto.viola83@gmail.com");
+#if defined(Q_OS_IOS)
+    const QByteArray toUtf8 = recipient.toUtf8();
+    const QByteArray subjectUtf8 = subject.toUtf8();
+    const QByteArray bodyUtf8 = body.toUtf8();
+    const QByteArray attachmentUtf8 = attachmentPath.toUtf8();
+    qzComposeSupportEmail(toUtf8.constData(), subjectUtf8.constData(),
+                          bodyUtf8.constData(), attachmentUtf8.constData());
+    return true;
+#elif defined(Q_OS_ANDROID)
+    const QAndroidJniObject to = QAndroidJniObject::fromString(recipient);
+    const QAndroidJniObject title = QAndroidJniObject::fromString(subject);
+    const QAndroidJniObject text = QAndroidJniObject::fromString(body);
+    const QAndroidJniObject file = QAndroidJniObject::fromString(attachmentPath);
+    const bool opened = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/SupportEmail", "compose",
+        "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+        QtAndroid::androidActivity().object<jobject>(), to.object<jstring>(),
+        title.object<jstring>(), text.object<jstring>(), file.object<jstring>());
+    if (!opened)
+        setToastRequested(tr("Unable to open an email application"));
+    return opened;
+#else
+    // Desktop fallback: mailto cannot attach files. Keep the body and report that
+    // the user must manually attach the prepared log.
+    if (!attachmentPath.isEmpty())
+        body += QStringLiteral("\\nPlease attach the generated debug log manually: ") + attachmentPath;
+    QUrl url(QStringLiteral("mailto:") + recipient);
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("subject"), subject);
+    query.addQueryItem(QStringLiteral("body"), body);
+    url.setQuery(query);
+    return QDesktopServices::openUrl(url);
+#endif
+}
+
 
 homeform::~homeform() {
     // Cleanup FIT backup thread
