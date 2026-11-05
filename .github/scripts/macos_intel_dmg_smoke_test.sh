@@ -62,7 +62,15 @@ grep -Fq 'SMOKE_OK' "$evidence_dir/qt-smoke.log"
 
 # This also creates the actual QML root window on the macOS runner. The CI
 # environment variable makes QZ emit a ready marker and quit cleanly after 5s.
-env QZ_CI_GUI_SMOKE_TEST=1 "$binary" -qml -no-virtual-device-bluetooth > "$evidence_dir/gui-smoke.log" 2>&1 &
+# Print the plugin loader's *actual* dlopen failure rather than just Qt's
+# generic "Could not load the Qt platform plugin cocoa" message.
+cocoa_plugin="$app/Contents/PlugIns/platforms/libqcocoa.dylib"
+if [[ -f "$cocoa_plugin" ]]; then
+  file "$cocoa_plugin" | tee "$evidence_dir/cocoa-architecture.log"
+  otool -L "$cocoa_plugin" > "$evidence_dir/cocoa-dependencies.log" 2>&1
+  codesign -dv --verbose=2 "$cocoa_plugin" > "$evidence_dir/cocoa-signature.log" 2>&1 || true
+fi
+env QT_DEBUG_PLUGINS=1 QZ_CI_GUI_SMOKE_TEST=1 "$binary" -qml -no-virtual-device-bluetooth > "$evidence_dir/gui-smoke.log" 2>&1 &
 app_pid="$!"
 for _ in $(seq 1 45); do
   if ! kill -0 "$app_pid" 2>/dev/null; then
