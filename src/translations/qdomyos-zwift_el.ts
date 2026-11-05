@@ -1263,6 +1263,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3449,6 +3453,18 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3978,6 +3994,17 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
     </message>
     <message>
         <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>

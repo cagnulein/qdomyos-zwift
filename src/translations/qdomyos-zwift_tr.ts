@@ -1337,6 +1337,10 @@ QZ ayarları güncellensin mi?</translation>
         <translation>Diğer klasörler</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Programları geri yükle</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Geri</translation>
     </message>
@@ -3532,6 +3536,18 @@ This may take a few moments on first startup.</source>
         <translation>İçe aktarılan antrenman: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Dosya QZ klasörüne kopyalanamadı.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Geri yüklenen antrenman programı: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Geçmişte zaten var: %1.</translation>
     </message>
@@ -4090,6 +4106,20 @@ Bunlar aransın mı?
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>Antrenman programları</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
         <source>Restart now?</source>
         <translation>Şimdi yeniden başlatılsın mı?</translation>
     </message>
@@ -4487,6 +4517,70 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>App Language:</source>
         <translation>Uygulama dili:</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Sanal uygulamadaki eğimin bisiklet direncine nasıl dönüştürüleceğini ayarlar.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ sanal uygulamadaki eğimi dirence dönüştürürken özel bir eşleme kullanır.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Satır başına bir eğim|direnç çifti. QZ noktalar arasındaki değerleri hesaplar, ayarlanan aralığın dışında uç noktayı kullanır.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının kullanıcı adı. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının şifresi. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Geçerli kamera açısı</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Geçerli ifade</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike emülatörü</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Güç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Nabız grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Direnç ve hedef direnç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton direnci grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadans grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Güç dağılımı grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Hız ve eğim grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

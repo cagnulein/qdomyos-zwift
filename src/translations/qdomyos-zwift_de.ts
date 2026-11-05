@@ -1337,6 +1337,10 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Andere Ordner</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Programme wiederherstellen</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Zurück</translation>
     </message>
@@ -3654,6 +3658,18 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <translation>Importierte Trainings: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Die Datei konnte nicht in den QZ-Ordner kopiert werden.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Wiederhergestellte Trainingsprogramme: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Keine Trainingsprogramme einer früheren Installation gefunden.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Bereits im Verlauf: %1.</translation>
     </message>
@@ -4187,6 +4203,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Trainings einer früheren Installation können noch im QZ-Ordner liegen.
+Möchten Sie danach suchen?
+
+Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Trainingsprogramme</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Trainingsprogramme einer früheren Installation können noch im QZ-Ordner liegen.
 Möchten Sie danach suchen?
 
 Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
@@ -5604,6 +5634,70 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     <message>
         <source>App Language:</source>
         <translation>Sprache der App:</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Legt fest, wie die Neigung aus der virtuellen App in den Widerstand des Rads umgerechnet wird.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Eigene Zuordnung verwenden, wenn QZ die Neigung aus der virtuellen App in Widerstand umrechnet.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ein Paar Neigung|Widerstand pro Zeile. QZ interpoliert zwischen den Punkten und verwendet außerhalb des konfigurierten Bereichs den Endpunkt.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Benutzername des Life Fitness-Kontos für die Anmeldung beim Dienst. Wird nur lokal gespeichert und nie in Debug-Protokolle geschrieben.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Passwort des Life Fitness-Kontos für die Anmeldung beim Dienst. Wird nur lokal gespeichert und nie in Debug-Protokolle geschrieben.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktueller Kamerawinkel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuelles Emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-Emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Position des Leistungsdiagramms</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Position des Herzfrequenzdiagramms</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Position des Diagramms Widerstand vs. Zielwiderstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Position des Peloton-Widerstandsdiagramms</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Position des Trittfrequenzdiagramms</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Position des Leistungsverteilungsdiagramms</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Position des Diagramms Geschwindigkeit und Neigung</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Platz dieses Diagramms im Trainingsverlauf. Die Reihenfolge ändern Sie mit den Schaltflächen nach oben und nach unten in den Allgemeinen UI-Optionen.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

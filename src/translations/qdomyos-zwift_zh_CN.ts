@@ -1337,6 +1337,10 @@ Do you want to update QZ settings?</source>
         <translation>其他文件夹</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>恢复训练计划</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 返回</translation>
     </message>
@@ -3662,6 +3666,18 @@ This may take a few moments on first startup.</source>
         <translation>已导入训练：%1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>无法将文件复制到 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>已恢复训练计划：%1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>未找到以前安装的训练计划。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>已在历史记录中：%1。</translation>
     </message>
@@ -4195,6 +4211,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>以前安装的训练可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>训练计划</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
 要查找它们吗？
 
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
@@ -7927,6 +7957,70 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Workout History Charts</source>
         <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>设置虚拟应用的坡度如何换算为单车阻力。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ 将虚拟应用的坡度换算为阻力时使用自定义对应关系。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>每行一组“坡度|阻力”。QZ 在各点之间插值，超出设定范围时使用端点的值。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户用户名。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户密码。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>当前摄像机视角</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>当前表情</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 模拟器</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>功率图表位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心率图表位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>阻力与目标阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>踏频图表位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>功率分布图表位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>速度与坡度图表位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>此图表在训练历史中的顺序。可在“通用 UI 选项”中用上移和下移按钮调整顺序。</translation>
     </message>
     <message>
         <source>Heart Rate</source>

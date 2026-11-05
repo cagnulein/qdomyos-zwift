@@ -1309,6 +1309,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Gendan programmer</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Tilbage</translation>
     </message>
@@ -3504,6 +3508,18 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Importerede træningspas: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Filen kunne ikke kopieres til QZ-mappen.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Gendannede træningsprogrammer: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Findes allerede i historikken: %1.</translation>
     </message>
@@ -4057,6 +4073,20 @@ Vil du søge efter dem?
 Tillad adgang til QZ-mappen i det næste vindue.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>Træningsprogrammer</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+Vil du søge efter dem?
+
+Tillad adgang til QZ-mappen i det næste vindue.</translation>
+    </message>
+    <message>
         <source>Restart now?</source>
         <translation>Vil du genstarte nu?</translation>
     </message>
@@ -4446,6 +4476,70 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
     <message>
         <source>App Language:</source>
         <translation>Appsprog:</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Indstil, hvordan hældningen fra den virtuelle app omsættes til cyklens modstand.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Brug en egen omregning, når QZ omsætter hældningen fra den virtuelle app til modstand.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ét par hældning|modstand pr. linje. QZ beregner værdierne mellem punkterne og bruger endepunktet uden for det angivne område.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Brugernavn til Life Fitness-kontoen, der bruges til at logge ind på tjenesten. Gemmes kun lokalt og skrives aldrig i fejlfindingslogge.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Adgangskode til Life Fitness-kontoen, der bruges til at logge ind på tjenesten. Gemmes kun lokalt og skrives aldrig i fejlfindingslogge.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuel kameravinkel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuel emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Placering af effektgraf</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Placering af pulsgraf</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Placering af graf for modstand og målmodstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Placering af Peloton-modstandsgraf</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Placering af kadencegraf</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Placering af effektfordelingsgraf</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Placering af graf for hastighed og hældning</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Grafens plads i rækkefølgen i træningshistorikken. Rækkefølgen ændres med op- og ned-knapperne i Generelle indstillinger for brugerflade.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>

@@ -230,8 +230,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             }
         } else {
             min_alt = 0;
-            if (max_alt < session.at(i).elevationGain)
-                max_alt = session.at(i).elevationGain;
+            double net_altitude = session.at(i).elevationGain - session.at(i).negativeElevationGain;
+            if (max_alt < net_altitude)
+                max_alt = net_altitude;
         }
 
         if (session.at(i).speed > 0) {
@@ -1103,7 +1104,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
-            newRecord.SetAltitude(sl.elevationGain);
+            // With no GPS track, cumulative ascent/descent form the relative altitude profile.
+            newRecord.SetAltitude(sl.elevationGain - sl.negativeElevationGain);
         }
 
         // using just the start point as reference in order to avoid pause time
@@ -1463,10 +1465,20 @@ class Listener : public fit::FileIdMesgListener,
             s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
             s.verticalOscillationMM = record.GetVerticalOscillation();
             s.groundContactMS = record.GetStanceTime();
-            s.coordinate.setAltitude(record.GetAltitude());
-            s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2, 31));
-            s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2, 31));
-            if (!s.coordinate.isValid()) {
+            // Missing FIT positions must not be interpreted as GPS coordinates.
+            // Multiply by a floating-point factor to avoid 32-bit integer overflow.
+            if (record.IsAltitudeValid()) {
+                s.coordinate.setAltitude(record.GetAltitude());
+            }
+            if (record.IsPositionLatValid() && record.IsPositionLongValid()) {
+                constexpr double degreesPerSemicircle = 180.0 / 2147483648.0;
+                s.coordinate.setLatitude(record.GetPositionLat() * degreesPerSemicircle);
+                s.coordinate.setLongitude(record.GetPositionLong() * degreesPerSemicircle);
+            }
+            s.elevationGain = 0.0;
+            s.negativeElevationGain = 0.0;
+            if (!s.coordinate.isValid() && record.IsAltitudeValid()) {
+                // Preserve the existing relative-altitude representation for indoor FIT files.
                 s.elevationGain = record.GetAltitude();
             }
             s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp() + 631065600L);

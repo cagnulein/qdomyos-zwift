@@ -163,6 +163,14 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
         debug(QStringLiteral("no bluetooth dongle found!"));
+        // Fake and network devices come up in finished(), and without an adapter no scan ever calls it:
+        // on Android emulators and Waydroid without Bluetooth the fake device never appeared.
+        // No Bluetooth accessory can be found either, so finished() does not wait for one.
+        // Queued, as for the scan error below: finished() must run once the app has connected to our signals
+        if (reliesOnFakeOrVirtualDevice) {
+            forceHeartBeltOffForTimeout = true;
+            QMetaObject::invokeMethod(this, &bluetooth::finished, Qt::QueuedConnection);
+        }
     } else
 
 #endif
@@ -441,7 +449,8 @@ int bluetooth::searchNow() {
 
 void bluetooth::startDiscovery() {
 
-    if (!this->useDiscovery)
+    // no discoveryAgent without a Bluetooth adapter: nothing to scan with
+    if (!this->useDiscovery || !this->discoveryAgent)
         return;
 
     // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
