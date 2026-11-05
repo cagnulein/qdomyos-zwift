@@ -2003,15 +2003,21 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
 
 // A heart rate sensor nearby while none is chosen: offered in a bar over the pages, the strongest first
 // (an rssi of 0 or more is no signal given: last). A sensor found again only updates its signal.
-void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi) {
+// onTap: found by the search a tap on the heart rate tile or the Bluetooth icon started
+void homeform::heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap) {
     QSettings settings;
-    if (heartRateSensorsDismissed.contains(address) ||
-        (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0) ||
-        !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool() ||
-        !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
-             .toString()
-             .startsWith(QStringLiteral("Disabled")))
+    if (!bluetooth::heartRateSensorOffered(
+            onTap,
+            settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool(),
+            !settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled")),
+            bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0,
+            heartRateSensorsDismissed.contains(address)))
         return;
+    // the user asked: from now on the bar is the answer to that tap
+    if (onTap)
+        m_heartRateSensorOfferOnTap = true;
 
     QVariantMap sensor;
     sensor[QStringLiteral("name")] = name;
@@ -2038,6 +2044,7 @@ void homeform::heartRateSensorFound(const QString &name, const QString &address,
 void homeform::heartRateSensorSuggestionConnect(const QString &name, const QString &address) {
     qDebug() << "heart rate sensor offer: Connect" << name << address;
     m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
     emit heartRateSensorSuggestionsChanged();
     QSettings settings;
     settings.setValue(QZSettings::heart_rate_belt_name, name);
@@ -2051,6 +2058,7 @@ void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
     for (const QVariant &sensor : qAsConst(m_heartRateSensorSuggestions))
         heartRateSensorsDismissed.insert(sensor.toMap().value(QStringLiteral("address")).toString());
     m_heartRateSensorSuggestions.clear();
+    m_heartRateSensorOfferOnTap = false;
     emit heartRateSensorSuggestionsChanged();
     if (dontAskAgain) {
         QSettings settings;
@@ -6581,7 +6589,8 @@ void homeform::update() {
     }
 
     // nothing to offer any more: the heart rate came from elsewhere (a watch app, the machine), or meanwhile a sensor
-    // was chosen or the offer turned off in Heart Rate Options (Connect on the bar would replace that choice)
+    // was chosen (Connect on the bar would replace that choice) or, for a bar of the background search, the search
+    // turned off in Heart Rate Options; a bar the user asked for with a tap stays with it off
     if (!m_heartRateSensorSuggestions.isEmpty()) {
         QString withdrawn;
         if (bluetoothManager->device() && bluetoothManager->device()->currentHeart().value() > 0)
@@ -6590,12 +6599,14 @@ void homeform::update() {
                       .toString()
                       .startsWith(QStringLiteral("Disabled")))
             withdrawn = QStringLiteral("a sensor is chosen");
-        else if (!settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
+        else if (!m_heartRateSensorOfferOnTap &&
+                 !settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest)
                       .toBool())
-            withdrawn = QStringLiteral("the offer is turned off");
+            withdrawn = QStringLiteral("the background search is turned off");
         if (!withdrawn.isEmpty()) {
             qDebug() << "heart rate sensor offer: withdrawn," << withdrawn;
             m_heartRateSensorSuggestions.clear();
+            m_heartRateSensorOfferOnTap = false;
             emit heartRateSensorSuggestionsChanged();
         }
     }

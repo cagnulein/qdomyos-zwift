@@ -4469,12 +4469,12 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Utilisateurs d&apos;Apple Watch : laissez-le désactivé ! Ouvrez simplement l&apos;application sur votre montre</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Proposer un capteur cardiaque trouvé à proximité</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Rechercher un capteur cardiaque au démarrage</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Si aucune ceinture cardiaque n&apos;est choisie et qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque pendant les 5 premières minutes après la connexion de l&apos;appareil ou quand vous touchez l&apos;icône Bluetooth de la page d&apos;accueil, et propose de le connecter.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Pendant les 5 premières minutes après la connexion de l&apos;appareil, tant qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque une fois par minute : il connecte la ceinture choisie dès qu&apos;il la trouve ou, si aucune n&apos;est choisie, propose un capteur trouvé à proximité. Toucher la tuile de fréquence cardiaque ou l&apos;icône Bluetooth de la page d&apos;accueil lance la recherche à tout moment.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -4489,12 +4489,12 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Usuarios de Apple Watch: ¡déjalo desactivado! Solo abre la aplicación en tu reloj</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Ofrecer un sensor de frecuencia cardíaca cercano</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Buscar un sensor de frecuencia cardíaca al inicio</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Si no hay ninguna banda de frecuencia cardíaca elegida ni llega la frecuencia cardíaca, QZ busca un sensor de frecuencia cardíaca durante los primeros 5 minutos tras conectar la máquina o al tocar el icono de Bluetooth en la pantalla principal, y ofrece conectarlo.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Durante los primeros 5 minutos tras conectar la máquina, mientras no llegue la frecuencia cardíaca, QZ busca un sensor de frecuencia cardíaca una vez por minuto: conecta la banda elegida en cuanto la encuentra o, si no hay ninguna elegida, ofrece una encontrada cerca. Al tocar el mosaico de frecuencia cardíaca o el icono de Bluetooth en la pantalla principal, busca en cualquier momento.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

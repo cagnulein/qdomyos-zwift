@@ -210,6 +210,14 @@ class bluetooth : public QObject, public SignalHandler {
     // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
     // to Heart Rate: such a device is not offered as a heart rate sensor (heartRateSensorScan()).
     static bool advertisesFitnessMachine(const QList<QBluetoothUuid> &services);
+    // Whether a heart rate sensor found nearby goes on the bar (homeform::heartRateSensorFound()): none chosen
+    // (sensorChosen false), no heart rate, not hidden with Not now, and found by the search a tap on the heart rate
+    // tile or the Bluetooth icon started (onTap) or by the background one with it on (backgroundSearch:
+    // heart_rate_belt_suggest, off by default)
+    static bool heartRateSensorOffered(bool onTap, bool backgroundSearch, bool sensorChosen, bool heartRateComes,
+                                       bool dismissed) {
+        return !sensorChosen && !heartRateComes && !dismissed && (onTap || backgroundSearch);
+    }
 
   private:
     bool useDiscovery = false;
@@ -414,13 +422,14 @@ class bluetooth : public QObject, public SignalHandler {
     // the Bluetooth address; Apple platforms give none, the device UUID instead
     static QString deviceAddress(const QBluetoothDeviceInfo &b);
 
-    // heartRateSensorScan() runs during the first 5 minutes after the fitness machine first connects
+    // heartRateSensorScan() runs during the first 5 minutes after the fitness machine first connects, with
+    // heart_rate_belt_suggest on
     QTimer heartRateSensorScanTimer;
     qint64 heartRateSensorScanStartedMs = 0;
     // weaker sensors are someone else's (another bike in the gym), not the user's own
     static constexpr int heartRateSensorSuggestMinRssi = -80;
-    // hrmDiscoveryAgent is the scan a tap on the Bluetooth icon started (heartRateSensorSearch()), and how many
-    // sensors it offered
+    // hrmDiscoveryAgent is the scan a tap on the heart rate tile or the Bluetooth icon started
+    // (heartRateSensorSearch()), and how many sensors it offered
     bool hrmDiscoveryOnTap = false;
     int hrmDiscoveryOffered = 0;
 
@@ -454,8 +463,9 @@ class bluetooth : public QObject, public SignalHandler {
     void manualDeviceNotFound(QString name);
     void searchingStop();
     // A heart rate sensor nearby while none is chosen and no heart rate comes (heartRateSensorScan()).
-    // address: the Bluetooth address, the device UUID on iOS
-    void heartRateSensorFound(const QString &name, const QString &address, int rssi);
+    // address: the Bluetooth address, the device UUID on iOS; onTap: found by the search a tap started
+    // (heartRateSensorSearch()), not by the background one
+    void heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap);
     void ftmsAccessoryConnected(smartspin2k *d);
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
@@ -492,7 +502,8 @@ class bluetooth : public QObject, public SignalHandler {
   public slots:
     void restart();
     // Connects the heart rate sensor without a restart. name: the one chosen (OK in Heart Rate Options, Connect on the
-    // offer bar); empty – a tap on the Bluetooth icon: the saved one, or with none chosen a search for one to offer.
+    // offer bar); empty – a tap on the heart rate tile or the Bluetooth icon: the saved one, or with none chosen a
+    // search for one to offer.
     // address: of the sensor shown on the bar, so another one with the same name is not connected; empty – any.
     void reconnectHeartRateBelt(const QString &name = QString(), const QString &address = QString());
     void selectGymModeDevice(const QString &deviceName);

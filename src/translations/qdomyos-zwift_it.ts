@@ -6689,12 +6689,12 @@ NOTE IMPORTANTI:
         <translation>Indirizzo email:</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Proponi un sensore FC trovato nelle vicinanze</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Cerca un sensore FC all&apos;avvio</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Se non è scelta alcuna fascia cardio e non arriva la frequenza cardiaca, QZ cerca un sensore FC nei primi 5 minuti dopo la connessione dell&apos;attrezzo o quando tocchi l&apos;icona Bluetooth nella pagina principale, e propone di connetterlo.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nei primi 5 minuti dopo la connessione dell&apos;attrezzo, finché non arriva la frequenza cardiaca, QZ cerca un sensore FC una volta al minuto: connette la fascia cardio scelta appena la trova oppure, se non ne è scelta nessuna, ne propone una trovata nelle vicinanze. Toccando il riquadro della frequenza cardiaca o l&apos;icona Bluetooth nella pagina principale si cerca in qualsiasi momento.</translation>
     </message>
     <message>
         <source>Custom Gear Table</source>

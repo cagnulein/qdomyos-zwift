@@ -2,7 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 
-// A heart rate sensor QZ found nearby while none is chosen (homeform::heartRateSensorSuggestions).
+// A heart rate sensor QZ found nearby while none is chosen (homeform::heartRateSensorSuggestions): after a tap on the
+// heart rate tile or the Bluetooth icon, or by the background search of the first 5 minutes when it is on.
 // A bar at the bottom rather than a dialog: it covers only the bottom of the page, so it may show during a workout.
 // Several sensors: "Choose" opens the list. It stays until answered or the heart rate comes: on a phone left on the
 // handlebar the user is busy with the sensor, and a bar that went away by itself was missed.
@@ -77,7 +78,9 @@ Rectangle {
                 onClicked: rootItem.heartRateSensorSuggestionDismiss(false)
             }
 
+            // turns the background search off: not on a bar the user asked for with a tap
             Button {
+                visible: window.rootReady && !rootItem.heartRateSensorOfferOnTap
                 text: qsTr("Don't ask again")
                 onClicked: rootItem.heartRateSensorSuggestionDismiss(true)
             }

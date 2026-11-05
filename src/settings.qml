@@ -2391,7 +2391,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
-            property bool heart_rate_belt_suggest: true
+            property bool heart_rate_belt_suggest: false
 
         }
 
@@ -3552,7 +3552,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: switchHeartRateBeltSuggestDelegate
-                        text: qsTr("Offer a Heart Rate Sensor Found Nearby")
+                        text: qsTr("Search for a Heart Rate Sensor at Start")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -3571,7 +3571,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.")
+                        text: qsTr("During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint

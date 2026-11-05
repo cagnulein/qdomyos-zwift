@@ -4608,12 +4608,12 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Eszközlista frissítése</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Közeli pulzusmérő felajánlása</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Pulzusmérő keresése induláskor</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Ha nincs kiválasztva pulzusmérő, és nem érkezik pulzus, a QZ az edzőgép csatlakozása utáni első 5 percben, illetve a kezdőlap Bluetooth ikonjának megérintésekor pulzusmérőt keres a közelben, és felajánlja a csatlakoztatását.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Az edzőgép csatlakozása utáni első 5 percben, amíg nem érkezik pulzus, a QZ percenként egyszer pulzusmérőt keres: a kiválasztottat azonnal csatlakoztatja, amint megtalálja, ha pedig nincs kiválasztva, felajánl egyet a közelből. A kezdőlapon a pulzus csempéjének vagy a Bluetooth ikonnak a megérintése bármikor keresést indít.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -5642,12 +5642,12 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Geräteliste aktualisieren</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Herzfrequenzsensor in der Nähe anbieten</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Beim Start nach Herzfrequenzsensor suchen</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Ist kein Herzgurt gewählt und kommt keine Herzfrequenz an, sucht QZ in den ersten 5 Minuten nach dem Verbinden des Trainingsgeräts oder nach einem Tippen auf das Bluetooth-Symbol auf der Startseite nach einem Herzfrequenzsensor und bietet an, ihn zu verbinden.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>In den ersten 5 Minuten nach dem Verbinden des Trainingsgeräts sucht QZ, solange keine Herzfrequenz ankommt, einmal pro Minute nach einem Herzfrequenzsensor: Der gewählte Herzgurt wird verbunden, sobald er gefunden ist; ist keiner gewählt, wird ein Sensor in der Nähe angeboten. Ein Tippen auf die Herzfrequenz-Kachel oder das Bluetooth-Symbol auf der Startseite sucht jederzeit.</translation>
     </message>
     <message>
         <source>Zone 1 %:</source>

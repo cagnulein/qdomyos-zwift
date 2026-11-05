@@ -4649,12 +4649,12 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>기기 목록 새로 고침</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>근처에서 찾은 심박 센서 제안</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>시작할 때 심박 센서 찾기</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>심박 벨트를 선택하지 않았고 심박수가 들어오지 않으면, QZ는 운동 기구가 연결된 후 처음 5분 동안 또는 홈 화면의 Bluetooth 아이콘을 탭할 때 근처의 심박 센서를 찾아 연결을 제안합니다.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>운동 기구가 연결된 후 처음 5분 동안 심박수가 들어오지 않으면 QZ가 1분마다 심박 센서를 찾습니다. 선택한 심박 벨트는 찾는 즉시 연결하고, 선택한 것이 없으면 근처에서 찾은 센서를 제안합니다. 홈 화면의 심박수 타일이나 Bluetooth 아이콘을 탭하면 언제든지 찾습니다.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

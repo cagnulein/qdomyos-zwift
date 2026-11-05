@@ -4649,12 +4649,12 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
         <translation>Odśwież listę urządzeń</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Proponuj pulsometr znaleziony w pobliżu</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Szukaj pulsometru po uruchomieniu</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Gdy nie wybrano pulsometru i nie ma tętna, QZ przez pierwsze 5 minut po połączeniu urządzenia treningowego lub po dotknięciu ikony Bluetooth na stronie głównej szuka pulsometru w pobliżu i proponuje jego połączenie.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Przez pierwsze 5 minut po połączeniu urządzenia treningowego, dopóki nie ma tętna, QZ raz na minutę szuka pulsometru: wybrany łączy, gdy tylko go znajdzie, a gdy żaden nie jest wybrany, proponuje pulsometr znaleziony w pobliżu. Dotknięcie kafelka tętna lub ikony Bluetooth na stronie głównej uruchamia wyszukiwanie w dowolnej chwili.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -211,6 +211,7 @@ class homeform : public QObject {
     // heart rate sensors nearby to offer, the strongest first: {name, address, rssi}
     Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
                    heartRateSensorSuggestionsChanged)
+    Q_PROPERTY(bool heartRateSensorOfferOnTap READ heartRateSensorOfferOnTap NOTIFY heartRateSensorSuggestionsChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -251,10 +252,10 @@ class homeform : public QObject {
     Q_INVOKABLE QString bluetoothSearchStatus();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
-    // Heart rate sensor chosen in the settings (name) or a tap on the Bluetooth icon (no name, the saved one):
-    // connect it without a restart. With none chosen and the machine connected, the tap searches for one to offer,
-    // also offering again the sensors hidden with Not now (the user asks for it); with no machine it searches for
-    // the machine only, and Not now stays.
+    // Heart rate sensor chosen in the settings (name) or a tap on the heart rate tile or the Bluetooth icon (no
+    // name, the saved one): connect it without a restart. With none chosen and the machine connected, the tap
+    // searches for one to offer, also with heart_rate_belt_suggest off, and offers again the sensors hidden with Not
+    // now (the user asks for it); with no machine the icon searches for the machine only, and Not now stays.
     Q_INVOKABLE void reconnectHeartRateBelt(const QString &name = QString()) {
         if (name.isEmpty() && bluetoothManager && bluetoothManager->device())
             heartRateSensorsDismissed.clear();
@@ -262,6 +263,8 @@ class homeform : public QObject {
             bluetoothManager->reconnectHeartRateBelt(name);
     }
     QVariantList heartRateSensorSuggestions() const { return m_heartRateSensorSuggestions; }
+    // The bar shows a sensor found by the search a tap started: the user asked, so no "Don't ask again"
+    bool heartRateSensorOfferOnTap() const { return m_heartRateSensorOfferOnTap; }
     // "Connect" on an offered sensor: chosen in the settings and connected without a restart.
     // address: of the sensor shown, so another one with the same name nearby is not connected instead
     Q_INVOKABLE void heartRateSensorSuggestionConnect(const QString &name, const QString &address);
@@ -1113,6 +1116,7 @@ public:
     bool m_androidNotificationPromptRequested = false;
     bool m_androidNotificationPromptPending = false;
     QVariantList m_heartRateSensorSuggestions;
+    bool m_heartRateSensorOfferOnTap = false;
     QSet<QString> heartRateSensorsDismissed; // addresses
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
@@ -1295,7 +1299,7 @@ public:
     void floatingOpen();
     void openFloatingWindowBrowser();
     void deviceFound(const QString &name);
-    void heartRateSensorFound(const QString &name, const QString &address, int rssi);
+    void heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);    
     void trainprogram_open_other_folder(const QUrl &fileName);

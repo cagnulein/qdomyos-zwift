@@ -4649,12 +4649,12 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Obnovit seznam zařízení</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Nabízet snímač tepu nalezený poblíž</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Hledat snímač tepu po spuštění</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Když není vybrán snímač tepu a tep nepřichází, QZ během prvních 5 minut po připojení trenažéru nebo po klepnutí na ikonu Bluetooth na hlavní stránce hledá snímač tepu poblíž a nabídne jeho připojení.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Během prvních 5 minut po připojení trenažéru, dokud nepřichází tep, hledá QZ jednou za minutu snímač tepu: vybraný snímač připojí, jakmile ho najde, a když není žádný vybrán, nabídne snímač nalezený poblíž. Klepnutím na dlaždici tepu nebo na ikonu Bluetooth na hlavní stránce lze hledat kdykoli.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

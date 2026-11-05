@@ -4649,12 +4649,12 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Cihaz listesini yenile</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Yakında bulunan nabız sensörünü öner</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Başlangıçta nabız sensörü ara</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Nabız sensörü seçilmemişse ve nabız gelmiyorsa QZ, egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca veya ana sayfadaki Bluetooth simgesine dokunulduğunda yakındaki bir nabız sensörünü arar ve bağlamayı önerir.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca, nabız gelmediği sürece QZ dakikada bir nabız sensörü arar: seçilen nabız sensörünü bulur bulmaz bağlar, seçilmiş bir sensör yoksa yakında bulunan birini önerir. Ana sayfadaki nabız kutucuğuna veya Bluetooth simgesine dokunmak her zaman arama başlatır.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

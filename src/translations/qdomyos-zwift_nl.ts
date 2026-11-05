@@ -4649,12 +4649,12 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Apparatenlijst vernieuwen</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Hartslagsensor in de buurt voorstellen</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Bij het starten naar een hartslagsensor zoeken</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Als er geen hartslagband is gekozen en er geen hartslag binnenkomt, zoekt QZ in de eerste 5 minuten na het verbinden van het fitnesstoestel, of als je op het Bluetooth-pictogram op de startpagina tikt, naar een hartslagsensor en stelt voor om die te verbinden.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>In de eerste 5 minuten na het verbinden van het fitnesstoestel zoekt QZ, zolang er geen hartslag binnenkomt, eens per minuut naar een hartslagsensor: de gekozen hartslagband wordt verbonden zodra die gevonden is, of als er geen is gekozen, wordt een sensor in de buurt voorgesteld. Tikken op de hartslagtegel of het Bluetooth-pictogram op de startpagina zoekt op elk moment.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

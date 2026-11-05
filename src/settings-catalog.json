@@ -16436,15 +16436,15 @@
     },
     {
       "key": "heart_rate_belt_suggest",
-      "name": "Offer a Heart Rate Sensor Found Nearby",
-      "description": "With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.",
+      "name": "Search for a Heart Rate Sensor at Start",
+      "description": "During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.",
       "parent": "Heart Rate Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
       "visible": true,
-      "defaultValue": true,
-      "defaultExpression": "true",
+      "defaultValue": false,
+      "defaultExpression": "false",
       "options": null,
       "restartRequired": false
     }

@@ -5686,12 +5686,12 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Atualizar Lista de Dispositivos</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Sugerir um sensor de FC encontrado por perto</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Procurar um sensor de FC ao iniciar</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Sem cinta cardíaca escolhida e sem frequência cardíaca, o QZ procura um sensor de FC nos primeiros 5 minutos após a conexão do equipamento ou ao tocar no ícone Bluetooth da tela inicial, e sugere conectá-lo.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nos primeiros 5 minutos após a conexão do equipamento, enquanto não chega frequência cardíaca, o QZ procura um sensor de FC uma vez por minuto: conecta a cinta escolhida assim que a encontra ou, sem nenhuma escolhida, sugere um sensor encontrado por perto. Tocar no bloco de frequência cardíaca ou no ícone Bluetooth da tela inicial procura a qualquer momento.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>

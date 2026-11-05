@@ -6445,12 +6445,12 @@ Please enter it below:</source>
         <translation>Нахил</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Пропонувати знайдений пульсометр</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Шукати пульсометр на старті</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>Якщо пульсометр не вибрано і пульсу немає, QZ у перші 5 хвилин після під’єднання тренажера або після натискання значка Bluetooth на головній шукає пульсометр поруч і пропонує його під’єднати.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>У перші 5 хвилин після під’єднання тренажера, поки пульсу немає, QZ раз на хвилину шукає пульсометр: вибраний під’єднує, щойно знайде, а якщо пульсометр не вибрано, пропонує знайдений поруч. Натискання на плитку пульсу або значок Bluetooth на головній запускає пошук будь-коли.</translation>
     </message>
     <message>
         <source>Tile size:</source>

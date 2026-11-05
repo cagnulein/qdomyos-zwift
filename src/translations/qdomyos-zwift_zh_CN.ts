@@ -4497,12 +4497,12 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Apple Watch 用户：请保持禁用！只需在手表上打开应用</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>推荐附近发现的心率传感器</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>启动时搜索心率传感器</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>未选择心率带且没有心率数据时，QZ 会在健身器材连接后的前 5 分钟内或点击主页上的蓝牙图标时搜索附近的心率传感器，并提示连接。</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>健身器材连接后的前 5 分钟内，若没有心率数据，QZ 每分钟搜索一次心率传感器：找到已选的心率带后立即连接；若未选择，则提示连接附近发现的传感器。点击主页上的心率卡片或蓝牙图标可随时搜索。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -4608,12 +4608,12 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
         <translation>Uppdatera enhetslistan</translation>
     </message>
     <message>
-        <source>Offer a Heart Rate Sensor Found Nearby</source>
-        <translation>Föreslå en pulsmätare i närheten</translation>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Sök efter en pulsmätare vid start</translation>
     </message>
     <message>
-        <source>With no heart belt chosen and no heart rate, QZ looks for a heart rate sensor during the first 5 minutes after the fitness machine connects or when you tap the Bluetooth icon on the home page, and offers to connect it.</source>
-        <translation>När inget pulsbälte är valt och ingen puls kommer in söker QZ efter en pulsmätare under de första 5 minuterna efter att träningsmaskinen anslutits, eller när du trycker på Bluetooth-ikonen på startsidan, och erbjuder att ansluta den.</translation>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Under de första 5 minuterna efter att träningsmaskinen anslutits söker QZ, så länge ingen puls kommer in, efter en pulsmätare en gång i minuten: det valda pulsbältet ansluts så snart det hittas, och är inget valt erbjuds en pulsmätare i närheten. Ett tryck på pulspanelen eller Bluetooth-ikonen på startsidan söker när som helst.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
