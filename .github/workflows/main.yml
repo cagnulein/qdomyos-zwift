@@ -589,27 +589,27 @@ jobs:
     timeout-minutes: 120
     permissions:
       contents: read
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      QT_MAC_VERSION: '5.15.19'
     steps:
       - name: Checkout with project submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install Qt 5.15.2 for Intel macOS
-        uses: jdpurcell/install-qt-action@v5
-        with:
-          version: '5.15.2'
-          host: 'mac'
-          target: 'desktop'
-          arch: 'clang_64'
-          modules: 'qtcharts qtnetworkauth'
-          cache: 'false'
-
-      - name: Verify toolchain architecture
+      - name: Install native Qt 5 for Intel macOS
         run: |
+          set -euo pipefail
           test "$(uname -m)" = "x86_64"
-          qmake -v
-          test -x "$QT_ROOT_DIR/bin/macdeployqt"
+          brew install qt@5
+          QT_DIR="$(brew --prefix qt@5)"
+          echo "QT_ROOT_DIR=$QT_DIR" >> "$GITHUB_ENV"
+          echo "$QT_DIR/bin" >> "$GITHUB_PATH"
+          "$QT_DIR/bin/qmake" -v
+          test "$("$QT_DIR/bin/qmake" -query QT_VERSION)" = "$QT_MAC_VERSION"
+          test -x "$QT_DIR/bin/macdeployqt"
+          lipo "$QT_DIR/lib/QtCore.framework/QtCore" -verify_arch x86_64
 
       - name: Generate trial secrets (as in the Android nightly)
         env:
@@ -680,6 +680,7 @@ jobs:
       contents: read
     env:
       HOMEBREW_NO_AUTO_UPDATE: '1'
+      QT_MAC_VERSION: '5.15.19'
     steps:
       - name: Checkout with project submodules
         uses: actions/checkout@v4
@@ -698,7 +699,7 @@ jobs:
           echo "QT_ROOT_DIR=$QT_DIR" >> "$GITHUB_ENV"
           echo "$QT_DIR/bin" >> "$GITHUB_PATH"
           "$QT_DIR/bin/qmake" -v
-          test "$("$QT_DIR/bin/qmake" -query QT_VERSION | cut -d. -f1)" = 5
+          test "$("$QT_DIR/bin/qmake" -query QT_VERSION)" = "$QT_MAC_VERSION"
           test -x "$QT_DIR/bin/macdeployqt"
           lipo "$QT_DIR/lib/QtCore.framework/QtCore" -verify_arch arm64
 
