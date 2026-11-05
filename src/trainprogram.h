@@ -31,6 +31,7 @@ class trainrow {
     QDateTime started = QDateTime();
     QDateTime ended = QDateTime();
     double distance = -1;
+    double elevationGain = -1; // Positive ascent target (meters), exclusive with time/distance
     double speed = -1;
     double lower_speed = -1;   // used for peloton
     double average_speed = -1; // used for peloton
@@ -106,6 +107,15 @@ class trainprogram : public QObject {
     static BLUETOOTH_TYPE xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback = UNKNOWN);
     QTime totalElapsedTime();
     int currentRowElapsedSeconds() const;
+    double currentRowElevationGain() const { return currentStepElevation; }
+    bool hasElevationTargets() const {
+        for (const trainrow &row : rows) {
+            if (row.elevationGain > 0) return true;
+        }
+        return false;
+    }
+    static bool elevationTargetReached(double progress, double target) { return target > 0 && progress >= target; }
+    static double elevationCarryOver(double progress, double target) { return target > 0 ? qMax(0.0, progress - target) : 0.0; }
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
     QTime remainingTime();
@@ -222,6 +232,8 @@ private slots:
     int32_t offset = 0;
     double lastOdometer = 0;
     double currentStepDistance = 0;
+    double lastElevationGain = 0;
+    double currentStepElevation = 0;
     QTimer timer;
     double lastGpxRateSetAt = 0.0;
     double lastGpxRateSet = 0.0;

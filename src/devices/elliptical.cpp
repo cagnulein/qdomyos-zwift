@@ -35,8 +35,10 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     }
 
     METS = calculateMETS();
-    if (currentInclination().value() > 0)
+    if (!_firstUpdate && !paused && currentSpeed().value() > 0.0 && deltaTime > 0.0 &&
+        currentInclination().value() > 0) {
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    }
 
     _lastTimeUpdate = current;
     _firstUpdate = false;

@@ -417,6 +417,12 @@ class QZSettings {
     static const QString tile_elevation_order;
     static constexpr int default_tile_elevation_order = 3;
 
+    static const QString tile_vam_enabled;
+    static constexpr bool default_tile_vam_enabled = false;
+
+    static const QString tile_vam_order;
+    static constexpr int default_tile_vam_order = 80;
+
     static const QString tile_calories_enabled;
     static constexpr bool default_tile_calories_enabled = true;
 

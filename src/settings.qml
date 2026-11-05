@@ -2412,6 +2412,8 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
+            property bool tile_vam_enabled: false
+            property int tile_vam_order: 80
 
         }
 

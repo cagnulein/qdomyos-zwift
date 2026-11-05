@@ -268,10 +268,13 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     }
 
     METS = calculateMETS();
-    if (currentInclination().value() > 0)
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
-    else if (currentInclination().value() < 0)
-        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
+    // Freeze both ascent and descent during pause/initialization, consistently with moving time.
+    if (!_firstUpdate && !paused && currentSpeed().value() > 0.0 && deltaTime > 0.0) {
+        if (currentInclination().value() > 0)
+            elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+        else if (currentInclination().value() < 0)
+            negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
+    }
 
     _lastTimeUpdate = current;
     _firstUpdate = false;

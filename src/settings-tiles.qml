@@ -226,6 +226,51 @@ ScrollView {
         }
 
         AccordionCheckElement {
+            id: vamEnabledAccordion
+            title: qsTr("VAM (m/h)")
+            linkedBoolSetting: "tile_vam_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelVamOrder
+                    text: qsTr("order index:")
+                    wrapMode: window.labelWrap
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: vamOrderTextField
+                    Accessible.name: vamEnabledAccordion.title + ", " + labelVamOrder.text
+                    model: rootItem.tile_order
+                    savedText: settings.tile_vam_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = vamOrderTextField.currentValue
+                }
+                Button {
+                    text: qsTr("OK")
+                    enabled: vamOrderTextField.dirty
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {
+                        settings.tile_vam_order = vamOrderTextField.displayText
+                        toast.show(qsTr("Setting saved!"))
+                    }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Vertical ascent speed in meters per hour, with the moving-time session average.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: window.fontHint
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
             id: elevationEnabledAccordion
             title: qsTr("Elevation Gain")
             linkedBoolSetting: "tile_elevation_enabled"

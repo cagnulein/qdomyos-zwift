@@ -950,6 +950,7 @@ public:
     DataObject *negative_inclination;
     DataObject *cadence;
     DataObject *elevation;
+    DataObject *vam;
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;

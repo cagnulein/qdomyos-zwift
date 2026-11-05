@@ -18,8 +18,9 @@
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `duration` | `HH:MM:SS` | **Required.** How long the row lasts. |
+| `duration` | `HH:MM:SS` | Duration of a timed row (not used when `distance` or `elevationGain` is specified). |
 | `distance` | km | Row ends after this distance instead of `duration`. |
+| `elevationGain` | m | Treadmill row ends after this many **positive meters of ascent**, independent of changes in speed or grade. Exclusive with `duration`/`distance`. |
 | `speed` | km/h | Fixed speed target. |
 | `speedfrom` / `speedto` | km/h | Speed ramp — QZ auto-splits into 0.1 km/h, 1-second increments. |
 | `inclination` | % | Treadmill incline. |
@@ -33,6 +34,21 @@
 | `power` | watts | Power target. |
 | `maxresistance` | int | Max resistance the HR PID may set. |
 | `fanspeed` | 0–100 | Fan speed percentage. |
+
+### Elevation-based treadmill intervals
+
+A treadmill interval may target vertical ascent rather than time or horizontal distance:
+
+```xml
+<rows device="treadmill">
+    <row duration="00:10:00" speed="4.5" inclination="2" forcespeed="1"/>
+    <row elevationGain="200" speed="5.0" inclination="10" forcespeed="1"/>
+    <row distance="1" speed="4.0" inclination="0" forcespeed="1"/>
+    <row elevationGain="300" speed="5.0" inclination="12" forcespeed="1"/>
+</rows>
+```
+
+Each ascent interval counts positive elevation gained **within that interval**; ascent during intervening time/distance rows is not included. Any overshoot is carried **only** into an immediately consecutive elevation-based interval. Descents do not reduce ascent progress, and pausing QZ freezes both ascent and descent counters. The Elevation Gain tile shows the active interval's progress and meters remaining; optionally enable the VAM tile to see instantaneous ascent rate and moving-time session average (m/h). Elevation targets are open-ended: QZ does not display an estimated time remaining.
 
 ### Text Events (on-screen messages)
 

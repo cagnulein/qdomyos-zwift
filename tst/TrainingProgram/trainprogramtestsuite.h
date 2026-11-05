@@ -15,6 +15,9 @@ public:
     void test_pidHrModeRoundTripsKnownValues();
     void test_pidHrModeWorkoutOverrideTakesPrecedence();
     void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
+    void test_elevationTargetProgressAndCarry();
+    void test_elevationTargetRoundTripThroughXml();
+    void test_vamCalculations();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -55,6 +58,18 @@ TEST_F(TrainProgramTestSuite, PidHrModeWorkoutOverrideTakesPrecedence) {
 
 TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
     this->test_pidHrModeAndMaxInclinationRoundTripThroughXml();
+}
+
+TEST_F(TrainProgramTestSuite, ElevationTargetProgressAndCarry) {
+    this->test_elevationTargetProgressAndCarry();
+}
+
+TEST_F(TrainProgramTestSuite, ElevationTargetRoundTripThroughXml) {
+    this->test_elevationTargetRoundTripThroughXml();
+}
+
+TEST_F(TrainProgramTestSuite, VamCalculations) {
+    this->test_vamCalculations();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H
