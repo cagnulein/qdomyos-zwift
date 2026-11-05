@@ -6,7 +6,6 @@ import Qt.labs.settings 1.0
 import QtWebView 1.1
 
 ColumnLayout {
-    signal popupclose()
     id: column1
     spacing: 10
     anchors.fill: parent

@@ -92,6 +92,51 @@ viewer.trackedEntity = bike;
     let lastBikeHeight = 0
     let firstTime = 0
 
+    function isTrueSetting(value) {
+        return value === true || value === 'true' || value === 1 || value === '1';
+    }
+
+    let mapMetricSettings = {
+        speed: true, cadence: true, heart: true, calories: true, odometer: true,
+        watt: true, elapsed: true, inclination: true, resistance: true, altitude: true, elevation: true
+    };
+
+    function loadMapMetricSettings() {
+        // Reuse the same enable/disable switches as the main Tiles settings,
+        // instead of introducing separate settings for the map's data box.
+        let settingKeys = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_heart_enabled',
+            'tile_calories_enabled', 'tile_odometer_enabled', 'tile_watt_enabled',
+            'tile_elapsed_enabled', 'tile_inclination_enabled', 'tile_resistance_enabled',
+            'tile_elevation_enabled'];
+        let el = new MainWSQueueElement({
+            msg: 'getsettings',
+            content: { keys: settingKeys }
+        }, function(msg) {
+            if (msg.msg === 'R_getsettings') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+        el.enqueue().then(function(content) {
+            if (!content) return;
+            mapMetricSettings.speed = isTrueSetting(content['tile_speed_enabled']);
+            mapMetricSettings.cadence = isTrueSetting(content['tile_cadence_enabled']);
+            mapMetricSettings.heart = isTrueSetting(content['tile_heart_enabled']);
+            mapMetricSettings.calories = isTrueSetting(content['tile_calories_enabled']);
+            mapMetricSettings.odometer = isTrueSetting(content['tile_odometer_enabled']);
+            mapMetricSettings.watt = isTrueSetting(content['tile_watt_enabled']);
+            mapMetricSettings.elapsed = isTrueSetting(content['tile_elapsed_enabled']);
+            mapMetricSettings.inclination = isTrueSetting(content['tile_inclination_enabled']);
+            mapMetricSettings.resistance = isTrueSetting(content['tile_resistance_enabled']);
+            // No dedicated "altitude" tile exists; tie it to the elevation tile switch.
+            mapMetricSettings.altitude = isTrueSetting(content['tile_elevation_enabled']);
+            mapMetricSettings.elevation = isTrueSetting(content['tile_elevation_enabled']);
+        }).catch(function(err) {
+            console.error('Error is ' + err);
+        });
+    }
+    loadMapMetricSettings();
+
     function t(key, fallback) {
         return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
     }
@@ -157,7 +202,21 @@ viewer.trackedEntity = bike;
 																}
 				}
 
-            $('#metricsText').html("🏃" + t('metric.speedTitle', 'Speed') + ": " + speed.toFixed(2) + "<br>🚴" + t('metric.cadenceTitle', 'Cadence') + ":" + cadence.toFixed(0) + "<br>💓" + t('metric.heart', 'Heart') + ":"+ hr.toFixed(0) + "<br>🔥" + t('metric.caloriesTitle', 'Calories') + ":"+ calories.toFixed(1) + "<br>📏" + t('metric.odometer', 'Odometer') + ":"+ odometer.toFixed(2) + "<br>⚡" + t('metric.watt', 'Watt') + ":"+ watt.toFixed(0) + "<br>⏲️" + t('metric.elapsed', 'Elapsed') + ":"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐" + t('metric.inclinationTitle', 'Inclination') + ":"+ inclination.toFixed(1) + "<br>🧲" + t('metric.resistanceTitle', 'Resistance') + ":"+ resistance.toFixed(0) + "<br>✈️" + t('metric.altitude', 'Altitude') + ":"+ altitude.toFixed(1) + "<br>⛰️" + t('metric.elevationTitle', 'Elevation') + ":"+ elevation.toFixed(2));
+
+        let metricsLines = [];
+        if (mapMetricSettings.speed) metricsLines.push("🏃" + t('metric.speedTitle', 'Speed') + ": " + speed.toFixed(2));
+        if (mapMetricSettings.cadence) metricsLines.push("🚴" + t('metric.cadenceTitle', 'Cadence') + ":" + cadence.toFixed(0));
+        if (mapMetricSettings.heart) metricsLines.push("💓" + t('metric.heart', 'Heart') + ":" + hr.toFixed(0));
+        if (mapMetricSettings.calories) metricsLines.push("🔥" + t('metric.caloriesTitle', 'Calories') + ":" + calories.toFixed(1));
+        if (mapMetricSettings.odometer) metricsLines.push("📏" + t('metric.odometer', 'Odometer') + ":" + odometer.toFixed(2));
+        if (mapMetricSettings.watt) metricsLines.push("⚡" + t('metric.watt', 'Watt') + ":" + watt.toFixed(0));
+        if (mapMetricSettings.elapsed) metricsLines.push("⏲️" + t('metric.elapsed', 'Elapsed') + ":" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0"));
+        if (mapMetricSettings.inclination) metricsLines.push("📐" + t('metric.inclinationTitle', 'Inclination') + ":" + inclination.toFixed(1));
+        if (mapMetricSettings.resistance) metricsLines.push("🧲" + t('metric.resistanceTitle', 'Resistance') + ":" + resistance.toFixed(0));
+        if (mapMetricSettings.altitude) metricsLines.push("✈️" + t('metric.altitude', 'Altitude') + ":" + altitude.toFixed(1));
+        if (mapMetricSettings.elevation) metricsLines.push("⛰️" + t('metric.elevationTitle', 'Elevation') + ":" + elevation.toFixed(2));
+        $('#metricsText').html(metricsLines.join("<br>"));
+
 		  }
 		  return null;
 		}, 15000, 3);
