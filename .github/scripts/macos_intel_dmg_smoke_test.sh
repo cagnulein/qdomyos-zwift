@@ -36,9 +36,19 @@ if [[ -z "$app" ]]; then
   echo "No .app bundle in the DMG" >&2
   exit 1
 fi
-executable_name="$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$app/Contents/Info.plist")"
+# Validate launch metadata as well as the binary: Finder relies on
+# CFBundleExecutable, so simply locating Contents/MacOS is not enough.
+plist="$app/Contents/Info.plist"
+plutil -lint "$plist" | tee "$evidence_dir/info-plist-validation.log"
+if ! executable_name="$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$plist")"; then
+  echo "DMG app is not Finder-launchable: CFBundleExecutable is missing" >&2
+  exit 1
+fi
 binary="$app/Contents/MacOS/$executable_name"
-test -x "$binary"
+if [[ ! -x "$binary" ]]; then
+  echo "CFBundleExecutable does not point to an executable: $binary" >&2
+  exit 1
+fi
 lipo "$binary" -verify_arch "$expected_arch"
 file "$binary" | tee "$evidence_dir/architecture.log"
 if [[ "$(uname -m)" != "$expected_arch" ]]; then
