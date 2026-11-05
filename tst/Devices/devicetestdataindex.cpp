@@ -635,6 +635,10 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
         ->expectDevice<ftmsbike>()
         ->acceptDeviceNames(acceptableFTMSNames, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("ZV-C47306", DeviceNameComparison::IgnoreCase) // Sportstech SX600 FTMS
+        ->acceptDeviceName("ZV-AB12CD", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C4730", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ZV-C473067", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("DI", DeviceNameComparison::StartsWithIgnoreCase, 2) // Elite smart trainer #1682)
         ->acceptDeviceName("YSV", DeviceNameComparison::StartsWithIgnoreCase, 9) // YSV100783
         ->acceptDeviceName("URSB", DeviceNameComparison::StartsWithIgnoreCase, 7) // URSB005
@@ -648,6 +652,10 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
+        ->acceptDeviceName("07250DrumFit", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("1234DrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("ABCDDrumFit", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("07250DrumFitX", DeviceNameComparison::IgnoreCase)
         // Hammer Speed Race S (BLE): numeric prefix must not change plain Kettler RACER S routing.
         ->acceptDeviceName("4864 RACER S", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("1234 racer s", DeviceNameComparison::IgnoreCase)
@@ -721,7 +729,7 @@ void DeviceTestDataIndex::Initialize() {
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
-        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS", "FIT-RW-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"PM5ROW","PM5XROW","SF-RW"}, DeviceNameComparison::IgnoreCase);
 
     // Horizon GR7 Bike

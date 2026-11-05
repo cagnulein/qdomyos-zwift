@@ -361,6 +361,8 @@ ApplicationWindow {
         id: toast
     }
 
+    HeartRateSuggestion {}
+
     property bool lapPromptVisible: false
     property string lapPromptText: ""
 
@@ -977,6 +979,21 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
+        function onTrainingRestoreOfferRequested() {
+            popupTrainingRestore.visible = true
+        }
+    }
+
+    // after a reinstall the training programs of the previous install are hidden in the
+    // training folder: with access to the QZ folder QZ copies them back as its own
+    MessageDialog {
+        id: popupTrainingRestore
+        text: qsTr("Training Programs")
+        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.restoreTrainingPrograms()
+        onNoClicked: this.visible = false
+        visible: false
     }
 
     // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
@@ -1256,7 +1273,39 @@ ApplicationWindow {
         // Opacity, not visible: some pages set headerToolbar.visible themselves
         opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
-        topPadding: getTopPadding()
+        // The toolbar hangs over the pages: in the window layout it is only as tall as the status
+        // bar inset, and the page stack below leaves room for the rest of it (stackView
+        // anchors.topMargin), so every page sits where it did. The tile grid in Home.qml reaches
+        // up under it and slides it away with the scroll (Material "scroll|enterAlways"): barShift
+        // is how much of it has gone up under the status bar. The page never changes size, so the
+        // tiles do not move under the finger
+        property real barShift: 0
+        // Moving the tiles keeps it shown: the lock button is on the toolbar. So does any other page
+        // (the tile grid can still be gliding or snapping under it when one is opened); back on the
+        // home page it is where the scroll left it, not over the Start/Stop row
+        readonly property real barHidden: window.lockTiles || stackView.depth > 1 ? 0 : Math.max(0, Math.min(barShift, contentHeight))
+        // Set, not derived from the style, which counts the height of the background (48) as well
+        implicitHeight: getTopPadding()
+        // The content keeps its height and slides up with the bar
+        topPadding: getTopPadding() - barHidden
+        bottomPadding: barHidden - contentHeight
+        // The background, as tall as the status bar inset and the bar, slides up with it. Negative
+        // insets let it reach past the header: a background.height binding loses to the control's
+        // own resizing at an inset of 0
+        topInset: -barHidden
+        bottomInset: barHidden - contentHeight
+        // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
+        // well; the background goes then too
+        contentItem.opacity: 1 - barHidden / contentHeight
+        contentItem.visible: barHidden < contentHeight
+        background.visible: barHidden < contentHeight
+
+        // The bar takes the touches on it, as a toolbar the height of its content did: drawn
+        // past the height of the header, it would let a tap on the title reach the tiles below
+        MouseArea {
+            anchors.fill: parent
+            z: -1
+        }
         // Clear of the side system bar and the cutout held sideways, as the page stack: with
         // button navigation the bar on the right covered the rightmost button
         leftPadding: getLeftPadding()
@@ -1870,6 +1919,8 @@ ApplicationWindow {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
+            // Below the toolbar, which hangs over the pages (headerToolbar)
+            anchors.topMargin: headerToolbar.contentHeight
             // Clear of the bottom system bar in any orientation: held sideways with gesture
             // navigation the bar stays at the bottom (with buttons it moves to the side, and the
             // bottom inset is 0 then)

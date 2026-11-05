@@ -961,6 +961,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 
@@ -1869,6 +1872,9 @@ class QZSettings {
     static const QString default_kettler_usb_serialport;
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
+
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
 
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
@@ -3446,6 +3452,12 @@ class QZSettings {
 
     static const QString moovio_lynx_konect_2_0;
     static constexpr bool default_moovio_lynx_konect_2_0 = false;
+
+    // The background search of the first 5 minutes while no heart rate comes: connects the chosen sensor or, with
+    // none chosen, offers one found nearby. Off by default (a tap on the heart rate tile or the Bluetooth icon
+    // searches anyway); "Don't ask again" on its bar turns it off
+    static const QString heart_rate_belt_suggest;
+    static constexpr bool default_heart_rate_belt_suggest = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
