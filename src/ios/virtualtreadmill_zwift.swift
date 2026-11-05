@@ -334,7 +334,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     peripheral.startAdvertising(advertisementData)
   }
 
-    func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
+  func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
     if let uwError = error {
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Failed to advertise with error: \(uwError.localizedDescription)")
       return
