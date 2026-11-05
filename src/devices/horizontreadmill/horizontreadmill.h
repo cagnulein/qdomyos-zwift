@@ -54,6 +54,7 @@ class horizontreadmill : public treadmill {
     void startDiscover();
     void btinit();
     void setDirectDistance(double treadmillDistance, bool increment);
+    void clearGattServices();
 
     QTimer *refresh;
 
