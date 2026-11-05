@@ -71,9 +71,17 @@ Item {
         x: Math.round((parent.width - width) / 2)
         y: Math.max(12, Math.round((parent.height - height) / 2))
         padding: 16
+        // Landscape phones and split-screen iPads have limited vertical space.
+        height: Math.min(implicitHeight, parent.height - 24)
 
-        contentItem: Column {
-            spacing: 10
+        contentItem: ScrollView {
+            implicitHeight: form.implicitHeight
+            clip: true
+
+            Column {
+                id: form
+                width: parent.width
+                spacing: 10
 
             Label {
                 width: parent.width
@@ -126,6 +134,7 @@ Item {
                         }
                     }
                 }
+            }
             }
         }
     }
