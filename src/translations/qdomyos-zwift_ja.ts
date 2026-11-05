@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>心拍センサーが見つかりました: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>心拍センサーが%1台見つかりました</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>接続</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>選択</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>今後表示しない</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>心拍センサーを選択</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>心拍センサーを検索しています...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1（心拍センサー）を検索しています...</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Rideが接続されました!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>近くに心拍センサーが見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1296,6 +1335,10 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>プログラムを復元</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3619,6 +3662,18 @@ This may take a few moments on first startup.</source>
         <translation>インポートしたワークアウト: %1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>ファイルをQZフォルダーにコピーできませんでした。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>復元したトレーニングプログラム: %1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>履歴に登録済み: %1。</translation>
     </message>
@@ -4157,6 +4212,20 @@ In the next window, allow access to the QZ folder.</source>
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>トレーニングプログラム</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
+検索しますか？
+
+次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>バックグラウンドで接続が切れました</translation>
     </message>
@@ -4452,6 +4521,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watchユーザーは、無効のままにしてください！ウォッチでアプリを開くだけです</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>開始時に心拍センサーを探す</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>トレーニング機器の接続後5分間、心拍データがない間は、QZが1分ごとに心拍センサーを探します。選択した心拍計・センサーは見つかり次第接続し、選択されていない場合は近くで見つかったセンサーを提案します。ホーム画面の心拍タイルまたはBluetoothアイコンをタップすると、いつでも検索できます。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -6458,6 +6535,70 @@ Please enter it below:</source>
         <translation>傾斜（斜度）</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>仮想アプリの傾斜をバイクの負荷レベルにどう変換するかを設定します。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ が仮想アプリの傾斜を負荷レベルに変換するときに、カスタムの対応表を使用します。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>1 行に「傾斜|負荷レベル」を 1 組。ポイント間は QZ が補間し、設定範囲外では端点の値を使用します。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのユーザー名。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのパスワード。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>現在のカメラアングル</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>現在のエモート</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbikeエミュレーター</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>パワーグラフの位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心拍数グラフの位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>負荷レベルと目標負荷レベルのグラフの位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton換算負荷グラフの位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>ケイデンスグラフの位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>パワー分布グラフの位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>スピードと傾斜のグラフの位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>画面表示（タイル）サイズ:</translation>
     </message>
@@ -7844,6 +7985,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Hidden on its page right now: change it here</source>
         <translation>現在、元のページでは非表示です：ここで変更してください</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>オン</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>現在の設定では元のページで非表示です</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>

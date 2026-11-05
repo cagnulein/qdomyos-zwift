@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>发现心率传感器：%1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>发现心率传感器：%1 个</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>选择</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>以后再说</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>不再询问</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>选择心率传感器</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心率传感器）已连接！</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>正在搜索心率传感器...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>正在搜索 %1（心率传感器）...</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 已连接！</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>附近未找到心率传感器。请确认它已开启并正在广播心率。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1296,6 +1335,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>恢复训练计划</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3623,6 +3666,18 @@ This may take a few moments on first startup.</source>
         <translation>已导入训练：%1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>无法将文件复制到 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>已恢复训练计划：%1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>未找到以前安装的训练计划。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>已在历史记录中：%1。</translation>
     </message>
@@ -4161,6 +4216,20 @@ In the next window, allow access to the QZ folder.</source>
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>训练计划</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>后台连接已断开</translation>
     </message>
@@ -4456,6 +4525,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watch 用户：请保持禁用！只需在手表上打开应用</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>启动时搜索心率传感器</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>健身器材连接后的前 5 分钟内，若没有心率数据，QZ 每分钟搜索一次心率传感器：找到已选的心率带后立即连接；若未选择，则提示连接附近发现的传感器。点击主页上的心率卡片或蓝牙图标可随时搜索。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7838,6 +7915,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>当前在其所在页面中隐藏：请在此处更改</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>按当前设置，在其所在页面中隐藏</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>开启“%1”后才能更改此设置</translation>
     </message>
@@ -7880,6 +7965,70 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Workout History Charts</source>
         <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>设置虚拟应用的坡度如何换算为单车阻力。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ 将虚拟应用的坡度换算为阻力时使用自定义对应关系。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>每行一组“坡度|阻力”。QZ 在各点之间插值，超出设定范围时使用端点的值。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户用户名。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户密码。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>当前摄像机视角</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>当前表情</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 模拟器</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>功率图表位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心率图表位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>阻力与目标阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>踏频图表位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>功率分布图表位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>速度与坡度图表位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>此图表在训练历史中的顺序。可在“通用 UI 选项”中用上移和下移按钮调整顺序。</translation>
     </message>
     <message>
         <source>Heart Rate</source>

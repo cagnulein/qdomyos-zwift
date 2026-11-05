@@ -271,3 +271,24 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - A moving belt and successful speed commands do not prove that QZ's workout session is running. A paused/zero-time QZ session can coexist with live distance and control traffic.
 - In a reproduced Runna investigation, QZ received speed/incline commands while its workout timer stayed at zero; a subsequent test starting QZ's workout first produced advancing elapsed time and working Runna control. Capturing the workout transition and session state narrows the failure without requesting unrelated settings.
+
+## ROUVY or another virtual ride continues moving when the rider stops pedaling
+
+### Provide first
+
+- Exact bike/trainer model, QZ build and platform, and the receiving app/version. State whether both apps run on one device or on separate devices.
+- While **not pedaling**, report the simultaneous **Cadence, Power, and Speed** values shown in QZ and whether the receiving app's avatar/video continues moving. Repeat briefly while pedaling normally; report which values change.
+- Screenshot the receiving app's paired **Power**, **Cadence**, **Speed**, and **Controllable** sources, and whether any source points directly to the physical bike rather than QZ.
+- Clarify whether the issue is motion at zero **cadence**, zero **power**, or both; these are not interchangeable observations.
+
+### If still unclear
+
+- With the receiving app closed, repeat a short QZ-only test alternating stationary and gentle pedaling, noting the times and whether any metrics remain nonzero after stopping.
+- Reopen the receiving app with only the intended QZ virtual trainer paired and repeat the same stop/start sequence. Record whether the virtual ride moves despite QZ showing zero power, or whether QZ itself continues reporting nonzero telemetry.
+- If the behavior remains unexplained, provide a QZ debug log covering both transitions and the pairing screen; include approximate timestamps. Avoid changing several sensor or simulation settings at once.
+
+### Why it matters
+
+- A video that advances while stationary does not by itself prove a QZ control or Bluetooth failure. The source of the speed/power signal must be identified before choosing a remedy.
+- Comparing QZ's live values with the receiving app's pairing roles separates stale or unexpected physical-machine telemetry from an independently selected sensor or receiving-app motion behavior.
+- A stop/start comparison is more informative than an average-speed screenshot, especially when QZ and the receiving app run on the same Android device.
