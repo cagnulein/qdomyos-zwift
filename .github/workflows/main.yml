@@ -670,6 +670,98 @@ jobs:
           path: dist/QZ-macos-intel-trial.dmg
           if-no-files-found: error
 
+  macos-apple-silicon-build:
+    # Native arm64 DMG, separate from the existing Intel nightly artifact.
+    # Run on schedule/dispatch and for the integration PR.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'ci/macos-intel-nightly-dmg-trial'
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - name: Checkout with project submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install native Qt 5 for Apple Silicon
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+          # Qt 5.15.2's official macOS clang_64 distribution is Intel-only.
+          # Homebrew Qt 5 provides the native arm64 QtCharts, NetworkAuth,
+          # TextToSpeech, Bluetooth, QML, Multimedia and other QZ modules.
+          brew install qt@5
+          QT_DIR="$(brew --prefix qt@5)"
+          echo "QT_ROOT_DIR=$QT_DIR" >> "$GITHUB_ENV"
+          echo "$QT_DIR/bin" >> "$GITHUB_PATH"
+          "$QT_DIR/bin/qmake" -v
+          test "$("$QT_DIR/bin/qmake" -query QT_VERSION | cut -d. -f1)" = 5
+          test -x "$QT_DIR/bin/macdeployqt"
+          lipo -verify_arch arm64 "$QT_DIR/lib/QtCore.framework/QtCore"
+
+      - name: Generate trial secrets (as in Android and Intel nightly)
+        env:
+          STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
+          PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}
+          SMTP_USERNAME: ${{ secrets.smtp_username }}
+          SMTP_PASSWORD: ${{ secrets.smtp_password }}
+          SMTP_SERVER: ${{ secrets.smtp_server }}
+          INTERVALSICU_CLIENT_ID: ${{ secrets.intervalsicu_client_id }}
+          INTERVALSICU_CLIENT_SECRET: ${{ secrets.intervalsicu_client_secret }}
+          CESIUM_KEY: ${{ secrets.cesiumkey }}
+        run: |
+          printf '#define STRAVA_SECRET_KEY %s\n' "$STRAVA_SECRET_KEY" > src/secret.h
+          printf '#define PELOTON_SECRET_KEY %s\n' "$PELOTON_SECRET_KEY" >> src/secret.h
+          printf '#define SMTP_USERNAME %s\n' "$SMTP_USERNAME" >> src/secret.h
+          printf '#define SMTP_PASSWORD %s\n' "$SMTP_PASSWORD" >> src/secret.h
+          printf '#define SMTP_SERVER %s\n' "$SMTP_SERVER" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_ID %s\n' "$INTERVALSICU_CLIENT_ID" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_SECRET %s\n' "$INTERVALSICU_CLIENT_SECRET" >> src/secret.h
+          printf '%s\n' "$CESIUM_KEY" > src/inner_templates/googlemaps/cesium-key.js
+          printf '#define LICENSE\n' >> src/secret.h
+
+      - name: Build native Apple Silicon app bundle
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: |
+          set -euo pipefail
+          cd src
+          "$QT_ROOT_DIR/bin/qmake" qdomyos-zwift.pro 'QMAKE_APPLE_DEVICE_ARCHS=arm64' 'CONFIG-=debug' 'CONFIG+=release' 'CONFIG-=static'
+          make -j2
+          test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo -verify_arch arm64 qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+
+      - name: Deploy Qt dependencies and package Apple Silicon DMG
+        run: |
+          set -euo pipefail
+          cd src
+          "$QT_ROOT_DIR/bin/macdeployqt" qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -dmg -verbose=2
+          test -s qdomyos-zwift.dmg
+          mkdir -p ../dist
+          mv qdomyos-zwift.dmg ../dist/QZ-macos-apple-silicon-trial.dmg
+
+      - name: Smoke-test the mounted Apple Silicon DMG
+        run: |
+          bash .github/scripts/macos_intel_dmg_smoke_test.sh dist/QZ-macos-apple-silicon-trial.dmg macos-arm64-test-evidence arm64
+
+      - name: Upload Apple Silicon smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-test-evidence
+          path: macos-arm64-test-evidence/
+          if-no-files-found: ignore
+
+      - name: Archive Apple Silicon trial DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-apple-silicon-trial
+          path: dist/QZ-macos-apple-silicon-trial.dmg
+          if-no-files-found: error
+
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
@@ -2969,7 +3061,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, macos-intel-build]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, macos-intel-build, macos-apple-silicon-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -3005,7 +3097,10 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
-            - **QZ-macos-intel-trial.dmg**: macOS Intel (x86_64) trial build, expires after 15 minutes unless licensed
+            - **QZ-macos-intel-trial.dmg**: macOS Intel (x86_64) build, existing 10-minute trial with Patreon license
+            - **QZ-macos-apple-silicon-trial.dmg**: macOS Apple Silicon (arm64) native build, existing 10-minute trial with Patreon license
+
+            Both macOS DMGs are unsigned/unnotarized development builds. macOS Gatekeeper may require manual confirmation before the first launch.
 
             ### NordicTrack / iFIT builds
             There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
@@ -3038,6 +3133,7 @@ jobs:
             windows-binary/*
             fdroid-android-trial/android-debug.apk
             macos-intel-trial/QZ-macos-intel-trial.dmg
+            macos-apple-silicon-trial/QZ-macos-apple-silicon-trial.dmg
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
