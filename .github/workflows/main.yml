@@ -734,11 +734,21 @@ jobs:
           test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
           lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch arm64
 
-      - name: Deploy Qt dependencies and package Apple Silicon DMG
+      - name: Deploy, re-sign and package native Apple Silicon DMG
         run: |
           set -euo pipefail
           cd src
-          "$QT_ROOT_DIR/bin/macdeployqt" qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -dmg -verbose=2
+          # macdeployqt rewrites framework and plugin load paths. On Apple
+          # Silicon these modifications can invalidate pre-existing ad-hoc
+          # Mach-O signatures, which makes dyld refuse the Cocoa QPA plugin.
+          # Deploy first, then sign *all nested code*, then create the DMG
+          # without running macdeployqt a second time.
+          "$QT_ROOT_DIR/bin/macdeployqt" qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -verbose=2
+          codesign --force --deep --sign - qdomyos-zwift.app
+          codesign --verify --deep --strict --verbose=2 qdomyos-zwift.app
+
+          # hdiutil preserves the verified post-deployment signatures.
+          hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Apple Silicon' -format UDZO -ov qdomyos-zwift.dmg
           test -s qdomyos-zwift.dmg
           mkdir -p ../dist
           mv qdomyos-zwift.dmg ../dist/QZ-macos-apple-silicon-trial.dmg
