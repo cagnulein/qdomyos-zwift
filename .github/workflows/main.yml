@@ -581,6 +581,95 @@ jobs:
 #        run: cd src; qmake; make -j4
 
 
+  macos-intel-build:
+    # Build the macOS trial on an actual Intel host; daily release and manual runs
+    # publish the DMG. Limit PR runs to this initial integration branch.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'ci/macos-intel-nightly-dmg-trial'
+    runs-on: macos-15-intel
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout with project submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt 5.15.2 for Intel macOS
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.2'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          modules: 'qtcharts qtnetworkauth'
+          cache: 'false'
+
+      - name: Verify toolchain architecture
+        run: |
+          test "$(uname -m)" = "x86_64"
+          qmake -v
+          test -x "$QT_ROOT_DIR/bin/macdeployqt"
+
+      - name: Generate trial secrets (as in the Android nightly)
+        env:
+          STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
+          PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}
+          SMTP_USERNAME: ${{ secrets.smtp_username }}
+          SMTP_PASSWORD: ${{ secrets.smtp_password }}
+          SMTP_SERVER: ${{ secrets.smtp_server }}
+          INTERVALSICU_CLIENT_ID: ${{ secrets.intervalsicu_client_id }}
+          INTERVALSICU_CLIENT_SECRET: ${{ secrets.intervalsicu_client_secret }}
+          CESIUM_KEY: ${{ secrets.cesiumkey }}
+        run: |
+          printf '#define STRAVA_SECRET_KEY %s\n' "$STRAVA_SECRET_KEY" > src/secret.h
+          printf '#define PELOTON_SECRET_KEY %s\n' "$PELOTON_SECRET_KEY" >> src/secret.h
+          printf '#define SMTP_USERNAME %s\n' "$SMTP_USERNAME" >> src/secret.h
+          printf '#define SMTP_PASSWORD %s\n' "$SMTP_PASSWORD" >> src/secret.h
+          printf '#define SMTP_SERVER %s\n' "$SMTP_SERVER" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_ID %s\n' "$INTERVALSICU_CLIENT_ID" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_SECRET %s\n' "$INTERVALSICU_CLIENT_SECRET" >> src/secret.h
+          printf '%s\n' "$CESIUM_KEY" > src/inner_templates/googlemaps/cesium-key.js
+          # Mac already participates in the license check; this also mirrors Android.
+          printf '#define LICENSE\n' >> src/secret.h
+
+      - name: Build macOS Intel app bundle
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: |
+          cd src
+          qmake qdomyos-zwift.pro "CONFIG-=debug" "CONFIG+=release" "CONFIG-=static"
+          make -j3
+          test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo -verify_arch x86_64 qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+
+      - name: Deploy Qt dependencies and package DMG
+        run: |
+          cd src
+          macdeployqt qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -dmg -verbose=2
+          test -s qdomyos-zwift.dmg
+          mkdir -p ../dist
+          mv qdomyos-zwift.dmg ../dist/QZ-macos-intel-trial.dmg
+
+      - name: Smoke-test app from the mounted Intel DMG
+        run: |
+          bash .github/scripts/macos_intel_dmg_smoke_test.sh dist/QZ-macos-intel-trial.dmg macos-test-evidence
+
+      - name: Upload macOS smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-test-evidence
+          path: macos-test-evidence/
+          if-no-files-found: ignore
+
+      - name: Archive macOS Intel trial DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-trial
+          path: dist/QZ-macos-intel-trial.dmg
+          if-no-files-found: error
+
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
@@ -2880,7 +2969,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, macos-intel-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2916,6 +3005,7 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
+            - **QZ-macos-intel-trial.dmg**: macOS Intel (x86_64) trial build, expires after 15 minutes unless licensed
 
             ### NordicTrack / iFIT builds
             There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
@@ -2947,6 +3037,7 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/android-debug.apk
+            macos-intel-trial/QZ-macos-intel-trial.dmg
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
