@@ -258,8 +258,9 @@ class homeform : public QObject {
             bluetoothManager->reconnectHeartRateBelt(name);
     }
     QVariantList heartRateSensorSuggestions() const { return m_heartRateSensorSuggestions; }
-    // "Connect" on an offered sensor: chosen in the settings and connected without a restart
-    Q_INVOKABLE void heartRateSensorSuggestionConnect(const QString &name);
+    // "Connect" on an offered sensor: chosen in the settings and connected without a restart.
+    // address: of the sensor shown, so another one with the same name nearby is not connected instead
+    Q_INVOKABLE void heartRateSensorSuggestionConnect(const QString &name, const QString &address);
     // "Not now" (dontAskAgain false): the sensors offered now are not offered again until QZ restarts;
     // "Don't ask again" (dontAskAgain true): heart_rate_belt_suggest off as well
     Q_INVOKABLE void heartRateSensorSuggestionDismiss(bool dontAskAgain);
@@ -1409,6 +1410,10 @@ public:
     void echelonEnablePromptRequestedChanged(bool value);
     void androidNotificationPromptRequestedChanged(bool value);
     void heartRateSensorSuggestionsChanged();
+    // The bar's answer saved in QSettings from here: a QML page open meanwhile (settings, wizard) holds its own
+    // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these
+    void heartRateSensorChosenFromOffer(const QString &name);
+    void heartRateSensorOfferTurnedOff();
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

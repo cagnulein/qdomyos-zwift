@@ -206,12 +206,18 @@ class bluetooth : public QObject, public SignalHandler {
      */
     int searchNow();
 
+    // True when the advertised services include one of a fitness machine (FTMS, Cycling Power, Cycling Speed and
+    // Cadence, the Concept2 PM5 or Echelon service), as QZ's own virtual devices and most machines advertise next
+    // to Heart Rate: such a device is not offered as a heart rate sensor (heartRateSensorScan()).
+    static bool advertisesFitnessMachine(const QList<QBluetoothUuid> &services);
+
   private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothDeviceDiscoveryAgent *hrmDiscoveryAgent = nullptr;
-    QString hrmDiscoveryName; // the heart rate sensor hrmDiscoveryAgent looks for
+    QString hrmDiscoveryName;    // the heart rate sensor hrmDiscoveryAgent looks for
+    QString hrmDiscoveryAddress; // and its address, when one sensor of that name is meant (empty: any)
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
@@ -403,6 +409,8 @@ class bluetooth : public QObject, public SignalHandler {
     void stopHeartRateBeltDiscovery();
     void startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent);
     void heartRateSensorScan();
+    // the Bluetooth address; Apple platforms give none, the device UUID instead
+    static QString deviceAddress(const QBluetoothDeviceInfo &b);
 
     // heartRateSensorScan() runs during the first 5 minutes after the fitness machine first connects
     QTimer heartRateSensorScanTimer;
@@ -477,7 +485,7 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
-    void reconnectHeartRateBelt(const QString &name = QString());
+    void reconnectHeartRateBelt(const QString &name = QString(), const QString &address = QString());
     void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);

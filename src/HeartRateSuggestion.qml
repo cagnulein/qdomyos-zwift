@@ -65,7 +65,7 @@ Rectangle {
                 text: bar.sensors.length === 1 ? qsTr("Connect") : qsTr("Choose")
                 onClicked: {
                     if (bar.sensors.length === 1) {
-                        rootItem.heartRateSensorSuggestionConnect(bar.sensors[0].name)
+                        rootItem.heartRateSensorSuggestionConnect(bar.sensors[0].name, bar.sensors[0].address)
                     } else {
                         list.open()
                     }
@@ -130,7 +130,7 @@ Rectangle {
                     Accessible.onPressAction: clicked()
                     onClicked: {
                         list.close()
-                        rootItem.heartRateSensorSuggestionConnect(modelData.name)
+                        rootItem.heartRateSensorSuggestionConnect(modelData.name, modelData.address)
                     }
                 }
             }

@@ -2035,13 +2035,15 @@ void homeform::heartRateSensorFound(const QString &name, const QString &address,
     emit heartRateSensorSuggestionsChanged();
 }
 
-void homeform::heartRateSensorSuggestionConnect(const QString &name) {
-    qDebug() << "heart rate sensor offer: Connect" << name;
+void homeform::heartRateSensorSuggestionConnect(const QString &name, const QString &address) {
+    qDebug() << "heart rate sensor offer: Connect" << name << address;
     m_heartRateSensorSuggestions.clear();
     emit heartRateSensorSuggestionsChanged();
     QSettings settings;
     settings.setValue(QZSettings::heart_rate_belt_name, name);
-    reconnectHeartRateBelt(name);
+    emit heartRateSensorChosenFromOffer(name);
+    if (bluetoothManager)
+        bluetoothManager->reconnectHeartRateBelt(name, address);
 }
 
 void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
@@ -2053,6 +2055,7 @@ void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
     if (dontAskAgain) {
         QSettings settings;
         settings.setValue(QZSettings::heart_rate_belt_suggest, false);
+        emit heartRateSensorOfferTurnedOff();
     }
 }
 

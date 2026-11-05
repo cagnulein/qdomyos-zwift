@@ -686,6 +686,26 @@ bool bluetooth::deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothU
     return false;
 }
 
+QString bluetooth::deviceAddress(const QBluetoothDeviceInfo &b) {
+    return b.address().isNull() ? b.deviceUuid().toString() : b.address().toString();
+}
+
+bool bluetooth::advertisesFitnessMachine(const QList<QBluetoothUuid> &services) {
+    // not Running Speed and Cadence: a heart rate strap that also measures running pace may advertise it
+    const QList<QBluetoothUuid> machineServices = {
+        QBluetoothUuid(quint16(0x1826)), // Fitness Machine (FTMS)
+        QBluetoothUuid(QBluetoothUuid::CyclingPower),
+        QBluetoothUuid(QBluetoothUuid::CyclingSpeedAndCadence),
+        QBluetoothUuid(QStringLiteral("CE060000-43E5-11E4-916C-0800200C9A66")), // Concept2 PM5
+        QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")), // Echelon
+    };
+    for (const QBluetoothUuid &s : services) {
+        if (machineServices.contains(s))
+            return true;
+    }
+    return false;
+}
+
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
@@ -4168,16 +4188,24 @@ void bluetooth::connectHeartRateBelt(const QBluetoothDeviceInfo &b) {
 // drops the old sensor and connects the new one, scanning for it if it was not seen yet.
 // name: the sensor just chosen in the settings page. Its QML Settings object writes the value to QSettings
 // a moment later, so reading it here would still give the old one; empty means take the saved value.
-void bluetooth::reconnectHeartRateBelt(const QString &name) {
+// address: the one sensor meant (deviceAddress()), as the heart rate sensor bar shows it: of two sensors with the
+// same name the other one is not connected; empty means any sensor whose name starts with the name.
+void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &address) {
     QSettings settings;
     QString heartRateBeltName =
         name.isEmpty()
             ? settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString()
             : name;
-    qDebug() << "bluetooth::reconnectHeartRateBelt()" << heartRateBeltName;
+    qDebug() << "bluetooth::reconnectHeartRateBelt()" << heartRateBeltName << address;
 
-    // Already searching for this sensor (or waiting for the Android limit): another tap keeps that scan
-    if (hrmDiscoveryAgent && hrmDiscoveryName == heartRateBeltName) {
+    auto isChosen = [heartRateBeltName, address](const QBluetoothDeviceInfo &b) {
+        return b.name().startsWith(heartRateBeltName) && (address.isEmpty() || deviceAddress(b) == address);
+    };
+
+    // Already searching for this sensor (or waiting for the Android limit): another tap keeps that scan, also a tap
+    // without an address (the Bluetooth icon) during the search for the one sensor of that name
+    if (hrmDiscoveryAgent && hrmDiscoveryName == heartRateBeltName &&
+        (address.isEmpty() || hrmDiscoveryAddress == address)) {
         qDebug() << "heart rate sensor search already running";
         if (homeform::singleton())
             homeform::singleton()->setToastRequested(
@@ -4188,8 +4216,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     // Already connected only while the heart rate still comes: a watch that stopped broadcasting keeps the
     // link up, so a silent sensor is dropped and searched for again below
     if (heartRateBelt && heartRateBelt->connected() && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName) &&
-        heartRateBelt->lastHeartRateTime.isValid() &&
+        isChosen(heartRateBelt->bluetoothDevice) && heartRateBelt->lastHeartRateTime.isValid() &&
         heartRateBelt->lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) < 5000) {
         qDebug() << "heart rate sensor already connected";
         if (homeform::singleton())
@@ -4201,8 +4228,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     // The same sensor created less than 15 s ago and no heart rate yet: still connecting, a second tap must not
     // start it over (connectHeartRateBelt() says "connected!" or "no heart rate" by itself)
     if (heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName) &&
-        !heartRateBelt->lastHeartRateTime.isValid() &&
+        isChosen(heartRateBelt->bluetoothDevice) && !heartRateBelt->lastHeartRateTime.isValid() &&
         heartRateBelt->createdTime.msecsTo(QDateTime::currentDateTime()) < 15000) {
         qDebug() << "heart rate sensor still connecting";
         return;
@@ -4212,7 +4238,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
     // finds it advertising again
     const bool silentSameSensor =
         heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        heartRateBelt->bluetoothDevice.name().startsWith(heartRateBeltName);
+        isChosen(heartRateBelt->bluetoothDevice);
 
     stopHeartRateBeltDiscovery();
     if (heartRateBelt) {
@@ -4237,7 +4263,7 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
         return;
 
     for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-        if (!silentSameSensor && b.name().startsWith(heartRateBeltName)) {
+        if (!silentSameSensor && isChosen(b)) {
             connectHeartRateBelt(b);
             return;
         }
@@ -4245,9 +4271,10 @@ void bluetooth::reconnectHeartRateBelt(const QString &name) {
 
     hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     hrmDiscoveryName = heartRateBeltName;
+    hrmDiscoveryAddress = address;
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
-            [this, heartRateBeltName](const QBluetoothDeviceInfo &b) {
-                if (heartRateBelt || !this->device() || !b.name().startsWith(heartRateBeltName))
+            [this, isChosen](const QBluetoothDeviceInfo &b) {
+                if (heartRateBelt || !this->device() || !isChosen(b))
                     return;
                 stopHeartRateBeltDiscovery();
                 connectHeartRateBelt(b);
@@ -4331,17 +4358,14 @@ void bluetooth::heartRateSensorScan() {
         return;
     }
 
-    // Apple platforms give no address, a device UUID instead
-    auto addressOf = [](const QBluetoothDeviceInfo &b) {
-        return b.address().isNull() ? b.deviceUuid().toString() : b.address().toString();
-    };
     qDebug() << "heart rate sensor scan: no heart rate, looking for" << heartRateBeltName;
-    const QString machineAddress = addressOf(this->device()->bluetoothDevice);
+    const QString machineAddress = deviceAddress(this->device()->bluetoothDevice);
     hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     // empty: a search of reconnectHeartRateBelt() replaces this one instead of waiting for it
     hrmDiscoveryName.clear();
+    hrmDiscoveryAddress.clear();
     connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
-            [this, heartRateBeltName, noSensorChosen, machineAddress, addressOf](const QBluetoothDeviceInfo &b) {
+            [this, heartRateBeltName, noSensorChosen, machineAddress](const QBluetoothDeviceInfo &b) {
                 if (heartRateBelt || !this->device() || b.name().isEmpty())
                     return;
                 if (!noSensorChosen) {
@@ -4354,11 +4378,15 @@ void bluetooth::heartRateSensorScan() {
                 }
                 if (!deviceHasService(b, QBluetoothUuid(QBluetoothUuid::HeartRate)))
                     return;
-                const QString address = addressOf(b);
+                const QString address = deviceAddress(b);
                 // fitness machines may have a heart rate service too
                 if (address == machineAddress)
                     return;
                 qDebug() << "heart rate sensor scan: found" << b.name() << address << "rssi" << b.rssi();
+                if (advertisesFitnessMachine(b.serviceUuids())) {
+                    qDebug() << "heart rate sensor scan: not offered, a fitness machine service too" << b.name();
+                    return;
+                }
                 if (b.rssi() < heartRateSensorSuggestMinRssi)
                     return;
                 emit heartRateSensorFound(b.name(), address, b.rssi());
