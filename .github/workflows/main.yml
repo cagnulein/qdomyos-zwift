@@ -641,7 +641,7 @@ jobs:
           qmake qdomyos-zwift.pro "CONFIG-=debug" "CONFIG+=release" "CONFIG-=static"
           make -j3
           test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
-          lipo -verify_arch x86_64 qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch x86_64
 
       - name: Deploy Qt dependencies and package DMG
         run: |
@@ -700,7 +700,7 @@ jobs:
           "$QT_DIR/bin/qmake" -v
           test "$("$QT_DIR/bin/qmake" -query QT_VERSION | cut -d. -f1)" = 5
           test -x "$QT_DIR/bin/macdeployqt"
-          lipo -verify_arch arm64 "$QT_DIR/lib/QtCore.framework/QtCore"
+          lipo "$QT_DIR/lib/QtCore.framework/QtCore" -verify_arch arm64
 
       - name: Generate trial secrets (as in Android and Intel nightly)
         env:
@@ -732,7 +732,7 @@ jobs:
           "$QT_ROOT_DIR/bin/qmake" qdomyos-zwift.pro 'QMAKE_APPLE_DEVICE_ARCHS=arm64' 'CONFIG-=debug' 'CONFIG+=release' 'CONFIG-=static'
           make -j2
           test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
-          lipo -verify_arch arm64 qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch arm64
 
       - name: Deploy Qt dependencies and package Apple Silicon DMG
         run: |
