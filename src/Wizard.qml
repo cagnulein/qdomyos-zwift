@@ -1563,6 +1563,16 @@ Page {
                         color: "white"
                     }
 
+                    Text {
+                        visible: Qt.platform.os === "ios"
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignHCenter
+                        text: qsTr("On iOS, after setup, select Pair / change Garmin Companion watch from the QZ menu. QZ will remember your selection.")
+                        color: "white"
+                    }
+
                     Item {
                         Layout.preferredHeight: 50
                     }
