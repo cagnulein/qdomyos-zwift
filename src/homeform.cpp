@@ -2087,6 +2087,15 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
                 const QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
                 if (ok && !compressed.isEmpty() && compressed.size() <= maxCompressedBytes &&
                     QDir().mkpath(cache)) {
+                    // Prune old temporary reports, but keep recent ones while a mail
+                    // app may still be holding the shared content URI.
+                    QDir cacheDir(cache);
+                    const auto oldReports = cacheDir.entryInfoList(
+                        QStringList() << QStringLiteral("qz-support-*.log.gz"), QDir::Files);
+                    for (const QFileInfo &oldReport : oldReports) {
+                        if (oldReport.lastModified().secsTo(QDateTime::currentDateTime()) > 24 * 60 * 60)
+                            QFile::remove(oldReport.absoluteFilePath());
+                    }
                     const QString destination = QDir(cache).filePath(
                         QStringLiteral("qz-support-%1.log.gz").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
                     QFile attachment(destination);
