@@ -99,3 +99,48 @@ TEST(YpooM5DistanceClockTest, MissingTelemetryAndReconnectDoNotExtrapolateUnobse
     distance.reset();
     EXPECT_DOUBLE_EQ(distance.update(20000, 9.5, true), 0);
 }
+
+TEST(YpooM5DistanceCounterTest, InitialCounterAndResetsDoNotAddPreviousWorkoutDistance) {
+    YpooM5Distance distance;
+    EXPECT_DOUBLE_EQ(distance.updateCounter(0, 5050, true), 0);
+    EXPECT_NEAR(distance.updateCounter(1000, 5060, true), 0.01, 1e-12);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(2000, 0, true), 0);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(2500, 0, true), 0);
+    EXPECT_NEAR(distance.updateCounter(10000, 10, true), 0.01, 1e-12);
+}
+
+TEST(YpooM5DistanceCounterTest, PausedCounterChangesAreNotCountedAfterResume) {
+    YpooM5Distance distance;
+    distance.updateCounter(0, 0, true);
+    EXPECT_NEAR(distance.updateCounter(1000, 10, true), 0.01, 1e-12);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(2000, 20, false), 0);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(3000, 30, false), 0);
+    EXPECT_NEAR(distance.updateCounter(4000, 40, true), 0.01, 1e-12);
+}
+
+TEST(YpooM5DistanceCounterTest, ReconnectEstablishesANewBaselineWithoutCountingTheDisconnectedInterval) {
+    YpooM5Distance distance;
+    distance.updateCounter(0, 100, true);
+    EXPECT_NEAR(distance.updateCounter(1000, 110, true), 0.01, 1e-12);
+    distance.reset();
+    EXPECT_DOUBLE_EQ(distance.updateCounter(0, 500, true), 0);
+    EXPECT_NEAR(distance.updateCounter(1000, 510, true), 0.01, 1e-12);
+}
+
+TEST(YpooM5DistanceCounterTest, DuplicatesAndCorruptSpikesDoNotChangeTheValidBaseline) {
+    YpooM5Distance distance;
+    distance.updateCounter(0, 1000, true);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(500, 1000, true), 0);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(1000, 100000, true), 0);
+    EXPECT_NEAR(distance.updateCounter(1500, 1010, true), 0.01, 1e-12);
+    EXPECT_DOUBLE_EQ(distance.updateCounter(1000, 1020, true), 0);
+    EXPECT_NEAR(distance.updateCounter(2500, 1020, true), 0.01, 1e-12);
+}
+
+TEST(YpooM5DistanceCounterTest, UnchangedPacketsDoNotMakeTheNextNormalCounterStepLookLikeASpike) {
+    YpooM5Distance distance;
+    distance.updateCounter(0, 0, true);
+    for (int64_t now = 500; now < 60000; now += 500)
+        EXPECT_DOUBLE_EQ(distance.updateCounter(now, 0, true), 0);
+    EXPECT_NEAR(distance.updateCounter(60000, 200, true), 0.2, 1e-12);
+}

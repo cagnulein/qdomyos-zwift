@@ -517,7 +517,7 @@ void bowflext216treadmill::controllerStateChanged(QLowEnergyController::Controll
         qDebug() << QStringLiteral("trying to connect back again...");
         qDebug() << QStringLiteral("resetting to speed to 0...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

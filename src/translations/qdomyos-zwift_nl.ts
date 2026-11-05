@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Hartslagsensor gevonden: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Hartslagsensoren gevonden: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Verbinden</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Kiezen</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Niet nu</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Niet meer vragen</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Kies een hartslagsensor</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -101,7 +132,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
+        <translation type="vanished">QZ heeft zowel Bluetooth als locatievoorzieningen nodig.
 Op Android zijn locatievoorzieningen nodig zodat de app Bluetooth-apparaten kan vinden.
 GPS wordt niet gebruikt.
 
@@ -113,7 +144,7 @@ Wil je ze inschakelen?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
+        <translation type="vanished">Wil je de volgende keer herinnerd worden aan het inschakelen van locatievoorzieningen?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +263,18 @@ Wil je dat nu doen?</translation>
     <message>
         <source>Save</source>
         <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ heeft ingeschakelde Bluetooth nodig om fitnessapparaten te vinden. Op Android 11 en ouder zijn voor het zoeken naar Bluetooth-apparaten ook locatietoestemming en ingeschakelde locatievoorzieningen vereist. QZ gebruikt je locatiegegevens niet. Op Android 12 en nieuwer maakt de toestemming &apos;Apparaten in de buurt&apos; het zoeken naar Bluetooth-apparaten mogelijk zonder toegang tot je locatie.
+
+Wil je de vereiste voorzieningen inschakelen?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
 </context>
 <context>
@@ -503,6 +546,22 @@ Wil je dat nu doen?</translation>
         <translation>%1 (hartslagsensor) verbonden!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Zoeken naar hartslagsensoren…</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Zoeken naar %1 (hartslagsensor)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor) niet gevonden. Controleer of hij aan staat en de hartslag uitzendt.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (hartslagsensor): geen hartslag. Controleer of hij de hartslag uitzendt.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1 (cadanssensor) verbonden!</translation>
     </message>
@@ -537,6 +596,10 @@ Wil je dat nu doen?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride verbonden!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Geen hartslagsensor in de buurt gevonden. Controleer of hij aan staat en de hartslag uitzendt.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1272,6 +1335,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Other folders</source>
         <translation>Andere mappen</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Programma&apos;s herstellen</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3469,6 +3536,18 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Trainingen geïmporteerd: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Kan het bestand niet naar de QZ-map kopiëren.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Trainingsprogramma&apos;s hersteld: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Al in de geschiedenis: %1.</translation>
     </message>
@@ -3758,6 +3837,15 @@ Bij de eerste start kan dit even duren.</translation>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Het QZ-doelvermogen overschrijft de opdrachten van de app. Pauzeer QZ en hervat het om de besturing aan de app terug te geven.</translation>
     </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify-nummers:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ is actief</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4013,6 +4101,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Trainingen van een eerdere installatie staan mogelijk nog in de QZ-map.
+Wil je ernaar zoeken?
+
+Geef in het volgende venster toegang tot de QZ-map.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Trainingsprogramma&apos;s</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
 Wil je ernaar zoeken?
 
 Geef in het volgende venster toegang tot de QZ-map.</translation>
@@ -4417,6 +4519,70 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Taal van de app:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Stel in hoe de helling uit de virtuele app wordt omgezet in weerstand van de fiets.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Gebruik een eigen omzetting wanneer QZ de helling uit de virtuele app omzet in weerstand.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Eén paar helling|weerstand per regel. QZ interpoleert tussen de punten en gebruikt buiten het ingestelde bereik het eindpunt.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Gebruikersnaam van het Life Fitness-account om bij de dienst in te loggen. Wordt alleen lokaal opgeslagen en nooit in debuglogs geschreven.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Wachtwoord van het Life Fitness-account om bij de dienst in te loggen. Wordt alleen lokaal opgeslagen en nooit in debuglogs geschreven.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Huidige camerahoek</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Huidige emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Positie van vermogensgrafiek</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Positie van hartslaggrafiek</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Positie van grafiek weerstand vs. doelweerstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Positie van Peloton-weerstandsgrafiek</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Positie van cadansgrafiek</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Positie van vermogensverdelingsgrafiek</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Positie van grafiek snelheid en helling</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>
@@ -4575,6 +4741,14 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
     <message>
         <source>Refresh Devices List</source>
         <translation>Apparatenlijst vernieuwen</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Bij het starten naar een hartslagsensor zoeken</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>In de eerste 5 minuten na het verbinden van het fitnesstoestel zoekt QZ, zolang er geen hartslag binnenkomt, eens per minuut naar een hartslagsensor: de gekozen hartslagband wordt verbonden zodra die gevonden is, of als er geen is gekozen, wordt een sensor in de buurt voorgesteld. Tikken op de hartslagtegel of het Bluetooth-pictogram op de startpagina zoekt op elk moment.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7783,6 +7957,82 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Gebruikt een synthetisch Life Fitness-profiel zonder account. Als dit is ingeschakeld, worden gebruikersnaam, wachtwoord en opgeslagen accountgegevens genegeerd; gebruik dit alleen om het ondersteunde inloggen als gast te testen.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Grafieken in trainingsgeschiedenis</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Hartslag</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Weerstand vs. doelweerstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton-weerstand</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Cadans</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Vermogensverdeling</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Snelheid en helling</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Verplaats de grafieken omhoog of omlaag om hun volgorde in de trainingsgeschiedenis te kiezen. Wijzigingen worden automatisch opgeslagen.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Omhoog</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Omlaag</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Standaardvolgorde herstellen</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio-opties</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Schakelt de standaard FTMS-opdracht Request Control in voor Moovio Lynx Konect 2.0-loopbanden. Standaard: uit.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Cadansfactor</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Vermenigvuldiger die alleen wordt toegepast op de slagfrequentie die de virtuele roeitrainer verstuurt. Standaard: 1.0; gebruik 0.25 om BikeERG-RPM om te rekenen naar de slagfrequentie die de EXR vraagt.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Correctie die na de factor wordt opgeteld. Standaard: 0.0. De cadansweergave in QZ en de trainingsgegevens blijven ongewijzigd.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS: actief blijven op achtergrond</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Alleen iOS. Houdt QZ actief als het scherm uit is of QZ op de achtergrond draait, zodat Bluetooth-verbindingen en sessietimers niet bevriezen. Er wordt een stil audiospoor gebruikt dat met je muziek wordt gemengd, dus waar je naar luistert, wordt niet onderbroken. Schakel dit in als je wilt trainen met een vergrendeld scherm of met QZ op de achtergrond. Standaard: uit.</translation>
     </message>
 </context>
 <context>

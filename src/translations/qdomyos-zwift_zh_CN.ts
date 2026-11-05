@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>发现心率传感器：%1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>发现心率传感器：%1 个</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>选择</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>以后再说</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>不再询问</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>选择心率传感器</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -185,7 +216,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ 需要启用蓝牙和定位服务。
+        <translation type="vanished">QZ 需要启用蓝牙和定位服务。
 在 Android 上，定位服务是必需的，以便应用查找蓝牙设备。
 不会使用 GPS。
 
@@ -197,7 +228,7 @@ Would you like to enable them?</source>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>下次是否需要提醒您启用定位服务？</translation>
+        <translation type="vanished">下次是否需要提醒您启用定位服务？</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +263,18 @@ Would you like to do that now?</source>
     <message>
         <source>Increase the value of </source>
         <translation>增加数值： </translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ 需要启用蓝牙才能发现健身设备。在 Android 11 及更早版本中，搜索蓝牙设备还需要位置权限和开启定位服务。QZ 不会使用您的位置数据。在 Android 12 及更高版本中，授予“附近的设备”权限即可在不访问位置信息的情况下搜索蓝牙设备。
+
+是否要启用所需的服务？</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>下次是否需要提醒您启用蓝牙或定位服务？</translation>
     </message>
 </context>
 <context>
@@ -503,6 +546,22 @@ Would you like to do that now?</source>
         <translation>%1（心率传感器）已连接！</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>正在搜索心率传感器...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>正在搜索 %1（心率传感器）...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>未找到 %1（心率传感器）。请确认它已开启并正在广播心率。</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心率传感器）：没有心率。请确认它正在广播心率。</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>%1（踏频传感器）已连接！</translation>
     </message>
@@ -537,6 +596,10 @@ Would you like to do that now?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 已连接！</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>附近未找到心率传感器。请确认它已开启并正在广播心率。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1272,6 +1335,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>恢复训练计划</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3599,6 +3666,18 @@ This may take a few moments on first startup.</source>
         <translation>已导入训练：%1。</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>无法将文件复制到 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>已恢复训练计划：%1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>未找到以前安装的训练计划。</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>已在历史记录中：%1。</translation>
     </message>
@@ -3773,6 +3852,15 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>QZ 目标功率正在覆盖应用的指令。暂停 QZ 后再继续，即可将控制权交还给应用。</translation>
+    </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Spotify 歌曲:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 正在运行</translation>
     </message>
 </context>
 <context>
@@ -4128,6 +4216,20 @@ In the next window, allow access to the QZ folder.</source>
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>训练计划</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>后台连接已断开</translation>
     </message>
@@ -4423,6 +4525,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watch 用户：请保持禁用！只需在手表上打开应用</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>启动时搜索心率传感器</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>健身器材连接后的前 5 分钟内，若没有心率数据，QZ 每分钟搜索一次心率传感器：找到已选的心率带后立即连接；若未选择，则提示连接附近发现的传感器。点击主页上的心率卡片或蓝牙图标可随时搜索。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7843,6 +7953,146 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>使用无需账户的合成 Life Fitness 配置文件。启用后将忽略用户名、密码和缓存的账户数据；仅用于测试受支持的访客登录。</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>设置虚拟应用的坡度如何换算为单车阻力。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ 将虚拟应用的坡度换算为阻力时使用自定义对应关系。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>每行一组“坡度|阻力”。QZ 在各点之间插值，超出设定范围时使用端点的值。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户用户名。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户密码。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>当前摄像机视角</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>当前表情</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 模拟器</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>功率图表位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心率图表位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>阻力与目标阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>踏频图表位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>功率分布图表位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>速度与坡度图表位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>此图表在训练历史中的顺序。可在“通用 UI 选项”中用上移和下移按钮调整顺序。</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>心率</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>阻力与目标阻力</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Peloton 阻力</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>踏频</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>功率分布</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>速度与坡度</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>上下移动图表以选择它们在训练历史中的顺序。更改会自动保存。</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>上移</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>下移</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>恢复默认顺序</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Moovio 选项</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>为 Moovio Lynx Konect 2.0 跑步机启用标准 FTMS Request Control 命令。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>踏频增益</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>仅应用于虚拟划船机发送的桨频的倍数。默认值为 1.0；使用 0.25 可将 BikeERG 的 RPM 转换为 EXR 请求的桨频。</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>在增益之后加上的偏移量。默认值为 0.0。QZ 内部的踏频显示和训练指标保持不变。</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>iOS 后台保持运行</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>仅限 iOS。在屏幕关闭或 QZ 位于后台时保持 QZ 运行，使蓝牙连接和训练计时器不会冻结。它使用与您的音乐混合播放的静音音轨，因此您正在收听的内容不会被打断。如果需要在锁屏状态下或 QZ 位于后台时训练，请启用此项。默认关闭。</translation>
     </message>
 </context>
 <context>

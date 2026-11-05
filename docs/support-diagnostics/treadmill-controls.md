@@ -81,3 +81,23 @@
 
 - The Zwift incline gain and the treadmill override gain are distinct controls. A screenshot showing one set cannot establish how the other is configured.
 - Comparing route, QZ, and console values identifies whether amplification occurs in the incoming grade interpretation or in the treadmill command path.
+
+## Treadmill speed is readable, but the selected driver cannot control it
+
+### Provide first
+
+- Exact treadmill model/revision, QZ platform/build, and **advertised Bluetooth name** (not just the marketing model name).
+- Confirm whether QZ's speed tile follows changes made with the **physical console**, and whether QZ's own Speed +/- buttons can change the belt speed. Test QZ before opening Zwift, Runna, or another training app.
+- Share screenshots of **Treadmill Options > FTMS Treadmill**, any selected model-specific treadmill profile, and an **nRF Connect** service list for the treadmill. In particular, note whether the standard Fitness Machine service **0x1826** is advertised.
+
+### If still unclear
+
+- If the service list confirms FTMS and the current model-specific driver only reads data, support can compare a short test using **FTMS Treadmill** set to the *exact advertised device name*. Save and **fully restart QZ** before comparing. Do not assume every FTMS-advertising treadmill accepts remote FTMS control.
+- Conversely, if forcing FTMS makes a model-specific treadmill stop or behave differently, record that selection and compare a support-recommended model profile in a separate restart/test. Change **one profile at a time**.
+- For each test, start the belt from the console at a **safe low speed**, note the console and QZ speed, try only one small QZ speed change, and record whether the belt responds or unexpectedly stops. If inconclusive, provide a fresh debug log with the profile used and the approximate action times.
+
+### Why it matters
+
+- The same treadmill can expose standard FTMS telemetry while QZ's automatic name-based detection chooses a manufacturer-specific driver with different control support. Bluetooth discovery and readable speed do not establish that the chosen driver implements speed commands.
+- A confirmed test on an FTMS-advertising treadmill restored QZ speed control by selecting its exact name under **FTMS Treadmill** instead of the automatically chosen manufacturer driver. A separate model-specific treadmill case required clearing the forced FTMS selection and choosing a matching profile. These outcomes show why the **advertised services and active QZ profile must be collected together**, not why FTMS should be forced universally.
+- Comparing one safe command across explicitly recorded profiles separates **driver selection** from a missing control-point response or an underlying treadmill fault. For protocol-level failures, continue with the [general treadmill control intake](#qz-reads-treadmill-metrics-but-some-commands-do-not-work).

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nalezen snímač tepu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Nalezené snímače tepu: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Připojit</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Vybrat</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Teď ne</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Už se neptat</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Vyberte snímač tepu</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -101,7 +132,7 @@ Location Services are necessary on Android to allow the app to find Bluetooth de
 The GPS will not be used.
 
 Would you like to enable them?</source>
-        <translation>QZ vyžaduje zapnutý Bluetooth i služby určování polohy.
+        <translation type="vanished">QZ vyžaduje zapnutý Bluetooth i služby určování polohy.
 V systému Android jsou služby určování polohy nutné k tomu, aby aplikace našla zařízení Bluetooth.
 GPS se používat nebude.
 
@@ -113,7 +144,7 @@ Chcete je zapnout?</translation>
     </message>
     <message>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
-        <translation>Připomenout příště zapnutí služeb určování polohy?</translation>
+        <translation type="vanished">Připomenout příště zapnutí služeb určování polohy?</translation>
     </message>
     <message>
         <source>Restart the app</source>
@@ -232,6 +263,18 @@ Restartovat nyní?</translation>
     <message>
         <source>Save</source>
         <translation>Uložit</translation>
+    </message>
+    <message>
+        <source>QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.
+
+Would you like to enable the required services?</source>
+        <translation>QZ potřebuje zapnutý Bluetooth, aby mohl vyhledávat fitness zařízení. V Androidu 11 a starších verzích je pro vyhledávání zařízení Bluetooth nutné také oprávnění k poloze a zapnuté služby určování polohy. QZ vaše údaje o poloze nepoužívá. V Androidu 12 a novějších verzích umožňuje oprávnění Zařízení v okolí vyhledávat zařízení Bluetooth bez přístupu k poloze.
+
+Chcete zapnout požadované služby?</translation>
+    </message>
+    <message>
+        <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
+        <translation>Chcete příště připomenout zapnutí Bluetooth nebo služeb určování polohy?</translation>
     </message>
 </context>
 <context>
@@ -503,6 +546,22 @@ Restartovat nyní?</translation>
         <translation>Připojeno: %1 (snímač tepu)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Hledání snímačů tepu…</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Hledání: %1 (snímač tepu)…</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenalezeno: %1 (snímač tepu). Zkontrolujte, že je zapnutý a vysílá tep.</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (snímač tepu): žádný tep. Zkontrolujte, že vysílá tep.</translation>
+    </message>
+    <message>
         <source>%1 (cadence sensor) connected!</source>
         <translation>Připojeno: %1 (snímač kadence)!</translation>
     </message>
@@ -537,6 +596,10 @@ Restartovat nyní?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride připojen!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>V okolí nebyl nalezen žádný snímač tepu. Zkontrolujte, že je zapnutý a vysílá tep.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1272,6 +1335,10 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Other folders</source>
         <translation>Další složky</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Obnovit programy</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3469,6 +3536,18 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Importováno tréninků: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Soubor nelze zkopírovat do složky QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Obnoveno tréninkových programů: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Tréninkové programy z předchozí instalace nebyly nalezeny.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Již v historii: %1.</translation>
     </message>
@@ -3758,6 +3837,15 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>QZ target power is overriding the app&apos;s commands. Pause QZ and resume it to give control back to the app.</source>
         <translation>Cílový výkon QZ přebíjí příkazy aplikace. Ovládání vrátíte aplikaci tak, že QZ pozastavíte a znovu spustíte.</translation>
     </message>
+    <message>
+        <source>Spotify songs:</source>
+        <translation>Skladby Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ běží</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4013,6 +4101,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Tréninky z předchozí instalace mohou být stále ve složce QZ.
+Vyhledat je?
+
+V dalším okně povolte přístup ke složce QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Tréninkové programy</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Tréninkové programy z předchozí instalace mohou být stále ve složce QZ.
 Vyhledat je?
 
 V dalším okně povolte přístup ke složce QZ.</translation>
@@ -4417,6 +4519,70 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Jazyk aplikace:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Nastavení, jak se sklon z virtuální aplikace převádí na odpor kola.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Použít vlastní převod, když QZ převádí sklon z virtuální aplikace na odpor.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Jedna dvojice sklon|odpor na řádek. Mezi body QZ hodnoty dopočítá a mimo nastavený rozsah použije krajní bod.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Uživatelské jméno účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Heslo účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuální úhel kamery</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuální emoce</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulátor Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Pozice grafu výkonu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Pozice grafu tepu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Pozice grafu odporu a cílového odporu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Pozice grafu odporu Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Pozice grafu kadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Pozice grafu rozložení výkonu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Pozice grafu rychlosti a sklonu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>
@@ -4575,6 +4741,14 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     <message>
         <source>Refresh Devices List</source>
         <translation>Obnovit seznam zařízení</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Hledat snímač tepu po spuštění</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Během prvních 5 minut po připojení trenažéru, dokud nepřichází tep, hledá QZ jednou za minutu snímač tepu: vybraný snímač připojí, jakmile ho najde, a když není žádný vybrán, nabídne snímač nalezený poblíž. Klepnutím na dlaždici tepu nebo na ikonu Bluetooth na hlavní stránce lze hledat kdykoli.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7783,6 +7957,82 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Uses an account-free synthetic Life Fitness profile. When enabled, username, password and cached account data are ignored; use only for supported guest-login testing.</source>
         <translation>Použije syntetický profil Life Fitness bez účtu. Po zapnutí se uživatelské jméno, heslo a uložená data účtu ignorují; používejte jen pro testování podporovaného přihlášení jako host.</translation>
+    </message>
+    <message>
+        <source>Workout History Charts</source>
+        <translation>Grafy v historii tréninků</translation>
+    </message>
+    <message>
+        <source>Heart Rate</source>
+        <translation>Tep</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance</source>
+        <translation>Odpor a cílový odpor</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance</source>
+        <translation>Odpor Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence</source>
+        <translation>Kadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution</source>
+        <translation>Rozložení výkonu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination</source>
+        <translation>Rychlost a sklon</translation>
+    </message>
+    <message>
+        <source>Move the charts up or down to choose their order in Workout History. Changes are saved automatically.</source>
+        <translation>Posouvejte grafy nahoru nebo dolů a zvolte jejich pořadí v historii tréninků. Změny se ukládají automaticky.</translation>
+    </message>
+    <message>
+        <source>Move up</source>
+        <translation>Posunout nahoru</translation>
+    </message>
+    <message>
+        <source>Move down</source>
+        <translation>Posunout dolů</translation>
+    </message>
+    <message>
+        <source>Restore default order</source>
+        <translation>Obnovit výchozí pořadí</translation>
+    </message>
+    <message>
+        <source>Moovio Options</source>
+        <translation>Možnosti Moovio</translation>
+    </message>
+    <message>
+        <source>Lynx Konect 2.0</source>
+        <translation>Lynx Konect 2.0</translation>
+    </message>
+    <message>
+        <source>Enable the standard FTMS Request Control command for Moovio Lynx Konect 2.0 treadmills. Default is off.</source>
+        <translation>Zapne standardní příkaz FTMS Request Control pro běžecké pásy Moovio Lynx Konect 2.0. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Cadence Gain</source>
+        <translation>Násobitel kadence</translation>
+    </message>
+    <message>
+        <source>Multiplier applied only to the stroke rate sent by the Virtual Rower. Default is 1.0; use 0.25 to convert BikeERG RPM to the requested EXR stroke rate.</source>
+        <translation>Násobitel použitý jen pro frekvenci záběrů, kterou odesílá virtuální veslovací trenažér. Výchozí: 1.0; hodnota 0.25 převede otáčky BikeERG na frekvenci záběrů požadovanou EXR.</translation>
+    </message>
+    <message>
+        <source>Offset added after the gain. Default is 0.0. QZ&apos;s internal cadence display and workout metrics remain unchanged.</source>
+        <translation>Korekce přičtená po násobiteli. Výchozí: 0.0. Kadence zobrazovaná v QZ a metriky tréninku se nemění.</translation>
+    </message>
+    <message>
+        <source>iOS Background Keep Alive</source>
+        <translation>Běh na pozadí v iOS</translation>
+    </message>
+    <message>
+        <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
+        <translation>Jen iOS. Udrží QZ v chodu při vypnuté obrazovce nebo na pozadí, aby připojení Bluetooth a časovače relace nezamrzaly. Používá tichou zvukovou stopu smíchanou s vaší hudbou, takže nic, co posloucháte, se nepřeruší. Zapněte, pokud potřebujete trénovat se zamčenou obrazovkou nebo s QZ na pozadí. Výchozí: vypnuto.</translation>
     </message>
 </context>
 <context>
