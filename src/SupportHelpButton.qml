@@ -31,7 +31,7 @@ Item {
             if (!rootItem.supportDeviceConnected()) {
                 support.missingSeconds++
                 support.idleSeconds = 0
-                support.showHint = support.missingSeconds >= 15
+                support.showHint = support.missingSeconds >= 5
                 support.reason = "No device connected"
             } else if (rootItem.supportMetricsActive()) {
                 support.missingSeconds = 0
@@ -41,7 +41,7 @@ Item {
             } else {
                 support.missingSeconds = 0
                 support.idleSeconds++
-                support.showHint = support.idleSeconds >= 30
+                support.showHint = support.idleSeconds >= 10
                 support.reason = "Speed and power at zero"
             }
         }
