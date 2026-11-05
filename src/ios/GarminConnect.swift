@@ -137,6 +137,11 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
                 ConnectIQ.shared?.register(forDeviceEvents: device, delegate: self)
             }
             pairedDevices[device.uuid] = device
+            // Registering for events might not emit a new status transition if
+            // the watch was already connected before this QZ launch.
+            if apps[device.uuid] == nil && ConnectIQ.shared?.getDeviceStatus(device) == .connected {
+                deviceStatusChanged(device, status: .connected)
+            }
         }
     }
 
@@ -165,7 +170,9 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
         case .bluetoothNotReady, .invalidDevice, .notConnected, .notFound:
             print(device.uuid)
             descriptionStatus = "invalidDevice"
-            apps.removeValue(forKey: device.uuid)
+            if let previousApp = apps.removeValue(forKey: device.uuid) {
+                ConnectIQ.shared?.unregister(forAppMessages: previousApp, delegate: self)
+            }
 
         @unknown default:
             descriptionStatus = "case not handled"
