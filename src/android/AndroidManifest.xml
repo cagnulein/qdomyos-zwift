@@ -129,7 +129,19 @@
                                     android:name="com.google.mlkit.vision.DEPENDENCIES"
                                     android:value="ocr" />
 
-				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+				<!-- Share a temporary gzip debug log with the user's chosen mail app.
+                                     No external storage permission or file:// URLs required. -->
+                                <provider
+                                    android:name="androidx.core.content.FileProvider"
+                                    android:authorities="org.cagnulen.qdomyoszwift.support"
+                                    android:exported="false"
+                                    android:grantUriPermissions="true">
+                                    <meta-data
+                                        android:name="android.support.FILE_PROVIDER_PATHS"
+                                        android:resource="@xml/qz_support_file_paths" />
+                                </provider>
+
+                                <activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
                                 <activity
                                     android:name=".HealthConnectPermissionActivity"
                                     android:exported="false"
