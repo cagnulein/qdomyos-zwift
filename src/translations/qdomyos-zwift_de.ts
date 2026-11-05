@@ -7943,6 +7943,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Auf ihrer Seite gerade ausgeblendet: hier ändern</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Ein</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Bei den aktuellen Einstellungen auf ihrer Seite ausgeblendet</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Aktivieren Sie „%1“, um diese Einstellung zu ändern</translation>
     </message>

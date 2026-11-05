@@ -7919,6 +7919,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Зараз приховане на своїй сторінці – змінюйте його тут</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Увімк.</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Приховане на своїй сторінці за поточних налаштувань</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Увімкніть «%1», щоб змінити це налаштування</translation>
     </message>

@@ -7963,6 +7963,14 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Masqué sur sa page pour l’instant : modifiez-le ici</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Activé</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Masqué sur sa page avec les réglages actuels</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Activez « %1 » pour modifier ce paramètre</translation>
     </message>

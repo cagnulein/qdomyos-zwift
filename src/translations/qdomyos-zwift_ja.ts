@@ -7987,6 +7987,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <translation>現在、元のページでは非表示です：ここで変更してください</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>オン</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>現在の設定では元のページで非表示です</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>この設定を変更するには「%1」をオンにしてください</translation>
     </message>

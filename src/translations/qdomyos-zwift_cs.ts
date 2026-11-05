@@ -7435,6 +7435,14 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Na své stránce je teď skryto: změňte to zde</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Zapnuto</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Na své stránce je při současném nastavení skryto</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Chcete-li změnit toto nastavení, zapněte „%1“</translation>
     </message>

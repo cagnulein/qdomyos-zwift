@@ -7370,6 +7370,14 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Jelenleg rejtve van a saját oldalán: itt módosítható.</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Be</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>A saját oldalán rejtve a jelenlegi beállításokkal</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>A beállítás módosításához kapcsolja be ezt: „%1”.</translation>
     </message>

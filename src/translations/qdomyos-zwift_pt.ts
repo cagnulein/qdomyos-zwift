@@ -7947,6 +7947,14 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Oculta na própria página no momento: altere-a aqui</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Ligado</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Oculta na própria página com as definições atuais</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Ative “%1” para alterar esta configuração</translation>
     </message>

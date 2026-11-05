@@ -7188,6 +7188,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation type="unfinished"></translation>
     </message>

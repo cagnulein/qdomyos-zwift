@@ -7435,6 +7435,14 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <translation>Şu anda kendi sayfasında gizli: buradan değiştirin</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Açık</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Mevcut ayarlarla kendi sayfasında gizli</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Bu ayarı değiştirmek için &quot;%1&quot; seçeneğini açın</translation>
     </message>

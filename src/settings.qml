@@ -171,7 +171,7 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page: the result is the only place to change it, the tap
+            // A setting that is on no page (searchHiddenSettings, in "Changed" only): the tap
             // leaves the results as they are
             if (!where)
                 return
@@ -230,7 +230,7 @@ import AndroidStatusBar 1.0
             })
             // A setting its page hides with the current values ("Use kg for weight" shows only
             // with miles on) - the whole section was lit instead. Back to the results, the
-            // sections opened on the way closed again: the result has the control itself
+            // sections opened on the way closed again
             if (!target && findItem(container, named)) {
                 for (var k = 0; k < opened.length; k++)
                     opened[k].isOpen = false
@@ -238,7 +238,7 @@ import AndroidStatusBar 1.0
                     stackView.pop()
                 else
                     restoreSearch()
-                toast.show(qsTr("Hidden on its page right now: change it here"))
+                toast.show(qsTr("Hidden on its page with the current settings"))
                 return
             }
             // The fields of a switched-off section are not on the page yet
@@ -721,6 +721,8 @@ import AndroidStatusBar 1.0
             for (var i = 0; i < searchableSettings.length; i++) {
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
+                if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -753,6 +755,17 @@ import AndroidStatusBar 1.0
             updateFilteredSettings()
         }
 
+        // Settings the catalog lists but no page shows: the results only show a value, so they
+        // could not be changed from there either. Garmin ANT+ (moves the ANT channels to Garmin's
+        // private network, switched on by chance it cuts the ANT+ sensors off), Peloton Bike OCR
+        // (its switch is commented out on the page), the camera and emote of MyWhoosh Link (QZ
+        // cycles them with a controller button itself). Left out of the search by text only:
+        // "Changed" still lists Garmin ANT+ and Peloton Bike OCR, so one switched on by chance is
+        // seen there (the MyWhoosh keys are written by QZ, isPrivateSetting keeps them out of it)
+        readonly property var searchHiddenSettings: ({ "ant_garmin": true, "peloton_bike_ocr": true,
+                                                       "mywhoosh_link_camera_value": true,
+                                                       "mywhoosh_link_emote_value": true })
+
         // Not listed among the changed settings:
         // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
         //   out of the logs;
@@ -773,8 +786,8 @@ import AndroidStatusBar 1.0
             return appWrittenKeys.indexOf(entry.key) >= 0
         }
 
-        // From the store, not from this page's Settings: another settings page (tiles, voice)
-        // writes through a Settings object of its own, which this one does not hear about. The
+        // From the store: what "Changed" compares with the default, and the value of a key that
+        // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
             var value = settings.value(key, fallback)
@@ -813,85 +826,74 @@ import AndroidStatusBar 1.0
                    differsFromDefault(entry.key, entry.type, entry.defaultValue)
         }
 
-        // From the store as well: a value changed on the voice or tiles page, opened over this
-        // one, is not in this page's copy until the settings are opened again. The copy stays the
-        // fallback of a key not written yet, and keeps the bindings of the cards on its property
+        // From this page's Settings: the pages opened over it (voice, tiles...) write into the same
+        // object, and the card is bound to its property. Not from the store: Settings writes a
+        // change there only a moment later, a card read again at once got the old value and kept
+        // it. The store only for a key that is not a property here
         function settingValue(entry) {
             var copy = settings[entry.key]
-            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
                 return Number(value)
             return value === undefined ? entry.defaultValue : value
         }
 
-        function setSettingValue(entry, value) {
-            if (entry.type === "boolean") {
-                value = !!value
-            } else if (entry.type === "integer") {
-                // An empty field stores 0, as the int property turned NaN into before
-                value = parseInt(value) || 0
-            } else if (entry.type === "number") {
-                value = parseFloat(value)
+        // The value of a result as text, read only. It is changed on its own page, where its
+        // rules are (the range, the settings it depends on, the restart question); an editor
+        // here would have to repeat them all. Empty when the value cannot be told for sure - a
+        // Bluetooth device, a stored value that is not one of the list, a secret, a text of
+        // several lines, a type not known here: then the result shows no value rather than a
+        // wrong one
+        function searchValueText(entry) {
+            try {
+                if (entry.catalogKind === "virtual") {
+                    var picked = entry.options ? entry.options[virtualSelectedIndex(entry)] : null
+                    return picked && picked.label ? translatedText(picked.label) : ""
+                }
+                if (entry.catalogKind !== "setting")
+                    return ""
+                if (isPrivateSetting(entry) || isBluetoothDeviceSetting(entry))
+                    return ""
+                var value = settingValue(entry)
+                if (value === undefined || value === null)
+                    return ""
+                if (entry.type === "boolean")
+                    return value ? qsTr("On") : qsTr("Off")
+                // A list of the catalog, as its page shows it: the translated label of the value
+                // by its place ("Horizontal" for 1), or the value itself translated ("Male"). A
+                // list made at run time (rootItem.metrics) is not read: it has no change signal,
+                // a card bound to it warned in the log
+                var values = entry.options && entry.options.values ? entry.options.values : []
+                if (values.length > 0) {
+                    var labels = entry.options.labels || []
+                    for (var i = 0; i < values.length; i++) {
+                        if (String(values[i]) !== String(value))
+                            continue
+                        var shown = labels[i] !== undefined ? labels[i] : values[i]
+                        return typeof shown === "string" ? translatedText(shown) : String(shown)
+                    }
+                    return ""
+                }
+                if (entry.type === "integer" || entry.type === "number") {
+                    // A real written as a float by the C++ side reads back as 0.33000001
+                    if (!isFinite(value))
+                        return ""
+                    return String(value % 1 === 0 ? value : parseFloat(value.toPrecision(7)))
+                }
+                if (entry.type === "string") {
+                    // A text of several lines (a table of rows): its first line alone would
+                    // read as the whole value
+                    var text = String(value)
+                    return text.indexOf("\n") >= 0 ? "" : text
+                }
+            } catch (e) {
+                console.log("settings search: no value for " + entry.key + ": " + e)
             }
-            // Straight into the store, and before the copy: the card reads the store back
-            // (settingValue) as soon as the copy changes, and the page's Settings writes it only
-            // a moment later. Stored after the copy, the card got the old value and the switch
-            // flipped back
-            settings.setValue(entry.key, value)
-            settings[entry.key] = value
-
-            // The text size applies at once, like on its own page
-            if (entry.key === "ui_text_scale" || entry.key === "ui_text_scale_system") {
-                window.setTextScaleOption(entry.key, settings[entry.key])
-                toast.show(qsTr("Setting saved!"))
-                return
-            }
-
-            // The page is made again: nothing of it may run after (applyAppLanguage)
-            if (entry.key === "app_language") {
-                applyAppLanguage(value)
-                return
-            }
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
+            return ""
         }
 
-        function optionValues(entry) {
-            if (!entry.options)
-                return []
-
-            if (entry.options.values)
-                return entry.options.values
-
-            if (entry.options.expression && entry.options.expression.indexOf("rootItem.") === 0) {
-                var propertyName = entry.options.expression.substring("rootItem.".length)
-                if (typeof rootItem !== "undefined" && rootItem && rootItem[propertyName] !== undefined)
-                    return rootItem[propertyName]
-            }
-
-            return []
-        }
-
-        // What the list shows for each value, as on the setting's page: the translated label of
-        // the catalog ("Gear Up" for 1), or the value itself translated ("Male"). The value
-        // written is still the one of optionValues at the same place. A list made at run time
-        // (Bluetooth devices) shows its values as they are
-        function optionTexts(entry) {
-            var values = optionValues(entry)
-            if (!entry.options || !entry.options.values)
-                return values
-
-            var labels = entry.options.labels || []
-            var texts = []
-            for (var i = 0; i < values.length; i++) {
-                var text = labels[i] !== undefined ? labels[i] : values[i]
-                if (typeof text === "string")
-                    text = translatedText(text)
-                texts.push(String(text))
-            }
-            return texts
-        }
-
+        // A text of a settings page translated in the context it is shown in, the text itself
+        // when there is no translation
         function translatedText(text) {
             var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
@@ -907,25 +909,6 @@ import AndroidStatusBar 1.0
                    entry.options.expression.indexOf("bluetoothDevices") >= 0
         }
 
-        function optionIndex(entry) {
-            var values = optionValues(entry)
-            var value = settingValue(entry)
-            var bluetoothDeviceSetting = isBluetoothDeviceSetting(entry)
-            for (var i = 0; i < values.length; i++) {
-                var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]
-                if (candidate === value)
-                    return i
-            }
-            return bluetoothDeviceSetting ? -1 : 0
-        }
-
-        function virtualOptionLabels(entry) {
-            var labels = []
-            for (var i = 0; entry.options && i < entry.options.length; i++)
-                labels.push(entry.options[i].label)
-            return labels
-        }
-
         function virtualSelectedIndex(entry) {
             if (!entry.options)
                 return 0
@@ -935,22 +918,6 @@ import AndroidStatusBar 1.0
                     return i
             }
             return 0
-        }
-
-        function setVirtualSelection(entry, index) {
-            if (!entry.options)
-                return
-
-            for (var i = 0; i < entry.options.length; i++) {
-                if (entry.options[i].sets)
-                    settings[entry.options[i].sets] = false
-            }
-
-            if (entry.options[index] && entry.options[index].sets)
-                settings[entry.options[index].sets] = true
-
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -2626,12 +2593,30 @@ import AndroidStatusBar 1.0
                             radius: 2
                         }
 
-                        // A tap on the card (not on its controls) opens the setting itself
+                        // The value as text: a binding on the setting, so it follows a change
+                        // made on its page
+                        readonly property string valueText: settingsPane.searchValueText(entry)
+                        readonly property bool valueOn: entry.type === "boolean" && valueText.length > 0 &&
+                                                        !!settingsPane.settingValue(entry)
+
+                        function open() {
+                            if (entry.catalogKind === "page")
+                                settingsPane.openPageResult(entry)
+                            else
+                                settingsPane.jumpToSetting(entry)
+                        }
+
+                        // A tap on the card opens the setting itself, the one way to change it.
+                        // For the screen reader a button; the value goes into the name: Qt 5.15
+                        // on Android reads the description only without a name
                         MouseArea {
                             id: resultArea
                             anchors.fill: parent
-                            onClicked: entry.catalogKind === "page" ? settingsPane.openPageResult(entry)
-                                                                    : settingsPane.jumpToSetting(entry)
+                            onClicked: searchResultFrame.open()
+                            Accessible.role: Accessible.Button
+                            Accessible.name: settingsPane.plainTitle(entry._translatedName || entry.name || entry.key) +
+                                             (searchResultFrame.valueText.length > 0 ? ": " + searchResultFrame.valueText : "")
+                            Accessible.onPressAction: searchResultFrame.open()
                         }
 
                         ColumnLayout {
@@ -2672,16 +2657,29 @@ import AndroidStatusBar 1.0
                                     }
                                 }
 
-                                Switch {
-                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
-                                    checked: visible ? settingsPane.settingValue(entry) : false
-                                    onClicked: settingsPane.setSettingValue(entry, checked)
+                                // "On" in the accent; as wide as 42 % of the card at most, cut at
+                                // the end; nothing when the value is not known
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    visible: searchResultFrame.valueText.length > 0
+                                    text: searchResultFrame.valueText
+                                    color: searchResultFrame.valueOn ? Material.accent : Material.color(Material.Grey)
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    textFormat: Text.PlainText
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.maximumWidth: Math.max(0, searchResultFrame.width * 0.42)
                                 }
 
-                                Button {
-                                    visible: entry.catalogKind === "page"
-                                    text: qsTr("Open")
-                                    onClicked: settingsPane.openPageResult(entry)
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    text: "›"
+                                    font.bold: true
+                                    color: Material.color(Material.Grey)
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                             }
 
@@ -2699,104 +2697,6 @@ import AndroidStatusBar 1.0
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                            }
-
-                            RowLayout {
-                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                spacing: 8
-
-                                TextField {
-                                    id: searchSettingTextField
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    text: visible ? settingsPane.settingValue(entry) : ""
-                                    horizontalAlignment: Text.AlignRight
-                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settingsPane.setSettingValue(entry, text)
-                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
-                                }
-
-                                Button {
-                                    text: qsTr("OK")
-                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchSettingComboBox
-                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionTexts(entry) : []
-                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
-                                displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
-                                             ? settingsPane.settingValue(entry)
-                                             : currentText
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchSettingComboBox.displayText
-                                    font: searchSettingComboBox.font
-                                    color: searchSettingComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchSettingComboBox.font
-                                        color: searchSettingComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: {
-                                    // The model holds the texts shown: the value is at the same place
-                                    var selectedValue = settingsPane.optionValues(entry)[index]
-                                    if (settingsPane.isBluetoothDeviceSetting(entry))
-                                        selectedValue = settingsPane.stripRssi(selectedValue)
-                                    settingsPane.setSettingValue(entry, selectedValue)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchVirtualComboBox
-                                visible: entry.catalogKind === "virtual"
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
-                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchVirtualComboBox.displayText
-                                    font: searchVirtualComboBox.font
-                                    color: searchVirtualComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchVirtualComboBox.font
-                                        color: searchVirtualComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
                             }
                         }
                     }

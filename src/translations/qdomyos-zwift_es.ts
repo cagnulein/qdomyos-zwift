@@ -7951,6 +7951,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <translation>Oculta en su página ahora mismo: cámbiala aquí</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Encendido</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Oculta en su página con los ajustes actuales</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Activa “%1” para cambiar esta configuración</translation>
     </message>

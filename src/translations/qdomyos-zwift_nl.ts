@@ -7435,6 +7435,14 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Nu verborgen op de eigen pagina: hier wijzigen</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Aan</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Verborgen op de eigen pagina met de huidige instellingen</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Schakel ‘%1’ in om deze instelling te wijzigen</translation>
     </message>

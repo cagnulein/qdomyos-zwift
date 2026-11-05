@@ -7370,6 +7370,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Skjult på sin egen side lige nu: skift den her</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Til</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Skjult på sin side med de aktuelle indstillinger</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Slå &quot;%1&quot; til for at ændre denne indstilling</translation>
     </message>
