@@ -1270,6 +1270,10 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Gjenopprett programmer</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Tilbake</translation>
     </message>
@@ -3465,6 +3469,18 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Treningsøkter importert: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Filen kunne ikke kopieres til QZ-mappen.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Gjenopprettede treningsprogrammer: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Fant ingen treningsprogrammer fra en tidligere installasjon.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Allerede i historikken: %1.</translation>
     </message>
@@ -4014,6 +4030,20 @@ Do you want to look for them?
 In the next window, allow access to the QZ folder.</source>
         <translation>Treningsøkter fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
 Vil du lete etter dem?
+
+Tillat tilgang til QZ-mappen i neste vindu.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Treningsprogrammer</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Treningsprogrammer fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
+Vil du se etter dem?
 
 Tillat tilgang til QZ-mappen i neste vindu.</translation>
     </message>

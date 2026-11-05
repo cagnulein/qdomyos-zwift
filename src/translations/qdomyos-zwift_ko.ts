@@ -1298,6 +1298,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>다른 폴더</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>프로그램 복원</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← 뒤로</translation>
     </message>
@@ -3493,6 +3497,18 @@ This may take a few moments on first startup.</source>
         <translation>가져온 운동: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>파일을 QZ 폴더에 복사할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>복원된 훈련 프로그램: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>이미 기록에 있음: %1.</translation>
     </message>
@@ -4046,6 +4062,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>이전 설치의 운동이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>훈련 프로그램</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
 찾아보시겠습니까?
 
 다음 창에서 QZ 폴더 접근을 허용하세요.</translation>

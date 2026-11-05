@@ -1270,6 +1270,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Egyéb mappák</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Programok visszaállítása</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Vissza</translation>
     </message>
@@ -3465,6 +3469,18 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Importált edzések: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>A fájlt nem sikerült a QZ-mappába másolni.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Visszaállított edzésprogramok: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Nem található edzésprogram egy korábbi telepítésből.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Már az előzményekben: %1.</translation>
     </message>
@@ -4014,6 +4030,20 @@ Do you want to look for them?
 In the next window, allow access to the QZ folder.</source>
         <translation>Előfordulhat, hogy egy korábbi telepítés edzései még a QZ-mappában vannak.
 Szeretné megkeresni őket?
+
+A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Edzésprogramok</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
+Megkeresi őket?
 
 A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
     </message>

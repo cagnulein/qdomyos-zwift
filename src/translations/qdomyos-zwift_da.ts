@@ -1270,6 +1270,10 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Gendan programmer</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Tilbage</translation>
     </message>
@@ -3465,6 +3469,18 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Importerede træningspas: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Filen kunne ikke kopieres til QZ-mappen.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Gendannede træningsprogrammer: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Der blev ikke fundet træningsprogrammer fra en tidligere installation.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Findes allerede i historikken: %1.</translation>
     </message>
@@ -4013,6 +4029,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Træningspas fra en tidligere installation ligger muligvis stadig i QZ-mappen.
+Vil du søge efter dem?
+
+Tillad adgang til QZ-mappen i det næste vindue.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Træningsprogrammer</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Træningsprogrammer fra en tidligere installation ligger muligvis stadig i QZ-mappen.
 Vil du søge efter dem?
 
 Tillad adgang til QZ-mappen i det næste vindue.</translation>

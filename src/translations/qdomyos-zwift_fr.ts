@@ -1298,6 +1298,10 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Autres dossiers</translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation>Restaurer les programmes</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Retour</translation>
     </message>
@@ -3615,6 +3619,18 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Entraînements importés : %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Impossible de copier le fichier dans le dossier QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Programmes d&apos;entraînement restaurés : %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Aucun programme d&apos;entraînement d&apos;une installation précédente n&apos;a été trouvé.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Déjà dans l&apos;historique : %1.</translation>
     </message>
@@ -4148,6 +4164,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Les entraînements d&apos;une installation précédente peuvent encore se trouver dans le dossier QZ.
+Voulez-vous les rechercher ?
+
+Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Programmes d&apos;entraînement</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Les programmes d&apos;entraînement d&apos;une installation précédente peuvent encore se trouver dans le dossier QZ.
 Voulez-vous les rechercher ?
 
 Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>

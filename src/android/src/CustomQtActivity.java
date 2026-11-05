@@ -39,6 +39,7 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
     private static final int DOCUMENT_PICKER_FIT_REQUEST_CODE = 4105;
     private static final int DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE = 4106;
+    private static final int DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE = 4107;
     private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
@@ -579,7 +580,8 @@ public class CustomQtActivity extends QtActivity {
             || requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE
-            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE;
+            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE;
     }
 
     // Folder of the QZ files on Android 14+ (Documents/QZ) as a document of the external storage
@@ -705,6 +707,271 @@ public class CustomQtActivity extends QtActivity {
         }, "FitFolderImport").start();
     }
 
+    // Training programs left in Documents/QZ/training by a previous install: this install does
+    // not see them in the folder and cannot replace them, so the list of programs is empty and
+    // the bundled ones are not copied again. Through a grant on the QZ folder each such file is
+    // copied as this install's own one under the same name, and the old file is removed.
+    // allowPicker false: use a saved grant only, never open the picker; returns false when there
+    // is no saved grant with write access. allowPicker true (the user agreed): always open the
+    // picker, a saved grant may be the one that restored nothing.
+    public boolean openTrainingFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
+        // one pass at a time: two passes over the same files share the temporary copies
+        if (trainingRestoreRunning) {
+            Log.d(TAG, "openTrainingFolderPicker: a restore is running");
+            return false;
+        }
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        if (allowPicker) {
+            launchFitFolderPicker(requestCode);
+            return true;
+        }
+        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+            String treeId = "";
+            try {
+                treeId = android.provider.DocumentsContract.getTreeDocumentId(permission.getUri());
+            } catch (Exception ignored) {
+                // a granted single document, not a folder
+            }
+            if (permission.isReadPermission() && permission.isWritePermission()
+                && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
+                Intent data = new Intent();
+                data.setData(permission.getUri());
+                handleTrainingFolderResult(requestCode, RESULT_OK, data);
+                return true;
+            }
+        }
+        pendingImportDirectories.remove(requestCode);
+        return false;
+    }
+
+    // Passes the restored files, one path per line, to the native side; an empty string when
+    // nothing was restored (another folder picked, or no file of a previous install).
+    private void handleTrainingFolderResult(final int requestCode, final int resultCode, Intent data) {
+        final String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            nativeOnDocumentPicked(requestCode, resultCode, "");
+            return;
+        }
+        final Uri treeUri = data.getData();
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            Log.d(TAG, "takePersistableUriPermission failed " + e);
+        }
+        trainingRestoreRunning = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder restored = new StringBuilder();
+                try {
+                    String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+                    String trainingId = null;
+                    if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                        trainingId = findChildDocument(treeUri, rootId, "training");
+                    } else if ((QZ_DOCUMENTS_TREE_ID + "/training").equals(rootId)) {
+                        trainingId = rootId;
+                    }
+                    if (trainingId != null && !destinationDir.isEmpty()) {
+                        restoreTrainingFiles(treeUri, trainingId, new java.io.File(destinationDir), restored);
+                    }
+                    Log.d(TAG, "handleTrainingFolderResult root=" + rootId + " training=" + trainingId);
+                } catch (Exception e) {
+                    Log.d(TAG, "handleTrainingFolderResult failed " + e);
+                }
+                trainingRestoreRunning = false;
+                nativeOnDocumentPicked(requestCode, RESULT_OK, restored.toString());
+            }
+        }, "TrainingFolderRestore").start();
+    }
+
+    private String findChildDocument(Uri treeUri, String parentId, String childName) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                if (childName.equals(cursor.getString(1))) {
+                    return cursor.getString(0);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "findChildDocument failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    // Walks the folder and its subfolders; a file the app can already read is its own and stays.
+    // The copy is written first under a hidden temporary name (.restore_<name>) and compared
+    // with the old file byte for byte; only then is the old file removed and the copy takes the
+    // real name. A failure before the removal leaves the old file in place; a copy left under
+    // the temporary name after it is finished by recoverRestoreCopies() on the next pass or
+    // the next visit of the list.
+    private void restoreTrainingFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+        recoverRestoreCopies(localDir, false, restored);
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                // a .restore_<name> of this install is readable and skipped below; one of a previous
+                // install is restored like any file and finished by recoverRestoreCopies()
+                if (documentId == null || name == null || name.isEmpty()) {
+                    continue;
+                }
+                java.io.File local = new java.io.File(localDir, name);
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    restoreTrainingFiles(treeUri, documentId, local, restored);
+                    continue;
+                }
+                if (local.exists() && ContentHelper.isReadable(local)) {
+                    continue;
+                }
+                if (!localDir.exists() && !localDir.mkdirs()) {
+                    Log.d(TAG, "restoreTrainingFiles could not create " + localDir);
+                    return;
+                }
+                java.io.File temporary = new java.io.File(localDir, RESTORE_PREFIX + name);
+                Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+                if (!ContentHelper.copyContentToFile(this, documentUri, temporary.getAbsolutePath())) {
+                    temporary.delete();
+                    continue;
+                }
+                // the old file goes only once its copy is known to be whole
+                if (!ContentHelper.sameContent(this, documentUri, temporary)) {
+                    Log.d(TAG, "restoreTrainingFiles copy of " + name + " differs from the original, kept the original");
+                    temporary.delete();
+                    continue;
+                }
+                if (local.exists() && !deleteTreeDocument(treeUri, documentId)) {
+                    temporary.delete();
+                    continue;
+                }
+                if (!moveRestoreCopy(temporary, local)) {
+                    // the old file is already gone: the copy stays under the temporary name, and
+                    // recoverRestoreCopies() gives it the real name later
+                    Log.d(TAG, "restoreTrainingFiles kept " + temporary + ", could not rename it");
+                    continue;
+                }
+                if (restored.length() > 0) {
+                    restored.append('\n');
+                }
+                restored.append(local.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "restoreTrainingFiles failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private static final String RESTORE_PREFIX = ".restore_";
+    // a folder pass is running: its temporary copies are not left over yet
+    private volatile boolean trainingRestoreRunning = false;
+
+    // Copies a restore left under the temporary name in directory and its subfolders (the old
+    // file was already removed when the rename failed or the app stopped) take their real name.
+    // They are this install's own files, so no folder grant is needed. Returns their paths, one
+    // per line; empty while a folder pass is running.
+    public String recoverTrainingRestoreCopies(String directory) {
+        StringBuilder recovered = new StringBuilder();
+        if (directory != null && !directory.isEmpty() && !trainingRestoreRunning) {
+            recoverRestoreCopies(new java.io.File(directory), true, recovered);
+        }
+        return recovered.toString();
+    }
+
+    // For each .restore_<name> in dir: the real name is free – the copy takes it; taken by a
+    // readable file with the same bytes – the copy is dropped; with other bytes – the copy goes
+    // under a free <name>_N, so neither is lost; taken by a file of a previous install – the copy
+    // stays, and the folder pass copies that file again.
+    private void recoverRestoreCopies(java.io.File dir, boolean recursive, StringBuilder recovered) {
+        java.io.File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (java.io.File file : files) {
+            String name = file.getName();
+            if (file.isDirectory()) {
+                if (recursive) {
+                    recoverRestoreCopies(file, true, recovered);
+                }
+                continue;
+            }
+            if (!name.startsWith(RESTORE_PREFIX) || name.length() == RESTORE_PREFIX.length()) {
+                continue;
+            }
+            java.io.File target = new java.io.File(dir, name.substring(RESTORE_PREFIX.length()));
+            java.io.File result = null;
+            if (!target.exists()) {
+                result = moveRestoreCopy(file, target) ? target : null;
+            } else if (!ContentHelper.isReadable(target)) {
+                continue;
+            } else if (ContentHelper.sameContent(file, target)) {
+                file.delete();
+                continue;
+            } else {
+                result = moveRestoreCopyToFreeName(file, target);
+            }
+            Log.d(TAG, "recoverRestoreCopies " + file + " -> " + result);
+            if (result != null) {
+                if (recovered.length() > 0) {
+                    recovered.append('\n');
+                }
+                recovered.append(result.getAbsolutePath());
+            }
+        }
+    }
+
+    // Renames copy to target; when the rename fails, copies the bytes and keeps copy unless
+    // target holds the same bytes. false: copy is still in place and target does not exist.
+    private boolean moveRestoreCopy(java.io.File copy, java.io.File target) {
+        if (copy.renameTo(target)) {
+            return true;
+        }
+        // target is removed below only when this call has just written it
+        if (!copy.isFile()) {
+            return false;
+        }
+        if (ContentHelper.copyContentToFile(this, Uri.fromFile(copy), target.getAbsolutePath())
+            && ContentHelper.sameContent(copy, target)) {
+            copy.delete();
+            return true;
+        }
+        target.delete();
+        return false;
+    }
+
+    // Puts copy under the first free <name>_N next to target, as a picked file with a taken name
+    // gets; null when no name could be used (copy kept).
+    private java.io.File moveRestoreCopyToFreeName(java.io.File copy, java.io.File target) {
+        String fileName = target.getName();
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        for (int attempt = 1; attempt < 100; attempt++) {
+            java.io.File candidate = new java.io.File(target.getParentFile(), base + "_" + attempt + extension);
+            if (!candidate.exists()) {
+                return moveRestoreCopy(copy, candidate) ? candidate : null;
+            }
+        }
+        return null;
+    }
+
     private void releaseFolderGrant(Uri treeUri) {
         try {
             getContentResolver().releasePersistableUriPermission(treeUri,
@@ -773,10 +1040,10 @@ public class CustomQtActivity extends QtActivity {
         try {
             boolean deleted = android.provider.DocumentsContract.deleteDocument(getContentResolver(),
                 android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
-            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " deleted=" + deleted);
+            Log.d(TAG, "deleteTreeDocument " + documentId + " deleted=" + deleted);
             return deleted;
         } catch (Exception e) {
-            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " failed " + e);
+            Log.d(TAG, "deleteTreeDocument " + documentId + " failed " + e);
             return false;
         }
     }
@@ -834,6 +1101,10 @@ public class CustomQtActivity extends QtActivity {
     private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE) {
             handleFitFolderResult(requestCode, resultCode, data, false);
+            return;
+        }
+        if (requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE) {
+            handleTrainingFolderResult(requestCode, resultCode, data);
             return;
         }
         String destinationDir = pendingImportDirectories.get(requestCode, "");
