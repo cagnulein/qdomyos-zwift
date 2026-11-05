@@ -125,6 +125,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var garmin_bluetooth_compatibility: Bool = false
   private var bike_cadence_sensor: Bool = false
   private var peripheralManager: CBPeripheralManager!
+  private var expectedServiceAdds = 0
+  private var completedServiceAdds = 0
+  private var serviceAddFailed = false
   let SwiftDebug = swiftDebug()
 
   private var heartRateService: CBMutableService!
@@ -176,6 +179,10 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     switch peripheral.state {
     case .poweredOn:
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is up and running")
+      // Start advertising only after every requested service has been added.
+      expectedServiceAdds = garmin_bluetooth_compatibility ? 1 : 3
+      completedServiceAdds = 0
+      serviceAddFailed = false
       
         if(!garmin_bluetooth_compatibility) {
             self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
@@ -293,31 +300,41 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         self.peripheralManager.add(rscService)
 
     default:
+      expectedServiceAdds = 0
+      completedServiceAdds = 0
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is down")
     }
   }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
+    guard expectedServiceAdds > 0 else { return }
+    completedServiceAdds += 1
     if let uwError = error {
+      serviceAddFailed = true
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Failed to add service with error: \(uwError.localizedDescription)")
+    } else {
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully added service")
+    }
+
+    // CoreBluetooth reports each add asynchronously. Advertising in every didAdd
+    // used to start three times and produce "Advertising has already started".
+    guard completedServiceAdds == expectedServiceAdds else { return }
+    if serviceAddFailed {
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Not advertising: one or more services failed")
       return
     }
-    
-      if(!garmin_bluetooth_compatibility) {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
-          peripheralManager.startAdvertising(advertisementData)
-      } else {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [RSCServiceUuid]] as [String : Any]
-          peripheralManager.startAdvertising(advertisementData)
-      }
-    
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully added service")
+    guard !peripheral.isAdvertising else { return }
+    let services: [CBUUID] = garmin_bluetooth_compatibility
+      ? [RSCServiceUuid]
+      : [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]
+    let advertisementData: [String: Any] = [
+      CBAdvertisementDataLocalNameKey: "QZ",
+      CBAdvertisementDataServiceUUIDsKey: services
+    ]
+    peripheral.startAdvertising(advertisementData)
   }
-  
-  
-  func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
+
+    func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
     if let uwError = error {
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Failed to advertise with error: \(uwError.localizedDescription)")
       return
