@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulzusmérő található: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Talált pulzusmérők: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Csatlakoztatás</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Kiválasztás</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Most nem</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne kérdezze újra</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Válasszon pulzusmérőt</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -533,6 +564,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride csatlakoztatva!</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Pulzusmérők keresése...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nem található pulzusmérő a közelben. Ellenőrizze, hogy be van-e kapcsolva, és sugározza-e a pulzust.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4661,6 +4700,14 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     <message>
         <source>Refresh Devices List</source>
         <translation>Eszközlista frissítése</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Pulzusmérő keresése induláskor</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Az edzőgép csatlakozása utáni első 5 percben, amíg nem érkezik pulzus, a QZ percenként egyszer pulzusmérőt keres: a kiválasztottat azonnal csatlakoztatja, amint megtalálja, ha pedig nincs kiválasztva, felajánl egyet a közelből. A kezdőlapon a pulzus csempéjének vagy a Bluetooth ikonnak a megérintése bármikor keresést indít.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

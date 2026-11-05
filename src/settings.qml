@@ -2412,6 +2412,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
+            property bool heart_rate_belt_suggest: false
 
         }
 
@@ -2427,6 +2428,14 @@ import AndroidStatusBar 1.0
             function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
             function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
             function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+        }
+
+        // The heart rate sensor bar (HeartRateSuggestion.qml) saves its answer from C++, and this copy does not
+        // read QSettings again: take the new value, so Heart Rate Options shows it while this page is open
+        Connections {
+            target: rootItem
+            function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
+            function onHeartRateSensorOfferTurnedOff() { settings.heart_rate_belt_suggest = false }
         }
 
 
@@ -3560,6 +3569,40 @@ import AndroidStatusBar 1.0
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchHeartRateBeltSuggestDelegate
+                        text: qsTr("Search for a Heart Rate Sensor at Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.heart_rate_belt_suggest
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.heart_rate_belt_suggest = checked
+                    }
+                    // a tap on the switch replaces its binding: "Don't ask again" on the bar after that still shows here
+                    Connections {
+                        target: settings
+                        function onHeart_rate_belt_suggestChanged() { switchHeartRateBeltSuggestDelegate.checked = settings.heart_rate_belt_suggest }
+                    }
+
+                    Label {
+                        text: qsTr("During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {

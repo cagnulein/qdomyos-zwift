@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Znaleziono pulsometr: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Znalezione pulsometry: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Połącz</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Wybierz</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Nie teraz</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Nie pytaj ponownie</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Wybierz pulsometr</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Czy chcesz włączyć wymagane usługi?</translation>
         <translation>Połączono: %1 (pulsometr)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Wyszukiwanie pulsometrów…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Wyszukiwanie: %1 (pulsometr)…</translation>
     </message>
@@ -561,6 +596,10 @@ Czy chcesz włączyć wymagane usługi?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Połączono Zwift Play/Ride!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nie znaleziono pulsometru w pobliżu. Sprawdź, czy jest włączony i transmituje tętno.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4702,6 +4741,14 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
     <message>
         <source>Refresh Devices List</source>
         <translation>Odśwież listę urządzeń</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Szukaj pulsometru po uruchomieniu</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Przez pierwsze 5 minut po połączeniu urządzenia treningowego, dopóki nie ma tętna, QZ raz na minutę szuka pulsometru: wybrany łączy, gdy tylko go znajdzie, a gdy żaden nie jest wybrany, proponuje pulsometr znaleziony w pobliżu. Dotknięcie kafelka tętna lub ikony Bluetooth na stronie głównej uruchamia wyszukiwanie w dowolnej chwili.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

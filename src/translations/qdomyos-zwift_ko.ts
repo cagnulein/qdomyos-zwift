@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>심박 센서 발견: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>심박 센서 %1개 발견</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>선택</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>나중에</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>다시 묻지 않음</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>심박 센서 선택</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1(심박 센서) 연결됨!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>심박 센서 검색 중…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1(심박 센서) 검색 중…</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 연결됨!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>근처에서 심박 센서를 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4702,6 +4741,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Refresh Devices List</source>
         <translation>기기 목록 새로 고침</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>시작할 때 심박 센서 찾기</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>운동 기구가 연결된 후 처음 5분 동안 심박수가 들어오지 않으면 QZ가 1분마다 심박 센서를 찾습니다. 선택한 심박 벨트는 찾는 즉시 연결하고, 선택한 것이 없으면 근처에서 찾은 센서를 제안합니다. 홈 화면의 심박수 타일이나 Bluetooth 아이콘을 탭하면 언제든지 찾습니다.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

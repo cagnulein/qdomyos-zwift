@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulsmätare hittad: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Pulsmätare hittade: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Anslut</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Välj</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Inte nu</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Fråga inte igen</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Välj en pulsmätare</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -533,6 +564,14 @@ Vill du aktivera de tjänster som krävs?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride ansluten!</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Söker efter pulsmätare...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Ingen pulsmätare hittades i närheten. Kontrollera att den är påslagen och sänder puls.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4661,6 +4700,14 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     <message>
         <source>Refresh Devices List</source>
         <translation>Uppdatera enhetslistan</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Sök efter en pulsmätare vid start</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Under de första 5 minuterna efter att träningsmaskinen anslutits söker QZ, så länge ingen puls kommer in, efter en pulsmätare en gång i minuten: det valda pulsbältet ansluts så snart det hittas, och är inget valt erbjuds en pulsmätare i närheten. Ett tryck på pulspanelen eller Bluetooth-ikonen på startsidan söker när som helst.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>心拍センサーが見つかりました: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>心拍センサーが%1台見つかりました</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>接続</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>選択</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>今後表示しない</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>心拍センサーを選択</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心拍センサー）が接続されました!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>心拍センサーを検索しています...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1（心拍センサー）を検索しています...</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Rideが接続されました!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>近くに心拍センサーが見つかりません。電源が入っていて心拍数を送信しているか確認してください。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4482,6 +4521,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watchユーザーは、無効のままにしてください！ウォッチでアプリを開くだけです</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>開始時に心拍センサーを探す</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>トレーニング機器の接続後5分間、心拍データがない間は、QZが1分ごとに心拍センサーを探します。選択した心拍計・センサーは見つかり次第接続し、選択されていない場合は近くで見つかったセンサーを提案します。ホーム画面の心拍タイルまたはBluetoothアイコンをタップすると、いつでも検索できます。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

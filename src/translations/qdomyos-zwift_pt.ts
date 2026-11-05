@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensor de FC encontrado: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensores de FC encontrados: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Conectar</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Escolher</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Agora não</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Escolha um sensor de FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Pretende ativar os serviços necessários?</translation>
         <translation>%1 (sensor de FC) conectado!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Procurando sensores de FC...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Procurando %1 (sensor de FC)...</translation>
     </message>
@@ -561,6 +596,10 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride conectado!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenhum sensor de FC encontrado por perto. Verifique se está ligado e transmitindo a frequência cardíaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -5739,6 +5778,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Atualizar Lista de Dispositivos</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Procurar um sensor de FC ao iniciar</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nos primeiros 5 minutos após a conexão do equipamento, enquanto não chega frequência cardíaca, o QZ procura um sensor de FC uma vez por minuto: conecta a cinta escolhida assim que a encontra ou, sem nenhuma escolhida, sugere um sensor encontrado por perto. Tocar no bloco de frequência cardíaca ou no ícone Bluetooth da tela inicial procura a qualquer momento.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>

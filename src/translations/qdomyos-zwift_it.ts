@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensore FC trovato: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensori FC trovati: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connetti</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Scegli</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Non ora</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Non chiedere più</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Scegli un sensore FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Vuoi attivare i servizi necessari?</translation>
         <translation>%1 (sensore FC) connesso!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Ricerca di sensori FC...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Ricerca di %1 (sensore FC)...</translation>
     </message>
@@ -561,6 +596,10 @@ Vuoi attivare i servizi necessari?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride connesso!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nessun sensore FC trovato nelle vicinanze. Verifica che sia acceso e che trasmetta la frequenza cardiaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -6742,6 +6781,14 @@ NOTE IMPORTANTI:
     <message>
         <source>Email:</source>
         <translation>Indirizzo email:</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Cerca un sensore FC all&apos;avvio</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nei primi 5 minuti dopo la connessione dell&apos;attrezzo, finché non arriva la frequenza cardiaca, QZ cerca un sensore FC una volta al minuto: connette la fascia cardio scelta appena la trova oppure, se non ne è scelta nessuna, ne propone una trovata nelle vicinanze. Toccando il riquadro della frequenza cardiaca o l&apos;icona Bluetooth nella pagina principale si cerca in qualsiasi momento.</translation>
     </message>
     <message>
         <source>Custom Gear Table</source>

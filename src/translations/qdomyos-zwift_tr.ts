@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nabız sensörü bulundu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Bulunan nabız sensörleri: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Bağlan</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Seç</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Şimdi değil</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Bir daha sorma</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Bir nabız sensörü seçin</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Nabız sensörleri aranıyor…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Aranıyor: %1 (nabız sensörü)…</translation>
     </message>
@@ -561,6 +596,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride bağlandı</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Yakınlarda nabız sensörü bulunamadı. Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4702,6 +4741,14 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Cihaz listesini yenile</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Başlangıçta nabız sensörü ara</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca, nabız gelmediği sürece QZ dakikada bir nabız sensörü arar: seçilen nabız sensörünü bulur bulmaz bağlar, seçilmiş bir sensör yoksa yakında bulunan birini önerir. Ana sayfadaki nabız kutucuğuna veya Bluetooth simgesine dokunmak her zaman arama başlatır.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>

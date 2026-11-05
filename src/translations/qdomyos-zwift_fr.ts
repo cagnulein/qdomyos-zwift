@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Capteur cardiaque trouvé : %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Capteurs cardiaques trouvés : %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connecter</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Choisir</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Pas maintenant</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne plus demander</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Choisissez un capteur cardiaque</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
         <translation>%1 (capteur cardiaque) connecté !</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Recherche de capteurs cardiaques...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Recherche de %1 (capteur cardiaque)...</translation>
     </message>
@@ -561,6 +596,10 @@ Souhaitez-vous activer les services nécessaires ?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride connecté !</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Aucun capteur cardiaque trouvé à proximité. Vérifiez qu’il est allumé et qu’il diffuse la fréquence cardiaque.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -4458,6 +4497,14 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Utilisateurs d&apos;Apple Watch : laissez-le désactivé ! Ouvrez simplement l&apos;application sur votre montre</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Rechercher un capteur cardiaque au démarrage</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Pendant les 5 premières minutes après la connexion de l&apos;appareil, tant qu&apos;aucune fréquence cardiaque n&apos;arrive, QZ cherche un capteur cardiaque une fois par minute : il connecte la ceinture choisie dès qu&apos;il la trouve ou, si aucune n&apos;est choisie, propose un capteur trouvé à proximité. Toucher la tuile de fréquence cardiaque ou l&apos;icône Bluetooth de la page d&apos;accueil lance la recherche à tout moment.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
