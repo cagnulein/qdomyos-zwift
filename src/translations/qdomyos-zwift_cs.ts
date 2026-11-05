@@ -2785,6 +2785,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Všechny soubory (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Nahrát do Stravy</translation>
     </message>
@@ -3694,6 +3698,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -4000,6 +4008,10 @@ Spustit ho nyní?</translation>
     <message>
         <source>Search settings</source>
         <translation>Hledat v nastavení</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
     </message>
     <message>
         <source>Profile: </source>

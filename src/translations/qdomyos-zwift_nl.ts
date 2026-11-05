@@ -2785,6 +2785,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Alle bestanden (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Uploaden naar Strava</translation>
     </message>
@@ -3694,6 +3698,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -4000,6 +4008,10 @@ Wil je die nu starten?</translation>
     <message>
         <source>Search settings</source>
         <translation>Instellingen zoeken</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
     </message>
     <message>
         <source>Profile: </source>

@@ -720,6 +720,8 @@ class homeform : public QObject {
     Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
+    // The system share sheet with the FIT file (Android, iOS); on a computer, its folder
+    Q_INVOKABLE void shareWorkoutFile(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();

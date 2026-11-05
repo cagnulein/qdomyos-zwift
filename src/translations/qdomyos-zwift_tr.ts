@@ -2785,6 +2785,10 @@ This may take a few moments on first startup.</source>
         <translation>Tüm dosyalar (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Strava&apos;ya yükle</translation>
     </message>
@@ -3694,6 +3698,10 @@ This may take a few moments on first startup.</source>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -4000,6 +4008,10 @@ Do you want to start it now?</source>
     <message>
         <source>Search settings</source>
         <translation>Ayarlarda ara</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
     </message>
     <message>
         <source>Profile: </source>

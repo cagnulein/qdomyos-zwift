@@ -2793,6 +2793,10 @@ This may take a few moments on first startup.</source>
         <translation>所有文件 (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>上传到 Strava</translation>
     </message>
@@ -3507,6 +3511,10 @@ This may take a few moments on first startup.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>许可证已批准！</translation>
     </message>
@@ -4118,6 +4126,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>搜索设置</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
     </message>
     <message>
         <source>Profile: </source>

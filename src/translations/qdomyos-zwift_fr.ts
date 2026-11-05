@@ -2793,6 +2793,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Tous les fichiers (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Envoyer vers Strava</translation>
     </message>
@@ -3592,6 +3596,10 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <translation>Erreur lors de la récupération du jeton d&apos;accès, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Licence approuvée !</translation>
     </message>
@@ -4110,6 +4118,10 @@ Voulez-vous passer à l&apos;appareil Bluetooth virtuel classique pour cette ses
     <message>
         <source>Search settings</source>
         <translation>Rechercher les paramètres</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Partager le fichier FIT</translation>
     </message>
     <message>
         <source>Profile: </source>

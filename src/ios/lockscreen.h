@@ -133,6 +133,9 @@ class lockscreen {
 
     // system text size (Dynamic Type): 1.0 at the default size
     static double systemFontScale();
+
+    // the share sheet with a file (a saved workout)
+    static void shareFile(const char* path);
 };
 
 #endif // LOCKSCREEN_H

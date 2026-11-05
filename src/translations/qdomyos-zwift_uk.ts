@@ -2773,6 +2773,10 @@ This may take a few moments on first startup.</source>
         <translation>ккал</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Вивантажити в Strava</translation>
     </message>
@@ -3626,6 +3630,10 @@ This may take a few moments on first startup.</source>
         <translation>Помилка отримання токена доступу, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Ліцензію підтверджено!</translation>
     </message>
@@ -4102,6 +4110,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>Пошук налаштувань</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
     </message>
     <message>
         <source>Profile: </source>
