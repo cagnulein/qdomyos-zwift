@@ -66,75 +66,152 @@ Item {
         title: qsTr("Contact QZ support")
         modal: true
         focus: true
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        width: Math.min(parent.width - 24, 420)
-        x: Math.round((parent.width - width) / 2)
-        y: Math.max(12, Math.round((parent.height - height) / 2))
-        padding: 16
-        // Landscape phones and split-screen iPads have limited vertical space.
-        height: Math.min(implicitHeight, parent.height - 24)
+        // Do not dismiss the report accidentally by tapping beside it.
+        closePolicy: Popup.CloseOnEscape
+        padding: 0
+        margins: 0
 
-        contentItem: ScrollView {
-            implicitHeight: form.implicitHeight
+        readonly property bool mobile: Qt.platform.os === "ios" || Qt.platform.os === "android"
+        // Qt reports the software keyboard in window coordinates. On Android
+        // adjustResize may already have reduced the overlay: clamp to its height.
+        readonly property real visibleBottom: {
+            var available = parent ? parent.height : 0
+            if (!mobile || !Qt.inputMethod.visible)
+                return available
+            var keyboard = Qt.inputMethod.keyboardRectangle
+            if (keyboard.height <= 0)
+                return available
+            var top = keyboard.y > 0 ? keyboard.y : available - keyboard.height
+            return Math.max(0, Math.min(available, top))
+        }
+
+        x: mobile ? 0 : Math.round((parent.width - width) / 2)
+        y: mobile ? 0 : Math.round((parent.height - height) / 2)
+        width: mobile ? parent.width : Math.min(parent.width - 24, 480)
+        // Full screen before typing; the fixed footer moves above the keyboard
+        // while the body becomes scrollable on compact phones and in landscape.
+        height: mobile ? visibleBottom : Math.min(parent.height - 24, 560)
+
+        background: Rectangle {
+            color: Material.theme === Material.Dark ? "#303030" : "#fafafa"
+        }
+
+        header: Item {
+            implicitHeight: 62 + window.getTopPadding()
+            Rectangle {
+                height: 1
+                anchors.bottom: parent.bottom
+                width: parent.width
+                color: Material.theme === Material.Dark ? "#555555" : "#dddddd"
+            }
+            Label {
+                text: supportDialog.title
+                font.pixelSize: 20
+                font.bold: true
+                anchors.left: parent.left
+                anchors.leftMargin: 16 + window.getLeftPadding()
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: window.getTopPadding() / 2
+            }
+            ToolButton {
+                text: "\u2715"
+                anchors.right: parent.right
+                anchors.rightMargin: 8 + window.getRightPadding()
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: window.getTopPadding() / 2
+                Accessible.name: qsTr("Close support request")
+                onClicked: {
+                    Qt.inputMethod.hide()
+                    supportDialog.close()
+                }
+            }
+        }
+
+        contentItem: Flickable {
+            id: reportScroll
             clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            contentWidth: width
+            contentHeight: reportForm.implicitHeight + 32
+            flickableDirection: Flickable.VerticalFlick
+            interactive: contentHeight > height
 
             Column {
-                id: form
-                width: parent.width
-                spacing: 10
+                id: reportForm
+                x: 16 + window.getLeftPadding()
+                y: 16
+                width: Math.max(0, reportScroll.width - 32 - window.getLeftPadding() - window.getRightPadding())
+                spacing: 14
 
-            Label {
-                width: parent.width
-                wrapMode: Text.WordWrap
-                text: qsTr("Tell us what is not working. QZ will add your device and app information.")
-            }
-
-            ScrollView {
-                width: parent.width
-                height: 112
-                clip: true
+                Label {
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    text: qsTr("Tell us what is not working. QZ will add your device and app information.")
+                }
 
                 TextArea {
                     id: issueDescription
+                    width: parent.width
+                    height: 150
                     placeholderText: qsTr("Describe the problem...")
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
+                    Accessible.name: qsTr("Describe the problem")
+                }
+
+                CheckBox {
+                    id: includeDebugLog
+                    width: parent.width
+                    text: qsTr("Attach debug log if available")
+                    checked: true
+                    Accessible.name: text
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: 12
+                    opacity: 0.8
+                    text: qsTr("You can review or edit the email before sending it. Nothing is sent automatically.")
                 }
             }
+        }
 
-            CheckBox {
-                id: includeDebugLog
+        // This is deliberately a real Dialog footer, not another child of the
+        // Flickable: Cancel and Open email must remain visible while typing.
+        footer: Item {
+            implicitHeight: 64 + (Qt.inputMethod.visible ? 0 : window.getBottomPadding())
+            Rectangle {
                 width: parent.width
-                text: qsTr("Attach the debug log if available")
-                checked: true
-                Accessible.name: text
+                height: 1
+                anchors.top: parent.top
+                color: Material.theme === Material.Dark ? "#555555" : "#dddddd"
             }
-
-            Label {
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pixelSize: 12
-                opacity: 0.8
-                text: qsTr("You can review or edit the email before sending it. Nothing is sent automatically.")
-            }
-
             Row {
                 anchors.right: parent.right
+                anchors.rightMargin: 16 + window.getRightPadding()
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 8 + (Qt.inputMethod.visible ? 0 : window.getBottomPadding())
                 spacing: 8
                 Button {
                     text: qsTr("Cancel")
-                    onClicked: supportDialog.close()
+                    onClicked: {
+                        Qt.inputMethod.hide()
+                        supportDialog.close()
+                    }
                 }
                 Button {
                     text: qsTr("Open email")
                     onClicked: {
+                        // Close the software keyboard before opening the native
+                        // iOS mail composer / Android share chooser.
+                        Qt.inputMethod.hide()
                         if (rootItem.composeSupportEmail(issueDescription.text, support.reason,
                                                          includeDebugLog.checked)) {
                             supportDialog.close()
                         }
                     }
                 }
-            }
             }
         }
     }
