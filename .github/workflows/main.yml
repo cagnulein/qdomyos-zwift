@@ -744,6 +744,21 @@ jobs:
           # Deploy first, then sign *all nested code*, then create the DMG
           # without running macdeployqt a second time.
           "$QT_ROOT_DIR/bin/macdeployqt" qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -verbose=2
+
+          # macdeployqt bundles libbrotlidec, but does not always discover its
+          # transitive @rpath/libbrotlicommon.1.dylib dependency (confirmed by
+          # the arm64 GUI smoke log in Actions run 42049399580).
+          # Bundle it explicitly so Cocoa can load on Macs without Homebrew.
+          brotli_lib="$(brew --prefix brotli)/lib/libbrotlicommon.1.dylib"
+          test -f "$brotli_lib"
+          mkdir -p qdomyos-zwift.app/Contents/Frameworks
+          cp -L "$brotli_lib" qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib
+          lipo qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib -verify_arch arm64
+          test -f qdomyos-zwift.app/Contents/Frameworks/libbrotlidec.1.dylib
+          otool -L qdomyos-zwift.app/Contents/Frameworks/libbrotlidec.1.dylib
+
+          # Re-sign after all deployment and dependency copies.
+          codesign --force --sign - qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib
           codesign --force --deep --sign - qdomyos-zwift.app
           codesign --verify --deep --strict --verbose=2 qdomyos-zwift.app
 
