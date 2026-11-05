@@ -50,6 +50,14 @@ if [[ ! -x "$binary" ]]; then
   exit 1
 fi
 lipo "$binary" -verify_arch "$expected_arch"
+
+httpserver="$app/Contents/Frameworks/QtHttpServer.framework/Versions/5/QtHttpServer"
+if [[ ! -f "$httpserver" ]]; then
+  echo "QtHttpServer is not bundled in the app" >&2
+  exit 1
+fi
+lipo "$httpserver" -verify_arch "$expected_arch"
+file "$httpserver" | tee "$evidence_dir/httpserver-architecture.log"
 file "$binary" | tee "$evidence_dir/architecture.log"
 if [[ "$(uname -m)" != "$expected_arch" ]]; then
   echo "Expected native macOS runner with architecture $expected_arch" >&2
