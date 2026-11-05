@@ -105,7 +105,7 @@ Item {
                 color: Material.theme === Material.Dark ? "#555555" : "#dddddd"
             }
             Label {
-                text: supportDialog.title
+                text: qsTr("QZ Support")
                 font.pixelSize: 20
                 font.bold: true
                 anchors.left: parent.left
@@ -113,7 +113,23 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: window.getTopPadding() / 2
             }
+            // Even when an input method cannot report its keyboard rectangle,
+            // this stays above the keyboard and lets the rider dismiss it.
             ToolButton {
+                id: doneTypingButton
+                text: qsTr("Done")
+                visible: Qt.inputMethod.visible || issueDescription.activeFocus
+                anchors.right: closeDialogButton.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: window.getTopPadding() / 2
+                Accessible.name: qsTr("Hide keyboard")
+                onClicked: {
+                    forceActiveFocus()
+                    Qt.inputMethod.hide()
+                }
+            }
+            ToolButton {
+                id: closeDialogButton
                 text: "\u2715"
                 anchors.right: parent.right
                 anchors.rightMargin: 8 + window.getRightPadding()
