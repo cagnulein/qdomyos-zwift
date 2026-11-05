@@ -1843,6 +1843,16 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
+                    text: qsTr("Pair / change Garmin Companion watch")
+                    width: parent.width
+                    visible: Qt.platform.os === "ios" && settings.garmin_companion
+                    onClicked: {
+                        drawer.close()
+                        rootItem.garmin_companion_pair()
+                    }
+                }
+
+                ItemDelegate {
                     Image {
                         anchors.left: parent.left;
                         anchors.verticalCenter: parent.verticalCenter
