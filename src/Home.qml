@@ -485,9 +485,9 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // VoiceOver accessibility support. The heart rate tile is a button: a tap looks for the sensor (heartTap)
-            Accessible.role: largeButton || identificator === "heart" ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
-            Accessible.onPressAction: { if (heartTap.enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
+            // VoiceOver accessibility support. The search on the heart rate tile is its own button (heartTap): a press
+            // action here would make every tile clickable for Android, also the ones that do nothing on a tap
+            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
             Accessible.name: name + (largeButton ? "" : (": " + value))
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
             Accessible.focusable: true
@@ -536,13 +536,19 @@ HomeForm {
             // The heart rate tile: a tap does what a tap on the Bluetooth icon does – with no machine yet it searches
             // for it (bluetoothSearchNow(), nothing with one connected), and it looks for the heart rate sensor
             // (homeform::reconnectHeartRateBelt()): the chosen one again or, with none chosen, one nearby to offer.
-            // Not while the tiles are being moved (loc takes the presses then)
+            // Not while the tiles are being moved (loc takes the presses then).
+            // For TalkBack and VoiceOver a button after the tile, named by the tile only: its value changes on its own,
+            // and on the other tiles there is no such node
             MouseArea {
                 id: heartTap
                 anchors.fill: rect
                 enabled: identificator === "heart" && !window.lockTiles
                 onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
-                Accessible.ignored: true
+                Accessible.role: Accessible.Button
+                Accessible.name: name
+                Accessible.focusable: true
+                Accessible.ignored: !enabled
+                Accessible.onPressAction: { if (enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
             }
 
             Timer {
