@@ -4439,6 +4439,70 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <translation>Appspråk:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Angi hvordan stigningen fra den virtuelle appen gjøres om til motstand på sykkelen.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Bruk egen omregning når QZ gjør om stigningen fra den virtuelle appen til motstand.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ett par stigning|motstand per linje. QZ beregner verdiene mellom punktene og bruker endepunktet utenfor det angitte området.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Brukernavn for Life Fitness-kontoen som brukes til å logge inn på tjenesten. Lagres bare lokalt og skrives aldri til feilsøkingslogger.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Passord for Life Fitness-kontoen som brukes til å logge inn på tjenesten. Lagres bare lokalt og skrives aldri til feilsøkingslogger.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Gjeldende kameravinkel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Gjeldende emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Plassering av effektdiagram</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Plassering av pulsdiagram</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Plassering av diagram for motstand og målmotstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Plassering av Peloton-motstandsdiagram</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Plassering av kadensdiagram</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Plassering av effektfordelingsdiagram</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Plassering av diagram for fart og stigning</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Diagrammets plass i rekkefølgen i treningshistorikken. Rekkefølgen endres med opp- og ned-knappene i Generelle alternativer for brukergrensesnitt.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Velg Automatisk for å følge språket på enheten, eller velg et bestemt språk for QZ.</translation>
     </message>

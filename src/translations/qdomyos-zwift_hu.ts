@@ -4439,6 +4439,70 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Alkalmazás nyelve:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Beállítja, hogyan alakul át a virtuális alkalmazás emelkedése a kerékpár ellenállásává.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Egyéni megfeleltetés használata, amikor a QZ a virtuális alkalmazás emelkedését ellenállássá alakítja.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Soronként egy emelkedés|ellenállás pár. A QZ a pontok között interpolál, a beállított tartományon kívül a végpontot használja.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>A Life Fitness-fiók felhasználóneve a szolgáltatásba való bejelentkezéshez. Csak az eszközön tárolódik, és soha nem kerül a hibakeresési naplókba.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>A Life Fitness-fiók jelszava a szolgáltatásba való bejelentkezéshez. Csak az eszközön tárolódik, és soha nem kerül a hibakeresési naplókba.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuális kameraszög</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuális emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulátor</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Teljesítménydiagram helye</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Pulzusdiagram helye</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Ellenállás és célellenállás diagram helye</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton-ellenállás diagram helye</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadenciadiagram helye</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Teljesítményeloszlás-diagram helye</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Sebesség és emelkedés diagram helye</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Az Automatikus az eszköz nyelvét követi, de konkrét nyelvet is választhat a QZ-hez.</translation>
     </message>
