@@ -39,7 +39,7 @@ fi
 executable_name="$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$app/Contents/Info.plist")"
 binary="$app/Contents/MacOS/$executable_name"
 test -x "$binary"
-lipo -verify_arch "$expected_arch" "$binary"
+lipo "$binary" -verify_arch "$expected_arch"
 file "$binary" | tee "$evidence_dir/architecture.log"
 if [[ "$(uname -m)" != "$expected_arch" ]]; then
   echo "Expected native macOS runner with architecture $expected_arch" >&2
