@@ -10735,6 +10735,18 @@ void homeform::strava_connect_clicked() {
     // QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
 }
 
+void homeform::garmin_companion_pair() {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    QSettings settings;
+    if (!settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        setToastRequested(QObject::tr("Enable Garmin Companion before pairing your watch."));
+        return;
+    }
+    lockscreen ios;
+    ios.garminconnect_pair();
+#endif
+}
+
 void homeform::garmin_connect_login() {
     qDebug() << "Garmin Connect login requested";
 
