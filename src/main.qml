@@ -2021,6 +2021,14 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
+
+        SupportHelpButton {
+            activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 16 + window.getRightPadding()
+            anchors.bottomMargin: 16 + window.getBottomPadding()
+        }
     }
 }
 
