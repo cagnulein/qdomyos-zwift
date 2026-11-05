@@ -4450,6 +4450,70 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Jazyk aplikace:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Nastavení, jak se sklon z virtuální aplikace převádí na odpor kola.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Použít vlastní převod, když QZ převádí sklon z virtuální aplikace na odpor.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Jedna dvojice sklon|odpor na řádek. Mezi body QZ hodnoty dopočítá a mimo nastavený rozsah použije krajní bod.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Uživatelské jméno účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Heslo účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuální úhel kamery</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuální emoce</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulátor Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Pozice grafu výkonu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Pozice grafu tepu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Pozice grafu odporu a cílového odporu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Pozice grafu odporu Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Pozice grafu kadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Pozice grafu rozložení výkonu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Pozice grafu rychlosti a sklonu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>

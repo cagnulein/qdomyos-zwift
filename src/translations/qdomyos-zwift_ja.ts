@@ -6458,6 +6458,70 @@ Please enter it below:</source>
         <translation>傾斜（斜度）</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>仮想アプリの傾斜をバイクの負荷レベルにどう変換するかを設定します。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ が仮想アプリの傾斜を負荷レベルに変換するときに、カスタムの対応表を使用します。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>1 行に「傾斜|負荷レベル」を 1 組。ポイント間は QZ が補間し、設定範囲外では端点の値を使用します。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのユーザー名。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>サービスへのサインインに使うLife Fitnessアカウントのパスワード。端末内にのみ保存され、デバッグログには書き込まれません。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>現在のカメラアングル</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>現在のエモート</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbikeエミュレーター</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>パワーグラフの位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心拍数グラフの位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>負荷レベルと目標負荷レベルのグラフの位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton換算負荷グラフの位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>ケイデンスグラフの位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>パワー分布グラフの位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>スピードと傾斜のグラフの位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>ワークアウト履歴でのこのグラフの順番です。順番は「UI・画面表示設定」の上へ・下へボタンで変更します。</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>画面表示（タイル）サイズ:</translation>
     </message>

@@ -6406,6 +6406,70 @@ Please enter it below:</source>
         <translation>Наклон</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Настройте, как наклон из виртуального приложения переводится в сопротивление велотренажёра.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Использовать своё соответствие, когда QZ переводит наклон из виртуального приложения в сопротивление.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Одна пара «наклон|сопротивление» на строку. Между точками QZ рассчитывает значения, а за пределами заданного диапазона берёт крайнюю точку.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Имя пользователя учётной записи Life Fitness для входа в сервис. Хранится только на устройстве и никогда не пишется в журнал отладки.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Пароль учётной записи Life Fitness для входа в сервис. Хранится только на устройстве и никогда не пишется в журнал отладки.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Текущий ракурс камеры</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Текущая эмоция</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Эмулятор Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Позиция графика мощности</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Позиция графика пульса</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Позиция графика сопротивления и целевого сопротивления</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Позиция графика сопротивления Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Позиция графика каденса</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Позиция графика распределения мощности</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Позиция графика скорости и наклона</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Номер этого графика в истории тренировок. Порядок меняется кнопками вверх и вниз в разделе «Общие параметры интерфейса».</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Размер плиток:</translation>
     </message>

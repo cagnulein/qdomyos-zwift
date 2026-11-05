@@ -6622,6 +6622,70 @@ NOTE IMPORTANTI:
         <translation>Lingua dell&apos;app:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Configura come l&apos;inclinazione dell&apos;app virtuale viene convertita nella resistenza della bici.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Usa una corrispondenza personalizzata quando QZ converte l&apos;inclinazione dell&apos;app virtuale in resistenza.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Una coppia inclinazione|resistenza per riga. QZ interpola tra i punti e fuori dall&apos;intervallo configurato usa l&apos;estremo.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nome utente dell&apos;account Life Fitness per l&apos;accesso al servizio. Salvato solo sul dispositivo e mai scritto nei log di debug.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Password dell&apos;account Life Fitness per l&apos;accesso al servizio. Salvata solo sul dispositivo e mai scritta nei log di debug.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Angolo camera attuale</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Emote attuale</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulatore Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posizione del grafico della potenza</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posizione del grafico della frequenza cardiaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posizione del grafico resistenza e resistenza obiettivo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posizione del grafico della resistenza Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posizione del grafico della cadenza</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posizione del grafico della distribuzione della potenza</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posizione del grafico velocità e inclinazione</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posizione di questo grafico nella cronologia allenamenti. L&apos;ordine si cambia con i pulsanti su e giù in Opzioni Interfaccia Utente.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Scegli Auto per seguire la lingua del tuo dispositivo, o seleziona una lingua specifica per QZ.</translation>
     </message>

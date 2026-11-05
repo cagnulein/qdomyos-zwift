@@ -4450,6 +4450,70 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Sanal uygulamadaki eğimin bisiklet direncine nasıl dönüştürüleceğini ayarlar.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ sanal uygulamadaki eğimi dirence dönüştürürken özel bir eşleme kullanır.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Satır başına bir eğim|direnç çifti. QZ noktalar arasındaki değerleri hesaplar, ayarlanan aralığın dışında uç noktayı kullanır.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının kullanıcı adı. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının şifresi. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Geçerli kamera açısı</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Geçerli ifade</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike emülatörü</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Güç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Nabız grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Direnç ve hedef direnç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton direnci grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadans grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Güç dağılımı grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Hız ve eğim grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>

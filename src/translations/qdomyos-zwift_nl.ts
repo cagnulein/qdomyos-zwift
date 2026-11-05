@@ -4450,6 +4450,70 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Taal van de app:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Stel in hoe de helling uit de virtuele app wordt omgezet in weerstand van de fiets.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Gebruik een eigen omzetting wanneer QZ de helling uit de virtuele app omzet in weerstand.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Eén paar helling|weerstand per regel. QZ interpoleert tussen de punten en gebruikt buiten het ingestelde bereik het eindpunt.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Gebruikersnaam van het Life Fitness-account om bij de dienst in te loggen. Wordt alleen lokaal opgeslagen en nooit in debuglogs geschreven.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Wachtwoord van het Life Fitness-account om bij de dienst in te loggen. Wordt alleen lokaal opgeslagen en nooit in debuglogs geschreven.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Huidige camerahoek</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Huidige emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Positie van vermogensgrafiek</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Positie van hartslaggrafiek</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Positie van grafiek weerstand vs. doelweerstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Positie van Peloton-weerstandsgrafiek</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Positie van cadansgrafiek</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Positie van vermogensverdelingsgrafiek</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Positie van grafiek snelheid en helling</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Plaats van deze grafiek in de trainingsgeschiedenis. Wijzig de volgorde met de knoppen omhoog en omlaag in Algemene interface-opties.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Kies ‘Automatisch’ om de taal van je apparaat te volgen, of kies een specifieke taal voor QZ.</translation>
     </message>

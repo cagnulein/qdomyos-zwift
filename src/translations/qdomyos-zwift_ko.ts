@@ -4450,6 +4450,70 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>앱 언어:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>가상 앱의 경사도를 자전거 저항으로 변환하는 방식을 설정합니다.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ가 가상 앱의 경사도를 저항으로 변환할 때 사용자 지정 대응표를 사용합니다.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>한 줄에 경사도|저항 한 쌍. QZ는 점 사이를 보간하고, 설정 범위 밖에서는 끝점 값을 사용합니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 사용자 이름입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 비밀번호입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>현재 카메라 앵글</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>현재 이모트</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 에뮬레이터</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>파워 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>심박수 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>저항 및 목표 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>케이던스 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>파워 분포 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>속도 및 경사도 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>기기 언어를 따르려면 [자동(시스템)]을 선택하고, 아니면 QZ에서 쓸 언어를 직접 선택하세요.</translation>
     </message>

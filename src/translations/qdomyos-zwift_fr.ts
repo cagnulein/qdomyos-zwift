@@ -6430,6 +6430,70 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Inclinaison</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Définit comment l&apos;inclinaison de l&apos;application virtuelle est convertie en résistance du vélo.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Utilise une correspondance personnalisée quand QZ convertit l&apos;inclinaison de l&apos;application virtuelle en résistance.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Une paire inclinaison|résistance par ligne. QZ interpole entre les points et, en dehors de la plage configurée, utilise l&apos;extrémité.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nom d&apos;utilisateur du compte Life Fitness pour la connexion au service. Enregistré uniquement sur l&apos;appareil et jamais écrit dans les journaux de débogage.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Mot de passe du compte Life Fitness pour la connexion au service. Enregistré uniquement sur l&apos;appareil et jamais écrit dans les journaux de débogage.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Angle de caméra actuel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Émoticône actuelle</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Émulateur Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Position du graphique de puissance</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Position du graphique de fréquence cardiaque</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Position du graphique résistance vs résistance cible</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Position du graphique de résistance Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Position du graphique de cadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Position du graphique de répartition de la puissance</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Position du graphique vitesse et inclinaison</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Position de ce graphique dans l&apos;historique des entraînements. L&apos;ordre se modifie avec les boutons Monter et Descendre dans Options générales de l&apos;interface.</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Taille des tuiles :</translation>
     </message>
