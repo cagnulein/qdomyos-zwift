@@ -3515,6 +3515,10 @@ This may take a few moments on first startup.</source>
         <translation>分享 FIT 文件</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>无法分享此训练的 FIT 文件</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>许可证已批准！</translation>
     </message>

@@ -3604,6 +3604,10 @@ This may take a few moments on first startup.</source>
         <translation>FITファイルを共有</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>このワークアウトのFITファイルを共有できませんでした</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>ライセンスが承認されました！</translation>
     </message>

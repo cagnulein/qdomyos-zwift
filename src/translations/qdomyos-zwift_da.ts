@@ -3674,6 +3674,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Del FIT-fil</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>FIT-filen for denne træning kunne ikke deles</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>

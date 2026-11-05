@@ -3674,6 +3674,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>FIT-fájl megosztása</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Az edzés FIT-fájlját nem sikerült megosztani</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>méter</translation>
     </message>

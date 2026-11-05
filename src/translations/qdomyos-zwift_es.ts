@@ -3600,6 +3600,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Compartir archivo FIT</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>No se pudo compartir el archivo FIT de este entrenamiento</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>¡Licencia aprobada!</translation>
     </message>

@@ -5,6 +5,9 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
@@ -16,12 +19,22 @@ import java.io.OutputStream;
 
 // Shares a saved workout file through the Android share sheet (mail, messengers, cloud drives).
 // The file is copied to the cache folder first: FitFileProvider serves only that folder, so it
-// works wherever QZ saved the workout (Documents/QZ or the app folder)
+// works wherever QZ saved the workout (Documents/QZ or the app folder).
 public class FitShare {
-    public static void share(final Context context, final String path, final String title) {
+    // failedText: shown as a toast when the sheet can't be opened (the file is missing or not
+    // readable, no room in the cache)
+    public static void share(final Context context, final String path, final String title, final String failedText) {
         try {
             File source = new File(path);
             File folder = new File(context.getCacheDir(), "share");
+            // only the copy of this share is kept: the copies of earlier shares are removed, also
+            // one left by a share that failed
+            File[] old = folder.listFiles();
+            if (old != null) {
+                for (File f : old) {
+                    f.delete();
+                }
+            }
             folder.mkdirs();
             File copy = new File(folder, source.getName());
             InputStream in = new FileInputStream(source);
@@ -65,6 +78,12 @@ public class FitShare {
             QLog.d("FitShare", "share " + path + " -> " + uri);
         } catch (Exception e) {
             QLog.e("FitShare", "share failed for " + path + ": " + e);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, failedText, Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 }

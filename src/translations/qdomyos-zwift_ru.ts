@@ -3634,6 +3634,10 @@ This may take a few moments on first startup.</source>
         <translation>Поделиться файлом FIT</translation>
     </message>
     <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Не удалось поделиться файлом FIT этой тренировки</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Лицензия подтверждена!</translation>
     </message>

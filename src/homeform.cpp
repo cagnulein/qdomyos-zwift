@@ -11244,29 +11244,37 @@ bool homeform::isIntervalsICUUploadConfigured() {
 
 void homeform::shareWorkoutFile(const QString &filePath) {
     qDebug() << "shareWorkoutFile" << filePath;
-    if (filePath.isEmpty() || !QFile::exists(filePath)) {
-        qDebug() << "shareWorkoutFile: no such file";
-        return;
-    }
+    const QString failed = tr("The FIT file of this workout could not be shared");
 #if defined(Q_OS_ANDROID)
+    // FitShare checks the file and says a failure with a toast of Android: the workout page is a
+    // WebView, which covers the toast of QML there
     QAndroidJniObject jPath = QAndroidJniObject::fromString(filePath);
     QAndroidJniObject jTitle = QAndroidJniObject::fromString(tr("Share FIT file"));
+    QAndroidJniObject jFailed = QAndroidJniObject::fromString(failed);
     QAndroidJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/FitShare", "share",
-        "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V",
-        QtAndroid::androidContext().object(), jPath.object<jstring>(), jTitle.object<jstring>());
+        "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        QtAndroid::androidContext().object(), jPath.object<jstring>(), jTitle.object<jstring>(),
+        jFailed.object<jstring>());
     QAndroidJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
-#elif defined(Q_OS_IOS)
+#else
+    if (filePath.isEmpty() || !QFile::exists(filePath)) {
+        qDebug() << "shareWorkoutFile: no such file";
+        setToastRequested(failed);
+        return;
+    }
+#if defined(Q_OS_IOS)
 #ifndef IO_UNDER_QT
     lockscreen::shareFile(filePath.toUtf8().constData());
 #endif
 #else
     // no share sheet on a computer: the folder of the file, to send it from there
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
+#endif
 #endif
 }
 
