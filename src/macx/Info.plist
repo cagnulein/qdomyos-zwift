@@ -2,6 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Mandatory launch metadata for Finder and macOS bundle validation. -->
+    <key>CFBundleExecutable</key>
+    <string>qdomyos-zwift</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.cagnulein.qdomyoszwift</string>
+    <key>CFBundleName</key>
+    <string>QZ</string>
+    <key>CFBundleDisplayName</key>
+    <string>QZ</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift. The connection is always required.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
