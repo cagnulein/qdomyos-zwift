@@ -37,6 +37,29 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
     refresh->start(200ms);
 }
 
+void horizontreadmill::clearGattServices() {
+    // Service objects and characteristic handles are invalid after a BLE disconnect.
+    // Keep the virtual device alive; only rebuild the treadmill's central-side GATT.
+    qDebug() << "horizontreadmill: clearing GATT services" << gattCommunicationChannelService.size();
+    for (QLowEnergyService *service : qAsConst(gattCommunicationChannelService)) {
+        if (service) {
+            QObject::disconnect(service, nullptr, this, nullptr);
+            service->deleteLater();
+        }
+    }
+    gattCommunicationChannelService.clear();
+    gattFTMSService = nullptr;
+    gattCustomService = nullptr;
+    gattMerachUnlockService = nullptr;
+    gattWriteCharControlPointId = QLowEnergyCharacteristic();
+    gattWriteCharControlPointIdYpooMiniPro = QLowEnergyCharacteristic();
+    gattWriteCharCustomService = QLowEnergyCharacteristic();
+    gattWriteCharMerachUnlock = QLowEnergyCharacteristic();
+    notificationSubscribed = 0;
+    firstStateChanged = 0;
+    initRequest = false;
+}
+
 void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
                                            uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                            bool wait_for_response) {
@@ -2431,6 +2454,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+    if (state == QLowEnergyService::InvalidService) {
+        // Never treat an invalidated service as a completed discovery.
+        qDebug() << "horizontreadmill: GATT service invalidated, waiting for a fresh discovery";
+        return;
+    }
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 
@@ -2442,7 +2471,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             return;
         }
 
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::ServiceDiscovered) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -2668,8 +2697,7 @@ void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &charac
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    initRequest = false;
-    firstStateChanged = 0;
+    clearGattServices();
     auto services_list = m_control->services();
 
     // Check if DOMYOS device has native service
@@ -2698,10 +2726,14 @@ void horizontreadmill::serviceScanDone(void) {
             }
 
             qDebug() << s << "discovering...";
-            gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &horizontreadmill::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+            QLowEnergyService *service = m_control->createServiceObject(s);
+            if (!service) {
+                emit debug(QStringLiteral("Unable to create GATT service ") + s.toString());
+                continue;
+            }
+            gattCommunicationChannelService.append(service);
+            connect(service, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged);
+            service->discoverDetails();
     }
 }
 
@@ -2936,6 +2968,9 @@ void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
+        clearGattServices();
+        emit debug(QStringLiteral("Treadmill BLE disconnected; rebuilding GATT after reconnect. Error: ") +
+                   m_control->errorString());
         connectBackLater();
     }
 }
