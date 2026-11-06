@@ -54,6 +54,7 @@ def hierarchy(scenario):
 def choose_mail_probe(scenario):
     deadline = time.monotonic() + 105
     presses = 0
+    chooser_captured = False
     last_xml = ""
     while time.monotonic() < deadline:
         result = output_result()
@@ -65,6 +66,10 @@ def choose_mail_probe(scenario):
                      if "QZ Mail Probe" in ((node.get("text") or "") + " " +
                                            (node.get("content-desc") or ""))]
             if nodes:
+                # Capture the actual Android share chooser BEFORE selecting our
+                # fake mail app; otherwise the screenshot shows only the receiver.
+                if not chooser_captured:
+                    chooser_captured = screenshot(scenario, "01_android_chooser")
                 # Tap the target label; chooser selections might need a second
                 # tap/confirmation on older Android images.
                 bounds = nodes[-1].get("bounds") or ""
@@ -93,13 +98,20 @@ def choose_mail_probe(scenario):
                        f"(taps={presses}; last UI={last_xml[:1200]!r})")
 
 
-def screenshot(scenario):
+def screenshot(scenario, stage):
+    """Save real emulator pixels, not an artificial mockup or synthesized image."""
     try:
         data = subprocess.run(["adb", "exec-out", "screencap", "-p"],
                               capture_output=True, timeout=20, check=True).stdout
-        (EVIDENCE / f"{scenario}.png").write_bytes(data)
+        if not data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+            raise RuntimeError("adb screencap did not return a PNG")
+        path = EVIDENCE / f"{scenario}_{stage}.png"
+        path.write_bytes(data)
+        print(f"  Captured {path}", flush=True)
+        return True
     except Exception as error:
-        print(f"Could not capture screenshot: {error}")
+        print(f"Could not capture {scenario}/{stage}: {error}", flush=True)
+        return False
 
 
 def main():
@@ -124,8 +136,14 @@ def main():
                 raise RuntimeError(f"Could not launch QZ test activity: {start}")
             try:
                 result = choose_mail_probe(scenario)
-            finally:
-                screenshot(scenario)
+                # The receiver writes result.txt only after setContentView().
+                # Give Android a frame to draw the readable email preview.
+                time.sleep(1.5)
+                if not screenshot(scenario, "02_email_compose_preview"):
+                    print("  WARNING: email preview screenshot unavailable", flush=True)
+            except Exception:
+                screenshot(scenario, "99_failure")
+                raise
             lines.append(f"{scenario}: {result}")
             print(f"  {result}", flush=True)
             if result != f"PASS {scenario} API={api}":
