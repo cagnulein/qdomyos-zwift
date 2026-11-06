@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Sol·licitud de suport</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Incidència de QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hola Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Necessito ajuda amb QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problema:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descriu el problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportament esperat:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descriu què hauria de passar]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnòstic de QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versió de QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plataforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Perfil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispositiu: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Connectat</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>No connectat</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Connexió: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Velocitat: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>No disponible</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Potència: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situació detectada: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>No s’ha sol·licitat el registre de depuració.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>El registre de depuració està desactivat. Activa’l i reinicia QZ abans de reproduir el problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>No s’ha trobat cap registre de depuració.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>El registre de depuració no està disponible o és massa gran per preparar-lo.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Registre de depuració adjunt (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>No s’ha pogut escriure el fitxer de registre adjunt.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>No s’ha pogut comprimir el registre o el fitxer supera els 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Adjunta manualment el registre de depuració generat</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
