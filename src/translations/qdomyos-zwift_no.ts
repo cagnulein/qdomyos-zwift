@@ -9117,4 +9117,67 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Maks. watt/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargjør en e-post til kundestøtte med diagnosedata</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet tilkoblet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet og effekt er null</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Ferdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Lukk støtteforespørselen</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortell oss hva som ikke fungerer. QZ legger til informasjon om enheten og appen din.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Legg ved feilsøkingslogg hvis den er tilgjengelig</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan se gjennom eller redigere e-posten før du sender den. Ingenting sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åpne e-post</translation>
+    </message>
+</context>
 </TS>
