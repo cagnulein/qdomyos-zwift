@@ -3770,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Tukipyyntö</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-ongelma | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hei Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Tarvitsen apua QZ:n kanssa.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Ongelma:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Kuvaile ongelma]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Odotettu toiminta:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Kuvaile, mitä pitäisi tapahtua]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnostiikka ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versio: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Alusta: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profiili: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Laite: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Yhdistetty</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ei yhdistetty</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Yhteys: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Nopeus: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ei saatavilla</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Teho: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Havaittu tilanne: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Virhelokia ei pyydetty.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Virheloki on pois käytöstä. Ota lokitus käyttöön ja käynnistä QZ uudelleen ennen ongelman toistamista.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Virhelokia ei löytynyt.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Virheloki ei ole käytettävissä tai on liian suuri valmisteltavaksi.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Virheloki liitetty (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Virhelokin liitetiedostoa ei voitu kirjoittaa.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Virhelokia ei voitu pakata tai liite ylittää 10 Mt.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Liitä luotu virheloki manuaalisesti</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Laitetta ei havaittu</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Sähköpostisovellusta ei voitu avata</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9004,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Ota yhteyttä QZ-tukeen</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Valmistele tukisähköposti diagnostiikkatiedoilla</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Laitetta ei ole yhdistetty</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Nopeus ja teho ovat nollassa</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-tuki</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Valmis</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Piilota näppäimistö</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Sulje tukipyyntö</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Kerro, mikä ei toimi. QZ lisää laitteen ja sovelluksen tiedot.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Kuvaile ongelmaa...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Kuvaile ongelma</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Liitä virheloki, jos saatavilla</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Voit tarkistaa tai muokata sähköpostia ennen lähettämistä. Mitään ei lähetetä automaattisesti.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Avaa sähköposti</translation>
     </message>
 </context>
 </TS>

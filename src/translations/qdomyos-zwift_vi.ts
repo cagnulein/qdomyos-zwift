@@ -3770,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Yêu cầu hỗ trợ</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Sự cố QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Xin chào Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Tôi cần trợ giúp về QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Sự cố:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Vui lòng mô tả sự cố]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Hành vi mong đợi:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Vui lòng mô tả điều đáng lẽ phải xảy ra]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Chẩn đoán QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Phiên bản QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Nền tảng: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Hồ sơ: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Thiết bị: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Đã kết nối</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Chưa kết nối</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Kết nối: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Tốc độ: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Không khả dụng</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Công suất: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Tình trạng phát hiện: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Không yêu cầu nhật ký gỡ lỗi.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Nhật ký gỡ lỗi đang tắt. Hãy bật ghi nhật ký và khởi động lại QZ trước khi tái hiện sự cố.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Không tìm thấy nhật ký gỡ lỗi.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Không có nhật ký gỡ lỗi hoặc tệp quá lớn để chuẩn bị.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Đã đính kèm nhật ký gỡ lỗi (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Không thể ghi tệp đính kèm nhật ký gỡ lỗi.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Không thể nén nhật ký hoặc tệp đính kèm vượt quá 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Vui lòng đính kèm thủ công nhật ký gỡ lỗi đã tạo</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Không phát hiện thấy thiết bị</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Không thể mở ứng dụng email</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9004,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Liên hệ bộ phận hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Soạn email hỗ trợ kèm thông tin chẩn đoán</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Chưa kết nối thiết bị</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Tốc độ và công suất bằng không</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Xong</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ẩn bàn phím</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Đóng yêu cầu hỗ trợ</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Hãy cho chúng tôi biết điều gì không hoạt động. QZ sẽ thêm thông tin về thiết bị và ứng dụng.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Mô tả sự cố...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Mô tả sự cố</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Đính kèm nhật ký gỡ lỗi nếu có</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Bạn có thể xem lại hoặc chỉnh sửa email trước khi gửi. Không có gì được gửi tự động.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Hủy</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Mở email</translation>
     </message>
 </context>
 </TS>

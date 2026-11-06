@@ -3770,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>בקשת תמיכה</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>בעיה ב‑QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>שלום Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>אני זקוק לעזרה עם QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>בעיה:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[תארו את הבעיה]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>התנהגות צפויה:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[תארו מה אמור לקרות]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- אבחון QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>גרסת QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>פלטפורמה: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>פרופיל: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>מכשיר: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>מחובר</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>לא מחובר</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>חיבור: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>מהירות: %1 קמ״ש</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>לא זמין</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>הספק: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>מצב שזוהה: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>לא התבקשה רשומת ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>רישום ניפוי השגיאות מושבת. הפעילו אותו והפעילו מחדש את QZ לפני שחזור הבעיה.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>לא נמצאה רשומת ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>רשומת ניפוי השגיאות אינה זמינה או גדולה מדי להכנה.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>רשומת ניפוי השגיאות צורפה (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>לא ניתן לכתוב את קובץ רשומת ניפוי השגיאות המצורף.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>לא ניתן לדחוס את רשומת ניפוי השגיאות או שהקובץ המצורף גדול מ‑10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>צרפו ידנית את רשומת ניפוי השגיאות שנוצרה</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>לא זוהה מכשיר</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>לא ניתן לפתוח אפליקציית דוא״ל</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9004,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>יצירת קשר עם התמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>הכנת הודעת תמיכה עם פרטי אבחון</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>לא מחובר מכשיר</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>המהירות וההספק הם אפס</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>תמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>סיום</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>הסתרת המקלדת</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>סגירת בקשת התמיכה</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>ספרו לנו מה לא עובד. QZ תוסיף פרטים על המכשיר והאפליקציה שלכם.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>תארו את הבעיה...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>תיאור הבעיה</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>צירוף יומן ניפוי שגיאות אם הוא זמין</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>אפשר לבדוק או לערוך את ההודעה לפני השליחה. שום דבר לא נשלח אוטומטית.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ביטול</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>פתיחת הדוא״ל</translation>
     </message>
 </context>
 </TS>

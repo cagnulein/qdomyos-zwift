@@ -728,6 +728,10 @@ class homeform : public QObject {
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
+    // Contextual support: check the actual link state, not merely whether an object exists.
+    Q_INVOKABLE bool supportDeviceConnected() const;
+    Q_INVOKABLE bool supportMetricsActive() const;
+    Q_INVOKABLE bool composeSupportEmail(const QString &description, const QString &reason, bool includeLog);
 
 private:
     void clearWebViewCache();

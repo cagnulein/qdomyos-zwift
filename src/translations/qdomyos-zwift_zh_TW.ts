@@ -3770,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>支援請求</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 問題 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>您好，Roberto：</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>我需要 QZ 的協助。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>問題：</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[請描述問題]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>預期行為：</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[請描述應該發生什麼事]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 診斷資訊 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 版本：%1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>平台：%1（%2）</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>設定檔：%1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>裝置：%1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已連線</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未連線</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>連線狀態：%1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度：%1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>無法使用</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>功率：%1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>偵測到的狀況：%1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>未要求偵錯記錄。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>偵錯記錄已關閉。請先啟用記錄並重新啟動 QZ，再重現問題。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>找不到偵錯記錄。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>偵錯記錄無法使用或檔案太大，無法準備。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>已附加偵錯記錄（gzip）。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>無法寫入偵錯記錄附件。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>無法壓縮偵錯記錄，或附件超過 10 MB。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>請手動附加產生的偵錯記錄</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>未偵測到裝置</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>無法開啟電子郵件應用程式</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9004,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>聯絡 QZ 支援</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>準備包含診斷資訊的支援電子郵件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未連接裝置</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率為零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支援</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隱藏鍵盤</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>關閉支援請求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>請告訴我們哪裡無法正常運作。QZ 會加入裝置和應用程式資訊。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述問題...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述問題</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有偵錯記錄時附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>傳送前可以檢查或編輯電子郵件。系統不會自動傳送任何內容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>開啟電子郵件</translation>
     </message>
 </context>
 </TS>

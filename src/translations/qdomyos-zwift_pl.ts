@@ -3858,6 +3858,126 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ działa</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Prośba o pomoc</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problem QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Cześć Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Potrzebuję pomocy z QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Opisz problem]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Oczekiwane działanie:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Opisz, co powinno się wydarzyć]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostyka QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Wersja QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Urządzenie: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Połączono</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Nie połączono</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Połączenie: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Prędkość: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Niedostępne</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Moc: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Wykryta sytuacja: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Nie zażądano dziennika debugowania.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Dziennik debugowania jest wyłączony. Włącz rejestrowanie i uruchom ponownie QZ przed odtworzeniem problemu.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Nie znaleziono dziennika debugowania.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Dziennik debugowania jest niedostępny lub zbyt duży do przygotowania.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Dziennik debugowania załączony (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Nie można zapisać załącznika dziennika debugowania.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Nie udało się skompresować dziennika lub załącznik przekracza 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Załącz ręcznie wygenerowany dziennik debugowania</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nie wykryto urządzenia</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Nie można otworzyć aplikacji pocztowej</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9227,6 +9347,69 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maksymalna moc W/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt z pomocą QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Przygotuj e-mail do pomocy z danymi diagnostycznymi</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Brak połączonego urządzenia</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Prędkość i moc wynoszą zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Pomoc QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gotowe</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ukryj klawiaturę</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Zamknij prośbę o pomoc</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Opisz, co nie działa. QZ doda informacje o urządzeniu i aplikacji.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Opisz problem...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Opisz problem</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Dołącz dziennik debugowania, jeśli jest dostępny</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Możesz przejrzeć lub edytować e-mail przed wysłaniem. Nic nie zostanie wysłane automatycznie.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Otwórz e-mail</translation>
     </message>
 </context>
 </TS>

@@ -1203,6 +1203,9 @@ jobs:
           javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-stress-classes .github/scripts/AccessibilityStressTest.java
           $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-stress.jar a11y-stress-classes/*.class
 
+      - name: Build the Android support-mail probe
+        run: bash .github/scripts/build_android_support_mail_probe.sh
+
       # The Android 17 SDK and system image use android-37.0, not android-37.
       # Keep matrix.api-level = 37 for test names/artifacts but provide the
       # package identifier to the emulator runner when installing the SDK.
@@ -1295,6 +1298,17 @@ jobs:
             # tree is read without pause, then accessibility turned on and off 20 times
             sh .github/scripts/android_accessibility_stress_test.sh 40 20
 
+            # Keep the email integration test LAST: it intentionally opens an
+            # Android resolver / fake mail Activity and should not leave QZ's
+            # existing startup, Health Connect, orientation or a11y tests in a
+            # foreign task stack. No second QZ startup is needed afterward.
+            # Always capture the mail compose evidence upright even when the
+            # preexisting orientation tests leave the emulator sideways.
+            adb shell settings put system accelerometer_rotation 0 || true
+            adb shell settings put system user_rotation 0 || true
+            adb install -r support-mail-probe.apk
+            python3 .github/scripts/android_support_email_test.py
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -1317,6 +1331,7 @@ jobs:
             accessibility_stress_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
+            support_email_evidence/**
           if-no-files-found: warn                
 
   ios-build:

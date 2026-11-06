@@ -3770,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>คำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>ปัญหา QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>สวัสดี Roberto</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>ฉันต้องการความช่วยเหลือเกี่ยวกับ QZ</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>ปัญหา:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[โปรดอธิบายปัญหา]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>ลักษณะการทำงานที่คาดหวัง:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[โปรดอธิบายว่าควรเกิดอะไรขึ้น]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- การวินิจฉัย QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>เวอร์ชัน QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>แพลตฟอร์ม: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>โปรไฟล์: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>อุปกรณ์: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>เชื่อมต่อแล้ว</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>การเชื่อมต่อ: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>ความเร็ว: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>ไม่พร้อมใช้งาน</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>กำลัง: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>สถานการณ์ที่ตรวจพบ: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>ไม่ได้เลือกบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>ปิดการบันทึกการดีบักอยู่ โปรดเปิดการบันทึกและเริ่ม QZ ใหม่ก่อนทำซ้ำปัญหา</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>ไม่พบบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>ไม่มีบันทึกการดีบักหรือมีขนาดใหญ่เกินกว่าจะเตรียมได้</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>แนบบันทึกการดีบักแล้ว (gzip)</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>เขียนไฟล์แนบบันทึกการดีบักไม่ได้</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>บีบอัดบันทึกการดีบักไม่ได้ หรือไฟล์แนบมีขนาดเกิน 10 MB</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>โปรดแนบบันทึกการดีบักที่สร้างขึ้นด้วยตนเอง</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>ไม่พบอุปกรณ์</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ไม่สามารถเปิดแอปอีเมลได้</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9004,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>ติดต่อฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>เตรียมอีเมลถึงฝ่ายสนับสนุนพร้อมข้อมูลการวินิจฉัย</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>ไม่มีอุปกรณ์เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>ความเร็วและกำลังเป็นศูนย์</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>ฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>เสร็จสิ้น</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>ซ่อนแป้นพิมพ์</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>ปิดคำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>แจ้งเราว่าส่วนใดใช้งานไม่ได้ QZ จะเพิ่มข้อมูลอุปกรณ์และแอปของคุณ</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>อธิบายปัญหา...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>อธิบายปัญหา</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>แนบบันทึกการดีบักหากมี</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>คุณตรวจสอบหรือแก้ไขอีเมลก่อนส่งได้ ระบบจะไม่ส่งอะไรโดยอัตโนมัติ</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ยกเลิก</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>เปิดอีเมล</translation>
     </message>
 </context>
 </TS>

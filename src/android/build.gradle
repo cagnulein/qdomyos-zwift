@@ -130,7 +130,9 @@ android {
             jniLibs.srcDirs = ['libs']
         }
         debug {
-            java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/debug/out"]
+            java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/debug/out", 'tests/support/java']
+            // CI-only native SupportEmail entry point. Never packaged in release builds.
+            manifest.srcFile 'tests/support/AndroidManifest.xml'
         }
         release {
             java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/release/out"]

@@ -3858,6 +3858,126 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ працює</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Запит до служби підтримки</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Проблема QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Вітаю, Роберто!</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Мені потрібна допомога з QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Проблема:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Опишіть проблему]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Очікувана поведінка:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Опишіть, що мало б статися]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Діагностика QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Версія QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Платформа: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Профіль: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Пристрій: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Підключено</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не підключено</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>З’єднання: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Швидкість: %1 км/год</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Недоступно</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Потужність: %1 Вт</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Виявлена ситуація: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Журнал налагодження не запитувався.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Журнал налагодження вимкнено. Увімкніть його та перезапустіть QZ перед відтворенням проблеми.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Журнал налагодження не знайдено.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Журнал налагодження недоступний або завеликий для підготовки.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Журнал налагодження додано (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Не вдалося записати вкладення журналу налагодження.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Не вдалося стиснути журнал або вкладення перевищує 10 МБ.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Додайте створений журнал налагодження вручну</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Пристрій не виявлено</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Не вдалося відкрити поштову програму</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9231,6 +9351,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>Макс. Вт/кг</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Зв’язатися зі службою підтримки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Підготувати лист до підтримки з діагностичними даними</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Пристрій не підключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Швидкість і потужність дорівнюють нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Підтримка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Сховати клавіатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрити запит до підтримки</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишіть, що не працює. QZ додасть відомості про пристрій і застосунок.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишіть проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Опис проблеми</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Додати журнал налагодження, якщо він доступний</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перш ніж надсилати лист, ви можете переглянути або відредагувати його. Він не надсилається автоматично.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Відкрити пошту</translation>
     </message>
 </context>
 </TS>

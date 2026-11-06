@@ -3825,6 +3825,126 @@ Det kan ta en stund vid första starten.</translation>
         <source>Spotify songs:</source>
         <translation>Spotify-låtar:</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Supportförfrågan</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-problem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hej Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Jag behöver hjälp med QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beskriv problemet]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Förväntat beteende:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beskriv vad som borde hända]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnostik ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-version: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plattform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Enhet: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Ansluten</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Inte ansluten</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Anslutning: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hastighet: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Inte tillgänglig</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Effekt: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Upptäckt situation: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Felsökningsloggen begärdes inte.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Felsökningsloggen är inaktiverad. Aktivera loggning och starta om QZ innan du återskapar problemet.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Ingen felsökningslogg hittades.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Felsökningsloggen är inte tillgänglig eller för stor för att förberedas.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Felsökningslogg bifogad (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Det gick inte att skriva felsökningsloggens bilaga.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Det gick inte att komprimera loggen eller så är bilagan större än 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Bifoga den skapade felsökningsloggen manuellt</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhet upptäcktes</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Det gick inte att öppna ett e-postprogram</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -9186,6 +9306,69 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maxwatt/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakta QZ-supporten</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Förbered ett supportmejl med diagnostikuppgifter</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet är ansluten</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet och effekt är noll</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Klart</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Dölj tangentbordet</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Stäng supportärendet</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Berätta vad som inte fungerar. QZ lägger till information om enheten och appen.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Bifoga felsökningslogg om den finns</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan granska eller redigera mejlet innan du skickar det. Inget skickas automatiskt.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Öppna e-post</translation>
     </message>
 </context>
 </TS>
