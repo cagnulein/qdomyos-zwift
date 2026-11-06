@@ -55,7 +55,8 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnFitImportStarted();
     // TalkBack put its focus on this accessible object: scroll it into view
     private static native void nativeScrollToAccessibleObject(int id);
-    // TalkBack's double tap on this accessible object: true when it is a button Qt presses
+    // TalkBack's double tap on this accessible object: true when QZ pressed it (a Qt button with
+    // the space key, anything else with its press or toggle action)
     private static native boolean nativeAccessibleClick(int id);
 
     private void dispatchOAuthCallback(Intent intent) {
@@ -202,11 +203,15 @@ public class CustomQtActivity extends QtActivity {
     // stops on an item below the screen, its frame is drawn off screen and a double tap misses it.
     // On such a focus Qt is asked to scroll the item into view (nativeScrollToAccessibleObject),
     // and once it did, accessibilityTreeChanged() lets TalkBack read the new positions.
-    // A double tap on a button is pressed by nativeAccessibleClick (Qt 5.15 does nothing for a
-    // button and answers false, after which TalkBack taps the middle of the node). TalkBack gets
-    // true, a clicked event and a tree refresh for what the press opened or added (TalkBack 17
-    // does not say a new switch state from the event: it says the state when the switch is
-    // touched again). Anything else goes to Qt, as before.
+    // A double tap on a node is answered by nativeAccessibleClick, not by Qt: Qt 5.15.0 answers
+    // false after the press of an item that is not a button and does nothing for a button, and on
+    // false TalkBack taps the middle of the node too. When it pressed the node, TalkBack gets true,
+    // a clicked event (when the node is still there) and a tree refresh for what the press opened
+    // or added (TalkBack 17 does not say a new switch state from the event: it says the state when
+    // the switch is touched again);
+    // the event is sent later, as Qt reading the node for it right away would wait for the press,
+    // past the 5 s Android waits for the answer. When it did not, false is answered and TalkBack's
+    // tap is the press. Other actions go to Qt.
     // A value control of Qt (a spin box, a slider: an item with scroll actions and no children)
     // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
@@ -247,12 +252,13 @@ public class CustomQtActivity extends QtActivity {
                 try {
                     pressed = nativeAccessibleClick(virtualViewId);
                 } catch (UnsatisfiedLinkError e) {
-                    pressed = false;
+                    // QZ's library not loaded yet: Qt answers as before
+                    return qt.performAction(virtualViewId, action, arguments);
                 }
                 if (pressed) {
                     afterClick(virtualViewId);
-                    return true;
                 }
+                return pressed;
             }
             boolean handled = qt.performAction(virtualViewId, action, arguments);
             if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS && virtualViewId != View.NO_ID) {
