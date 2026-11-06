@@ -9158,4 +9158,67 @@ Standaard: A = -0.96, B = 1.33</translation>
         <translation>Max. W/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contact opnemen met QZ-ondersteuning</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Een ondersteuningsmail met diagnostische gegevens voorbereiden</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Geen apparaat verbonden</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Snelheid en vermogen zijn nul</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-ondersteuning</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gereed</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Toetsenbord verbergen</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Ondersteuningsverzoek sluiten</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Vertel ons wat niet werkt. QZ voegt informatie over je apparaat en de app toe.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beschrijf het probleem...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beschrijf het probleem</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Debuglog bijvoegen indien beschikbaar</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Je kunt de e-mail bekijken of bewerken voordat je deze verstuurt. Er wordt niets automatisch verzonden.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-mail openen</translation>
+    </message>
+</context>
 </TS>
