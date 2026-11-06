@@ -3919,6 +3919,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Додайте створений журнал налагодження вручну</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Пристрій не виявлено</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Не вдалося відкрити поштову програму</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
