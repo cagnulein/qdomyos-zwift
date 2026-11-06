@@ -969,6 +969,9 @@ jobs:
           javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
           $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
 
+      - name: Build the Android support-mail probe
+        run: bash .github/scripts/build_android_support_mail_probe.sh
+
       # The Android 17 SDK and system image use android-37.0, not android-37.
       # Keep matrix.api-level = 37 for test names/artifacts but provide the
       # package identifier to the emulator runner when installing the SDK.
@@ -1029,6 +1032,18 @@ jobs:
             # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
             sh .github/scripts/android_app_start_test.sh
 
+            # Real end-to-end Android email handoff on every matrix API:
+            # QZ debug Activity -> production SupportEmail.java -> Android chooser ->
+            # separate fake email app -> recipient/body/subject/URI/permission/gzip checks.
+            # Nothing is sent over the network. Do not ignore failures.
+            adb install -r support-mail-probe.apk
+            python3 .github/scripts/android_support_email_test.py
+
+            # The support probe opens a different Activity/chooser; return to the
+            # normal QZ home screen for the pre-existing orientation/a11y tests.
+            adb shell am force-stop org.cagnulen.qdomyoszwift
+            sh .github/scripts/android_app_start_test.sh
+
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
@@ -1077,6 +1092,7 @@ jobs:
             accessibility_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
+            support_email_evidence/**
           if-no-files-found: warn                
 
   ios-build:
