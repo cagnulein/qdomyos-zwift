@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Liên hệ bộ phận hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Soạn email hỗ trợ kèm thông tin chẩn đoán</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Chưa kết nối thiết bị</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Tốc độ và công suất bằng không</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Hỗ trợ QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Xong</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ẩn bàn phím</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Đóng yêu cầu hỗ trợ</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Hãy cho chúng tôi biết điều gì không hoạt động. QZ sẽ thêm thông tin về thiết bị và ứng dụng.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Mô tả sự cố...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Mô tả sự cố</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Đính kèm nhật ký gỡ lỗi nếu có</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Bạn có thể xem lại hoặc chỉnh sửa email trước khi gửi. Không có gì được gửi tự động.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Hủy</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Mở email</translation>
+    </message>
+</context>
 </TS>
