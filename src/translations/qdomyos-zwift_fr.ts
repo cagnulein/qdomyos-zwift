@@ -3815,6 +3815,118 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ est en cours d&apos;exécution</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Demande d’assistance</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problème QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Bonjour Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>J’ai besoin d’aide avec QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problème :</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Décrivez le problème]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportement attendu :</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Décrivez ce qui devrait se passer]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostic QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Version de QZ : %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plateforme : %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil : %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Appareil : %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Connecté</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Non connecté</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Connexion : %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Vitesse : %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponible</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Puissance : %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situation détectée : %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Journal de débogage non demandé.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Le journal de débogage est désactivé. Activez-le et redémarrez QZ avant de reproduire le problème.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Aucun journal de débogage trouvé.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Journal de débogage indisponible ou trop volumineux pour être préparé.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Journal de débogage joint (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Impossible d’écrire la pièce jointe du journal de débogage.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Impossible de compresser le journal ou la pièce jointe dépasse 10 Mo.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Veuillez joindre manuellement le journal de débogage généré</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
