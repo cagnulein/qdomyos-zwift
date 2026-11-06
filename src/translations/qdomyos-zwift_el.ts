@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Επικοινωνία με την υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Προετοιμασία email υποστήριξης με διαγνωστικά στοιχεία</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Δεν υπάρχει συνδεδεμένη συσκευή</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Η ταχύτητα και η ισχύς είναι μηδενικές</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Τέλος</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Απόκρυψη πληκτρολογίου</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Κλείσιμο αιτήματος υποστήριξης</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Πείτε μας τι δεν λειτουργεί. Το QZ θα προσθέσει πληροφορίες για τη συσκευή και την εφαρμογή σας.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Περιγράψτε το πρόβλημα...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Περιγράψτε το πρόβλημα</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Επισύναψη αρχείου καταγραφής εντοπισμού σφαλμάτων, αν υπάρχει</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Μπορείτε να ελέγξετε ή να επεξεργαστείτε το email πριν το στείλετε. Δεν αποστέλλεται τίποτα αυτόματα.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Άνοιγμα email</translation>
+    </message>
+</context>
 </TS>
