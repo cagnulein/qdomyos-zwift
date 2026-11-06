@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Hubungi dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Siapkan email dukungan dengan data diagnostik</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Tidak ada perangkat yang terhubung</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Kecepatan dan daya bernilai nol</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Selesai</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Sembunyikan keyboard</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Tutup permintaan dukungan</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Beri tahu kami apa yang tidak berfungsi. QZ akan menambahkan informasi perangkat dan aplikasi Anda.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Jelaskan masalahnya...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Jelaskan masalah</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Lampirkan log debug jika tersedia</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Anda dapat meninjau atau mengedit email sebelum mengirimnya. Tidak ada yang dikirim secara otomatis.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Batal</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Buka email</translation>
+    </message>
+</context>
 </TS>
