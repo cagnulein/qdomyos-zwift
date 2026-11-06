@@ -658,7 +658,7 @@ jobs:
         run: |
           cd src
           macdeployqt qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -verbose=2
-          bash .github/scripts/macos_hdiutil_create_with_retry.sh hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Intel' -format UDZO -ov qdomyos-zwift.dmg
+          bash "$GITHUB_WORKSPACE/.github/scripts/macos_hdiutil_create_with_retry.sh" hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Intel' -format UDZO -ov qdomyos-zwift.dmg
           test -f qdomyos-zwift.app/Contents/Frameworks/QtHttpServer.framework/Versions/5/QtHttpServer
           test -s qdomyos-zwift.dmg
           mkdir -p ../dist
