@@ -2061,7 +2061,7 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
         tr("Power: %1 W").arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : tr("Not available")),
         tr("Detected situation: %1").arg(issue)
     };
-    QString body = bodyLines.join(QLatin1Char('\\n')) + QLatin1Char('\\n');
+    QString body = bodyLines.join(QLatin1Char('\n')) + QLatin1Char('\n');
 
     // Never send anything automatically: the user reviews the native compose screen.
     // Reuse the same gzip format as the existing workout-summary email, but keep a
