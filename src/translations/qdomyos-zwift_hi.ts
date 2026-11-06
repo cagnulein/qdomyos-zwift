@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>बनाया गया डिबग लॉग मैन्युअल रूप से संलग्न करें</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>कोई डिवाइस नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ईमेल ऐप नहीं खोला जा सका</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
