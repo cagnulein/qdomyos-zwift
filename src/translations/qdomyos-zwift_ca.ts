@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Adjunta manualment el registre de depuració generat</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>No s’ha detectat cap dispositiu</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>No s’ha pogut obrir cap aplicació de correu electrònic</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
