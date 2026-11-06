@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>ติดต่อฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>เตรียมอีเมลถึงฝ่ายสนับสนุนพร้อมข้อมูลการวินิจฉัย</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>ไม่มีอุปกรณ์เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>ความเร็วและกำลังเป็นศูนย์</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>ฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>เสร็จสิ้น</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>ซ่อนแป้นพิมพ์</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>ปิดคำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>แจ้งเราว่าส่วนใดใช้งานไม่ได้ QZ จะเพิ่มข้อมูลอุปกรณ์และแอปของคุณ</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>อธิบายปัญหา...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>อธิบายปัญหา</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>แนบบันทึกการดีบักหากมี</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>คุณตรวจสอบหรือแก้ไขอีเมลก่อนส่งได้ ระบบจะไม่ส่งอะไรโดยอัตโนมัติ</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ยกเลิก</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>เปิดอีเมล</translation>
+    </message>
+</context>
 </TS>
