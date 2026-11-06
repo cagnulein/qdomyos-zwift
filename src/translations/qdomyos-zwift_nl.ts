@@ -3807,6 +3807,118 @@ Bij de eerste start kan dit even duren.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ is actief</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Ondersteuningsverzoek</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-probleem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hallo Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Ik heb hulp nodig met QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Probleem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beschrijf het probleem]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Verwacht gedrag:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beschrijf wat er zou moeten gebeuren]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnose ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versie: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profiel: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Apparaat: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Verbonden</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Niet verbonden</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Verbinding: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Snelheid: %1 km/u</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Niet beschikbaar</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Vermogen: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Gedetecteerde situatie: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Debuglog niet aangevraagd.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Debuglog is uitgeschakeld. Schakel loggen in en start QZ opnieuw voordat je het probleem reproduceert.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Geen debuglog gevonden.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Debuglog niet beschikbaar of te groot om voor te bereiden.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Debuglog bijgevoegd (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Het debuglogbestand kon niet worden geschreven.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Debuglog kon niet worden gecomprimeerd of de bijlage is groter dan 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Voeg het aangemaakte debuglog handmatig toe</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
