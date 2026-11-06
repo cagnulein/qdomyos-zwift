@@ -3886,6 +3886,14 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Vedhæft den genererede fejlfindingslog manuelt</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhed registreret</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kunne ikke åbne et e-mailprogram</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
