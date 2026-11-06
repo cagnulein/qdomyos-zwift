@@ -122,8 +122,10 @@ def main():
                         "--es", "scenario", scenario, timeout=55)
             if "Error" in start or "Exception" in start:
                 raise RuntimeError(f"Could not launch QZ test activity: {start}")
-            result = choose_mail_probe(scenario)
-            screenshot(scenario)
+            try:
+                result = choose_mail_probe(scenario)
+            finally:
+                screenshot(scenario)
             lines.append(f"{scenario}: {result}")
             print(f"  {result}", flush=True)
             if result != f"PASS {scenario} API={api}":
