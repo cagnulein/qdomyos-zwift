@@ -136,11 +136,13 @@ def main():
                 raise RuntimeError(f"Could not launch QZ test activity: {start}")
             try:
                 result = choose_mail_probe(scenario)
+                if not (EVIDENCE / f"{scenario}_01_android_chooser.png").is_file():
+                    raise RuntimeError("No Android chooser screenshot captured")
                 # The receiver writes result.txt only after setContentView().
-                # Give Android a frame to draw the readable email preview.
+                # Give Android time to render the actual email fields.
                 time.sleep(1.5)
                 if not screenshot(scenario, "02_email_compose_preview"):
-                    print("  WARNING: email preview screenshot unavailable", flush=True)
+                    raise RuntimeError("No Android email preview screenshot captured")
             except Exception:
                 screenshot(scenario, "99_failure")
                 raise
