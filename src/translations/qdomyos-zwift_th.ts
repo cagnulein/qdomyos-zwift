@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>คำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>ปัญหา QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>สวัสดี Roberto</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>ฉันต้องการความช่วยเหลือเกี่ยวกับ QZ</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>ปัญหา:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[โปรดอธิบายปัญหา]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>ลักษณะการทำงานที่คาดหวัง:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[โปรดอธิบายว่าควรเกิดอะไรขึ้น]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- การวินิจฉัย QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>เวอร์ชัน QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>แพลตฟอร์ม: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>โปรไฟล์: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>อุปกรณ์: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>เชื่อมต่อแล้ว</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>การเชื่อมต่อ: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>ความเร็ว: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>ไม่พร้อมใช้งาน</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>กำลัง: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>สถานการณ์ที่ตรวจพบ: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>ไม่ได้เลือกบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>ปิดการบันทึกการดีบักอยู่ โปรดเปิดการบันทึกและเริ่ม QZ ใหม่ก่อนทำซ้ำปัญหา</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>ไม่พบบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>ไม่มีบันทึกการดีบักหรือมีขนาดใหญ่เกินกว่าจะเตรียมได้</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>แนบบันทึกการดีบักแล้ว (gzip)</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>เขียนไฟล์แนบบันทึกการดีบักไม่ได้</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>บีบอัดบันทึกการดีบักไม่ได้ หรือไฟล์แนบมีขนาดเกิน 10 MB</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>โปรดแนบบันทึกการดีบักที่สร้างขึ้นด้วยตนเอง</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
