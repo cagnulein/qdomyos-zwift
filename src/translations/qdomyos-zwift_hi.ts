@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ सहायता से संपर्क करें</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>निदान जानकारी के साथ सहायता ईमेल तैयार करें</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>कोई डिवाइस कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>गति और पावर शून्य हैं</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ सहायता</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>हो गया</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>कीबोर्ड छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>सहायता अनुरोध बंद करें</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>हमें बताएँ कि क्या काम नहीं कर रहा। QZ आपके डिवाइस और ऐप की जानकारी जोड़ देगा।</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>समस्या बताएँ...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>समस्या बताएँ</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>उपलब्ध होने पर डिबग लॉग संलग्न करें</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>भेजने से पहले आप ईमेल की समीक्षा या संपादन कर सकते हैं। कुछ भी अपने आप नहीं भेजा जाता।</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>ईमेल खोलें</translation>
+    </message>
+</context>
 </TS>
