@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Liitä luotu virheloki manuaalisesti</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Laitetta ei havaittu</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Sähköpostisovellusta ei voitu avata</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
