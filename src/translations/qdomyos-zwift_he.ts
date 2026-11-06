@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>בקשת תמיכה</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>בעיה ב‑QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>שלום Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>אני זקוק לעזרה עם QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>בעיה:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[תארו את הבעיה]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>התנהגות צפויה:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[תארו מה אמור לקרות]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- אבחון QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>גרסת QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>פלטפורמה: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>פרופיל: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>מכשיר: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>מחובר</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>לא מחובר</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>חיבור: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>מהירות: %1 קמ״ש</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>לא זמין</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>הספק: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>מצב שזוהה: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>לא התבקשה רשומת ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>רישום ניפוי השגיאות מושבת. הפעילו אותו והפעילו מחדש את QZ לפני שחזור הבעיה.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>לא נמצאה רשומת ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>רשומת ניפוי השגיאות אינה זמינה או גדולה מדי להכנה.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>רשומת ניפוי השגיאות צורפה (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>לא ניתן לכתוב את קובץ רשומת ניפוי השגיאות המצורף.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>לא ניתן לדחוס את רשומת ניפוי השגיאות או שהקובץ המצורף גדול מ‑10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>צרפו ידנית את רשומת ניפוי השגיאות שנוצרה</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
