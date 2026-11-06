@@ -2394,7 +2394,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 DRUMFIT = true;
                 max_resistance = 32;
                 resistance_lvl_mode = true;
-                ergModeSupported = false;
+                ergModeSupported = true;
             }
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
