@@ -3927,6 +3927,14 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Veuillez joindre manuellement le journal de débogage généré</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Aucun appareil détecté</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Impossible d’ouvrir une application de messagerie</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
