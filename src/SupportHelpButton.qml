@@ -179,7 +179,7 @@ Item {
                     id: includeDebugLog
                     width: parent.width
                     text: qsTr("Attach debug log if available")
-                    checked: true
+                    checked: false
                     Accessible.name: text
                 }
 
