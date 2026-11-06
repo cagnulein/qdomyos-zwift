@@ -3886,6 +3886,14 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Legg ved den genererte feilsøkingsloggen manuelt</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhet oppdaget</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kan ikke åpne et e-postprogram</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
