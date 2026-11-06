@@ -63,6 +63,15 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
+  private var garminPowerServiceAdded = false
+  private var garminCSCServiceAdded = false
+  // The Garmin CSC sensor reports the speed already calculated by QZ.
+  // The matching wheel circumference (2,130 mm) must be configured on the watch.
+  private let garminWheelCircumferenceMeters = 2.13
+  private var garminWheelDistanceMeters: Double = 0
+  private var garminWheelRevolutions: UInt32 = 0
+  private var garminLastWheelEventTime: UInt16 = 0
+  private var garminLastWheelUpdateUptime: TimeInterval?
   private var tacx: Bool = false
   private var zwift_play_emulator: Bool = false
   private var watt_bike_emulator: Bool = false
@@ -210,14 +219,16 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                      TrainingStatusCharacteristic ]
             
             self.peripheralManager.add(FitnessMachineService)
-            
+        }
+
+            // CSC must also be available in Garmin sensor mode (speed and cadence).
             self.CSCService = CBMutableService(type: CSCServiceUUID, primary: true)
             
             let CSCFeatureProperties: CBCharacteristicProperties = [.read]
             let CSCFeaturePermissions: CBAttributePermissions = [.readable]
             self.CSCFeatureCharacteristic = CBMutableCharacteristic(type: CSCFeatureCharacteristicUUID,
                                                                     properties: CSCFeatureProperties,
-                                                                    value: Data (bytes: [0x02, 0x00]),
+                                                                    value: Data(bytes: [garmin_bluetooth_compatibility ? 0x03 : 0x02, 0x00]),
                                                                     permissions: CSCFeaturePermissions)
             
             let SensorLocationProperties: CBCharacteristicProperties = [.read]
@@ -246,7 +257,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                           CSCMeasurementCharacteristic,
                                           SCControlPointCharacteristic]
             self.peripheralManager.add(CSCService)
-        }
+
         self.PowerService = CBMutableService(type: PowerServiceUUID, primary: true)
         
         let PowerFeatureProperties: CBCharacteristicProperties = [.read]
@@ -354,8 +365,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             
       
       if(garmin_bluetooth_compatibility) {
+          if service.uuid == PowerServiceUUID { garminPowerServiceAdded = true }
+          if service.uuid == CSCServiceUUID { garminCSCServiceAdded = true }
+          // Wait for both services so Garmin sees the complete GATT database.
+          guard garminPowerServiceAdded && garminCSCServiceAdded else { return }
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
+                                   CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID, CSCServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else if(tacx) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "Tacx Neo 17867",
@@ -409,7 +424,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
     if let value = requests.first?.value {
           let hexString = value.map { String(format: "%02x", $0) }.joined(separator: " ")
-        let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString + " " + ((requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic) ? "FTMS" : "NOFTMS") + " " + String(describing: self.FitnessMachineControlPointCharacteristic) + " " + self.FitnessMachineControlPointCharacteristic.uuid.uuidString + " " + requests.first!.characteristic.uuid.uuidString
+        let debugMessage = "virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.characteristic) + " " + hexString + " " + ((requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic) ? "FTMS" : "NOFTMS") + " " + String(describing: self.FitnessMachineControlPointCharacteristic) + " " + (self.FitnessMachineControlPointCharacteristic?.uuid.uuidString ?? "none") + " " + requests.first!.characteristic.uuid.uuidString
           SwiftDebug.qtDebug(debugMessage)
     }      
 
@@ -438,6 +453,30 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let responseData = Data(bytes: &response, count: 3)
           
         self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
+    } else if requests.first!.characteristic == self.SCControlPointCharacteristic {
+        let request = requests.first!
+        let value = [UInt8](request.value ?? Data())
+        guard let opcode = value.first else {
+            peripheral.respond(to: request, withResult: .invalidAttributeValueLength)
+            return
+        }
+
+        var result: UInt8 = 0x02 // Op Code Not Supported
+        if opcode == 0x01 { // Set Cumulative Value (mandatory for wheel data)
+            if value.count == 5 {
+                let count = UInt32(value[1]) | (UInt32(value[2]) << 8) |
+                            (UInt32(value[3]) << 16) | (UInt32(value[4]) << 24)
+                garminWheelRevolutions = count
+                garminWheelDistanceMeters = Double(count) * garminWheelCircumferenceMeters
+                result = 0x01 // Success
+            } else {
+                result = 0x03 // Invalid Parameter
+            }
+        }
+        peripheral.respond(to: request, withResult: .success)
+        peripheral.updateValue(Data([0x10, opcode, result]),
+                               for: self.SCControlPointCharacteristic,
+                               onSubscribedCentrals: [request.central])
     } else if requests.first!.characteristic == ZwiftPlayWriteCharacteristic && zwift_play_emulator {
         let receivedData = requests.first!.value ?? Data()
       let expectedHexArray: [UInt8] = [0x52, 0x69, 0x64, 0x65, 0x4F, 0x6E, 0x02]
@@ -762,12 +801,46 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     self.startSendingDataToSubscribers()
   }
 
+    private func updateGarminWheelMeasurement() {
+        let now = ProcessInfo.processInfo.systemUptime
+        defer { garminLastWheelUpdateUptime = now }
+        guard let previous = garminLastWheelUpdateUptime else { return }
+
+        // Avoid inventing distance after iOS suspends QZ in the background.
+        let elapsed = min(max(now - previous, 0), 1.0)
+        let speedMetersPerSecond = (Double(NormalizeSpeed) / 100.0) / 3.6
+        garminWheelDistanceMeters += speedMetersPerSecond * elapsed
+        let revolutions = UInt32(garminWheelDistanceMeters / garminWheelCircumferenceMeters)
+        if revolutions != garminWheelRevolutions {
+            garminWheelRevolutions = revolutions
+            // CSC event time uses a wrapping 1/1024-second clock.
+            garminLastWheelEventTime = UInt16((now * 1024.0).truncatingRemainder(dividingBy: 65536.0))
+        }
+    }
+
     func calculateCadence() -> Data {
-        let flags:UInt8 = 0x02
-      //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var cadence: [UInt8] = [flags, (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
-      let cadenceData = Data(bytes: &cadence, count: cadence.count)
-      return cadenceData
+        if garmin_bluetooth_compatibility {
+            updateGarminWheelMeasurement()
+            // CSC flags: both wheel (bit 0) and crank (bit 1) are present.
+            return Data([0x03,
+                         UInt8(truncatingIfNeeded: garminWheelRevolutions),
+                         UInt8(truncatingIfNeeded: garminWheelRevolutions >> 8),
+                         UInt8(truncatingIfNeeded: garminWheelRevolutions >> 16),
+                         UInt8(truncatingIfNeeded: garminWheelRevolutions >> 24),
+                         UInt8(truncatingIfNeeded: garminLastWheelEventTime),
+                         UInt8(truncatingIfNeeded: garminLastWheelEventTime >> 8),
+                         UInt8(truncatingIfNeeded: crankRevolutions),
+                         UInt8(truncatingIfNeeded: crankRevolutions >> 8),
+                         UInt8(truncatingIfNeeded: lastCrankEventTime),
+                         UInt8(truncatingIfNeeded: lastCrankEventTime >> 8)])
+        }
+        // Preserve the existing crank-only CSC format for other virtual bikes.
+        let flags: UInt8 = 0x02
+        var cadence: [UInt8] = [flags, UInt8(crankRevolutions & 0xFF),
+                                UInt8((crankRevolutions >> 8) & 0xFF),
+                                UInt8(lastCrankEventTime & 0xFF),
+                                UInt8((lastCrankEventTime >> 8) & 0xFF)]
+        return Data(bytes: &cadence, count: cadence.count)
     }
     
     
@@ -869,7 +942,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     var WattBikeSequence: UInt8 = 0
     
   @objc func updateSubscribers() {
-      if(self.serviceToggle == 4 || garmin_bluetooth_compatibility || (self.serviceToggle == 3 && !zwift_play_emulator && !watt_bike_emulator))
+      if garmin_bluetooth_compatibility {
+          // Garmin can subscribe to power and CSC on the same BLE peripheral.
+          // Publish both every tick; the normal service round-robin stays unchanged.
+          _ = peripheralManager.updateValue(calculatePower(), for: PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
+          _ = peripheralManager.updateValue(calculateCadence(), for: CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+      } else if(self.serviceToggle == 4 || (self.serviceToggle == 3 && !zwift_play_emulator && !watt_bike_emulator))
       {
           let powerData = self.calculatePower()
           let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
