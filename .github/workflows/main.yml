@@ -1032,18 +1032,6 @@ jobs:
             # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
             sh .github/scripts/android_app_start_test.sh
 
-            # Real end-to-end Android email handoff on every matrix API:
-            # QZ debug Activity -> production SupportEmail.java -> Android chooser ->
-            # separate fake email app -> recipient/body/subject/URI/permission/gzip checks.
-            # Nothing is sent over the network. Do not ignore failures.
-            adb install -r support-mail-probe.apk
-            python3 .github/scripts/android_support_email_test.py
-
-            # The support probe opens a different Activity/chooser; return to the
-            # normal QZ home screen for the pre-existing orientation/a11y tests.
-            adb shell am force-stop org.cagnulen.qdomyoszwift
-            sh .github/scripts/android_app_start_test.sh
-
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
@@ -1070,6 +1058,13 @@ jobs:
             sh .github/scripts/android_app_start_test.sh
             sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
             sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+
+            # Keep the email integration test LAST: it intentionally opens an
+            # Android resolver / fake mail Activity and should not leave QZ's
+            # existing startup, Health Connect, orientation or a11y tests in a
+            # foreign task stack. No second QZ startup is needed afterward.
+            adb install -r support-mail-probe.apk
+            python3 .github/scripts/android_support_email_test.py
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
