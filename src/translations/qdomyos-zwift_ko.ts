@@ -3807,6 +3807,118 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ 실행 중</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>지원 요청</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 문제 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>안녕하세요 Roberto님,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZ에 대한 도움이 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>문제:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[문제를 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>예상 동작:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[어떻게 동작해야 하는지 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 진단 정보 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 버전: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>플랫폼: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>프로필: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>기기: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결되지 않음</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>연결 상태: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>속도: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>파워: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>감지된 상황: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>디버그 로그를 요청하지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>디버그 로그가 비활성화되어 있습니다. 문제를 재현하기 전에 로그를 켜고 QZ를 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>디버그 로그를 찾을 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>디버그 로그를 사용할 수 없거나 준비하기에 너무 큽니다.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>디버그 로그가 첨부되었습니다 (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>디버그 로그 첨부 파일을 쓸 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>디버그 로그를 압축하지 못했거나 첨부 파일이 10 MB를 초과합니다.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>생성된 디버그 로그를 직접 첨부하세요</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
