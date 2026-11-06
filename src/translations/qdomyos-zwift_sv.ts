@@ -9117,4 +9117,67 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Maxwatt/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakta QZ-supporten</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Förbered ett supportmejl med diagnostikuppgifter</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet är ansluten</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet och effekt är noll</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Klart</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Dölj tangentbordet</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Stäng supportärendet</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Berätta vad som inte fungerar. QZ lägger till information om enheten och appen.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Bifoga felsökningslogg om den finns</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan granska eller redigera mejlet innan du skickar det. Inget skickas automatiskt.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Öppna e-post</translation>
+    </message>
+</context>
 </TS>
