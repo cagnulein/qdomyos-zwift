@@ -3919,6 +3919,14 @@ Przy pierwszym uruchomieniu może to chwilę potrwać.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Załącz ręcznie wygenerowany dziennik debugowania</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nie wykryto urządzenia</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Nie można otworzyć aplikacji pocztowej</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
