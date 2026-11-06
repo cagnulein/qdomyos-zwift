@@ -3927,6 +3927,14 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Allega manualmente il log di debug generato</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nessun dispositivo rilevato</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Impossibile aprire un’applicazione email</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
