@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Entrar em contato com o suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar um e-mail de suporte com dados de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nenhum dispositivo conectado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Velocidade e potência estão zeradas</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fechar solicitação de suporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Conte o que não está funcionando. O QZ adicionará informações do seu dispositivo e do aplicativo.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descreva o problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descreva o problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Anexar log de depuração, se disponível</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Você pode revisar ou editar o e-mail antes de enviá-lo. Nada é enviado automaticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir e-mail</translation>
+    </message>
+</context>
 </TS>
