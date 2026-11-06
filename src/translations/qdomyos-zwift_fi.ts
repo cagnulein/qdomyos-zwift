@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Ota yhteyttä QZ-tukeen</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Valmistele tukisähköposti diagnostiikkatiedoilla</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Laitetta ei ole yhdistetty</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Nopeus ja teho ovat nollassa</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-tuki</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Valmis</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Piilota näppäimistö</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Sulje tukipyyntö</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Kerro, mikä ei toimi. QZ lisää laitteen ja sovelluksen tiedot.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Kuvaile ongelmaa...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Kuvaile ongelma</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Liitä virheloki, jos saatavilla</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Voit tarkistaa tai muokata sähköpostia ennen lähettämistä. Mitään ei lähetetä automaattisesti.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Avaa sähköposti</translation>
+    </message>
+</context>
 </TS>
