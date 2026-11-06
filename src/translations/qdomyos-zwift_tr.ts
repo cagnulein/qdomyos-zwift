@@ -3919,6 +3919,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Oluşturulan hata ayıklama günlüğünü manuel olarak ekleyin</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Cihaz algılanmadı</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Bir e-posta uygulaması açılamadı</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
