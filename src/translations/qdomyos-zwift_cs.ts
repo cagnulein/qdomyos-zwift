@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nalezen snímač tepu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Nalezené snímače tepu: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Připojit</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Vybrat</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Teď ne</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Už se neptat</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Vyberte snímač tepu</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Chcete zapnout požadované služby?</translation>
         <translation>Připojeno: %1 (snímač tepu)!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Hledání snímačů tepu…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Hledání: %1 (snímač tepu)…</translation>
     </message>
@@ -561,6 +596,10 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride připojen!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>V okolí nebyl nalezen žádný snímač tepu. Zkontrolujte, že je zapnutý a vysílá tep.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1296,6 +1335,10 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Other folders</source>
         <translation>Další složky</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Obnovit programy</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2742,6 +2785,10 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Všechny soubory (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Nahrát do Stravy</translation>
     </message>
@@ -3493,6 +3540,18 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <translation>Importováno tréninků: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Soubor nelze zkopírovat do složky QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Obnoveno tréninkových programů: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Tréninkové programy z předchozí instalace nebyly nalezeny.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Již v historii: %1.</translation>
     </message>
@@ -3637,6 +3696,14 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Soubor FIT tohoto tréninku se nepodařilo sdílet</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3947,6 +4014,10 @@ Spustit ho nyní?</translation>
         <translation>Hledat v nastavení</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
@@ -4046,6 +4117,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Tréninky z předchozí instalace mohou být stále ve složce QZ.
+Vyhledat je?
+
+V dalším okně povolte přístup ke složce QZ.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Tréninkové programy</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Tréninkové programy z předchozí instalace mohou být stále ve složce QZ.
 Vyhledat je?
 
 V dalším okně povolte přístup ke složce QZ.</translation>
@@ -4450,6 +4535,70 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
         <translation>Jazyk aplikace:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Nastavení, jak se sklon z virtuální aplikace převádí na odpor kola.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Použít vlastní převod, když QZ převádí sklon z virtuální aplikace na odpor.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Jedna dvojice sklon|odpor na řádek. Mezi body QZ hodnoty dopočítá a mimo nastavený rozsah použije krajní bod.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Uživatelské jméno účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Heslo účtu Life Fitness pro přihlášení ke službě. Ukládá se jen v zařízení a nikdy se nezapisuje do ladicích protokolů.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuální úhel kamery</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuální emoce</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulátor Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Pozice grafu výkonu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Pozice grafu tepu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Pozice grafu odporu a cílového odporu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Pozice grafu odporu Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Pozice grafu kadence</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Pozice grafu rozložení výkonu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Pozice grafu rychlosti a sklonu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Pořadí tohoto grafu v historii tréninků. Pořadí změníte tlačítky nahoru a dolů v Obecných možnostech rozhraní.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Zvolte „Auto“ pro jazyk zařízení, nebo vyberte konkrétní jazyk QZ.</translation>
     </message>
@@ -4608,6 +4757,14 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     <message>
         <source>Refresh Devices List</source>
         <translation>Obnovit seznam zařízení</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Hledat snímač tepu po spuštění</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Během prvních 5 minut po připojení trenažéru, dokud nepřichází tep, hledá QZ jednou za minutu snímač tepu: vybraný snímač připojí, jakmile ho najde, a když není žádný vybrán, nabídne snímač nalezený poblíž. Klepnutím na dlaždici tepu nebo na ikonu Bluetooth na hlavní stránce lze hledat kdykoli.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7292,6 +7449,14 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Hidden on its page right now: change it here</source>
         <translation>Na své stránce je teď skryto: změňte to zde</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Zapnuto</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Na své stránce je při současném nastavení skryto</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>

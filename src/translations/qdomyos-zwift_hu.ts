@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulzusmérő található: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Talált pulzusmérők: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Csatlakoztatás</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Kiválasztás</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Most nem</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ne kérdezze újra</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Válasszon pulzusmérőt</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -533,6 +564,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride csatlakoztatva!</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Pulzusmérők keresése...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nem található pulzusmérő a közelben. Ellenőrizze, hogy be van-e kapcsolva, és sugározza-e a pulzust.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1268,6 +1307,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Programok visszaállítása</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2714,6 +2757,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Minden fájl (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Feltöltés a Stravára</translation>
     </message>
@@ -3465,6 +3512,18 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Importált edzések: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>A fájlt nem sikerült a QZ-mappába másolni.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Visszaállított edzésprogramok: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Nem található edzésprogram egy korábbi telepítésből.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Már az előzményekben: %1.</translation>
     </message>
@@ -3609,6 +3668,14 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Az edzés FIT-fájlját nem sikerült megosztani</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3914,6 +3981,10 @@ Szeretné most elindítani?</translation>
         <translation>Keresés a beállításokban</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
@@ -4014,6 +4085,20 @@ Do you want to look for them?
 In the next window, allow access to the QZ folder.</source>
         <translation>Előfordulhat, hogy egy korábbi telepítés edzései még a QZ-mappában vannak.
 Szeretné megkeresni őket?
+
+A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Edzésprogramok</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
+Megkeresi őket?
 
 A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
     </message>
@@ -4409,6 +4494,70 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
         <translation>Alkalmazás nyelve:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Beállítja, hogyan alakul át a virtuális alkalmazás emelkedése a kerékpár ellenállásává.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Egyéni megfeleltetés használata, amikor a QZ a virtuális alkalmazás emelkedését ellenállássá alakítja.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Soronként egy emelkedés|ellenállás pár. A QZ a pontok között interpolál, a beállított tartományon kívül a végpontot használja.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>A Life Fitness-fiók felhasználóneve a szolgáltatásba való bejelentkezéshez. Csak az eszközön tárolódik, és soha nem kerül a hibakeresési naplókba.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>A Life Fitness-fiók jelszava a szolgáltatásba való bejelentkezéshez. Csak az eszközön tárolódik, és soha nem kerül a hibakeresési naplókba.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Aktuális kameraszög</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Aktuális emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulátor</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Teljesítménydiagram helye</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Pulzusdiagram helye</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Ellenállás és célellenállás diagram helye</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton-ellenállás diagram helye</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadenciadiagram helye</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Teljesítményeloszlás-diagram helye</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Sebesség és emelkedés diagram helye</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>A diagram sorszáma az edzéselőzményekben. A sorrend a felület általános beállításaiban, a fel és le gombokkal módosítható.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Az Automatikus az eszköz nyelvét követi, de konkrét nyelvet is választhat a QZ-hez.</translation>
     </message>
@@ -4567,6 +4716,14 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     <message>
         <source>Refresh Devices List</source>
         <translation>Eszközlista frissítése</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Pulzusmérő keresése induláskor</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Az edzőgép csatlakozása utáni első 5 percben, amíg nem érkezik pulzus, a QZ percenként egyszer pulzusmérőt keres: a kiválasztottat azonnal csatlakoztatja, amint megtalálja, ha pedig nincs kiválasztva, felajánl egyet a közelből. A kezdőlapon a pulzus csempéjének vagy a Bluetooth ikonnak a megérintése bármikor keresést indít.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7227,6 +7384,14 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>Hidden on its page right now: change it here</source>
         <translation>Jelenleg rejtve van a saját oldalán: itt módosítható.</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Be</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>A saját oldalán rejtve a jelenlegi beállításokkal</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>

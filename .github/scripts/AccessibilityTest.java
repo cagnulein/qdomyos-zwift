@@ -7,6 +7,8 @@
 // - moves the accessibility focus over the app's nodes; each one must take it,
 // - presses the given buttons in turn (QZ presses a Qt button itself, nativeAccessibleClick, and
 //   answers true; Qt 5.15 alone answers false for a button) and checks what each press shows.
+//   An item that is not a Qt button with Accessible.onPressAction must answer true too (Qt 5.15.0
+//   answers false although it ran the press, and TalkBack then taps the item a second time).
 // Every line it prints starts with OK, FAIL or INFO; the last one is DONE.
 //
 //   CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest [--scroll] <press> [<press> ...]
@@ -247,14 +249,16 @@ public class AccessibilityTest {
             return false;
         }
         boolean handled = target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        // QZ answers false when its Qt thread is busy for 2 s, as it can be just after a device
-        // connected, and Qt's own press may still run: again for 10 s, unless that one worked
+        // QZ answers false when its Qt thread is busy for 3 s, as it can be just after a device
+        // connected, and then presses nothing: again for 10 s. TalkBack taps the middle of a node
+        // it got false for, so a press that ran although false was answered would run twice
         for (int i = 0; i < 10 && !handled; i++) {
             System.out.println("INFO press refused: " + describe(target) + " enabled=" + target.isEnabled()
                     + " visible=" + target.isVisibleToUser());
             Thread.sleep(1000);
             if (expect != null && find(expect, false) != null) {
-                handled = true;
+                System.out.println("FAIL pressed '" + button + "', but QZ answered false: TalkBack would press it again");
+                return false;
             } else {
                 AccessibilityNodeInfo again = find(button, true);
                 if (again != null) {

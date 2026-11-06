@@ -581,6 +581,238 @@ jobs:
 #        run: cd src; qmake; make -j4
 
 
+  macos-intel-build:
+    # Build the macOS trial on an actual Intel host; daily release and manual runs
+    # publish the DMG. Limit PR runs to this initial integration branch.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'ci/macos-intel-nightly-dmg-trial'
+    runs-on: macos-15-intel
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      QT_MAC_VERSION: '5.15.19'
+    steps:
+      - name: Checkout with project submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install native Qt 5 for Intel macOS
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "x86_64"
+          brew install qt@5
+          QT_DIR="$(brew --prefix qt@5)"
+          echo "QT_ROOT_DIR=$QT_DIR" >> "$GITHUB_ENV"
+          echo "$QT_DIR/bin" >> "$GITHUB_PATH"
+          "$QT_DIR/bin/qmake" -v
+          test "$("$QT_DIR/bin/qmake" -query QT_VERSION)" = "$QT_MAC_VERSION"
+          test -x "$QT_DIR/bin/macdeployqt"
+          lipo "$QT_DIR/lib/QtCore.framework/QtCore" -verify_arch x86_64
+
+      - name: Build Qt HttpServer for Intel macOS
+        run: |
+          set -euo pipefail
+          cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+          cd src/qthttpserver
+          "$QT_ROOT_DIR/bin/qmake"
+          make -j3
+          make install
+          test -f "$QT_ROOT_DIR/lib/QtHttpServer.framework/Versions/5/QtHttpServer"
+
+      - name: Generate trial secrets (as in the Android nightly)
+        env:
+          STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
+          PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}
+          SMTP_USERNAME: ${{ secrets.smtp_username }}
+          SMTP_PASSWORD: ${{ secrets.smtp_password }}
+          SMTP_SERVER: ${{ secrets.smtp_server }}
+          INTERVALSICU_CLIENT_ID: ${{ secrets.intervalsicu_client_id }}
+          INTERVALSICU_CLIENT_SECRET: ${{ secrets.intervalsicu_client_secret }}
+          CESIUM_KEY: ${{ secrets.cesiumkey }}
+        run: |
+          printf '#define STRAVA_SECRET_KEY %s\n' "$STRAVA_SECRET_KEY" > src/secret.h
+          printf '#define PELOTON_SECRET_KEY %s\n' "$PELOTON_SECRET_KEY" >> src/secret.h
+          printf '#define SMTP_USERNAME %s\n' "$SMTP_USERNAME" >> src/secret.h
+          printf '#define SMTP_PASSWORD %s\n' "$SMTP_PASSWORD" >> src/secret.h
+          printf '#define SMTP_SERVER %s\n' "$SMTP_SERVER" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_ID %s\n' "$INTERVALSICU_CLIENT_ID" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_SECRET %s\n' "$INTERVALSICU_CLIENT_SECRET" >> src/secret.h
+          printf '%s\n' "$CESIUM_KEY" > src/inner_templates/googlemaps/cesium-key.js
+          # Mac already participates in the license check; this also mirrors Android.
+          printf '#define LICENSE\n' >> src/secret.h
+
+      - name: Build macOS Intel app bundle
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: |
+          cd src
+          qmake qdomyos-zwift.pro "CONFIG-=debug" "CONFIG+=release" "CONFIG-=static"
+          make -j3
+          test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch x86_64
+          otool -L qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift | grep -F "QtHttpServer.framework/Versions/5/QtHttpServer"
+
+      - name: Deploy Qt dependencies and package DMG
+        run: |
+          cd src
+          macdeployqt qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -verbose=2
+          bash "$GITHUB_WORKSPACE/.github/scripts/macos_hdiutil_create_with_retry.sh" hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Intel' -format UDZO -ov qdomyos-zwift.dmg
+          test -f qdomyos-zwift.app/Contents/Frameworks/QtHttpServer.framework/Versions/5/QtHttpServer
+          test -s qdomyos-zwift.dmg
+          mkdir -p ../dist
+          mv qdomyos-zwift.dmg ../dist/QZ-macos-intel-trial.dmg
+
+      - name: Smoke-test app from the mounted Intel DMG
+        run: |
+          bash .github/scripts/macos_intel_dmg_smoke_test.sh dist/QZ-macos-intel-trial.dmg macos-test-evidence
+
+      - name: Upload macOS smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-test-evidence
+          path: macos-test-evidence/
+          if-no-files-found: ignore
+
+      - name: Archive macOS Intel trial DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-trial
+          path: dist/QZ-macos-intel-trial.dmg
+          if-no-files-found: error
+
+  macos-apple-silicon-build:
+    # Native arm64 DMG, separate from the existing Intel nightly artifact.
+    # Run on schedule/dispatch and for the integration PR.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'ci/macos-intel-nightly-dmg-trial'
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      QT_MAC_VERSION: '5.15.19'
+    steps:
+      - name: Checkout with project submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install native Qt 5 for Apple Silicon
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+          # Qt 5.15.2's official macOS clang_64 distribution is Intel-only.
+          # Homebrew Qt 5 provides the native arm64 QtCharts, NetworkAuth,
+          # TextToSpeech, Bluetooth, QML, Multimedia and other QZ modules.
+          brew install qt@5
+          QT_DIR="$(brew --prefix qt@5)"
+          echo "QT_ROOT_DIR=$QT_DIR" >> "$GITHUB_ENV"
+          echo "$QT_DIR/bin" >> "$GITHUB_PATH"
+          "$QT_DIR/bin/qmake" -v
+          test "$("$QT_DIR/bin/qmake" -query QT_VERSION)" = "$QT_MAC_VERSION"
+          test -x "$QT_DIR/bin/macdeployqt"
+          lipo "$QT_DIR/lib/QtCore.framework/QtCore" -verify_arch arm64
+
+      - name: Build Qt HttpServer for Apple Silicon
+        run: |
+          set -euo pipefail
+          cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+          cd src/qthttpserver
+          "$QT_ROOT_DIR/bin/qmake"
+          make -j2
+          make install
+          test -f "$QT_ROOT_DIR/lib/QtHttpServer.framework/Versions/5/QtHttpServer"
+
+      - name: Generate trial secrets (as in Android and Intel nightly)
+        env:
+          STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
+          PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}
+          SMTP_USERNAME: ${{ secrets.smtp_username }}
+          SMTP_PASSWORD: ${{ secrets.smtp_password }}
+          SMTP_SERVER: ${{ secrets.smtp_server }}
+          INTERVALSICU_CLIENT_ID: ${{ secrets.intervalsicu_client_id }}
+          INTERVALSICU_CLIENT_SECRET: ${{ secrets.intervalsicu_client_secret }}
+          CESIUM_KEY: ${{ secrets.cesiumkey }}
+        run: |
+          printf '#define STRAVA_SECRET_KEY %s\n' "$STRAVA_SECRET_KEY" > src/secret.h
+          printf '#define PELOTON_SECRET_KEY %s\n' "$PELOTON_SECRET_KEY" >> src/secret.h
+          printf '#define SMTP_USERNAME %s\n' "$SMTP_USERNAME" >> src/secret.h
+          printf '#define SMTP_PASSWORD %s\n' "$SMTP_PASSWORD" >> src/secret.h
+          printf '#define SMTP_SERVER %s\n' "$SMTP_SERVER" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_ID %s\n' "$INTERVALSICU_CLIENT_ID" >> src/secret.h
+          printf '#define INTERVALSICU_CLIENT_SECRET %s\n' "$INTERVALSICU_CLIENT_SECRET" >> src/secret.h
+          printf '%s\n' "$CESIUM_KEY" > src/inner_templates/googlemaps/cesium-key.js
+          printf '#define LICENSE\n' >> src/secret.h
+
+      - name: Build native Apple Silicon app bundle
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: |
+          set -euo pipefail
+          cd src
+          "$QT_ROOT_DIR/bin/qmake" qdomyos-zwift.pro 'QMAKE_APPLE_DEVICE_ARCHS=arm64' 'CONFIG-=debug' 'CONFIG+=release' 'CONFIG-=static'
+          make -j2
+          test -x qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift
+          lipo qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift -verify_arch arm64
+          otool -L qdomyos-zwift.app/Contents/MacOS/qdomyos-zwift | grep -F "QtHttpServer.framework/Versions/5/QtHttpServer"
+
+      - name: Deploy, re-sign and package native Apple Silicon DMG
+        run: |
+          set -euo pipefail
+          cd src
+          # macdeployqt rewrites framework and plugin load paths. On Apple
+          # Silicon these modifications can invalidate pre-existing ad-hoc
+          # Mach-O signatures, which makes dyld refuse the Cocoa QPA plugin.
+          # Deploy first, then sign *all nested code*, then create the DMG
+          # without running macdeployqt a second time.
+          "$QT_ROOT_DIR/bin/macdeployqt" qdomyos-zwift.app -qmldir="$GITHUB_WORKSPACE/src" -verbose=2
+
+          # macdeployqt bundles libbrotlidec, but does not always discover its
+          # transitive @rpath/libbrotlicommon.1.dylib dependency (confirmed by
+          # the arm64 GUI smoke log in Actions run 42049399580).
+          # Bundle it explicitly so Cocoa can load on Macs without Homebrew.
+          brotli_lib="$(brew --prefix brotli)/lib/libbrotlicommon.1.dylib"
+          test -f "$brotli_lib"
+          mkdir -p qdomyos-zwift.app/Contents/Frameworks
+          cp -L "$brotli_lib" qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib
+          lipo qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib -verify_arch arm64
+          test -f qdomyos-zwift.app/Contents/Frameworks/libbrotlidec.1.dylib
+          otool -L qdomyos-zwift.app/Contents/Frameworks/libbrotlidec.1.dylib
+
+          # Re-sign after all deployment and dependency copies.
+          codesign --force --sign - qdomyos-zwift.app/Contents/Frameworks/libbrotlicommon.1.dylib
+          codesign --force --deep --sign - qdomyos-zwift.app
+          codesign --verify --deep --strict --verbose=2 qdomyos-zwift.app
+          test -f qdomyos-zwift.app/Contents/Frameworks/QtHttpServer.framework/Versions/5/QtHttpServer
+
+          # hdiutil preserves the verified post-deployment signatures.
+          bash "$GITHUB_WORKSPACE/.github/scripts/macos_hdiutil_create_with_retry.sh" hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Apple Silicon' -format UDZO -ov qdomyos-zwift.dmg
+          test -s qdomyos-zwift.dmg
+          mkdir -p ../dist
+          mv qdomyos-zwift.dmg ../dist/QZ-macos-apple-silicon-trial.dmg
+
+      - name: Smoke-test the mounted Apple Silicon DMG
+        run: |
+          bash .github/scripts/macos_intel_dmg_smoke_test.sh dist/QZ-macos-apple-silicon-trial.dmg macos-arm64-test-evidence arm64
+
+      - name: Upload Apple Silicon smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-test-evidence
+          path: macos-arm64-test-evidence/
+          if-no-files-found: ignore
+
+      - name: Archive Apple Silicon trial DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-apple-silicon-trial
+          path: dist/QZ-macos-apple-silicon-trial.dmg
+          if-no-files-found: error
+
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
@@ -965,9 +1197,11 @@ jobs:
           SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
           echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
           JAR=$SDK/platforms/android-35/android.jar
-          mkdir -p a11y-test-classes
+          mkdir -p a11y-test-classes a11y-stress-classes
           javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
           $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+          javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-stress-classes .github/scripts/AccessibilityStressTest.java
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-stress.jar a11y-stress-classes/*.class
 
       # The Android 17 SDK and system image use android-37.0, not android-37.
       # Keep matrix.api-level = 37 for test names/artifacts but provide the
@@ -1050,11 +1284,16 @@ jobs:
 
             # Accessibility test: a screen reader's focus, scroll and press, without TalkBack.
             # Last, on a new start of the app: its press must not change what the tests above see.
-            # Without a device Start opens the help popup and its first button the wizard; on the
-            # fake bike each + of the resistance tile adds exactly one step
+            # First the Bluetooth icon, a MouseArea with a press handler (not a Qt button): QZ must answer
+            # true, or TalkBack would press it a second time. Without a device Start opens the help
+            # popup and its first button the wizard; on the fake bike each + of the resistance tile
+            # adds exactly one step
             sh .github/scripts/android_app_start_test.sh
-            sh .github/scripts/android_accessibility_test.sh Start=First-time_setup First-time_setup=Bike
+            sh .github/scripts/android_accessibility_test.sh Bluetooth_connection Start=First-time_setup First-time_setup=Bike
             sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+            # Accessibility stress test: the tile settings page opened and closed 40 times while the
+            # tree is read without pause, then accessibility turned on and off 20 times
+            sh .github/scripts/android_accessibility_stress_test.sh 40 20
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
@@ -1075,6 +1314,7 @@ jobs:
             screenshot_back_*.png
             process_list.txt
             accessibility_test.txt
+            accessibility_stress_test.txt
             full_logcat.txt
             qdomyos_logcat.txt
           if-no-files-found: warn                
@@ -2870,11 +3110,51 @@ jobs:
           name: peloton-bike-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
           
+  macos-dmg-clean-smoke:
+    # Exercise the exact artifacts users download on fresh macOS hosts, without
+    # installing Homebrew Qt or the Qt SDK in the test job.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'ci/macos-intel-nightly-dmg-trial'
+    needs: [macos-intel-build, macos-apple-silicon-build]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {arch: x86_64, runner: macos-15-intel, artifact: macos-intel-trial, dmg: QZ-macos-intel-trial.dmg}
+          - {arch: arm64, runner: macos-15, artifact: macos-apple-silicon-trial, dmg: QZ-macos-apple-silicon-trial.dmg}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout smoke test script
+        uses: actions/checkout@v4
+
+      - name: Download packaged DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/
+
+      - name: Verify standalone DMG launch on fresh native macOS runner
+        run: |
+          # No Qt SDK or Qt environment configured in this job.
+          unset QT_PLUGIN_PATH QML2_IMPORT_PATH DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH
+          test "$(uname -m)" = "${{ matrix.arch }}"
+          bash .github/scripts/macos_intel_dmg_smoke_test.sh "dist/${{ matrix.dmg }}" "macos-clean-test-evidence" "${{ matrix.arch }}"
+
+      - name: Upload clean-host startup evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-clean-startup-${{ matrix.arch }}
+          path: macos-clean-test-evidence/
+          if-no-files-found: ignore
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, macos-intel-build, macos-apple-silicon-build, macos-dmg-clean-smoke]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2910,6 +3190,10 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
+            - **QZ-macos-intel-trial.dmg**: macOS Intel (x86_64) build, existing 10-minute trial with Patreon license
+            - **QZ-macos-apple-silicon-trial.dmg**: macOS Apple Silicon (arm64) native build, existing 10-minute trial with Patreon license
+
+            Both macOS DMGs are unsigned/unnotarized development builds. macOS Gatekeeper may require manual confirmation before the first launch.
 
             ### NordicTrack / iFIT builds
             There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
@@ -2941,6 +3225,8 @@ jobs:
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/android-debug.apk
+            macos-intel-trial/QZ-macos-intel-trial.dmg
+            macos-apple-silicon-trial/QZ-macos-apple-silicon-trial.dmg
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk

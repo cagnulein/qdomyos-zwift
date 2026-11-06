@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nabız sensörü bulundu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Bulunan nabız sensörleri: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Bağlan</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Seç</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Şimdi değil</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Bir daha sorma</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Bir nabız sensörü seçin</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Nabız sensörleri aranıyor…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Aranıyor: %1 (nabız sensörü)…</translation>
     </message>
@@ -561,6 +596,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride bağlandı</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Yakınlarda nabız sensörü bulunamadı. Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1296,6 +1335,10 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Programları geri yükle</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2742,6 +2785,10 @@ This may take a few moments on first startup.</source>
         <translation>Tüm dosyalar (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Strava&apos;ya yükle</translation>
     </message>
@@ -3493,6 +3540,18 @@ This may take a few moments on first startup.</source>
         <translation>İçe aktarılan antrenman: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Dosya QZ klasörüne kopyalanamadı.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Geri yüklenen antrenman programı: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Geçmişte zaten var: %1.</translation>
     </message>
@@ -3637,6 +3696,14 @@ This may take a few moments on first startup.</source>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Bu antrenmanın FIT dosyası paylaşılamadı</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3947,6 +4014,10 @@ Do you want to start it now?</source>
         <translation>Ayarlarda ara</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
@@ -4046,6 +4117,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Önceki bir kurulumdan kalan antrenmanlar QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Antrenman programları</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
 Bunlar aransın mı?
 
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
@@ -4450,6 +4535,70 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Sanal uygulamadaki eğimin bisiklet direncine nasıl dönüştürüleceğini ayarlar.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ sanal uygulamadaki eğimi dirence dönüştürürken özel bir eşleme kullanır.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Satır başına bir eğim|direnç çifti. QZ noktalar arasındaki değerleri hesaplar, ayarlanan aralığın dışında uç noktayı kullanır.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının kullanıcı adı. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının şifresi. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Geçerli kamera açısı</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Geçerli ifade</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike emülatörü</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Güç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Nabız grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Direnç ve hedef direnç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton direnci grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadans grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Güç dağılımı grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Hız ve eğim grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
+    </message>
+    <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation>Cihazınızın dilini kullanmak için &quot;Otomatik (sistem)&quot; seçeneğini seçin veya QZ için belirli bir dil seçin.</translation>
     </message>
@@ -4608,6 +4757,14 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Cihaz listesini yenile</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Başlangıçta nabız sensörü ara</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca, nabız gelmediği sürece QZ dakikada bir nabız sensörü arar: seçilen nabız sensörünü bulur bulmaz bağlar, seçilmiş bir sensör yoksa yakında bulunan birini önerir. Ana sayfadaki nabız kutucuğuna veya Bluetooth simgesine dokunmak her zaman arama başlatır.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7292,6 +7449,14 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>Hidden on its page right now: change it here</source>
         <translation>Şu anda kendi sayfasında gizli: buradan değiştirin</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Açık</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Mevcut ayarlarla kendi sayfasında gizli</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>

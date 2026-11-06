@@ -1,4 +1,5 @@
 #include "templateinfosenderbuilder.h"
+#include "localipaddress.h"
 #include "webtranslation.h"
 #include "devices/bike.h"
 #include "treadmill.h"
@@ -236,11 +237,8 @@ void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &f
     if (!globalFolderList.isEmpty()) {
         QStringList addressList;
         qDebug() << QStringLiteral("Folder List") << globalFolderList;
-        const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-        for (auto &address : QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-                addressList += address.toString();
-            }
+        for (const QHostAddress &address : localipaddress::allIPv4()) {
+            addressList += address.toString();
         }
         qDebug() << QStringLiteral("addressList ") << addressList;
         QString templateId = idInfo + "_" + QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID);

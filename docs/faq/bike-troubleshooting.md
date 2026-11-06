@@ -206,3 +206,9 @@ A Domyos X12 rider explicitly confirmed that enabling **Ignore FTMS** restored p
 Check **QZ Settings > Advanced Settings > Manual Device** before reinstalling the app. If it is set to **WiFi** while you are using a Keiser M3i, change the selection to the **M3** bike entry, then return to the dashboard and pedal to check for live data. Keep other apps from connecting directly to the bike during the test.
 
 **Confirmed result:** In an Android Keiser M3i setup, the dashboard fields reappeared immediately after changing the advanced device selection from **WiFi** to **M3**. This establishes that QZ was receiving bike data again; the downstream MyWhoosh connection was not separately confirmed in that reply. QZ also has a dedicated M3i bike implementation. If you later connect MyWhoosh, run it on a separate device and pair it to QZ's virtual trainer rather than directly to the bike.
+
+## My Hammer ErgoMotion bike connects but cadence/RPM stays at zero. What can I try?
+
+If QZ detects a Hammer ErgoMotion bike but RPM does not update, first check **QZ Settings > iConsole settings** and enable the **iConsole bike** option. If this alone does not help, open **QZ Settings > Bike Options > FTMS Bike**, set the manually selected FTMS bike to **Disabled**, and confirm with **OK**. Reconnect the bike and pedal to check whether RPM updates.
+
+In a confirmed Hammer ErgoMotion support case, enabling the iConsole bike option alone did not fix the zero-RPM reading. After the rider disabled the forced **FTMS Bike** selection, they explicitly confirmed that QZ worked. This is a device-specific troubleshooting step: do not disable a correctly configured FTMS connection for other bikes without a reason.

@@ -83,7 +83,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     if (ios_peloton_workaround) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
+        // Use the existing "Heart Rate service outside FTMS" switch on the
+        // native Swift treadmill, just as on the Qt BLE and virtual-bike paths.
+        // Default noHeartService=false keeps the standalone HR service.
+        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor, noHeartService);
         if (forwardControlPointWrites)
             h->virtualtreadmill_enableControlPointForwarding(control.speedRange, control.inclineRange);
     } else
