@@ -3935,6 +3935,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>请手动附加生成的调试日志</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>未检测到设备</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>无法打开电子邮件应用</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
