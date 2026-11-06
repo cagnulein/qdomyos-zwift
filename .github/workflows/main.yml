@@ -1063,6 +1063,10 @@ jobs:
             # Android resolver / fake mail Activity and should not leave QZ's
             # existing startup, Health Connect, orientation or a11y tests in a
             # foreign task stack. No second QZ startup is needed afterward.
+            # Always capture the mail compose evidence upright even when the
+            # preexisting orientation tests leave the emulator sideways.
+            adb shell settings put system accelerometer_rotation 0 || true
+            adb shell settings put system user_rotation 0 || true
             adb install -r support-mail-probe.apk
             python3 .github/scripts/android_support_email_test.py
 
