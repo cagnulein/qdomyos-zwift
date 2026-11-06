@@ -9158,4 +9158,67 @@ Domyślnie: A = -0.96, B = 1.33</translation>
         <translation>Maksymalna moc W/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt z pomocą QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Przygotuj e-mail do pomocy z danymi diagnostycznymi</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Brak połączonego urządzenia</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Prędkość i moc wynoszą zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Pomoc QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gotowe</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ukryj klawiaturę</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Zamknij prośbę o pomoc</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Opisz, co nie działa. QZ doda informacje o urządzeniu i aplikacji.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Opisz problem...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Opisz problem</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Dołącz dziennik debugowania, jeśli jest dostępny</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Możesz przejrzeć lub edytować e-mail przed wysłaniem. Nic nie zostanie wysłane automatycznie.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Otwórz e-mail</translation>
+    </message>
+</context>
 </TS>
