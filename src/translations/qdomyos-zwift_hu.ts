@@ -3886,6 +3886,14 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>A létrehozott hibakeresési naplót kézzel csatold</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nem található eszköz</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Nem sikerült megnyitni egy levelezőalkalmazást</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
