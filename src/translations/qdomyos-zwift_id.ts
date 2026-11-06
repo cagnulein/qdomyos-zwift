@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Lampirkan log debug yang dibuat secara manual</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Tidak ada perangkat yang terdeteksi</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Tidak dapat membuka aplikasi email</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
