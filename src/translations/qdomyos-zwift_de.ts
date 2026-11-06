@@ -3927,6 +3927,14 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Bitte hänge das erstellte Debug-Protokoll manuell an</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Kein Gerät erkannt</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>E-Mail-Anwendung konnte nicht geöffnet werden</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
