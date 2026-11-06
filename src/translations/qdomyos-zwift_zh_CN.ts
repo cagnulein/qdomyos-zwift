@@ -3823,6 +3823,118 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ 正在运行</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>支持请求</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 问题 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>你好，Roberto：</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>我需要 QZ 的帮助。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>问题：</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[请描述问题]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>预期行为：</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[请描述应当发生什么]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 诊断信息 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 版本：%1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>平台：%1（%2）</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>配置文件：%1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>设备：%1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已连接</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>连接状态：%1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度：%1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>不可用</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>功率：%1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>检测到的情况：%1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>未请求调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>调试日志已关闭。请先启用调试日志并重启 QZ，然后再重现问题。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>未找到调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>调试日志不可用或文件过大，无法准备。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>已附加调试日志（gzip）。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>无法写入调试日志附件。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>无法压缩调试日志，或附件超过 10 MB。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>请手动附加生成的调试日志</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
