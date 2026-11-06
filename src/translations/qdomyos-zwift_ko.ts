@@ -9158,4 +9158,67 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>최대 W/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ 지원 문의</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>진단 정보가 포함된 지원 이메일 준비</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>연결된 기기가 없습니다</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>속도와 파워가 0입니다</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 지원</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>키보드 숨기기</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>지원 요청 닫기</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>작동하지 않는 내용을 알려주세요. QZ가 기기와 앱 정보를 추가합니다.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>문제를 설명하세요...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>문제 설명</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>사용 가능한 경우 디버그 로그 첨부</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>이메일을 보내기 전에 검토하거나 수정할 수 있습니다. 자동으로 전송되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>이메일 열기</translation>
+    </message>
+</context>
 </TS>
