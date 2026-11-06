@@ -789,7 +789,7 @@ jobs:
           test -f qdomyos-zwift.app/Contents/Frameworks/QtHttpServer.framework/Versions/5/QtHttpServer
 
           # hdiutil preserves the verified post-deployment signatures.
-          bash .github/scripts/macos_hdiutil_create_with_retry.sh hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Apple Silicon' -format UDZO -ov qdomyos-zwift.dmg
+          bash "$GITHUB_WORKSPACE/.github/scripts/macos_hdiutil_create_with_retry.sh" hdiutil create -srcfolder qdomyos-zwift.app -volname 'QZ Apple Silicon' -format UDZO -ov qdomyos-zwift.dmg
           test -s qdomyos-zwift.dmg
           mkdir -p ../dist
           mv qdomyos-zwift.dmg ../dist/QZ-macos-apple-silicon-trial.dmg
