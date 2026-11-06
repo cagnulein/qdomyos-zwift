@@ -3807,6 +3807,118 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ працює</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Запит до служби підтримки</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Проблема QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Вітаю, Роберто!</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Мені потрібна допомога з QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Проблема:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Опишіть проблему]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Очікувана поведінка:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Опишіть, що мало б статися]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Діагностика QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Версія QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Платформа: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Профіль: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Пристрій: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Підключено</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не підключено</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>З’єднання: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Швидкість: %1 км/год</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Недоступно</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Потужність: %1 Вт</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Виявлена ситуація: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Журнал налагодження не запитувався.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Журнал налагодження вимкнено. Увімкніть його та перезапустіть QZ перед відтворенням проблеми.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Журнал налагодження не знайдено.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Журнал налагодження недоступний або завеликий для підготовки.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Журнал налагодження додано (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Не вдалося записати вкладення журналу налагодження.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Не вдалося стиснути журнал або вкладення перевищує 10 МБ.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Додайте створений журнал налагодження вручну</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
