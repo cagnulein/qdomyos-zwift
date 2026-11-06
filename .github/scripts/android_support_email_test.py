@@ -76,8 +76,11 @@ def choose_mail_probe(scenario):
         tree, last_xml = hierarchy(scenario)
         if tree is not None:
             nodes = [node for node in tree.iter("node")
-                     if "QZ Mail Probe" in ((node.get("text") or "") + " " +
-                                           (node.get("content-desc") or ""))]
+                     # A directly opened receiver labels itself "QZ Mail Probe"
+                     # too. Never mistake its own screen for Android's chooser.
+                     if node.get("package") != PROBE and
+                     "QZ Mail Probe" in ((node.get("text") or "") + " " +
+                                         (node.get("content-desc") or ""))]
             if nodes:
                 # Capture the actual Android share chooser BEFORE selecting our
                 # fake mail app; otherwise the screenshot shows only the receiver.
