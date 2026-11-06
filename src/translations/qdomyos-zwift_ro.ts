@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Solicitare de asistență</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problemă QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Salut, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Am nevoie de ajutor cu QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problemă:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descrieți problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportament așteptat:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descrieți ce ar trebui să se întâmple]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnosticare QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versiune QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platformă: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispozitiv: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Conectat</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Neconectat</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Conexiune: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Viteză: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponibil</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Putere: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situație detectată: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Jurnalul de depanare nu a fost solicitat.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Jurnalul de depanare este dezactivat. Activați înregistrarea și reporniți QZ înainte de a reproduce problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Jurnalul de depanare nu a fost găsit.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Jurnalul de depanare nu este disponibil sau este prea mare pentru pregătire.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Jurnal de depanare atașat (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Nu s-a putut scrie atașamentul jurnalului de depanare.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Jurnalul nu a putut fi comprimat sau atașamentul depășește 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Atașați manual jurnalul de depanare generat</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Niciun dispozitiv detectat</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Nu s-a putut deschide o aplicație de e-mail</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8988,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contactați asistența QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Pregătiți un e-mail de asistență cu date de diagnosticare</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Niciun dispozitiv conectat</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Viteza și puterea sunt zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Asistență QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gata</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ascunde tastatura</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Închide solicitarea de asistență</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Spuneți-ne ce nu funcționează. QZ va adăuga informațiile despre dispozitiv și aplicație.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descrieți problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descrieți problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Atașați jurnalul de depanare dacă este disponibil</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Puteți verifica sau edita e-mailul înainte de trimitere. Nimic nu este trimis automat.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anulare</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Deschide e-mailul</translation>
     </message>
 </context>
 </TS>

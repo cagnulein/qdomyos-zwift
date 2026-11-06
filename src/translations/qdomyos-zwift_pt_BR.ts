@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Solicitação de suporte</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problema no QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Olá, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Preciso de ajuda com o QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problema:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descreva o problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportamento esperado:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descreva o que deveria acontecer]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnóstico do QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versão do QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plataforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Perfil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispositivo: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Conectado</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Desconectado</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Conexão: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Velocidade: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponível</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Potência: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situação detectada: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>O log de depuração não foi solicitado.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>O log de depuração está desativado. Ative o registro e reinicie o QZ antes de reproduzir o problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Nenhum log de depuração encontrado.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>O log de depuração está indisponível ou é grande demais para preparar.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Log de depuração anexado (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Não foi possível gravar o anexo do log de depuração.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Não foi possível compactar o log ou o anexo excede 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Anexe manualmente o log de depuração gerado</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nenhum dispositivo detectado</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Não foi possível abrir um aplicativo de e-mail</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8988,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Entrar em contato com o suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar um e-mail de suporte com dados de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nenhum dispositivo conectado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Velocidade e potência estão zeradas</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fechar solicitação de suporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Conte o que não está funcionando. O QZ adicionará informações do seu dispositivo e do aplicativo.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descreva o problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descreva o problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Anexar log de depuração, se disponível</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Você pode revisar ou editar o e-mail antes de enviá-lo. Nada é enviado automaticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir e-mail</translation>
     </message>
 </context>
 </TS>

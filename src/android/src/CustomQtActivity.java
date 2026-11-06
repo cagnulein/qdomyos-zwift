@@ -23,13 +23,17 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.ViewTreeObserver;
+import android.webkit.WebView;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
@@ -55,7 +59,8 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnFitImportStarted();
     // TalkBack put its focus on this accessible object: scroll it into view
     private static native void nativeScrollToAccessibleObject(int id);
-    // TalkBack's double tap on this accessible object: true when it is a button Qt presses
+    // TalkBack's double tap on this accessible object: true when QZ pressed it (a Qt button with
+    // the space key, anything else with its press or toggle action)
     private static native boolean nativeAccessibleClick(int id);
 
     private void dispatchOAuthCallback(Intent intent) {
@@ -202,11 +207,15 @@ public class CustomQtActivity extends QtActivity {
     // stops on an item below the screen, its frame is drawn off screen and a double tap misses it.
     // On such a focus Qt is asked to scroll the item into view (nativeScrollToAccessibleObject),
     // and once it did, accessibilityTreeChanged() lets TalkBack read the new positions.
-    // A double tap on a button is pressed by nativeAccessibleClick (Qt 5.15 does nothing for a
-    // button and answers false, after which TalkBack taps the middle of the node). TalkBack gets
-    // true, a clicked event and a tree refresh for what the press opened or added (TalkBack 17
-    // does not say a new switch state from the event: it says the state when the switch is
-    // touched again). Anything else goes to Qt, as before.
+    // A double tap on a node is answered by nativeAccessibleClick, not by Qt: Qt 5.15.0 answers
+    // false after the press of an item that is not a button and does nothing for a button, and on
+    // false TalkBack taps the middle of the node too. When it pressed the node, TalkBack gets true,
+    // a clicked event (when the node is still there) and a tree refresh for what the press opened
+    // or added (TalkBack 17 does not say a new switch state from the event: it says the state when
+    // the switch is touched again);
+    // the event is sent later, as Qt reading the node for it right away would wait for the press,
+    // past the 5 s Android waits for the answer. When it did not, false is answered and TalkBack's
+    // tap is the press. Other actions go to Qt.
     // A value control of Qt (a spin box, a slider: an item with scroll actions and no children)
     // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
@@ -247,12 +256,13 @@ public class CustomQtActivity extends QtActivity {
                 try {
                     pressed = nativeAccessibleClick(virtualViewId);
                 } catch (UnsatisfiedLinkError e) {
-                    pressed = false;
+                    // QZ's library not loaded yet: Qt answers as before
+                    return qt.performAction(virtualViewId, action, arguments);
                 }
                 if (pressed) {
                     afterClick(virtualViewId);
-                    return true;
                 }
+                return pressed;
             }
             boolean handled = qt.performAction(virtualViewId, action, arguments);
             if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS && virtualViewId != View.NO_ID) {
@@ -373,6 +383,78 @@ public class CustomQtActivity extends QtActivity {
         return 0;
     }
 
+    // WORKAROUND: back from the background a page with a web view (the workout editor) can stay
+    // empty until the page is touched (OnePlus 12, Android 16): the
+    // WebView is in place and visible, but Chromium makes no new frame. On return Qt 5.15 takes the
+    // native WebView of Qt WebView off its layout and adds it back
+    // (QAndroidPlatformForeignWindow::applicationStateChanged -> destroySurface / insertNativeView),
+    // and resumes it with WebView.onResume() (QAndroidWebViewPrivate::onApplicationStateChanged).
+    // Both go to the UI thread from Qt's thread; most likely, when onResume() comes before the
+    // WebView is attached again, the page stays empty. Qt 6.8 still does both the same way.
+    // So each WebView Qt adds is paused with the activity and resumed after the activity resumes;
+    // a WebView attached to the window again is paused and resumed once more, because onResume()
+    // does nothing on a WebView that Qt has already resumed. No reload: the page keeps its state
+    // and scroll position. Redrawing the view from outside (invalidate, clip, layout) did not
+    // reliably make Chromium draw; onPause() + onResume() did.
+    private final Set<WebView> watchedWebViews = Collections.newSetFromMap(new WeakHashMap<WebView, Boolean>());
+    private boolean activityResumed = false;
+
+    private void watchWebViews(View view) {
+        if (view instanceof WebView) {
+            final WebView webView = (WebView) view;
+            if (watchedWebViews.add(webView)) {
+                webView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View v) {
+                        if (activityResumed) {
+                            Log.d(TAG, "WebView attached again: onPause + onResume");
+                            webView.onPause();
+                            webView.onResume();
+                        }
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View v) {
+                    }
+                });
+            }
+            return;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                watchWebViews(group.getChildAt(i));
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        activityResumed = false;
+        for (WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            webView.onPause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        activityResumed = true;
+        for (final WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            // posted: from API 24 a view Qt has taken off the window runs it when it is attached
+            // again, before that on the next traversal; the attach listener covers both
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (activityResumed) {
+                        webView.onResume();
+                    }
+                }
+            });
+        }
+    }
+
     // Called by Qt from its own thread at start: whether Android has accessibility on (main.cpp
     // turns Qt's accessibility on again when Qt lost that report)
     public static boolean accessibilityOn(Context context) {
@@ -389,7 +471,8 @@ public class CustomQtActivity extends QtActivity {
         HealthConnectHelper.initialize(this);
         registerBackCallback();
 
-        // Wrap Qt's accessibility view as soon as Qt adds it, before TalkBack moves over it
+        // Wrap Qt's accessibility view as soon as Qt adds it, before TalkBack moves over it, and
+        // watch each WebView Qt adds (paused and resumed with the activity)
         accessibilityActivity = this;
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -398,6 +481,7 @@ public class CustomQtActivity extends QtActivity {
                         if (accessibilityEnabled()) {
                             qtAccessibilityView();
                         }
+                        watchWebViews(getWindow().getDecorView());
                     }
                 });
 

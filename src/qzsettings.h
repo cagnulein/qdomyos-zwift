@@ -3487,6 +3487,15 @@ class QZSettings {
     static const QString heart_rate_belt_suggest;
     static constexpr bool default_heart_rate_belt_suggest = false;
 
+    // The debug log of a new user: on until the first workout with data, 7 days at most. Decided once, at the
+    // first start of a QZ that has never connected a device (homeform::startFirstSetupLog()); log_debug and its
+    // switch stay as they are
+    static const QString log_debug_first_setup;
+    static constexpr bool default_log_debug_first_setup = false;
+    // the day the first-setup log was turned on (ISO date), for the 7 days
+    static const QString log_debug_first_setup_since;
+    static const QString default_log_debug_first_setup_since;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -134,6 +134,7 @@
 		870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */; };
 		870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB42CEF8FD200839641 /* technogymbike.cpp */; };
 		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
+		87CA0A012F11000000C0FF01 /* support_email.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CA0A022F11000000C0FF01 /* support_email.mm */; };
 		87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BA10022F0000010000BA02 /* ios_background_keepalive.mm */; };
 		870F72D62FDEC0FD00181280 /* webtranslation.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870F72D52FDEC0FD00181280 /* webtranslation.cpp */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
@@ -407,6 +408,7 @@
 		877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA27276E684400F6C0C9 /* bowflextreadmill.cpp */; };
 		877FBA2B276E684E00F6C0C9 /* moc_bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA2A276E684E00F6C0C9 /* moc_bowflextreadmill.cpp */; };
 		877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877FE4EB27368F7D006FAB7B /* AVFoundation.framework */; };
+		87CA0A032F11000000C0FF01 /* MessageUI.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87CA0A042F11000000C0FF01 /* MessageUI.framework */; };
 		8780D947264FB8AC00192D41 /* smartspin2k.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8780D946264FB8AB00192D41 /* smartspin2k.cpp */; };
 		8780D949264FB8B800192D41 /* moc_smartspin2k.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */; };
 		8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8781907C2615089D0085E656 /* peloton.cpp */; };
@@ -1052,6 +1054,7 @@
 		870A5DB42CEF8FD200839641 /* technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = technogymbike.cpp; path = ../src/devices/technogymbike/technogymbike.cpp; sourceTree = SOURCE_ROOT; };
 		870C72622E91565E00DC8A84 /* ios_liveactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_liveactivity.h; path = ../src/ios/ios_liveactivity.h; sourceTree = SOURCE_ROOT; };
 		870C72632E91565E00DC8A84 /* ios_liveactivity.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_liveactivity.mm; path = ../src/ios/ios_liveactivity.mm; sourceTree = SOURCE_ROOT; };
+		87CA0A022F11000000C0FF01 /* support_email.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = support_email.mm; path = ../src/ios/support_email.mm; sourceTree = SOURCE_ROOT; };
 		87BA10012F0000010000BA01 /* ios_background_keepalive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_background_keepalive.h; path = ../src/ios/ios_background_keepalive.h; sourceTree = SOURCE_ROOT; };
 		87BA10022F0000010000BA02 /* ios_background_keepalive.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_background_keepalive.mm; path = ../src/ios/ios_background_keepalive.mm; sourceTree = SOURCE_ROOT; };
 		870F72D52FDEC0FD00181280 /* webtranslation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = webtranslation.cpp; path = ../src/webtranslation.cpp; sourceTree = SOURCE_ROOT; };
@@ -1480,6 +1483,7 @@
 		877FBA28276E684400F6C0C9 /* bowflextreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bowflextreadmill.h; path = ../src/devices/bowflextreadmill/bowflextreadmill.h; sourceTree = "<group>"; };
 		877FBA2A276E684E00F6C0C9 /* moc_bowflextreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_bowflextreadmill.cpp; sourceTree = "<group>"; };
 		877FE4EB27368F7D006FAB7B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		87CA0A042F11000000C0FF01 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		8780D945264FB8AB00192D41 /* smartspin2k.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smartspin2k.h; path = ../src/devices/smartspin2k/smartspin2k.h; sourceTree = "<group>"; };
 		8780D946264FB8AB00192D41 /* smartspin2k.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = smartspin2k.cpp; path = ../src/devices/smartspin2k/smartspin2k.cpp; sourceTree = "<group>"; };
 		8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_smartspin2k.cpp; sourceTree = "<group>"; };
@@ -2149,6 +2153,7 @@
 				87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */,
 				87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */,
 				877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */,
+				87CA0A032F11000000C0FF01 /* MessageUI.framework in Link Binary With Libraries */,
 				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
 				87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */,
@@ -2500,6 +2505,7 @@
 				87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */,
 				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
 				870C72632E91565E00DC8A84 /* ios_liveactivity.mm */,
+				87CA0A022F11000000C0FF01 /* support_email.mm */,
 				87BA10012F0000010000BA01 /* ios_background_keepalive.h */,
 				87BA10022F0000010000BA02 /* ios_background_keepalive.mm */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
@@ -3292,6 +3298,7 @@
 				87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */,
 				873CD22E27EF8EC1000131BC /* StoreKit.framework */,
 				877FE4EB27368F7D006FAB7B /* AVFoundation.framework */,
+				87CA0A042F11000000C0FF01 /* MessageUI.framework */,
 				87BB1775269E987000F46A1C /* libQt5HttpServer.a */,
 				877A7608269D8E9F0024DD2C /* WebKit.framework */,
 				877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */,
@@ -3897,6 +3904,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
+				87CA0A012F11000000C0FF01 /* support_email.mm in Compile Sources */,
 				87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,

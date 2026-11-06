@@ -448,7 +448,6 @@ int bluetooth::searchNow() {
 }
 
 void bluetooth::startDiscovery() {
-
     // no discoveryAgent without a Bluetooth adapter: nothing to scan with
     if (!this->useDiscovery || !this->discoveryAgent)
         return;

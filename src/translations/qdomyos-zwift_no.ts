@@ -2757,6 +2757,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Alle filer (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Last opp til Strava</translation>
     </message>
@@ -3666,6 +3670,14 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>FIT-filen for denne økten kunne ikke deles</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>meter</translation>
     </message>
@@ -3812,6 +3824,126 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>Spotify songs:</source>
         <translation>Spotify-sanger:</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Kundestøtteforespørsel</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-problem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hei Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Jeg trenger hjelp med QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beskriv problemet]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Forventet atferd:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beskriv hva som skulle ha skjedd]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnostikk ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versjon: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plattform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Enhet: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Tilkoblet</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ikke tilkoblet</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Tilkobling: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hastighet: %1 km/t</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ikke tilgjengelig</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Effekt: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Registrert situasjon: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Feilsøkingslogg ble ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Feilsøkingslogg er deaktivert. Aktiver logging og start QZ på nytt før du gjenskaper problemet.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Fant ingen feilsøkingslogg.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Feilsøkingsloggen er utilgjengelig eller for stor til å klargjøres.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Feilsøkingslogg vedlagt (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Kunne ikke skrive feilsøkingsloggen som vedlegg.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Kunne ikke komprimere feilsøkingsloggen, eller vedlegget er over 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Legg ved den genererte feilsøkingsloggen manuelt</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhet oppdaget</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kan ikke åpne et e-postprogram</translation>
     </message>
 </context>
 <context>
@@ -3967,6 +4099,10 @@ Vil du starte den nå?</translation>
     <message>
         <source>Search settings</source>
         <translation>Søk i innstillinger</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -9170,6 +9306,69 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maks. watt/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargjør en e-post til kundestøtte med diagnosedata</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet tilkoblet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet og effekt er null</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Ferdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Lukk støtteforespørselen</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortell oss hva som ikke fungerer. QZ legger til informasjon om enheten og appen din.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Legg ved feilsøkingslogg hvis den er tilgjengelig</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan se gjennom eller redigere e-posten før du sender den. Ingenting sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åpne e-post</translation>
     </message>
 </context>
 </TS>

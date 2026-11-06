@@ -524,7 +524,8 @@ void initializeLogThread() {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     // QSettings only for the first call: this runs for every log line, even with the debug log off
-    static bool logdebug = QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    static bool logdebug =
+        QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -634,20 +635,71 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(J
         Qt::QueuedConnection);
 }
 
-// CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15
-// does nothing for a button there (QQuickAbstractButton has no accessible press yet) and answers
-// false, after which TalkBack taps the middle of the node: that misses the indicator of a switch
-// with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page. A
-// button gets the space key a keyboard presses it with instead (nextCheckState() with exclusive
-// groups, clicked(), its Action), and true is answered. For anything else, and for a button that
-// is disabled, hidden or gone, false is answered and Qt's own press runs, as before.
+// The space key a keyboard presses a Qt Quick Controls button with (Qt thread)
+static void pressWithSpace(QQuickItem *button) {
+    QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+    QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+    QCoreApplication::sendEvent(button, &press);
+    QCoreApplication::sendEvent(button, &release);
+}
+
+// How TalkBack's double tap presses an accessible object (Qt thread). A Qt Quick Controls button
+// gets the space key a keyboard presses it with (nextCheckState() with exclusive groups, clicked(),
+// its Action): QQuickAbstractButton has no accessible press in Qt 5.15, and Qt's press action
+// would run its Accessible.onPressAction, or flip the checked of a switch, even when it is disabled
+// or hidden, though a finger's tap on it does nothing; so a button that is disabled or hidden is not
+// pressed. Anything else (e.g. a Rectangle or a MouseArea with Accessible.onPressAction) gets its
+// press action, or else its toggle action, as Qt does since 5.15.3 and 6.0.1 (qtbase fd20bc2277,
+// QTBUG-79611), whatever its state, as in Qt 6 and as Qt 5.15.0 ran it: the Bluetooth icon of the
+// home page, on the screen, is hidden by Qt 5.15's state() and hidden or disabled by
+// QQuickItem::isVisible()/isEnabled() on every emulator API level, so such a check would leave its
+// press to TalkBack's tap. As in Qt 6, a role that has a press of its own (Button, CheckBox,
+// RadioButton) lists it without a handler too, and such an object is "pressed" with no handler
+// run: any other item given such a role needs Accessible.onPressAction (or onToggleAction).
+enum class ClickKind { None, Key, Press, Toggle };
+
+static ClickKind clickKind(QAccessibleInterface *iface) {
+    if (!iface || !iface->isValid() || !iface->actionInterface())
+        return ClickKind::None;
+    QQuickItem *item = qobject_cast<QQuickItem *>(iface->object());
+    if (item && item->inherits("QQuickAbstractButton"))
+        return item->isVisible() && item->isEnabled() ? ClickKind::Key : ClickKind::None;
+    const QStringList actions = iface->actionInterface()->actionNames();
+    if (actions.contains(QAccessibleActionInterface::pressAction()))
+        return ClickKind::Press;
+    if (actions.contains(QAccessibleActionInterface::toggleAction()))
+        return ClickKind::Toggle;
+    return ClickKind::None;
+}
+
+static void runClick(QAccessibleInterface *iface, ClickKind kind) {
+    if (kind == ClickKind::Key) {
+        if (QQuickItem *button = qobject_cast<QQuickItem *>(iface->object()))
+            pressWithSpace(button);
+    } else if (kind != ClickKind::None) {
+        iface->actionInterface()->doAction(kind == ClickKind::Press ? QAccessibleActionInterface::pressAction()
+                                                                    : QAccessibleActionInterface::toggleAction());
+    }
+}
+
+// CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15.0
+// runs the press of an object that is not a button and answers false even so, and does nothing for
+// a button and answers false; on false TalkBack taps the middle of the node too: such an object was
+// pressed twice (a settings section opened its page twice), and the tap misses the indicator of a
+// switch with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page.
+// Here the object is pressed as clickKind() says and true is answered; with nothing to press, false
+// is answered and TalkBack's tap is the press. CustomQtActivity then sends the clicked event itself
+// (when the node is still there), later, so Qt's performAction() (clickAction() below) and the read
+// of the description Qt's Java part makes on true are not reached.
 // The object is looked up and pressed on the Qt thread, where QML items are created and destroyed
-// (as Qt 6 does with runInObjectContext()); this thread waits only for the lookup, not for what the
-// press runs. Qt 5.15 has no guard against a Qt thread that waits for this one, so the wait is
-// limited: when the Qt thread is busy that long, false is answered and this press is not made;
-// Qt's own press and TalkBack's tap run instead, as for anything else.
-// 2 s: the Qt thread can be busy for well over a second while a device connects, and Android
-// waits 5 s for the answer to an accessibility action.
+// (as Qt 6 does with runInObjectContext()), right after each other in the same call, so the object
+// found is the one pressed; this thread waits only for the lookup, not for what the press runs.
+// Qt 5.15 has no guard against a Qt thread that waits for this one, so the wait is limited: when the
+// Qt thread is busy that long, nothing is pressed (not later either), false is answered and
+// TalkBack's tap is the only press. 3 s: the Qt thread can be busy for well over a second while a
+// device connects, and Android waits 5 s for the answer to an accessibility action, counted from
+// TalkBack's request (the Android UI thread may still be busy with something else then), after which
+// it takes the answer as false and TalkBack would tap too (Qt 6 waits with no limit).
 extern "C" JNIEXPORT jboolean JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
     Q_UNUSED(env)
@@ -657,34 +709,28 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
     struct Click {
         QSemaphore found;
         QAtomicInt state; // 0 waiting, 1 started on the Qt thread, 2 given up by this thread
-        bool button = false;
+        ClickKind kind = ClickKind::None;
     };
-    const QSharedPointer<Click> click = QSharedPointer<Click>::create();
+    const QSharedPointer<Click> pending = QSharedPointer<Click>::create();
     QMetaObject::invokeMethod(
         QCoreApplication::instance(),
-        [click, id] {
-            if (!click->state.testAndSetOrdered(0, 1))
+        [pending, id] {
+            if (!pending->state.testAndSetOrdered(0, 1))
                 return;
             QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
-            QQuickItem *button = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
-            click->button = button && button->inherits("QQuickAbstractButton") && button->isVisible() &&
-                            button->isEnabled();
-            click->found.release();
-            if (!click->button)
-                return;
-            QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
-            QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
-            QCoreApplication::sendEvent(button, &press);
-            QCoreApplication::sendEvent(button, &release);
+            const ClickKind kind = clickKind(iface);
+            pending->kind = kind;
+            pending->found.release();
+            runClick(iface, kind);
         },
         Qt::QueuedConnection);
-    if (!click->found.tryAcquire(1, 2000)) {
-        if (click->state.testAndSetOrdered(0, 2))
+    if (!pending->found.tryAcquire(1, 3000)) {
+        if (pending->state.testAndSetOrdered(0, 2))
             return false;
         // started just now: the lookup does not wait for this thread
-        click->found.acquire();
+        pending->found.acquire();
     }
-    return click->button;
+    return pending->kind != ClickKind::None;
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 9)
@@ -702,19 +748,25 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
 // with android.app.background_running). After 2 s a read gives up with the answer for an object
 // that is gone, the next reads answer that at once until the Qt thread runs again, and then
 // TalkBack is told to read the tree anew. A press or scroll waits for the lookup only, not for
-// what it runs.
+// what it runs (the event Qt's Java part sends after it reads the object, after what it runs).
 namespace androidAccessibility {
 
 static QAtomicInt qtThreadStuck; // 1 after a read gave up, until the Qt thread runs again
 
 // The result of func run on the Qt thread, or fallback when that thread did not start it within
-// 2 s (it is not run then). On the Qt thread func is run directly.
-template <typename T, typename Func> static T runOnQtThread(const T &fallback, Func func) {
+// 2 s (neither func nor after is run then). after(result) runs on the Qt thread once the result is
+// given, in the same call, so nothing else runs there in between (a press right after its lookup);
+// the calling thread does not wait for it. On the Qt thread both are run directly.
+template <typename T, typename Func, typename After>
+static T runOnQtThread(const T &fallback, Func func, After after) {
     QCoreApplication *app = QCoreApplication::instance();
     if (!app)
         return fallback;
-    if (QThread::currentThread() == app->thread())
-        return func();
+    if (QThread::currentThread() == app->thread()) {
+        const T result = func();
+        after(result);
+        return result;
+    }
     if (qtThreadStuck.loadAcquire())
         return fallback;
     struct Call {
@@ -726,11 +778,13 @@ template <typename T, typename Func> static T runOnQtThread(const T &fallback, F
     call->result = fallback;
     QMetaObject::invokeMethod(
         app,
-        [call, func] {
+        [call, func, after] {
             if (!call->state.testAndSetOrdered(0, 1))
                 return;
-            call->result = func();
+            const T result = func();
+            call->result = result;
             call->done.release();
+            after(result);
         },
         Qt::QueuedConnection);
     if (!call->done.tryAcquire(1, 2000)) {
@@ -753,6 +807,10 @@ template <typename T, typename Func> static T runOnQtThread(const T &fallback, F
         call->done.acquire();
     }
     return call->result;
+}
+
+template <typename T, typename Func> static T runOnQtThread(const T &fallback, Func func) {
+    return runOnQtThread(fallback, func, [](const T &) {});
 }
 
 // The rest runs on the Qt thread, unless said otherwise
@@ -988,21 +1046,21 @@ static jint hitTest(JNIEnv *, jclass, jfloat x, jfloat y) {
     });
 }
 
-// Qt 5.15.0 answers false after a press too
+// TalkBack's double tap, when CustomQtActivity does not answer it itself (Qt has set its
+// accessibility delegate, first or again, and CustomQtActivity has not wrapped it yet): pressed as
+// nativeAccessibleClick() does, right after the lookup in the same call, and true is answered
+// (Qt 5.15.0 answered false after the press too, and TalkBack tapped as well); with nothing to press, or the Qt thread busy for 2 s, false is
+// answered and nothing is pressed. On true Qt's Java part sends a clicked event with the
+// description of the object, and that read waits for the press, as in Qt 6.
 static jboolean clickAction(JNIEnv *, jclass, jint objectId) {
-    const auto press = [objectId] {
-        QAccessibleInterface *iface = interfaceFromId(objectId);
-        if (iface && iface->isValid() && iface->actionInterface()) {
-            if (iface->actionInterface()->actionNames().contains(QAccessibleActionInterface::pressAction()))
-                iface->actionInterface()->doAction(QAccessibleActionInterface::pressAction());
-            else
-                iface->actionInterface()->doAction(QAccessibleActionInterface::toggleAction());
-        }
-    };
-    QCoreApplication *app = QCoreApplication::instance();
-    if (app)
-        QMetaObject::invokeMethod(app, press, Qt::QueuedConnection);
-    return false;
+    const ClickKind kind = runOnQtThread(
+        ClickKind::None, [objectId] { return clickKind(interfaceFromId(objectId)); },
+        [objectId](ClickKind found) {
+            QAccessibleInterface *iface = interfaceFromId(objectId);
+            if (found != ClickKind::None && iface && iface->isValid() && iface->actionInterface())
+                runClick(iface, found);
+        });
+    return kind != ClickKind::None;
 }
 
 static jboolean scroll(jint objectId, const QString &actionName) {
@@ -1305,6 +1363,19 @@ int main(int argc, char *argv[]) {
         homeform::loadSettings(profileToLoad);
     }
 
+    // Before myMessageOutput() reads it: a new user's QZ writes the debug log until the first workout with data
+    // (homeform::startFirstSetupLog()). A log on only for this stops growing at 50 MB per run
+#if defined(Q_OS_LINUX) // as in myMessageOutput(): without QML the log follows -no-log, not log_debug
+    const bool logOnAnyway =
+        forceQml ? settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() : logs;
+#else
+    const bool logOnAnyway = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#endif
+    if (homeform::startFirstSetupLog() && !logOnAnyway) {
+        homeform::firstSetupLog = true;
+        LogWriter::maxFileSize = 50 * 1024 * 1024;
+    }
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
@@ -1398,13 +1469,20 @@ int main(int argc, char *argv[]) {
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
     // which Qt formats for every packet once its category is enabled
-    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    const bool logdebug =
+        settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     const bool logEnabled = forceQml ? logdebug : logs;
 #else
     const bool logEnabled = logdebug;
 #endif
     if (logEnabled) {
+        if (homeform::firstSetupLog) {
+            qDebug() << "first-setup debug log on since"
+                     << settings.value(QZSettings::log_debug_first_setup_since,
+                                       QZSettings::default_log_debug_first_setup_since)
+                            .toString();
+        }
         QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
         foreach (QString s, settings.allKeys()) {
             if (!QZSettings::isSensitiveSettingKey(s)) {

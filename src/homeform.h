@@ -425,7 +425,9 @@ class homeform : public QObject {
         }
     }
 
-    Q_INVOKABLE bool firstRun() {
+    // QZ has never connected a device: no last device, IP or port. Static for main.cpp, which decides the
+    // first-setup log before homeform exists
+    static bool neverConnected() {
         QSettings settings;
         
         bool android_antbike = settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
@@ -460,6 +462,14 @@ class homeform : public QObject {
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
                 freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
+
+    Q_INVOKABLE bool firstRun() { return neverConnected(); }
+
+    // The debug log is on in this run only because of the first-setup log (log_debug off): set by main.cpp at
+    // start from startFirstSetupLog(), the log itself is set up once per run
+    static bool firstSetupLog;
+    static bool startFirstSetupLog();
+    Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
 
     Q_INVOKABLE bool autoInclinationEnabled() {
@@ -720,12 +730,18 @@ class homeform : public QObject {
     Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
+    // The system share sheet with the FIT file (Android, iOS); on a computer, its folder
+    Q_INVOKABLE void shareWorkoutFile(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
+    // Contextual support: check the actual link state, not merely whether an object exists.
+    Q_INVOKABLE bool supportDeviceConnected() const;
+    Q_INVOKABLE bool supportMetricsActive() const;
+    Q_INVOKABLE bool composeSupportEmail(const QString &description, const QString &reason, bool includeLog);
 
 private:
     void clearWebViewCache();

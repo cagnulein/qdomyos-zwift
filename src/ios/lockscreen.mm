@@ -463,9 +463,9 @@ void lockscreen::virtualrower_setPM5Mode(bool enabled)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor, bool disable_hr)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor disable_hr:disable_hr];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -873,5 +873,45 @@ double lockscreen::systemFontScale() {
     const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
                                                 compatibleWithTraitCollection:traits];
     return scaled > 0 ? scaled / body : 1.0;
+}
+
+void lockscreen::shareFile(const char* path) {
+    NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *window = nil;
+        if (@available(iOS 13.0, *)) {
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (scene.activationState == UISceneActivationStateForegroundActive &&
+                    [scene isKindOfClass:[UIWindowScene class]]) {
+                    for (UIWindow *w in ((UIWindowScene *)scene).windows) {
+                        if (w.isKeyWindow) {
+                            window = w;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!window) {
+            window = UIApplication.sharedApplication.windows.firstObject;
+        }
+        UIViewController *root = window.rootViewController;
+        if (!root) {
+            NSLog(@"shareFile: no view controller");
+            return;
+        }
+        // over whatever is shown already
+        while (root.presentedViewController) {
+            root = root.presentedViewController;
+        }
+        UIActivityViewController *sheet = [[UIActivityViewController alloc] initWithActivityItems:@[url]
+                                                                            applicationActivities:nil];
+        // on iPad the sheet is a popover: from the middle of the screen, without an arrow
+        sheet.popoverPresentationController.sourceView = root.view;
+        sheet.popoverPresentationController.sourceRect =
+            CGRectMake(CGRectGetMidX(root.view.bounds), CGRectGetMidY(root.view.bounds), 0, 0);
+        sheet.popoverPresentationController.permittedArrowDirections = 0;
+        [root presentViewController:sheet animated:YES completion:nil];
+    });
 }
 #endif

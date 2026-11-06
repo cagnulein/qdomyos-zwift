@@ -2773,6 +2773,10 @@ This may take a few moments on first startup.</source>
         <translation>ккал</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поделиться файлом FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Загрузить в Strava</translation>
     </message>
@@ -3626,6 +3630,14 @@ This may take a few moments on first startup.</source>
         <translation>Ошибка получения токена доступа, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поделиться файлом FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Не удалось поделиться файлом FIT этой тренировки</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Лицензия подтверждена!</translation>
     </message>
@@ -3845,6 +3857,126 @@ This may take a few moments on first startup.</source>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ работает</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Запрос в поддержку</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Проблема QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Здравствуйте, Роберто!</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Мне нужна помощь с QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Проблема:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Опишите проблему]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Ожидаемое поведение:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Опишите, как должно работать приложение]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Диагностика QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Версия QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Платформа: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Профиль: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Устройство: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Подключено</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не подключено</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Подключение: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Скорость: %1 км/ч</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Недоступно</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Мощность: %1 Вт</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Обнаруженная ситуация: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Журнал отладки не запрашивался.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Журнал отладки выключен. Включите запись и перезапустите QZ перед повторением проблемы.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Журнал отладки не найден.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Журнал отладки недоступен или слишком велик для подготовки.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Журнал отладки прикреплён (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Не удалось записать вложение журнала отладки.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Не удалось сжать журнал отладки или размер вложения превышает 10 МБ.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Вручную прикрепите созданный журнал отладки</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Устройство не обнаружено</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Не удалось открыть почтовое приложение</translation>
     </message>
 </context>
 <context>
@@ -4102,6 +4234,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>Поиск настроек</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Поделиться файлом FIT</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -9215,6 +9351,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>Макс. Вт/кг</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Связаться со службой поддержки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Подготовить письмо в поддержку с диагностическими данными</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Устройство не подключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Скорость и мощность равны нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Поддержка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Скрыть клавиатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрыть запрос в поддержку</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишите, что не работает. QZ добавит сведения об устройстве и приложении.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишите проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Описание проблемы</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Прикрепить журнал отладки, если он доступен</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перед отправкой вы можете проверить или изменить письмо. Оно не отправляется автоматически.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Открыть почту</translation>
     </message>
 </context>
 </TS>

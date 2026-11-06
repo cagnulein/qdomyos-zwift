@@ -103,3 +103,26 @@
 - QZ's DIRCON manager is conditional on the **Wahoo DIRCON** setting; a working Bluetooth virtual trainer does not prove that the Wi-Fi trainer service is active.
 - In a reviewed support log, the network trainer appeared in the receiving app but pairing failed while DIRCON was disabled, making the option value a high-value first check.
 - Device discovery, pairing acceptance, and metric streaming are separate stages. See the [integration FAQ](../faq/integrations.md) for supported DIRCON use cases.
+
+## Physical treadmill disconnects shortly after enabling QZ's virtual treadmill on iOS
+
+### Provide first
+
+- Exact treadmill and console model, advertised Bluetooth name, iPhone/iPad model and iOS version, and the **installed QZ build number** (not just the store version).
+- Confirm whether QZ reads **speed and incline continuously with Virtual Device disabled**, then whether the physical connection drops when **Virtual Device** is enabled. Record the elapsed time and whether QZ's session timer or Start state also changes.
+- Identify **all Bluetooth participants**: QZ phone/tablet, treadmill, receiving app (such as Runna), heart-rate strap/watch, remote control, and any manufacturer app. State which device connects to which, and the exact order in which they are started.
+- State whether the treadmill itself automatically connects to nearby Bluetooth heart-rate sensors or remotes, even when QZ has not selected them. Report whether the failure changes when those accessories are already connected before QZ starts.
+
+### If still unclear
+
+- Run two short, comparable tests with the **same startup order** and receiving app closed: Virtual Device off, then on; fully restart QZ between tests. Record whether physical speed/incline continues updating for at least two minutes. Do not change Garmin Companion or other options during this comparison.
+- If the failure occurs only with virtual advertising, capture screenshots of the relevant Experimental virtual-device settings and heart-rate/virtual Bluetooth options. Compare one additional setting at a time **only when supported by the installed build**, keeping the FTMS virtual profile requirements of the receiving app in mind.
+- Supply QZ debug logs for both tests, including the approximate disconnection time and whether the physical BLE connection or virtual advertisement failed first. If the problem depends on an HR strap or remote, report the accessory connection order for each test.
+- After the physical link is stable, test the receiving app separately and report whether it discovers the virtual treadmill as a **controllable treadmill**; stable physical telemetry alone does not establish that the virtual FTMS service remains available.
+
+### Why it matters
+
+- A treadmill may act as both a BLE peripheral for QZ telemetry and a BLE central for its own accessories. Knowing its automatic HR/remote pairing behavior helps distinguish competing Bluetooth connections from a generic iOS disconnection.
+- In a reproduced comparison, the physical treadmill link was stable without virtual advertising and also stayed connected when its accessory connections were already occupied. This is useful evidence of an advertising/connection interaction, **not proof** that the treadmill connected to QZ's virtual heart-rate service.
+- Some compatibility settings alter the **advertised virtual services**, not merely the physical link. A test that stabilizes the physical treadmill but removes virtual FTMS may prevent the receiving app from controlling it; evaluate those outcomes separately.
+- Paired A/B logs and a single changed option distinguish a repeatable interaction from unrelated backgrounding, startup timing, or app pairing differences.

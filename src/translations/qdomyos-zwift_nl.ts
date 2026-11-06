@@ -2785,6 +2785,10 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>Alle bestanden (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Uploaden naar Strava</translation>
     </message>
@@ -3694,6 +3698,14 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Het FIT-bestand van deze training kon niet worden gedeeld</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -3845,6 +3857,126 @@ Bij de eerste start kan dit even duren.</translation>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ is actief</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Ondersteuningsverzoek</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-probleem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hallo Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Ik heb hulp nodig met QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Probleem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beschrijf het probleem]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Verwacht gedrag:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beschrijf wat er zou moeten gebeuren]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnose ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versie: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profiel: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Apparaat: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Verbonden</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Niet verbonden</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Verbinding: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Snelheid: %1 km/u</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Niet beschikbaar</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Vermogen: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Gedetecteerde situatie: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Debuglog niet aangevraagd.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Debuglog is uitgeschakeld. Schakel loggen in en start QZ opnieuw voordat je het probleem reproduceert.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Geen debuglog gevonden.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Debuglog niet beschikbaar of te groot om voor te bereiden.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Debuglog bijgevoegd (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Het debuglogbestand kon niet worden geschreven.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Debuglog kon niet worden gecomprimeerd of de bijlage is groter dan 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Voeg het aangemaakte debuglog handmatig toe</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Geen apparaat gedetecteerd</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kan geen e-mailapp openen</translation>
     </message>
 </context>
 <context>
@@ -4000,6 +4132,10 @@ Wil je die nu starten?</translation>
     <message>
         <source>Search settings</source>
         <translation>Instellingen zoeken</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT-bestand delen</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -9211,6 +9347,69 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Max. W/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contact opnemen met QZ-ondersteuning</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Een ondersteuningsmail met diagnostische gegevens voorbereiden</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Geen apparaat verbonden</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Snelheid en vermogen zijn nul</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-ondersteuning</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Gereed</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Toetsenbord verbergen</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Ondersteuningsverzoek sluiten</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Vertel ons wat niet werkt. QZ voegt informatie over je apparaat en de app toe.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beschrijf het probleem...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beschrijf het probleem</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Debuglog bijvoegen indien beschikbaar</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Je kunt de e-mail bekijken of bewerken voordat je deze verstuurt. Er wordt niets automatisch verzonden.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-mail openen</translation>
     </message>
 </context>
 </TS>

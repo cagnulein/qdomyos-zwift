@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Permintaan dukungan</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Masalah QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hai Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Saya memerlukan bantuan dengan QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Masalah:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Jelaskan masalahnya]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Perilaku yang diharapkan:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Jelaskan apa yang seharusnya terjadi]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostik QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versi QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Perangkat: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Terhubung</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Tidak terhubung</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Koneksi: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Kecepatan: %1 km/jam</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Tidak tersedia</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Daya: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situasi terdeteksi: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Log debug tidak diminta.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Log debug dinonaktifkan. Aktifkan pencatatan debug dan mulai ulang QZ sebelum mengulangi masalah.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Log debug tidak ditemukan.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Log debug tidak tersedia atau terlalu besar untuk disiapkan.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Log debug terlampir (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Lampiran log debug tidak dapat ditulis.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Log debug tidak dapat dikompres atau lampiran melebihi 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Lampirkan log debug yang dibuat secara manual</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Tidak ada perangkat yang terdeteksi</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Tidak dapat membuka aplikasi email</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8988,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Hubungi dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Siapkan email dukungan dengan data diagnostik</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Tidak ada perangkat yang terhubung</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Kecepatan dan daya bernilai nol</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Dukungan QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Selesai</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Sembunyikan keyboard</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Tutup permintaan dukungan</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Beri tahu kami apa yang tidak berfungsi. QZ akan menambahkan informasi perangkat dan aplikasi Anda.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Jelaskan masalahnya...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Jelaskan masalah</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Lampirkan log debug jika tersedia</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Anda dapat meninjau atau mengedit email sebelum mengirimnya. Tidak ada yang dikirim secara otomatis.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Batal</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Buka email</translation>
     </message>
 </context>
 </TS>

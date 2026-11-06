@@ -53,6 +53,10 @@
 #include <QRandomGenerator>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSysInfo>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
 #include <QThread>
 #include <QTime>
 #include <QTimer>
@@ -63,6 +67,12 @@
 #include <QXmlStreamReader>
 #include <algorithm>
 #include <chrono>
+
+#ifdef Q_OS_IOS
+// Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
+extern "C" void qzComposeSupportEmail(const char *recipient, const char *subject,
+                                       const char *body, const char *attachmentPath);
+#endif
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
@@ -2064,9 +2074,183 @@ void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
     }
 }
 
+bool homeform::firstSetupLog = false;
+
+// A new user who can't get the machine working has no debug log to send with the support email: a QZ that has
+// never connected a device turns the log on by itself, until the first workout with data (fit_save_clicked())
+// or for 7 days. Decided once, at the first start of a QZ with this code: who has connected before keeps the
+// log as set. Returns whether the first-setup period is still running (main.cpp turns the log on for it only
+// when the log is off otherwise)
+bool homeform::startFirstSetupLog() {
+    QSettings settings;
+    if (!settings.contains(QZSettings::log_debug_first_setup)) {
+        const bool start = neverConnected();
+        settings.setValue(QZSettings::log_debug_first_setup, start);
+        if (start) {
+            settings.setValue(QZSettings::log_debug_first_setup_since, QDate::currentDate().toString(Qt::ISODate));
+        }
+    }
+    if (!settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+        return false;
+    }
+    const QDate since = QDate::fromString(
+        settings.value(QZSettings::log_debug_first_setup_since, QZSettings::default_log_debug_first_setup_since)
+            .toString(),
+        Qt::ISODate);
+    const qint64 days = since.isValid() ? since.daysTo(QDate::currentDate()) : -1;
+    if (days < 0 || days >= 7) {
+        settings.setValue(QZSettings::log_debug_first_setup, false);
+        return false;
+    }
+    return true;
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
+
+bool homeform::supportDeviceConnected() const {
+    return bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->connected();
+}
+
+bool homeform::supportMetricsActive() const {
+    if (!supportDeviceConnected())
+        return false;
+    auto *device = bluetoothManager->device();
+    // No single metric is universal: treadmills report speed, power meters report watts.
+    return device->currentSpeed().value() > 0.01 || device->wattsMetric().value() > 0.5;
+}
+
+bool homeform::composeSupportEmail(const QString &description, const QString &reason, bool includeLog) {
+    auto *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    QString deviceName = device ? device->bluetoothDevice.name() : tr("No device detected");
+    deviceName.replace(QRegularExpression(QStringLiteral("[\\r\\n]+")), QStringLiteral(" "));
+    const QString issue = reason.isEmpty() ? tr("Support request") : reason;
+#if defined(Q_OS_IOS)
+    const QString platform = QStringLiteral("iOS");
+#elif defined(Q_OS_ANDROID)
+    const QString platform = QStringLiteral("Android");
+#else
+    const QString platform = QSysInfo::prettyProductName();
+#endif
+
+    const QString subject = tr("QZ issue | %1 | %2 | %3")
+                                .arg(deviceName.left(60), platform, issue.left(60));
+    QStringList bodyLines = {
+        tr("Hi Roberto,"),
+        QString(),
+        tr("I need help with QZ."),
+        QString(),
+        tr("Problem:"),
+        description.trimmed().isEmpty()
+            ? tr("[Please describe the issue]")
+            : description.trimmed().left(4000),
+        QString(),
+        tr("Expected behavior:"),
+        tr("[Please describe what should happen]"),
+        QString(),
+        tr("--- QZ diagnostics ---"),
+        tr("QZ version: %1").arg(QApplication::applicationVersion()),
+        tr("Platform: %1 (%2)").arg(platform, QSysInfo::prettyProductName()),
+        tr("Profile: %1").arg(QSettings().value(QZSettings::profile_name, QZSettings::default_profile_name).toString()),
+        tr("Device: %1").arg(deviceName),
+        tr("Connection: %1").arg(supportDeviceConnected() ? tr("Connected") : tr("Not connected")),
+        tr("Speed: %1 km/h").arg(device ? QString::number(device->currentSpeed().value(), 'f', 2) : tr("Not available")),
+        tr("Power: %1 W").arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : tr("Not available")),
+        tr("Detected situation: %1").arg(issue)
+    };
+    QString body = bodyLines.join(QLatin1Char('\n')) + QLatin1Char('\n');
+
+    // Never send anything automatically: the user reviews the native compose screen.
+    // Reuse the same gzip format as the existing workout-summary email, but keep a
+    // separate temporary copy in the platform cache for safe Android URI sharing.
+    QString attachmentPath;
+    if (!includeLog) {
+        body += tr("Debug log not requested.") + QLatin1Char('\n');
+    } else if (!firstSetupLog && !QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
+        body += tr("Debug log disabled. Enable debug logging and restart QZ before reproducing.") + QLatin1Char('\n');
+    } else {
+        const QStringList candidates = QDir(getWritableAppDir()).entryList(
+            QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+        if (candidates.isEmpty()) {
+            body += tr("Debug log not found.") + QLatin1Char('\n');
+        } else {
+            QFile log(getWritableAppDir() + candidates.first());
+            constexpr qint64 maxRawBytes = 64LL * 1024 * 1024;
+            constexpr qint64 maxCompressedBytes = 10LL * 1024 * 1024;
+            if (log.size() > maxRawBytes || !log.open(QIODevice::ReadOnly)) {
+                body += tr("Debug log unavailable or too large to prepare.") + QLatin1Char('\n');
+            } else {
+                bool ok = false;
+                const QByteArray compressed = gzipCompress(log.readAll(), &ok);
+                const QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+                if (ok && !compressed.isEmpty() && compressed.size() <= maxCompressedBytes &&
+                    QDir().mkpath(cache)) {
+                    // Prune old temporary reports, but keep recent ones while a mail
+                    // app may still be holding the shared content URI.
+                    QDir cacheDir(cache);
+                    const auto oldReports = cacheDir.entryInfoList(
+                        QStringList() << QStringLiteral("qz-support-*.log.gz"), QDir::Files);
+                    for (const QFileInfo &oldReport : oldReports) {
+                        if (oldReport.lastModified().secsTo(QDateTime::currentDateTime()) > 24 * 60 * 60)
+                            QFile::remove(oldReport.absoluteFilePath());
+                    }
+                    const QString destination = QDir(cache).filePath(
+                        QStringLiteral("qz-support-%1.log.gz").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+                    QFile attachment(destination);
+                    if (attachment.open(QIODevice::WriteOnly) &&
+                        attachment.write(compressed) == compressed.size()) {
+                        attachment.close();
+                        attachmentPath = destination;
+                        body += tr("Debug log attached (gzip).") + QLatin1Char('\n');
+                    } else {
+                        attachment.close();
+                        QFile::remove(destination);
+                        body += tr("Could not write debug log attachment.") + QLatin1Char('\n');
+                    }
+                } else {
+                    body += tr("Could not compress debug log or attachment exceeds 10 MB.") + QLatin1Char('\n');
+                }
+            }
+        }
+    }
+
+    const QString recipient = QStringLiteral("roberto.viola83@gmail.com");
+#if defined(Q_OS_IOS)
+    const QByteArray toUtf8 = recipient.toUtf8();
+    const QByteArray subjectUtf8 = subject.toUtf8();
+    const QByteArray bodyUtf8 = body.toUtf8();
+    const QByteArray attachmentUtf8 = attachmentPath.toUtf8();
+    qzComposeSupportEmail(toUtf8.constData(), subjectUtf8.constData(),
+                          bodyUtf8.constData(), attachmentUtf8.constData());
+    return true;
+#elif defined(Q_OS_ANDROID)
+    const QAndroidJniObject to = QAndroidJniObject::fromString(recipient);
+    const QAndroidJniObject title = QAndroidJniObject::fromString(subject);
+    const QAndroidJniObject text = QAndroidJniObject::fromString(body);
+    const QAndroidJniObject file = QAndroidJniObject::fromString(attachmentPath);
+    const bool opened = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/SupportEmail", "compose",
+        "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+        QtAndroid::androidActivity().object<jobject>(), to.object<jstring>(),
+        title.object<jstring>(), text.object<jstring>(), file.object<jstring>());
+    if (!opened)
+        setToastRequested(tr("Unable to open an email application"));
+    return opened;
+#else
+    // Desktop fallback: mailto cannot attach files. Keep the body and report that
+    // the user must manually attach the prepared log.
+    if (!attachmentPath.isEmpty())
+        body += QLatin1Char('\n') + tr("Please attach the generated debug log manually") + QStringLiteral(": ") + attachmentPath;
+    QUrl url(QStringLiteral("mailto:") + recipient);
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("subject"), subject);
+    query.addQueryItem(QStringLiteral("body"), body);
+    url.setQuery(query);
+    return QDesktopServices::openUrl(url);
+#endif
+}
+
 
 homeform::~homeform() {
     // Cleanup FIT backup thread
@@ -10196,6 +10380,22 @@ void homeform::fit_save_clicked() {
 #endif
 
         QSettings settings;
+
+        // The first workout with a minute of data ends the first-setup log (startFirstSetupLog()), from the next
+        // start: the log is set up once per run. Session gets a line per second
+        if (settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+            int secondsWithData = 0;
+            for (const SessionLine &line : Session) {
+                if (line.speed > 0 || line.watt > 0 || line.cadence > 0) {
+                    secondsWithData++;
+                }
+            }
+            if (secondsWithData >= 60) {
+                qDebug() << "first-setup debug log: workout with data saved, off from the next start";
+                settings.setValue(QZSettings::log_debug_first_setup, false);
+            }
+        }
+
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
                  .toString()
                  .isEmpty()) {
@@ -11240,6 +11440,42 @@ bool homeform::isIntervalsICUUploadConfigured() {
     return settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool() &&
            !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty() &&
            !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty();
+}
+
+void homeform::shareWorkoutFile(const QString &filePath) {
+    qDebug() << "shareWorkoutFile" << filePath;
+    const QString failed = tr("The FIT file of this workout could not be shared");
+#if defined(Q_OS_ANDROID)
+    // FitShare checks the file and says a failure with a toast of Android: the workout page is a
+    // WebView, which covers the toast of QML there
+    QAndroidJniObject jPath = QAndroidJniObject::fromString(filePath);
+    QAndroidJniObject jTitle = QAndroidJniObject::fromString(tr("Share FIT file"));
+    QAndroidJniObject jFailed = QAndroidJniObject::fromString(failed);
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/FitShare", "share",
+        "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        QtAndroid::androidContext().object(), jPath.object<jstring>(), jTitle.object<jstring>(),
+        jFailed.object<jstring>());
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+#else
+    if (filePath.isEmpty() || !QFile::exists(filePath)) {
+        qDebug() << "shareWorkoutFile: no such file";
+        setToastRequested(failed);
+        return;
+    }
+#if defined(Q_OS_IOS)
+#ifndef IO_UNDER_QT
+    lockscreen::shareFile(filePath.toUtf8().constData());
+#endif
+#else
+    // no share sheet on a computer: the folder of the file, to send it from there
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
+#endif
+#endif
 }
 
 void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {

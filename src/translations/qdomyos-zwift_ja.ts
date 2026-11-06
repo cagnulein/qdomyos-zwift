@@ -2793,6 +2793,10 @@ This may take a few moments on first startup.</source>
         <translation>すべてのファイル (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FITファイルを共有</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Stravaにアップロード</translation>
     </message>
@@ -3596,6 +3600,14 @@ This may take a few moments on first startup.</source>
         <translation>アクセス トークンの取得に失敗しました、%1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FITファイルを共有</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>このワークアウトのFITファイルを共有できませんでした</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>ライセンスが承認されました！</translation>
     </message>
@@ -3858,6 +3870,126 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ を実行中</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>サポート依頼</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZの問題 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Robertoさん、</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZについてサポートが必要です。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>問題:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[問題を説明してください]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>期待する動作:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[本来どのように動作するか説明してください]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ診断情報 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZバージョン: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>プラットフォーム: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>プロフィール: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>デバイス: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>接続済み</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未接続</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>接続状態: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>利用不可</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>パワー: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>検出された状況: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>デバッグログは添付しません。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>デバッグログが無効です。問題を再現する前にログを有効にしてQZを再起動してください。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>デバッグログが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>デバッグログを利用できないか、準備するには大きすぎます。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>デバッグログを添付しました (gzip)。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>デバッグログの添付ファイルを書き込めませんでした。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>デバッグログを圧縮できなかったか、添付ファイルが10 MBを超えています。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>生成されたデバッグログを手動で添付してください</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>デバイスが検出されません</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>メールアプリを開けませんでした</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4114,6 +4246,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>設定を検索</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FITファイルを共有</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -9287,6 +9423,69 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Max Watt/KG</source>
         <translation>最高パワーウェイトレシオ（W／kg）</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZサポートに問い合わせる</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>診断情報を含むサポートメールを作成</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>デバイスが接続されていません</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度とパワーがゼロです</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZサポート</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完了</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>キーボードを隠す</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>サポートリクエストを閉じる</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>問題の内容をお知らせください。QZがデバイスとアプリの情報を追加します。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>問題を入力してください...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>問題を説明</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>デバッグログがあれば添付</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>送信前にメールを確認または編集できます。自動送信はされません。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>メールを開く</translation>
     </message>
 </context>
 </TS>
