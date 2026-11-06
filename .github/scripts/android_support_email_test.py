@@ -88,7 +88,7 @@ def choose_mail_probe(scenario):
                                 str((coords[1] + coords[3]) // 2))
                             time.sleep(2)
                             break
-        time.sleep(1.2)
+        time.sleep(3.0)
     raise RuntimeError("Chooser did not deliver mail to QZ Mail Probe "
                        f"(taps={presses}; last UI={last_xml[:1200]!r})")
 
@@ -133,9 +133,15 @@ def main():
     finally:
         (EVIDENCE / "results.txt").write_text("\n".join(lines) + "\n",
                                                 encoding="utf-8")
-        logcat = adb("logcat", "-d", "-s", "QZSupportMailTest:I",
-                     "QZSupportEmail:E", "QZMailProbe:I", "AndroidRuntime:E",
-                     "*:S", timeout=35, check=False)
+        # Do not hide the actual test failure if the API 24 emulator loses
+        # ADB: logcat collection is best-effort and must preserve the original
+        # chooser/recipient exception and the already-written results.txt.
+        try:
+            logcat = adb("logcat", "-d", "-s", "QZSupportMailTest:I",
+                         "QZSupportEmail:E", "QZMailProbe:I", "AndroidRuntime:E",
+                         "*:S", timeout=12, check=False)
+        except (subprocess.TimeoutExpired, OSError) as error:
+            logcat = "Could not collect logcat (emulator/ADB unavailable): " + str(error)
         (EVIDENCE / "logcat.txt").write_text(logcat, encoding="utf-8")
     print("ALL ANDROID SUPPORT EMAIL CASES PASSED")
 
