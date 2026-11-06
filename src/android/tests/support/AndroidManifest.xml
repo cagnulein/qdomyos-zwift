@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Only merged into the debug APK; no test entry point in release builds. -->
+    <application>
+        <activity android:name="org.cagnulen.qdomyoszwift.SupportEmailTestActivity"
+                  android:exported="true"
+                  android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+    </application>
+</manifest>

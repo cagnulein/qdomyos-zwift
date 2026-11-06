@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Αίτημα υποστήριξης</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Πρόβλημα QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Γεια σου Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Χρειάζομαι βοήθεια με το QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Πρόβλημα:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Περιγράψτε το πρόβλημα]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Αναμενόμενη συμπεριφορά:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Περιγράψτε τι θα έπρεπε να συμβεί]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Διαγνωστικά QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Έκδοση QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Πλατφόρμα: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Προφίλ: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Συσκευή: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Συνδεδεμένη</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Μη συνδεδεμένη</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Σύνδεση: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Ταχύτητα: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Μη διαθέσιμο</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Ισχύς: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Εντοπισμένη κατάσταση: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Δεν ζητήθηκε αρχείο καταγραφής αποσφαλμάτωσης.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Το αρχείο καταγραφής είναι απενεργοποιημένο. Ενεργοποιήστε το και επανεκκινήστε το QZ πριν αναπαραγάγετε το πρόβλημα.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Δεν βρέθηκε αρχείο καταγραφής αποσφαλμάτωσης.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Το αρχείο καταγραφής δεν είναι διαθέσιμο ή είναι πολύ μεγάλο για προετοιμασία.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Επισυνάφθηκε αρχείο καταγραφής (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Δεν ήταν δυνατή η εγγραφή του συνημμένου αρχείου καταγραφής.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Δεν ήταν δυνατή η συμπίεση του αρχείου καταγραφής ή το συνημμένο υπερβαίνει τα 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Επισυνάψτε χειροκίνητα το αρχείο καταγραφής που δημιουργήθηκε</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Δεν εντοπίστηκε συσκευή</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Δεν ήταν δυνατό το άνοιγμα εφαρμογής email</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7188,6 +7324,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8980,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Επικοινωνία με την υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Προετοιμασία email υποστήριξης με διαγνωστικά στοιχεία</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Δεν υπάρχει συνδεδεμένη συσκευή</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Η ταχύτητα και η ισχύς είναι μηδενικές</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Τέλος</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Απόκρυψη πληκτρολογίου</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Κλείσιμο αιτήματος υποστήριξης</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Πείτε μας τι δεν λειτουργεί. Το QZ θα προσθέσει πληροφορίες για τη συσκευή και την εφαρμογή σας.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Περιγράψτε το πρόβλημα...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Περιγράψτε το πρόβλημα</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Επισύναψη αρχείου καταγραφής εντοπισμού σφαλμάτων, αν υπάρχει</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Μπορείτε να ελέγξετε ή να επεξεργαστείτε το email πριν το στείλετε. Δεν αποστέλλεται τίποτα αυτόματα.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Άνοιγμα email</translation>
     </message>
 </context>
 </TS>

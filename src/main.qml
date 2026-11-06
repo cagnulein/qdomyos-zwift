@@ -1540,6 +1540,51 @@ ApplicationWindow {
             visible: rootItem.chartIconVisible
         }
 
+        // Share the workout file of the page (PreviewChart.qml opened from the workout history)
+        ToolButton {
+            id: toolButtonShareFit
+            readonly property string filePath: stackView.currentItem && stackView.currentItem.fitFilePath ? stackView.currentItem.fitFilePath : ""
+            Accessible.name: qsTr("Share FIT file")
+            // drawn as the search button: no image file, sharp at any density
+            Canvas {
+                property color color: toolButtonShareFit.Material.foreground
+                anchors.centerIn: parent
+                width: 24 * Screen.devicePixelRatio
+                height: 24 * Screen.devicePixelRatio
+                scale: 1 / Screen.devicePixelRatio
+                onColorChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.reset()
+                    // three dots joined by two lines, on a 24 x 24 grid
+                    ctx.scale(width / 24, height / 24)
+                    ctx.strokeStyle = color
+                    ctx.fillStyle = color
+                    ctx.lineWidth = 1.6
+                    ctx.beginPath()
+                    ctx.moveTo(18, 5)
+                    ctx.lineTo(6, 12)
+                    ctx.lineTo(18, 19)
+                    ctx.stroke()
+                    var dots = [[18, 5], [6, 12], [18, 19]]
+                    for (var i = 0; i < dots.length; i++) {
+                        ctx.beginPath()
+                        ctx.arc(dots[i][0], dots[i][1], 3, 0, 2 * Math.PI)
+                        ctx.fill()
+                    }
+                }
+            }
+            onClicked: rootItem.shareWorkoutFile(filePath)
+            // left of the leftmost shown button of the chain video - maps - chart - lock
+            anchors.right: toolButtonVideo.visible ? toolButtonVideo.left :
+                           toolButtonMaps.visible ? toolButtonMaps.left :
+                           toolButtonChart.visible ? toolButtonChart.left : toolButtonLockTiles.left
+            anchors.verticalCenter: parent.verticalCenter
+            visible: filePath !== ""
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Share FIT file")
+        }
+
         ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
@@ -1575,7 +1620,7 @@ ApplicationWindow {
                 var c = parent.width / 2, room = c
                 var left = [toolButton, toolButtonFloating]
                 var right = [toolButtonSettingsSearch, toolButtonLoadSettings, toolButtonSaveSettings, toolButtonMaps,
-                             toolButtonVideo, toolButtonChart, toolButtonLockTiles, toolButtonAutoResistance]
+                             toolButtonVideo, toolButtonChart, toolButtonShareFit, toolButtonLockTiles, toolButtonAutoResistance]
                 for (var i = 0; i < left.length; i++)
                     if (left[i].visible && left[i].opacity > 0 && left[i].width > 0)
                         room = Math.min(room, c - (left[i].x + left[i].width))
@@ -2022,6 +2067,14 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
+        }
+
+        SupportHelpButton {
+            activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 16 + window.getRightPadding()
+            anchors.bottomMargin: 16 + window.getBottomPadding()
         }
     }
 }

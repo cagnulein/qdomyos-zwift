@@ -2757,6 +2757,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Alle filer (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Upload til Strava</translation>
     </message>
@@ -3666,6 +3670,14 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>FIT-filen for denne træning kunne ikke deles</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -3812,6 +3824,126 @@ Det kan tage et øjeblik ved første start.</translation>
     <message>
         <source>Spotify songs:</source>
         <translation>Spotify-sange:</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Supportanmodning</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-problem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hej Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Jeg har brug for hjælp til QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beskriv problemet]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Forventet adfærd:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beskriv, hvad der burde ske]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnosticering ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-version: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Enhed: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Tilsluttet</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ikke tilsluttet</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Forbindelse: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hastighed: %1 km/t</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ikke tilgængelig</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Effekt: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Registreret situation: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Fejlfindingsloggen blev ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Fejlfindingslog er deaktiveret. Aktivér logning, og genstart QZ, før problemet genskabes.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Fejlfindingslog blev ikke fundet.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Fejlfindingsloggen er utilgængelig eller for stor til at klargøre.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Fejlfindingslog vedhæftet (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Kunne ikke skrive fejlfindingsloggen som vedhæftning.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Fejlfindingsloggen kunne ikke komprimeres, eller vedhæftningen er over 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Vedhæft den genererede fejlfindingslog manuelt</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhed registreret</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kunne ikke åbne et e-mailprogram</translation>
     </message>
 </context>
 <context>
@@ -3967,6 +4099,10 @@ Vil du starte det nu?</translation>
     <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -7370,6 +7506,14 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Skjult på sin egen side lige nu: skift den her</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Til</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Skjult på sin side med de aktuelle indstillinger</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Slå &quot;%1&quot; til for at ændre denne indstilling</translation>
     </message>
@@ -9162,6 +9306,69 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maks. watt/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-support</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargør en supportmail med diagnosticeringsoplysninger</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhed tilsluttet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighed og effekt er nul</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Færdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Luk supportanmodning</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortæl os, hvad der ikke virker. QZ tilføjer oplysninger om din enhed og app.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Vedhæft fejlfindingslog, hvis den findes</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan gennemse eller redigere mailen, før du sender den. Intet sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åbn mail</translation>
     </message>
 </context>
 </TS>

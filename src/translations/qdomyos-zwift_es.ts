@@ -2793,6 +2793,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Todos los archivos (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartir archivo FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Subir a Strava</translation>
     </message>
@@ -3592,6 +3596,14 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Error al recuperar el token de acceso, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartir archivo FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>No se pudo compartir el archivo FIT de este entrenamiento</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>¡Licencia aprobada!</translation>
     </message>
@@ -3854,6 +3866,126 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ está en funcionamiento</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Solicitud de asistencia</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problema de QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hola, Roberto:</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Necesito ayuda con QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problema:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Describe el problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportamiento esperado:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Describe lo que debería ocurrir]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnóstico de QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versión de QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plataforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Perfil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispositivo: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Conectado</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Desconectado</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Conexión: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Velocidad: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>No disponible</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Potencia: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situación detectada: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>No se solicitó el registro de depuración.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>El registro de depuración está desactivado. Activa el registro y reinicia QZ antes de reproducir el problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>No se encontró ningún registro de depuración.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>El registro de depuración no está disponible o es demasiado grande para prepararlo.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Registro de depuración adjunto (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>No se pudo escribir el archivo de registro adjunto.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>No se pudo comprimir el registro o el archivo adjunto supera los 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Adjunta manualmente el registro de depuración generado</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>No se ha detectado ningún dispositivo</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>No se pudo abrir una aplicación de correo electrónico</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4110,6 +4242,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>Buscar ajustes</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Compartir archivo FIT</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -7951,6 +8087,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <translation>Oculta en su página ahora mismo: cámbiala aquí</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>Encendido</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Oculta en su página con los ajustes actuales</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Activa “%1” para cambiar esta configuración</translation>
     </message>
@@ -9247,6 +9391,69 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Vatios/kg máx.</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contactar con el soporte de QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar un correo de soporte con datos de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>No hay ningún dispositivo conectado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>La velocidad y la potencia están a cero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Soporte de QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Listo</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Cerrar solicitud de soporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Cuéntanos qué no funciona. QZ añadirá información de tu dispositivo y de la aplicación.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Describe el problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Describe el problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Adjuntar registro de depuración si está disponible</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Puedes revisar o editar el correo antes de enviarlo. No se envía nada automáticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir correo</translation>
     </message>
 </context>
 </TS>

@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>सहायता अनुरोध</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ समस्या | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>नमस्ते Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>मुझे QZ के लिए सहायता चाहिए।</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>समस्या:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[कृपया समस्या बताएँ]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>अपेक्षित व्यवहार:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[कृपया बताएँ कि क्या होना चाहिए]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ निदान ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ संस्करण: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>प्लेटफ़ॉर्म: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>प्रोफ़ाइल: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>डिवाइस: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>कनेक्ट है</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>कनेक्शन: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>गति: %1 किमी/घंटा</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>पावर: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>पहचानी गई स्थिति: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>डिबग लॉग का अनुरोध नहीं किया गया।</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>डिबग लॉग बंद है। समस्या दोहराने से पहले डिबग लॉग चालू करें और QZ को फिर से शुरू करें।</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>डिबग लॉग नहीं मिला।</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>डिबग लॉग उपलब्ध नहीं है या तैयार करने के लिए बहुत बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>डिबग लॉग संलग्न है (gzip)।</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>डिबग लॉग संलग्नक लिख नहीं सके।</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>डिबग लॉग संपीड़ित नहीं हो सका या संलग्नक 10 MB से बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>बनाया गया डिबग लॉग मैन्युअल रूप से संलग्न करें</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>कोई डिवाइस नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ईमेल ऐप नहीं खोला जा सका</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7188,6 +7324,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8980,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ सहायता से संपर्क करें</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>निदान जानकारी के साथ सहायता ईमेल तैयार करें</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>कोई डिवाइस कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>गति और पावर शून्य हैं</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ सहायता</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>हो गया</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>कीबोर्ड छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>सहायता अनुरोध बंद करें</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>हमें बताएँ कि क्या काम नहीं कर रहा। QZ आपके डिवाइस और ऐप की जानकारी जोड़ देगा।</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>समस्या बताएँ...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>समस्या बताएँ</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>उपलब्ध होने पर डिबग लॉग संलग्न करें</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>भेजने से पहले आप ईमेल की समीक्षा या संपादन कर सकते हैं। कुछ भी अपने आप नहीं भेजा जाता।</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>ईमेल खोलें</translation>
     </message>
 </context>
 </TS>

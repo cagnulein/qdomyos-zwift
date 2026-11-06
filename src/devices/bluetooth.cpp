@@ -448,7 +448,6 @@ int bluetooth::searchNow() {
 }
 
 void bluetooth::startDiscovery() {
-
     // no discoveryAgent without a Bluetooth adapter: nothing to scan with
     if (!this->useDiscovery || !this->discoveryAgent)
         return;
@@ -1021,6 +1020,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             // The device chain below is split in two: MSVC 2019 fails with C1061 (blocks nested too deeply)
             // on a single else-if chain this long. A match in the first part skips the second part, as before.
             bool firstChainMatched = true;
+            bool isDrumFit = upperDeviceName.endsWith(QStringLiteral("DRUMFIT"));
+            if (isDrumFit) {
+                const int drumFitPrefixLength = deviceName.length() - QStringLiteral("DRUMFIT").length();
+                isDrumFit = drumFitPrefixLength > 0;
+                for (int idx = 0; isDrumFit && idx < drumFitPrefixLength; ++idx) {
+                    if (!deviceName.at(idx).isDigit()) {
+                        isDrumFit = false;
+                    }
+                }
+            }
             if (deviceName.startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
                 if (m3ibike::isCorrectUnit(b)) {
@@ -2191,6 +2200,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("VOLT") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("VICTORY")) ||
                         (b.name().toUpper().startsWith("CECOTEC")) ||       // Cecotec DrumFit Indoor 10000 MagnoMotor Connected #2420
+                        isDrumFit ||                                         // Cecotec DrumFit names have a numeric prefix
                         (b.name().toUpper().startsWith("WATTBIKE")) ||
                         (b.name().toUpper().startsWith("ZYCLEZBIKE")) ||
 						(b.name().toUpper().startsWith("ZBIKE2.0")) ||

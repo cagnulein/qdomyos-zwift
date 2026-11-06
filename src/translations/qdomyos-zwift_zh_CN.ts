@@ -2793,6 +2793,10 @@ This may take a few moments on first startup.</source>
         <translation>所有文件 (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>上传到 Strava</translation>
     </message>
@@ -3507,6 +3511,14 @@ This may take a few moments on first startup.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>无法分享此训练的 FIT 文件</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>许可证已批准！</translation>
     </message>
@@ -3862,6 +3874,126 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ 正在运行</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>支持请求</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 问题 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>你好，Roberto：</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>我需要 QZ 的帮助。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>问题：</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[请描述问题]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>预期行为：</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[请描述应当发生什么]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 诊断信息 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 版本：%1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>平台：%1（%2）</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>配置文件：%1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>设备：%1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已连接</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>连接状态：%1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度：%1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>不可用</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>功率：%1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>检测到的情况：%1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>未请求调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>调试日志已关闭。请先启用调试日志并重启 QZ，然后再重现问题。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>未找到调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>调试日志不可用或文件过大，无法准备。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>已附加调试日志（gzip）。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>无法写入调试日志附件。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>无法压缩调试日志，或附件超过 10 MB。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>请手动附加生成的调试日志</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>未检测到设备</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>无法打开电子邮件应用</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4118,6 +4250,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Search settings</source>
         <translation>搜索设置</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -7915,6 +8051,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation>当前在其所在页面中隐藏：请在此处更改</translation>
     </message>
     <message>
+        <source>On</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>按当前设置，在其所在页面中隐藏</translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>开启“%1”后才能更改此设置</translation>
     </message>
@@ -9275,6 +9419,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>最大 W/kg</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>联系 QZ 支持</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>准备包含诊断信息的支持邮件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未连接设备</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率为零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支持</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隐藏键盘</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>关闭支持请求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>请告诉我们哪里无法正常工作。QZ 会添加设备和应用信息。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述问题...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述问题</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有调试日志时附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>发送前可以查看或编辑邮件。不会自动发送任何内容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>打开邮件</translation>
     </message>
 </context>
 </TS>

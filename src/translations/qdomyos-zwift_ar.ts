@@ -2802,6 +2802,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3437,6 +3441,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,6 +3770,126 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>طلب دعم</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>مشكلة في QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>مرحبًا Roberto،</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>أحتاج إلى مساعدة بشأن QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>المشكلة:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[يرجى وصف المشكلة]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>السلوك المتوقع:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[يرجى وصف ما ينبغي أن يحدث]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- معلومات تشخيص QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>إصدار QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>المنصة: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>الملف الشخصي: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>الجهاز: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>متصل</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>غير متصل</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>الاتصال: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>السرعة: %1 كم/س</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>غير متاح</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>الطاقة: %1 واط</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>الحالة المكتشفة: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>لم يُطلب سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>سجل التصحيح معطل. فعّل تسجيل التصحيح وأعد تشغيل QZ قبل إعادة التجربة.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>لم يتم العثور على سجل تصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>سجل التصحيح غير متاح أو كبير جدًا للتحضير.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>تم إرفاق سجل التصحيح (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>تعذرت كتابة مرفق سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>تعذر ضغط سجل التصحيح أو يتجاوز المرفق 10 ميغابايت.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>يرجى إرفاق سجل التصحيح الذي تم إنشاؤه يدويًا</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>لم يتم اكتشاف جهاز</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>تعذر فتح تطبيق البريد الإلكتروني</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3899,6 +4031,10 @@ Do you want to start it now?</source>
     </message>
     <message>
         <source>Search settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7188,6 +7324,14 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Turn on “%1” to change this setting</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8980,6 +9124,69 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>تواصل مع دعم QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>إعداد رسالة بريد للدعم مع بيانات التشخيص</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>لا يوجد جهاز متصل</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>السرعة والطاقة تساويان صفرًا</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>دعم QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>تم</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>إخفاء لوحة المفاتيح</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>إغلاق طلب الدعم</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>أخبرنا بما لا يعمل. ستضيف QZ معلومات جهازك وتطبيقك.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>صِف المشكلة...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>صِف المشكلة</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>إرفاق سجل التصحيح إن توفر</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>يمكنك مراجعة الرسالة أو تعديلها قبل إرسالها. لن يُرسل أي شيء تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>إلغاء</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>فتح البريد الإلكتروني</translation>
     </message>
 </context>
 </TS>
