@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>יצירת קשר עם התמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>הכנת הודעת תמיכה עם פרטי אבחון</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>לא מחובר מכשיר</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>המהירות וההספק הם אפס</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>תמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>סיום</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>הסתרת המקלדת</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>סגירת בקשת התמיכה</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>ספרו לנו מה לא עובד. QZ תוסיף פרטים על המכשיר והאפליקציה שלכם.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>תארו את הבעיה...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>תיאור הבעיה</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>צירוף יומן ניפוי שגיאות אם הוא זמין</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>אפשר לבדוק או לערוך את ההודעה לפני השליחה. שום דבר לא נשלח אוטומטית.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ביטול</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>פתיחת הדוא״ל</translation>
+    </message>
+</context>
 </TS>
