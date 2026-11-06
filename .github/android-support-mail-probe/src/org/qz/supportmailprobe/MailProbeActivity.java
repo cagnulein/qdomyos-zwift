@@ -172,7 +172,7 @@ public final class MailProbeActivity extends Activity {
 
         Uri attachment = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         String attachmentLabel = attachment == null ? "No attachment"
-                : attachment.getLastPathSegment() + "\\ncontent:// URI, gzip read verified";
+                : attachment.getLastPathSegment() + "\ncontent:// URI, gzip read verified";
         field(card, "Attachment", attachmentLabel);
 
         page.addView(label("Nothing is sent. This screen proves what the Android "
