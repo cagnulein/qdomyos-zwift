@@ -3919,6 +3919,14 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Vygenerovaný protokol ladění přiložte ručně</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nebylo zjištěno žádné zařízení</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Nepodařilo se otevřít e-mailovou aplikaci</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
