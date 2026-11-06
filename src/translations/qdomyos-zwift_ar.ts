@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>طلب دعم</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>مشكلة في QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>مرحبًا Roberto،</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>أحتاج إلى مساعدة بشأن QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>المشكلة:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[يرجى وصف المشكلة]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>السلوك المتوقع:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[يرجى وصف ما ينبغي أن يحدث]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- معلومات تشخيص QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>إصدار QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>المنصة: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>الملف الشخصي: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>الجهاز: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>متصل</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>غير متصل</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>الاتصال: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>السرعة: %1 كم/س</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>غير متاح</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>الطاقة: %1 واط</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>الحالة المكتشفة: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>لم يُطلب سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>سجل التصحيح معطل. فعّل تسجيل التصحيح وأعد تشغيل QZ قبل إعادة التجربة.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>لم يتم العثور على سجل تصحيح.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>سجل التصحيح غير متاح أو كبير جدًا للتحضير.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>تم إرفاق سجل التصحيح (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>تعذرت كتابة مرفق سجل التصحيح.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>تعذر ضغط سجل التصحيح أو يتجاوز المرفق 10 ميغابايت.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>يرجى إرفاق سجل التصحيح الذي تم إنشاؤه يدويًا</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
