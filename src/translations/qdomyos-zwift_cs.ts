@@ -9158,4 +9158,67 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Max. W/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontaktovat podporu QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Připravit e-mail podpoře s diagnostickými údaji</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Není připojeno žádné zařízení</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Rychlost a výkon jsou nulové</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Podpora QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Hotovo</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skrýt klávesnici</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Zavřít žádost o podporu</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Popište, co nefunguje. QZ přidá informace o zařízení a aplikaci.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Popište problém...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Popište problém</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Přiložit protokol ladění, pokud je k dispozici</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Před odesláním můžete e-mail zkontrolovat nebo upravit. Nic se neodešle automaticky.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Otevřít e-mail</translation>
+    </message>
+</context>
 </TS>
