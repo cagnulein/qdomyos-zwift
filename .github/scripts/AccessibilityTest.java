@@ -396,18 +396,26 @@ public class AccessibilityTest {
     // The first node whose description starts with the text, and not with a longer number
     // ("Resistance: 1" is not "Resistance: 12"); a button must be clickable. A node with no
     // size is not shown: Qt keeps the items of a hidden page (one under the top page of a
-    // StackView) and of a closed section in the tree, with empty bounds
+    // StackView) and of a closed section in the tree, with empty bounds. A button with no size
+    // is taken only when no button of that name has one: Qt 5.15 gives no bounds to some items
+    // on the screen too (the Bluetooth icon of the home page, a MouseArea it takes as hidden)
     private static AccessibilityNodeInfo find(String text, boolean clickable) {
         Rect bounds = new Rect();
+        AccessibilityNodeInfo noSize = null;
         for (AccessibilityNodeInfo node : appNodes()) {
             CharSequence description = node.getContentDescription();
-            node.getBoundsInScreen(bounds);
-            if ((!clickable || node.isClickable()) && description != null && !bounds.isEmpty()
+            if ((!clickable || node.isClickable()) && description != null
                     && startsWith(description.toString(), text)) {
-                return node;
+                node.getBoundsInScreen(bounds);
+                if (!bounds.isEmpty()) {
+                    return node;
+                }
+                if (clickable && noSize == null) {
+                    noSize = node;
+                }
             }
         }
-        return null;
+        return noSize;
     }
 
     private static boolean startsWith(String description, String text) {
