@@ -3,7 +3,9 @@
 #include <QByteArray>
 #include <QtGlobal>
 
+#include "Tools/testsettings.h"
 #include "devices/proformrower/proformrower.h"
+#include "qzsettings.h"
 
 namespace {
 QByteArray frame(const QByteArray &prefix, const QByteArray &body) {
@@ -76,6 +78,69 @@ TEST(ProformRowerTelemetryParserTest, RejectsIncompleteOutOfOrderAndBadChecksumR
     for (const QByteArray &part : corrupt)
         EXPECT_FALSE(parser.consumeFragment(part, metrics));
     EXPECT_FALSE(metrics.hasCadence);
+}
+
+TEST(ProformRowerTelemetryParserTest, RejectsInvalidHeadersAndRecoversForNextMessage) {
+    ProformRowerTelemetryParser parser;
+    ProformRowerTelemetry metrics;
+    const QList<QByteArray> frames = q750rStrokeFrames();
+
+    QByteArray wrongLength = frames.first();
+    wrongLength[2] = 0x31;
+    EXPECT_FALSE(parser.consumeFragment(wrongLength, metrics));
+
+    QByteArray wrongPacketCount = frames.first();
+    wrongPacketCount[3] = 0x05;
+    EXPECT_FALSE(parser.consumeFragment(wrongPacketCount, metrics));
+
+    for (const QByteArray &part : frames)
+        parser.consumeFragment(part, metrics);
+    EXPECT_TRUE(metrics.hasCadence);
+    EXPECT_EQ(metrics.cadence, 10);
+}
+
+TEST(ProformRowerTelemetryParserTest, RejectsWrongSizedFragmentAndRecovers) {
+    ProformRowerTelemetryParser parser;
+    ProformRowerTelemetry metrics;
+    const QList<QByteArray> frames = q750rPaceFrames();
+    EXPECT_FALSE(parser.consumeFragment(frames.first(), metrics));
+
+    QByteArray shortFragment = frames.at(1);
+    shortFragment.chop(1);
+    EXPECT_FALSE(parser.consumeFragment(shortFragment, metrics));
+    EXPECT_FALSE(metrics.hasSpeed);
+
+    for (const QByteArray &part : frames)
+        parser.consumeFragment(part, metrics);
+    EXPECT_TRUE(metrics.hasSpeed);
+    EXPECT_NEAR(metrics.speedKmh, 1800.0 / 153.0, 0.0001);
+}
+
+TEST(ProformRowerTelemetryParserTest, PreservesLegacyFf11ParsingWhen750rIsEnabled) {
+    TestSettings testSettings(QStringLiteral("QZ ProForm Rower Tests"),
+                              QStringLiteral("ProForm Rower 750R FF11 Regression"));
+    testSettings.activate();
+    testSettings.qsettings.clear();
+    testSettings.qsettings.setValue(QZSettings::proform_rower_750r, true);
+    testSettings.qsettings.sync();
+
+    {
+        proformrower device(false, true);
+        QByteArray legacyFrame(20, '\0');
+        legacyFrame[0] = static_cast<char>(0xff);
+        legacyFrame[1] = static_cast<char>(0x11);
+        legacyFrame[12] = 10;
+        legacyFrame[13] = static_cast<char>(153);
+        const QLowEnergyCharacteristic characteristic;
+        ASSERT_TRUE(QMetaObject::invokeMethod(
+            &device, "characteristicChanged", Qt::DirectConnection,
+            Q_ARG(QLowEnergyCharacteristic, characteristic), Q_ARG(QByteArray, legacyFrame)));
+
+        EXPECT_EQ(device.currentCadence().value(), 10);
+        EXPECT_NEAR(device.currentSpeed().value(), 1800.0 / 153.0, 0.0001);
+    }
+
+    testSettings.deactivate();
 }
 
 TEST(ProformRowerTelemetryParserTest, DoesNotDecodeStandard1fAs750rPace) {
