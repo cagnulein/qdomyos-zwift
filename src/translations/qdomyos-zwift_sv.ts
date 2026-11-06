@@ -3886,6 +3886,14 @@ Det kan ta en stund vid första starten.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Bifoga den skapade felsökningsloggen manuellt</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhet upptäcktes</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Det gick inte att öppna ett e-postprogram</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
