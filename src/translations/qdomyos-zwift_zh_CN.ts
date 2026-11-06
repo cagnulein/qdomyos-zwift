@@ -9230,4 +9230,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation>最大 W/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>联系 QZ 支持</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>准备包含诊断信息的支持邮件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未连接设备</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率为零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支持</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隐藏键盘</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>关闭支持请求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>请告诉我们哪里无法正常工作。QZ 会添加设备和应用信息。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述问题...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述问题</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有调试日志时附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>发送前可以查看或编辑邮件。不会自动发送任何内容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>打开邮件</translation>
+    </message>
+</context>
 </TS>
