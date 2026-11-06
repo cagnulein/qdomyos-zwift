@@ -13,6 +13,7 @@
 // many times, it turns accessibility on and off while QZ runs (QTBUG-144911).
 // Lines start with OK, FAIL or INFO; the last one is DONE.
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.UiAutomation;
 import android.graphics.Rect;
 import android.os.HandlerThread;
@@ -44,6 +45,18 @@ public class AccessibilityStressTest {
         automation = constructor.newInstance(thread.getLooper(), connection);
         UiAutomation.class.getMethod("connect").invoke(automation);
         try {
+            // Android 9 does not reset the active window id when the window of QZ drops its
+            // accessibility connection (accessibility goes off in QZ when the previous connection
+            // leaves, or QZ is restarted), and without interactive windows sets it again only from a
+            // window event of QZ. But it turns accessibility on in QZ before it tells QZ which
+            // events to send, so QZ may drop that event. Then getRootInActiveWindow() stays null
+            // for the whole wait, without a question to QZ (on the API 28 emulator 8 of 900
+            // "connect" runs, with no event from QZ in each; a "pages" run once too). With
+            // interactive windows on, the active window comes from the focus of the window
+            // manager. Android 10 fixed this (AOSP 6c7522aecc and 6c8a43b685).
+            AccessibilityServiceInfo info = automation.getServiceInfo();
+            info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+            automation.setServiceInfo(info);
             if (args.length > 0 && args[0].equals("connect")) {
                 // the windows come to a new connection some time after it: wait up to 5 s for them
                 long start = SystemClock.uptimeMillis();
