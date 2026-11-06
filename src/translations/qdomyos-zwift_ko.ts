@@ -3919,6 +3919,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>생성된 디버그 로그를 직접 첨부하세요</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>기기가 감지되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>이메일 앱을 열 수 없습니다</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
