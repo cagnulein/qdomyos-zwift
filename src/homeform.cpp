@@ -2074,6 +2074,37 @@ void homeform::heartRateSensorSuggestionDismiss(bool dontAskAgain) {
     }
 }
 
+bool homeform::firstSetupLog = false;
+
+// A new user who can't get the machine working has no debug log to send with the support email: a QZ that has
+// never connected a device turns the log on by itself, until the first workout with data (fit_save_clicked())
+// or for 7 days. Decided once, at the first start of a QZ with this code: who has connected before keeps the
+// log as set. Returns whether the first-setup period is still running (main.cpp turns the log on for it only
+// when the log is off otherwise)
+bool homeform::startFirstSetupLog() {
+    QSettings settings;
+    if (!settings.contains(QZSettings::log_debug_first_setup)) {
+        const bool start = neverConnected();
+        settings.setValue(QZSettings::log_debug_first_setup, start);
+        if (start) {
+            settings.setValue(QZSettings::log_debug_first_setup_since, QDate::currentDate().toString(Qt::ISODate));
+        }
+    }
+    if (!settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+        return false;
+    }
+    const QDate since = QDate::fromString(
+        settings.value(QZSettings::log_debug_first_setup_since, QZSettings::default_log_debug_first_setup_since)
+            .toString(),
+        Qt::ISODate);
+    const qint64 days = since.isValid() ? since.daysTo(QDate::currentDate()) : -1;
+    if (days < 0 || days >= 7) {
+        settings.setValue(QZSettings::log_debug_first_setup, false);
+        return false;
+    }
+    return true;
+}
+
 bool homeform::hasConnectedDevice() const {
     return bluetoothManager && bluetoothManager->device();
 }
@@ -2136,7 +2167,7 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
     QString attachmentPath;
     if (!includeLog) {
         body += tr("Debug log not requested.") + QLatin1Char('\n');
-    } else if (!QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
+    } else if (!firstSetupLog && !QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
         body += tr("Debug log disabled. Enable debug logging and restart QZ before reproducing.") + QLatin1Char('\n');
     } else {
         const QStringList candidates = QDir(getWritableAppDir()).entryList(
@@ -10349,6 +10380,22 @@ void homeform::fit_save_clicked() {
 #endif
 
         QSettings settings;
+
+        // The first workout with a minute of data ends the first-setup log (startFirstSetupLog()), from the next
+        // start: the log is set up once per run. Session gets a line per second
+        if (settings.value(QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup).toBool()) {
+            int secondsWithData = 0;
+            for (const SessionLine &line : Session) {
+                if (line.speed > 0 || line.watt > 0 || line.cadence > 0) {
+                    secondsWithData++;
+                }
+            }
+            if (secondsWithData >= 60) {
+                qDebug() << "first-setup debug log: workout with data saved, off from the next start";
+                settings.setValue(QZSettings::log_debug_first_setup, false);
+            }
+        }
+
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
                  .toString()
                  .isEmpty()) {

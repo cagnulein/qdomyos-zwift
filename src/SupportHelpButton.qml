@@ -179,7 +179,8 @@ Item {
                     id: includeDebugLog
                     width: parent.width
                     text: qsTr("Attach debug log if available")
-                    checked: false
+                    // the debug log QZ writes by itself for a new user is there to be sent
+                    checked: window.rootReady && rootItem.firstSetupLogActive()
                     Accessible.name: text
                 }
 
