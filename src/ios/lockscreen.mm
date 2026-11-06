@@ -463,9 +463,9 @@ void lockscreen::virtualrower_setPM5Mode(bool enabled)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor, bool disable_hr)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor disable_hr:disable_hr];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -873,6 +873,10 @@ double lockscreen::systemFontScale() {
     const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
                                                 compatibleWithTraitCollection:traits];
     return scaled > 0 ? scaled / body : 1.0;
+}
+
+void lockscreen::postAccessibilityScreenChanged() {
+    UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 }
 
 void lockscreen::shareFile(const char* path) {
