@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>支援請求</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 問題 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>您好，Roberto：</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>我需要 QZ 的協助。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>問題：</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[請描述問題]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>預期行為：</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[請描述應該發生什麼事]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 診斷資訊 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 版本：%1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>平台：%1（%2）</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>設定檔：%1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>裝置：%1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已連線</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未連線</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>連線狀態：%1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度：%1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>無法使用</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>功率：%1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>偵測到的狀況：%1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>未要求偵錯記錄。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>偵錯記錄已關閉。請先啟用記錄並重新啟動 QZ，再重現問題。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>找不到偵錯記錄。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>偵錯記錄無法使用或檔案太大，無法準備。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>已附加偵錯記錄（gzip）。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>無法寫入偵錯記錄附件。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>無法壓縮偵錯記錄，或附件超過 10 MB。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>請手動附加產生的偵錯記錄</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
