@@ -164,6 +164,8 @@ public final class MailProbeActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
 
+        field(card, "Android handoff", String.valueOf(intent.getAction()) + " / "
+                + String.valueOf(intent.getType()));
         String[] recipients = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
         field(card, "To", recipients != null
                 ? android.text.TextUtils.join(", ", recipients) : "(missing)");
