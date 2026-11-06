@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Tukipyyntö</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-ongelma | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hei Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Tarvitsen apua QZ:n kanssa.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Ongelma:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Kuvaile ongelma]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Odotettu toiminta:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Kuvaile, mitä pitäisi tapahtua]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnostiikka ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versio: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Alusta: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profiili: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Laite: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Yhdistetty</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ei yhdistetty</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Yhteys: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Nopeus: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ei saatavilla</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Teho: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Havaittu tilanne: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Virhelokia ei pyydetty.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Virheloki on pois käytöstä. Ota lokitus käyttöön ja käynnistä QZ uudelleen ennen ongelman toistamista.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Virhelokia ei löytynyt.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Virheloki ei ole käytettävissä tai on liian suuri valmisteltavaksi.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Virheloki liitetty (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Virhelokin liitetiedostoa ei voitu kirjoittaa.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Virhelokia ei voitu pakata tai liite ylittää 10 Mt.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Liitä luotu virheloki manuaalisesti</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
