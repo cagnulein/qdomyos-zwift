@@ -9158,4 +9158,67 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <translation>Maks. watt/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ desteğiyle iletişime geç</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Tanılama bilgileriyle destek e-postası hazırla</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Bağlı cihaz yok</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hız ve güç sıfır</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ Desteği</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Bitti</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Klavyeyi gizle</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Destek talebini kapat</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Neyin çalışmadığını bize anlat. QZ cihaz ve uygulama bilgilerini ekleyecek.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Sorunu açıklayın...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Sorunu açıklayın</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Varsa hata ayıklama günlüğünü ekle</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>E-postayı göndermeden önce inceleyebilir veya düzenleyebilirsiniz. Hiçbir şey otomatik gönderilmez.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-postayı aç</translation>
+    </message>
+</context>
 </TS>
