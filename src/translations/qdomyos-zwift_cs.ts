@@ -3807,6 +3807,118 @@ Při prvním spuštění to může chvíli trvat.</translation>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ běží</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Žádost o podporu</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problém QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Dobrý den, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Potřebuji pomoci s aplikací QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problém:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Popište problém]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Očekávané chování:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Popište, co se má stát]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnostika QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Verze QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Zařízení: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Připojeno</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Nepřipojeno</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Připojení: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Rychlost: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Není k dispozici</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Výkon: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Zjištěná situace: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Protokol ladění nebyl vyžádán.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Protokol ladění je vypnutý. Před opakováním problému zapněte ladění a restartujte QZ.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Protokol ladění nebyl nalezen.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Protokol ladění není dostupný nebo je příliš velký pro přípravu.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Protokol ladění je přiložen (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Přílohu s protokolem ladění se nepodařilo zapsat.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Protokol ladění se nepodařilo komprimovat nebo je příloha větší než 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Vygenerovaný protokol ladění přiložte ručně</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
