@@ -2757,6 +2757,10 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>Alle filer (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Upload til Strava</translation>
     </message>
@@ -3666,6 +3670,14 @@ Det kan tage et øjeblik ved første start.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>FIT-filen for denne træning kunne ikke deles</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>m</translation>
     </message>
@@ -3967,6 +3979,10 @@ Vil du starte det nu?</translation>
     <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
     </message>
     <message>
         <source>Profile: </source>

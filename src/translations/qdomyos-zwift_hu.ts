@@ -2757,6 +2757,10 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>Minden fájl (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Feltöltés a Stravára</translation>
     </message>
@@ -3666,6 +3670,14 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>W </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Az edzés FIT-fájlját nem sikerült megosztani</translation>
+    </message>
+    <message>
         <source>meters</source>
         <translation>méter</translation>
     </message>
@@ -3967,6 +3979,10 @@ Szeretné most elindítani?</translation>
     <message>
         <source>Search settings</source>
         <translation>Keresés a beállításokban</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT-fájl megosztása</translation>
     </message>
     <message>
         <source>Profile: </source>

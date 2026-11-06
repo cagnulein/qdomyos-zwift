@@ -155,6 +155,10 @@
                                         <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                                     </intent-filter>
                                 </receiver>
+                                <!-- a workout file to the share sheet (FitShare.java) -->
+                                <provider android:name=".FitFileProvider" android:authorities="${applicationId}.fitshare" android:exported="false" android:grantUriPermissions="true">
+                                    <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/fit_share_paths" />
+                                </provider>
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 

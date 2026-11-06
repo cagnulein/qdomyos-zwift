@@ -2793,6 +2793,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Todos os arquivos (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Enviar ao Strava</translation>
     </message>
@@ -3592,6 +3596,14 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Erro ao recuperar token de acesso, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Não foi possível compartilhar o arquivo FIT deste treino</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Licença aprovada!</translation>
     </message>
@@ -4110,6 +4122,10 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
     <message>
         <source>Search settings</source>
         <translation>Buscar configurações</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
     </message>
     <message>
         <source>Profile: </source>
