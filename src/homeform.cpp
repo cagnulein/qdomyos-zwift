@@ -2068,20 +2068,20 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
     // separate temporary copy in the platform cache for safe Android URI sharing.
     QString attachmentPath;
     if (!includeLog) {
-        body += tr("Debug log: not requested.\n");
+        body += tr("Debug log: not requested.") + QLatin1Char('\n');
     } else if (!QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool()) {
-        body += tr("Debug log: disabled. Enable Debug Log and restart QZ before reproducing.\n");
+        body += tr("Debug log: disabled. Enable Debug Log and restart QZ before reproducing.") + QLatin1Char('\n');
     } else {
         const QStringList candidates = QDir(getWritableAppDir()).entryList(
             QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
         if (candidates.isEmpty()) {
-            body += tr("Debug log: no log file found.\n");
+            body += tr("Debug log: no log file found.") + QLatin1Char('\n');
         } else {
             QFile log(getWritableAppDir() + candidates.first());
             constexpr qint64 maxRawBytes = 64LL * 1024 * 1024;
             constexpr qint64 maxCompressedBytes = 10LL * 1024 * 1024;
             if (log.size() > maxRawBytes || !log.open(QIODevice::ReadOnly)) {
-                body += tr("Debug log: unavailable or too large to prepare.\n");
+                body += tr("Debug log: unavailable or too large to prepare.") + QLatin1Char('\n');
             } else {
                 bool ok = false;
                 const QByteArray compressed = gzipCompress(log.readAll(), &ok);
@@ -2104,14 +2104,14 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
                         attachment.write(compressed) == compressed.size()) {
                         attachment.close();
                         attachmentPath = destination;
-                        body += tr("Debug log: attached (gzip).\n");
+                        body += tr("Debug log: attached (gzip).") + QLatin1Char('\n');
                     } else {
                         attachment.close();
                         QFile::remove(destination);
-                        body += tr("Debug log: attachment could not be written.\n");
+                        body += tr("Debug log: attachment could not be written.") + QLatin1Char('\n');
                     }
                 } else {
-                    body += tr("Debug log: compression failed or attachment exceeds 10 MB.\n");
+                    body += tr("Debug log: compression failed or attachment exceeds 10 MB.") + QLatin1Char('\n');
                 }
             }
         }
@@ -2143,7 +2143,7 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
     // Desktop fallback: mailto cannot attach files. Keep the body and report that
     // the user must manually attach the prepared log.
     if (!attachmentPath.isEmpty())
-        body += tr("\nPlease attach the generated debug log manually: ") + attachmentPath;
+        body += QLatin1Char('\n') + tr("Please attach the generated debug log manually") + QStringLiteral(": ") + attachmentPath;
     QUrl url(QStringLiteral("mailto:") + recipient);
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("subject"), subject);
