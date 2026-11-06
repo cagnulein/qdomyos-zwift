@@ -9162,4 +9162,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Макс. Вт/кг</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Связаться со службой поддержки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Подготовить письмо в поддержку с диагностическими данными</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Устройство не подключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Скорость и мощность равны нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Поддержка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Скрыть клавиатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрыть запрос в поддержку</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишите, что не работает. QZ добавит сведения об устройстве и приложении.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишите проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Описание проблемы</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Прикрепить журнал отладки, если он доступен</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перед отправкой вы можете проверить или изменить письмо. Оно не отправляется автоматически.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Открыть почту</translation>
+    </message>
+</context>
 </TS>
