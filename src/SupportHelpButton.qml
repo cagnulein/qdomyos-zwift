@@ -32,7 +32,7 @@ Item {
                 support.missingSeconds++
                 support.idleSeconds = 0
                 support.showHint = support.missingSeconds >= 5
-                support.reason = "No device connected"
+                support.reason = qsTr("No device connected")
             } else if (rootItem.supportMetricsActive()) {
                 support.missingSeconds = 0
                 support.idleSeconds = 0
@@ -42,7 +42,7 @@ Item {
                 support.missingSeconds = 0
                 support.idleSeconds++
                 support.showHint = support.idleSeconds >= 10
-                support.reason = "Speed and power at zero"
+                support.reason = qsTr("Speed and power at zero")
             }
         }
     }
