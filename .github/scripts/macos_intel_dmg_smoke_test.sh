@@ -78,7 +78,7 @@ if [[ -f "$cocoa_plugin" ]]; then
   otool -L "$cocoa_plugin" > "$evidence_dir/cocoa-dependencies.log" 2>&1
   codesign -dv --verbose=2 "$cocoa_plugin" > "$evidence_dir/cocoa-signature.log" 2>&1 || true
 fi
-env QT_DEBUG_PLUGINS=1 QZ_CI_GUI_SMOKE_TEST=1 QZ_BT_STARTUP_TRACE=1 "$binary" -qml -no-virtual-device-bluetooth > "$evidence_dir/gui-smoke.log" 2>&1 &
+env QT_DEBUG_PLUGINS=1 QZ_CI_GUI_SMOKE_TEST=1 "$binary" -qml -no-virtual-device-bluetooth > "$evidence_dir/gui-smoke.log" 2>&1 &
 app_pid="$!"
 for _ in $(seq 1 45); do
   if ! kill -0 "$app_pid" 2>/dev/null; then

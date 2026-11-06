@@ -8,36 +8,12 @@
 #include <QFile>
 #include <memory>
 #include <QMetaEnum>
-#if defined(Q_OS_MACOS)
-#include <QElapsedTimer>
-#include <cstdio>
-#endif
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
-#endif
-
-#if defined(Q_OS_MACOS)
-static void traceMacBluetoothStartup(const char *stage, qint64 detail = -1) {
-    if (!qEnvironmentVariableIsSet("QZ_BT_STARTUP_TRACE"))
-        return;
-
-    static QElapsedTimer timer;
-    if (!timer.isValid())
-        timer.start();
-
-    if (detail >= 0) {
-        std::fprintf(stderr, "[QZ_BT_STARTUP] +%lld ms %s detail=%lld\n",
-                     static_cast<long long>(timer.elapsed()), stage, static_cast<long long>(detail));
-    } else {
-        std::fprintf(stderr, "[QZ_BT_STARTUP] +%lld ms %s\n",
-                     static_cast<long long>(timer.elapsed()), stage);
-    }
-    std::fflush(stderr);
-}
 #endif
 
 static void updateDiscoveredDevice(QList<QBluetoothDeviceInfo> &devices, const QBluetoothDeviceInfo &device) {
@@ -179,23 +155,13 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
-#if defined(Q_OS_MACOS)
-    traceMacBluetoothStartup("bluetooth constructor entered");
-#endif
     if (!startDiscovery) {
         this->discoveryAgent = nullptr;
         return;
     }
 
 #if !defined(WIN32) && !defined(Q_OS_IOS)
-#if defined(Q_OS_MACOS)
-    traceMacBluetoothStartup("before QBluetoothLocalDevice::allDevices");
-    const auto localBluetoothDevices = QBluetoothLocalDevice::allDevices();
-    traceMacBluetoothStartup("after QBluetoothLocalDevice::allDevices", localBluetoothDevices.size());
-    if (localBluetoothDevices.isEmpty()) {
-#else
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
-#endif
         debug(QStringLiteral("no bluetooth dongle found!"));
         // Fake and network devices come up in finished(), and without an adapter no scan ever calls it:
         // on Android emulators and Waydroid without Bluetooth the fake device never appeared.
@@ -210,13 +176,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #endif
     {
         // Create a discovery agent and connect to its signals
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("before QBluetoothDeviceDiscoveryAgent constructor");
-#endif
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("after QBluetoothDeviceDiscoveryAgent constructor");
-#endif
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &bluetooth::deviceDiscovered);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
@@ -299,13 +259,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
 #endif
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("before bluetooth::startDiscovery");
-#endif
         this->startDiscovery();
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("after bluetooth::startDiscovery");
-#endif
     }
 }
 
@@ -494,10 +448,6 @@ int bluetooth::searchNow() {
 }
 
 void bluetooth::startDiscovery() {
-#if defined(Q_OS_MACOS)
-    traceMacBluetoothStartup("bluetooth::startDiscovery entered");
-#endif
-
     // no discoveryAgent without a Bluetooth adapter: nothing to scan with
     if (!this->useDiscovery || !this->discoveryAgent)
         return;
@@ -523,23 +473,11 @@ void bluetooth::startDiscovery() {
 
     if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
 #endif
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("before discoveryAgent->start(LE)");
-#endif
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("after discoveryAgent->start(LE)");
-#endif
 #ifndef Q_OS_IOS
     } else {
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("before discoveryAgent->start(Classic|LE)");
-#endif
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                               QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-#if defined(Q_OS_MACOS)
-        traceMacBluetoothStartup("after discoveryAgent->start(Classic|LE)");
-#endif
     }
 #endif
 }
