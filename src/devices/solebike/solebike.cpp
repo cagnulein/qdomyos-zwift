@@ -334,13 +334,15 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 QTime solebike::GetElapsedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(3) << 8) | packet.at(4);
-    QTime t(0, convertedData / 60, convertedData % 60);
-    return t;
+    // The Sole status packet contains elapsed minutes and seconds in separate bytes.
+    const int elapsedSeconds = static_cast<uint8_t>(packet.at(3)) * 60 +
+                               static_cast<uint8_t>(packet.at(4));
+    return QTime(0, 0).addSecs(elapsedSeconds);
 }
 
 double solebike::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(7)) << 8) |
+                             static_cast<uint8_t>(packet.at(8));
     double data = ((double)convertedData) / 100.0f;
     
     // the bike send the distance in miles always
@@ -353,13 +355,15 @@ double solebike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double solebike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(13) << 8) | packet.at(14);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(13)) << 8) |
+                             static_cast<uint8_t>(packet.at(14));
     double data = ((double)convertedData);
     return data;
 }
 
 double solebike::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(11)) << 8) |
+                             static_cast<uint8_t>(packet.at(12));
     double data = ((double)convertedData) / 100.0f;
     
     // the bike send the speed in miles always
