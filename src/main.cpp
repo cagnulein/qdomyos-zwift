@@ -1480,7 +1480,8 @@ int main(int argc, char *argv[]) {
         if (homeform::firstSetupLog) {
             qDebug() << "first-setup debug log on since"
                      << settings.value(QZSettings::log_debug_first_setup_since,
-                                       QZSettings::default_log_debug_first_setup_since);
+                                       QZSettings::default_log_debug_first_setup_since)
+                            .toString();
         }
         QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
         foreach (QString s, settings.allKeys()) {

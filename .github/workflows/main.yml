@@ -1267,7 +1267,7 @@ jobs:
             sh .github/scripts/android_app_start_test.sh
 
             # A fresh install that has never connected a device writes the debug log by itself (log_debug_first_setup)
-            adb shell "run-as org.cagnulen.qdomyoszwift cat 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" | grep -q '^log_debug_first_setup=true' || { echo "first-setup debug log is not on after a fresh install"; exit 1; }
+            adb shell "run-as org.cagnulen.qdomyoszwift cat 'files/.config/Roberto Viola/qDomyos-Zwift.conf'" | grep -q -F 'log_debug_first_setup=true' || { echo "first-setup debug log is not on after a fresh install"; exit 1; }
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
