@@ -3919,6 +3919,14 @@ Bij de eerste start kan dit even duren.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Voeg het aangemaakte debuglog handmatig toe</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Geen apparaat gedetecteerd</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kan geen e-mailapp openen</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
