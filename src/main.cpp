@@ -524,7 +524,8 @@ void initializeLogThread() {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     // QSettings only for the first call: this runs for every log line, even with the debug log off
-    static bool logdebug = QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    static bool logdebug =
+        QSettings().value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -1362,6 +1363,19 @@ int main(int argc, char *argv[]) {
         homeform::loadSettings(profileToLoad);
     }
 
+    // Before myMessageOutput() reads it: a new user's QZ writes the debug log until the first workout with data
+    // (homeform::startFirstSetupLog()). A log on only for this stops growing at 50 MB per run
+#if defined(Q_OS_LINUX) // as in myMessageOutput(): without QML the log follows -no-log, not log_debug
+    const bool logOnAnyway =
+        forceQml ? settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() : logs;
+#else
+    const bool logOnAnyway = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#endif
+    if (homeform::startFirstSetupLog() && !logOnAnyway) {
+        homeform::firstSetupLog = true;
+        LogWriter::maxFileSize = 50 * 1024 * 1024;
+    }
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
@@ -1455,13 +1469,19 @@ int main(int argc, char *argv[]) {
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
     // which Qt formats for every packet once its category is enabled
-    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    const bool logdebug =
+        settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() || homeform::firstSetupLog;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     const bool logEnabled = forceQml ? logdebug : logs;
 #else
     const bool logEnabled = logdebug;
 #endif
     if (logEnabled) {
+        if (homeform::firstSetupLog) {
+            qDebug() << "first-setup debug log on since"
+                     << settings.value(QZSettings::log_debug_first_setup_since,
+                                       QZSettings::default_log_debug_first_setup_since);
+        }
         QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
         foreach (QString s, settings.allKeys()) {
             if (!QZSettings::isSensitiveSettingKey(s)) {

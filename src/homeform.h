@@ -425,7 +425,9 @@ class homeform : public QObject {
         }
     }
 
-    Q_INVOKABLE bool firstRun() {
+    // QZ has never connected a device: no last device, IP or port. Static for main.cpp, which decides the
+    // first-setup log before homeform exists
+    static bool neverConnected() {
         QSettings settings;
         
         bool android_antbike = settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
@@ -460,6 +462,14 @@ class homeform : public QObject {
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
                 freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
+
+    Q_INVOKABLE bool firstRun() { return neverConnected(); }
+
+    // The debug log is on in this run only because of the first-setup log (log_debug off): set by main.cpp at
+    // start from startFirstSetupLog(), the log itself is set up once per run
+    static bool firstSetupLog;
+    static bool startFirstSetupLog();
+    Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
 
     Q_INVOKABLE bool autoInclinationEnabled() {
