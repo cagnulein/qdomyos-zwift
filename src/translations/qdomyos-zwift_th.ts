@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>โปรดแนบบันทึกการดีบักที่สร้างขึ้นด้วยตนเอง</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>ไม่พบอุปกรณ์</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ไม่สามารถเปิดแอปอีเมลได้</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
