@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>सहायता अनुरोध</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ समस्या | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>नमस्ते Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>मुझे QZ के लिए सहायता चाहिए।</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>समस्या:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[कृपया समस्या बताएँ]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>अपेक्षित व्यवहार:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[कृपया बताएँ कि क्या होना चाहिए]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ निदान ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ संस्करण: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>प्लेटफ़ॉर्म: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>प्रोफ़ाइल: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>डिवाइस: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>कनेक्ट है</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>कनेक्शन: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>गति: %1 किमी/घंटा</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>पावर: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>पहचानी गई स्थिति: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>डिबग लॉग का अनुरोध नहीं किया गया।</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>डिबग लॉग बंद है। समस्या दोहराने से पहले डिबग लॉग चालू करें और QZ को फिर से शुरू करें।</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>डिबग लॉग नहीं मिला।</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>डिबग लॉग उपलब्ध नहीं है या तैयार करने के लिए बहुत बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>डिबग लॉग संलग्न है (gzip)।</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>डिबग लॉग संलग्नक लिख नहीं सके।</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>डिबग लॉग संपीड़ित नहीं हो सका या संलग्नक 10 MB से बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>बनाया गया डिबग लॉग मैन्युअल रूप से संलग्न करें</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
