@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>Anexe manualmente o log de depuração gerado</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nenhum dispositivo detectado</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Não foi possível abrir um aplicativo de e-mail</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
