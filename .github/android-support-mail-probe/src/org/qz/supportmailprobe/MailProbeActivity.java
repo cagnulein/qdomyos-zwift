@@ -5,6 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -72,15 +78,108 @@ public final class MailProbeActivity extends Activity {
             Log.e(TAG, result, error);
         }
 
+        // First draw a recognizable, readable compose preview. In older
+        // emulator images the initial screenshot could otherwise show only
+        // the former single-line "PASS ..." diagnostic text or a blank screen.
+        setContentView(buildComposePreview(getIntent(), result));
         Log.i(TAG, result);
         try (FileOutputStream out = openFileOutput("result.txt", MODE_PRIVATE)) {
             out.write(result.getBytes(StandardCharsets.UTF_8));
         } catch (Exception error) {
             Log.e(TAG, "Cannot write test result", error);
         }
-        TextView message = new TextView(this);
-        message.setText("QZ Mail Probe: " + result);
-        message.setTextSize(18);
-        setContentView(message);
     }
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private TextView label(String text, int sp, int color, boolean bold) {
+        TextView view = new TextView(this);
+        view.setText(text);
+        view.setTextColor(color);
+        view.setTextSize(sp);
+        if (bold)
+            view.setTypeface(null, Typeface.BOLD);
+        view.setPadding(0, dp(5), 0, dp(5));
+        return view;
+    }
+
+    private void field(LinearLayout content, String name, String value) {
+        content.addView(label(name.toUpperCase(java.util.Locale.US), 11,
+                Color.rgb(95, 105, 125), true));
+        TextView detail = label(value, 16, Color.rgb(33, 42, 60), false);
+        detail.setTextIsSelectable(true);
+        content.addView(detail);
+        View divider = new View(this);
+        divider.setBackgroundColor(Color.rgb(230, 233, 238));
+        LinearLayout.LayoutParams line = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(1));
+        line.setMargins(0, dp(10), 0, dp(12));
+        content.addView(divider, line);
+    }
+
+    /**
+     * This is an intentionally labeled TEST receiver, not a Gmail UI.
+     * Unlike the former one-line PASS screen, it displays exactly the
+     * compose payload delivered by Android to a separate application UID.
+     */
+    private View buildComposePreview(Intent intent, String result) {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(Color.rgb(245, 247, 251));
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
+        root.addView(scroll, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+
+        LinearLayout page = new LinearLayout(this);
+        page.setOrientation(LinearLayout.VERTICAL);
+        page.setPadding(dp(18), dp(16), dp(18), dp(20));
+        scroll.addView(page);
+
+        TextView brand = label("QZ Mail Probe", 21, Color.rgb(29, 54, 99), true);
+        page.addView(brand);
+        page.addView(label("EMAIL COMPOSE PREVIEW - TEST RECEIVER (NOT GMAIL)",
+                11, Color.rgb(102, 107, 124), true));
+
+        TextView status = label(result, 13,
+                result.startsWith("PASS") ? Color.rgb(22, 108, 55) : Color.rgb(174, 29, 46),
+                true);
+        status.setPadding(dp(10), dp(8), dp(10), dp(8));
+        status.setBackgroundColor(result.startsWith("PASS")
+                ? Color.rgb(221, 245, 226) : Color.rgb(255, 226, 226));
+        LinearLayout.LayoutParams statusLayout = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        statusLayout.setMargins(0, dp(12), 0, dp(16));
+        page.addView(status, statusLayout);
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(14), dp(16), dp(18));
+        card.setBackgroundColor(Color.WHITE);
+        page.addView(card, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        String[] recipients = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
+        field(card, "To", recipients != null
+                ? android.text.TextUtils.join(", ", recipients) : "(missing)");
+        field(card, "Subject", String.valueOf(intent.getStringExtra(Intent.EXTRA_SUBJECT)));
+        field(card, "Message", String.valueOf(intent.getStringExtra(Intent.EXTRA_TEXT)));
+
+        Uri attachment = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        String attachmentLabel = attachment == null ? "No attachment"
+                : attachment.getLastPathSegment() + "\\ncontent:// URI, gzip read verified";
+        field(card, "Attachment", attachmentLabel);
+
+        page.addView(label("Nothing is sent. This screen proves what the Android "
+                + "email intent delivered to an independent app. Gmail/other installed "
+                + "email clients are not part of this automated test.",
+                12, Color.rgb(90, 99, 114), false));
+        return root;
+    }
+
 }
