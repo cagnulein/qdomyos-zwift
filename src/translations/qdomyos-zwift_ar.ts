@@ -8982,4 +8982,67 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>تواصل مع دعم QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>إعداد رسالة بريد للدعم مع بيانات التشخيص</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>لا يوجد جهاز متصل</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>السرعة والطاقة تساويان صفرًا</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>دعم QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>تم</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>إخفاء لوحة المفاتيح</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>إغلاق طلب الدعم</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>أخبرنا بما لا يعمل. ستضيف QZ معلومات جهازك وتطبيقك.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>صِف المشكلة...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>صِف المشكلة</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>إرفاق سجل التصحيح إن توفر</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>يمكنك مراجعة الرسالة أو تعديلها قبل إرسالها. لن يُرسل أي شيء تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>إلغاء</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>فتح البريد الإلكتروني</translation>
+    </message>
+</context>
 </TS>
