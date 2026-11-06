@@ -3758,6 +3758,118 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Solicitare de asistență</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problemă QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Salut, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Am nevoie de ajutor cu QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problemă:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descrieți problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportament așteptat:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descrieți ce ar trebui să se întâmple]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnosticare QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versiune QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platformă: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispozitiv: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Conectat</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Neconectat</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Conexiune: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Viteză: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponibil</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Putere: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situație detectată: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Jurnalul de depanare nu a fost solicitat.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Jurnalul de depanare este dezactivat. Activați înregistrarea și reporniți QZ înainte de a reproduce problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Jurnalul de depanare nu a fost găsit.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Jurnalul de depanare nu este disponibil sau este prea mare pentru pregătire.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Jurnal de depanare atașat (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Nu s-a putut scrie atașamentul jurnalului de depanare.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Jurnalul nu a putut fi comprimat sau atașamentul depășește 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Atașați manual jurnalul de depanare generat</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
