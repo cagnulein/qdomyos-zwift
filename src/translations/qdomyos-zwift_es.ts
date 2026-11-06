@@ -3927,6 +3927,14 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <source>Please attach the generated debug log manually</source>
         <translation>Adjunta manualmente el registro de depuración generado</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>No se ha detectado ningún dispositivo</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>No se pudo abrir una aplicación de correo electrónico</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
