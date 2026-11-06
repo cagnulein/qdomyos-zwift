@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>請手動附加產生的偵錯記錄</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>未偵測到裝置</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>無法開啟電子郵件應用程式</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
