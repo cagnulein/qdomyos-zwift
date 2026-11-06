@@ -3807,6 +3807,118 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ çalışıyor</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Destek talebi</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ sorunu | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Merhaba Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZ hakkında yardıma ihtiyacım var.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Sorun:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Lütfen sorunu açıklayın]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Beklenen davranış:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Ne olması gerektiğini açıklayın]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ tanılama bilgileri ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ sürümü: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Cihaz: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Bağlı</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Bağlı değil</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Bağlantı: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hız: %1 km/sa</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Kullanılamıyor</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Güç: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Algılanan durum: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Hata ayıklama günlüğü istenmedi.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Hata ayıklama günlüğü devre dışı. Sorunu yeniden oluşturmadan önce günlük kaydını etkinleştirip QZ'yi yeniden başlatın.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Hata ayıklama günlüğü bulunamadı.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Hata ayıklama günlüğü kullanılamıyor veya hazırlanamayacak kadar büyük.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Hata ayıklama günlüğü eklendi (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Hata ayıklama günlüğü eki yazılamadı.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Günlük sıkıştırılamadı veya ek 10 MB sınırını aşıyor.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Oluşturulan hata ayıklama günlüğünü manuel olarak ekleyin</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
