@@ -29,9 +29,10 @@ An explicit **PASS** from the fake receiver is required for every scenario. No a
 
 ## Visual evidence in each emulator artifact
 
-For **every** scenario (`with_log`, `without_log`, `missing_log`) the test captures two **real screenshots from that emulator**, and fails if either PNG could not be created:
+For **every** scenario (`with_log`, `without_log`, `missing_log`) the test captures the email-compose preview plus either the real chooser screenshot or a documented **direct launch** marker (when Android skips the chooser). The test fails if the required preview PNG cannot be created:
 
-- `<scenario>_01_android_chooser.png`: the Android `ACTION_SEND` chooser **before** selecting the receiver, showing `QZ Mail Probe` as an available app.
+- `<scenario>_01_android_chooser.png`: the Android `ACTION_SEND` chooser **before** selecting the receiver, where a chooser is actually displayed.
+- `<scenario>_01_android_direct_launch.txt`: on some older emulator images (Android 7/9), Android opens the **only installed mail handler** directly, without showing a chooser. In that case no chooser screenshot can be captured; this marker is saved only when the fake mail receiver actually receives the intent and produces a validation result.
 - `<scenario>_02_email_compose_preview.png`: the **QZ Mail Probe** screen **after** selecting the receiver. It displays To, Subject, Body, attachment filename and URI, Android intent/MIME type and PASS/FAIL. This is an **email-compose preview in a test app, not a screenshot of Gmail**.
 - `<scenario>_chooser.xml`: Android's UI hierarchy used to select the receiver.
 - `<scenario>_99_failure.png` may be present if an interaction fails.
