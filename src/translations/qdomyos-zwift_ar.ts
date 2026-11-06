@@ -3870,6 +3870,14 @@ This may take a few moments on first startup.</source>
         <source>Please attach the generated debug log manually</source>
         <translation>يرجى إرفاق سجل التصحيح الذي تم إنشاؤه يدويًا</translation>
     </message>
+    <message>
+        <source>No device detected</source>
+        <translation>لم يتم اكتشاف جهاز</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>تعذر فتح تطبيق البريد الإلكتروني</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
