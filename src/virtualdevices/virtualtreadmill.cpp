@@ -61,7 +61,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
-    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
+    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool() ||
+        noBluetoothAdapter())
         return;
     notif2AD9 = new CharacteristicNotifier2AD9(t, this);
     notif2AD2 = new CharacteristicNotifier2AD2(t, this);
