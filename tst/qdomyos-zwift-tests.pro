@@ -39,7 +39,6 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
-        Devices/TestProformRowerParser.cpp \
         Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
