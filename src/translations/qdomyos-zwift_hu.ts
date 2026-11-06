@@ -9117,4 +9117,67 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>Max. watt/kg</translation>
     </message>
 </context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kapcsolatfelvétel a QZ ügyfélszolgálattal</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Támogatási e-mail előkészítése diagnosztikai adatokkal</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nincs csatlakoztatott eszköz</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>A sebesség és a teljesítmény nulla</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ ügyfélszolgálat</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Kész</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Billentyűzet elrejtése</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Támogatási kérés bezárása</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Írd le, mi nem működik. A QZ hozzáadja az eszköz és az alkalmazás adatait.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Írd le a problémát...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>A probléma leírása</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Hibakeresési napló csatolása, ha elérhető</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Küldés előtt átnézheted vagy szerkesztheted az e-mailt. Semmi sem kerül elküldésre automatikusan.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-mail megnyitása</translation>
+    </message>
+</context>
 </TS>
