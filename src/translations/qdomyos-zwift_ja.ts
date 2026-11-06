@@ -3819,6 +3819,118 @@ This may take a few moments on first startup.</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
         <translation>QZ を実行中</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>サポート依頼</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZの問題 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Robertoさん、</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZについてサポートが必要です。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>問題:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[問題を説明してください]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>期待する動作:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[本来どのように動作するか説明してください]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ診断情報 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZバージョン: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>プラットフォーム: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>プロフィール: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>デバイス: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>接続済み</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未接続</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>接続状態: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>利用不可</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>パワー: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>検出された状況: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>デバッグログは添付しません。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>デバッグログが無効です。問題を再現する前にログを有効にしてQZを再起動してください。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>デバッグログが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>デバッグログを利用できないか、準備するには大きすぎます。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>デバッグログを添付しました (gzip)。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>デバッグログの添付ファイルを書き込めませんでした。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>デバッグログを圧縮できなかったか、添付ファイルが10 MBを超えています。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>生成されたデバッグログを手動で添付してください</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
