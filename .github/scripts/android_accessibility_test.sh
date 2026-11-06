@@ -6,7 +6,7 @@
 # that is not found, a press that QZ did not handle or that did not show what it should.
 # Usage: android_accessibility_test.sh [--fake-bike] <press> [<press> ...]
 # A press is described in AccessibilityTest.java; it goes through the device's shell unquoted, so
-# letters, digits and "_ = : - ." only. With --fake-bike QZ is restarted first with only
+# letters, digits, "◄" and "_ = : , - ." only. With --fake-bike QZ is restarted first with only
 # the fake bike of its settings turned on, so the home page has tiles with - and + (the settings
 # the tests before made are dropped); it comes up without a Bluetooth adapter too, so the run is
 # never skipped, and it must check the scroll to the focus. The output of every run is added to
@@ -23,11 +23,18 @@ PRESSES="$*"
 SCROLL=""
 [ "$FAKE_BIKE" = 1 ] && SCROLL="--scroll"
 
-# On failure save the logcat first: the job stops here and does not reach its own logcat lines
+# On failure save the logcat first: the job stops here and does not reach its own logcat lines.
+# Each adb call has a time limit: on an emulator that stopped answering, adb waited until the
+# job's own timeout (25 min) and the logcat was lost anyway. The window in front and a crash or
+# ANR of QZ in the logcat tell a QZ that went away from a step that failed (a crash is otherwise
+# seen only as a node that never showed)
 fail() {
   echo "TEST FAILED: $1"
-  adb logcat -d > full_logcat.txt
-  adb logcat -d | grep -i qdomyos > qdomyos_logcat.txt
+  timeout 20 adb shell dumpsys window | grep -m 1 mCurrentFocus || echo "adb did not answer in 20 s"
+  timeout 60 adb logcat -d > full_logcat.txt || echo "the logcat was not read in 60 s"
+  grep -i qdomyos full_logcat.txt > qdomyos_logcat.txt
+  grep -F -e "Fatal signal" -e ">>> $PKG <<<" -e "ANR in $PKG" -e "Process: $PKG" full_logcat.txt \
+    | grep -F "qdomyoszwift" | tail -n 6
   exit 1
 }
 
@@ -81,7 +88,7 @@ cat accessibility_test_run.txt
 cat accessibility_test_run.txt >> accessibility_test.txt
 sleep 2
 
-grep -q -F "DONE" accessibility_test_run.txt || fail "the accessibility test did not finish"
+grep -q -F "DONE" accessibility_test_run.txt || fail "the accessibility test did not finish in 240 s"
 FIRST_FAIL=$(while read -r word rest; do
   if [ "$word" = "FAIL" ]; then echo "$rest"; break; fi
 done < accessibility_test_run.txt)

@@ -1294,6 +1294,12 @@ jobs:
             sh .github/scripts/android_app_start_test.sh
             sh .github/scripts/android_accessibility_test.sh Bluetooth_connection Start=First-time_setup First-time_setup=Bike
             sh .github/scripts/android_accessibility_test.sh --fake-bike Increase_Resistance=Resistance:_1 Increase_Resistance=Resistance:_2
+            # On the tiles settings (from the menu, as a screen reader gets there): the order field
+            # of a tile is read with its number, and the number shown inside the field is not a stop
+            # of its own (none:0, it was read bare), an item of its list is picked (the field itself
+            # is tapped, as TalkBack does: Qt 5.15 gives a ComboBox no press), and the switch of a
+            # tile that is off turns it on, which shows its order field
+            sh .github/scripts/android_accessibility_test.sh ◄=Settings tap:Settings=Tiles_Options Tiles_Options=Speed,_order_index: see:Speed,_order_index:_0 none:0 tap:Speed,_order_index:_0 2=Speed,_order_index:_2 Gears=Gears,_order_index:_26
             # Accessibility stress test: the tile settings page opened and closed 40 times while the
             # tree is read without pause, then accessibility turned on and off 20 times
             sh .github/scripts/android_accessibility_stress_test.sh 40 20
