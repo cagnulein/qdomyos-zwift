@@ -103,7 +103,7 @@ def screenshot(scenario, stage):
     try:
         data = subprocess.run(["adb", "exec-out", "screencap", "-p"],
                               capture_output=True, timeout=20, check=True).stdout
-        if not data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+        if not data.startswith(b"\x89PNG\r\n\x1a\n"):
             raise RuntimeError("adb screencap did not return a PNG")
         path = EVIDENCE / f"{scenario}_{stage}.png"
         path.write_bytes(data)
