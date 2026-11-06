@@ -3774,6 +3774,118 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>Spotify songs:</source>
         <translation>Spotify-sange:</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Supportanmodning</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-problem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hej Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Jeg har brug for hjælp til QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beskriv problemet]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Forventet adfærd:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beskriv, hvad der burde ske]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnosticering ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-version: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Enhed: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Tilsluttet</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ikke tilsluttet</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Forbindelse: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hastighed: %1 km/t</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ikke tilgængelig</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Effekt: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Registreret situation: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Fejlfindingsloggen blev ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Fejlfindingslog er deaktiveret. Aktivér logning, og genstart QZ, før problemet genskabes.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Fejlfindingslog blev ikke fundet.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Fejlfindingsloggen er utilgængelig eller for stor til at klargøre.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Fejlfindingslog vedhæftet (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Kunne ikke skrive fejlfindingsloggen som vedhæftning.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Fejlfindingsloggen kunne ikke komprimeres, eller vedhæftningen er over 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Vedhæft den genererede fejlfindingslog manuelt</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
