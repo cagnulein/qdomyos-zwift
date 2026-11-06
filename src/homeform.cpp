@@ -2038,29 +2038,30 @@ bool homeform::composeSupportEmail(const QString &description, const QString &re
 
     const QString subject = tr("QZ issue | %1 | %2 | %3")
                                 .arg(deviceName.left(60), platform, issue.left(60));
-    QString body = tr("Hi Roberto,\n\nI need help with QZ.\n\n"
-                                  "Problem:\n%1\n\n"
-                                  "Expected behavior:\n[Please describe what should happen]\n\n"
-                                  "--- QZ diagnostics ---\n"
-                                  "QZ version: %2\n"
-                                  "Platform: %3 (%4)\n"
-                                  "Profile: %5\n"
-                                  "Device: %6\n"
-                                  "Connection: %7\n"
-                                  "Speed: %8 km/h\n"
-                                  "Power: %9 W\n"
-                                  "Detected situation: %10\n")
-                       .arg(description.trimmed().isEmpty()
-                                ? tr("[Please describe the issue]")
-                                : description.trimmed().left(4000))
-                       .arg(QApplication::applicationVersion())
-                       .arg(platform, QSysInfo::prettyProductName())
-                       .arg(QSettings().value(QZSettings::profile_name, QZSettings::default_profile_name).toString())
-                       .arg(deviceName)
-                       .arg(supportDeviceConnected() ? tr("Connected") : tr("Not connected"))
-                       .arg(device ? QString::number(device->currentSpeed().value(), 'f', 2) : tr("Not available"))
-                       .arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : QStringLiteral("n/a"))
-                       .arg(issue);
+    QStringList bodyLines = {
+        tr("Hi Roberto,"),
+        QString(),
+        tr("I need help with QZ."),
+        QString(),
+        tr("Problem:"),
+        description.trimmed().isEmpty()
+            ? tr("[Please describe the issue]")
+            : description.trimmed().left(4000),
+        QString(),
+        tr("Expected behavior:"),
+        tr("[Please describe what should happen]"),
+        QString(),
+        tr("--- QZ diagnostics ---"),
+        tr("QZ version: %1").arg(QApplication::applicationVersion()),
+        tr("Platform: %1 (%2)").arg(platform, QSysInfo::prettyProductName()),
+        tr("Profile: %1").arg(QSettings().value(QZSettings::profile_name, QZSettings::default_profile_name).toString()),
+        tr("Device: %1").arg(deviceName),
+        tr("Connection: %1").arg(supportDeviceConnected() ? tr("Connected") : tr("Not connected")),
+        tr("Speed: %1 km/h").arg(device ? QString::number(device->currentSpeed().value(), 'f', 2) : tr("Not available")),
+        tr("Power: %1 W").arg(device ? QString::number(device->wattsMetric().value(), 'f', 0) : tr("Not available")),
+        tr("Detected situation: %1").arg(issue)
+    };
+    QString body = bodyLines.join(QLatin1Char('\\n')) + QLatin1Char('\\n');
 
     // Never send anything automatically: the user reviews the native compose screen.
     // Reuse the same gzip format as the existing workout-summary email, but keep a
