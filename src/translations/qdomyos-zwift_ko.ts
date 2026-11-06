@@ -170,6 +170,26 @@
         <translation>현재 운동을 중지하시겠습니까?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>자동 저항이 꺼져 있습니다</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>지금은 QZ가 저항을 바꾸지 않습니다. '적용': 저항, 목표 저항, 프리셋 타일의 레벨이 QZ를 다시 시작할 때까지 적용됩니다. 앱(예: Zwift)의 명령은 계속 무시됩니다.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>자동 저항 켜기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>권한 필요</translation>
     </message>

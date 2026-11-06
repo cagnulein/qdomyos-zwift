@@ -174,6 +174,22 @@
         <translation>Stopp</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Auto-Widerstand ist aus</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ ändert den Widerstand gerade nicht. „Anwenden“: Stufen aus den Kacheln Widerstand, Ziel R. und den Voreinstellungen gelten bis zum Neustart von QZ. Befehle von Apps (z. B. Zwift) werden weiterhin ignoriert.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Anwenden</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Auto-Widerstand einschalten</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>

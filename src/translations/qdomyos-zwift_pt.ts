@@ -174,6 +174,22 @@
         <translation>Parar</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>A resistência automática está desligada</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>O QZ não está a alterar a resistência agora. «Aplicar»: os níveis dos mosaicos Resistência, Resist. alvo e das predefinições aplicam-se até o QZ reiniciar. Os comandos das apps (por exemplo, Zwift) continuam a ser ignorados.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Ligar resistência automática</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>

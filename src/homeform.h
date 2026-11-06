@@ -509,6 +509,14 @@ class homeform : public QObject {
     static bool startFirstSetupLog();
     Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
+    // With Auto Resistance off the Resistance and Target R. tiles and the resistance presets send nothing to a
+    // bike or a rower. Home.qml asks the rider once per session; the keyboard, the web page and external remotes call
+    // Plus/Minus/LargeButton directly and are not affected.
+    // Returns 0: send the press as usual, 1: applied here, 2: ask the rider first.
+    Q_INVOKABLE int resistanceTilePressed(const QString &kind, const QString &name);
+    // The rider chose "Apply": apply this press and the next ones until QZ restarts, Auto Resistance stays off
+    // (commands from apps are still ignored). kind is "plus", "minus" or "large".
+    Q_INVOKABLE void applyResistanceTileWithAutoResistanceOff(const QString &kind, const QString &name);
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
@@ -1309,6 +1317,8 @@ public:
     void removeOldWorkoutImages();
 
     bool m_autoresistance = true;
+    // the rider answered "Apply" once: resistance tiles work with Auto Resistance off until QZ restarts
+    bool m_resistanceTilesWithoutAutoResistance = false;
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;

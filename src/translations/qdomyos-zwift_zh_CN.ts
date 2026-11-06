@@ -174,6 +174,22 @@
         <translation>停止</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>自动阻力已关闭</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>QZ 当前不会改变阻力。“应用”：阻力、目标阻力和预设磁贴的档位在 QZ 重启前生效。来自应用（例如 Zwift）的指令仍会被忽略。</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>开启自动阻力</translation>
+    </message>
+    <message>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>

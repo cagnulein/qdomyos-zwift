@@ -170,6 +170,26 @@
         <translation>Biztosan leállítja az aktuális edzést?</translation>
     </message>
     <message>
+        <source>Auto Resistance is off</source>
+        <translation>Az automatikus ellenállás ki van kapcsolva</translation>
+    </message>
+    <message>
+        <source>QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.</source>
+        <translation>A QZ most nem változtatja az ellenállást. „Alkalmazás”: az Ellenállás, a Célell. és az előbeállítás-csempék szintjei a QZ újraindításáig érvényesek. Az alkalmazások (pl. Zwift) parancsait továbbra is figyelmen kívül hagyja.</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Enable Auto Resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+    <message>
         <source>Permissions Required</source>
         <translation>Engedélyek szükségesek</translation>
     </message>

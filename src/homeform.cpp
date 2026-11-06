@@ -2651,6 +2651,55 @@ void homeform::externalControllerGearDown() {
     }
 }
 
+static bool isResistanceTileButton(const QString &name) {
+    return name == QStringLiteral("resistance_plus") || name == QStringLiteral("resistance_minus") ||
+           name == QStringLiteral("target_resistance_plus") || name == QStringLiteral("target_resistance_minus") ||
+           name.startsWith(QStringLiteral("preset_resistance_"));
+}
+
+int homeform::resistanceTilePressed(const QString &kind, const QString &name) {
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (!dev || dev->autoResistance() || !isResistanceTileButton(name)) {
+        return 0;
+    }
+    // only bikes and rowers drop the level with Auto Resistance off (elliptical::changeResistance always applies it)
+    if (dev->deviceType() != BIKE && dev->deviceType() != ROWING) {
+        return 0;
+    }
+    // a CSC sensor has no resistance to set: these tiles only feed its power estimate and already work.
+    // Renpho releases the control of the bike on every update while Auto Resistance is off, so a level
+    // applied here would never be written: keep it as it is
+    if (dynamic_cast<cscbike *>(dev) || dynamic_cast<renphobike *>(dev)) {
+        return 0;
+    }
+    if (!m_resistanceTilesWithoutAutoResistance) {
+        return 2;
+    }
+    applyResistanceTileWithAutoResistanceOff(kind, name);
+    return 1;
+}
+
+void homeform::applyResistanceTileWithAutoResistanceOff(const QString &kind, const QString &name) {
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (!dev) {
+        return;
+    }
+    m_resistanceTilesWithoutAutoResistance = true;
+    qDebug() << QStringLiteral("resistance tile with auto resistance off") << kind << name;
+    // changeResistance() drops the level while Auto Resistance is off; lift it for this press only, so apps and
+    // training programs keep being ignored
+    const bool autoResistanceWas = dev->autoResistance();
+    dev->setAutoResistance(true);
+    if (kind == QStringLiteral("plus")) {
+        Plus(name);
+    } else if (kind == QStringLiteral("minus")) {
+        Minus(name);
+    } else {
+        LargeButton(name);
+    }
+    dev->setAutoResistance(autoResistanceWas);
+}
+
 void homeform::speedPlus() {
     Plus(QStringLiteral("speed"));
 }

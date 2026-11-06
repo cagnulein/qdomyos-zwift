@@ -58,6 +58,24 @@ HomeForm {
     signal minus_clicked(string name)
     signal largeButton_clicked(string name)
 
+    // Tile buttons. With Auto Resistance off the Resistance and Target R. tiles and the resistance presets
+    // would do nothing on a bike or a rower: the rider is asked once per session (homeform::resistanceTilePressed)
+    function tileButtonPressed(kind, name) {
+        var result = rootItem.resistanceTilePressed(kind, name)
+        if (result === 2) {
+            autoResistanceOffDialog.kind = kind
+            autoResistanceOffDialog.name = name
+            autoResistanceOffDialog.open()
+        } else if (result === 0) {
+            if (kind === "plus")
+                plus_clicked(name)
+            else if (kind === "minus")
+                minus_clicked(name)
+            else
+                largeButton_clicked(name)
+        }
+    }
+
     Settings {
         id: settings
         Component.onCompleted: window.retakeSettingsSnapshot(settings)
@@ -131,6 +149,109 @@ HomeForm {
             inner_stop();
         }
         onNoClicked: close()
+    }
+
+    // Asked on the first Resistance / Target R. / resistance preset press with Auto Resistance off.
+    // The platform MessageDialog only has standard button texts, so this is a Popup that looks like it.
+    Popup {
+        id: autoResistanceOffDialog
+        property string kind: ""
+        property string name: ""
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: Math.min(Math.round(parent.width * 0.87), 560)
+        modal: true
+        focus: true
+        padding: 0
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        background: Rectangle {
+            color: "#f5f5f5"
+        }
+
+        function answer(action) {
+            close()
+            if (action === "apply") {
+                rootItem.applyResistanceTileWithAutoResistanceOff(kind, name)
+            } else if (action === "enable") {
+                rootItem.autoResistance = true
+                tileButtonPressed(kind, name)
+            }
+        }
+
+        // a big text size or a low landscape screen: the content scrolls instead of leaving the screen
+        height: Math.min(implicitHeight, parent.height - 24)
+        contentItem: Flickable {
+            implicitHeight: autoResistanceOffColumn.implicitHeight
+            contentHeight: autoResistanceOffColumn.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator {}
+
+            Column {
+                id: autoResistanceOffColumn
+                width: autoResistanceOffDialog.availableWidth
+                Label {
+                    width: parent.width
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 8
+                    text: qsTr("Auto Resistance is off")
+                    color: "black"
+                    font.pixelSize: window.fontPx(18)
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.Heading
+                    Accessible.name: text
+                }
+                Label {
+                    width: parent.width
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 10
+                    bottomPadding: 10
+                    text: qsTr("QZ is not changing the resistance now. Apply: levels from the Resistance, Target R. and preset tiles take effect until QZ restarts. Commands from apps (for example Zwift) are still ignored.")
+                    color: "black"
+                    font.pixelSize: window.fontPx(18)
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
+                }
+                Repeater {
+                    model: [
+                        { "action": "apply", "label": qsTr("Apply") },
+                        { "action": "enable", "label": qsTr("Enable Auto Resistance") },
+                        { "action": "cancel", "label": qsTr("Cancel") }
+                    ]
+                    delegate: Button {
+                        id: answerButton
+                        width: parent.width
+                        height: window.fontPx(48)
+                        flat: true
+                        text: modelData.label
+                        background: Rectangle {
+                            color: answerButton.down ? "#dcdcdc" : "#f1f1f1"
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: "#dcdcdc"
+                            }
+                        }
+                        contentItem: Text {
+                            text: answerButton.text
+                            color: "black"
+                            font.pixelSize: window.fontPx(18)
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
+                        onClicked: autoResistanceOffDialog.answer(modelData.action)
+                        Accessible.role: Accessible.Button
+                        Accessible.name: text
+                        Accessible.onPressAction: autoResistanceOffDialog.answer(modelData.action)
+                    }
+                }
+            }
+        }
     }
 
     // Optional post-workout popup (settings.rpe_feel_popup_enabled) asking for perceived exertion
@@ -1011,7 +1132,7 @@ HomeForm {
                 text: "−"
                 // the sign is a share of the button, so it grows with Tile size
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: minus_clicked(objectName)
+                onClicked: tileButtonPressed("minus", objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.left: parent.left
@@ -1024,14 +1145,14 @@ HomeForm {
                 Accessible.name: qsTr("Decrease ") + name
                 Accessible.description: qsTr("Decrease the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { minus_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("minus", objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: plusName
                 text: "+"
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: plus_clicked(objectName)
+                onClicked: tileButtonPressed("plus", objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.right: parent.right
@@ -1044,13 +1165,13 @@ HomeForm {
                 Accessible.name: qsTr("Increase ") + name
                 Accessible.description: qsTr("Increase the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { plus_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("plus", objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: identificator
                 text: largeButtonLabel
-                onClicked: largeButton_clicked(objectName)
+                onClicked: tileButtonPressed("large", objectName)
                 visible: largeButton
                 anchors.fill: rect
                       background: Rectangle {
@@ -1064,7 +1185,7 @@ HomeForm {
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
                 Accessible.focusable: true
-                Accessible.onPressAction: { largeButton_clicked(objectName) }
+                Accessible.onPressAction: { tileButtonPressed("large", objectName) }
             }
             }
             }
