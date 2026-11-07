@@ -6,10 +6,10 @@
 
 #include <QQueue>
 #include <QTimer>
-#include <QtBluetooth/QLowEnergyCharacteristic>
-#include <QtBluetooth/QLowEnergyController>
-#include <QtBluetooth/QLowEnergyDescriptor>
-#include <QtBluetooth/QLowEnergyService>
+#include <QtBluetooth/qlowenergycharacteristic.h>
+#include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptor.h>
+#include <QtBluetooth/qlowenergyservice.h>
 
 class urevotreadmill : public treadmill {
     Q_OBJECT
