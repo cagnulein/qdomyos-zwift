@@ -29,6 +29,7 @@ SOURCES += \
         ToolTests/metrictestsuite.cpp \
         ToolTests/treadmillrunnclosedlooptests.cpp \
         ToolTests/fitshowstartspeedgatetests.cpp \
+        ToolTests/urevoprotocoltests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
