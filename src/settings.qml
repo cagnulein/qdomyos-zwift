@@ -2447,8 +2447,15 @@ import AndroidStatusBar 1.0
             property int history_chart_cadence_order: 4
             property int history_chart_power_distribution_order: 5
             property int history_chart_speed_inclination_order: 6
-            
-            // TODO: before merge to master, move trixter_xdream_* to the end. This is located here to use other properties as merge syncronization points
+            property bool moovio_lynx_konect_2_0: false
+            property real virtual_device_rower_cadence_gain: 1.0
+            property real virtual_device_rower_cadence_offset: 0.0
+            property bool proform_treadmill_sport_55: false
+            property string daum_serialport: ""
+            property real trainprogram_inclination_filter: 0.0
+            property bool heart_rate_belt_suggest: false           
+
+            // Trixter X-Dream properties
             property bool trixter_xdream_bike_enabled: false
             property bool trixter_xdream_bike_heartrate_enabled: true
             property bool trixter_xdream_bike_steering_enabled: true
@@ -2458,16 +2465,6 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
-            // TODO: before merge to master, move trixter_xdream_* to the end. This is located here to use other properties as merge syncronization points
-            
-            property bool moovio_lynx_konect_2_0: false
-            property real virtual_device_rower_cadence_gain: 1.0
-            property real virtual_device_rower_cadence_offset: 0.0
-            property bool proform_treadmill_sport_55: false
-            property string daum_serialport: ""
-            property real trainprogram_inclination_filter: 0.0
-            property bool heart_rate_belt_suggest: false           
-
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
