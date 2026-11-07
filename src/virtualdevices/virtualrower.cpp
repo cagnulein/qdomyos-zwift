@@ -98,6 +98,7 @@ using namespace std::chrono_literals;
 
 virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
     Rower = t;
+    ftmsResistanceWritesAllowed = !noWriteResistance;
 
     this->noHeartService = noHeartService;
 
@@ -214,18 +215,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
                 charDataFIT2.setUuid(
                     (QBluetoothUuid::CharacteristicType)0x2AD6); // supported_resistance_level_rangeCharacteristicUuid
                 charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
-                QByteArray valueFIT2;
-                valueFIT2.append((char)0x0A); // min resistance value
-                valueFIT2.append((char)0x00); // min resistance value
-                // 750R implements 24 discrete hardware levels; the range uses 0.1 units.
-                const bool proform750r =
-                    settings.value(QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r).toBool();
-                const uint16_t maxResistanceTenths = proform750r ? 240 : 150;
-                valueFIT2.append(static_cast<char>(maxResistanceTenths & 0xff));
-                valueFIT2.append(static_cast<char>((maxResistanceTenths >> 8) & 0xff));
-                valueFIT2.append((char)0x0A); // step resistance
-                valueFIT2.append((char)0x00); // step resistance
-                charDataFIT2.setValue(valueFIT2);
+                // All rowers expose the same generic FTMS range interface; only
+                // drivers that opt in publish a different range than legacy 1..15.
+                const auto *physicalRower = qobject_cast<rower *>(Rower);
+                const FtmsRowerResistanceCapabilities caps =
+                    physicalRower ? physicalRower->ftmsResistanceCapabilities() : FtmsRowerResistanceCapabilities{};
+                charDataFIT2.setValue(virtualrowerftms::supportedResistanceRange(
+                    caps.minLevel, caps.maxLevel, caps.stepLevel));
 
                 QLowEnergyCharacteristicData charDataFIT3;
                 charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -479,24 +475,29 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     case 0x2AD9: // Fitness Machine Control Point
 
         if ((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
-            const bool proform750r =
-                settings.value(QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r).toBool();
-            const int maxLevel = proform750r ? 24 : 15;
             auto *physicalRower = qobject_cast<rower *>(Rower);
-            const bool valid = physicalRower &&
-                               virtualrowerftms::decodeTargetResistance(newValue, maxLevel, &requestedResistance);
+            const FtmsRowerResistanceCapabilities caps =
+                physicalRower ? physicalRower->ftmsResistanceCapabilities() : FtmsRowerResistanceCapabilities{};
+            const bool valid = virtualrowerftms::decodeTargetResistance(
+                newValue, caps.minLevel, caps.maxLevel, caps.stepLevel, &requestedResistance);
 
             reply.append(static_cast<char>(FTMS_RESPONSE_CODE));
             reply.append(static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL));
-            if (valid) {
-                // Same route as the QZ +/- resistance buttons.
-                physicalRower->changeResistance(requestedResistance);
-                qDebug() << "FTMS rower target resistance" << requestedResistance;
-                reply.append(static_cast<char>(FTMS_SUCCESS));
-                notifyResistanceChange = true;
-            } else {
+            if (!physicalRower || !caps.canControl) {
+                // Do not acknowledge an operation that the underlying rower cannot perform.
+                reply.append(static_cast<char>(FTMS_NOT_SUPPORTED));
+            } else if (!ftmsResistanceWritesAllowed || !physicalRower->autoResistance()) {
+                // Preserve QZ's existing write-disable and manual resistance modes.
+                reply.append(static_cast<char>(FTMS_CONTROL_NOT_PERMITTED));
+            } else if (!valid) {
                 qDebug() << "Invalid FTMS rower resistance request" << newValue.toHex(' ');
                 reply.append(static_cast<char>(FTMS_INVALID_PARAMETER));
+            } else {
+                // Enqueue via the same existing route as QZ's resistance buttons.
+                physicalRower->changeResistance(requestedResistance);
+                qDebug() << "FTMS rower accepted resistance target" << requestedResistance;
+                reply.append(static_cast<char>(FTMS_SUCCESS));
+                notifyResistanceChange = true;
             }
         } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
 
@@ -985,13 +986,16 @@ void virtualrower::rowerProvider() {
                 qDebug() << "PM5 Multiplexed data sent";
             }
         } else {
-            // Complete 20-byte FTMS 0x2AD1 frame, including the current physical resistance.
+            // Preserve legacy 0x2AD1 layout for rowers without resistance telemetry.
+            const auto *physicalRower = qobject_cast<rower *>(Rower);
+            const FtmsRowerResistanceCapabilities caps =
+                physicalRower ? physicalRower->ftmsResistanceCapabilities() : FtmsRowerResistanceCapabilities{};
             value = virtualrowerftms::buildRowerData(
                 static_cast<uint8_t>(virtualFtmsStrokeRate), static_cast<uint16_t>(strokeCount),
                 static_cast<uint32_t>(qRound(Rower->odometer() * 1000.0)), paceSecs,
                 qRound(Rower->wattsMetricforUI()), qRound(Rower->currentResistance().value()),
                 static_cast<uint16_t>(qRound(Rower->calories().value())),
-                static_cast<uint8_t>(qRound(Rower->currentHeart().value())));
+                static_cast<uint8_t>(qRound(Rower->currentHeart().value())), caps.hasTelemetry);
 
             if (!serviceFIT) {
                 qDebug() << QStringLiteral("serviceFIT not available");
