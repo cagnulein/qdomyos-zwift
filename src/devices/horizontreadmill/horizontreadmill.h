@@ -39,6 +39,67 @@ class horizontreadmill : public treadmill {
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    static bool urtmNativeName(const QString &name) { return name.startsWith(QStringLiteral("URTM"), Qt::CaseInsensitive); }
+    static bool urtmNativeCapabilities(const QString &name, bool service, bool notify, bool cccd, bool write) {
+        return urtmNativeName(name) && service && notify && cccd && write;
+    }
+    enum class UrtmChecksum { Unknown, ExcludeStx, IncludeStx };
+    static bool urtmReady(bool service, bool subscribed, UrtmChecksum checksum) {
+        return service && subscribed && checksum != UrtmChecksum::Unknown;
+    }
+    static bool urtmFresh(bool paired, bool stopping, qint64 statusTime, qint64 now) {
+        return paired && !stopping && statusTime > 0 && now >= statusTime && now - statusTime < 5000;
+    }
+    static bool urtmFallbackSafe(bool paired, bool stopping, qint64 statusTime) {
+        return !stopping && (paired || !statusTime);
+    }
+    static QByteArray urtmCommand(QByteArray frame, UrtmChecksum checksum) {
+        if (checksum == UrtmChecksum::Unknown) return {};
+        unsigned sum = checksum == UrtmChecksum::IncludeStx ? 2 : 0;
+        for (int i = 1; i < frame.size() - 2; ++i) sum += quint8(frame[i]);
+        frame[frame.size() - 2] = char((sum & 0xff) ^ 0x5a);
+        return frame;
+    }
+    static QByteArray urtmStart(UrtmChecksum checksum = UrtmChecksum::ExcludeStx) {
+        return urtmCommand(QByteArray::fromHex("02530100000000000000000e03"), checksum);
+    }
+    static QByteArray urtmStop(bool pause, UrtmChecksum checksum = UrtmChecksum::ExcludeStx) {
+        return urtmCommand(QByteArray::fromHex(pause ? "02530a0703" : "0253030c03"), checksum);
+    }
+    static QByteArray urtmTarget(double speed, double incline, UrtmChecksum checksum) {
+        if (checksum == UrtmChecksum::Unknown || !qIsFinite(speed) || !qIsFinite(incline) ||
+            speed < 0 || speed > 255 * 0.1609344 || incline < 0 || incline > 25.5)
+            return {};
+        const int s = qRound(speed / 0.1609344);
+        const int i = qRound(incline * 10);
+        QByteArray frame = QByteArray::fromHex("02530200000003");
+        frame[3] = char(s);
+        frame[4] = char(i);
+        const int stx = checksum == UrtmChecksum::IncludeStx ? 2 : 0;
+        frame[5] = char(((stx + 0x53 + 0x02 + s + i) & 0xff) ^ 0x5a);
+        return frame;
+    }
+    // Only the captured 25-byte layout has a proven paired incline field.
+    static bool urtmStatus(const QByteArray &frame, double &speed, double &incline, UrtmChecksum &checksum) {
+        if (frame.size() != 25 || quint8(frame[0]) != 0x02 || quint8(frame[1]) != 0x51 ||
+            quint8(frame[24]) != 0x03)
+            return false;
+        const quint8 kind = quint8(frame[2]);
+        if (kind != 0x01 && kind != 0x03 && kind != 0x04 && kind != 0x0a)
+            return false;
+        unsigned sum = 0;
+        for (int i = 1; i < 23; ++i) sum += quint8(frame[i]);
+        const auto found = quint8(frame[23]);
+        const auto variant = found == quint8((sum & 0xff) ^ 0x5a) ? UrtmChecksum::ExcludeStx :
+                             found == quint8(((sum + 2) & 0xff) ^ 0x5a) ? UrtmChecksum::IncludeStx :
+                             UrtmChecksum::Unknown;
+        if (variant == UrtmChecksum::Unknown || (checksum != UrtmChecksum::Unknown && checksum != variant))
+            return false;
+        checksum = variant;
+        speed = quint8(frame[3]) * 0.1609344;
+        incline = quint8(frame[4]) / 10.0;
+        return true;
+    }
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
@@ -61,6 +122,16 @@ class horizontreadmill : public treadmill {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharControlPointIdYpooMiniPro;
     QLowEnergyService *gattFTMSService = nullptr;
+    QLowEnergyService *urtmService = nullptr;
+    QLowEnergyCharacteristic urtmWrite;
+    QLowEnergyDescriptor urtmNotifyDescriptor;
+    bool urtmSubscribed = false;
+    bool urtmPaired = false;
+    bool urtmStopping = false;
+    double urtmSpeed = 0, urtmIncline = 0;
+    qint64 urtmStatusTime = 0;
+    qint64 urtmPendingSince = 0;
+    UrtmChecksum urtmChecksum = UrtmChecksum::Unknown;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
     QLowEnergyCharacteristic gattWriteCharMerachUnlock;
