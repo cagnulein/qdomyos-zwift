@@ -156,6 +156,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
     Q_PROPERTY(QString stopColor READ stopColor NOTIFY stopColorChanged)
     Q_PROPERTY(QStringList metrics READ metrics)
+    Q_PROPERTY(QStringList translatedLanguages READ translatedLanguages CONSTANT)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
@@ -597,6 +598,7 @@ class homeform : public QObject {
     QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
+    QStringList translatedLanguages();
     QStringList bluetoothDevices();
     QStringList tile_order();
     bool autoResistance() { return m_autoresistance; }

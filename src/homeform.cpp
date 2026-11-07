@@ -65,6 +65,7 @@
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <QXmlStreamReader>
+#include <QDataStream>
 #include <algorithm>
 #include <chrono>
 
@@ -2577,8 +2578,65 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
+// Share of the strings a translation needs to be offered in the app language list
+static const int minTranslatedPercent = 50;
+
+// How many strings a compiled translation holds, which QTranslator does not tell. A .qm file is a
+// 16-byte header and then sections (a tag, a length); the Hashes one has 8 bytes for each string.
+static int translatedStrings(const QString &path) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return 0;
+    }
+    const quint8 hashesSection = 0x42;
+    QDataStream data(&file);
+    data.skipRawData(16);
+    while (!data.atEnd()) {
+        quint8 tag = 0;
+        quint32 length = 0;
+        data >> tag >> length;
+        if (tag == hashesSection) {
+            return length / 8;
+        }
+        data.skipRawData(length);
+    }
+    return 0;
+}
+
+static QStringList findTranslatedLanguages() {
+    const QDir translations(QStringLiteral(":/translations/translations"));
+    const QString prefix = QStringLiteral("qdomyos-zwift_");
+    QMap<QString, int> strings;
+    int most = 0;
+    for (const QString &file : translations.entryList({prefix + QStringLiteral("*.qm")})) {
+        const int count = translatedStrings(translations.filePath(file));
+        strings.insert(QFileInfo(file).completeBaseName().mid(prefix.length()), count);
+        most = qMax(most, count);
+    }
+
+    // The total is not in the files: the fullest translation counts as all the strings
+    QStringList languages;
+    for (auto it = strings.constBegin(); it != strings.constEnd(); ++it) {
+        // As in loadAppTranslation: a regional language with no strings shows its base one (pt_BR -> pt)
+        const int count = it.value() > 0 ? it.value() : strings.value(it.key().section(QLatin1Char('_'), 0, 0));
+        if (count > 0 && count * 100 >= most * minTranslatedPercent) {
+            languages.append(it.key());
+        }
+    }
+    qDebug() << "Translated app languages:" << languages;
+    return languages;
+}
+
+// The languages of the app language list, taken from the translations of this build: a translation
+// that gets far enough shows up by itself. Settings asks each time it opens, the files are read once.
+QStringList homeform::translatedLanguages() {
+    static const QStringList languages = findTranslatedLanguages();
+    return languages;
+}
+
 // Loads the translation for the app language setting: "auto" (or empty) follows the system locale,
-// "en" is the built-in source language and needs no translator. Called at start and on a change.
+// "en" is the built-in source language and needs no translator. A saved language with no translation
+// acts as "auto", which is also what the list shows for it. Called at start and on a change.
 void homeform::loadAppTranslation(const QString &language) {
     static QTranslator *translator = nullptr;
     if (translator) {
@@ -2624,6 +2682,10 @@ void homeform::loadAppTranslation(const QString &language) {
         const QString languageCode = locale.section(QLatin1Char('_'), 0, 0);
         if (!loaded && (languageCode == QStringLiteral("nb") || languageCode == QStringLiteral("nn"))) {
             loaded = tryLoadTranslation(QStringLiteral("no"), QStringLiteral("language"));
+        }
+        if (!loaded && locale != QLocale::system().name()) {
+            loadAppTranslation(QStringLiteral("auto"));
+            return;
         }
         if (!loaded) {
             qDebug() << "No translation available for locale:" << locale << "- using default (English)";
