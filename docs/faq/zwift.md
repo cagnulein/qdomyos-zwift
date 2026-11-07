@@ -11,7 +11,7 @@ Yes. When QZ connects directly to a **right Zwift Click V2** controller, its **S
 
 **Right Shift Down** is the existing setting reused for Click V2's **B** button; this change does not add a new setting. It applies to the right Click V2 identified by its manufacturer data, not every Zwift Play/Ride controller. If **Get Gears from Zwift** is enabled, pair Click with Zwift instead of QZ; see the separate guidance below.
 
-When QZ directly connects to the **right Click V2**, it automatically sends a small keep-alive handshake every 3 seconds to prevent the controller from going to sleep after roughly a minute of inactivity. No additional setting is needed. If the controller still disconnects, send a debug log with the connection and disconnection times.
+When QZ directly connects to the **right Click V2**, it periodically polls the controller's device information to keep the connection active during idle periods. No additional setting is needed. This is still being validated on Click V2 hardware. If it disconnects, send a debug log covering at least two minutes without button presses, including the disconnection and reconnection.
 
 
 ## Zwift Click v2 disconnects or freezes about one minute after QZ connects on iOS. What should I try?
