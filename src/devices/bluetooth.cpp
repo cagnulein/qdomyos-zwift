@@ -1901,6 +1901,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
+            } else if (b.name().compare(QStringLiteral("URTM047"), Qt::CaseInsensitive) == 0 &&
+                       !urevoTreadmill && filter) {
+                // Exact name only: URTM024 and other UREVO firmware keep their existing Horizon path.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                urevoTreadmill = new urevotreadmill(noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(urevoTreadmill, &bluetoothdevice::connectedAndDiscovered,
+                        this, &bluetooth::connectedAndDiscovered);
+                connect(urevoTreadmill, &urevotreadmill::debug, this, &bluetooth::debug);
+                urevoTreadmill->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(urevoTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
@@ -4536,6 +4553,10 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (urevoTreadmill) {
+        delete urevoTreadmill;
+        urevoTreadmill = nullptr;
+    }
     if (wahooKickRunTreadmill) {
 
         delete wahooKickRunTreadmill;
@@ -5298,6 +5319,8 @@ bluetoothdevice *bluetooth::device() {
         return ypooTreadmill;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (urevoTreadmill) {
+        return urevoTreadmill;
     } else if (wahooKickRunTreadmill) {
         return wahooKickRunTreadmill;
     } else if (lifefitnessTreadmill) {
