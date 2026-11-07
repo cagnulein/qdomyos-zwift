@@ -40,7 +40,21 @@ void zwiftclickremote::update() {
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
         initDone = true;
+        if (playDevice->singleRightClickV2)
+            clickV2KeepAliveTimer.start();
     } else if(initDone) {
+        // The right Click V2 sleeps after about a minute without BLE traffic.
+        // Repeat the already supported RideOn handshake only for this controller.
+        // A monotonic timer avoids changes to the system clock affecting the interval.
+        if (playDevice->singleRightClickV2 && clickV2KeepAliveTimer.isValid() &&
+            clickV2KeepAliveTimer.elapsed() >= 3000) {
+            QByteArray s = playDevice->buildHandshakeStart();
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                reinterpret_cast<uint8_t *>(s.data()), static_cast<uint8_t>(s.size()),
+                                "clickV2KeepAlive");
+            clickV2KeepAliveTimer.restart();
+        }
+
         countRxTimeout++;
         if(countRxTimeout == 10) {
             if(homeform::singleton())
@@ -346,6 +360,7 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
+        clickV2KeepAliveTimer.invalidate();
 
         if(m_control)
             connectBackLater();
