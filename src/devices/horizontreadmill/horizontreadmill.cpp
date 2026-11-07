@@ -982,6 +982,91 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
+        // A complete GATT shape is not enough: use FTMS until native status
+        // establishes the checksum variant and the notification is subscribed.
+        const qint64 urtmNow = QDateTime::currentMSecsSinceEpoch();
+        const bool urtmStatusFresh = urtmFresh(true, false, urtmStatusTime, urtmNow);
+        if (urtmReady(urtmService != nullptr, urtmSubscribed, urtmChecksum) && urtmStatusFresh) {
+            auto send = [this](const QByteArray &frame) {
+                urtmService->writeCharacteristic(urtmWrite, frame, QLowEnergyService::WriteWithResponse);
+            };
+            if (requestStop != -1) {
+                send(urtmStop(requestPause != -1, urtmChecksum));
+                urtmStopping = true;
+                urtmPaired = false;
+                urtmPendingSince = 0;
+                requestStop = requestPause = requestStart = -1;
+                requestSpeed = -1;
+                requestInclination = -100;
+                return;
+            }
+            if (urtmStopping) {
+                if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
+                    emit debug(QStringLiteral("URTM start/target rejected while stopping"));
+                    requestStart = requestSpeed = -1;
+                    requestInclination = -100;
+                }
+                return;
+            }
+            if (requestStart != -1) {
+                if (!urtmPaired) {
+                    emit debug(QStringLiteral("URTM start rejected while a native command is unconfirmed"));
+                    requestStart = -1;
+                    return;
+                }
+                send(urtmStart(urtmChecksum));
+                requestStart = -1;
+                urtmPaired = false; // Wait for new status before sending a combined target.
+                emit tapeStarted();
+                return;
+            }
+            if (requestSpeed != -1 || requestInclination != -100) {
+                const qint64 now = QDateTime::currentMSecsSinceEpoch();
+                if (!urtmPendingSince) urtmPendingSince = now;
+                if (now < urtmPendingSince || now - urtmPendingSince >= 5000) {
+                    emit debug(QStringLiteral("URTM target expired waiting for fresh status"));
+                    requestSpeed = -1;
+                    requestInclination = -100;
+                    urtmPendingSince = 0;
+                    return;
+                }
+                if (!urtmFresh(urtmPaired, urtmStopping, urtmStatusTime, now)) {
+                    emit debug(QStringLiteral("URTM target waiting for fresh paired status"));
+                    return; // Do not discard requests while awaiting a safe counterpart.
+                }
+                const double speed = requestSpeed == -1 ? urtmSpeed : double(requestSpeed);
+                const double incline = requestInclination == -100 ? urtmIncline :
+                    double(treadmillInclinationOverrideReverse(requestInclination));
+                const QByteArray frame = urtmTarget(speed, incline, urtmChecksum);
+                if (speed > 22 || incline > 15 || frame.isEmpty()) {
+                    emit debug(QStringLiteral("URTM target rejected: out of range or invalid"));
+                } else {
+                    send(frame);
+                    urtmPaired = false; // Require a new status for the next combined command.
+                }
+                requestSpeed = -1;
+                requestInclination = -100;
+                urtmPendingSince = 0;
+            } else {
+                urtmPendingSince = 0;
+            }
+            return;
+        }
+        // Do not switch transports while a native command awaits a confirming status.
+        if (urtmService && (!urtmFallbackSafe(urtmPaired, urtmStopping, urtmStatusTime) ||
+                            !gattFTMSService || !gattWriteCharControlPointId.isValid())) {
+            if (requestStop != -1) {
+                emit debug(QStringLiteral("URTM stop rejected: native unavailable or command unconfirmed; FTMS unavailable or unsafe"));
+                requestStop = requestPause = -1;
+            }
+            if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
+                emit debug(QStringLiteral("URTM start/target rejected: native not ready and FTMS unavailable"));
+                requestStart = requestSpeed = -1;
+                requestInclination = -100;
+            }
+            return;
+        }
+
         // this treadmill can't go below 1
         if(mobvoi_tmp_treadmill && requestSpeed < 1)
             requestSpeed = -1;
@@ -1611,6 +1696,19 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                              const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
+    bool nativeStatus = false;
+    if (urtmService && sender() == urtmService && characteristic.uuid() == QBluetoothUuid(quint16(0xfff1))) {
+        double speed, incline;
+        if (urtmStatus(newValue, speed, incline, urtmChecksum)) {
+            urtmSpeed = speed;
+            urtmIncline = incline;
+            urtmStatusTime = QDateTime::currentMSecsSinceEpoch();
+            if (urtmStopping && speed == 0) urtmStopping = false;
+            urtmPaired = !urtmStopping;
+            nativeStatus = true;
+        }
+        if (!nativeStatus) return;
+    }
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     bool distanceEval = false;
@@ -1660,7 +1758,17 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
+    if (nativeStatus) {
+        parseSpeed(urtmSpeed);
+        parseInclination(treadmillInclinationOverride(urtmIncline));
+        if (firstDistanceCalculated && watts(weight))
+            KCal += (((0.048 * double(watts(weight)) + 1.19) * weight * 3.5) / 200.0) *
+                    (double(lastRefreshCharacteristicChanged.msecsTo(now)) / 60000.0);
+        if (firstDistanceCalculated && (!treadmill_direct_distance || !gattFTMSService ||
+                !gattFTMSService->characteristic(QBluetoothUuid(quint16(0x2acd))).isValid()))
+            Distance += (Speed.value() / 3600000.0) * double(lastRefreshCharacteristicChanged.msecsTo(now));
+        distanceEval = true;
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
         parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
@@ -2450,6 +2558,27 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    // Only select native control if the complete captured GATT shape is present.
+    if (urtmNativeName(bluetoothDevice.name()) &&
+        !settings.value(QZSettings::horizon_treadmill_force_ftms,
+                        QZSettings::default_horizon_treadmill_force_ftms).toBool()) {
+        for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+            if (s->state() != QLowEnergyService::ServiceDiscovered ||
+                s->serviceUuid() != QBluetoothUuid(quint16(0xfff0))) continue;
+            const auto notify = s->characteristic(QBluetoothUuid(quint16(0xfff1)));
+            const auto write = s->characteristic(QBluetoothUuid(quint16(0xfff2)));
+            const auto cccd = notify.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (urtmNativeCapabilities(bluetoothDevice.name(), true,
+                    notify.isValid() && (notify.properties() & QLowEnergyCharacteristic::Notify), cccd.isValid(),
+                    write.isValid() && (write.properties() & QLowEnergyCharacteristic::Write))) {
+                urtmService = s;
+                urtmWrite = write;
+                urtmNotifyDescriptor = cccd;
+                break;
+            }
+        }
+    }
+
     notificationSubscribed = 0;
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -2498,7 +2627,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattMerachUnlockService = s;
                 } else if (c.properties() & QLowEnergyCharacteristic::Write &&
                     c.uuid() == _gattWriteCharCustomService &&
-                    !BOWFLEX_T9 && !MX_TM &&
+                    !BOWFLEX_T9 && !MX_TM && !urtmService &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2510,6 +2639,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             }
         }
     }
+
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
@@ -2524,8 +2654,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
-                      && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                      && (!gattCustomService || urtmService)) ||
+                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()) ||
+                     (urtmService && s == urtmService && c.uuid() == QBluetoothUuid(quint16(0xfff1))))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -2543,7 +2674,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
                            // FTMS indications, plus the Merach unlock indication characteristic.
                            (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
-                              !gattCustomService) ||
+                              (!gattCustomService || urtmService)) ||
                              (MERACH_TREADMILL && gattMerachUnlockService &&
                               s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
                               c.uuid() == _gattWriteCharMerachUnlock)))) {
@@ -2628,6 +2759,8 @@ void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic 
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+    if (urtmService && descriptor == urtmNotifyDescriptor && newValue == QByteArray::fromHex("0100"))
+        urtmSubscribed = true;
     if (notificationSubscribed)
         notificationSubscribed--;
 
@@ -2933,6 +3066,16 @@ bool horizontreadmill::connected() {
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        if (urtmService) {
+            requestSpeed = -1; requestInclination = -100; requestStart = requestStop = requestPause = -1;
+        }
+        urtmService = nullptr;
+        urtmWrite = QLowEnergyCharacteristic();
+        urtmNotifyDescriptor = QLowEnergyDescriptor();
+        urtmSubscribed = urtmPaired = urtmStopping = false;
+        urtmStatusTime = 0;
+        urtmPendingSince = 0;
+        urtmChecksum = UrtmChecksum::Unknown;
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
