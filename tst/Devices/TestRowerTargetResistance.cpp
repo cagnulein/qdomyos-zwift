@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "devices/rower.h"
+#include "TestProformRowerParser.h"
 
 class RowerTargetResistanceTestDevice : public rower {
   public:

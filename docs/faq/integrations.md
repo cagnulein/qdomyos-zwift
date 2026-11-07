@@ -208,16 +208,20 @@ A useful two-device setup is:
 
 In a confirmed support case, Kinomap had retained old connections and was interfering with the intended QZ bridge. Cleaning up those saved connections and using the FTMS path restored the expected connection and resistance behavior.
 
-## My Garmin watch finds QZ as a Bluetooth sensor on iPhone but cannot pair. Will Garmin Upload still work?
+## Can a Garmin watch record QZ cycling power and cadence live from an iPhone over Bluetooth?
 
-**Yes, the two connections have different purposes.** A Garmin watch may *discover* QZ's virtual Bluetooth advertisement without successfully connecting to it as a usable bike sensor. Seeing the device name in the Garmin sensor search does not guarantee that the watch supports the specific Bluetooth service and pairing path exposed by QZ.
+**Yes, with a compatible Garmin watch and QZ's Garmin Bluetooth Sensor mode.** This was confirmed with a Garmin Forerunner 265, an iPhone 15 Pro (iOS 26.6.1), QZ 2.21.6, and a Domyos Training Bike 900. The watch recorded power and cadence directly in its **Bike Indoor** activity.
 
-An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android ANT+ sensor-broadcast method to send cycling or treadmill metrics directly to a Garmin watch. Enabling QZ's **Garmin Bluetooth Sensor** compatibility option does not add ANT+ to an iPhone or guarantee that every Garmin watch can connect over Bluetooth.
+1. Connect the bike or trainer to QZ and make sure its live **power and cadence** are updating.
+2. Enable QZ's **Virtual Device** and **Virtual Device Bluetooth** options. Under **Settings > Garmin Options**, enable **Garmin Bluetooth Sensor**, then **fully close and restart QZ**. On iOS this is the important setting for this Garmin pairing method; **Bike Power Sensor** is not a substitute.
+3. If Garmin pairing hangs or fails while the watch is connected to the same iPhone, **temporarily disable the watch's phone connection** (from its Controls phone icon, or **Settings > Connectivity > Phone > Status > Off**). Leave Bluetooth enabled on the iPhone so QZ can continue using the bike.
+4. On the Garmin watch, go to **Sensors & Accessories > Add New > Power** (or **Search All**) and pair **PWR - QZ**. In the confirmed setup the initial pairing failed after roughly two minutes with the watch's phone connection on, but succeeded immediately after turning that phone connection off.
+5. If the watch prompts for crank length or calibration, the confirmed setup did not need a calibration reminder or calibration; the rider accepted a crank-length value and continued.
+6. Keep **QZ in the foreground** while riding and start **Bike Indoor** on the Garmin watch. After the workout, re-enable the watch's phone connection to sync the watch-recorded activity to **Garmin Connect** and onward to Strava if configured.
 
-If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
+This is a **Bluetooth Cycling Power** connection, **not ANT+**: an iPhone cannot broadcast ANT+. QZ's Garmin Bluetooth Sensor mode advertises its cycling power service to the watch and may appear as **PWR - QZ** instead of the ordinary **HR - QZ** virtual heart-rate device. Success depends on Garmin model, firmware and pairing behavior, so the confirmed Forerunner 265 result is not a guarantee for every watch.
 
-In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
-
+**If the watch detects QZ but will not pair**, try the temporary phone-disconnect step above first. A previous Garmin Epix Pro Gen 2 report found QZ but could not complete pairing; the watch-specific workaround was not confirmed for that model. If live sensor pairing still does not work, QZ can instead record the workout and upload the completed **FIT activity** to **Garmin Connect** using its Garmin Connect / Garmin Upload integration. That alternative transfers workout metrics *after* the ride, without recording them natively on the watch.
 
 ## Can QZ and ROUVY run on the same Android tablet and connect through QZ's virtual Bluetooth trainer?
 

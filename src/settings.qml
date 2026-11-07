@@ -859,6 +859,14 @@ import AndroidStatusBar 1.0
                     return ""
                 if (entry.type === "boolean")
                     return value ? qsTr("On") : qsTr("Off")
+                // As its page: a saved language with no translation is loaded as Auto
+                if (entry.key === "app_language") {
+                    for (var k = 0; k < appLanguageOptions.length; k++) {
+                        if (appLanguageOptions[k].value === String(value))
+                            return appLanguageOptions[k].label
+                    }
+                    return appLanguageOptions[0].label
+                }
                 // A list of the catalog, as its page shows it: the translated label of the value
                 // by its place ("Horizontal" for 1), or the value itself translated ("Male"). A
                 // list made at run time (rootItem.metrics) is not read: it has no change signal,
@@ -2524,7 +2532,7 @@ import AndroidStatusBar 1.0
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
-        property var appLanguageOptions: [
+        property var appLanguageNames: [
             { label: qsTr("Auto (System)"), value: "auto" },
             { label: qsTr("English"), value: "en" },
             { label: qsTr("Italian"), value: "it" },
@@ -2558,6 +2566,13 @@ import AndroidStatusBar 1.0
             { label: qsTr("Hebrew"), value: "he" },
             { label: qsTr("Catalan"), value: "ca" }
         ]
+        // A language without enough of a translation in this build is not offered
+        property var appLanguageOptions: {
+            var translated = rootItem.translatedLanguages
+            return appLanguageNames.filter(function(option) {
+                return option.value === "auto" || option.value === "en" || translated.indexOf(option.value) >= 0
+            })
+        }
         Timer {
             id: settingsSearchDebounceTimer
             interval: 1500
