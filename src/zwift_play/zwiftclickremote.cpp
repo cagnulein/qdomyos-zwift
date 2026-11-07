@@ -43,15 +43,15 @@ void zwiftclickremote::update() {
         if (playDevice->singleRightClickV2)
             clickV2KeepAliveTimer.start();
     } else if(initDone) {
-        // The right Click V2 sleeps after about a minute without BLE traffic.
-        // Repeat the already supported RideOn handshake only for this controller.
-        // A monotonic timer avoids changes to the system clock affecting the interval.
+        // A repeated RideOn receives an acknowledgement, but does not prevent
+        // the right Click V2's inactivity timeout. Poll device information instead.
+        // This query is read-only; only the standalone right Click V2 uses it.
         if (playDevice->singleRightClickV2 && clickV2KeepAliveTimer.isValid() &&
-            clickV2KeepAliveTimer.elapsed() >= 3000) {
-            QByteArray s = playDevice->buildHandshakeStart();
+            clickV2KeepAliveTimer.elapsed() >= 20000) {
+            QByteArray s = QByteArray::fromHex("000800");
             writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
                                 reinterpret_cast<uint8_t *>(s.data()), static_cast<uint8_t>(s.size()),
-                                "clickV2KeepAlive");
+                                "clickV2DeviceInfoPoll");
             clickV2KeepAliveTimer.restart();
         }
 
