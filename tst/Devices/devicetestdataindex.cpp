@@ -754,7 +754,24 @@ void DeviceTestDataIndex::Initialize() {
                             DeviceNameComparison::StartsWithIgnoreCase)
         ->rejectDeviceName("XURTM047", DeviceNameComparison::StartsWithIgnoreCase)
         ->rejectDeviceName("U-RTM047", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            // Native UREVO should win unless the user explicitly selects its
+            // Bluetooth name as FTMS Treadmill. Disabled = test fallback routing.
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? QZSettings::default_ftms_treadmill : info.DeviceName());
+        })
         ->excluding<horizontreadmill>();
+
+    // Opt-in fallback: FTMS Treadmill = selected URTM name routes to Horizon.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_UrevoFTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceNames({"URTM047", "URTM024", "URTM999", "URTM"},
+                            DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName() : QZSettings::default_ftms_treadmill);
+        })
+        ->excluding<urevotreadmill>();
 
     // Horizon Treadmill
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill)
