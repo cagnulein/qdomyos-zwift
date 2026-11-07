@@ -181,7 +181,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
         ->acceptDeviceName(QStringLiteral("JOROTO-BK-"), DeviceNameComparison::StartsWithIgnoreCase)
-        ->acceptDeviceName(QStringLiteral("BGYM-123"), DeviceNameComparison::Exact) // 8-character BGYM CSC bike
+        ->acceptDeviceName(QStringLiteral("BGYM-123"), DeviceNameComparison::IgnoreCase) // 8-character BGYM CSC bike
+        ->rejectDeviceName(QStringLiteral("BGYM-1234"), DeviceNameComparison::IgnoreCase) // other BGYM- lengths are FTMS treadmills
         ->configureSettingsWith(
             [cscBikeName](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations)->void
             {
