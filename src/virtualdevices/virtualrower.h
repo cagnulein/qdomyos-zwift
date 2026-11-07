@@ -72,6 +72,8 @@ class virtualrower : public virtualdevice {
     qint64 lastFTMSFrameReceived = 0;
 
     bool noHeartService = false;
+    // Gate only the new FTMS resistance command, without altering existing virtual protocols.
+    bool ftmsResistanceWritesAllowed = true;
 
     bool echelonInitDone = false;
     int echelonLastResistance = -1;
