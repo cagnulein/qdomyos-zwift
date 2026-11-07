@@ -96,9 +96,15 @@ public:
         m_outbox.clear();
         m_startAfterHandshake = false;
         m_newFullStatus = false;
-        m_stopAt = now;
+        m_stopAt = 0; // Set only when BLE confirms the Stop write.
         setState(State::Stopping, now);
         enqueue(Channel::Main, stopFrame(pause));
+    }
+
+    void stopWriteConfirmed(qint64 now) {
+        // ATT Write Response is only delivery confirmation, not a physical stop.
+        if (m_state == State::Stopping)
+            m_stopAt = now;
     }
 
     void receiveMain(const QByteArray &value, qint64 now) {
@@ -107,7 +113,7 @@ public:
             if (m_state == State::Hello) {
                 setState(State::Info, now);
                 enqueue(Channel::Main, info());
-            } else if (m_state == State::Stopping && now > m_stopAt + 1000) {
+            } else if (m_state == State::Stopping && m_stopAt > 0 && now > m_stopAt + 1000) {
                 // Local stop gate only; an idle response is not proof of physical stop.
                 setState(State::Ready, now);
             }
@@ -138,7 +144,7 @@ public:
         m_newFullStatus = true;
         if (m_state == State::Starting && speed > 0) {
             setState(State::Running, now);
-        } else if (m_state == State::Stopping && speed == 0 && now >= m_stopAt) {
+        } else if (m_state == State::Stopping && speed == 0 && m_stopAt > 0 && now >= m_stopAt) {
             setState(State::Ready, now);
         } else if (m_state == State::Running && speed == 0) {
             setState(State::Ready, now);
