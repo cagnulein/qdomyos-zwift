@@ -67,6 +67,18 @@ class bike : public bluetoothdevice {
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
     virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
 
+    // Issue 5316: while the T.Power(W) tile re-sends its target (homeform::update()), a bike that opts in
+    // doesn't apply the app's resistance but keeps the app's last command, so "Return to app" can restore it.
+    virtual bool targetPowerReleaseSupported() { return false; }
+    void setTargetPowerOverrideActive(bool active) { m_targetPowerOverrideActive = active; }
+    bool targetPowerReleaseAvailable();
+    // resistance from the app's grade or resistance level (FTMS, Wahoo, Zwift Hub, iOS bridge)
+    void changeResistanceFromApp(resistance_t resistance);
+    // target power sent by the app (ERG); the tile's own target doesn't come through here
+    void rememberAppPower(int32_t power);
+    // stops the override and re-applies the app's last command; false if the app sent none
+    bool releaseTargetPowerToApp();
+
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
     virtual void changeCadence(int16_t cad);
@@ -145,6 +157,13 @@ class bike : public bluetoothdevice {
     double getCurrentSpeedForSlope();
 
     uint16_t wattFromHR(bool useSpeedAndCadence);
+
+  private:
+    enum class AppCommand { None, Resistance, Power };
+    AppCommand m_lastAppCommand = AppCommand::None;
+    resistance_t m_lastAppResistance = 0;
+    int32_t m_lastAppPower = 0;
+    bool m_targetPowerOverrideActive = false;
 };
 
 #endif // BIKE_H

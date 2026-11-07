@@ -293,7 +293,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         reply = buildCurrentHubRidingData();
         notifier0002->addAnswer(reply);
 
-        changePower(Power.value);
+        changePowerFromApp(Power.value);
     }
     else if (receivedData.startsWith(expectedHexArray9)) {
         qDebug() << "Zwift Play Ask 9";

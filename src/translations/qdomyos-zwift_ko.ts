@@ -276,6 +276,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>다음에 Bluetooth 또는 위치 서비스를 켜도록 알림을 받으시겠습니까?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>앱에 돌려주기</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>부하 제어를 앱에 돌려줍니다</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

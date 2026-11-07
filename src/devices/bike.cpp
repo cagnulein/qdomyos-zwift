@@ -56,6 +56,47 @@ bool bike::targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool
     return autoResistance && externalControllerActive && !appErgMode;
 }
 
+bool bike::targetPowerReleaseAvailable() {
+    return targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable &&
+           m_lastAppCommand != AppCommand::None;
+}
+
+void bike::changeResistanceFromApp(resistance_t resistance) {
+    m_lastAppCommand = AppCommand::Resistance;
+    m_lastAppResistance = resistance;
+    // with auto resistance off changeResistance() only records the request, as before
+    if (targetPowerReleaseSupported() && m_targetPowerOverrideActive && autoResistanceEnable) {
+        qDebug() << QStringLiteral("app resistance kept for Return to app, target power tile in control")
+                 << resistance;
+        return;
+    }
+    changeResistance(resistance);
+}
+
+void bike::rememberAppPower(int32_t power) {
+    m_lastAppCommand = AppCommand::Power;
+    m_lastAppPower = power;
+}
+
+bool bike::releaseTargetPowerToApp() {
+    m_targetPowerOverrideActive = false;
+    QSettings settings;
+    if (m_lastAppCommand == AppCommand::Resistance) {
+        qDebug() << QStringLiteral("Return to app: app resistance restored") << m_lastAppResistance;
+        settings.setValue(QZSettings::zwift_erg, false);
+        changeResistance(m_lastAppResistance);
+        return true;
+    }
+    if (m_lastAppCommand == AppCommand::Power) {
+        qDebug() << QStringLiteral("Return to app: app target power restored") << m_lastAppPower;
+        settings.setValue(QZSettings::zwift_erg, true);
+        changePower(m_lastAppPower);
+        return true;
+    }
+    qDebug() << QStringLiteral("Return to app: no app command to restore");
+    return false;
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {

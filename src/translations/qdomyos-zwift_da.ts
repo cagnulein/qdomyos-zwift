@@ -260,6 +260,14 @@ Vil du aktivere de nødvendige tjenester?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vil du have en påmindelse om at aktivere Bluetooth eller placeringstjenester næste gang?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tilbage til appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Giver styringen af belastningen tilbage til appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

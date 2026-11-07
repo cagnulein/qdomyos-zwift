@@ -13,6 +13,8 @@ class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
                                               bluetoothdevice *bike, CharacteristicNotifier2AD9 *notifier,
                                               QObject *parent = nullptr);
     int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) override;
+    // FTMS Set Target Resistance Level from the app, as received (0.1 units)
+    void changeResistanceLevel(resistance_t level);
   signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };

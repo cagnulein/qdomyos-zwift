@@ -276,6 +276,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Нагадати про ввімкнення Bluetooth або служб геолокації наступного разу?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Повернути застосунку</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Повертає керування навантаженням застосунку</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

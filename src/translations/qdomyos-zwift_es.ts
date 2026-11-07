@@ -276,6 +276,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>¿Quieres que la próxima vez te recordemos activar Bluetooth o los servicios de ubicación?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Devolver a la app</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Devuelve el control de la carga a la app</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

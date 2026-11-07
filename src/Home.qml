@@ -614,6 +614,26 @@ HomeForm {
                 // Ignore for VoiceOver - parent Item handles accessibility
                 Accessible.ignored: true
             }
+            // shown in the empty second line of T.Power(W) while the tile overrides the app's resistance
+            RoundButton {
+                objectName: "target_power_release"
+                text: qsTr("Return to app")
+                onClicked: rootItem.releaseTargetPower()
+                visible: identificator === "target_power" && rootItem.targetPowerReleaseVisible && !largeButton
+                anchors.verticalCenter: secondLineText.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 42 * settings.ui_zoom / 100
+                width: Math.min(implicitWidth, parent.width - 12 * settings.ui_zoom / 100)
+                radius: height / 2
+                font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: text
+                Accessible.description: qsTr("Give load control back to the app")
+                Accessible.focusable: true
+                Accessible.onPressAction: { rootItem.releaseTargetPower() }
+            }
             Text {
                 id: myText
                 anchors {

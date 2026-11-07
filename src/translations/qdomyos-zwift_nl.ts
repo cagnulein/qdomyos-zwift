@@ -276,6 +276,14 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Wil je de volgende keer herinnerd worden aan het inschakelen van Bluetooth of locatievoorzieningen?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Terug naar app</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Geeft de besturing van de belasting terug aan de app</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

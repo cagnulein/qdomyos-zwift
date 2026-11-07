@@ -69,6 +69,13 @@ void CharacteristicWriteProcessor::changePower(uint16_t power) {
     Bike->changePower(power);
 }
 
+void CharacteristicWriteProcessor::changePowerFromApp(uint16_t power) {
+    if (Bike->deviceType() == BIKE) {
+        ((bike *)Bike)->rememberAppPower(power);
+    }
+    changePower(power);
+}
+
 void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
     QSettings settings;
@@ -144,11 +151,12 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
 
         if (force_resistance && !erg_mode) {
             if (customResistanceAvailable) {
-                Bike->changeResistance((resistance_t)qRound(customResistance + CRR_offset + CW_offset));
+                ((bike *)Bike)->changeResistanceFromApp((resistance_t)qRound(customResistance + CRR_offset + CW_offset));
             } else {
                 // same on the training program
-                Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
-                                       CRR_offset + CW_offset); // resistance start from 1
+                ((bike *)Bike)->changeResistanceFromApp((resistance_t)(round(resistance * bikeResistanceGain)) +
+                                                        bikeResistanceOffset + 1 + CRR_offset +
+                                                        CW_offset); // resistance start from 1
             }
         }
     } else if (dt == TREADMILL) {
