@@ -4655,6 +4655,10 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <translation>Uygulama dili:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Bu ayar, ayar sayfalarında bulunamadı</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Sanal uygulamadaki eğimin bisiklet direncine nasıl dönüştürüleceğini ayarlar.</translation>
     </message>

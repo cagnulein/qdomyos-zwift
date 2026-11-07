@@ -4614,6 +4614,10 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <translation>Appsprog:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Denne indstilling blev ikke fundet på indstillingssiderne</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Indstil, hvordan hældningen fra den virtuelle app omsættes til cyklens modstand.</translation>
     </message>

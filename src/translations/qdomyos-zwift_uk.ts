@@ -6611,6 +6611,10 @@ Please enter it below:</source>
         <translation>Нахил</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Це налаштування не знайдено на сторінках налаштувань</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Налаштуйте, як нахил із віртуального застосунку переводиться в опір велотренажера.</translation>
     </message>

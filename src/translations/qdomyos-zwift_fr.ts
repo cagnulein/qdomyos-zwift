@@ -6643,6 +6643,10 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Inclinaison</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Ce paramètre est introuvable dans les pages de paramètres</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Définit comment l&apos;inclinaison de l&apos;application virtuelle est convertie en résistance du vélo.</translation>
     </message>

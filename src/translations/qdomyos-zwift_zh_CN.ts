@@ -8103,6 +8103,10 @@ Default: A = -0.96, B = 1.33</source>
         <translation>训练历史图表</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>在设置页面中未找到此设置</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>设置虚拟应用的坡度如何换算为单车阻力。</translation>
     </message>

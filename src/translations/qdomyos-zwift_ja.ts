@@ -6671,6 +6671,10 @@ Please enter it below:</source>
         <translation>傾斜（斜度）</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>この設定は設定ページに見つかりません</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>仮想アプリの傾斜をバイクの負荷レベルにどう変換するかを設定します。</translation>
     </message>
