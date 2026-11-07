@@ -24,7 +24,9 @@ inline QByteArray buildRowerData(uint8_t strokeRate, uint16_t strokeCount, uint3
     appendLittleEndian16(data, strokeCount);
     data.append(static_cast<char>(distanceMeters & 0xff));
     data.append(static_cast<char>((distanceMeters >> 8) & 0xff));
-    data.append(static_cast<char>((distanceMeters >> 16) & 0xff));
+    // Legacy rower packets truncated distance to 16 bits before writing the
+    // third byte. Preserve that exact behavior for non-opted-in rowers.
+    data.append(static_cast<char>((hasResistanceTelemetry ? distanceMeters : static_cast<uint16_t>(distanceMeters)) >> 16));
     appendLittleEndian16(data, paceSeconds);
     appendLittleEndian16(data, static_cast<uint16_t>(static_cast<int16_t>(qBound(-32768, powerWatts, 32767))));
     // Unlike 0x2AD9, Rower Data represents resistance as SINT16 with resolution 1.
@@ -35,6 +37,8 @@ inline QByteArray buildRowerData(uint8_t strokeRate, uint16_t strokeCount, uint3
     appendLittleEndian16(data, calories); // Energy per hour: preserve the existing QZ value
     data.append(static_cast<char>(calories & 0xff)); // Energy per minute: preserve the existing QZ value
     data.append(static_cast<char>(heartRate));
+    if (!hasResistanceTelemetry)
+        data.append(static_cast<char>(0)); // Legacy Bkool HRM offset workaround.
     return data;
 }
 
