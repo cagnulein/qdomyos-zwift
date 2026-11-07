@@ -747,6 +747,15 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceNames({"YPTM-U0", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<horizontreadmill>();
 
+    // UREVO URTM family: all suffixes and case variants must be routed before Horizon.
+    RegisterNewDeviceTestData(DeviceIndex::UrevoTreadmill)
+        ->expectDevice<urevotreadmill>()
+        ->acceptDeviceNames({"URTM047", "URTM024", "URTM999", "URTM"},
+                            DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("XURTM047", DeviceNameComparison::StartsWithIgnoreCase)
+        ->rejectDeviceName("U-RTM047", DeviceNameComparison::StartsWithIgnoreCase)
+        ->excluding<horizontreadmill>();
+
     // Horizon Treadmill
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill)
         ->expectDevice<horizontreadmill>()        
