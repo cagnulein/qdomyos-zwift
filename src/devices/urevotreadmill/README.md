@@ -1,7 +1,18 @@
-# UREVO URTM047 (experimental)
+# UREVO URTM family (experimental)
 
-Dedicated Bluetooth LE driver for the tested URTM047. This intentionally
-does not replace the existing Horizon path for other URTM devices.
+The dedicated Bluetooth LE driver is the **default for all devices whose
+Bluetooth name starts with `URTM`**, case-insensitively (URTM047, URTM024,
+etc.). It has precedence over the Horizon driver.
+
+**Manual FTMS fallback:** Select the actual URTM device in the existing
+**FTMS Treadmill** setting. When `ftms_treadmill` matches that device's full
+Bluetooth name (case-insensitively), QZ bypasses `urevotreadmill` and
+uses `horizontreadmill`. Unselecting that device restores native UREVO
+routing. No automatic switch is attempted after a native connection error.
+
+The proprietary handshake was captured only from URTM047; it is not yet
+confirmed on every URTM firmware. The manual fallback makes it possible to
+keep using Horizon/FTMS for incompatible models.
 
 ## Source trace
 
@@ -35,8 +46,9 @@ preemption, invalid checksums, missing acknowledgements, and reconnect reset.
 
 ## Safety and test status
 
-- All motor control is native FFF2 only; FTMS is used for optional
-  telemetry and never as a control fallback.
+- Inside the native UREVO driver, motor control is FFF2 only; FTMS is
+  optional read-only telemetry. The **user-selected FTMS Treadmill fallback**
+  instead routes the whole device to the existing Horizon driver.
 - A speed target alone never starts the motor. Start is triggered only by an
   explicit QZ Start request, after initialization and recent idle feedback.
 - Command writes are serialized; a lost handshake or write response does not
@@ -46,5 +58,7 @@ preemption, invalid checksums, missing acknowledgements, and reconnect reset.
 - Initialization and frame formats are verified against one URTM047
   capture. The fixed delays reproduce the observed order but are not proof
   that every firmware variant will behave identically.
+- The discovery regression suite covers default native URTM routing and
+  explicitly selected FTMS/Horizon fallback on multiple URTM names.
 - No physical treadmill test has been performed. Keep emergency stop/safety
   key in reach and do not merge without a supervised on-device validation.
