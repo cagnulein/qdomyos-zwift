@@ -953,15 +953,21 @@ void tacxneo2::serviceScanDone(void) {
 }
 
 void tacxneo2::errorService(QLowEnergyService::ServiceError err) {
-    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("tacxneo2::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+    const QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
+    const char *key = metaEnum.valueToKey(err);
+    const QString errorName = key ? QString::fromLatin1(key)
+                                  : QStringLiteral("UnknownError(%1)").arg(static_cast<int>(err));
+    emit debug(QStringLiteral("tacxneo2::errorService") + errorName +
+               (m_control ? m_control->errorString() : QString()));
 }
 
 void tacxneo2::error(QLowEnergyController::Error err) {
-    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("tacxneo2::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+    const QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
+    const char *key = metaEnum.valueToKey(err);
+    const QString errorName = key ? QString::fromLatin1(key)
+                                  : QStringLiteral("UnknownError(%1)").arg(static_cast<int>(err));
+    emit debug(QStringLiteral("tacxneo2::error") + errorName +
+               (m_control ? m_control->errorString() : QString()));
 }
 
 void tacxneo2::deviceDiscovered(const QBluetoothDeviceInfo &device) {
