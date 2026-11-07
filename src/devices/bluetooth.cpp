@@ -1902,8 +1902,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
             } else if (b.name().startsWith(QStringLiteral("URTM"), Qt::CaseInsensitive) &&
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) != 0 &&
                        !urevoTreadmill && !horizonTreadmill && filter) {
-                // All URTM devices are routed here before the generic Horizon treadmill matcher.
+                // An explicitly selected FTMS Treadmill bypasses native URTM and uses Horizon below.
+                // Otherwise all URTM devices route here before the generic Horizon matcher.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 urevoTreadmill = new urevotreadmill(noHeartService);
