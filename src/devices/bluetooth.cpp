@@ -1902,7 +1902,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
             } else if (b.name().startsWith(QStringLiteral("URTM"), Qt::CaseInsensitive) &&
-                       !urevoTreadmill && filter) {
+                       !urevoTreadmill && !horizonTreadmill && filter) {
                 // All URTM devices are routed here before the generic Horizon treadmill matcher.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2017,7 +2017,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
-                       !horizonTreadmill && !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
+                       !horizonTreadmill && !urevoTreadmill &&
+                       !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
