@@ -88,3 +88,47 @@ TEST(VirtualRowerFTMSResistanceTest, RejectsMalformedOutOfRangeAndFractionalLeve
     EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("04f000"), 15, &level));
     EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("05f000"), 24, &level));
 }
+
+TEST(VirtualRowerFTMSResistanceTest, SupportsIndependentRowerRanges) {
+    EXPECT_EQ(virtualrowerftms::supportedResistanceRange(1, 15, 1), QByteArray::fromHex("0a0096000a00"));
+    EXPECT_EQ(virtualrowerftms::supportedResistanceRange(1, 24, 1), QByteArray::fromHex("0a00f0000a00"));
+    EXPECT_EQ(virtualrowerftms::supportedResistanceRange(1, 32, 1), QByteArray::fromHex("0a0040010a00"));
+    EXPECT_EQ(virtualrowerftms::supportedResistanceRange(1, 25, 1), QByteArray::fromHex("0a00fa000a00"));
+
+    int level = 0;
+    EXPECT_TRUE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("044001"), 1, 32, 1, &level));
+    EXPECT_EQ(level, 32);
+    EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("044001"), 1, 24, 1, &level));
+    EXPECT_TRUE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("04f000"), 1, 24, 1, &level));
+    EXPECT_EQ(level, 24);
+    EXPECT_TRUE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("049600"), 1, 15, 1, &level));
+    EXPECT_EQ(level, 15);
+}
+
+TEST(VirtualRowerFTMSResistanceTest, EnforcesDeviceSpecificMinimumAndStep) {
+    int level = 0;
+    EXPECT_TRUE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("041e00"), 1, 15, 2, &level));
+    EXPECT_EQ(level, 3);
+    EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("041400"), 1, 15, 2, &level));
+    EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("040a00"), 2, 15, 1, &level));
+    EXPECT_FALSE(virtualrowerftms::decodeTargetResistance(QByteArray::fromHex("041400"), 2, 15, 0, &level));
+}
+
+TEST(VirtualRowerFTMSResistanceTest, OmitsResistanceFieldForRowerWithoutTelemetry) {
+    const QByteArray frame = virtualrowerftms::buildRowerData(40, 200, 70000, 150, 220, 0, 75, 140, false);
+    ASSERT_EQ(frame.size(), 18);
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(0)), 0x2c);
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(1)), 0x03);
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(12)), 75); // energy immediately follows power
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(17)), 140);
+}
+
+TEST(VirtualRowerFTMSResistanceTest, UnknownRowerDoesNotClaimControlOrTelemetry) {
+    RowerTargetResistanceTestDevice unknownRower;
+    const auto caps = unknownRower.ftmsResistanceCapabilities();
+    EXPECT_FALSE(caps.canControl);
+    EXPECT_FALSE(caps.hasTelemetry);
+    EXPECT_EQ(caps.minLevel, 1);
+    EXPECT_EQ(caps.maxLevel, 15);
+    EXPECT_EQ(caps.stepLevel, 1);
+}
