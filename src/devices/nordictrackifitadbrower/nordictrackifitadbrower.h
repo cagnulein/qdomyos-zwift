@@ -63,6 +63,12 @@ class nordictrackifitadbrowerLogcatAdbThread : public QThread {
 class nordictrackifitadbrower : public rower {
     Q_OBJECT
   public:
+
+    // Telemetry is available, but ADB control is mode-dependent; do not advertise
+    // generic FTMS resistance writes until that control path is verified.
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override {
+        return {true, false, 1, max_resistance, 1};
+    }
     nordictrackifitadbrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                            double bikeResistanceGain);
     bool connected() override;
