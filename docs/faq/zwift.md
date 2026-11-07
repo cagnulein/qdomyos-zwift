@@ -187,3 +187,9 @@ QZ alone can show and record workout metrics and control the trainer; a virtual-
 If you are currently using **Zwift** rather than MyWhoosh, check QZ's **Experimental Settings** for an enabled **MyWhoosh compatibility** option. Disable that option, save the settings, restart QZ and reconnect Zwift, then test automatic incline on a short route.
 
 A rider explicitly confirmed that **Zwift automatic inclination started working again after disabling the MyWhoosh option**. This is a targeted workaround for a setup where the MyWhoosh option was enabled; it does not imply that every Zwift incline problem is caused by that setting. Re-enable MyWhoosh-specific functionality when you switch back to a MyWhoosh workflow that requires it.
+
+## Can QZ simulate cycling power in Zwift without a physical bike or power meter?
+
+Yes, for testing or simulation. In **QZ Settings > Experimental Settings**, enable **Fake Device**; in **Tiles Options**, enable the **Target Watt** tile. Return to the dashboard and use the tile's **+ / −** controls to set a nonzero power target. Enable QZ's virtual Bluetooth bike if it is not already enabled, then pair that virtual bike as the power source in Zwift. Merely connecting the virtual bike is not enough: a zero target produces no movement.
+
+A rider confirmed that setting a nonzero Target Watt made the Zwift avatar move. QZ's fake-bike implementation varies the generated watts around the requested target, synthesizes cadence from the requested power, and derives speed from power; these are **simulated metrics**, not actual measured effort. Heart rate is not fabricated: pair a real heart-rate sensor if you want HR data. Disable Fake Device again when connecting a real bike or trainer.
