@@ -232,6 +232,8 @@ void urevotreadmill::characteristicWritten(const QLowEnergyCharacteristic &chara
         return;
     emit debug(QStringLiteral("UREVO BLE write confirmed: ") + QString::fromLatin1(value.toHex(' ')));
     m_writeInFlight = false;
+    if (m_inFlightStop)
+        m_protocol.stopWriteConfirmed(QDateTime::currentMSecsSinceEpoch());
     m_inFlightStop = false;
     flushWriteQueue();
 }
