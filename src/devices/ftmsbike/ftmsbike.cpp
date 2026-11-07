@@ -2392,7 +2392,6 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if (numericPrefix) {
                 qDebug() << QStringLiteral("DRUMFIT found");
                 DRUMFIT = true;
-                max_resistance = 32;
                 resistance_lvl_mode = true;
                 ergModeSupported = true;
             }
