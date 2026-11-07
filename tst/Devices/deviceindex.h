@@ -101,6 +101,7 @@ public:
     DEFINE_DEVICE(HorizonTreadmill_DomyosTC, "Horizon Treadmill (Domyos TC)");
     DEFINE_DEVICE(HorizonTreadmill_Toorx, "Horizon Treadmill (Toorx)");
     DEFINE_DEVICE(HorizonTreadmill, "Horizon Treadmill");
+    DEFINE_DEVICE(UrevoTreadmill, "UREVO URTM Treadmill");
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
     DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
