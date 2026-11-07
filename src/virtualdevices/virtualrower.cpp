@@ -1,5 +1,6 @@
 #include "virtualdevices/virtualrower.h"
 #include "virtualdevices/virtualrowercadence.h"
+#include "virtualdevices/virtualrowerftms.h"
 #include "devices/echelonrower/echelonrower.h"
 #include "qsettings.h"
 #include "qzsettings.h"
@@ -216,8 +217,12 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
                 QByteArray valueFIT2;
                 valueFIT2.append((char)0x0A); // min resistance value
                 valueFIT2.append((char)0x00); // min resistance value
-                valueFIT2.append((char)0x96); // max resistance value
-                valueFIT2.append((char)0x00); // max resistance value
+                // 750R implements 24 discrete hardware levels; the range uses 0.1 units.
+                const bool proform750r =
+                    settings.value(QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r).toBool();
+                const uint16_t maxResistanceTenths = proform750r ? 240 : 150;
+                valueFIT2.append(static_cast<char>(maxResistanceTenths & 0xff));
+                valueFIT2.append(static_cast<char>((maxResistanceTenths >> 8) & 0xff));
                 valueFIT2.append((char)0x0A); // step resistance
                 valueFIT2.append((char)0x00); // step resistance
                 charDataFIT2.setValue(valueFIT2);
@@ -448,7 +453,11 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 }
 
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (newValue.isEmpty())
+        return;
     QByteArray reply;
+    bool notifyResistanceChange = false;
+    int requestedResistance = 0;
     QSettings settings;
     if (characteristic.uuid().toUInt16() == 0x2AD9 && !newValue.isEmpty() &&
         newValue.at(0) == FTMS_SET_TARGET_POWER) {
@@ -470,18 +479,25 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     case 0x2AD9: // Fitness Machine Control Point
 
         if ((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
+            const bool proform750r =
+                settings.value(QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r).toBool();
+            const int maxLevel = proform750r ? 24 : 15;
+            auto *physicalRower = qobject_cast<rower *>(Rower);
+            const bool valid = physicalRower &&
+                               virtualrowerftms::decodeTargetResistance(newValue, maxLevel, &requestedResistance);
 
-            // Set Target Resistance
-            resistance_t uresistance = newValue.at(1);
-            uresistance = uresistance / 10;
-            /*
-            if (force_resistance && !erg_mode) {
-                rower->changeResistance(uresistance);
-            }*/
-            qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance);
-            reply.append((quint8)FTMS_RESPONSE_CODE);
-            reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
-            reply.append((quint8)FTMS_SUCCESS);
+            reply.append(static_cast<char>(FTMS_RESPONSE_CODE));
+            reply.append(static_cast<char>(FTMS_SET_TARGET_RESISTANCE_LEVEL));
+            if (valid) {
+                // Same route as the QZ +/- resistance buttons.
+                physicalRower->changeResistance(requestedResistance);
+                qDebug() << "FTMS rower target resistance" << requestedResistance;
+                reply.append(static_cast<char>(FTMS_SUCCESS));
+                notifyResistanceChange = true;
+            } else {
+                qDebug() << "Invalid FTMS rower resistance request" << newValue.toHex(' ');
+                reply.append(static_cast<char>(FTMS_INVALID_PARAMETER));
+            }
         } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
 
         {
@@ -531,6 +547,14 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
             return;
         }
         writeCharacteristic(serviceFIT, characteristic, reply);
+        if (notifyResistanceChange) {
+            const QLowEnergyCharacteristic status =
+                serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2ADA);
+            if (status.isValid()) {
+                writeCharacteristic(serviceFIT, status,
+                                    virtualrowerftms::targetResistanceChangedStatus(requestedResistance));
+            }
+        }
         break;
     }
 
@@ -961,33 +985,13 @@ void virtualrower::rowerProvider() {
                 qDebug() << "PM5 Multiplexed data sent";
             }
         } else {
-            // FTMS protocol (original code)
-            value.append((char)0x2C);
-            value.append((char)0x03);
-
-            value.append((char)(virtualFtmsStrokeRate & 0xFF)); // Stroke Rate
-
-            value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
-            value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
-
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
-
-            value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
-            value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
-
-            value.append((char)(((uint16_t)Rower->wattsMetricforUI()) & 0xFF));      // watts
-            value.append((char)(((uint16_t)Rower->wattsMetricforUI()) >> 8) & 0xFF); // watts
-
-            value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
-            value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories
-            value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
-            value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories
-            value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
-
-            value.append(char(Rower->currentHeart().value())); // Actual value.
-            value.append((char)0);                             // Bkool FTMS protocol HRM offset 1280 fix
+            // Complete 20-byte FTMS 0x2AD1 frame, including the current physical resistance.
+            value = virtualrowerftms::buildRowerData(
+                static_cast<uint8_t>(virtualFtmsStrokeRate), static_cast<uint16_t>(strokeCount),
+                static_cast<uint32_t>(qRound(Rower->odometer() * 1000.0)), paceSecs,
+                qRound(Rower->wattsMetricforUI()), qRound(Rower->currentResistance().value()),
+                static_cast<uint16_t>(qRound(Rower->calories().value())),
+                static_cast<uint8_t>(qRound(Rower->currentHeart().value())));
 
             if (!serviceFIT) {
                 qDebug() << QStringLiteral("serviceFIT not available");
