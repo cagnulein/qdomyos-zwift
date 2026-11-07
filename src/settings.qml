@@ -5847,7 +5847,7 @@ import AndroidStatusBar 1.0
                         accordionContent:
                             ColumnLayout {
                             SwitchDelegate {
-                                id: trixterXDreamV1
+                                id: trixterXDream
                                 text: qsTr("Trixter X-Dream Bike Enabled")
                                 hoverEnabled: true
                                 ToolTip.visible: hovered
@@ -5862,6 +5862,7 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.trixter_xdream_bike_enabled = checked
+                                Accessible.onPressAction: clicked()
                             }
                             RowLayout {
                                 id: trixterXDreambikeConnection
@@ -5902,6 +5903,7 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.trixter_xdream_bike_heartrate_enabled = checked
+                                Accessible.onPressAction: clicked()
                             }
                             SwitchDelegate {
                                 id: trixterXDreamSteering
@@ -5919,6 +5921,7 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.trixter_xdream_bike_steering_enabled = checked
+                                Accessible.onPressAction: clicked()
                             }
                             ColumnLayout {
                                 id: trixterXDreamCalibration
@@ -6014,7 +6017,7 @@ import AndroidStatusBar 1.0
                                         settings.trixter_xdream_bike_steering_cl = -2
                                         settings.trixter_xdream_bike_steering_cr = 2
                                         settings.trixter_xdream_bike_steering_r = settings.trixter_xdream_bike_steering_max
-                                        trixterXDreamV1Calibration.update()
+                                        trixterXDreamCalibration.update()
                                     }
                                 }
                             }
