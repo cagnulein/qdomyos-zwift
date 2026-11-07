@@ -5878,6 +5878,7 @@ import AndroidStatusBar 1.0
                                     hoverEnabled: true
                                     ToolTip.visible: hovered
                                     ToolTip.text: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port.")
+                                    Accessible.name: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port : ")+value
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
@@ -5942,6 +5943,7 @@ import AndroidStatusBar 1.0
                                         hoverEnabled: true
                                         ToolTip.visible: hovered
                                         ToolTip.text: qsTr("Unadjusted steering angle that is 100% left.")
+                                        Accessible.name: qsTr("Unadjusted steering angle that is 100% left : ") + value
                                         Layout.fillHeight: false
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -5962,7 +5964,7 @@ import AndroidStatusBar 1.0
                                         hoverEnabled: true
                                         ToolTip.visible: hovered
                                         ToolTip.text: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees.")
-
+                                        Accessible.name: qsTr("Leftmost unadjusted steering angle to be mapped to 0 degrees : ") + value
                                         Layout.fillHeight: false
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -5983,6 +5985,7 @@ import AndroidStatusBar 1.0
                                         hoverEnabled: true
                                         ToolTip.visible: hovered
                                         ToolTip.text: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees.")
+                                        Accessible.name: qsTr("Rightmost unadjusted steering angle to be mapped to 0 degrees : ") + value
                                         Layout.fillHeight: false
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         inputMethodHints: Qt.ImhDigitsOnly
@@ -6001,6 +6004,7 @@ import AndroidStatusBar 1.0
                                         hoverEnabled: true
                                         ToolTip.visible: hovered
                                         ToolTip.text: qsTr("Unadjusted steering angle that is 100% right.")
+                                        Accessible.name: qsTr("Unadjusted steering angle that is 100% right : ") + value
                                         Layout.fillHeight: false
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         inputMethodHints: Qt.ImhDigitsOnly
