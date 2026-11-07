@@ -2,6 +2,23 @@
 #include <gtest/gtest.h>
 #include <limits>
 
+TEST(Urtm047Protocol, CapturedIdleLearnsChecksumWithoutInventingPair) {
+    using H = horizontreadmill;
+    auto checksum = H::UrtmChecksum::Unknown;
+    double speed = -123, incline = -456;
+    EXPECT_TRUE(H::urtmStatus(QByteArray::fromHex("025100020903"), speed, incline, checksum));
+    EXPECT_EQ(checksum, H::UrtmChecksum::ExcludeStx);
+    EXPECT_DOUBLE_EQ(speed, -123);
+    EXPECT_DOUBLE_EQ(incline, -456);
+    auto bad = QByteArray::fromHex("025100020803");
+    checksum = H::UrtmChecksum::Unknown;
+    EXPECT_FALSE(H::urtmStatus(bad, speed, incline, checksum));
+    EXPECT_EQ(checksum, H::UrtmChecksum::Unknown);
+    checksum = H::UrtmChecksum::IncludeStx;
+    EXPECT_FALSE(H::urtmStatus(QByteArray::fromHex("025100020903"), speed, incline, checksum));
+    EXPECT_EQ(checksum, H::UrtmChecksum::IncludeStx);
+}
+
 TEST(Urtm047Protocol, ReadinessFreshnessAndSafety) {
     using H = horizontreadmill;
     using C = H::UrtmChecksum;
@@ -107,4 +124,217 @@ TEST(Urtm047Protocol, CaptureVectorsAndName) {
     EXPECT_FALSE(horizontreadmill::urtmNativeCapabilities("URTM047", true, true, false, true));
     EXPECT_FALSE(horizontreadmill::urtmNativeCapabilities("URTM047", true, true, true, false));
     EXPECT_FALSE(horizontreadmill::urtmNativeCapabilities("OTHER", true, true, true, true));
+}
+
+
+namespace {
+struct UrtmFlow {
+    using H = horizontreadmill;
+    bool subscribed = true, paired = false, stopping = false, unconfirmed = false, idle = false;
+    double speed = -123, incline = -456;
+    qint64 statusTime = 0, pendingSince = 0;
+    H::UrtmChecksum checksum = H::UrtmChecksum::Unknown;
+    volatile double requestSpeed = -1;
+    double requestInclination = -100;
+    int8_t requestStart = -1, requestStop = -1, requestPause = -1;
+    bool native = true, ftms = true;
+    qint64 now = 1000;
+    std::vector<QByteArray> frames;
+    int started = 0;
+    H::UrtmControlRefs refs() {
+        return {subscribed, paired, stopping, unconfirmed, idle, speed, incline, statusTime, pendingSince,
+                checksum, requestSpeed, requestInclination, requestStart, requestStop, requestPause};
+    }
+    H::UrtmStatusResult status(const char *hex) {
+        return H::urtmApplyStatus(refs(), QByteArray::fromHex(hex), now);
+    }
+    bool update() {
+        return H::urtmControlStep(refs(), native, ftms, now,
+            [this](const QByteArray &frame) { frames.push_back(frame); },
+            [](const QString &) {}, [this]() { ++started; }, [](double v) { return v; });
+    }
+};
+constexpr const char *idlePacket = "025100020903";
+constexpr const char *fullPacket = "0251031428610003002f000100000000000b00000000007503";
+}
+
+TEST(Urtm047Flow, IdleDoesNotStartAndStartRequiresSubscriptionAndRequest) {
+    UrtmFlow f;
+    f.subscribed = false;
+    EXPECT_EQ(f.status(idlePacket), UrtmFlow::H::UrtmStatusResult::Idle);
+    EXPECT_FALSE(f.update()); // FTMS remains available while not subscribed.
+    EXPECT_TRUE(f.frames.empty());
+    EXPECT_DOUBLE_EQ(f.speed, -123);
+    EXPECT_DOUBLE_EQ(f.incline, -456);
+    f.subscribed = true;
+    EXPECT_TRUE(f.update());
+    EXPECT_TRUE(f.frames.empty());
+    f.requestStart = 1;
+    EXPECT_TRUE(f.update());
+    ASSERT_EQ(f.frames.size(), 1u);
+    EXPECT_EQ(f.frames[0].toHex(), QByteArray("02530100000000000000000e03"));
+    EXPECT_TRUE(f.unconfirmed);
+    EXPECT_FALSE(f.paired);
+    EXPECT_EQ(f.started, 1);
+}
+
+TEST(Urtm047Flow, UnconfirmedStartBlocksRepeatAndFtmsButStopStillWorks) {
+    UrtmFlow f;
+    f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    f.now += 6000;
+    f.requestStart = 1;
+    EXPECT_TRUE(f.update());
+    EXPECT_EQ(f.frames.size(), 1u);
+    f.requestSpeed = 4;
+    EXPECT_TRUE(f.update());
+    EXPECT_EQ(f.frames.size(), 1u);
+    f.requestStop = 1;
+    EXPECT_TRUE(f.update());
+    ASSERT_EQ(f.frames.size(), 2u);
+    EXPECT_EQ(f.frames.back().toHex(), QByteArray("0253030c03"));
+    EXPECT_EQ(f.requestSpeed, -1);
+    EXPECT_TRUE(f.stopping);
+}
+
+TEST(Urtm047Flow, PairedStatusEnablesSingleCombinedTarget) {
+    UrtmFlow f;
+    f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    ASSERT_EQ(f.status(fullPacket), UrtmFlow::H::UrtmStatusResult::Full);
+    EXPECT_FALSE(f.unconfirmed);
+    f.requestInclination = 3;
+    ASSERT_TRUE(f.update());
+    ASSERT_EQ(f.frames.size(), 2u);
+    EXPECT_EQ(f.frames.back().toHex(), QByteArray("025302141edd03"));
+    EXPECT_FALSE(f.paired);
+    f.requestSpeed = 2;
+    ASSERT_TRUE(f.update());
+    EXPECT_EQ(f.frames.size(), 2u);
+}
+
+TEST(Urtm047Flow, DisconnectClearsPendingAndRelearnsOnReconnect) {
+    UrtmFlow f;
+    f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    f.requestSpeed = 5;
+    UrtmFlow::H::urtmReset(f.refs(), true);
+    EXPECT_FALSE(f.subscribed);
+    EXPECT_FALSE(f.unconfirmed);
+    EXPECT_FALSE(f.idle);
+    EXPECT_EQ(f.checksum, UrtmFlow::H::UrtmChecksum::Unknown);
+    EXPECT_EQ(f.requestSpeed, -1);
+    f.subscribed = true;
+    ASSERT_EQ(f.status(idlePacket), UrtmFlow::H::UrtmStatusResult::Idle);
+    ASSERT_TRUE(f.update());
+    EXPECT_EQ(f.frames.size(), 1u); // Reconnect alone must not start.
+    f.requestStart = 1;
+    ASSERT_TRUE(f.update());
+    EXPECT_EQ(f.frames.size(), 2u);
+}
+
+TEST(Urtm047Flow, MissingNativeUsesExistingFallbackWithoutNativeWrite) {
+    UrtmFlow f;
+    f.native = false;
+    f.requestStart = 1;
+    EXPECT_FALSE(f.update());
+    EXPECT_TRUE(f.frames.empty());
+    EXPECT_EQ(f.requestStart, 1);
+}
+
+
+TEST(Urtm047Flow, StaleStatusNeverSuppressesNativeStop) {
+    UrtmFlow f; f.status(fullPacket); f.now += 6000;
+    f.requestStop = f.requestStart = 1; f.requestSpeed = 4;
+    ASSERT_TRUE(f.update()); ASSERT_EQ(f.frames.size(), 1u);
+    EXPECT_EQ(f.frames[0], UrtmFlow::H::urtmStop(false));
+    EXPECT_EQ(f.requestStart, -1); EXPECT_EQ(f.requestSpeed, -1);
+}
+
+TEST(Urtm047Flow, ExpiredIdleCannotAuthorizeStartOrFallback) {
+    UrtmFlow f; f.status(idlePacket); f.now += 5000; f.requestStart = 1;
+    EXPECT_TRUE(f.update()); EXPECT_TRUE(f.frames.empty()); EXPECT_EQ(f.requestStart, -1);
+}
+
+TEST(Urtm047Flow, ZeroSpeedStatusDoesNotConfirmStart) {
+    UrtmFlow f; f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    auto zero = QByteArray::fromHex(fullPacket); zero[3] = 0;
+    unsigned sum = 0; for (int i = 1; i < 23; ++i) sum += quint8(zero[i]);
+    zero[23] = char((sum & 255) ^ 0x5a);
+    ASSERT_EQ(UrtmFlow::H::urtmApplyStatus(f.refs(), zero, f.now), UrtmFlow::H::UrtmStatusResult::Full);
+    EXPECT_TRUE(f.unconfirmed); EXPECT_FALSE(f.paired);
+    f.requestStart = 1; ASSERT_TRUE(f.update()); EXPECT_EQ(f.frames.size(), 1u);
+    f.requestSpeed = 4; ASSERT_TRUE(f.update()); EXPECT_EQ(f.frames.size(), 1u);
+    f.now += 5000; ASSERT_TRUE(f.update()); EXPECT_EQ(f.requestSpeed, -1);
+    EXPECT_EQ(f.frames.size(), 1u); // Deliberately no unproven start acknowledgement.
+}
+
+TEST(Urtm047Flow, NativeUnavailableFtmsStopPreemptsStartAndTargets) {
+    UrtmFlow f; f.subscribed = false; f.requestStart = f.requestStop = 1;
+    f.requestSpeed = 5; f.requestInclination = 3;
+    EXPECT_FALSE(f.update()); EXPECT_EQ(f.requestStop, 1);
+    EXPECT_EQ(f.requestStart, -1); EXPECT_EQ(f.requestSpeed, -1); EXPECT_EQ(f.requestInclination, -100);
+}
+
+TEST(Urtm047Flow, RunningStatusDoesNotAuthorizeAnotherStart) {
+    UrtmFlow f; f.status(fullPacket); f.requestStart = 1;
+    EXPECT_TRUE(f.update()); EXPECT_TRUE(f.frames.empty()); EXPECT_EQ(f.requestStart, -1);
+}
+
+
+TEST(Urtm047Flow, ExpiredIdleWithUnavailableNativeCannotFallThroughToFtmsStart) {
+    UrtmFlow f; f.status(idlePacket); f.subscribed = false; f.now += 5000; f.requestStart = 1;
+    EXPECT_TRUE(f.update()); EXPECT_TRUE(f.frames.empty()); EXPECT_EQ(f.requestStart, -1);
+}
+
+
+TEST(Urtm047Flow, NonNativeStopStartRequestsPreserveLegacyFallback) {
+    UrtmFlow f; f.native = false; f.requestStart = f.requestStop = 1; f.requestSpeed = 5;
+    EXPECT_FALSE(f.update()); EXPECT_EQ(f.requestStart, 1); EXPECT_EQ(f.requestStop, 1);
+    EXPECT_EQ(f.requestSpeed, 5); EXPECT_TRUE(f.frames.empty());
+}
+
+TEST(Urtm047Flow, ZeroSpeedStatusReleasesLocalStopGate) {
+    UrtmFlow f; f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    f.requestStop = 1; ASSERT_TRUE(f.update());
+    auto zero = QByteArray::fromHex(fullPacket); zero[3] = 0;
+    unsigned sum = 0; for (int i = 1; i < 23; ++i) sum += quint8(zero[i]);
+    zero[23] = char((sum & 255) ^ 0x5a);
+    ASSERT_EQ(UrtmFlow::H::urtmApplyStatus(f.refs(), zero, f.now), UrtmFlow::H::UrtmStatusResult::Full);
+    EXPECT_FALSE(f.unconfirmed); EXPECT_FALSE(f.stopping); EXPECT_TRUE(f.paired);
+    EXPECT_DOUBLE_EQ(f.speed, 0); EXPECT_DOUBLE_EQ(f.incline, 4);
+    EXPECT_EQ(f.frames.size(), 2u);
+}
+
+TEST(Urtm047Flow, IdleAfterStopKeepsRestartBlocked) {
+    UrtmFlow f; f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    f.requestStop = 1; ASSERT_TRUE(f.update());
+    ASSERT_EQ(f.status(idlePacket), UrtmFlow::H::UrtmStatusResult::Idle);
+    EXPECT_TRUE(f.stopping); EXPECT_TRUE(f.unconfirmed); EXPECT_FALSE(f.paired);
+    f.requestStart = 1; ASSERT_TRUE(f.update());
+    EXPECT_EQ(f.requestStart, -1); EXPECT_EQ(f.frames.size(), 2u);
+}
+
+TEST(Urtm047Flow, DelayedPreStopIdleCannotReleaseStoppingOrAuthorizeRestart) {
+    UrtmFlow f; ASSERT_EQ(f.status(idlePacket), UrtmFlow::H::UrtmStatusResult::Idle);
+    f.requestStart = 1; ASSERT_TRUE(f.update());
+    ASSERT_EQ(f.status(fullPacket), UrtmFlow::H::UrtmStatusResult::Full);
+    f.requestStop = 1; ASSERT_TRUE(f.update());
+    f.now += 100;
+    ASSERT_EQ(f.status(idlePacket), UrtmFlow::H::UrtmStatusResult::Idle);
+    EXPECT_TRUE(f.stopping); EXPECT_FALSE(f.idle); EXPECT_FALSE(f.paired);
+    f.requestStart = 1; f.requestSpeed = 4; ASSERT_TRUE(f.update());
+    EXPECT_EQ(f.requestStart, -1); EXPECT_EQ(f.requestSpeed, -1);
+    ASSERT_EQ(f.frames.size(), 2u);
+    EXPECT_EQ(f.frames.back(), UrtmFlow::H::urtmStop(false, f.checksum));
+}
+
+TEST(Urtm047Flow, StopFallsBackToFtmsWhenStartUnconfirmedAndNativeUnavailable) {
+    UrtmFlow f; f.status(idlePacket); f.requestStart = 1; ASSERT_TRUE(f.update());
+    f.subscribed = false; f.requestStop = f.requestStart = 1;
+    f.requestSpeed = 4; f.requestInclination = 2;
+    EXPECT_FALSE(f.update()); // FTMS stop remains for the existing transport.
+    EXPECT_EQ(f.requestStop, 1); EXPECT_EQ(f.requestStart, -1);
+    EXPECT_EQ(f.requestSpeed, -1); EXPECT_EQ(f.requestInclination, -100);
+    EXPECT_TRUE(f.stopping); EXPECT_EQ(f.frames.size(), 1u);
+    f.requestStop = -1; // The FTMS adapter consumed the one-shot request.
+    f.requestSpeed = 3;
+    EXPECT_TRUE(f.update()); EXPECT_EQ(f.requestSpeed, -1); EXPECT_EQ(f.frames.size(), 1u);
 }

@@ -982,90 +982,19 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
-        // A complete GATT shape is not enough: use FTMS until native status
-        // establishes the checksum variant and the notification is subscribed.
-        const qint64 urtmNow = QDateTime::currentMSecsSinceEpoch();
-        const bool urtmStatusFresh = urtmFresh(true, false, urtmStatusTime, urtmNow);
-        if (urtmReady(urtmService != nullptr, urtmSubscribed, urtmChecksum) && urtmStatusFresh) {
-            auto send = [this](const QByteArray &frame) {
-                urtmService->writeCharacteristic(urtmWrite, frame, QLowEnergyService::WriteWithResponse);
-            };
-            if (requestStop != -1) {
-                send(urtmStop(requestPause != -1, urtmChecksum));
-                urtmStopping = true;
-                urtmPaired = false;
-                urtmPendingSince = 0;
-                requestStop = requestPause = requestStart = -1;
-                requestSpeed = -1;
-                requestInclination = -100;
-                return;
-            }
-            if (urtmStopping) {
-                if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
-                    emit debug(QStringLiteral("URTM start/target rejected while stopping"));
-                    requestStart = requestSpeed = -1;
-                    requestInclination = -100;
-                }
-                return;
-            }
-            if (requestStart != -1) {
-                if (!urtmPaired) {
-                    emit debug(QStringLiteral("URTM start rejected while a native command is unconfirmed"));
-                    requestStart = -1;
-                    return;
-                }
-                send(urtmStart(urtmChecksum));
-                requestStart = -1;
-                urtmPaired = false; // Wait for new status before sending a combined target.
-                emit tapeStarted();
-                return;
-            }
-            if (requestSpeed != -1 || requestInclination != -100) {
-                const qint64 now = QDateTime::currentMSecsSinceEpoch();
-                if (!urtmPendingSince) urtmPendingSince = now;
-                if (now < urtmPendingSince || now - urtmPendingSince >= 5000) {
-                    emit debug(QStringLiteral("URTM target expired waiting for fresh status"));
-                    requestSpeed = -1;
-                    requestInclination = -100;
-                    urtmPendingSince = 0;
-                    return;
-                }
-                if (!urtmFresh(urtmPaired, urtmStopping, urtmStatusTime, now)) {
-                    emit debug(QStringLiteral("URTM target waiting for fresh paired status"));
-                    return; // Do not discard requests while awaiting a safe counterpart.
-                }
-                const double speed = requestSpeed == -1 ? urtmSpeed : double(requestSpeed);
-                const double incline = requestInclination == -100 ? urtmIncline :
-                    double(treadmillInclinationOverrideReverse(requestInclination));
-                const QByteArray frame = urtmTarget(speed, incline, urtmChecksum);
-                if (speed > 22 || incline > 15 || frame.isEmpty()) {
-                    emit debug(QStringLiteral("URTM target rejected: out of range or invalid"));
-                } else {
-                    send(frame);
-                    urtmPaired = false; // Require a new status for the next combined command.
-                }
-                requestSpeed = -1;
-                requestInclination = -100;
-                urtmPendingSince = 0;
-            } else {
-                urtmPendingSince = 0;
-            }
+        UrtmControlRefs urtmControl{urtmSubscribed, urtmPaired, urtmStopping, urtmStartUnconfirmed,
+            urtmIdleStartEligible, urtmSpeed, urtmIncline, urtmStatusTime, urtmPendingSince, urtmChecksum,
+            requestSpeed, requestInclination, requestStart, requestStop, requestPause};
+        if (urtmControlStep(urtmControl, urtmService != nullptr,
+                gattFTMSService && gattWriteCharControlPointId.isValid(), QDateTime::currentMSecsSinceEpoch(),
+                [this](const QByteArray &frame) {
+                    emit debug(QStringLiteral("URTM native write: %1").arg(QString::fromLatin1(frame.toHex(' '))));
+                    urtmService->writeCharacteristic(urtmWrite, frame, QLowEnergyService::WriteWithResponse);
+                },
+                [this](const QString &message) { emit debug(message); },
+                [this]() { emit tapeStarted(); },
+                [this](double incline) { return treadmillInclinationOverrideReverse(incline); }))
             return;
-        }
-        // Do not switch transports while a native command awaits a confirming status.
-        if (urtmService && (!urtmFallbackSafe(urtmPaired, urtmStopping, urtmStatusTime) ||
-                            !gattFTMSService || !gattWriteCharControlPointId.isValid())) {
-            if (requestStop != -1) {
-                emit debug(QStringLiteral("URTM stop rejected: native unavailable or command unconfirmed; FTMS unavailable or unsafe"));
-                requestStop = requestPause = -1;
-            }
-            if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
-                emit debug(QStringLiteral("URTM start/target rejected: native not ready and FTMS unavailable"));
-                requestStart = requestSpeed = -1;
-                requestInclination = -100;
-            }
-            return;
-        }
 
         // this treadmill can't go below 1
         if(mobvoi_tmp_treadmill && requestSpeed < 1)
@@ -1218,7 +1147,13 @@ void horizontreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if (gattCustomService) {
+            if (urtmService && !urtmReady(true, urtmSubscribed, urtmChecksum) &&
+                gattFTMSService && gattWriteCharControlPointId.isValid()) {
+                uint8_t stop[] = {FTMS_STOP_PAUSE, uint8_t(requestPause == -1 ? 0x01 : 0x02)};
+                requestStop = requestPause = -1; // Consume before the nested response wait.
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, stop, sizeof(stop),
+                                    QStringLiteral("URTM best-effort FTMS stop"), false, true);
+            } else if (gattCustomService) {
                 if (!horizon_paragon_x) {
                     /*if (horizon_treadmill_7_8)*/ {
                         // stop
@@ -1698,16 +1633,24 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                       // UndefinedBinaryOperatorResult
     bool nativeStatus = false;
     if (urtmService && sender() == urtmService && characteristic.uuid() == QBluetoothUuid(quint16(0xfff1))) {
-        double speed, incline;
-        if (urtmStatus(newValue, speed, incline, urtmChecksum)) {
-            urtmSpeed = speed;
-            urtmIncline = incline;
-            urtmStatusTime = QDateTime::currentMSecsSinceEpoch();
-            if (urtmStopping && speed == 0) urtmStopping = false;
-            urtmPaired = !urtmStopping;
-            nativeStatus = true;
+        UrtmControlRefs urtmControl{urtmSubscribed, urtmPaired, urtmStopping, urtmStartUnconfirmed,
+            urtmIdleStartEligible, urtmSpeed, urtmIncline, urtmStatusTime, urtmPendingSince, urtmChecksum,
+            requestSpeed, requestInclination, requestStart, requestStop, requestPause};
+        const bool wasStopping = urtmStopping;
+        const auto result = urtmApplyStatus(urtmControl, newValue, QDateTime::currentMSecsSinceEpoch());
+        if (wasStopping && !urtmStopping)
+            emit debug(QStringLiteral("URTM zero-speed status released local stop gate; physical stop unverified"));
+        emit debug(QStringLiteral("URTM status %1: %2")
+                       .arg(result == UrtmStatusResult::Idle ? QStringLiteral("idle") :
+                            result == UrtmStatusResult::Full ? QStringLiteral("full") : QStringLiteral("invalid"))
+                       .arg(QString::fromLatin1(newValue.toHex(' '))));
+        if (result == UrtmStatusResult::Idle) return;
+        nativeStatus = result == UrtmStatusResult::Full;
+        if (!nativeStatus) {
+            emit debug(QStringLiteral("URTM rejected FFF1 packet: length %1, data %2")
+                           .arg(newValue.size()).arg(QString::fromLatin1(newValue.toHex(' '))));
+            return;
         }
-        if (!nativeStatus) return;
     }
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -3066,16 +3009,13 @@ bool horizontreadmill::connected() {
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        if (urtmService) {
-            requestSpeed = -1; requestInclination = -100; requestStart = requestStop = requestPause = -1;
-        }
+        UrtmControlRefs urtmControl{urtmSubscribed, urtmPaired, urtmStopping, urtmStartUnconfirmed,
+            urtmIdleStartEligible, urtmSpeed, urtmIncline, urtmStatusTime, urtmPendingSince, urtmChecksum,
+            requestSpeed, requestInclination, requestStart, requestStop, requestPause};
+        urtmReset(urtmControl, urtmService != nullptr);
         urtmService = nullptr;
         urtmWrite = QLowEnergyCharacteristic();
         urtmNotifyDescriptor = QLowEnergyDescriptor();
-        urtmSubscribed = urtmPaired = urtmStopping = false;
-        urtmStatusTime = 0;
-        urtmPendingSince = 0;
-        urtmChecksum = UrtmChecksum::Unknown;
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;

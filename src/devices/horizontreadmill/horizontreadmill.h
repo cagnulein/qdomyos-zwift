@@ -81,6 +81,11 @@ class horizontreadmill : public treadmill {
     }
     // Only the captured 25-byte layout has a proven paired incline field.
     static bool urtmStatus(const QByteArray &frame, double &speed, double &incline, UrtmChecksum &checksum) {
+        if (frame == QByteArray::fromHex("025100020903")) {
+            if (checksum != UrtmChecksum::Unknown && checksum != UrtmChecksum::ExcludeStx) return false;
+            checksum = UrtmChecksum::ExcludeStx;
+            return true; // Idle contains no speed/incline pair.
+        }
         if (frame.size() != 25 || quint8(frame[0]) != 0x02 || quint8(frame[1]) != 0x51 ||
             quint8(frame[24]) != 0x03)
             return false;
@@ -99,6 +104,173 @@ class horizontreadmill : public treadmill {
         speed = quint8(frame[3]) * 0.1609344;
         incline = quint8(frame[4]) / 10.0;
         return true;
+    }
+    // One update step, shared with transport-independent orchestration tests.
+    struct UrtmControlRefs {
+        bool &urtmSubscribed; bool &urtmPaired; bool &urtmStopping;
+        bool &urtmStartUnconfirmed; bool &urtmIdleStartEligible;
+        double &urtmSpeed; double &urtmIncline;
+        qint64 &urtmStatusTime; qint64 &urtmPendingSince; UrtmChecksum &urtmChecksum;
+        volatile double &requestSpeed; double &requestInclination;
+        int8_t &requestStart; int8_t &requestStop; int8_t &requestPause;
+    };
+    static void urtmReset(UrtmControlRefs state, bool hadNativeService) {
+        if (hadNativeService) {
+            state.requestSpeed = -1; state.requestInclination = -100;
+            state.requestStart = state.requestStop = state.requestPause = -1;
+        }
+        state.urtmSubscribed = state.urtmPaired = state.urtmStopping = state.urtmStartUnconfirmed = false;
+        state.urtmIdleStartEligible = false;
+        state.urtmStatusTime = state.urtmPendingSince = 0;
+        state.urtmChecksum = UrtmChecksum::Unknown;
+    }
+    enum class UrtmStatusResult { Invalid, Idle, Full };
+    static UrtmStatusResult urtmApplyStatus(UrtmControlRefs state, const QByteArray &value, qint64 now) {
+        double speed, incline;
+        if (!urtmStatus(value, speed, incline, state.urtmChecksum)) return UrtmStatusResult::Invalid;
+        if (value.size() == 6) {
+            // Idle has no speed and may predate stop; it cannot release the stopping gate.
+            if (!state.urtmStartUnconfirmed && !state.urtmStopping &&
+                (!state.urtmStatusTime || state.urtmIdleStartEligible)) {
+                state.urtmIdleStartEligible = true;
+                state.urtmStatusTime = now;
+            }
+            return UrtmStatusResult::Idle;
+        }
+        state.urtmSpeed = speed;
+        state.urtmIncline = incline;
+        state.urtmStatusTime = now;
+        if (state.urtmStopping && speed == 0) {
+            state.urtmStopping = false;
+            state.urtmStartUnconfirmed = false;
+        } else if (!state.urtmStopping && speed > 0) {
+            state.urtmStartUnconfirmed = false;
+        }
+        state.urtmPaired = !state.urtmStopping && !state.urtmStartUnconfirmed;
+        state.urtmIdleStartEligible = false;
+        return UrtmStatusResult::Full;
+    }
+    template <typename Send, typename Log, typename Started, typename ReverseIncline>
+    static bool urtmControlStep(UrtmControlRefs state, bool nativeService, bool ftmsAvailable, qint64 now,
+                                Send send, Log log, Started started, ReverseIncline reverseIncline) {
+        auto &urtmSubscribed = state.urtmSubscribed;
+        auto &urtmPaired = state.urtmPaired;
+        auto &urtmStopping = state.urtmStopping;
+        auto &urtmStartUnconfirmed = state.urtmStartUnconfirmed;
+        auto &urtmIdleStartEligible = state.urtmIdleStartEligible;
+        auto &urtmSpeed = state.urtmSpeed;
+        auto &urtmIncline = state.urtmIncline;
+        auto &urtmStatusTime = state.urtmStatusTime;
+        auto &urtmPendingSince = state.urtmPendingSince;
+        auto &urtmChecksum = state.urtmChecksum;
+        auto &requestSpeed = state.requestSpeed;
+        auto &requestInclination = state.requestInclination;
+        auto &requestStart = state.requestStart;
+        auto &requestStop = state.requestStop;
+        auto &requestPause = state.requestPause;
+        // A complete GATT shape is not enough: use FTMS until native status
+        // establishes the checksum variant and the notification is subscribed.
+        const qint64 urtmNow = now;
+        const bool urtmStatusFresh = urtmFresh(true, false, urtmStatusTime, urtmNow);
+        if (nativeService && requestStop != -1) {
+            // Legacy FTMS handles Start before Stop: discard conflicting requests first.
+            requestStart = -1;
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
+        if (urtmReady(nativeService, urtmSubscribed, urtmChecksum)) {
+            if (requestStop != -1) {
+                send(urtmStop(requestPause != -1, urtmChecksum));
+                urtmStopping = true;
+                urtmPaired = false;
+                urtmIdleStartEligible = false;
+                urtmPendingSince = 0;
+                requestStop = requestPause = requestStart = -1;
+                requestSpeed = -1;
+                requestInclination = -100;
+                return true;
+            }
+            if (urtmStopping) {
+                if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
+                    log(QStringLiteral("URTM start/target rejected while stopping"));
+                    requestStart = requestSpeed = -1;
+                    requestInclination = -100;
+                }
+                return true;
+            }
+            if (requestStart != -1) {
+                if (!urtmStatusFresh || urtmStartUnconfirmed ||
+                    (!urtmPaired && !urtmIdleStartEligible) || (urtmPaired && urtmSpeed > 0)) {
+                    log(QStringLiteral("URTM start rejected while a native command is unconfirmed"));
+                    requestStart = -1;
+                    return true;
+                }
+                send(urtmStart(urtmChecksum));
+                requestStart = -1;
+                urtmStartUnconfirmed = true;
+                urtmIdleStartEligible = false;
+                urtmPaired = false; // Wait for new status before sending a combined target.
+                started();
+                return true;
+            }
+            if (requestSpeed != -1 || requestInclination != -100) {
+                if (!urtmPendingSince) urtmPendingSince = now;
+                if (now < urtmPendingSince || now - urtmPendingSince >= 5000) {
+                    log(QStringLiteral("URTM target expired waiting for fresh status"));
+                    requestSpeed = -1;
+                    requestInclination = -100;
+                    urtmPendingSince = 0;
+                    return true;
+                }
+                if (!urtmFresh(urtmPaired, urtmStopping, urtmStatusTime, now)) {
+                    log(QStringLiteral("URTM target waiting for fresh paired status"));
+                    return true; // Do not discard requests while awaiting a safe counterpart.
+                }
+                const double speed = requestSpeed == -1 ? urtmSpeed : double(requestSpeed);
+                const double incline = requestInclination == -100 ? urtmIncline :
+                    double(reverseIncline(requestInclination));
+                const QByteArray frame = urtmTarget(speed, incline, urtmChecksum);
+                if (speed > 22 || incline > 15 || frame.isEmpty()) {
+                    log(QStringLiteral("URTM target rejected: out of range or invalid"));
+                } else {
+                    send(frame);
+                    urtmPaired = false; // Require a new status for the next combined command.
+                }
+                requestSpeed = -1;
+                requestInclination = -100;
+                urtmPendingSince = 0;
+            } else {
+                urtmPendingSince = 0;
+            }
+            return true;
+        }
+        // A stop takes priority over uncertain native state: try FTMS once when
+        // available. Neither the write nor subsequent status proves physical stop.
+        if (nativeService && requestStop != -1 && ftmsAvailable) {
+            log(QStringLiteral("URTM native unavailable; attempting FTMS stop (physical outcome unknown)"));
+            urtmStopping = true;
+            urtmPaired = false;
+            urtmIdleStartEligible = false;
+            urtmPendingSince = 0;
+            return false;
+        }
+        // Do not switch transports while a native command awaits a confirming status.
+        if (nativeService && (urtmStartUnconfirmed || (urtmStatusTime && !urtmStatusFresh) ||
+                            (!urtmIdleStartEligible && !urtmFallbackSafe(urtmPaired, urtmStopping, urtmStatusTime)) ||
+                            !ftmsAvailable)) {
+            if (requestStop != -1) {
+                log(QStringLiteral("URTM stop rejected: native unavailable or command unconfirmed; FTMS unavailable or unsafe"));
+                requestStop = requestPause = -1;
+            }
+            if (requestStart != -1 || requestSpeed != -1 || requestInclination != -100) {
+                log(QStringLiteral("URTM start/target rejected: native not ready and FTMS unavailable"));
+                requestStart = requestSpeed = -1;
+                requestInclination = -100;
+            }
+            return true;
+        }
+
+        return false; // Continue through the existing FTMS/legacy path.
     }
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
@@ -128,6 +300,8 @@ class horizontreadmill : public treadmill {
     bool urtmSubscribed = false;
     bool urtmPaired = false;
     bool urtmStopping = false;
+    bool urtmStartUnconfirmed = false;
+    bool urtmIdleStartEligible = false;
     double urtmSpeed = 0, urtmIncline = 0;
     qint64 urtmStatusTime = 0;
     qint64 urtmPendingSince = 0;
