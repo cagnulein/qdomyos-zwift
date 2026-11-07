@@ -1901,9 +1901,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
-            } else if (b.name().compare(QStringLiteral("URTM047"), Qt::CaseInsensitive) == 0 &&
+            } else if (b.name().startsWith(QStringLiteral("URTM"), Qt::CaseInsensitive) &&
                        !urevoTreadmill && filter) {
-                // Exact name only: URTM024 and other UREVO firmware keep their existing Horizon path.
+                // All URTM devices are routed here before the generic Horizon treadmill matcher.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 urevoTreadmill = new urevotreadmill(noHeartService);
@@ -1973,7 +1973,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")) ||
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
-                        (b.name().toUpper().startsWith("URTM")) ||  // Urevo Spacewalk 3S Model URTM024
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL
                         (b.name().toUpper().startsWith("SF-T")) || // Sunny Fitness Treadmill
