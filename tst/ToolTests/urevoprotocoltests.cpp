@@ -133,6 +133,8 @@ TEST(UrevoHci, StopPreemptsPendingStartAndNeverAutoRestarts) {
     EXPECT_EQ(p.state(), UrevoProtocol::State::Stopping);
     p.receiveMain(bytes(idle), 4500);
     EXPECT_TRUE(p.ready()); // local gate only; physical stop not proven
+    EXPECT_DOUBLE_EQ(p.speedKmh(), 0);
+    EXPECT_FALSE(p.hasFullStatus()); // idle has no paired target fields
     EXPECT_TRUE(p.takeCommands().isEmpty());
     p.requestStop(true, 4600);
     expectSingle(p, UrevoProtocol::Channel::Main, "02530a0703");
