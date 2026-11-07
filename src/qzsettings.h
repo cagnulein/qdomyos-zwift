@@ -3468,6 +3468,20 @@ class QZSettings {
     static const QString log_debug_first_setup_since;
     static const QString default_log_debug_first_setup_since;
 
+    // The modern look of the interface (main.qml window.ui), off by default: with it off every page
+    // keeps its classic look. The theme, the accent and the theme mode apply to the modern look only
+    static const QString ui_modern;
+    static constexpr bool default_ui_modern = false;
+    // colour set of the modern look: graphite, oled, midnight
+    static const QString ui_theme;
+    static const QString default_ui_theme;
+    // accent colour of the modern look: violet, blue, teal, green, orange, pink
+    static const QString ui_accent;
+    static const QString default_ui_accent;
+    // auto (follows the night mode of the phone), dark, light
+    static const QString ui_theme_mode;
+    static const QString default_ui_theme_mode;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

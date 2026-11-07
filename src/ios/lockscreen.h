@@ -134,6 +134,9 @@ class lockscreen {
     // system text size (Dynamic Type): 1.0 at the default size
     static double systemFontScale();
 
+    // dark appearance of the system (iOS 13+); true before iOS 13
+    static bool systemDarkMode();
+
     // the share sheet with a file (a saved workout)
     static void shareFile(const char* path);
 };
