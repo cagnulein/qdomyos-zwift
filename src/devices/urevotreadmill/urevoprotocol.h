@@ -115,6 +115,10 @@ public:
                 enqueue(Channel::Main, info());
             } else if (m_state == State::Stopping && m_stopAt > 0 && now > m_stopAt + 1000) {
                 // Local stop gate only; an idle response is not proof of physical stop.
+                // Clear the last *reported* running speed so a subsequent explicit
+                // Start can be requested, but never derive a target from idle.
+                m_speed = 0;
+                m_fullStatus = m_newFullStatus = false;
                 setState(State::Ready, now);
             }
             return;
