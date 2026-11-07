@@ -116,11 +116,13 @@ TEST(VirtualRowerFTMSResistanceTest, EnforcesDeviceSpecificMinimumAndStep) {
 
 TEST(VirtualRowerFTMSResistanceTest, OmitsResistanceFieldForRowerWithoutTelemetry) {
     const QByteArray frame = virtualrowerftms::buildRowerData(40, 200, 70000, 150, 220, 0, 75, 140, false);
-    ASSERT_EQ(frame.size(), 18);
+    ASSERT_EQ(frame.size(), 19);
     EXPECT_EQ(static_cast<uint8_t>(frame.at(0)), 0x2c);
     EXPECT_EQ(static_cast<uint8_t>(frame.at(1)), 0x03);
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(7)), 0); // preserve legacy 16-bit distance truncation
     EXPECT_EQ(static_cast<uint8_t>(frame.at(12)), 75); // energy immediately follows power
     EXPECT_EQ(static_cast<uint8_t>(frame.at(17)), 140);
+    EXPECT_EQ(static_cast<uint8_t>(frame.at(18)), 0); // preserve Bkool HRM offset byte
 }
 
 TEST(VirtualRowerFTMSResistanceTest, UnknownRowerDoesNotClaimControlOrTelemetry) {
