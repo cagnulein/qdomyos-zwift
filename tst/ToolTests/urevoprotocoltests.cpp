@@ -127,9 +127,14 @@ TEST(UrevoHci, StopPreemptsPendingStartAndNeverAutoRestarts) {
     p.receiveMain(bytes(idle), 2300); // potentially delayed pre-stop idle
     EXPECT_EQ(p.state(), UrevoProtocol::State::Stopping);
     p.receiveMain(bytes(idle), 3300);
+    EXPECT_EQ(p.state(), UrevoProtocol::State::Stopping); // no ATT write confirmation yet
+    p.stopWriteConfirmed(3400);
+    p.receiveMain(bytes(idle), 4200);
+    EXPECT_EQ(p.state(), UrevoProtocol::State::Stopping);
+    p.receiveMain(bytes(idle), 4500);
     EXPECT_TRUE(p.ready()); // local gate only; physical stop not proven
     EXPECT_TRUE(p.takeCommands().isEmpty());
-    p.requestStop(true, 3400);
+    p.requestStop(true, 4600);
     expectSingle(p, UrevoProtocol::Channel::Main, "02530a0703");
 }
 
