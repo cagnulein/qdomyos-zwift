@@ -23,6 +23,7 @@
 #include <QtCore/qtimer.h>
 
 #include <QObject>
+#include <QElapsedTimer>
 #include <QTime>
 
 #include "devices/bluetoothdevice.h"
@@ -62,6 +63,7 @@ class zwiftclickremote : public bluetoothdevice {
     bool initRequest = false;
 
     QTimer *refresh;
+    QElapsedTimer clickV2KeepAliveTimer;
 
     uint32_t countRxTimeout = 0;
 
