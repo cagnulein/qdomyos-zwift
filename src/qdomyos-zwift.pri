@@ -336,6 +336,7 @@ templateinfosenderbuilder.cpp \
 webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/kettlerracersbike/kettlerracersbike.cpp \
+devices/kettlerracersrower/kettlerracersrower.cpp \
 devices/kettlerracersbike/kettlerhandshake.cpp \
 devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
@@ -876,6 +877,7 @@ templateinfosenderbuilder.h \
 webtranslation.h \
 devices/stagesbike/stagesbike.h \
 devices/kettlerracersbike/kettlerracersbike.h \
+devices/kettlerracersrower/kettlerracersrower.h \
 devices/kettlerracersbike/kettlerhandshake.h \
 devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \

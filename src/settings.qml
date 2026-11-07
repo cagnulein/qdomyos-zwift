@@ -1794,6 +1794,7 @@ import AndroidStatusBar 1.0
             
             property double gears_max: 999.0
             property double gears_min: -999.0
+            property bool kettler_racer_s_rower: false
         }
 
 
@@ -12397,6 +12398,21 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    CheckBox {
+                        id: kettlerRacerSRowerCheckBox
+                        text: qsTr("Kettler Racer S (Virtual Rower)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.kettler_racer_s_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.kettler_racer_s_rower = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {

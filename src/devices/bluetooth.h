@@ -137,6 +137,7 @@
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 #include "devices/kettlerracersbike/kettlerracersbike.h"
+#include "devices/kettlerracersrower/kettlerracersrower.h"
 #include "devices/kettlerc12bike/kettlerc12bike.h"
 
 #include "devices/renphobike/renphobike.h"
@@ -282,6 +283,7 @@ class bluetooth : public QObject, public SignalHandler {
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
     kettlerracersbike *kettlerRacerSBike = nullptr;
+    kettlerracersrower *kettlerRacerSRower = nullptr;
     kettlerc12bike *kettlerC12Bike = nullptr;
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
