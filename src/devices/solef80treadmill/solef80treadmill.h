@@ -30,6 +30,76 @@
 
 #include "treadmill.h"
 
+// Gate motion commands on fresh vendor telemetry, not just ATT acknowledgements.
+class SoleF63TelemetryGuard {
+  public:
+    bool recordVendorPacket(const QByteArray &packet, qint64 nowMs) {
+        if (packet.size() != 18 || packet.at(0) != char(0x5b) || packet.at(17) != char(0x5d))
+            return false;
+        lastTelemetryMs = nowMs;
+        return true;
+    }
+    bool isFresh(qint64 nowMs) const {
+        return lastTelemetryMs >= 0 && nowMs >= lastTelemetryMs && nowMs - lastTelemetryMs <= 5000;
+    }
+    void reset() { lastTelemetryMs = -1; }
+
+  private:
+    qint64 lastTelemetryMs = -1;
+};
+
+class SoleF63InitRetryState {
+  public:
+    void begin() {
+        waitingForResponse = true;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    bool beginAfterNotifyCccdWrite(bool f63Model, bool currentNotifyCccd, bool notificationsEnabled) {
+        if (!f63Model || !currentNotifyCccd || !notificationsEnabled)
+            return false;
+
+        begin();
+        return true;
+    }
+
+    bool shouldRetry() const { return waitingForResponse; }
+
+    void recordAttempt() {
+        if (waitingForResponse)
+            ++attempts;
+    }
+
+    bool receiveNotification() {
+        if (!waitingForResponse || attempts == 0)
+            return false;
+
+        waitingForResponse = false;
+        responseReady = true;
+        return true;
+    }
+
+    bool takeResponse() {
+        const bool ready = responseReady;
+        responseReady = false;
+        return ready;
+    }
+
+    void cancel() {
+        waitingForResponse = false;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    quint64 attemptCount() const { return attempts; }
+
+  private:
+    bool waitingForResponse = false;
+    bool responseReady = false;
+    quint64 attempts = 0;
+};
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -39,6 +109,7 @@ class solef80treadmill : public treadmill {
   public:
     solef80treadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    void stopWhenIdle() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
@@ -49,14 +120,21 @@ class solef80treadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void sendF63Stop();
 
     QTimer *refresh;
+    QTimer f63InitRetryTimer;
+    SoleF63InitRetryState f63InitRetryState;
+    SoleF63TelemetryGuard f63TelemetryGuard;
+    bool f63StopInProgress = false;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyDescriptor f63NotifyCccdDescriptor;
+    bool f63NotifyCccdWritePending = false;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -109,6 +187,7 @@ class solef80treadmill : public treadmill {
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
+    void retryF63InitHandshake();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
