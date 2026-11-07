@@ -35,6 +35,8 @@
 class domyosrower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, 15, 1}; }
     domyosrower(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                 int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyosrower();
