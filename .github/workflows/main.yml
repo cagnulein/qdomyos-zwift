@@ -582,8 +582,8 @@ jobs:
 
 
   macos-intel-build:
-    # Build the macOS trial on an actual Intel host; daily release and manual runs
-    # publish the DMG. Limit PR runs to this initial integration branch.
+    # Build the macOS trial on Intel for nightly/manual runs and trusted in-repo PRs.
+    # Fork PRs have no access to the signing/trial secrets.
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-15-intel
     timeout-minutes: 120
@@ -684,8 +684,8 @@ jobs:
           if-no-files-found: error
 
   macos-apple-silicon-build:
-    # Native arm64 DMG, separate from the existing Intel nightly artifact.
-    # Run on schedule/dispatch and for the integration PR.
+    # Native arm64 DMG, separate from the Intel artifact.
+    # Run on schedule/dispatch and on trusted in-repo PRs.
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-15
     timeout-minutes: 120
