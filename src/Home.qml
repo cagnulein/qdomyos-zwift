@@ -158,9 +158,14 @@ HomeForm {
         property string kind: ""
         property string name: ""
         parent: Overlay.overlay
-        x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height) / 2)
-        width: Math.min(Math.round(parent.width * 0.87), 560)
+        // the overlay also covers the system bars (edge to edge): keep the dialog clear of them
+        readonly property real roomLeft: window.getLeftPadding()
+        readonly property real roomRight: window.getRightPadding()
+        readonly property real roomTop: 12 + window.getTopPadding()
+        readonly property real roomBottom: 12 + window.getBottomPadding()
+        x: Math.round(roomLeft + (parent.width - roomLeft - roomRight - width) / 2)
+        y: Math.round(roomTop + (parent.height - roomTop - roomBottom - height) / 2)
+        width: Math.min(Math.round((parent.width - roomLeft - roomRight) * 0.87), 560)
         modal: true
         focus: true
         padding: 0
@@ -180,7 +185,7 @@ HomeForm {
         }
 
         // a big text size or a low landscape screen: the content scrolls instead of leaving the screen
-        height: Math.min(implicitHeight, parent.height - 24)
+        height: Math.min(implicitHeight, parent.height - roomTop - roomBottom)
         contentItem: Flickable {
             implicitHeight: autoResistanceOffColumn.implicitHeight
             contentHeight: autoResistanceOffColumn.implicitHeight
@@ -226,6 +231,9 @@ HomeForm {
                         id: answerButton
                         width: parent.width
                         height: window.fontPx(48)
+                        // Material keeps a band above and below the background: no gap to the separator
+                        topInset: 0
+                        bottomInset: 0
                         flat: true
                         text: modelData.label
                         background: Rectangle {
