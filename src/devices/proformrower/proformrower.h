@@ -56,6 +56,8 @@ class ProformRowerTelemetryParser {
 class proformrower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, max_resistance, 1}; }
     proformrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
