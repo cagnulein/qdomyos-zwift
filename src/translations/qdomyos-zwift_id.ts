@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atur bagaimana kemiringan aplikasi virtual dipetakan ke resistansi sepeda.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gunakan pemetaan khusus saat QZ mengubah kemiringan aplikasi virtual menjadi resistansi.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Satu pasangan kemiringan|resistansi per baris. QZ melakukan interpolasi di antara titik dan membatasi nilai di luar rentang yang ditentukan.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nama pengguna akun Life Fitness untuk masuk ke layanan. Disimpan secara lokal dan tidak pernah ditulis ke log debug.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kata sandi akun Life Fitness untuk masuk ke layanan. Disimpan secara lokal dan tidak pernah ditulis ke log debug.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Tindakan Kamera</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Tindakan Emote</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Emulator Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Daya</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Detak Jantung</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Resistansi vs Target Resistansi</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Resistansi Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Kadensi</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Distribusi Daya</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi Grafik Kecepatan dan Kemiringan</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Posisi numerik grafik ini di Riwayat Latihan. Ubah urutannya dengan tombol naik dan turun pada Opsi UI Umum.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari Sensor Detak Jantung Saat Mulai</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selama 5 menit pertama setelah mesin kebugaran terhubung, jika detak jantung belum diterima, QZ mencari sensor setiap menit: sensor sabuk dada yang dipilih langsung dihubungkan saat ditemukan, atau jika belum ada pilihan QZ menawarkan sensor di sekitar. Ketuk ubin detak jantung atau ikon Bluetooth di halaman utama untuk mencari kapan saja.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
