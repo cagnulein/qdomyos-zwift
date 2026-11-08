@@ -45,6 +45,7 @@ class kettlerc12bike : public bike {
 
   private:
     bool setNativeResistanceLevel(int level);
+    QByteArray lookupHandshakeResponse(const QByteArray &challenge);
     void btinit();
     void forceResistance(resistance_t requestResistance);
     bool setTargetPower(uint16_t watts);
@@ -72,6 +73,7 @@ class kettlerc12bike : public bike {
     bool initRequest = false;
     bool challengeReadPending = false;
     bool handshakeWritePending = false;
+    QByteArray pendingHandshakeResponse;
     bool controlReady = false;
     bool initialResistanceSent = false;
     int pendingNativeResistance = -1;
