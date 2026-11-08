@@ -841,14 +841,19 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
-    // Kettler RUN 7 BLE (ISSC serial transport with kdri IRMP framing).
+    // Kettler RUN 7 BLE: RUN followed by exactly two digits (five characters).
 #ifndef Q_OS_IOS
     RegisterNewDeviceTestData(DeviceIndex::KettlerRun7Treadmill)
         ->expectDevice<kettlerrun7treadmill>()
-        ->acceptDeviceName("RUN 71", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("RUN71", DeviceNameComparison::IgnoreCase)
-        ->acceptDeviceName("RUN 7", DeviceNameComparison::IgnoreCase)
-        ->rejectDeviceName("RUN 72", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN09", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN00", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN7", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN 7", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN 71", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN123", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN7A", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUNAA", DeviceNameComparison::IgnoreCase)
         ->rejectDeviceName("XRUN71", DeviceNameComparison::IgnoreCase);
 #endif
 
