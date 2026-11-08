@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות אופני Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>יציאה טורית עבור ארגומטרים קלאסיים של Daum, כגון 8008 TRS 3. ב-Android עם מתאם USB לטורי יש להזין &apos;usb&apos;. הערכים COM1, COM2 וכו&apos; מתקבלים ככינויים לחיפוש מתאם ה-USB, אך אינם שמות יציאות של Android. ב-Windows יש להשתמש ב-COM1 או ב-COM3; ב-Linux/macOS בנתיב ההתקן הטורי, למשל /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>השהיה בין בדיקות התנגדות:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>משתמש בהגדרת השהיית שיפוע כדי להגביל את תדירות שליחת עדכוני ההתנגדות וההספק מ-QZ ל-Daum. ברירת מחדל: 0 שניות.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>מסנן שיפוע (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>באימוני GPX מתעלמים משינויי שיפוע הקטנים מערך זה, ושולחים פקודה חדשה רק כאשר ההפרש מהערך האחרון שנשלח מגיע לסף שהוגדר. ברירת מחדל: 0 (מושבת).</translation>
     </message>
 </context>
 <context>
