@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Thiết lập cách độ dốc từ ứng dụng ảo được chuyển thành lực cản xe đạp.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dùng ánh xạ tùy chỉnh khi QZ chuyển độ dốc của ứng dụng ảo thành lực cản.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mỗi dòng một cặp độ dốc|lực cản. QZ nội suy giữa các điểm và giới hạn giá trị bên ngoài khoảng đã cấu hình.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tên người dùng tài khoản Life Fitness để đăng nhập dịch vụ. Chỉ lưu trên thiết bị và không bao giờ ghi vào nhật ký gỡ lỗi.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mật khẩu tài khoản Life Fitness để đăng nhập dịch vụ. Chỉ lưu trên thiết bị và không bao giờ ghi vào nhật ký gỡ lỗi.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Thao tác camera</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Thao tác biểu cảm</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Trình giả lập Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ công suất</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ nhịp tim</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ lực cản so với lực cản mục tiêu</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ lực cản Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ nhịp đạp</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ phân bố công suất</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí biểu đồ tốc độ và độ dốc</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vị trí theo số của biểu đồ này trong Lịch sử bài tập. Sắp xếp lại bằng nút lên và xuống trong Tùy chọn giao diện chung.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Tìm cảm biến nhịp tim khi khởi động</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trong 5 phút đầu sau khi máy tập kết nối, nếu chưa có dữ liệu nhịp tim, QZ tìm cảm biến mỗi phút một lần: tự kết nối dây đeo ngực đã chọn ngay khi tìm thấy hoặc đề xuất cảm biến ở gần nếu chưa chọn dây đeo. Chạm vào ô nhịp tim hoặc biểu tượng Bluetooth trên trang chủ để tìm bất cứ lúc nào.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
