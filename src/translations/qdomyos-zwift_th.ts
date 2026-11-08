@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>พบเซ็นเซอร์วัดชีพจร: %1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>พบเซ็นเซอร์วัดชีพจร: %1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>เชื่อมต่อ</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>เลือก</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่ใช่ตอนนี้</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่ต้องถามอีก</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>เลือกเซ็นเซอร์วัดชีพจร</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (เซ็นเซอร์ชีพจร): ไม่มีข้อมูลอัตราการเต้นหัวใจ ตรวจสอบว่าเซ็นเซอร์กำลังส่งข้อมูลอยู่</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>กำลังค้นหาเซ็นเซอร์วัดชีพจร...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>กำลังค้นหา %1 (เซ็นเซอร์ชีพจร)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่พบ %1 (เซ็นเซอร์ชีพจร) ตรวจสอบว่าเปิดอยู่และกำลังส่งข้อมูลอัตราการเต้นหัวใจ</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>ไม่พบเซ็นเซอร์วัดชีพจรในบริเวณใกล้เคียง ตรวจสอบว่าเปิดอยู่และกำลังส่งข้อมูล</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ กำลังทำงาน</translation>
     </message>
 </context>
 <context>
