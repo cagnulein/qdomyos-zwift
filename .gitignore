@@ -68,3 +68,6 @@ src/translations/*.qm
 
 # macOS
 *.DS_Store
+
+# Do not accidentally commit third-party Kettler C12 security lookup data.
+**/SecureData.txt
