@@ -107,7 +107,7 @@ void kettlerc12bike::forceResistance(resistance_t requestResistance) {
 }
 
 bool kettlerc12bike::setTargetPower(uint16_t targetWatts) {
-    if (noWriteResistance || !gattCommunicationChannelService ||
+    if (noWriteResistance || !controlReady || !gattCommunicationChannelService ||
         !gattTargetPowerCharacteristic.isValid() ||
         gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered) {
         return false;
@@ -146,7 +146,6 @@ void kettlerc12bike::update() {
         btinit();
     } else if (m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService &&
-               gattWriteCharacteristic.isValid() &&
                initDone) {
 
         update_metrics(true, watts());
@@ -159,9 +158,11 @@ void kettlerc12bike::update() {
                 emit debug(QStringLiteral("Kettler C12 requested watt target: ") +
                            QString::number(targetPowerWatts));
             } else if (requestResistance != -1) {
-                forceResistance(requestResistance);
-                emit debug(QStringLiteral("Kettler C12 requested resistance as watt target: ") +
-                           QString::number(targetPowerWatts));
+                // Manual resistance controls the C12 native 1..20 level, not watts.
+                pendingNativeResistance = KettlerC12Protocol::encodeResistanceLevel(requestResistance);
+                targetPowerActive = false;
+                emit debug(QStringLiteral("Kettler C12 requested native resistance: ") +
+                           QString::number(pendingNativeResistance));
             }
         }
         requestPower = -1;
@@ -172,10 +173,19 @@ void kettlerc12bike::update() {
             requestStop = -1;
         }
 
-        // Kinomap refreshes the same watt target approximately once per second
-        // during an active session. Stop repeating after a QZ stop request.
-        if (targetPowerActive &&
-            (!lastTargetPowerWrite.isValid() || lastTargetPowerWrite.elapsed() >= 1000)) {
+        if (controlReady && pendingNativeResistance != -1) {
+            if (setNativeResistanceLevel(pendingNativeResistance)) {
+                pendingNativeResistance = -1;
+            }
+        }
+
+        // Kinomap first sets native resistance to level 1 when a watt-target
+        // session starts, then repeats the power target about once a second.
+        // Send these writes on separate refresh ticks.
+        if (targetPowerActive && controlReady && !initialResistanceSent) {
+            initialResistanceSent = setNativeResistanceLevel(1);
+        } else if (targetPowerActive && initialResistanceSent &&
+                   (!lastTargetPowerWrite.isValid() || lastTargetPowerWrite.elapsed() >= 1000)) {
             if (setTargetPower(targetPowerWatts)) {
                 lastTargetPowerWrite.start();
             }
