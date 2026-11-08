@@ -1049,6 +1049,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>YPOO M5: az inicializálás sikertelen, újracsatlakozás szükséges</translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1188,6 +1200,69 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maximum: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kapcsolatfelvétel a QZ ügyfélszolgálattal</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Támogatási e-mail előkészítése diagnosztikai adatokkal</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nincs csatlakoztatott eszköz</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>A sebesség és a teljesítmény nulla</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ ügyfélszolgálat</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Kész</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Billentyűzet elrejtése</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Támogatási kérés bezárása</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Írd le, mi nem működik. A QZ hozzáadja az eszköz és az alkalmazás adatait.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Írd le a problémát...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>A probléma leírása</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Hibakeresési napló csatolása, ha elérhető</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Küldés előtt átnézheted vagy szerkesztheted az e-mailt. Semmi sem kerül elküldésre automatikusan.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-mail megnyitása</translation>
     </message>
 </context>
 <context>
@@ -3611,7 +3686,7 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
-        <translation>Az Android 30 s alatt 5 Bluetooth-keresést engedélyez, a következő %1 s múlva indul.</translation>
+        <translation>Az Android 30&#xa0;s alatt 5 Bluetooth-keresést engedélyez, a következő %1 s múlva indul.</translation>
     </message>
     <message>
         <source>Odometer (m)</source>
@@ -3651,11 +3726,11 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>3s avg</source>
-        <translation>3 s átl.</translation>
+        <translation>3&#xa0;s átl.</translation>
     </message>
     <message>
         <source>5s avg</source>
-        <translation>5 s átl.</translation>
+        <translation>5&#xa0;s átl.</translation>
     </message>
     <message>
         <source>Gain: </source>
@@ -3944,6 +4019,11 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Nem sikerült megnyitni egy levelezőalkalmazást</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4595,7 +4675,7 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     </message>
     <message>
         <source>Open</source>
-        <translation>Megnyitás</translation>
+        <translation type="vanished">Megnyitás</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4895,7 +4975,7 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
-        <translation>Adja meg a nyugalmi pulzusát (azt a legalacsonyabb értéket, amelyet a pulzusa teljes pihenéskor elér). Ez kell az edzésterhelés pontos számításához. Alapértelmezett: 60 bpm.</translation>
+        <translation>Adja meg a nyugalmi pulzusát (azt a legalacsonyabb értéket, amelyet a pulzusa teljes pihenéskor elér). Ez kell az edzésterhelés pontos számításához. Alapértelmezett: 60&#xa0;bpm.</translation>
     </message>
     <message>
         <source>Power from Heart Rate Options</source>
@@ -4919,7 +4999,7 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
-        <translation>A jobbra lévő sávokkal bontsa ki a beállítás alatti lehetőségeket. Ezekkel a beállításokkal a QZ a teljesítményt (wattot) számítja ki olyan kerékpároknál, amelyekben nincs teljesítménymérő: a teljesítményt a kadenciából és a pulzusból becsüli meg. Azt, hogy a QZ hogyan számítja a teljesítményt a pulzusból, így kalibrálhatja: ha tudja, hogy egyenletes tempóban 150 BPM pulzusnál 100 W, 170 BPM pulzusnál pedig 150 W teljesítményt ad le, adja meg ezeket az értékeket az 1. és a 2. mérés watt- és pulzusmezőjében, és a QZ ennek a trendvonalnak az alapján számítja a teljesítményt.</translation>
+        <translation>A jobbra lévő sávokkal bontsa ki a beállítás alatti lehetőségeket. Ezekkel a beállításokkal a QZ a teljesítményt (wattot) számítja ki olyan kerékpároknál, amelyekben nincs teljesítménymérő: a teljesítményt a kadenciából és a pulzusból becsüli meg. Azt, hogy a QZ hogyan számítja a teljesítményt a pulzusból, így kalibrálhatja: ha tudja, hogy egyenletes tempóban 150&#xa0;BPM pulzusnál 100&#xa0;W, 170&#xa0;BPM pulzusnál pedig 150&#xa0;W teljesítményt ad le, adja meg ezeket az értékeket az 1. és a 2. mérés watt- és pulzusmezőjében, és a QZ ennek a trendvonalnak az alapján számítja a teljesítményt.</translation>
     </message>
     <message>
         <source>Bike Options</source>
@@ -5015,7 +5095,7 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation>ERG-módban vagy a Peloton Power Zone edzései során az alkalmazás „célteljesítmény” kérést küld. Ha a kért teljesítmény nem egyezik a jelenlegi teljesítményével (amelyet a QZ a kadenciából és az ellenállási szintből számít), a célellenállás megváltozik, hogy közelebb kerüljön a célteljesítményhez. Minél magasabb a szűrő értéke, annál kevésbé módosul a célellenállás, és annál inkább a kadenciát kell növelnie a célteljesítmény eléréséhez. A felső és az alsó wattszűrő azt a felső és alsó tűréshatárt adja meg, amelyen túl a QZ továbbítja az ellenállás módosítását. Példa: ha a felső és az alsó szűrő értéke 10, a célteljesítmény pedig 100 watt, a QZ csak akkor továbbítja az ellenállás módosítását, ha a kerékpár 90 wattnál kevesebbet vagy 110 wattnál többet ad le. Alapértelmezett: 10.</translation>
+        <translation>ERG-módban vagy a Peloton Power Zone edzései során az alkalmazás „célteljesítmény” kérést küld. Ha a kért teljesítmény nem egyezik a jelenlegi teljesítményével (amelyet a QZ a kadenciából és az ellenállási szintből számít), a célellenállás megváltozik, hogy közelebb kerüljön a célteljesítményhez. Minél magasabb a szűrő értéke, annál kevésbé módosul a célellenállás, és annál inkább a kadenciát kell növelnie a célteljesítmény eléréséhez. A felső és az alsó wattszűrő azt a felső és alsó tűréshatárt adja meg, amelyen túl a QZ továbbítja az ellenállás módosítását. Példa: ha a felső és az alsó szűrő értéke 10, a célteljesítmény pedig 100&#xa0;watt, a QZ csak akkor továbbítja az ellenállás módosítását, ha a kerékpár 90&#xa0;wattnál kevesebbet vagy 110&#xa0;wattnál többet ad le. Alapértelmezett: 10.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Down Filter:</source>
@@ -5456,7 +5536,7 @@ Szeretne ebben a munkamenetben átváltani a klasszikus virtuális Bluetooth-esz
     </message>
     <message>
         <source>Set 100mm as wheel circumference in settings of ant+ speed sensor</source>
-        <translation>Az ANT+ sebességérzékelő beállításaiban állítsa a kerék kerületét 100 mm-re.</translation>
+        <translation>Az ANT+ sebességérzékelő beállításaiban állítsa a kerék kerületét 100&#xa0;mm-re.</translation>
     </message>
     <message>
         <source>Ant+ Cadence</source>
@@ -6046,19 +6126,19 @@ Please enter it below:</source>
     </message>
     <message>
         <source>5 km pace (total time):</source>
-        <translation>5 km-es tempó (teljes idő):</translation>
+        <translation>5&#xa0;km-es tempó (teljes idő):</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
-        <translation>Lásd fent: 1 mérföldes tempó; ugyanaz, csak 1 mérföld helyett 5 km.</translation>
+        <translation>Lásd fent: 1 mérföldes tempó; ugyanaz, csak 1 mérföld helyett 5&#xa0;km.</translation>
     </message>
     <message>
         <source>10 km pace (total time):</source>
-        <translation>10 km-es tempó (teljes idő):</translation>
+        <translation>10&#xa0;km-es tempó (teljes idő):</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
-        <translation>Lásd fent: 1 mérföldes tempó; ugyanaz, csak 1 mérföld helyett 10 km.</translation>
+        <translation>Lásd fent: 1 mérföldes tempó; ugyanaz, csak 1 mérföld helyett 10&#xa0;km.</translation>
     </message>
     <message>
         <source>Half Marathon pace (total time):</source>
@@ -6090,7 +6170,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
-        <translation>Beállítja a wattlépésközt az ERG-módú pulzuszóna-edzéshez. Alapértelmezett: 5 watt.</translation>
+        <translation>Beállítja a wattlépésközt az ERG-módú pulzuszóna-edzéshez. Alapértelmezett: 5&#xa0;watt.</translation>
     </message>
     <message>
         <source>Training Program Random</source>
@@ -6178,7 +6258,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
-        <translation>(Sebesség csempe) Azt szabályozza, mennyivel nő vagy csökken a sebesség (km/h vagy mph egységben), amikor megnyomja a plusz vagy a mínusz gombot a Sebesség csempén. Alapértelmezett: 0.5 km/h.</translation>
+        <translation>(Sebesség csempe) Azt szabályozza, mennyivel nő vagy csökken a sebesség (km/h vagy mph egységben), amikor megnyomja a plusz vagy a mínusz gombot a Sebesség csempén. Alapértelmezett: 0.5&#xa0;km/h.</translation>
     </message>
     <message>
         <source>Min. Inclination:</source>
@@ -6202,7 +6282,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
-        <translation>Felülbírálja a futópad maximális sebességét (így korlátozható a legnagyobb sebesség). Alapértelmezett: 100 km/h (62.1 mph).</translation>
+        <translation>Felülbírálja a futópad maximális sebességét (így korlátozható a legnagyobb sebesség). Alapértelmezett: 100&#xa0;km/h (62.1&#xa0;mph).</translation>
     </message>
     <message>
         <source>Min. Speed:</source>
@@ -6210,7 +6290,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
-        <translation>Felülbírálja a futópad minimális sebességét (így korlátozható a legkisebb sebesség). Alapértelmezett: 0 km/h (0 mph).</translation>
+        <translation>Felülbírálja a futópad minimális sebességét (így korlátozható a legkisebb sebesség). Alapértelmezett: 0&#xa0;km/h (0&#xa0;mph).</translation>
     </message>
     <message>
         <source>Step Count Gain:</source>
@@ -6327,19 +6407,19 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Remap 5 km/h button:</source>
-        <translation>5 km/h gomb átkiosztása:</translation>
+        <translation>5&#xa0;km/h gomb átkiosztása:</translation>
     </message>
     <message>
         <source>Remap 10 km/h button:</source>
-        <translation>10 km/h gomb átkiosztása:</translation>
+        <translation>10&#xa0;km/h gomb átkiosztása:</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
-        <translation>16 km/h gomb átkiosztása:</translation>
+        <translation>16&#xa0;km/h gomb átkiosztása:</translation>
     </message>
     <message>
         <source>Remap 22 km/h button:</source>
-        <translation>22 km/h gomb átkiosztása:</translation>
+        <translation>22&#xa0;km/h gomb átkiosztása:</translation>
     </message>
     <message>
         <source>Pool time (ms):</source>
@@ -6732,10 +6812,10 @@ IMPORTANT NOTES:
         <translation>Ha az edzőgép által a QZ-nek küldött teljesítmény erősen ingadozik, ez a beállítás simábbá teszi a teljesítményzóna-diagramokat. Teljesítménymérő pedállal is hasznos. Harmonikus átlagolást használ, amely a számtani átlagolásnál jobban simítja a teljesítménycsúcsokat. Ha bármelyik mérés 0, a teljesítmény azonnal 0 lesz. Alapértelmezett: ki.
 
 FONTOS MEGJEGYZÉSEK:
-- A szabványos, 1 Hz-en működő görgőknél (versenymód nélkül) ne kapcsoljon be átlagolást vagy simítást a görgő beállításaiban.
+- A szabványos, 1&#xa0;Hz-en működő görgőknél (versenymód nélkül) ne kapcsoljon be átlagolást vagy simítást a görgő beállításaiban.
 - Kapcsolja ki az átlagolást a külső alkalmazásokban (Rouvy/Zwift/MyWhoosh stb.), vagy válasszon bennük 1 másodpercet.
 - A QZ-t virtuális eszköz módban kell használni.
-- Az Elite görgőknél vagy a versenymóddal (10 Hz) rendelkező görgőknél, ha ez egyes felhasználóknak nem elég, az Elite vagy a görgő simítása a QZ simításával együtt javít az eredményen.</translation>
+- Az Elite görgőknél vagy a versenymóddal (10&#xa0;Hz) rendelkező görgőknél, ha ez egyes felhasználóknak nem elég, az Elite vagy a görgő simítása a QZ simításával együtt javít az eredményen.</translation>
     </message>
     <message>
         <source>Instant Power on Pause</source>
@@ -6855,7 +6935,7 @@ FONTOS MEGJEGYZÉSEK:
     </message>
     <message>
         <source>Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.</source>
-        <translation>A kerékarány az a szorzó, amellyel a QZ a kadenciából kiszámítja a sebességet. Ha például kerékaránynak 1-et ad meg, és 30-as kadenciával teker, a QZ 30 km/h sebességet jelenít meg. A 0.33 alapértelmezett érték a legtöbb kerékpárhoz megfelelő.</translation>
+        <translation>A kerékarány az a szorzó, amellyel a QZ a kadenciából kiszámítja a sebességet. Ha például kerékaránynak 1-et ad meg, és 30-as kadenciával teker, a QZ 30&#xa0;km/h sebességet jelenít meg. A 0.33 alapértelmezett érték a legtöbb kerékpárhoz megfelelő.</translation>
     </message>
     <message>
         <source>Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.</source>
@@ -6982,8 +7062,8 @@ Default: A = -0.96, B = 1.33</source>
 Stryd-érzékelőkhöz: A = -0.96, B = 1.33
 
 Példák ezekkel az értékekkel:
-• 8 km/h, 10%-os emelkedés: (-0.96 + 1.33×8) × 10 = 97 W többlet
-• 11 km/h, 10%-os emelkedés: (-0.96 + 1.33×11) × 10 = 137 W többlet
+• 8&#xa0;km/h, 10%-os emelkedés: (-0.96 + 1.33×8) × 10 = 97&#xa0;W többlet
+• 11&#xa0;km/h, 10%-os emelkedés: (-0.96 + 1.33×11) × 10 = 137&#xa0;W többlet
 
 Ha A és B is 0, a QZ az alapértelmezett képletet használja: 9.8 × testsúly × (emelkedés/100).
 
@@ -7175,7 +7255,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device</source>
-        <translation>Alapértelmezett: 200 ms. Csökkentse, ha gyorsabb fokozatváltási reakciót szeretne. Figyelmeztetés: az érték csökkentése növeli a QZ-t futtató eszköz energiafogyasztását.</translation>
+        <translation>Alapértelmezett: 200&#xa0;ms. Csökkentse, ha gyorsabb fokozatváltási reakciót szeretne. Figyelmeztetés: az érték csökkentése növeli a QZ-t futtató eszköz energiafogyasztását.</translation>
     </message>
     <message>
         <source>TTS (Text to Speech) Settings 🔊</source>
@@ -7379,7 +7459,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.</source>
-        <translation>Alapértelmezés szerint a QZ 1000 ms-onként küldi az adatokat a Zwiftnek és más külső alkalmazásoknak. A Versenymód bekapcsolásával 100 ms-onként (10 Hz) küldi őket. A szűk keresztmetszet természetesen mindig a kerékpár vagy a futópad marad.</translation>
+        <translation>Alapértelmezés szerint a QZ 1000&#xa0;ms-onként küldi az adatokat a Zwiftnek és más külső alkalmazásoknak. A Versenymód bekapcsolásával 100&#xa0;ms-onként (10&#xa0;Hz) küldi őket. A szűk keresztmetszet természetesen mindig a kerékpár vagy a futópad marad.</translation>
     </message>
     <message>
         <source>Run Cadence Sensor</source>
@@ -7503,7 +7583,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Jelenleg rejtve van a saját oldalán: itt módosítható.</translation>
+        <translation type="vanished">Jelenleg rejtve van a saját oldalán: itt módosítható.</translation>
     </message>
     <message>
         <source>On</source>
@@ -7835,7 +7915,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.</source>
-        <translation>Kapcsolja be, ha a futópad FIT-fájljait akkor is futásként szeretné menteni, ha az átlagsebesség 6.5 km/h alatt van. Ez segíthet a Garminnak kiszámítani a Training Effect értéket a nagy emelkedésű futópados edzéseknél. Alapértelmezett: ki.</translation>
+        <translation>Kapcsolja be, ha a futópad FIT-fájljait akkor is futásként szeretné menteni, ha az átlagsebesség 6.5&#xa0;km/h alatt van. Ez segíthet a Garminnak kiszámítani a Training Effect értéket a nagy emelkedésű futópados edzéseknél. Alapértelmezett: ki.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>
@@ -7855,7 +7935,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.</source>
-        <translation>Korlátozza a QZ által küldött teljesítményt (watt). A korlát kikapcsolásához állítsa 0-ra. Alapértelmezett: 9999 W.</translation>
+        <translation>Korlátozza a QZ által küldött teljesítményt (watt). A korlát kikapcsolásához állítsa 0-ra. Alapértelmezett: 9999&#xa0;W.</translation>
     </message>
     <message>
         <source>Always</source>
@@ -8136,6 +8216,30 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Csak iOS-en. Kikapcsolt képernyő mellett vagy a háttérben is futva tartja a QZ-t, hogy a Bluetooth-kapcsolatok és a munkamenet időzítői ne fagyjanak le. Ehhez néma hangsávot használ, amely összekeveredik a zenével, így semmi sem szakad meg abból, amit hallgat. Kapcsolja be, ha lezárt képernyővel vagy a háttérben futó QZ-vel szeretne edzeni. Alapértelmezett: ki.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8671,7 +8775,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Pace Last 500m</source>
-        <translation>Utolsó 500 m tempója</translation>
+        <translation>Utolsó 500&#xa0;m tempója</translation>
     </message>
     <message>
         <source>Step Count</source>
@@ -8915,7 +9019,7 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.</source>
-        <translation>Gombcsempe a teljesítményátlagolási módok váltásához: Ki, 3 s átl. (harmonikus), 5 s átl. (harmonikus). Koppintson rá a módok közötti váltáshoz. Csak kerékpárnál használható.</translation>
+        <translation>Gombcsempe a teljesítményátlagolási módok váltásához: Ki, 3&#xa0;s átl. (harmonikus), 5&#xa0;s átl. (harmonikus). Koppintson rá a módok közötti váltáshoz. Csak kerékpárnál használható.</translation>
     </message>
     <message>
         <source>HRV (Heart Rate Variability)</source>
@@ -9306,69 +9410,6 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Max. watt/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Kapcsolatfelvétel a QZ ügyfélszolgálattal</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Támogatási e-mail előkészítése diagnosztikai adatokkal</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Nincs csatlakoztatott eszköz</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>A sebesség és a teljesítmény nulla</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ ügyfélszolgálat</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Kész</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Billentyűzet elrejtése</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Támogatási kérés bezárása</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Írd le, mi nem működik. A QZ hozzáadja az eszköz és az alkalmazás adatait.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Írd le a problémát...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>A probléma leírása</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Hibakeresési napló csatolása, ha elérhető</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Küldés előtt átnézheted vagy szerkesztheted az e-mailt. Semmi sem kerül elküldésre automatikusan.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Mégse</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>E-mail megnyitása</translation>
     </message>
 </context>
 </TS>

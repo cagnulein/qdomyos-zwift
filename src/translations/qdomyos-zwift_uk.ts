@@ -1219,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Зв’язатися зі службою підтримки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Підготувати лист до підтримки з діагностичними даними</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Пристрій не підключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Швидкість і потужність дорівнюють нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Підтримка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Сховати клавіатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрити запит до підтримки</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишіть, що не працює. QZ додасть відомості про пристрій і застосунок.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишіть проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Опис проблеми</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Додати журнал налагодження, якщо він доступний</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перш ніж надсилати лист, ви можете переглянути або відредагувати його. Він не надсилається автоматично.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Відкрити пошту</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -4628,7 +4691,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>Відкрити</translation>
+        <translation type="vanished">Відкрити</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -8052,7 +8115,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Зараз приховане на своїй сторінці – змінюйте його тут</translation>
+        <translation type="vanished">Зараз приховане на своїй сторінці – змінюйте його тут</translation>
     </message>
     <message>
         <source>On</source>
@@ -8181,6 +8244,30 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
         <translation>У перші 5 хвилин після під’єднання тренажера, поки пульсу немає, QZ раз на хвилину шукає пульсометр: вибраний під’єднує, щойно знайде, а якщо пульсометр не вибрано, пропонує знайдений поруч. Натискання на плитку пульсу або значок Bluetooth на головній запускає пошук будь-коли.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9351,69 +9438,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>Макс. Вт/кг</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Зв’язатися зі службою підтримки QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Підготувати лист до підтримки з діагностичними даними</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Пристрій не підключено</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Швидкість і потужність дорівнюють нулю</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Підтримка QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Готово</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Сховати клавіатуру</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Закрити запит до підтримки</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Опишіть, що не працює. QZ додасть відомості про пристрій і застосунок.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Опишіть проблему...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Опис проблеми</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Додати журнал налагодження, якщо він доступний</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Перш ніж надсилати лист, ви можете переглянути або відредагувати його. Він не надсилається автоматично.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Скасувати</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Відкрити пошту</translation>
     </message>
 </context>
 </TS>

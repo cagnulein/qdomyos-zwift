@@ -1219,6 +1219,69 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ-Support kontaktieren</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Support-E-Mail mit Diagnosedaten vorbereiten</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Kein Gerät verbunden</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Geschwindigkeit und Leistung sind null</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-Support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fertig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Tastatur ausblenden</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Supportanfrage schließen</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Beschreibe, was nicht funktioniert. QZ fügt Informationen zu deinem Gerät und der App hinzu.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Problem beschreiben...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Problem beschreiben</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Debug-Protokoll anhängen, falls verfügbar</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kannst die E-Mail vor dem Senden überprüfen oder bearbeiten. Es wird nichts automatisch gesendet.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-Mail öffnen</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -5761,7 +5824,7 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Öffnen</translation>
+        <translation type="vanished">Öffnen</translation>
     </message>
     <message>
         <source>UI Zoom:</source>
@@ -8076,7 +8139,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Auf ihrer Seite gerade ausgeblendet: hier ändern</translation>
+        <translation type="vanished">Auf ihrer Seite gerade ausgeblendet: hier ändern</translation>
     </message>
     <message>
         <source>On</source>
@@ -8197,6 +8260,30 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Nur iOS. Hält QZ bei ausgeschaltetem Bildschirm oder im Hintergrund aktiv, damit Bluetooth-Verbindungen und Sitzungstimer nicht einfrieren. Dazu wird eine stumme Audiospur verwendet, die mit Ihrer Musik gemischt wird, sodass nichts unterbrochen wird, was Sie gerade hören. Aktivieren Sie dies, wenn Sie bei gesperrtem Bildschirm oder mit QZ im Hintergrund trainieren. Standardmäßig aus.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9379,69 +9466,6 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Max. Watt/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>QZ-Support kontaktieren</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Support-E-Mail mit Diagnosedaten vorbereiten</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Kein Gerät verbunden</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Geschwindigkeit und Leistung sind null</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ-Support</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Fertig</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Tastatur ausblenden</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Supportanfrage schließen</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Beschreibe, was nicht funktioniert. QZ fügt Informationen zu deinem Gerät und der App hinzu.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Problem beschreiben...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Problem beschreiben</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Debug-Protokoll anhängen, falls verfügbar</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Du kannst die E-Mail vor dem Senden überprüfen oder bearbeiten. Es wird nichts automatisch gesendet.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>E-Mail öffnen</translation>
     </message>
 </context>
 </TS>

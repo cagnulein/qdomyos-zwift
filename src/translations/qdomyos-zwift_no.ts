@@ -428,7 +428,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>50%</source>
-        <translation>50 %</translation>
+        <translation>50&#xa0;%</translation>
     </message>
     <message>
         <source>Player Weight (kg):</source>
@@ -643,7 +643,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>Treadmill initialization in progress...%1%</source>
-        <translation>Klargjør tredemøllen … %1 %</translation>
+        <translation>Klargjør tredemøllen … %1&#xa0;%</translation>
     </message>
     <message>
         <source>Enable the &apos;Force Using FTMS&apos; setting under the Settings-&gt;Treadmill Options-&gt;Horizon Treadmill options and restart the app</source>
@@ -667,7 +667,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>Current SmO2: %1% Previous SmO2: %2% THb: %3 g/dL</source>
-        <translation>Nåværende SmO2: %1 %, forrige SmO2: %2 %, THb: %3 g/dL</translation>
+        <translation>Nåværende SmO2: %1&#xa0;%, forrige SmO2: %2&#xa0;%, THb: %3 g/dL</translation>
     </message>
     <message>
         <source>SE7i init completed!</source>
@@ -1049,6 +1049,18 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Kan ikke klargjøre YPOO M5, må kobles til på nytt</translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1188,6 +1200,69 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maksimum: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargjør en e-post til kundestøtte med diagnosedata</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet tilkoblet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet og effekt er null</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Ferdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Lukk støtteforespørselen</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortell oss hva som ikke fungerer. QZ legger til informasjon om enheten og appen din.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Legg ved feilsøkingslogg hvis den er tilgjengelig</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan se gjennom eller redigere e-posten før du sender den. Ingenting sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åpne e-post</translation>
     </message>
 </context>
 <context>
@@ -3945,6 +4020,11 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <source>Unable to open an email application</source>
         <translation>Kan ikke åpne et e-postprogram</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4595,7 +4675,7 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
     </message>
     <message>
         <source>Open</source>
-        <translation>Åpne</translation>
+        <translation type="vanished">Åpne</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4851,19 +4931,19 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
     </message>
     <message>
         <source>Zone 1 %:</source>
-        <translation>Sone 1 %:</translation>
+        <translation>Sone 1&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
-        <translation>Sone 2 %:</translation>
+        <translation>Sone 2&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
-        <translation>Sone 3 %:</translation>
+        <translation>Sone 3&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
-        <translation>Sone 4 %:</translation>
+        <translation>Sone 4&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -6170,7 +6250,7 @@ Skriv den inn nedenfor:</translation>
     </message>
     <message>
         <source>Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.</source>
-        <translation>Flisene Målfart og Målstigning gjør det mulig å øke eller redusere gjeldende vanskelighetsgrad med pluss- og minusknappene. Som standard, med denne innstillingen av, endres fart og stigning med 3 % per trykk. Når innstillingen er på, legger QZ i stedet til en justering på 0.1 for fart eller 0.5 for stigning.</translation>
+        <translation>Flisene Målfart og Målstigning gjør det mulig å øke eller redusere gjeldende vanskelighetsgrad med pluss- og minusknappene. Som standard, med denne innstillingen av, endres fart og stigning med 3&#xa0;% per trykk. Når innstillingen er på, legger QZ i stedet til en justering på 0.1 for fart eller 0.5 for stigning.</translation>
     </message>
     <message>
         <source>Speed Step:</source>
@@ -6759,7 +6839,7 @@ VIKTIG:
     </message>
     <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
-        <translation>Stigningsjustering og stigningsfaktor brukes til å tilpasse stigningen som Zwift setter, i stedet for eller i tillegg til innstillingen Zwift-motstandsfaktor i QZ. Når Zwift for eksempel endrer stigningen til 1 %, kan tredemøllen gå til 2 %. Tallet du skriver inn som justering (offset), legges til stigningen som sendes fra Zwift eller en annen tredjepartsapp. Standard: 0.</translation>
+        <translation>Stigningsjustering og stigningsfaktor brukes til å tilpasse stigningen som Zwift setter, i stedet for eller i tillegg til innstillingen Zwift-motstandsfaktor i QZ. Når Zwift for eksempel endrer stigningen til 1&#xa0;%, kan tredemøllen gå til 2&#xa0;%. Tallet du skriver inn som justering (offset), legges til stigningen som sendes fra Zwift eller en annen tredjepartsapp. Standard: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
@@ -6982,8 +7062,8 @@ Default: A = -0.96, B = 1.33</source>
 For Stryd-sensorer: A = -0.96, B = 1.33
 
 Eksempler med disse verdiene:
-• 8 km/h, 10 % stigning: (-0.96 + 1.33×8) × 10 = 97 W lagt til
-• 11 km/h, 10 % stigning: (-0.96 + 1.33×11) × 10 = 137 W lagt til
+• 8 km/h, 10&#xa0;% stigning: (-0.96 + 1.33×8) × 10 = 97 W lagt til
+• 11 km/h, 10&#xa0;% stigning: (-0.96 + 1.33×11) × 10 = 137 W lagt til
 
 Hvis både A og B er 0, bruker QZ standardformelen: 9.8 × vekt × (stigning/100).
 
@@ -7503,7 +7583,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Skjult på sin egen side akkurat nå: endre den her</translation>
+        <translation type="vanished">Skjult på sin egen side akkurat nå: endre den her</translation>
     </message>
     <message>
         <source>On</source>
@@ -7887,7 +7967,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.</source>
-        <translation>Største tillatte forskjell mellom farten fra effektsensoren og farten på tredemøllen før QZ slutter å bruke den relative korrigeringen. Standard: 20 %.</translation>
+        <translation>Største tillatte forskjell mellom farten fra effektsensoren og farten på tredemøllen før QZ slutter å bruke den relative korrigeringen. Standard: 20&#xa0;%.</translation>
     </message>
     <message>
         <source>Heart</source>
@@ -8015,7 +8095,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation>Endrer størrelsen på flisene som viser måleverdiene. Standard: 100 %. Velg en lavere prosent for å få plass til flere fliser på skjermen, og en prosent over 100 % for å gjøre dem større. Ikke skriv inn prosenttegnet. Het tidligere «UI Zoom».</translation>
+        <translation>Endrer størrelsen på flisene som viser måleverdiene. Standard: 100&#xa0;%. Velg en lavere prosent for å få plass til flere fliser på skjermen, og en prosent over 100&#xa0;% for å gjøre dem større. Ikke skriv inn prosenttegnet. Het tidligere «UI Zoom».</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -8023,7 +8103,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
-        <translation>Teksten i appen følger tekststørrelsen i innstillingene på telefonen eller nettbrettet, opptil 150 %. Slå av for å velge størrelsen nedenfor, for eksempel for en skjerm du leser på avstand under treningsøkten. Standard: på.</translation>
+        <translation>Teksten i appen følger tekststørrelsen i innstillingene på telefonen eller nettbrettet, opptil 150&#xa0;%. Slå av for å velge størrelsen nedenfor, for eksempel for en skjerm du leser på avstand under treningsøkten. Standard: på.</translation>
     </message>
     <message>
         <source>Text size:</source>
@@ -8136,6 +8216,30 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Bare iOS. Holder QZ i gang når skjermen er av eller QZ kjører i bakgrunnen, slik at Bluetooth-tilkoblingene og tidtakerne for treningsøkten ikke stopper opp. Det brukes et lydløst lydspor som blandes med musikken din, så det du hører på, blir ikke avbrutt. Slå på hvis du må trene med låst skjerm eller med QZ i bakgrunnen. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8976,157 +9080,157 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Override 0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 0 %:</translation>
+        <translation>I stedet for 0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 0.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 0.5 %:</translation>
+        <translation>I stedet for 0.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 1.0 %:</translation>
+        <translation>I stedet for 1.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 1.5 %:</translation>
+        <translation>I stedet for 1.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 2.0 %:</translation>
+        <translation>I stedet for 2.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 2.5 %:</translation>
+        <translation>I stedet for 2.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 3.0 %:</translation>
+        <translation>I stedet for 3.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 3.5 %:</translation>
+        <translation>I stedet for 3.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 4.0 %:</translation>
+        <translation>I stedet for 4.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 4.5 %:</translation>
+        <translation>I stedet for 4.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 5.0 %:</translation>
+        <translation>I stedet for 5.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 5.5 %:</translation>
+        <translation>I stedet for 5.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 6.0 %:</translation>
+        <translation>I stedet for 6.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 6.5 %:</translation>
+        <translation>I stedet for 6.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 7.0 %:</translation>
+        <translation>I stedet for 7.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 7.5 %:</translation>
+        <translation>I stedet for 7.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 8.0 %:</translation>
+        <translation>I stedet for 8.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 8.5 %:</translation>
+        <translation>I stedet for 8.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 9.0 %:</translation>
+        <translation>I stedet for 9.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 9.5 %:</translation>
+        <translation>I stedet for 9.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 10.0 %:</translation>
+        <translation>I stedet for 10.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 10.5 %:</translation>
+        <translation>I stedet for 10.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 11.0 %:</translation>
+        <translation>I stedet for 11.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 11.5 %:</translation>
+        <translation>I stedet for 11.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 12.0 %:</translation>
+        <translation>I stedet for 12.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 12.5 %:</translation>
+        <translation>I stedet for 12.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 13.0 %:</translation>
+        <translation>I stedet for 13.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 13.5 %:</translation>
+        <translation>I stedet for 13.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 14.0 %:</translation>
+        <translation>I stedet for 14.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 14.5 %:</translation>
+        <translation>I stedet for 14.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 15.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 15.0 %:</translation>
+        <translation>I stedet for 15.0&#xa0;%:</translation>
     </message>
 </context>
 <context>
@@ -9306,69 +9410,6 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maks. watt/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Kontakt QZ-kundestøtte</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Klargjør en e-post til kundestøtte med diagnosedata</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Ingen enhet tilkoblet</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Hastighet og effekt er null</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ-kundestøtte</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Ferdig</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Skjul tastatur</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Lukk støtteforespørselen</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Fortell oss hva som ikke fungerer. QZ legger til informasjon om enheten og appen din.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Beskriv problemet...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Beskriv problemet</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Legg ved feilsøkingslogg hvis den er tilgjengelig</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Du kan se gjennom eller redigere e-posten før du sender den. Ingenting sendes automatisk.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Åpne e-post</translation>
     </message>
 </context>
 </TS>

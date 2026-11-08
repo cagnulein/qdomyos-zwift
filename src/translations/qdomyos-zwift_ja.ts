@@ -1219,6 +1219,69 @@ QZの設定を更新しますか?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZサポートに問い合わせる</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>診断情報を含むサポートメールを作成</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>デバイスが接続されていません</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度とパワーがゼロです</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZサポート</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完了</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>キーボードを隠す</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>サポートリクエストを閉じる</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>問題の内容をお知らせください。QZがデバイスとアプリの情報を追加します。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>問題を入力してください...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>問題を説明</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>デバッグログがあれば添付</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>送信前にメールを確認または編集できます。自動送信はされません。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>メールを開く</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -5773,7 +5836,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>開く</translation>
+        <translation type="vanished">開く</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -8120,7 +8183,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>現在、元のページでは非表示です：ここで変更してください</translation>
+        <translation type="vanished">現在、元のページでは非表示です：ここで変更してください</translation>
     </message>
     <message>
         <source>On</source>
@@ -8241,6 +8304,30 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS のみ。画面がオフのときや QZ がバックグラウンドにあるときも QZ を動作させ続け、Bluetooth 接続やセッションタイマーが止まらないようにします。音楽とミックスされる無音のオーディオトラックを使用するため、聴いている音楽は中断されません。画面をロックしたまま、または QZ をバックグラウンドにしたままトレーニングする必要がある場合に有効にしてください。デフォルトはオフです。</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9423,69 +9510,6 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Max Watt/KG</source>
         <translation>最高パワーウェイトレシオ（W／kg）</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>QZサポートに問い合わせる</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>診断情報を含むサポートメールを作成</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>デバイスが接続されていません</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>速度とパワーがゼロです</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZサポート</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>完了</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>キーボードを隠す</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>サポートリクエストを閉じる</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>問題の内容をお知らせください。QZがデバイスとアプリの情報を追加します。</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>問題を入力してください...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>問題を説明</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>デバッグログがあれば添付</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>送信前にメールを確認または編集できます。自動送信はされません。</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>メールを開く</translation>
     </message>
 </context>
 </TS>
