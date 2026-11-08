@@ -19,6 +19,7 @@ Popup {
     // cannot be undone
     property string yesText: ""
     property string noText: ""
+    property string cancelText: ""
     property bool destructive: false
     // The question stands while a flag of the C++ side is set (visible: rootItem.xxxRequested),
     // and only the answer clears it: the back key closes the card without one, the flag stays
@@ -132,6 +133,9 @@ Popup {
             Label {
                 id: body
                 width: parent.width
+                // room for the scroll bar of a long text: without it the ends of the lines ran
+                // under the bar. Always kept, so the width does not depend on the height it makes
+                rightPadding: 12
                 text: root.title.length > 0 && root.text.length > 0
                       ? root.text + (root.informativeText.length > 0 ? "\n\n" + root.informativeText : "")
                       : root.informativeText
@@ -160,7 +164,7 @@ Popup {
                     text: modelData === P.MessageDialog.Yes ? (root.yesText.length > 0 ? root.yesText : qsTr("Yes"))
                         : modelData === P.MessageDialog.No ? (root.noText.length > 0 ? root.noText : qsTr("No"))
                         : modelData === P.MessageDialog.Ok ? qsTr("OK")
-                        : qsTr("Cancel")
+                        : root.cancelText.length > 0 ? root.cancelText : qsTr("Cancel")
                     flat: !positive
                     highlighted: positive
                     danger: positive && root.destructive
