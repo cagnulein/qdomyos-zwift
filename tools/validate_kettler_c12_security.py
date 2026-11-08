@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate an externally supplied Kettler C12 SecureData.txt (not redistributed)."""
+"""Validate the bundled Kettler C12 BLE security lookup resource."""
 
 import argparse
 import hashlib
@@ -12,7 +12,7 @@ ROW = re.compile(rb"([0-9A-Fa-f]{4}):([0-9A-Fa-f]{32})")
 
 def validate(data: bytes) -> None:
     if hashlib.sha256(data).hexdigest() != SHA256:
-        raise ValueError("SHA-256 does not match the verified MyHomeFIT 2.3.5 asset")
+        raise ValueError("SHA-256 does not match the Kettler C12 security table")
     rows = data.splitlines()
     if len(rows) != 65536:
         raise ValueError(f"expected 65536 rows, found {len(rows)}")
@@ -33,7 +33,9 @@ def validate(data: bytes) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("file", type=Path, help="path to your private SecureData.txt")
+    parser.add_argument("file", nargs="?", type=Path,
+                        default=Path("src/devices/kettlerc12bike/SecureData.txt"),
+                        help="path to the bundled C12 security table")
     args = parser.parse_args()
     validate(args.file.read_bytes())
     print("OK: verified SHA-256, all 65536 entries, and Kinomap C12 vector")

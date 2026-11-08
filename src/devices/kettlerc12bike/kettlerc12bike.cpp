@@ -83,9 +83,8 @@ QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) 
         return QByteArray();
     }
 
-    // The complete 65,536-entry asset has been independently verified.
-    // The public source tree intentionally does not redistribute its bytes.
-    // Only the exact reviewed asset digest is accepted at runtime.
+    // Use the bundled 65,536-entry C12 BLE challenge/response table.
+    // Verify the exact expected digest before decoding a response.
     const QByteArray expectedSha256 =
         QByteArrayLiteral("70d3eeec6c510e132383fa69b2466e28dec0c89065ab0481a33d191e6281b3a3");
 

@@ -25,7 +25,7 @@ int main() {
     check(0, 0x00, 0x00);
     check(-1, 0x00, 0x00);
 
-    // Challenge is interpreted as a big-endian integer; the MyHomeFIT asset
+    // Challenge is interpreted as a big-endian integer; the C12 table
     // maps every 16-bit index to one 16-byte response.
     const uint8_t capturedChallenge[] = {0x3e, 0x7c};
     const uint8_t differentChallenge[] = {0x3e, 0x7d};

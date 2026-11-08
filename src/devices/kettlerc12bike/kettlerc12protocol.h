@@ -14,7 +14,7 @@ constexpr int maxTargetPowerWatts = 250;
 constexpr int minResistanceLevel = 1;
 constexpr int maxResistanceLevel = 20;
 
-// MyHomeFIT SecureData.txt is a sequential index-to-16-byte-response table:
+// The C12 SecureData.txt asset is a sequential index-to-16-byte-response table:
 // "0000:<32 hex digits>" through "FFFF:<32 hex digits>".
 // The ERGO C12 characteristic 638a1104 returns precisely two bytes.
 // Require that observed width instead of truncating/accepting other formats.

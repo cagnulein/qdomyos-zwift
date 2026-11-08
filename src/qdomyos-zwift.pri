@@ -975,7 +975,8 @@ TRANSLATIONS += \
 RESOURCES += \
    icons.qrc \
 	qml.qrc \
-	translations.qrc
+	translations.qrc \
+	kettlerc12_resources.qrc
 
 # The two largest settings pages (settings.qml about 1.1 MB, settings-tiles.qml about 285 KB)
 # are compiled at build time: otherwise their first open after an install or an update compiles
