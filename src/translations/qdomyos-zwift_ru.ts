@@ -1417,6 +1417,40 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ОК</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>часы</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>минуты</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>секунды</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -4279,6 +4313,26 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Не забудьте сохранить профиль «%1», если хотите оставить в нём эти изменения.</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Сохранено! Ищите в приложении «Файлы».</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Сохранено! Ищите в личной папке приложения.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Главное меню</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Плавающее окно</translation>
+    </message>
+    <message>
         <source>Auto Resistance enabled</source>
         <translation>Автосопротивление включено</translation>
     </message>
@@ -4295,12 +4349,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Плитки закреплены</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Загрузить настройки</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Поиск настроек</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Сохранить настройки</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Видео</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>График</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Поделиться файлом FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Открепить плитки</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Закрепить плитки</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Выключить автосопротивление</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Включить автосопротивление</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4365,6 +4455,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>Выберите файл</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Выйти из Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Войти в Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Выйти из Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Войти в Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Настройки Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Выйти из Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Войти в Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Тренировка</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Приложение</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Сервисы</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>

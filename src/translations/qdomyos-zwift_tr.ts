@@ -1417,6 +1417,40 @@ QZ ayarları güncellensin mi?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Evet</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Hayır</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Tamam</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>saat</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>dakika</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>saniye</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -4173,6 +4207,14 @@ Do you want to start it now?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Kaydedildi! Dosyalar uygulamasına bakın.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Kaydedildi! Uygulamanın özel klasörüne bakın.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Peloton&apos;a zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
@@ -4185,6 +4227,18 @@ Do you want to start it now?</source>
         <translation>Intervals.icu&apos;ya zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Geri</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Ana menü</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Kayan pencere</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Kutucukları taşıyabilirsiniz!</translation>
     </message>
@@ -4193,12 +4247,48 @@ Do you want to start it now?</source>
         <translation>Kutucuklar artık kilitli</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Ayarları yükle</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Ayarlarda ara</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Ayarları kaydet</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Harita</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Grafik</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Kutucukların kilidini aç</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Kutucukları kilitle</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Otomatik direnci kapat</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Otomatik direnci aç</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4259,6 +4349,46 @@ Do you want to start it now?</source>
     <message>
         <source>Quit</source>
         <translation>Çıkış</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava bağlantısını kes</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Strava&apos;ya bağlan</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton bağlantısını kes</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Peloton&apos;a bağlan</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect ayarları</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu bağlantısını kes</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icu&apos;ya bağlan</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Antrenman</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Uygulama</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Servisler</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
