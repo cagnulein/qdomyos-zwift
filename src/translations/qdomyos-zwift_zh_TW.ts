@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>找到心率感測器：%1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>找到心率感測器：%1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>連線</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>選擇</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>暫時不要</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>不再詢問</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>選擇心率感測器</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1（心率感測器）：沒有心率資料。請確認感測器正在廣播心率資料。</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>正在搜尋心率感測器...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>正在搜尋 %1（心率感測器）...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>找不到 %1（心率感測器）。請確認已開啟並正在廣播心率資料。</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>附近找不到心率感測器。請確認裝置已開啟並正在廣播心率資料。</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>聯絡 QZ 支援</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>準備包含診斷資訊的支援電子郵件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未連接裝置</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率為零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支援</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隱藏鍵盤</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>關閉支援請求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>請告訴我們哪裡無法正常運作。QZ 會加入裝置和應用程式資訊。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述問題...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述問題</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有偵錯記錄時附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>傳送前可以檢查或編輯電子郵件。系統不會自動傳送任何內容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>開啟電子郵件</translation>
     </message>
 </context>
 <context>
@@ -1308,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -3890,6 +4004,11 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>無法開啟電子郵件應用程式</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 正在執行</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4500,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5772,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7320,10 +7435,6 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7954,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>設定虛擬應用程式的坡度如何對應至單車阻力。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>當 QZ 將虛擬應用程式的坡度轉換為阻力時，使用自訂對應表。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>每行輸入一組坡度|阻力配對。QZ 會在各點之間插值，並將超出設定範圍的數值限制在邊界內。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用於登入服務的 Life Fitness 帳號使用者名稱。僅儲存在本機，不會寫入除錯記錄。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用於登入服務的 Life Fitness 帳號密碼。僅儲存在本機，不會寫入除錯記錄。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>相機動作</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>表情動作</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 模擬器</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>功率圖表位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心率圖表位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>阻力與目標阻力圖表位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 阻力圖表位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>踏頻圖表位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>功率分布圖表位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>速度與坡度圖表位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>此圖表在訓練歷史中的數字位置。請使用「一般介面選項」中的向上和向下按鈕調整順序。</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>啟動時搜尋心率感測器</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>健身器材連線後的前 5 分鐘，若尚未收到心率資料，QZ 會每分鐘搜尋一次心率感測器：找到已選擇的胸帶後立即連線；若未選擇胸帶，則提示附近找到的感測器。隨時可點選首頁的心率方塊或 Bluetooth 圖示進行搜尋。</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 單車選項</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>供 8008 TRS 3 等傳統 Daum 測功車使用的序列埠。在 Android 使用 USB 轉序列埠轉接器時，請輸入 &apos;usb&apos;。COM1、COM2 等在 Android 可作為搜尋 USB 轉接器的別名，但並不是 Android 連接埠名稱。Windows 使用 COM1 或 COM3；Linux/macOS 使用序列裝置路徑，例如 /dev/ttyUSB0。</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>阻力輪詢延遲：</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>使用「坡度延遲」設定限制 QZ 向 Daum 傳送阻力與功率更新的頻率。預設：0 秒。</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>坡度篩選（%）：</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>在 GPX 訓練中，忽略小於此值的坡度變化。只有與上次傳送的數值差距達到設定門檻時，才會傳送新的坡度指令。預設：0（停用）。</translation>
     </message>
 </context>
 <context>
@@ -9124,69 +9331,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>聯絡 QZ 支援</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>準備包含診斷資訊的支援電子郵件</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>未連接裝置</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>速度和功率為零</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ 支援</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>完成</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>隱藏鍵盤</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>關閉支援請求</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>請告訴我們哪裡無法正常運作。QZ 會加入裝置和應用程式資訊。</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>描述問題...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>描述問題</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>有偵錯記錄時附加</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>傳送前可以檢查或編輯電子郵件。系統不會自動傳送任何內容。</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>開啟電子郵件</translation>
     </message>
 </context>
 </TS>

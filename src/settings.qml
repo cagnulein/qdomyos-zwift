@@ -147,6 +147,8 @@ import AndroidStatusBar 1.0
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
         function openPageResult(entry) {
+            // A setting tapped before the index came must not open over this page later
+            pendingJump = null
             searchReturn = currentSearch(true)
             // Or the search field takes the focus back with the keyboard on the way back
             dropTextFocus()
@@ -171,10 +173,12 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page (searchHiddenSettings, in "Changed" only): the tap
-            // leaves the results as they are
-            if (!where)
+            // A setting the index does not place on any page (a page or the whole index could not
+            // be read): the results stay, the tap says why
+            if (!where) {
+                toast.show(qsTr("This setting was not found on the settings pages"))
                 return
+            }
             var page = settingsPane
             var context = "settings"
             searchReturn = currentSearch(false)
@@ -288,6 +292,9 @@ import AndroidStatusBar 1.0
             if (searchReturn && searchReturn.viaPush)
                 restoreSearch()
         }
+        // Another page coming on top: a result tapped before the index came must not open over
+        // it. At the start of the transition - deactivated comes only at its end
+        StackView.onDeactivating: pendingJump = null
         StackView.onDeactivated: {
             if (searchReturn && !searchReturn.viaPush)
                 searchReturn = null
@@ -412,8 +419,10 @@ import AndroidStatusBar 1.0
         }
 
         function hideSettingsSearch() {
-            // The search closed is done with: back no longer brings its results up
+            // The search closed is done with: back no longer brings its results up, a result
+            // tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             changedOnly = false
             settingsSearchTextField.text = ""
@@ -523,12 +532,13 @@ import AndroidStatusBar 1.0
                     return
 
                 settingsCatalogLoading = false
+                var catalog = null
                 if (xhr.status === 200 || xhr.status === 0) {
                     try {
-                        settingsCatalog = JSON.parse(xhr.responseText)
-                        settingsCatalogLoaded = true
-                        settingsCatalogError = ""
-                        buildSearchableSettings()
+                        catalog = JSON.parse(xhr.responseText)
+                        // "null" parses too: no catalog all the same
+                        if (!catalog)
+                            throw "empty catalog"
                     } catch (e) {
                         settingsCatalogError = "Unable to parse settings catalog"
                         console.log(settingsCatalogError + ": " + e)
@@ -536,6 +546,18 @@ import AndroidStatusBar 1.0
                 } else {
                     settingsCatalogError = "Unable to load settings catalog"
                     console.log(settingsCatalogError + ": " + xhr.status)
+                }
+                if (catalog) {
+                    settingsCatalog = catalog
+                    settingsCatalogLoaded = true
+                    settingsCatalogError = ""
+                    // Apart from the parsing: a failure here is not a broken catalog
+                    try {
+                        buildSearchableSettings()
+                    } catch (e) {
+                        settingsCatalogError = "Unable to build the settings list"
+                        console.log(settingsCatalogError + ": " + e)
+                    }
                 }
             }
             xhr.send()
@@ -745,8 +767,10 @@ import AndroidStatusBar 1.0
 
         function setChangedOnly(on) {
             changedOnly = on
-            // A new list of one's own: back no longer returns to the previous one
+            // A new list of one's own: back no longer returns to the previous one, a result of
+            // the previous one tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             settingsSearchActive = on || settingsSearchTextField.text.trim().length > 0
             settingsSearchPending = settingsSearchActive
@@ -756,14 +780,12 @@ import AndroidStatusBar 1.0
         }
 
         // Settings the catalog lists but no page shows: the results only show a value, so they
-        // could not be changed from there either. Garmin ANT+ (moves the ANT channels to Garmin's
-        // private network, switched on by chance it cuts the ANT+ sensors off), Peloton Bike OCR
-        // (its switch is commented out on the page), the camera and emote of MyWhoosh Link (QZ
-        // cycles them with a controller button itself). Left out of the search by text only:
-        // "Changed" still lists Garmin ANT+ and Peloton Bike OCR, so one switched on by chance is
-        // seen there (the MyWhoosh keys are written by QZ, isPrivateSetting keeps them out of it)
-        readonly property var searchHiddenSettings: ({ "ant_garmin": true, "peloton_bike_ocr": true,
-                                                       "mywhoosh_link_camera_value": true,
+        // could not be changed from there either: the camera and emote of MyWhoosh Link (QZ
+        // cycles them with a controller button itself). Left out of the search by text only;
+        // QZ writes them, isPrivateSetting keeps them out of "Changed". Garmin ANT+ and Peloton
+        // Bike OCR are no longer offered (their switches are commented out on the pages): they
+        // are visible: false in the catalog, so neither the search nor "Changed" lists them
+        readonly property var searchHiddenSettings: ({ "mywhoosh_link_camera_value": true,
                                                        "mywhoosh_link_emote_value": true })
 
         // Not listed among the changed settings:
@@ -2461,7 +2483,13 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_sport_55: false
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
-            property bool heart_rate_belt_suggest: false           
+            property bool heart_rate_belt_suggest: false
+
+            property bool proform_treadmill_sport_6_0: false
+            property bool ui_modern: false
+            property string ui_theme: "graphite"
+            property string ui_accent: "violet"
+            property string ui_theme_mode: "auto"
 
             // Trixter X-Dream properties
             property bool trixter_xdream_bike_enabled: false
@@ -2473,6 +2501,7 @@ import AndroidStatusBar 1.0
             property int trixter_xdream_bike_steering_r : 45
             property int trixter_xdream_bike_steering_max : 45
             property int trixter_xdream_bike_connection_timeout_ms : 500
+        
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -2602,8 +2631,12 @@ import AndroidStatusBar 1.0
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
-                    // A new search of one's own: back no longer returns to the previous one
-                    onTextEdited: settingsPane.searchReturn = null
+                    // A new search of one's own: back no longer returns to the previous one, and
+                    // the result tapped before the index came is not wanted any more
+                    onTextEdited: {
+                        settingsPane.searchReturn = null
+                        settingsPane.pendingJump = null
+                    }
                     onTextChanged: {
                         if (settingsPane.restoringSearch)
                             return
@@ -2655,6 +2688,8 @@ import AndroidStatusBar 1.0
                 Label {
                     // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                    // The catalog error above says it all: no "Searching..." or "No settings found"
+                    visible: settingsCatalogError.length === 0
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
                           changedOnly && filteredSettings.length > 0 ?
@@ -12440,6 +12475,7 @@ import AndroidStatusBar 1.0
                                     "ProForm 305 CST PETL59817.0",
                                     "Freemotion T10.9B (HCI snoop)",
                                     "Proform Sport 5.5",
+                                    "Proform Sport 6.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -12524,7 +12560,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_trainer_8_0_pftl59721_0 ? 65 :
                                                     settings.proform_treadmill_305_cst ? 66 :
                                                     settings.freemotion_t10_9b_hci ? 67 :
-                                                    settings.proform_treadmill_sport_55 ? 68 : 0;
+                                                    settings.proform_treadmill_sport_55 ? 68 :
+                                                    settings.proform_treadmill_sport_6_0 ? 69 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -12607,6 +12644,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_305_cst = false;
                                     settings.freemotion_t10_9b_hci = false;
                                     settings.proform_treadmill_sport_55 = false;
+                                    settings.proform_treadmill_sport_6_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -12678,6 +12716,7 @@ import AndroidStatusBar 1.0
                                         case 66: settings.proform_treadmill_305_cst = true; break;
                                         case 67: settings.freemotion_t10_9b_hci = true; break;
                                         case 68: settings.proform_treadmill_sport_55 = true; break;
+                                        case 69: settings.proform_treadmill_sport_6_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Βρέθηκε αισθητήρας καρδιακών παλμών: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Βρέθηκαν αισθητήρες καρδιακών παλμών: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Σύνδεση</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Επιλογή</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Όχι τώρα</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Να μην ερωτηθώ ξανά</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Επιλέξτε αισθητήρα καρδιακών παλμών</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (αισθητήρας παλμών): δεν υπάρχουν δεδομένα παλμών. Βεβαιωθείτε ότι μεταδίδει τους παλμούς.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Αναζήτηση αισθητήρων καρδιακών παλμών...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Αναζήτηση %1 (αισθητήρας παλμών)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Ο αισθητήρας %1 δεν βρέθηκε. Βεβαιωθείτε ότι είναι ενεργός και μεταδίδει καρδιακούς παλμούς.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Δεν βρέθηκε κοντινός αισθητήρας καρδιακών παλμών. Βεβαιωθείτε ότι είναι ενεργός και μεταδίδει δεδομένα.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ακύρωση</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Επικοινωνία με την υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Προετοιμασία email υποστήριξης με διαγνωστικά στοιχεία</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Δεν υπάρχει συνδεδεμένη συσκευή</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Η ταχύτητα και η ισχύς είναι μηδενικές</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Υποστήριξη QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Τέλος</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Απόκρυψη πληκτρολογίου</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Κλείσιμο αιτήματος υποστήριξης</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Πείτε μας τι δεν λειτουργεί. Το QZ θα προσθέσει πληροφορίες για τη συσκευή και την εφαρμογή σας.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Περιγράψτε το πρόβλημα...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Περιγράψτε το πρόβλημα</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Επισύναψη αρχείου καταγραφής εντοπισμού σφαλμάτων, αν υπάρχει</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Μπορείτε να ελέγξετε ή να επεξεργαστείτε το email πριν το στείλετε. Δεν αποστέλλεται τίποτα αυτόματα.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Άνοιγμα email</translation>
     </message>
 </context>
 <context>
@@ -1308,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ακύρωση</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -3890,6 +4004,11 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>Δεν ήταν δυνατό το άνοιγμα εφαρμογής email</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>Το QZ εκτελείται</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4500,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5772,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ακύρωση</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7320,10 +7435,6 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7954,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Ρυθμίστε πώς η κλίση της εικονικής εφαρμογής αντιστοιχεί στην αντίσταση του ποδηλάτου.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Χρησιμοποιήστε προσαρμοσμένη αντιστοίχιση όταν το QZ μετατρέπει την κλίση της εικονικής εφαρμογής σε αντίσταση.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ένα ζεύγος κλίση|αντίσταση ανά γραμμή. Το QZ παρεμβάλλει τιμές μεταξύ των σημείων και περιορίζει τις τιμές εκτός του καθορισμένου εύρους.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Όνομα χρήστη λογαριασμού Life Fitness για σύνδεση στην υπηρεσία. Αποθηκεύεται τοπικά και δεν καταγράφεται ποτέ στα αρχεία αποσφαλμάτωσης.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Κωδικός πρόσβασης λογαριασμού Life Fitness για σύνδεση στην υπηρεσία. Αποθηκεύεται τοπικά και δεν καταγράφεται ποτέ στα αρχεία αποσφαλμάτωσης.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Ενέργεια κάμερας</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Ενέργεια έκφρασης</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Εξομοιωτής Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Θέση γραφήματος ισχύος</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Θέση γραφήματος καρδιακών παλμών</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Θέση γραφήματος αντίστασης και αντίστασης-στόχου</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Θέση γραφήματος αντίστασης Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Θέση γραφήματος ρυθμού πεταλιών</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Θέση γραφήματος κατανομής ισχύος</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Θέση γραφήματος ταχύτητας και κλίσης</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Αριθμητική θέση του γραφήματος στο ιστορικό προπονήσεων. Αλλάξτε τη σειρά με τα κουμπιά πάνω και κάτω στις γενικές επιλογές διεπαφής.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Αναζήτηση αισθητήρα καρδιακών παλμών κατά την εκκίνηση</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Στα πρώτα 5 λεπτά μετά τη σύνδεση του οργάνου γυμναστικής, εφόσον δεν λαμβάνονται παλμοί, το QZ αναζητά αισθητήρα μία φορά το λεπτό: συνδέει την επιλεγμένη ζώνη παλμών μόλις τη βρει ή, αν δεν έχει επιλεγεί κάποια, προτείνει έναν κοντινό αισθητήρα. Μπορείτε να αναζητήσετε ανά πάσα στιγμή αγγίζοντας το πλακίδιο παλμών ή το εικονίδιο Bluetooth στην αρχική σελίδα.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Επιλογές ποδηλάτου Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Σειριακή θύρα για κλασικά εργόμετρα Daum, όπως το 8008 TRS 3. Σε Android με προσαρμογέα USB σε σειριακή, χρησιμοποιήστε &apos;usb&apos;. Τα COM1, COM2 κ.λπ. γίνονται δεκτά ως ψευδώνυμα για την αναζήτηση του προσαρμογέα USB, αλλά δεν είναι ονόματα θυρών Android. Σε Windows χρησιμοποιήστε COM1 ή COM3· σε Linux/macOS τη διαδρομή της σειριακής συσκευής, π.χ. /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Καθυστέρηση ελέγχου αντίστασης:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Χρησιμοποιεί τη ρύθμιση καθυστέρησης κλίσης για να περιορίζει τη συχνότητα ενημερώσεων αντίστασης και ισχύος προς το Daum. Προεπιλογή: 0 δευτερόλεπτα.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Φίλτρο κλίσης (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Στις προπονήσεις GPX αγνοεί αλλαγές κλίσης μικρότερες από αυτήν την τιμή και στέλνει νέα εντολή μόνο όταν η διαφορά από την τελευταία τιμή φτάσει το καθορισμένο όριο. Προεπιλογή: 0 (ανενεργό).</translation>
     </message>
 </context>
 <context>
@@ -9124,69 +9331,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Επικοινωνία με την υποστήριξη QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Προετοιμασία email υποστήριξης με διαγνωστικά στοιχεία</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Δεν υπάρχει συνδεδεμένη συσκευή</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Η ταχύτητα και η ισχύς είναι μηδενικές</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Υποστήριξη QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Τέλος</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Απόκρυψη πληκτρολογίου</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Κλείσιμο αιτήματος υποστήριξης</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Πείτε μας τι δεν λειτουργεί. Το QZ θα προσθέσει πληροφορίες για τη συσκευή και την εφαρμογή σας.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Περιγράψτε το πρόβλημα...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Περιγράψτε το πρόβλημα</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Επισύναψη αρχείου καταγραφής εντοπισμού σφαλμάτων, αν υπάρχει</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Μπορείτε να ελέγξετε ή να επεξεργαστείτε το email πριν το στείλετε. Δεν αποστέλλεται τίποτα αυτόματα.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Άνοιγμα email</translation>
     </message>
 </context>
 </TS>

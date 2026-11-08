@@ -1219,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>联系 QZ 支持</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>准备包含诊断信息的支持邮件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未连接设备</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率为零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支持</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隐藏键盘</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>关闭支持请求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>请告诉我们哪里无法正常工作。QZ 会添加设备和应用信息。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述问题...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述问题</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有调试日志时附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>发送前可以查看或编辑邮件。不会自动发送任何内容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>打开邮件</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -5845,7 +5908,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>打开</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -8048,7 +8111,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>当前在其所在页面中隐藏：请在此处更改</translation>
+        <translation type="vanished">当前在其所在页面中隐藏：请在此处更改</translation>
     </message>
     <message>
         <source>On</source>
@@ -8101,6 +8164,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Workout History Charts</source>
         <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>在设置页面中未找到此设置</translation>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
@@ -8237,6 +8304,30 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>仅限 iOS。在屏幕关闭或 QZ 位于后台时保持 QZ 运行，使蓝牙连接和训练计时器不会冻结。它使用与您的音乐混合播放的静音音轨，因此您正在收听的内容不会被打断。如果需要在锁屏状态下或 QZ 位于后台时训练，请启用此项。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 单车选项</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>用于 8008 TRS 3 等经典 Daum 功率车的串口。Android 使用 USB 转串口适配器时请输入 &apos;usb&apos;。Android 也接受 COM1、COM2 等作为搜索 USB 适配器的别名，但它们并非 Android 的串口名称。Windows 使用 COM1 或 COM3；Linux/macOS 使用串口设备路径，例如 /dev/ttyUSB0。</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>阻力轮询延迟：</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>使用“坡度延迟”设置限制 QZ 向 Daum 发送阻力和功率更新的频率。默认：0 秒。</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>坡度过滤阈值（%）：</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>在 GPX 训练中，忽略小于此值的坡度变化。只有与上次发送的数值之差达到设置的阈值时，才发送新的坡度指令。默认：0（禁用）。</translation>
     </message>
 </context>
 <context>
@@ -9419,69 +9510,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>最大 W/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>联系 QZ 支持</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>准备包含诊断信息的支持邮件</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>未连接设备</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>速度和功率为零</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ 支持</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>完成</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>隐藏键盘</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>关闭支持请求</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>请告诉我们哪里无法正常工作。QZ 会添加设备和应用信息。</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>描述问题...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>描述问题</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>有调试日志时附加</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>发送前可以查看或编辑邮件。不会自动发送任何内容。</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>打开邮件</translation>
     </message>
 </context>
 </TS>

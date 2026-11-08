@@ -947,6 +947,7 @@ const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy
 const QString QZSettings::force_resistance_instead_inclination = QStringLiteral("force_resistance_instead_inclination");
 const QString QZSettings::proform_treadmill_575i = QStringLiteral("proform_treadmill_575i");
 const QString QZSettings::proform_treadmill_sport_55 = QStringLiteral("proform_treadmill_sport_55");
+const QString QZSettings::proform_treadmill_sport_6_0 = QStringLiteral("proform_treadmill_sport_6_0");
 const QString QZSettings::zwift_play_emulator = QStringLiteral("zwift_play_emulator");
 const QString QZSettings::gear_configuration = QStringLiteral("gear_configuration");
 const QString QZSettings::default_gear_configuration = QStringLiteral("1|38|44|true\n2|38|38|true\n3|38|32|true\n4|38|28|true\n5|38|24|true\n6|38|21|true\n7|38|19|true\n8|38|17|true\n9|38|15|true\n10|38|13|true\n11|38|11|true\n12|38|10|true");
@@ -1364,8 +1365,15 @@ const QString QZSettings::heart_rate_belt_suggest = QStringLiteral("heart_rate_b
 const QString QZSettings::log_debug_first_setup = QStringLiteral("log_debug_first_setup");
 const QString QZSettings::log_debug_first_setup_since = QStringLiteral("log_debug_first_setup_since");
 const QString QZSettings::default_log_debug_first_setup_since = QStringLiteral("");
+const QString QZSettings::ui_modern = QStringLiteral("ui_modern");
+const QString QZSettings::ui_theme = QStringLiteral("ui_theme");
+const QString QZSettings::default_ui_theme = QStringLiteral("graphite");
+const QString QZSettings::ui_accent = QStringLiteral("ui_accent");
+const QString QZSettings::default_ui_accent = QStringLiteral("violet");
+const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
+const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
-const uint32_t allSettingsCount = 1048;
+const uint32_t allSettingsCount = 1053;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2129,6 +2137,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
     {QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i},
     {QZSettings::proform_treadmill_sport_55, QZSettings::default_proform_treadmill_sport_55},
+    {QZSettings::proform_treadmill_sport_6_0, QZSettings::default_proform_treadmill_sport_6_0},
     {QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator},
     {QZSettings::gear_configuration, QZSettings::default_gear_configuration},
     {QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size},
@@ -2440,6 +2449,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest},
     {QZSettings::log_debug_first_setup, QZSettings::default_log_debug_first_setup},
     {QZSettings::log_debug_first_setup_since, QZSettings::default_log_debug_first_setup_since},
+    {QZSettings::ui_modern, QZSettings::default_ui_modern},
+    {QZSettings::ui_theme, QZSettings::default_ui_theme},
+    {QZSettings::ui_accent, QZSettings::default_ui_accent},
+    {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
