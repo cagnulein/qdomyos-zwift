@@ -8243,27 +8243,27 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Možnosti kola Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sériový port používaný klasickými ergometry Daum, například 8008 TRS 3. V Androidu s adaptérem USB–sériový port použijte &apos;usb&apos;. COM1, COM2 atd. fungují v Androidu jako aliasy pro vyhledání USB adaptéru, nejsou to však názvy portů Androidu. Ve Windows použijte COM1 nebo COM3; v Linuxu/macOS cestu k sériovému zařízení, například /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval dotazování na odpor:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Používá nastavení Zpoždění sklonu k omezení četnosti odesílání aktualizací odporu a výkonu zařízení Daum. Výchozí hodnota: 0 sekund.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr sklonu (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>Při trénincích GPX ignoruje změny sklonu menší než tato hodnota a nový příkaz odešle až tehdy, když rozdíl oproti poslední odeslané hodnotě dosáhne nastaveného prahu. Výchozí hodnota: 0 (vypnuto).</translation>
     </message>
 </context>
 <context>
