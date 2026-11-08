@@ -8307,27 +8307,27 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum バイクのオプション</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>8008 TRS 3 などの従来型 Daum エルゴメーターで使用するシリアルポートです。Android で USB-シリアル変換アダプターを使用する場合は &apos;usb&apos; を指定してください。COM1、COM2 などは Android で USB アダプター検索用の別名として使用できますが、Android のポート名ではありません。Windows では COM1 または COM3、Linux/macOS では /dev/ttyUSB0 などのシリアルデバイスのパスを指定してください。</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷のポーリング間隔:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>「傾斜の遅延」設定を使い、QZ から Daum へ負荷とパワーの更新を送る頻度を制限します。初期値: 0 秒。</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜フィルター (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX ワークアウトでは、この値より小さい傾斜の変化を無視します。最後に送信した値との差が設定したしきい値に達した場合のみ、新しい傾斜コマンドを送信します。初期値: 0（無効）。</translation>
     </message>
 </context>
 <context>
