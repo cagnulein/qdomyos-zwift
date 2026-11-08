@@ -25,16 +25,43 @@ int main() {
     check(0, 0x00, 0x00);
     check(-1, 0x00, 0x00);
 
-    // Captured authentication read at 0x30 and subsequent write to 0x32.
-    const uint8_t validChallenge[] = {0x3e, 0x7c};
-    const uint8_t changedChallenge[] = {0x3e, 0x7d};
-    assert(KettlerC12Protocol::matchesCapturedChallenge(validChallenge, 2));
-    assert(!KettlerC12Protocol::matchesCapturedChallenge(changedChallenge, 2));
-    assert(!KettlerC12Protocol::matchesCapturedChallenge(validChallenge, 1));
-    const auto handshake = KettlerC12Protocol::capturedHandshakeResponse();
-    assert(handshake.size() == 16);
+    // Challenge is interpreted as a big-endian integer; the MyHomeFIT asset
+    // maps every 16-bit index to one 16-byte response.
+    const uint8_t capturedChallenge[] = {0x3e, 0x7c};
+    const uint8_t differentChallenge[] = {0x3e, 0x7d};
+    const uint8_t shortestChallenge[] = {0x7c};
+    const uint8_t longestValidChallenge[] = {0x00, 0x00, 0x3e, 0x7c};
+    const uint8_t tooLargeChallenge[] = {0x01, 0x00, 0x00};
+    uint16_t index = 0;
+
+    assert(KettlerC12Protocol::challengeIndex(capturedChallenge, 2, index) && index == 0x3e7c);
+    assert(KettlerC12Protocol::challengeIndex(shortestChallenge, 1, index) && index == 0x007c);
+    assert(KettlerC12Protocol::challengeIndex(longestValidChallenge, 4, index) && index == 0x3e7c);
+    assert(KettlerC12Protocol::challengeIndex(differentChallenge, 2, index) && index == 0x3e7d);
+    assert(!KettlerC12Protocol::challengeIndex(tooLargeChallenge, 3, index));
+    assert(!KettlerC12Protocol::challengeIndex(capturedChallenge, 0, index));
+    assert(!KettlerC12Protocol::challengeIndex(capturedChallenge, 5, index));
+    assert(!KettlerC12Protocol::challengeIndex(nullptr, 2, index));
+
+    std::array<uint8_t, 16> handshake{};
+    const char correctRow[] = "3E7C:4E0E079DE0E7BA9474AAAB503C5F4CC3";
+    assert(KettlerC12Protocol::parseSecurityRow(correctRow, sizeof(correctRow) - 1,
+                                                 0x3e7c, handshake));
     assert(handshake[0] == 0x4e && handshake[1] == 0x0e);
     assert(handshake[14] == 0x4c && handshake[15] == 0xc3);
+
+    const char crlfRow[] = "3e7c:4e0e079de0e7ba9474aaab503c5f4cc3\\r";
+    assert(KettlerC12Protocol::parseSecurityRow(crlfRow, sizeof(crlfRow) - 1, 0x3e7c, handshake));
+    assert(!KettlerC12Protocol::parseSecurityRow(correctRow, sizeof(correctRow) - 1,
+                                                  0x3e7d, handshake));
+    assert(!KettlerC12Protocol::parseSecurityRow("3E7C:DEADBEEF", 13, 0x3e7c, handshake));
+    const char invalidHex[] = "3E7C:4E0E079DE0E7BA9474AAAB503C5F4CCZ";
+    assert(!KettlerC12Protocol::parseSecurityRow(invalidHex, sizeof(invalidHex) - 1,
+                                                  0x3e7c, handshake));
+
+    assert(KettlerC12Protocol::capturedHandshakeResponse(0x3e7c, handshake));
+    assert(handshake[0] == 0x4e && handshake[15] == 0xc3);
+    assert(!KettlerC12Protocol::capturedHandshakeResponse(0x3e7d, handshake));
 
     assert(KettlerC12Protocol::encodeResistanceLevel(-1) == 1);
     assert(KettlerC12Protocol::encodeResistanceLevel(1) == 1);
