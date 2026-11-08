@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>اضبط كيفية تحويل ميل التطبيق الافتراضي إلى مقاومة الدراجة.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>استخدم تعيينًا مخصصًا عندما يحوّل QZ ميل التطبيق الافتراضي إلى مقاومة.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>زوج واحد من الميل|المقاومة في كل سطر. يستوفي QZ القيم بين النقاط ويقيّد القيم خارج النطاق المحدد.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>اسم مستخدم حساب Life Fitness لتسجيل الدخول إلى الخدمة. يُخزَّن محليًا ولا يُكتب في سجلات التصحيح.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>كلمة مرور حساب Life Fitness لتسجيل الدخول إلى الخدمة. تُخزَّن محليًا ولا تُكتب في سجلات التصحيح.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>إجراء الكاميرا</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>إجراء التعبير</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>محاكي Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط القدرة</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط نبض القلب</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط المقاومة مقابل المقاومة المستهدفة</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط مقاومة Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط وتيرة الدواسات</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط توزيع القدرة</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>موضع مخطط السرعة والميل</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>الموضع الرقمي لهذا المخطط في سجل التمارين. أعد الترتيب باستخدام زري الأعلى والأسفل في خيارات الواجهة العامة.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>البحث عن مستشعر نبض القلب عند البدء</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>خلال أول 5 دقائق بعد اتصال جهاز اللياقة، إذا لم تصل بيانات نبض القلب، يبحث QZ عن مستشعر مرة كل دقيقة: يتصل بحزام النبض المختار بمجرد العثور عليه، أو يقترح مستشعرًا قريبًا إذا لم يتم اختيار حزام. يمكنك النقر على مربع نبض القلب أو رمز Bluetooth في الصفحة الرئيسية للبحث في أي وقت.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
