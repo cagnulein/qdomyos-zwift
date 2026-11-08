@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדר כיצד שיפוע באפליקציה וירטואלית מומר להתנגדות האופניים.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>השתמש במיפוי מותאם אישית כאשר QZ ממיר שיפוע מאפליקציה וירטואלית להתנגדות.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>זוג אחד של שיפוע|התנגדות בכל שורה. QZ מבצע אינטרפולציה בין הנקודות ומגביל ערכים שמחוץ לטווח שהוגדר.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>שם משתמש של חשבון Life Fitness לכניסה לשירות. נשמר מקומית ולעולם אינו נכתב ליומני ניפוי שגיאות.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>סיסמה של חשבון Life Fitness לכניסה לשירות. נשמרת מקומית ולעולם אינה נכתבת ליומני ניפוי שגיאות.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>פעולת מצלמה</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>פעולת הבעה</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>אמולטור Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים הספק</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים דופק</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים התנגדות לעומת התנגדות יעד</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים התנגדות Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים קצב דיווש</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים התפלגות הספק</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>מיקום תרשים מהירות ושיפוע</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>המיקום המספרי של תרשים זה בהיסטוריית האימונים. ניתן לשנות את הסדר עם לחצני למעלה ולמטה באפשרויות ממשק המשתמש הכלליות.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>חפש חיישן דופק בתחילת האימון</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>במהלך 5 הדקות הראשונות לאחר חיבור מכשיר הכושר, אם לא מתקבל דופק, QZ מחפש חיישן דופק פעם בדקה: הוא מתחבר לרצועת החזה שנבחרה מיד כשהיא נמצאת, או מציע חיישן קרוב אם לא נבחרה רצועה. אפשר לחפש בכל עת בלחיצה על אריח הדופק או על סמל Bluetooth במסך הבית.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
