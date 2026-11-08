@@ -277,13 +277,19 @@ ScrollView {
         GroupBox {
             title: qsTr("Preset Speed")
             Layout.fillWidth: true
-            RowLayout {
+            GridLayout {
+                columns: 5
                 anchors.fill: parent
                 PresetShortcutField { text: settings.shortcut_preset_speed_1; settingName: "shortcut_preset_speed_1" }
                 PresetShortcutField { text: settings.shortcut_preset_speed_2; settingName: "shortcut_preset_speed_2" }
                 PresetShortcutField { text: settings.shortcut_preset_speed_3; settingName: "shortcut_preset_speed_3" }
                 PresetShortcutField { text: settings.shortcut_preset_speed_4; settingName: "shortcut_preset_speed_4" }
                 PresetShortcutField { text: settings.shortcut_preset_speed_5; settingName: "shortcut_preset_speed_5" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_6; settingName: "shortcut_preset_speed_6" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_7; settingName: "shortcut_preset_speed_7" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_8; settingName: "shortcut_preset_speed_8" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_9; settingName: "shortcut_preset_speed_9" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_10; settingName: "shortcut_preset_speed_10" }
             }
         }
 
