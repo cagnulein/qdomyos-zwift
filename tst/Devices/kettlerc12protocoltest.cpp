@@ -24,4 +24,21 @@ int main() {
     check(300, 0xfa, 0x00); // existing driver limit
     check(0, 0x00, 0x00);
     check(-1, 0x00, 0x00);
+
+    // Captured authentication read at 0x30 and subsequent write to 0x32.
+    const uint8_t validChallenge[] = {0x3e, 0x7c};
+    const uint8_t changedChallenge[] = {0x3e, 0x7d};
+    assert(KettlerC12Protocol::matchesCapturedChallenge(validChallenge, 2));
+    assert(!KettlerC12Protocol::matchesCapturedChallenge(changedChallenge, 2));
+    assert(!KettlerC12Protocol::matchesCapturedChallenge(validChallenge, 1));
+    const auto handshake = KettlerC12Protocol::capturedHandshakeResponse();
+    assert(handshake.size() == 16);
+    assert(handshake[0] == 0x4e && handshake[1] == 0x0e);
+    assert(handshake[14] == 0x4c && handshake[15] == 0xc3);
+
+    assert(KettlerC12Protocol::encodeResistanceLevel(-1) == 1);
+    assert(KettlerC12Protocol::encodeResistanceLevel(1) == 1);
+    assert(KettlerC12Protocol::encodeResistanceLevel(11) == 11);
+    assert(KettlerC12Protocol::encodeResistanceLevel(20) == 20);
+    assert(KettlerC12Protocol::encodeResistanceLevel(90) == 20);
 }
