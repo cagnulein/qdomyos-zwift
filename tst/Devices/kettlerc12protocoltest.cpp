@@ -50,7 +50,7 @@ int main() {
     assert(handshake[0] == 0x4e && handshake[1] == 0x0e);
     assert(handshake[14] == 0x4c && handshake[15] == 0xc3);
 
-    const char crlfRow[] = "3e7c:4e0e079de0e7ba9474aaab503c5f4cc3\\r";
+    const char crlfRow[] = "3e7c:4e0e079de0e7ba9474aaab503c5f4cc3\r";
     assert(KettlerC12Protocol::parseSecurityRow(crlfRow, sizeof(crlfRow) - 1, 0x3e7c, handshake));
     assert(!KettlerC12Protocol::parseSecurityRow(correctRow, sizeof(correctRow) - 1,
                                                   0x3e7d, handshake));
