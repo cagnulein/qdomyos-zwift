@@ -4023,7 +4023,7 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>A QZ fut</translation>
     </message>
 </context>
 <context>
