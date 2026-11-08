@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum बाइक विकल्प</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>8008 TRS 3 जैसे पुराने Daum एर्गोमीटर के लिए सीरियल पोर्ट। Android पर USB-से-सीरियल अडैप्टर के साथ &apos;usb&apos; इस्तेमाल करें। COM1, COM2 आदि Android पर USB अडैप्टर खोजने के उपनाम हैं, Android पोर्ट के नाम नहीं। Windows पर COM1 या COM3 और Linux/macOS पर सीरियल डिवाइस पथ, जैसे /dev/ttyUSB0, इस्तेमाल करें।</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>प्रतिरोध पोलिंग विलंब:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ द्वारा Daum को प्रतिरोध और पावर अपडेट भेजने की आवृत्ति सीमित करने के लिए झुकाव विलंब सेटिंग का उपयोग करता है। डिफ़ॉल्ट: 0 सेकंड।</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>झुकाव फ़िल्टर (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX वर्कआउट में इस मान से छोटे झुकाव बदलावों को अनदेखा करें। नया झुकाव आदेश तभी भेजें जब पिछली भेजी गई वैल्यू से अंतर निर्धारित सीमा तक पहुँच जाए। डिफ़ॉल्ट: 0 (बंद)।</translation>
     </message>
 </context>
 <context>
