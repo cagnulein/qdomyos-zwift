@@ -29,16 +29,20 @@ int main() {
     // maps every 16-bit index to one 16-byte response.
     const uint8_t capturedChallenge[] = {0x3e, 0x7c};
     const uint8_t differentChallenge[] = {0x3e, 0x7d};
+    const uint8_t reversedChallenge[] = {0x7c, 0x3e};
+    const uint8_t lowestChallenge[] = {0x00, 0x00};
+    const uint8_t highestChallenge[] = {0xff, 0xff};
     const uint8_t shortestChallenge[] = {0x7c};
-    const uint8_t longestValidChallenge[] = {0x00, 0x00, 0x3e, 0x7c};
-    const uint8_t tooLargeChallenge[] = {0x01, 0x00, 0x00};
+    const uint8_t tooLongChallenge[] = {0x00, 0x3e, 0x7c};
     uint16_t index = 0;
 
     assert(KettlerC12Protocol::challengeIndex(capturedChallenge, 2, index) && index == 0x3e7c);
-    assert(KettlerC12Protocol::challengeIndex(shortestChallenge, 1, index) && index == 0x007c);
-    assert(KettlerC12Protocol::challengeIndex(longestValidChallenge, 4, index) && index == 0x3e7c);
+    assert(KettlerC12Protocol::challengeIndex(reversedChallenge, 2, index) && index == 0x7c3e);
+    assert(KettlerC12Protocol::challengeIndex(lowestChallenge, 2, index) && index == 0);
+    assert(KettlerC12Protocol::challengeIndex(highestChallenge, 2, index) && index == 0xffff);
     assert(KettlerC12Protocol::challengeIndex(differentChallenge, 2, index) && index == 0x3e7d);
-    assert(!KettlerC12Protocol::challengeIndex(tooLargeChallenge, 3, index));
+    assert(!KettlerC12Protocol::challengeIndex(shortestChallenge, 1, index));
+    assert(!KettlerC12Protocol::challengeIndex(tooLongChallenge, 3, index));
     assert(!KettlerC12Protocol::challengeIndex(capturedChallenge, 0, index));
     assert(!KettlerC12Protocol::challengeIndex(capturedChallenge, 5, index));
     assert(!KettlerC12Protocol::challengeIndex(nullptr, 2, index));
@@ -59,9 +63,8 @@ int main() {
     assert(!KettlerC12Protocol::parseSecurityRow(invalidHex, sizeof(invalidHex) - 1,
                                                   0x3e7c, handshake));
 
-    assert(KettlerC12Protocol::capturedHandshakeResponse(0x3e7c, handshake));
+    // Fixed-response replay must never be used in place of table lookup.
     assert(handshake[0] == 0x4e && handshake[15] == 0xc3);
-    assert(!KettlerC12Protocol::capturedHandshakeResponse(0x3e7d, handshake));
 
     assert(KettlerC12Protocol::encodeResistanceLevel(-1) == 1);
     assert(KettlerC12Protocol::encodeResistanceLevel(1) == 1);
