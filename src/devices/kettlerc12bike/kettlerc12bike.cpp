@@ -371,8 +371,13 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     lastRefreshCharacteristicChanged = now;
 
     const quint16 handle = characteristic.handle();
-    qDebug() << "characteristicChanged" << characteristic.uuid() << "handle:" << QString::number(handle, 16)
-             << "value:" << newValue.toHex(' ');
+    if (characteristic.uuid() == KETTLER_CHALLENGE_CHAR_UUID ||
+        characteristic.uuid() == KETTLER_HANDSHAKE_CHAR_UUID) {
+        qDebug() << QStringLiteral("Kettler C12 security characteristic notification received");
+    } else {
+        qDebug() << "characteristicChanged" << characteristic.uuid() << "handle:" << QString::number(handle, 16)
+                 << "value:" << newValue.toHex(' ');
+    }
 
     if (characteristic.uuid() == CYCLING_POWER_MEASUREMENT_CHAR_UUID && newValue.length() >= 4) {
         const uint16_t flags = readUInt16LE(newValue, 0);
