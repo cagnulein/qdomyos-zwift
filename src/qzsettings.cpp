@@ -1409,7 +1409,7 @@ const QString QZSettings::default_ui_accent = QStringLiteral("violet");
 const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
 const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
-const uint32_t allSettingsCount = 1053;
+const uint32_t allSettingsCount = 1083;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
