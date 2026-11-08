@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sensor detak jantung ditemukan: %1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sensor detak jantung ditemukan: %1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Hubungkan</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Jangan sekarang</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Jangan tanya lagi</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih sensor detak jantung</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (sensor detak jantung): tidak ada data detak jantung. Pastikan sensor menyiarkan detak jantung.</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mencari sensor detak jantung...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mencari %1 (sensor detak jantung)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (sensor detak jantung) tidak ditemukan. Pastikan sensor menyala dan menyiarkan detak jantung.</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ada sensor detak jantung di sekitar. Pastikan sensor menyala dan menyiarkan detak jantung.</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ sedang berjalan</translation>
     </message>
 </context>
 <context>
