@@ -136,6 +136,7 @@ class wahookickrsnapbike : public bike {
     bool KICKR_SNAP = false;
     
     bool lastCommandErgMode = false;
+    bool lastCommandResistanceMode = false;
 
     volatile int notificationSubscribed = 0;
 

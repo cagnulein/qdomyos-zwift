@@ -33,6 +33,10 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     connect(this, &bluetoothdevice::inclinationChanged, this, &wahookickrsnapbike::inclinationChanged,
             Qt::UniqueConnection);
     QSettings settings;
+    // Start with the current gear so the refresh timer does not send a spurious
+    // resistance command before the KICKR has been unlocked and initialized.
+    lastGearValue = gears();
+    lastGearModifierValue = gearsModifier();
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
 
     // Initialize write timeout timer
@@ -139,6 +143,8 @@ QByteArray wahookickrsnapbike::setResistanceMode(double resistance) {
     r.append(_setResistanceMode);
     r.append((uint8_t)(norm & 0xFF));
     r.append((uint8_t)(norm >> 8 & 0xFF));
+    // A direct resistance command leaves the trainer outside SIM mode.
+    lastCommandResistanceMode = true;
     return r;
 }
 
@@ -155,6 +161,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
     lastCommandErgMode = true;
+    lastCommandResistanceMode = false;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -175,6 +182,9 @@ QByteArray wahookickrsnapbike::setSimMode(double weight, double rollingResistanc
     r.append((uint8_t)(rrcN >> 8 & 0xFF));
     r.append((uint8_t)(wrcN & 0xFF));
     r.append((uint8_t)(wrcN >> 8 & 0xFF));
+    // This command restores SIM mode for both ERG and direct resistance.
+    lastCommandErgMode = false;
+    lastCommandResistanceMode = false;
     return r;
 }
 
@@ -237,6 +247,7 @@ void wahookickrsnapbike::update() {
 
     if (initRequest) {
         lastCommandErgMode = false;
+        lastCommandResistanceMode = false;
         QByteArray a = unlockCommand();
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
@@ -263,6 +274,10 @@ void wahookickrsnapbike::update() {
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
+        // Rebase gear tracking after initialization, rather than treating the
+        // initial value as a user-initiated shift (see #4156).
+        lastGearValue = gears();
+        lastGearModifierValue = gearsModifier();
         initRequest = false;
     } else if (m_control &&
                (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState)
@@ -468,8 +483,14 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
 
-    // Handle async write queue - if we were waiting for a response, process next item
-    if (currentWriteWaitingForResponse && isWriting) {
+    // A cycling-power/FTMS notification is not an acknowledgement of a Wahoo
+    // control command. Only release the queue after a response for the opcode
+    // currently being sent (or after the existing timeout).
+    const QBluetoothUuid wahooControlPoint(QStringLiteral("A026E005-0A7D-4AB3-97FA-F1500F9FEB8B"));
+    const bool matchingControlResponse =
+        writeBuffer && !writeBuffer->isEmpty() && uuid == wahooControlPoint && newValue.size() >= 2 &&
+        (uint8_t)newValue.at(0) == 0x01 && newValue.at(1) == writeBuffer->at(0);
+    if (currentWriteWaitingForResponse && isWriting && matchingControlResponse) {
         // Stop timeout timer
         writeTimeoutTimer->stop();
 
@@ -996,8 +1017,19 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QSettings settings;
     
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
-        if (lastGrade == grade && lastGearValue == gears()) {
+        const bool restoreSimMode = lastCommandErgMode || lastCommandResistanceMode;
+        if (!restoreSimMode && lastGrade == grade && lastGearValue == gears()) {
             return;
+        }
+        if (restoreSimMode) {
+            // ERG (0x42) and direct resistance (0x40) override SIM mode.
+            // Restore SIM (0x43) before grade (0x46), or KICKR Core 2 can reject it.
+            QByteArray sim = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                        0.004, 0.4);
+            uint8_t command[20];
+            memcpy(command, sim.constData(), sim.length());
+            emit debug(QStringLiteral("restoring SIM mode after ERG/resistance"));
+            writeCharacteristic(command, sim.length(), "setSimMode (after ERG/resistance)", false, true);
         }
         lastGrade = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
