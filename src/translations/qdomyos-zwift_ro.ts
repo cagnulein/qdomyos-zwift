@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opțiuni pentru bicicleta Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Port serial utilizat de ergometrele Daum clasice, precum 8008 TRS 3. Pe Android, cu un adaptor USB-serial, folosește &apos;usb&apos;. COM1, COM2 etc. sunt acceptate ca aliasuri pentru căutarea adaptorului USB, dar nu sunt nume de porturi Android. Pe Windows folosește COM1 sau COM3; pe Linux/macOS, calea dispozitivului serial, de exemplu /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Întârziere între interogările rezistenței:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Folosește setarea Întârziere înclinare pentru a limita cât de des trimite QZ actualizări de rezistență și putere către Daum. Implicit: 0 secunde.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtru înclinare (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>În antrenamentele GPX, ignoră modificările de înclinare mai mici decât această valoare și trimite o comandă nouă doar când diferența față de ultima valoare transmisă atinge pragul configurat. Implicit: 0 (dezactivat).</translation>
     </message>
 </context>
 <context>
