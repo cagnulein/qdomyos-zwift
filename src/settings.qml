@@ -2462,7 +2462,12 @@ import AndroidStatusBar 1.0
             property string daum_serialport: ""
             property real trainprogram_inclination_filter: 0.0
             property bool heart_rate_belt_suggest: false
+
             property bool proform_treadmill_sport_6_0: false
+            property bool ui_modern: false
+            property string ui_theme: "graphite"
+            property string ui_accent: "violet"
+            property string ui_theme_mode: "auto"
 
         }
 

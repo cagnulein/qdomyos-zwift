@@ -875,6 +875,14 @@ double lockscreen::systemFontScale() {
     return scaled > 0 ? scaled / body : 1.0;
 }
 
+bool lockscreen::systemDarkMode() {
+    // The screen carries the appearance of the system, not an override of a window
+    if (@available(iOS 13.0, *)) {
+        return UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+    }
+    return true;
+}
+
 void lockscreen::shareFile(const char* path) {
     NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path]];
     dispatch_async(dispatch_get_main_queue(), ^{

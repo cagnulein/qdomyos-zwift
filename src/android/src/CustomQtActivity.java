@@ -62,6 +62,19 @@ public class CustomQtActivity extends QtActivity {
     // TalkBack's double tap on this accessible object: true when QZ pressed it (a Qt button with
     // the space key, anything else with its press or toggle action)
     private static native boolean nativeAccessibleClick(int id);
+    // the configuration changed (night mode among others, uiMode is in configChanges): the modern
+    // look reads the system theme again
+    private static native void onSystemThemeChanged();
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        try {
+            onSystemThemeChanged();
+        } catch (UnsatisfiedLinkError ignored) {
+            // Qt not loaded yet: QML reads the theme when it starts
+        }
+    }
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {

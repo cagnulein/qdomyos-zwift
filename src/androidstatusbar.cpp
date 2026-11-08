@@ -89,6 +89,38 @@ double AndroidStatusBar::systemFontScale() const
 #endif
 }
 
+bool AndroidStatusBar::systemDarkMode() const
+{
+#ifdef Q_OS_ANDROID
+    // The dark theme of the system came with Android 10 (API 29). Before it the night bit is
+    // usually "not night" on phones and gym consoles alike, and following it would turn the page
+    // light, while the look these users know is the dark classic one.
+    if (apiLevel() < 29)
+        return true;
+    QAndroidJniObject context = QtAndroid::androidContext();
+    if (!context.isValid())
+        return true;
+    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QAndroidJniObject configuration = resources.isValid()
+        ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
+        : QAndroidJniObject();
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return true;
+    }
+    if (!configuration.isValid())
+        return true;
+    const jint uiMode = configuration.getField<jint>("uiMode");
+    // Configuration.UI_MODE_NIGHT_MASK = 0x30, UI_MODE_NIGHT_YES = 0x20
+    return (uiMode & 0x30) == 0x20;
+#elif defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return lockscreen::systemDarkMode();
+#else
+    return true;
+#endif
+}
+
 void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop,
                                         int waterfallBottom, int waterfallLeft, int waterfallRight)
 {
@@ -141,6 +173,17 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, job
                                   Q_ARG(int, waterfallTop), Q_ARG(int, waterfallBottom),
                                   Q_ARG(int, waterfallLeft), Q_ARG(int, waterfallRight));
     }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onSystemThemeChanged(JNIEnv *env, jclass clazz)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(clazz);
+    // Queued, as onInsetsChanged: the signal reaches QML on the Qt thread
+    QMutexLocker locker(&instanceMutex);
+    if (AndroidStatusBar::instance())
+        QMetaObject::invokeMethod(AndroidStatusBar::instance(), "systemThemeChanged", Qt::QueuedConnection);
 }
 
 extern "C" JNIEXPORT void JNICALL
