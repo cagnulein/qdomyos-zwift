@@ -4445,14 +4445,16 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Віртуальні передачі Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>Щоб імітувати віртуальні передачі, QZ змінює довжину кола колеса, збережену в тренажері.
-Це значення може залишитися в тренажері після закриття QZ і впливати на його роботу в інших застосунках, доки його не відновлять.
+Allow QZ to change it?
 
-Щоб цього уникнути: Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo, увімкніть «Без протоколу діаметра колеса» (віртуальні передачі тоді працюють через ухил) і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Щоб імітувати віртуальні передачі, QZ змінює довжину кола колеса, збережену в тренажері. Це значення може залишитися в тренажері після закриття QZ і впливати на його роботу в інших застосунках.
+
+Дозволити QZ змінювати це значення?
+
+«Ні»: QZ увімкне «Без протоколу діаметра колеса» (Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo), і віртуальні передачі працюватимуть через ухил. Якщо обрати «Так», це можна згодом скасувати там само: увімкніть цей параметр і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
     </message>
 </context>
 <context>

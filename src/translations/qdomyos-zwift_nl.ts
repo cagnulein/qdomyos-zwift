@@ -4445,14 +4445,16 @@ Wil je voor deze sessie overschakelen naar het klassieke virtuele Bluetooth-appa
         <translation>Virtuele versnellingen van Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>Om virtuele versnellingen te simuleren, wijzigt QZ de wielomtrek die in de trainer is opgeslagen.
-Deze waarde kan in de trainer blijven staan nadat je QZ hebt gesloten en kan de trainer in andere apps beïnvloeden totdat de waarde is hersteld.
+Allow QZ to change it?
 
-Om dit te voorkomen: ga naar Instellingen &gt; Fietsopties &gt; Wahoo-opties, schakel ‘Zonder wieldiameterprotocol’ (virtuele versnellingen werken dan via het hellingspercentage) in en tik, terwijl de trainer verbonden is, op ‘Standaardinstelling van de trainer herstellen’.</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Om virtuele versnellingen te simuleren, wijzigt QZ de wielomtrek die in de trainer is opgeslagen. Deze waarde kan in de trainer blijven staan nadat je QZ hebt gesloten en de trainer in andere apps beïnvloeden.
+
+Mag QZ deze waarde wijzigen?
+
+‘Nee’: QZ schakelt ‘Zonder wieldiameterprotocol’ in (Instellingen &gt; Fietsopties &gt; Wahoo-opties) en virtuele versnellingen werken via het hellingspercentage. Met ‘Ja’ kun je dit later daar ongedaan maken: schakel die optie in en tik, terwijl de trainer verbonden is, op ‘Standaardinstelling van de trainer herstellen’.</translation>
     </message>
 </context>
 <context>

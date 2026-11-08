@@ -4429,14 +4429,16 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
         <translation>Virtuella växlar för Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>För att simulera virtuella växlar ändrar QZ hjulomkretsen som är sparad i din smart trainer.
-Värdet kan ligga kvar i din smart trainer efter att du har stängt QZ och kan påverka den i andra appar tills det återställs.
+Allow QZ to change it?
 
-För att undvika detta går du till Inställningar &gt; Cykelalternativ &gt; Wahoo-alternativ, slår på ”Utan hjuldiameterprotokoll” (virtuella växlar fungerar då via lutningen) och trycker, med din smart trainer ansluten, på ”Återställ standardinställning på smart trainer”.</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>För att simulera virtuella växlar ändrar QZ hjulomkretsen som är sparad i din smart trainer. Värdet kan ligga kvar i din smart trainer efter att du har stängt QZ och påverka den i andra appar.
+
+Vill du tillåta att QZ ändrar värdet?
+
+”Nej”: QZ slår på ”Utan hjuldiameterprotokoll” (Inställningar &gt; Cykelalternativ &gt; Wahoo-alternativ), och virtuella växlar fungerar via lutningen. Med ”Ja” kan du ångra det senare på samma ställe: slå på det alternativet och tryck, med din smart trainer ansluten, på ”Återställ standardinställning på smart trainer”.</translation>
     </message>
 </context>
 <context>

@@ -4461,14 +4461,16 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Wahoo 虚拟变速</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>为模拟虚拟变速，QZ 会更改骑行台中保存的车轮周长。
-关闭 QZ 后，该值可能仍保留在骑行台中，并在恢复之前影响骑行台在其他应用中的表现。
+Allow QZ to change it?
 
-要避免这种情况，请前往 设置 &gt; 自行车选项 &gt; Wahoo 选项，开启“无车轮直径协议”（此后虚拟变速通过坡度实现），然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>为模拟虚拟变速，QZ 会更改骑行台中保存的车轮周长。关闭 QZ 后，该值可能仍保留在骑行台中，并影响骑行台在其他应用中的表现。
+
+是否允许 QZ 更改该值？
+
+“否”：QZ 将开启“无车轮直径协议”（设置 &gt; 自行车选项 &gt; Wahoo 选项），虚拟变速通过坡度实现。选择“是”后，以后可在同一位置撤销：开启该选项，然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
     </message>
 </context>
 <context>

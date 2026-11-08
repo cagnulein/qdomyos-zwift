@@ -1064,21 +1064,28 @@ ApplicationWindow {
         visible: false
     }
 
-    // virtual gears on a Wahoo trainer change a value stored in the trainer: say it once
+    // virtual gears on a Wahoo trainer change a value stored in the trainer: at the first connection
+    // the trainer gets nothing until this is answered (homeform::wahooWheelQuestionPending)
     UiMessageDialog {
         id: popupWahooWheel
         text: qsTr("Wahoo Virtual Gears")
-        informativeText: qsTr("To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.\nThis value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.\n\nTo stop this, go to Settings > Bike Options > Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.")
-        buttons: (MessageDialog.Ok)
-        onOkClicked: this.visible = false
+        informativeText: qsTr("To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.\n\nAllow QZ to change it?\n\nNo: QZ turns on Without Wheel Diameter Protocol (Settings > Bike Options > Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        // the modern card: the text names these buttons, so they are translated as in main.qml
+        yesText: qsTr("Yes")
+        noText: qsTr("No")
+        onYesClicked: rootItem.wahooWheelAnswer(true)
+        onNoClicked: rootItem.wahooWheelAnswer(false)
+        // the back key closes it without an answer, and the trainer would wait until the next start
+        onClosed: if (!answered) Qt.callLater(popupWahooWheel.open)
         visible: false
     }
 
     Connections {
         target: rootItem
         ignoreUnknownSignals: true
-        function onWahooWheelNoticeRequested() {
-            popupWahooWheel.visible = true
+        function onWahooWheelQuestionRequested() {
+            popupWahooWheel.open()
         }
     }
 

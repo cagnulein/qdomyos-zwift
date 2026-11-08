@@ -4453,14 +4453,16 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
         <translation>Marce virtuali Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>Per simulare le marce virtuali, QZ modifica la circonferenza della ruota memorizzata nel rullo.
-Questo valore può rimanere nel rullo dopo la chiusura di QZ e influire sul suo funzionamento in altre app finché non viene ripristinato.
+Allow QZ to change it?
 
-Per evitarlo, vai in Impostazioni &gt; Opzioni bici &gt; Opzioni Wahoo, attiva «Senza Protocollo Diametro Ruota» (le marce virtuali funzioneranno allora tramite la pendenza) e, con il rullo connesso, tocca «Ripristina le impostazioni predefinite del rullo».</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Per simulare le marce virtuali, QZ modifica la circonferenza della ruota memorizzata nel rullo. Questo valore può rimanere nel rullo dopo la chiusura di QZ e influire sul suo funzionamento in altre app.
+
+Consentire a QZ di modificare questo valore?
+
+«No»: QZ attiva «Senza Protocollo Diametro Ruota» (Impostazioni &gt; Opzioni bici &gt; Opzioni Wahoo) e le marce virtuali funzionano tramite la pendenza. Con «Sì» potrai annullarlo più tardi nello stesso punto: attiva quell&apos;opzione e, con il rullo connesso, tocca «Ripristina le impostazioni predefinite del rullo».</translation>
     </message>
 </context>
 <context>

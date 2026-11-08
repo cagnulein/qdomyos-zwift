@@ -6784,15 +6784,32 @@ QString homeform::signal() {
     return QStringLiteral("icons/icons/signal-1.png");
 }
 
-// A Wahoo trainer gets its wheel circumference written at connection: tell the user once. The flag
-// lives only here, not in a QML Settings: writing a property of a Qt.labs.settings copy saves all
-// the properties of that copy, which would bring back the values it read at startup
-void homeform::showWahooWheelNotice() {
+// A Wahoo trainer gets its wheel circumference written at connection: at the first connection the
+// driver holds its init until the user says whether QZ may do it. bluetooth.cpp marks as answered those
+// whose last device already was that trainer (they connected it before the question existed). The flag
+// lives only in QSettings, not in a QML Settings: writing a property of a Qt.labs.settings copy saves
+// all the properties of that copy, which would bring back the values it read at startup
+bool homeform::wahooWheelQuestionPending() {
     QSettings settings;
-    if (settings.value(QZSettings::wahoo_wheel_notice_shown, QZSettings::default_wahoo_wheel_notice_shown).toBool())
-        return;
-    settings.setValue(QZSettings::wahoo_wheel_notice_shown, true);
-    emit wahooWheelNoticeRequested();
+    if (settings.value(QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered)
+            .toBool())
+        return false;
+    if (!m_wahooWheelQuestionShown) {
+        m_wahooWheelQuestionShown = true;
+        emit wahooWheelQuestionRequested();
+    }
+    return true;
+}
+
+void homeform::wahooWheelAnswer(bool writeWheelCircumference) {
+    QSettings settings;
+    if (!writeWheelCircumference)
+        settings.setValue(QZSettings::wahoo_without_wheel_diameter, true);
+    settings.setValue(QZSettings::wahoo_wheel_question_answered, true);
+    qDebug() << QStringLiteral("Wahoo wheel circumference question answered, write:") << writeWheelCircumference;
+    emit wahooWheelAnswered(settings.value(QZSettings::wahoo_without_wheel_diameter,
+                                           QZSettings::default_wahoo_without_wheel_diameter)
+                                .toBool());
 }
 
 void homeform::handleRestoreDefaultWheelDiameter() {

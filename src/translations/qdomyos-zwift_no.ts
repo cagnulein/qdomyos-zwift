@@ -4429,14 +4429,16 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <translation>Virtuelle gir på Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>For å simulere virtuelle gir endrer QZ hjulomkretsen som er lagret i sykkelrullen.
-Verdien kan bli værende i sykkelrullen etter at du lukker QZ, og den kan påvirke sykkelrullen i andre apper til den blir gjenopprettet.
+Allow QZ to change it?
 
-For å unngå dette går du til Innstillinger &gt; Sykkelalternativer &gt; Alternativer for Wahoo, slår på «Uten hjuldiameterprotokoll» (virtuelle gir virker da via stigningen) og trykker på «Gjenopprett standardinnstilling på sykkelrullen» mens sykkelrullen er tilkoblet.</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>For å simulere virtuelle gir endrer QZ hjulomkretsen som er lagret i sykkelrullen. Verdien kan bli værende i sykkelrullen etter at du lukker QZ, og påvirke sykkelrullen i andre apper.
+
+Skal QZ få endre denne verdien?
+
+«Nei»: QZ slår på «Uten hjuldiameterprotokoll» (Innstillinger &gt; Sykkelalternativer &gt; Alternativer for Wahoo), og virtuelle gir virker via stigningen. Med «Ja» kan du angre dette senere samme sted: slå på dette alternativet og trykk på «Gjenopprett standardinnstilling på sykkelrullen» mens sykkelrullen er tilkoblet.</translation>
     </message>
 </context>
 <context>

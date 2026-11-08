@@ -236,6 +236,10 @@ void wahookickrsnapbike::update() {
     bool wahooWithoutWheelDiameter = settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool();
 
     if (initRequest) {
+        if (waitForWheelQuestion(wahooWithoutWheelDiameter)) {
+            return;
+        }
+
         lastCommandErgMode = false;
         QByteArray a = unlockCommand();
         uint8_t b[20];
@@ -254,10 +258,6 @@ void wahookickrsnapbike::update() {
         QThread::msleep(700);
 
         if (!wahooWithoutWheelDiameter) {
-            // the KICKR SNAP rejected this write in the only log we have
-            if (!KICKR_SNAP && homeform::singleton())
-                homeform::singleton()->showWahooWheelNotice();
-
             QByteArray d = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
             uint8_t e[20];
             memcpy(e, d.constData(), d.length());
@@ -995,10 +995,27 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
     }
 }
 
+// First connection: after connecting and subscribing, QZ sends no command to the trainer until the user
+// says whether QZ may write the wheel circumference (No turns on Without Wheel Diameter Protocol). Not
+// asked without the app window (-no-gui, no homeform), nor on the KICKR SNAP: it rejected this write in
+// the only log we have
+bool wahookickrsnapbike::waitForWheelQuestion(bool withoutWheelDiameter) {
+    return initRequest && !withoutWheelDiameter && !KICKR_SNAP && homeform::singleton() &&
+           homeform::singleton()->wahooWheelQuestionPending();
+}
+
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     QSettings settings;
     
+    // a grade from the virtual bike or a workout before the init: it is sent again after the answer,
+    // since lastGrade stays as it was
+    if (waitForWheelQuestion(settings.value(QZSettings::wahoo_without_wheel_diameter,
+                                            QZSettings::default_wahoo_without_wheel_diameter)
+                                 .toBool())) {
+        return;
+    }
+
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
         if (lastGrade == grade && lastGearValue == gears()) {
             return;

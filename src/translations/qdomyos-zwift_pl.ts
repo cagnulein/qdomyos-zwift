@@ -4445,14 +4445,16 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
         <translation>Wirtualne biegi Wahoo</translation>
     </message>
     <message>
-        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer.
-This value may stay in the trainer after you close QZ, and it can affect the trainer in other apps until it is restored.
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
 
-To stop this, go to Settings &gt; Bike Options &gt; Wahoo Options, turn on Without Wheel Diameter Protocol (virtual gears then work through the grade) and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
-        <translation>Aby symulować wirtualne biegi, QZ zmienia obwód koła zapisany w trenażerze.
-Ta wartość może pozostać w trenażerze po zamknięciu QZ i wpływać na jego działanie w innych aplikacjach, dopóki nie zostanie przywrócona.
+Allow QZ to change it?
 
-Aby tego uniknąć, przejdź do Ustawienia &gt; Opcje roweru &gt; Opcje Wahoo, włącz „Protokół bez zmiany średnicy koła” (wirtualne biegi będą wtedy działać przez nachylenie) i przy podłączonym trenażerze dotknij „Przywróć domyślne ustawienia trenażera”.</translation>
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Aby symulować wirtualne biegi, QZ zmienia obwód koła zapisany w trenażerze. Ta wartość może pozostać w trenażerze po zamknięciu QZ i wpływać na jego działanie w innych aplikacjach.
+
+Zezwolić QZ na zmianę tej wartości?
+
+„Nie”: QZ włączy „Protokół bez zmiany średnicy koła” (Ustawienia &gt; Opcje roweru &gt; Opcje Wahoo), a wirtualne biegi będą działać przez nachylenie. Po wybraniu „Tak” możesz to później cofnąć w tym samym miejscu: włącz tę opcję i przy podłączonym trenażerze dotknij „Przywróć domyślne ustawienia trenażera”.</translation>
     </message>
 </context>
 <context>
