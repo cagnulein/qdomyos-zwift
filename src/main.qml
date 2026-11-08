@@ -1431,10 +1431,6 @@ ApplicationWindow {
                     if (stackView.depth > 1) {
                         stackView.pop()
                     }
-                    // Back on the home page: no load and save there, the lock, map, video and chart again
-                    var backOnSettings = stackView.depth > 1 && headerToolbar.settingsPageActive
-                    toolButtonLoadSettings.visible = backOnSettings;
-                    toolButtonSaveSettings.visible = backOnSettings;
                     popupLoadSettings.open();
                  });
                 drawer.close()
@@ -1972,6 +1968,14 @@ ApplicationWindow {
         StackView {
             id: stackView
             initialItem: "Home.qml"
+            // The home page has no load and save buttons, whichever way it is reached (a profile
+            // saved, a settings file loaded): with them shown the lock, map, video and chart hide
+            onDepthChanged: {
+                if (depth === 1) {
+                    toolButtonLoadSettings.visible = false;
+                    toolButtonSaveSettings.visible = false;
+                }
+            }
             anchors.fill: parent
             // Below the toolbar, which hangs over the pages (headerToolbar)
             anchors.topMargin: headerToolbar.contentHeight
