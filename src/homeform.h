@@ -1046,6 +1046,11 @@ public:
     DataObject *preset_speed_3;
     DataObject *preset_speed_4;
     DataObject *preset_speed_5;
+    DataObject *preset_speed_6;
+    DataObject *preset_speed_7;
+    DataObject *preset_speed_8;
+    DataObject *preset_speed_9;
+    DataObject *preset_speed_10;
     DataObject *preset_inclination_1;
     DataObject *preset_inclination_2;
     DataObject *preset_inclination_3;
