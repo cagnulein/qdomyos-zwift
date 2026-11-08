@@ -4440,6 +4440,22 @@ In the next window, allow access to the QZ folder.</source>
         <source>Don&apos;t ask again</source>
         <translation>Больше не спрашивать</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Виртуальные передачи Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Чтобы имитировать виртуальные передачи, QZ меняет длину окружности колеса, сохранённую в тренажёре. Это значение может остаться в тренажёре после закрытия QZ и влиять на его работу в других приложениях.
+
+Разрешить QZ менять это значение?
+
+«Нет»: QZ включит «Без протокола диаметра колеса» (Настройки &gt; Параметры велотренажёра &gt; Параметры Wahoo), и виртуальные передачи будут работать через уклон. Если выбрать «Да», это можно позже отменить там же: включите эту настройку и при подключённом тренажёре нажмите «Восстановить настройки тренажёра по умолчанию».</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

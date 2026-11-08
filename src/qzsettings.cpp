@@ -1364,7 +1364,9 @@ const QString QZSettings::default_ui_accent = QStringLiteral("violet");
 const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
 const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
-const uint32_t allSettingsCount = 1053;
+const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
+
+const uint32_t allSettingsCount = 1054;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2444,6 +2446,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_theme, QZSettings::default_ui_theme},
     {QZSettings::ui_accent, QZSettings::default_ui_accent},
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
+    {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

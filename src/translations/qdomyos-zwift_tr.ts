@@ -4440,6 +4440,22 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
         <source>Please choose a file</source>
         <translation>Bir dosya seçin</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo sanal vitesleri</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Sanal vitesleri simüle etmek için QZ, antrenman cihazınızda kayıtlı tekerlek çevresini değiştirir. Bu değer QZ kapatıldıktan sonra cihazda kalabilir ve cihazın diğer uygulamalardaki davranışını etkileyebilir.
+
+QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
+
+“Hayır”: QZ, “Tekerlek çapı protokolü olmadan” seçeneğini açar (Ayarlar &gt; Bisiklet seçenekleri &gt; Wahoo seçenekleri) ve sanal vitesler eğim üzerinden çalışır. “Evet” derseniz bunu daha sonra aynı yerden geri alabilirsiniz: bu seçeneği açın ve cihaz bağlıyken “Antrenman cihazının varsayılan ayarını geri yükle” düğmesine dokunun.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

@@ -4424,6 +4424,22 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
         <source>Please choose a file</source>
         <translation>Vælg en fil</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuelle gear på Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>For at simulere virtuelle gear ændrer QZ den hjulomkreds, der er gemt i hometraineren. Værdien kan blive i hometraineren, efter at QZ er lukket, og påvirke hometraineren i andre apps.
+
+Må QZ ændre værdien?
+
+»Nej«: QZ slår »Uden hjuldiameterprotokol« til (Indstillinger &gt; Cykelindstillinger &gt; Wahoo-indstillinger), og virtuelle gear virker via stigningen. Med »Ja« kan du senere fortryde det samme sted: slå denne indstilling til, og tryk, mens hometraineren er forbundet, på »Gendan hometrainerens standardindstilling«.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

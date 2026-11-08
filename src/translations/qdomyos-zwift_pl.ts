@@ -4440,6 +4440,22 @@ Przełączyć się na klasyczne urządzenie wirtualne Bluetooth do końca tej se
         <source>Please choose a file</source>
         <translation>Wybierz plik</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wirtualne biegi Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Aby symulować wirtualne biegi, QZ zmienia obwód koła zapisany w trenażerze. Ta wartość może pozostać w trenażerze po zamknięciu QZ i wpływać na jego działanie w innych aplikacjach.
+
+Zezwolić QZ na zmianę tej wartości?
+
+„Nie”: QZ włączy „Protokół bez zmiany średnicy koła” (Ustawienia &gt; Opcje roweru &gt; Opcje Wahoo), a wirtualne biegi będą działać przez nachylenie. Po wybraniu „Tak” możesz to później cofnąć w tym samym miejscu: włącz tę opcję i przy podłączonym trenażerze dotknij „Przywróć domyślne ustawienia trenażera”.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
