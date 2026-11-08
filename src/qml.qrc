@@ -151,6 +151,12 @@
         <file>UiMessageDialog.qml</file>
         <file>UiNotice.qml</file>
         <file>UiPopup.qml</file>
+        <file>UiSpinBox.qml</file>
+        <file>UiSpinInput.qml</file>
+        <file>UiSwitch.qml</file>
+        <file>UiSwitchDelegate.qml</file>
+        <file>UiSwitchIndicator.qml</file>
+        <file>UiTextField.qml</file>
         <file>fonts/MaterialSymbolsQZ.ttf</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
