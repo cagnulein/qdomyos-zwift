@@ -170,15 +170,13 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::CSafeRower)
         ->expectDevice<csaferower>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "")
-        ->skip("Not supported for testing");
+        ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "");
 
     // CSafe Elliptical
     RegisterNewDeviceTestData(DeviceIndex::CSafeElliptical)
         ->expectDevice<csafeelliptical>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "")
-        ->skip("Not supported for testing");
+        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "");
 
     cscBikeName = "CyclingSpeedCadenceBike-";
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
@@ -1119,12 +1117,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf4ip, testIP, "");
 
-    // ProForm Telnet Bike
+    // ProForm Wifi Bike
     RegisterNewDeviceTestData(DeviceIndex::ProFormTelnetBike)
         ->expectDevice<proformtelnetbike>()
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::proformtdf1ip, testIP, "")
-        ->skip("Can take over 60s and device isn't faked.");
+        ->disable("Locks up");
 
     // ProForm Wifi Treadmill
     RegisterNewDeviceTestData(DeviceIndex::ProFormWifiTreadmill)
@@ -1374,7 +1372,6 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceNames({"TACX ", "TACX SMART BIKE","THINK X"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->rejectDeviceName("TACX SATORI", DeviceNameComparison::StartsWithIgnoreCase);
 
-
     // Tacx Neo 2 Bike
     RegisterNewDeviceTestData(DeviceIndex::TacxNeo2Bike)
         ->expectDevice<tacxneo2>()
@@ -1385,6 +1382,7 @@ void DeviceTestDataIndex::Initialize() {
             auto newDevice = QBluetoothDeviceInfo(address, info.DeviceName(), 0);
             auto config = DeviceDiscoveryInfo(info, newDevice);
             configurations.push_back(config);
+
         });
 
     // TechnoGym MyRun Treadmill
@@ -1689,7 +1687,7 @@ void DeviceTestDataIndex::Initialize() {
 
         try {
             auto exclusions = deviceTestData->Exclusions();
-        } catch(const std::domain_error&) {
+        } catch(std::domain_error&) {
             qDebug() << "Device: " << deviceTestData->Name() << " specifies at least 1 exclusion for which no test data was found.";
         }
 
