@@ -5835,6 +5835,10 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Sprache der App:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Diese Einstellung wurde auf den Einstellungsseiten nicht gefunden</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Legt fest, wie die Neigung aus der virtuellen App in den Widerstand des Rads umgerechnet wird.</translation>
     </message>

@@ -6706,6 +6706,10 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Inclinación</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Este ajuste no se encontró en las páginas de ajustes</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Configura cómo la inclinación de la aplicación virtual se convierte en resistencia de la bicicleta.</translation>
     </message>

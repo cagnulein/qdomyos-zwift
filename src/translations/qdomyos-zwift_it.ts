@@ -6890,6 +6890,10 @@ NOTE IMPORTANTI:
         <translation>Lingua dell&apos;app:</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Questa impostazione non è stata trovata nelle pagine delle impostazioni</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Configura come l&apos;inclinazione dell&apos;app virtuale viene convertita nella resistenza della bici.</translation>
     </message>

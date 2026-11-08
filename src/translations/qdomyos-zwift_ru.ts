@@ -6674,6 +6674,10 @@ Please enter it below:</source>
         <translation>Наклон</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Эта настройка не найдена на страницах настроек</translation>
+    </message>
+    <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
         <translation>Настройте, как наклон из виртуального приложения переводится в сопротивление велотренажёра.</translation>
     </message>
