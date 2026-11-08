@@ -1073,8 +1073,19 @@ jobs:
           fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
-            curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle-9.3.1-bin.zip
-            unzip -q /tmp/gradle-9.3.1-bin.zip -d ${{ github.workspace }}
+            # Gradle's distribution endpoint can transiently return 503/504.
+            # Retry and fall back to the official downloads.gradle.org host.
+            GRADLE_ZIP=/tmp/gradle-9.3.1-bin.zip
+            if ! curl --fail --location --retry 5 --retry-all-errors --retry-delay 4 \
+                --connect-timeout 30 --max-time 300 \
+                https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o "$GRADLE_ZIP"; then
+              rm -f "$GRADLE_ZIP"
+              curl --fail --location --retry 5 --retry-all-errors --retry-delay 4 \
+                --connect-timeout 30 --max-time 300 \
+                https://downloads.gradle.org/distributions/gradle-9.3.1-bin.zip -o "$GRADLE_ZIP"
+            fi
+            unzip -tq "$GRADLE_ZIP"
+            unzip -q "$GRADLE_ZIP" -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
 
