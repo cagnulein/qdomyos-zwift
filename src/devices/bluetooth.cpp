@@ -2378,7 +2378,26 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
+            }
+#ifndef Q_OS_IOS
+            else if ((b.name().compare(QStringLiteral("RUN 71"), Qt::CaseInsensitive) == 0 ||
+                      b.name().compare(QStringLiteral("RUN71"), Qt::CaseInsensitive) == 0 ||
+                      b.name().compare(QStringLiteral("RUN 7"), Qt::CaseInsensitive) == 0) &&
+                     !kettlerRun7Treadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerRun7Treadmill = new kettlerrun7treadmill();
+                emit deviceConnected(b);
+                connect(kettlerRun7Treadmill, &bluetoothdevice::connectedAndDiscovered,
+                        this, &bluetooth::connectedAndDiscovered);
+                connect(kettlerRun7Treadmill, &kettlerrun7treadmill::debug, this, &bluetooth::debug);
+                connect(kettlerRun7Treadmill, &kettlerrun7treadmill::disconnected,
+                        this, &bluetooth::restart, Qt::QueuedConnection);
+                kettlerRun7Treadmill->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerRun7Treadmill);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
                        !kettlerC12Bike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -4750,6 +4769,12 @@ void bluetooth::restart() {
         delete kettlerClassicBike;
         kettlerClassicBike = nullptr;
     }
+#ifndef Q_OS_IOS
+    if (kettlerRun7Treadmill) {
+        delete kettlerRun7Treadmill;
+        kettlerRun7Treadmill = nullptr;
+    }
+#endif
     if (toorx) {
 
         delete toorx;
@@ -5258,6 +5283,10 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (kettlerClassicBike) {
         return kettlerClassicBike;
+#ifndef Q_OS_IOS
+    } else if (kettlerRun7Treadmill) {
+        return kettlerRun7Treadmill;
+#endif
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
