@@ -751,6 +751,10 @@ class QZSettings {
     static const QString proform_tdf_jonseed_watt;
     static constexpr bool default_proform_tdf_jonseed_watt = false;
 
+    // Opt-in support for physical front/rear gears on ProForm Wi-Fi consoles.
+    static const QString proform_use_console_gears;
+    static constexpr bool default_proform_use_console_gears = false;
+
     static const QString proform_studio;
     static constexpr bool default_proform_studio = false;
 
