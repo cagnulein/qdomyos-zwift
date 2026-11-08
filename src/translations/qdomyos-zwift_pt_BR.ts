@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configure como a inclinação do aplicativo virtual corresponde à resistência da bicicleta.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Use um mapeamento personalizado quando o QZ converter a inclinação do aplicativo virtual em resistência.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um par inclinação|resistência por linha. O QZ interpola entre os pontos e limita os valores fora do intervalo configurado.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome de usuário da conta Life Fitness usado para entrar no serviço. Armazenado localmente e nunca incluído nos logs de depuração.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Senha da conta Life Fitness usada para entrar no serviço. Armazenada localmente e nunca incluída nos logs de depuração.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Ação da Câmera</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Ação de Emote</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Emulador de Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de potência</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de frequência cardíaca</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de resistência vs. resistência-alvo</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de resistência Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de cadência</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de distribuição de potência</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do gráfico de velocidade e inclinação</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição numérica deste gráfico no Histórico de Treinos. Reordene usando os botões para cima e para baixo nas Opções Gerais da Interface.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Procurar sensor de frequência cardíaca ao iniciar</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nos primeiros 5 minutos após a conexão do equipamento, enquanto não houver dados de frequência cardíaca, o QZ procura um sensor uma vez por minuto: conecta a cinta cardíaca escolhida assim que a encontra ou, se nenhuma foi escolhida, oferece um sensor próximo. Toque no bloco de frequência cardíaca ou no ícone Bluetooth da página inicial para pesquisar a qualquer momento.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
