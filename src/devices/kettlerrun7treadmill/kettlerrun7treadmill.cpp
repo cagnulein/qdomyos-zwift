@@ -42,6 +42,7 @@ void kettlerrun7treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
             this, &kettlerrun7treadmill::serviceScanDone);
     connect(m_control, &QLowEnergyController::disconnected,
             this, &kettlerrun7treadmill::controllerDisconnected);
+    requestTimer.start(15000); // Includes BLE connection and service discovery.
     m_control->connectToDevice();
 }
 
@@ -91,6 +92,7 @@ void kettlerrun7treadmill::serviceStateChanged(QLowEnergyService::ServiceState s
         return;
     }
     emit debug(QStringLiteral("Kettler RUN 7 BLE: enabling notifications"));
+    requestTimer.start(5000); // Do not hang indefinitely if CCCD never completes.
     service->writeDescriptor(cccd, QByteArray::fromHex("0100"));
 }
 
@@ -98,6 +100,7 @@ void kettlerrun7treadmill::descriptorWritten(const QLowEnergyDescriptor &descrip
     if (descriptor.uuid() != QBluetoothUuid::ClientCharacteristicConfiguration ||
         value != QByteArray::fromHex("0100"))
         return;
+    requestTimer.stop();
     emit debug(QStringLiteral("Kettler RUN 7 BLE: notifications enabled, sending IRMP handshake"));
     enqueueRead(Handshake);
     sendNextRequest();
@@ -239,8 +242,11 @@ void kettlerrun7treadmill::handleFrame(const kettlerclassicprotocol::Frame &fram
 }
 
 void kettlerrun7treadmill::requestTimedOut() {
-    if (!requestInFlight)
+    if (!requestInFlight) {
+        if (!ready)
+            fail(QStringLiteral("BLE connection/notification setup timeout"));
         return;
+    }
     emit debug(QStringLiteral("Kettler RUN 7 BLE IRMP timeout id=0x") +
                QString::number(activeFunction, 16));
     requestInFlight = false;
