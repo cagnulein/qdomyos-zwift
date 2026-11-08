@@ -239,30 +239,92 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     qDebug() << newValue.toHex(' ') << bike_type;
 
-    lastPacket = newValue;
-    if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
+
+    // Compact BLE iConsole frames use the 19-byte F0 B2 00 C8 layout.
+    // BLE notifications may contain fragments; reassemble only this frame family.
+    QByteArray packet = newValue;
+    bool compactIConsole = false;
+    if (bike_type == ICONSOLE || bike_type == ICONSOLE_2) {
+        const QByteArray compactHeader = QByteArray::fromHex("f0b200c8");
+        if (newValue.size() == 21) {
+            // Preserve the pre-existing 21-byte iConsole protocol.
+            compactIConsoleBuffer.clear();
+        } else {
+            const bool compactStart =
+                !newValue.isEmpty() && newValue.size() <= 19 &&
+                compactHeader.startsWith(newValue.left(qMin(newValue.size(), 4)));
+            if (compactStart || !compactIConsoleBuffer.isEmpty()) {
+                if (compactStart) {
+                    compactIConsoleBuffer.clear();
+                }
+                compactIConsoleBuffer.append(newValue);
+                if (compactIConsoleBuffer.size() < 19) {
+                    return;
+                }
+
+                packet = compactIConsoleBuffer;
+                compactIConsoleBuffer.clear();
+                if (packet.size() != 19 || !packet.startsWith(compactHeader)) {
+                    emit debug(QStringLiteral("Ignoring malformed compact iConsole packet"));
+                    return;
+                }
+
+                uint8_t checksum = 0;
+                for (int i = 0; i < 18; ++i) {
+                    checksum += static_cast<uint8_t>(packet.at(i));
+                }
+                if (checksum != static_cast<uint8_t>(packet.at(18))) {
+                    emit debug(QStringLiteral("Ignoring compact iConsole packet with invalid checksum"));
+                    return;
+                }
+                compactIConsole = true;
+            }
+        }
+    }
+    lastPacket = packet;
+    if (!compactIConsole && ((packet.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
                                      bike_type != TUNTURI && bike_type != TUNTURI_2 && bike_type != TOORX_SRX_500 &&
                                      bike_type != FAL_SPORTS && bike_type != HAMMER_SPEED_BIKE_S)) ||
-        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08 ||
+        (packet.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08 ||
                                      bike_type == PASYOU || bike_type == HAMMER_SPEED_BIKE_S)) ||
-        (newValue.length() != 20 && newValue.length() != 21 &&
-         (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
+        (packet.length() != 20 && packet.length() != 21 &&
+         (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2)))) {
         return;
     }
 
-    if (bike_type == TOORX_SRX_500 && newValue.length() < 19) {
-        qDebug() << QStringLiteral("ignoring short packet ") << newValue.length();
+    if (bike_type == TOORX_SRX_500 && packet.length() < 19) {
+        qDebug() << QStringLiteral("ignoring short packet ") << packet.length();
         return;
     }
 
-    double cadence = GetCadenceFromPacket(newValue);
+    const auto compactByte = [&packet](int index) -> uint8_t {
+        return static_cast<uint8_t>(packet.at(index));
+    };
+    const double rawCompactCadence = compactIConsole ? (compactByte(8) * 100 + compactByte(9)) : 0;
+    double cadence = compactIConsole
+                         ? (rawCompactCadence *
+                                settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble() +
+                            settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble())
+                         : GetCadenceFromPacket(packet);
+    if (compactIConsole && rawCompactCadence == 0) {
+        cadence = 0;
+    }
     double speed = 0.0;
     double resistance = 0.0;
     double watt = 0.0;
     QTime now = QTime::currentTime();
-    if (bike_type == FYTTER_RI08) {
+    if (compactIConsole) {
+        // Field layout confirmed by the GetFit iConsole+0069 capture:
+        // [4:5] elapsed minutes/seconds; [6:7] speed (tenths of km/h);
+        // [8:9] cadence; [10:11] duplicated cadence; [12:13] distance (0.01 km);
+        // [14:15] calories; [16:17] unused; [18] additive 8-bit checksum.
+        speed = (compactByte(6) * 100 + compactByte(7)) / 10.0;
+        KCal = compactByte(14) * 100 + compactByte(15);
+        // No power or resistance field is present in the captured compact frames.
+        // Estimated watts are assigned after cadence and external HR are updated.
+    } else if (bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
-        watt = GetWattFromPacketFytter(newValue);
+        watt = GetWattFromPacketFytter(packet);
         if (watt)
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                                      settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
@@ -272,8 +334,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                                                             // body weight in kg * 3.5) / 200 ) / 60
     } else if (bike_type == TUNTURI || bike_type == TUNTURI_2 || bike_type == FAL_SPORTS) {
         speed = cadence * 0.37407407407407407407407407407407;
-        resistance = GetResistanceFromPacket(newValue);
-        watt = GetWattFromPacket(newValue);
+        resistance = GetResistanceFromPacket(packet);
+        watt = GetWattFromPacket(packet);
         if (watt)
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                                      settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
@@ -283,11 +345,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                                                                             // body weight in kg * 3.5) / 200 ) / 60
     } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != HAMMER_SPEED_BIKE_S) {
 
-        speed = GetSpeedFromPacket(newValue);
-        resistance = GetResistanceFromPacket(newValue);
-        watt = GetWattFromPacket(newValue);
+        speed = GetSpeedFromPacket(packet);
+        resistance = GetResistanceFromPacket(packet);
+        watt = GetWattFromPacket(packet);
         if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
-            KCal = GetKcalFromPacket(newValue);
+            KCal = GetKcalFromPacket(packet);
         else {
             if (watt)
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
@@ -320,14 +382,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != HAMMER_SPEED_BIKE_S) {
+            if (compactIConsole) {
+                update_hr_from_external();
+            } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != HAMMER_SPEED_BIKE_S) {
 
-                heart = ((uint8_t)(newValue.at(15)) - 1) + ((uint8_t)((newValue.at(14)) - 1) * 100); // #454
+                heart = ((uint8_t)(packet.at(15)) - 1) + ((uint8_t)((packet.at(14)) - 1) * 100); // #454
             } else {
-                heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
+                heart = ((uint8_t)(packet.at(17))) + (((uint8_t)(packet.at(16))) * 83);
             }
-            if (heart == 0.0 ||
-                settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+            if (!compactIConsole && (heart == 0.0 ||
+                settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool())) {
                 update_hr_from_external();
             } else {
                 Heart = heart;
@@ -358,7 +422,9 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
-    if (!firstCharChanged) {
+    if (compactIConsole) {
+        Distance = (compactByte(12) * 100 + compactByte(13)) / 100.0;
+    } else if (!firstCharChanged) {
         Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
     }
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -373,8 +439,15 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
-            .startsWith(QStringLiteral("Disabled")))
+            .startsWith(QStringLiteral("Disabled"))) {
+        if (compactIConsole) {
+            // Reuse QZ's existing HR-calibrated estimate; without HR its fallback
+            // is cadence * 1.2. Watts must be zero when pedalling stops.
+            watt = Cadence.value() > 0 ? wattFromHR(false) : 0;
+            emit debug(QStringLiteral("Compact iConsole estimated watts: ") + QString::number(watt));
+        }
         m_watt = watt;
+    }
 
     double ac = 0.01243107769;
     double bc = 1.145964912;
@@ -384,6 +457,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double br = -5.841344538;
     double cr = 97.62165482;
 
+    if (!compactIConsole) {
     m_pelotonResistance =
         (((sqrt(pow(br, 2.0) -
                 4.0 * ar *
@@ -392,6 +466,9 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
           (2.0 * ar)) *
          settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
         settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    } else {
+        m_pelotonResistance = 0;
+    }
     if (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08) {
         resistance = m_pelotonResistance.value();
     }
@@ -409,7 +486,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
     emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
-               QString::number(GetElapsedFromPacket(newValue)));
+               QString::number(compactIConsole ? (compactByte(4) * 60 + compactByte(5)) : GetElapsedFromPacket(packet)));
     emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current resistance: ") + QString::number(resistance));
@@ -1387,6 +1464,7 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
+        compactIConsoleBuffer.clear();
         connectBackLater();
     }
 }
