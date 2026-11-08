@@ -887,6 +887,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
     }
 
+
+    if(trixter_xdream_bike && !this->trixterXDreambike &&
+            (this->trixterXDreambike = trixterxdreambike::tryCreate(noWriteResistance, noHeartService, false))) {
+        emit deviceConnected(this->trixterXDreambike->bluetoothDevice);
+        connect(this->trixterXDreambike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->signalBluetoothDeviceConnected(this->trixterXDreambike);
+        return;
+    }
+
 #ifdef Q_OS_IOS
     // Schwinn bikes on iOS allows to be connected to several instances, so in this way
     // QZ will remember the address and will try to connect to it
@@ -3412,16 +3424,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(pitpatBike);
-            } else if(trixter_xdream_bike && !this->trixterXDreambike &&
-                      (this->trixterXDreambike = trixterxdreambike::tryCreate(noWriteResistance, noHeartService, false))) {
-                this->setLastBluetoothDevice(b);
-                this->stopDiscovery();
-                emit deviceConnected(this->trixterXDreambike->bluetoothDevice);
-                connect(this->trixterXDreambike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                this->signalBluetoothDeviceConnected(this->trixterXDreambike);
             }
         }
     }
