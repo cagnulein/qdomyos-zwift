@@ -51,85 +51,49 @@ kettlerc12bike::~kettlerc12bike() {
     qDebug() << QStringLiteral("~kettlerc12bike()");
 }
 
-void kettlerc12bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                         bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
-
-    if ((gattCommunicationChannelService &&
-         gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered) ||
-        m_control->state() == QLowEnergyController::UnconnectedState) {
-        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
-        return;
+bool kettlerc12bike::setNativeResistanceLevel(int level) {
+    if (noWriteResistance || !controlReady || !gattCommunicationChannelService ||
+        !gattResistanceCharacteristic.isValid() ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered) {
+        return false;
     }
 
-    if (writeBuffer) {
-        delete writeBuffer;
-    }
-    writeBuffer = new QByteArray((const char *)data, data_len);
-
-    if (gattCommunicationChannelService && gattWriteCharacteristic.isValid()) {
-        const bool canWriteWithoutResponse =
-            (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse);
-        const QLowEnergyService::WriteMode writeMode =
-            canWriteWithoutResponse ? QLowEnergyService::WriteWithoutResponse : QLowEnergyService::WriteWithResponse;
-
-        if (wait_for_response || writeMode == QLowEnergyService::WriteWithResponse) {
-            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop,
-                    &QEventLoop::quit);
-            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-        }
-
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer, writeMode);
-    }
-
-    if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
-    }
-
-    if (timeout.isActive()) {
-        loop.exec();
-
-        if (timeout.isActive() == false) {
-            qDebug() << QStringLiteral(" exit for timeout");
-        }
-    }
+    // Kinomap sends a single native resistance-level byte to 638a1001
+    // (ATT 0x38); watt targets use a different characteristic (ATT 0x42).
+    const uint8_t nativeLevel = KettlerC12Protocol::encodeResistanceLevel(level);
+    const QByteArray payload(1, static_cast<char>(nativeLevel));
+    gattCommunicationChannelService->writeCharacteristic(
+        gattResistanceCharacteristic, payload, QLowEnergyService::WriteWithResponse);
+    qDebug() << QStringLiteral("Kettler C12 native resistance") << nativeLevel
+             << QStringLiteral("->") << payload.toHex(' ');
+    return true;
 }
 
 void kettlerc12bike::btinit() {
-    qDebug() << QStringLiteral("kettlerc12bike::btinit");
+    qDebug() << QStringLiteral("kettlerc12bike::btinit - starting observed Kinomap handshake");
+    initDone = true; // Keep collecting metrics even if authentication is not confirmed.
+    challengeReadPending = false;
+    handshakeWritePending = false;
+    controlReady = false;
+    initialResistanceSent = false;
 
-    // Startup sequence observed in the Kinomap bugreport btsnoop. The longer
-    // app/session metadata packets are intentionally not mirrored here.
-    uint8_t init0[] = {0x00, 0x05, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x00};
-    writeCharacteristic(init0, sizeof(init0), QStringLiteral("kinomap_init0"), false, false);
+    if (noWriteResistance) {
+        qDebug() << QStringLiteral("C12 control disabled by No Write Resistance setting");
+        return;
+    }
 
-    uint8_t init1[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x04, 0x00, 0x00};
-    writeCharacteristic(init1, sizeof(init1), QStringLiteral("kinomap_init1"), false, false);
+    if (!gattCommunicationChannelService || !gattChallengeCharacteristic.isValid() ||
+        !gattHandshakeCharacteristic.isValid() ||
+        !(gattChallengeCharacteristic.properties() & QLowEnergyCharacteristic::Read) ||
+        !(gattHandshakeCharacteristic.properties() & QLowEnergyCharacteristic::Write)) {
+        qDebug() << QStringLiteral("C12 Kinomap handshake characteristics unavailable");
+        return;
+    }
 
-    uint8_t setup0[] = {0x25, 0x00};
-    uint8_t setup1[] = {0x25, 0x01};
-    uint8_t setup2[] = {0x25, 0x02};
-    uint8_t setup3[] = {0x25, 0x03};
-    uint8_t setup4[] = {0x25, 0x04};
-    uint8_t setup5[] = {0x25, 0x05, 0x02, 0x00};
-    writeCharacteristic(setup0, sizeof(setup0), QStringLiteral("kinomap_setup0"), false, false);
-    writeCharacteristic(setup1, sizeof(setup1), QStringLiteral("kinomap_setup1"), false, false);
-    writeCharacteristic(setup2, sizeof(setup2), QStringLiteral("kinomap_setup2"), false, false);
-    writeCharacteristic(setup3, sizeof(setup3), QStringLiteral("kinomap_setup3"), false, false);
-    writeCharacteristic(setup4, sizeof(setup4), QStringLiteral("kinomap_setup4"), false, false);
-    writeCharacteristic(setup5, sizeof(setup5), QStringLiteral("kinomap_setup5"), false, false);
-
-    uint8_t init2[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x01, 0x00, 0x02};
-    uint8_t init3[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x16, 0x00, 0x00};
-    writeCharacteristic(init2, sizeof(init2), QStringLiteral("kinomap_init2"), false, false);
-    writeCharacteristic(init3, sizeof(init3), QStringLiteral("kinomap_init3"), false, false);
-
-    initDone = true;
+    // Kinomap reads 638a1104 (ATT 0x30), then writes an authenticated 16-byte
+    // response to 638a1105 (ATT 0x32) before controlling the bike.
+    challengeReadPending = true;
+    gattCommunicationChannelService->readCharacteristic(gattChallengeCharacteristic);
 }
 
 void kettlerc12bike::forceResistance(resistance_t requestResistance) {
