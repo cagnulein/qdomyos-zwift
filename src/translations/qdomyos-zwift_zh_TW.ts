@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>找到心率感測器：%1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>找到心率感測器：%1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>連線</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>暫時不要</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>不再詢問</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇心率感測器</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1（心率感測器）：沒有心率資料。請確認感測器正在廣播心率資料。</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在搜尋心率感測器...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在搜尋 %1（心率感測器）...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到 %1（心率感測器）。請確認已開啟並正在廣播心率資料。</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>附近找不到心率感測器。請確認裝置已開啟並正在廣播心率資料。</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ 正在執行</translation>
     </message>
 </context>
 <context>
