@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Tùy chọn xe đạp Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cổng nối tiếp dùng cho các máy đo công suất Daum đời cũ như 8008 TRS 3. Trên Android với bộ chuyển USB sang nối tiếp, hãy dùng &apos;usb&apos;. COM1, COM2, v.v. được chấp nhận làm bí danh để tìm bộ chuyển USB, nhưng không phải tên cổng Android. Trên Windows dùng COM1 hoặc COM3; trên Linux/macOS dùng đường dẫn thiết bị nối tiếp, ví dụ /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Độ trễ thăm dò lực cản:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sử dụng cài đặt Độ trễ độ dốc để giới hạn tần suất QZ gửi cập nhật lực cản và công suất tới Daum. Mặc định: 0 giây.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Bộ lọc độ dốc (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>Trong bài tập GPX, bỏ qua thay đổi độ dốc nhỏ hơn giá trị này và chỉ gửi lệnh độ dốc mới khi độ chênh so với giá trị gửi gần nhất đạt ngưỡng đã cấu hình. Mặc định: 0 (tắt).</translation>
     </message>
 </context>
 <context>
