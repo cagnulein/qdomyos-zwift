@@ -53,19 +53,13 @@ class virtualbike : public virtualdevice {
     // FTMS BLE, DIRCON and the iOS bridge: in ERG with no app frame for 2 s the bike's last target is re-sent
     static bool resendLastTargetPower(qint64 lastFrame, qint64 now, bool ergMode);
 
-    // iOS BLE bridge: Swift keeps the app's latest grade and target power, and only the first unread frame
-    struct IosAppCommands {
-        double slope = 0;
-        double crr = 0;
-        double cw = 0;
-        double power = 0;
-    };
-    // Used by bikeProvider() on bikes that support the T.Power release (issue 5316). Each app command is applied
-    // once, as on FTMS BLE and DIRCON, instead of re-sending the latest one every tick by zwift_erg, which the
-    // T.Power +/- also sets: re-sending the app's power there reset the tile's target to 0.
-    static void applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, bike *device, IosAppCommands &applied,
-                                    const QByteArray &frame, double slope, double crr, double cw, double power,
-                                    qint64 lastFrame, qint64 now, bool ergMode);
+    // Used by bikeProvider() on bikes that support the T.Power release (issue 5316). latestFrame is the app's latest
+    // control point command since the previous tick (empty if none), from Swift's getLatestFTMSMessage(): it goes
+    // through writeProcess() once, as on FTMS BLE and DIRCON, instead of re-sending Swift's cached grade or power
+    // every tick by zwift_erg, which the T.Power +/- also sets (re-sending the app's power reset the tile's target
+    // to 0), and a cached value can never be replayed over a newer command of another kind.
+    static void applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, bike *device,
+                                    const QByteArray &latestFrame, qint64 lastFrame, qint64 now);
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -141,9 +135,9 @@ class virtualbike : public virtualdevice {
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
+    bool iosAppConnected = false;
 #endif
-    IosAppCommands iosAppCommands;
-
+    
     // Struct to hold varint decoding result
     struct VarintResult {
        qint64 value;
@@ -162,6 +156,7 @@ class virtualbike : public virtualdevice {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();
     void reconnect();
+    void appClientDisconnected();
     void error(QLowEnergyController::Error newError);
 };
 

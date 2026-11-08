@@ -766,6 +766,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
+    QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::appClientDisconnected);
     QObject::connect(
         leController,
         static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
@@ -803,6 +804,7 @@ void virtualbike::attachDirconManager(DirconManager *manager) {
             SLOT(dirconFtmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    connect(dirconManager, &DirconManager::clientDisconnected, this, &virtualbike::appClientDisconnected);
 }
 
 DirconManager *virtualbike::detachDirconManager() {
@@ -1822,6 +1824,12 @@ void virtualbike::writeCharacteristic(QLowEnergyService *service, const QLowEner
     }
 }
 
+void virtualbike::appClientDisconnected() {
+    if (Bike->deviceType() == BIKE) {
+        ((bike *)Bike)->forgetAppCommand();
+    }
+}
+
 void virtualbike::reconnect() {
 
     QSettings settings;
@@ -1932,27 +1940,14 @@ bool virtualbike::resendLastTargetPower(qint64 lastFrame, qint64 now, bool ergMo
 }
 
 void virtualbike::applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, bike *device,
-                                      IosAppCommands &applied, const QByteArray &frame, double slope, double crr,
-                                      double cw, double power, qint64 lastFrame, qint64 now, bool ergMode) {
-    const int cmd = frame.isEmpty() ? -1 : (uint8_t)frame.at(0);
-    bool slopeCommand = cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS;
-    bool powerCommand = cmd == FTMS_SET_TARGET_POWER;
-    if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL && frame.size() > 1) {
-        writeP->changeResistanceLevel(frame.at(1));
-    } else if (!slopeCommand && !powerCommand) {
-        // a command that arrived behind an unread frame only shows up in Swift's latest values
-        powerCommand = power != applied.power;
-        slopeCommand = !powerCommand && (slope != applied.slope || crr != applied.crr || cw != applied.cw);
+                                      const QByteArray &latestFrame, qint64 lastFrame, qint64 now) {
+    if (!latestFrame.isEmpty()) {
+        // the same path as FTMS over BLE on Android and over DIRCON, zwift_erg included
+        QByteArray reply;
+        writeP->writeProcess(0x2AD9, latestFrame, reply);
     }
-    if (powerCommand) {
-        applied.power = power;
-        writeP->changePowerFromApp(power);
-    } else if (slopeCommand) {
-        applied.slope = slope;
-        applied.crr = crr;
-        applied.cw = cw;
-        writeP->changeSlope(slope, crr, cw);
-    }
+    QSettings settings;
+    const bool ergMode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     if (resendLastTargetPower(lastFrame, now, ergMode)) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP->changePower(device->lastRequestedPower().value());
@@ -1984,9 +1979,20 @@ void virtualbike::bikeProvider() {
 #ifndef IO_UNDER_QT
     if (h) {
         // really connected to a device
-        if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
+        const bool iosConnected = h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
                                       (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
-                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime(), ((bike*)Bike)->gears(), Bike->calories().value(), Bike->odometer() * 1000.0, static_cast<uint8_t>(Bike->deviceType()))) {
+                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime(), ((bike*)Bike)->gears(), Bike->calories().value(), Bike->odometer() * 1000.0, static_cast<uint8_t>(Bike->deviceType()));
+        if (iosAppConnected && !iosConnected) {
+            appClientDisconnected();
+            if (Bike->deviceType() == BIKE && ((bike *)Bike)->targetPowerReleaseSupported()) {
+                // a command the leaving app wrote before this tick must not reach the next app
+                uint8_t stale[255];
+                h->virtualbike_getLastFTMSMessage(stale);
+                h->virtualbike_getLatestFTMSMessage(stale);
+            }
+        }
+        iosAppConnected = iosConnected;
+        if (iosConnected) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
 
             uint8_t ftms_message[255];
@@ -2010,11 +2016,11 @@ void virtualbike::bikeProvider() {
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
             if (lastFTMSFrameReceived > 0 && Bike->deviceType() == BIKE &&
                 ((bike *)Bike)->targetPowerReleaseSupported()) {
-                applyIosAppCommands(writeP2AD9, (bike *)Bike, iosAppCommands,
-                                    ret > 0 ? QByteArray((const char *)ftms_message, ret) : QByteArray(),
-                                    h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
-                                    h->virtualbike_getCurrentCW(), h->virtualbike_getPowerRequested(),
-                                    lastFTMSFrameReceived, QDateTime::currentMSecsSinceEpoch(), erg_mode);
+                uint8_t latest_message[255];
+                int latest = h->virtualbike_getLatestFTMSMessage(latest_message);
+                applyIosAppCommands(writeP2AD9, (bike *)Bike,
+                                    latest > 0 ? QByteArray((const char *)latest_message, latest) : QByteArray(),
+                                    lastFTMSFrameReceived, QDateTime::currentMSecsSinceEpoch());
             } else if (lastFTMSFrameReceived > 0) {
                 if (!erg_mode)
                     writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),

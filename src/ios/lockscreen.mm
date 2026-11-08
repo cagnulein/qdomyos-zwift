@@ -554,6 +554,18 @@ int lockscreen::virtualbike_getLastFTMSMessage(unsigned char* message) {
     return 0;
 }
 
+int lockscreen::virtualbike_getLatestFTMSMessage(unsigned char* message) {
+    if(message) {
+        if(_virtualbike_zwift != nil) {
+            NSData* data = [_virtualbike_zwift getLatestFTMSMessage];
+            [data getBytes:message length:data.length];
+            return (int)data.length;
+        }
+        return 0;
+    }
+    return 0;
+}
+
 int lockscreen::virtualrower_getLastFTMSMessage(unsigned char* message) {
     if(message) {
         if(_virtualrower != nil) {

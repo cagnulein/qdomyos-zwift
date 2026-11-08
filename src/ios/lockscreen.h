@@ -43,6 +43,7 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance, unsigned char deviceType);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
+    int virtualbike_getLatestFTMSMessage(unsigned char *message);
 
     // virtualrower
     void virtualrower_ios();

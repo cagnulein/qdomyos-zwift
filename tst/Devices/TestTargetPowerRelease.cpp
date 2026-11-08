@@ -57,28 +57,35 @@ class TargetPowerReleaseTest : public ::testing::Test {
     bool ergMode() { return settings.qsettings.value(QZSettings::zwift_erg, false).toBool(); }
 
     // what the same command does with no override, on a fresh bike
+    // (writeProcess() sets zwift_erg in the shared settings: kept as it was, so it doesn't hide the checks around)
     resistance_t referenceResistance(const char *hex) {
+        const QVariant ergBefore = settings.qsettings.value(QZSettings::zwift_erg);
         ReleaseTestBike reference;
         CharacteristicWriteProcessor2AD9 referenceProcessor(1, 0, &reference, nullptr);
         QByteArray reply;
         referenceProcessor.writeProcess(0x2AD9, QByteArray::fromHex(hex), reply);
+        if (ergBefore.isValid()) {
+            settings.qsettings.setValue(QZSettings::zwift_erg, ergBefore);
+        } else {
+            settings.qsettings.remove(QZSettings::zwift_erg);
+        }
         return reference.rawResistance();
     }
 
-    // one bikeProvider() tick of the iOS bridge: the frame sets zwift_erg as bikeProvider() does
-    virtualbike::IosAppCommands iosApplied;
-    void iosTick(const char *hex, double slope, double crr, double cw, double power, qint64 lastFrame, qint64 now) {
-        const QByteArray frame = QByteArray::fromHex(hex);
-        if (!frame.isEmpty()) {
-            if (frame.at(0) == FTMS_SET_TARGET_POWER) {
+    // one bikeProvider() tick of the iOS bridge. Swift hands over the first frame written since the previous tick
+    // (getLastFTMSMessage(), it sets zwift_erg in bikeProvider()) and the latest one (getLatestFTMSMessage());
+    // with a single write in the tick they are the same frame
+    void iosTick(const char *firstUnreadHex, const char *latestHex, qint64 lastFrame, qint64 now) {
+        const QByteArray first = QByteArray::fromHex(firstUnreadHex);
+        if (!first.isEmpty()) {
+            if (first.at(0) == FTMS_SET_TARGET_POWER) {
                 settings.qsettings.setValue(QZSettings::zwift_erg, true);
-            } else if (frame.at(0) == FTMS_SET_TARGET_INCLINATION || frame.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
-                       frame.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            } else if (first.at(0) == FTMS_SET_TARGET_INCLINATION || first.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                       first.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
                 settings.qsettings.setValue(QZSettings::zwift_erg, false);
             }
         }
-        virtualbike::applyIosAppCommands(&processor, &device, iosApplied, frame, slope, crr, cw, power, lastFrame,
-                                         now, ergMode());
+        virtualbike::applyIosAppCommands(&processor, &device, QByteArray::fromHex(latestHex), lastFrame, now);
     }
 };
 } // namespace
@@ -269,26 +276,26 @@ TEST_F(TargetPowerReleaseTest, ZwiftHubGradeAndErg) {
 
 TEST_F(TargetPowerReleaseTest, IosBridgeKeepsTileTargetLikeAndroid) {
     const qint64 now = 100000;
-    iosTick(kGrade5, 500, 40, 51, 0, now, now);
+    iosTick(kGrade5, kGrade5, now, now);
     EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade5));
 
     // "+" sets zwift_erg; the old bridge then re-sent the app's power (0 here) and the loop stopped
     tilePlus(250);
-    iosTick("", 500, 40, 51, 0, now, now + 1000);
+    iosTick("", "", now, now + 1000);
     EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 250);
     EXPECT_EQ(device.rawResistance(), 25);
 
     // no app frame for 2 s: the bike's own target is re-sent, as on FTMS BLE and DIRCON
-    iosTick("", 500, 40, 51, 0, now, now + 3000);
+    iosTick("", "", now, now + 3000);
     EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 250);
 }
 
 TEST_F(TargetPowerReleaseTest, IosBridgeKeepsAppGradeAndReturnRestoresIt) {
     const qint64 now = 100000;
-    iosTick(kGrade5, 500, 40, 51, 0, now, now);
+    iosTick(kGrade5, kGrade5, now, now);
     tilePlus(250);
 
-    iosTick(kGrade10, 1000, 40, 51, 0, now + 1000, now + 1000);
+    iosTick(kGrade10, kGrade10, now + 1000, now + 1000);
     EXPECT_EQ(device.rawResistance(), 25);
     EXPECT_FALSE(ergMode());
 
@@ -297,35 +304,110 @@ TEST_F(TargetPowerReleaseTest, IosBridgeKeepsAppGradeAndReturnRestoresIt) {
 
     // the bridge doesn't re-send the same grade every tick
     device.changeResistance(3);
-    iosTick("", 1000, 40, 51, 0, now + 1000, now + 2000);
+    iosTick("", "", now + 1000, now + 2000);
     EXPECT_EQ(device.rawResistance(), 3);
 }
 
 TEST_F(TargetPowerReleaseTest, IosBridgeAppliesErgOnceLikeAndroid) {
     const qint64 now = 100000;
-    iosTick(kPower200, 0, 0, 0, 200, now, now);
+    iosTick(kPower200, kPower200, now, now);
     EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 200);
 
     tilePlus(250);
-    iosTick("", 0, 0, 0, 200, now, now + 1000);
+    iosTick("", "", now, now + 1000);
     EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 250);
 
-    iosTick(kPower150, 0, 0, 0, 150, now + 2000, now + 2000);
+    iosTick(kPower150, kPower150, now + 2000, now + 2000);
     EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 150);
 }
 
 TEST_F(TargetPowerReleaseTest, IosBridgeAppliesCommandLostBehindAnUnreadFrame) {
     const qint64 now = 100000;
-    // Swift kept the earlier "request control" frame; the grade only shows in its latest values
-    iosTick("00", 500, 40, 51, 0, now, now);
+    // Swift kept the earlier "request control" frame; the grade written after it is the latest one
+    iosTick("00", kGrade5, now, now);
     EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade5));
 }
 
 TEST_F(TargetPowerReleaseTest, IosBridgeResistanceLevel) {
     const qint64 now = 100000;
     tilePlus(250);
-    iosTick(kLevel5, 0, 0, 0, 0, now, now);
+    iosTick(kLevel5, kLevel5, now, now);
     EXPECT_EQ(device.rawResistance(), 25);
     EXPECT_TRUE(device.releaseTargetPowerToApp());
     EXPECT_EQ(device.rawResistance(), 5);
+}
+
+// Review of PR 5648: several commands of different kinds within one tick must never end with an older one applied
+// over the latest, neither in that tick nor in the following ones.
+TEST_F(TargetPowerReleaseTest, IosBridgeGradeErgGradeInOneTickEndsOnLatestGrade) {
+    const qint64 now = 100000;
+    // grade 5 (first unread), ERG 200, grade 10 (latest) written before the tick
+    iosTick(kGrade5, kGrade10, now, now);
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade10));
+    EXPECT_FALSE(ergMode());
+
+    // the following ticks don't bring ERG 200 back, nor does the 2 s re-send
+    iosTick("", "", now, now + 1000);
+    iosTick("", "", now, now + 3000);
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade10));
+    EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 0);
+
+    // and Return to app restores that grade, not the ERG target
+    tilePlus(250);
+    EXPECT_TRUE(device.releaseTargetPowerToApp());
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade10));
+}
+
+TEST_F(TargetPowerReleaseTest, IosBridgeErgThenGradeInOneTickLeavesErgMode) {
+    const qint64 now = 100000;
+    // the first unread ERG frame sets zwift_erg in bikeProvider(); the latest command is a grade
+    iosTick(kPower200, kGrade5, now, now);
+    EXPECT_FALSE(ergMode());
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade5));
+
+    // no app frame for 2 s: nothing is re-sent over the app's grade
+    iosTick("", "", now, now + 3000);
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade5));
+}
+
+TEST_F(TargetPowerReleaseTest, IosBridgeSameErgTargetAfterGradeIsApplied) {
+    const qint64 now = 100000;
+    iosTick(kPower200, kPower200, now, now);
+    iosTick(kGrade5, kGrade5, now + 1000, now + 1000);
+    EXPECT_FALSE(ergMode());
+
+    // grade 10 (first unread), then ERG 200 again - the same value as before
+    iosTick(kGrade10, kPower200, now + 2000, now + 2000);
+    EXPECT_TRUE(ergMode());
+    EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 200);
+    EXPECT_EQ(device.rawResistance(), 20);
+}
+
+// Review of PR 5648: the stored app command doesn't survive the app's disconnection, so another app connecting
+// next can't restore it; the app that comes back sends its own again.
+TEST_F(TargetPowerReleaseTest, AppDisconnectionDropsStoredCommand) {
+    write(kGrade5);
+    tilePlus(250);
+    EXPECT_TRUE(device.targetPowerReleaseAvailable());
+
+    device.forgetAppCommand(); // virtualbike::appClientDisconnected(): BLE, DIRCON or the iOS bridge
+    EXPECT_FALSE(device.targetPowerReleaseAvailable());
+    EXPECT_FALSE(device.releaseTargetPowerToApp());
+    EXPECT_EQ(device.rawResistance(), 25);
+
+    // the app that connects next is followed as soon as it sends a command
+    tilePlus(250);
+    write(kGrade10);
+    EXPECT_EQ(device.rawResistance(), 25);
+    EXPECT_TRUE(device.targetPowerReleaseAvailable());
+    EXPECT_TRUE(device.releaseTargetPowerToApp());
+    EXPECT_EQ(device.rawResistance(), referenceResistance(kGrade10));
+}
+
+TEST_F(TargetPowerReleaseTest, AppDisconnectionDropsStoredErgTarget) {
+    write(kPower150);
+    tilePlus(300);
+    device.forgetAppCommand();
+    EXPECT_FALSE(device.releaseTargetPowerToApp());
+    EXPECT_DOUBLE_EQ(device.lastRequestedPower().value(), 300);
 }

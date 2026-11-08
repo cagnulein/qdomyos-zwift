@@ -78,6 +78,9 @@ class bike : public bluetoothdevice {
     void rememberAppPower(int32_t power);
     // stops the override and re-applies the app's last command; false if the app sent none
     bool releaseTargetPowerToApp();
+    // the app's client disconnected (BLE, DIRCON, iOS bridge): drops the stored command, so another app that
+    // connects next can't get it back with Return to app; the app that comes back is followed from its next command
+    void forgetAppCommand();
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;

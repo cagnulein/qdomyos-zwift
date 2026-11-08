@@ -97,6 +97,13 @@ bool bike::releaseTargetPowerToApp() {
     return false;
 }
 
+void bike::forgetAppCommand() {
+    if (m_lastAppCommand != AppCommand::None) {
+        qDebug() << QStringLiteral("app disconnected: stored app command dropped");
+    }
+    m_lastAppCommand = AppCommand::None;
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {
