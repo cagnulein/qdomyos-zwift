@@ -8303,27 +8303,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum 单车选项</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>用于 8008 TRS 3 等经典 Daum 功率车的串口。Android 使用 USB 转串口适配器时请输入 &apos;usb&apos;。Android 也接受 COM1、COM2 等作为搜索 USB 适配器的别名，但它们并非 Android 的串口名称。Windows 使用 COM1 或 COM3；Linux/macOS 使用串口设备路径，例如 /dev/ttyUSB0。</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>阻力轮询延迟：</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用“坡度延迟”设置限制 QZ 向 Daum 发送阻力和功率更新的频率。默认：0 秒。</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>坡度过滤阈值（%）：</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>在 GPX 训练中，忽略小于此值的坡度变化。只有与上次发送的数值之差达到设置的阈值时，才发送新的坡度指令。默认：0（禁用）。</translation>
     </message>
 </context>
 <context>
