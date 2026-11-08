@@ -23,6 +23,7 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 
@@ -47,7 +48,7 @@ class kettlerc12bike : public bike {
                              bool wait_for_response = false);
     void btinit();
     void forceResistance(resistance_t requestResistance);
-    void setTargetPower(uint16_t watts);
+    bool setTargetPower(uint16_t watts);
     void sendPoll();
     void startDiscover();
     uint16_t watts() override;
@@ -61,6 +62,7 @@ class kettlerc12bike : public bike {
 
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattHandshakeCharacteristic;
+    QLowEnergyCharacteristic gattTargetPowerCharacteristic; // ATT 0x0042 in Tom's Kinomap capture
     QLowEnergyCharacteristic gattNotify0x0034;
     QLowEnergyCharacteristic gattNotify0x003e;            // Power notifications
     QLowEnergyCharacteristic gattNotify0x0048;            // Speed notifications
@@ -75,7 +77,9 @@ class kettlerc12bike : public bike {
     double bikeResistanceGain = 1.0;
 
     uint8_t sec1Update = 0;
-    uint8_t kettlerCommandSequence = 0x04;
+    bool targetPowerActive = false;
+    uint16_t targetPowerWatts = 0;
+    QElapsedTimer lastTargetPowerWrite;
     uint8_t counterPoll = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
