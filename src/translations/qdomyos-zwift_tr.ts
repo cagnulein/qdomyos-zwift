@@ -8243,27 +8243,27 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum Bisiklet Seçenekleri</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>8008 TRS 3 gibi klasik Daum ergometreleri için kullanılan seri bağlantı noktası. Android&apos;de USB-seri adaptörü ile &apos;usb&apos; kullanın. COM1, COM2 vb. Android&apos;de USB adaptörünü taramak için takma ad olarak kabul edilir ancak Android bağlantı noktası adları değildir. Windows&apos;ta COM1 veya COM3; Linux/macOS&apos;te /dev/ttyUSB0 gibi seri aygıt yolu kullanın.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Direnç sorgulama gecikmesi:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>QZ&apos;nin Daum&apos;a direnç ve güç güncellemelerini gönderme sıklığını sınırlamak için Eğim Gecikmesi ayarını kullanır. Varsayılan: 0 saniye.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğim Filtresi (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX antrenmanlarında bu değerden küçük eğim değişikliklerini yok sayar ve yalnızca son gönderilen değere göre fark ayarlanan eşiğe ulaştığında yeni eğim komutu gönderir. Varsayılan: 0 (devre dışı).</translation>
     </message>
 </context>
 <context>
