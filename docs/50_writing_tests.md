@@ -105,7 +105,7 @@ for this you can specify
 	->acceptDeviceName("BGYM",DeviceNameComparison::StartsWithIgnoreCase, 8)
 	... 
 ```
-to specify that the name should start with "BGYM" (case insensitively) and be 8 characters wrong, instructing the test framework to also generate tests against invalid lengths.
+to specify that the name should start with "BGYM" (ignoring case) and be 8 characters long, instructing the test framework to also generate tests against invalid lengths.
 
 ### Configuration Settings
 
