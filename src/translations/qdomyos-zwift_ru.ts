@@ -1219,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Связаться со службой поддержки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Подготовить письмо в поддержку с диагностическими данными</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Устройство не подключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Скорость и мощность равны нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Поддержка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Скрыть клавиатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрыть запрос в поддержку</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишите, что не работает. QZ добавит сведения об устройстве и приложении.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишите проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Описание проблемы</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Прикрепить журнал отладки, если он доступен</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перед отправкой вы можете проверить или изменить письмо. Оно не отправляется автоматически.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Открыть почту</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -4628,7 +4691,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>Открыть</translation>
+        <translation type="vanished">Открыть</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -8052,7 +8115,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Сейчас скрыта на своей странице – меняйте её здесь</translation>
+        <translation type="vanished">Сейчас скрыта на своей странице – меняйте её здесь</translation>
     </message>
     <message>
         <source>On</source>
@@ -8181,6 +8244,30 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
         <translation>В первые 5 минут после подключения тренажёра, пока пульса нет, QZ раз в минуту ищет пульсометр: выбранный подключает, как только найдёт, а если пульсометр не выбран, предлагает найденный рядом. Нажатие на плитку пульса или значок Bluetooth на главной запускает поиск в любой момент.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Параметры велосипеда Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Последовательный порт для классических велоэргометров Daum, например 8008 TRS 3. На Android с переходником USB–последовательный порт укажите &apos;usb&apos;. COM1, COM2 и т. д. принимаются как псевдонимы для поиска USB-адаптера, но не являются именами портов Android. В Windows используйте COM1 или COM3, в Linux/macOS — путь к последовательному устройству, например /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Задержка опроса сопротивления:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Использует настройку задержки наклона, чтобы ограничить частоту отправки обновлений сопротивления и мощности на Daum. По умолчанию: 0 секунд.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Фильтр наклона (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>В тренировках GPX изменения наклона меньше указанного значения игнорируются. Новая команда отправляется только тогда, когда разница с последним отправленным значением достигает заданного порога. По умолчанию: 0 (отключено).</translation>
     </message>
 </context>
 <context>
@@ -9351,69 +9438,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation>Макс. Вт/кг</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Связаться со службой поддержки QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Подготовить письмо в поддержку с диагностическими данными</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Устройство не подключено</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Скорость и мощность равны нулю</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Поддержка QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Готово</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Скрыть клавиатуру</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Закрыть запрос в поддержку</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Опишите, что не работает. QZ добавит сведения об устройстве и приложении.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Опишите проблему...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Описание проблемы</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Прикрепить журнал отладки, если он доступен</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Перед отправкой вы можете проверить или изменить письмо. Оно не отправляется автоматически.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Открыть почту</translation>
     </message>
 </context>
 </TS>

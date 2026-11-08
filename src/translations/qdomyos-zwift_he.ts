@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>נמצא חיישן דופק: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>נמצאו חיישני דופק: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>התחבר</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>בחר</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>לא עכשיו</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>אל תשאל שוב</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>בחר חיישן דופק</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (חיישן דופק): אין נתוני דופק. ודא שהחיישן משדר נתוני דופק.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>מחפש חיישני דופק...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>מחפש את %1 (חיישן דופק)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (חיישן דופק) לא נמצא. ודא שהוא מופעל ומשדר נתוני דופק.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>לא נמצא חיישן דופק בקרבת מקום. ודא שהוא מופעל ומשדר נתוני דופק.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ביטול</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>יצירת קשר עם התמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>הכנת הודעת תמיכה עם פרטי אבחון</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>לא מחובר מכשיר</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>המהירות וההספק הם אפס</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>תמיכה של QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>סיום</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>הסתרת המקלדת</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>סגירת בקשת התמיכה</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>ספרו לנו מה לא עובד. QZ תוסיף פרטים על המכשיר והאפליקציה שלכם.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>תארו את הבעיה...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>תיאור הבעיה</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>צירוף יומן ניפוי שגיאות אם הוא זמין</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>אפשר לבדוק או לערוך את ההודעה לפני השליחה. שום דבר לא נשלח אוטומטית.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ביטול</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>פתיחת הדוא״ל</translation>
     </message>
 </context>
 <context>
@@ -1308,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ביטול</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -3890,6 +4004,11 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>לא ניתן לפתוח אפליקציית דוא״ל</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ פועל</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4500,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5772,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ביטול</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7320,10 +7435,6 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7954,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>הגדר כיצד שיפוע באפליקציה וירטואלית מומר להתנגדות האופניים.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>השתמש במיפוי מותאם אישית כאשר QZ ממיר שיפוע מאפליקציה וירטואלית להתנגדות.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>זוג אחד של שיפוע|התנגדות בכל שורה. QZ מבצע אינטרפולציה בין הנקודות ומגביל ערכים שמחוץ לטווח שהוגדר.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>שם משתמש של חשבון Life Fitness לכניסה לשירות. נשמר מקומית ולעולם אינו נכתב ליומני ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>סיסמה של חשבון Life Fitness לכניסה לשירות. נשמרת מקומית ולעולם אינה נכתבת ליומני ניפוי שגיאות.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>פעולת מצלמה</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>פעולת הבעה</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>אמולטור Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>מיקום תרשים הספק</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>מיקום תרשים דופק</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>מיקום תרשים התנגדות לעומת התנגדות יעד</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>מיקום תרשים התנגדות Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>מיקום תרשים קצב דיווש</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>מיקום תרשים התפלגות הספק</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>מיקום תרשים מהירות ושיפוע</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>המיקום המספרי של תרשים זה בהיסטוריית האימונים. ניתן לשנות את הסדר עם לחצני למעלה ולמטה באפשרויות ממשק המשתמש הכלליות.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>חפש חיישן דופק בתחילת האימון</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>במהלך 5 הדקות הראשונות לאחר חיבור מכשיר הכושר, אם לא מתקבל דופק, QZ מחפש חיישן דופק פעם בדקה: הוא מתחבר לרצועת החזה שנבחרה מיד כשהיא נמצאת, או מציע חיישן קרוב אם לא נבחרה רצועה. אפשר לחפש בכל עת בלחיצה על אריח הדופק או על סמל Bluetooth במסך הבית.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>אפשרויות אופני Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>יציאה טורית עבור ארגומטרים קלאסיים של Daum, כגון 8008 TRS 3. ב-Android עם מתאם USB לטורי יש להזין &apos;usb&apos;. הערכים COM1, COM2 וכו&apos; מתקבלים ככינויים לחיפוש מתאם ה-USB, אך אינם שמות יציאות של Android. ב-Windows יש להשתמש ב-COM1 או ב-COM3; ב-Linux/macOS בנתיב ההתקן הטורי, למשל /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>השהיה בין בדיקות התנגדות:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>משתמש בהגדרת השהיית שיפוע כדי להגביל את תדירות שליחת עדכוני ההתנגדות וההספק מ-QZ ל-Daum. ברירת מחדל: 0 שניות.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>מסנן שיפוע (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>באימוני GPX מתעלמים משינויי שיפוע הקטנים מערך זה, ושולחים פקודה חדשה רק כאשר ההפרש מהערך האחרון שנשלח מגיע לסף שהוגדר. ברירת מחדל: 0 (מושבת).</translation>
     </message>
 </context>
 <context>
@@ -9124,69 +9331,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>יצירת קשר עם התמיכה של QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>הכנת הודעת תמיכה עם פרטי אבחון</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>לא מחובר מכשיר</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>המהירות וההספק הם אפס</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>תמיכה של QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>סיום</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>הסתרת המקלדת</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>סגירת בקשת התמיכה</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>ספרו לנו מה לא עובד. QZ תוסיף פרטים על המכשיר והאפליקציה שלכם.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>תארו את הבעיה...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>תיאור הבעיה</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>צירוף יומן ניפוי שגיאות אם הוא זמין</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>אפשר לבדוק או לערוך את ההודעה לפני השליחה. שום דבר לא נשלח אוטומטית.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>ביטול</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>פתיחת הדוא״ל</translation>
     </message>
 </context>
 </TS>

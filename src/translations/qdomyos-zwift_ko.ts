@@ -1219,6 +1219,69 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ 지원 문의</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>진단 정보가 포함된 지원 이메일 준비</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>연결된 기기가 없습니다</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>속도와 파워가 0입니다</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 지원</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>키보드 숨기기</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>지원 요청 닫기</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>작동하지 않는 내용을 알려주세요. QZ가 기기와 앱 정보를 추가합니다.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>문제를 설명하세요...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>문제 설명</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>사용 가능한 경우 디버그 로그 첨부</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>이메일을 보내기 전에 검토하거나 수정할 수 있습니다. 자동으로 전송되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>이메일 열기</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -4628,7 +4691,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>열기</translation>
+        <translation type="vanished">열기</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -7568,7 +7631,7 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
+        <translation type="vanished">현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
     </message>
     <message>
         <source>On</source>
@@ -8177,6 +8240,30 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS 전용. 화면이 꺼져 있거나 QZ가 백그라운드에 있을 때도 QZ가 계속 실행되도록 해 Bluetooth 연결과 세션 타이머가 멈추지 않게 합니다. 음악과 함께 재생되는 무음 오디오 트랙을 사용하므로 듣고 있는 음악이 끊기지 않습니다. 화면을 잠근 상태나 QZ를 백그라운드에 둔 상태로 운동해야 한다면 켜세요. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 자전거 옵션</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 같은 기존 Daum 에르고미터에 사용하는 직렬 포트입니다. Android에서 USB-직렬 어댑터를 사용할 경우 &apos;usb&apos;를 입력하세요. COM1, COM2 등은 Android에서 USB 어댑터 검색을 위한 별칭으로 허용되지만 Android 포트 이름은 아닙니다. Windows에서는 COM1 또는 COM3을, Linux/macOS에서는 /dev/ttyUSB0 같은 직렬 장치 경로를 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>저항 조회 지연:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>경사 지연 설정을 사용해 QZ가 Daum에 저항 및 파워 업데이트를 보내는 빈도를 제한합니다. 기본값: 0초.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>경사 필터 (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
     </message>
 </context>
 <context>
@@ -9347,69 +9434,6 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>Max Watt/KG</source>
         <translation>최대 W/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>QZ 지원 문의</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>진단 정보가 포함된 지원 이메일 준비</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>연결된 기기가 없습니다</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>속도와 파워가 0입니다</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ 지원</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>완료</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>키보드 숨기기</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>지원 요청 닫기</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>작동하지 않는 내용을 알려주세요. QZ가 기기와 앱 정보를 추가합니다.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>문제를 설명하세요...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>문제 설명</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>사용 가능한 경우 디버그 로그 첨부</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>이메일을 보내기 전에 검토하거나 수정할 수 있습니다. 자동으로 전송되지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>취소</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>이메일 열기</translation>
     </message>
 </context>
 </TS>

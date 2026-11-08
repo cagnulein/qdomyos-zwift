@@ -1049,6 +1049,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Klargøringen af YPOO M5 mislykkedes. Opret forbindelse igen.</translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (pulssensor): ingen puls. Sørg for, at sensoren udsender pulsmålinger.</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Søger efter %1 (pulssensor)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (pulssensor) blev ikke fundet. Sørg for, at den er tændt og udsender pulsmålinger.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1188,6 +1200,69 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maksimum: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-support</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargør en supportmail med diagnosticeringsoplysninger</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhed tilsluttet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighed og effekt er nul</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Færdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Luk supportanmodning</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortæl os, hvad der ikke virker. QZ tilføjer oplysninger om din enhed og app.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Vedhæft fejlfindingslog, hvis den findes</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan gennemse eller redigere mailen, før du sender den. Intet sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åbn mail</translation>
     </message>
 </context>
 <context>
@@ -3945,6 +4020,11 @@ Det kan tage et øjeblik ved første start.</translation>
         <source>Unable to open an email application</source>
         <translation>Kunne ikke åbne et e-mailprogram</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ kører</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4595,7 +4675,7 @@ Vil du skifte til den klassiske virtuelle Bluetooth-enhed i denne session?</tran
     </message>
     <message>
         <source>Open</source>
-        <translation>Åbn</translation>
+        <translation type="vanished">Åbn</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -7503,7 +7583,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Skjult på sin egen side lige nu: skift den her</translation>
+        <translation type="vanished">Skjult på sin egen side lige nu: skift den her</translation>
     </message>
     <message>
         <source>On</source>
@@ -8136,6 +8216,30 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Kun iOS. Holder QZ kørende, når skærmen er slukket, eller QZ er i baggrunden, så Bluetooth-forbindelserne og træningstimerne ikke fryser. QZ bruger et lydløst lydspor, der blandes med din musik, så det, du lytter til, ikke bliver afbrudt. Slå til, hvis du skal træne med låst skærm eller med QZ i baggrunden. Standard: fra.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Indstillinger for Daum-cykel</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Seriel port til klassiske Daum-ergometre såsom 8008 TRS 3. På Android med en USB-til-seriel-adapter skal du bruge &apos;usb&apos;. COM1, COM2 osv. accepteres på Android som aliaser for søgning efter USB-adapteren, men er ikke Android-portnavne. På Windows bruges COM1 eller COM3; på Linux/macOS bruges stien til den serielle enhed, f.eks. /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Forsinkelse mellem modstandsforespørgsler:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Bruger indstillingen Forsinkelse for hældning til at begrænse, hvor ofte QZ sender opdateringer om modstand og effekt til Daum. Standard: 0 sekunder.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filter for hældning (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Ved GPX-træning ignoreres ændringer i hældning under denne værdi, og en ny kommando sendes først, når forskellen fra den sidst sendte værdi når den angivne grænse. Standard: 0 (deaktiveret).</translation>
     </message>
 </context>
 <context>
@@ -9306,69 +9410,6 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maks. watt/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Kontakt QZ-support</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Klargør en supportmail med diagnosticeringsoplysninger</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Ingen enhed tilsluttet</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Hastighed og effekt er nul</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ-support</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Færdig</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Skjul tastatur</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Luk supportanmodning</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Fortæl os, hvad der ikke virker. QZ tilføjer oplysninger om din enhed og app.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Beskriv problemet...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Beskriv problemet</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Vedhæft fejlfindingslog, hvis den findes</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Du kan gennemse eller redigere mailen, før du sender den. Intet sendes automatisk.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuller</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Åbn mail</translation>
     </message>
 </context>
 </TS>

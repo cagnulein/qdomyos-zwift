@@ -587,7 +587,7 @@ Vill du aktivera de tjänster som krävs?</translation>
     </message>
     <message>
         <source>%1 Battery Level %2 %</source>
-        <translation>%1: batterinivå %2 %</translation>
+        <translation>%1: batterinivå %2&#xa0;%</translation>
     </message>
     <message>
         <source>FTMS bike found, restart the app to apply the change</source>
@@ -1049,6 +1049,18 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Det gick inte att initiera YPOO M5. Anslut igen.</translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (pulssensor): ingen pulsdata. Kontrollera att sensorn sänder pulsdata.</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Söker efter %1 (pulssensor)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (pulssensor) hittades inte. Kontrollera att den är på och sänder pulsdata.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1188,6 +1200,69 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maximum: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakta QZ-supporten</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Förbered ett supportmejl med diagnostikuppgifter</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet är ansluten</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet och effekt är noll</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-support</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Klart</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Dölj tangentbordet</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Stäng supportärendet</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Berätta vad som inte fungerar. QZ lägger till information om enheten och appen.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Bifoga felsökningslogg om den finns</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan granska eller redigera mejlet innan du skickar det. Inget skickas automatiskt.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Öppna e-post</translation>
     </message>
 </context>
 <context>
@@ -3081,7 +3156,7 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>Pace 500m (m/%1)</source>
-        <translation>Tempo 500 m (min/%1)</translation>
+        <translation>Tempo 500&#xa0;m (min/%1)</translation>
     </message>
     <message>
         <source>Resistance</source>
@@ -3607,11 +3682,11 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>Next search in %1 s</source>
-        <translation>Nästa sökning om %1 s</translation>
+        <translation>Nästa sökning om %1&#xa0;s</translation>
     </message>
     <message>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
-        <translation>Android tillåter 5 Bluetooth-sökningar på 30 s, nästa startar om %1 s</translation>
+        <translation>Android tillåter 5 Bluetooth-sökningar på 30&#xa0;s, nästa startar om %1&#xa0;s</translation>
     </message>
     <message>
         <source>Odometer (m)</source>
@@ -3619,15 +3694,15 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>Pace (m/500m)</source>
-        <translation>Tempo (min/500 m)</translation>
+        <translation>Tempo (min/500&#xa0;m)</translation>
     </message>
     <message>
         <source>Avg Pace (m/500m)</source>
-        <translation>Medeltempo (min/500 m)</translation>
+        <translation>Medeltempo (min/500&#xa0;m)</translation>
     </message>
     <message>
         <source>T.Pace(m/500m)</source>
-        <translation>Måltempo (min/500 m)</translation>
+        <translation>Måltempo (min/500&#xa0;m)</translation>
     </message>
     <message>
         <source>offset </source>
@@ -3651,11 +3726,11 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>3s avg</source>
-        <translation>3 s medel</translation>
+        <translation>3&#xa0;s medel</translation>
     </message>
     <message>
         <source>5s avg</source>
-        <translation>5 s medel</translation>
+        <translation>5&#xa0;s medel</translation>
     </message>
     <message>
         <source>Gain: </source>
@@ -3763,23 +3838,23 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>5 Seconds Power: %1W %2W/Kg</source>
-        <translation>5 sekunders effekt: %1 W, %2 W/kg</translation>
+        <translation>5 sekunders effekt: %1&#xa0;W, %2&#xa0;W/kg</translation>
     </message>
     <message>
         <source>1 Minute Power: %1W %2W/Kg</source>
-        <translation>1 minuts effekt: %1 W, %2 W/kg</translation>
+        <translation>1 minuts effekt: %1&#xa0;W, %2&#xa0;W/kg</translation>
     </message>
     <message>
         <source>5 Minutes Power: %1W %2W/Kg</source>
-        <translation>5 minuters effekt: %1 W, %2 W/kg</translation>
+        <translation>5 minuters effekt: %1&#xa0;W, %2&#xa0;W/kg</translation>
     </message>
     <message>
         <source>Estimated FTP: %1W</source>
-        <translation>Uppskattad FTP: %1 W</translation>
+        <translation>Uppskattad FTP: %1&#xa0;W</translation>
     </message>
     <message>
         <source>FTP IMPROVED +%1W!</source>
-        <translation>FTP FÖRBÄTTRAD +%1 W!</translation>
+        <translation>FTP FÖRBÄTTRAD +%1&#xa0;W!</translation>
     </message>
     <message>
         <source>Average Cadence: %1</source>
@@ -3944,6 +4019,11 @@ Det kan ta en stund vid första starten.</translation>
     <message>
         <source>Unable to open an email application</source>
         <translation>Det gick inte att öppna ett e-postprogram</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ körs</translation>
     </message>
 </context>
 <context>
@@ -4595,7 +4675,7 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>Open</source>
-        <translation>Öppna</translation>
+        <translation type="vanished">Öppna</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4851,19 +4931,19 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>Zone 1 %:</source>
-        <translation>Zon 1 %:</translation>
+        <translation>Zon 1&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
-        <translation>Zon 2 %:</translation>
+        <translation>Zon 2&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
-        <translation>Zon 3 %:</translation>
+        <translation>Zon 3&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
-        <translation>Zon 4 %:</translation>
+        <translation>Zon 4&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -4895,7 +4975,7 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
-        <translation>Ange din vilopuls (den lägsta puls du når vid full vila). Den används för exakta beräkningar av träningsbelastning. Standard: 60 bpm.</translation>
+        <translation>Ange din vilopuls (den lägsta puls du når vid full vila). Den används för exakta beräkningar av träningsbelastning. Standard: 60&#xa0;bpm.</translation>
     </message>
     <message>
         <source>Power from Heart Rate Options</source>
@@ -4919,7 +4999,7 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
-        <translation>Expandera med ikonen till höger så visas alternativen under den här inställningen. De här inställningarna används för att beräkna effekten (watt) på cyklar utan effektmätare. QZ uppskattar i stället effekten utifrån kadens och puls. Du kan kalibrera beräkningen av effekt från puls så här: Om du vet att du i jämnt tempo ger 100 W vid pulsen 150 bpm och 150 W vid 170 bpm kan du ange värdena under Mätning 1 och 2 (watt och puls), så beräknar QZ effekten utifrån den trendlinjen.</translation>
+        <translation>Expandera med ikonen till höger så visas alternativen under den här inställningen. De här inställningarna används för att beräkna effekten (watt) på cyklar utan effektmätare. QZ uppskattar i stället effekten utifrån kadens och puls. Du kan kalibrera beräkningen av effekt från puls så här: Om du vet att du i jämnt tempo ger 100&#xa0;W vid pulsen 150&#xa0;bpm och 150&#xa0;W vid 170&#xa0;bpm kan du ange värdena under Mätning 1 och 2 (watt och puls), så beräknar QZ effekten utifrån den trendlinjen.</translation>
     </message>
     <message>
         <source>Bike Options</source>
@@ -5015,7 +5095,7 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation>I ERG-läge eller under ett Power Zone-pass på Peloton skickar appen en begäran om ”måleffekt”. Om den begärda effekten inte stämmer med din aktuella effekt (beräknad från kadens och motståndsnivå) ändras målmotståndet för att hjälpa dig närmare måleffekten. Med högre filtervärden justeras målmotståndet mindre och du måste öka kadensen för att nå måleffekten. Inställningarna för uppåt- och nedåtfilter anger den övre och nedre marginalen innan en motståndsjustering skickas. Exempel: Om båda filtren är satta till 10 och måleffekten är 100 watt skickas en ändring av motståndet bara om cykeln ger mindre än 90 watt eller mer än 110 watt. Standard: 10.</translation>
+        <translation>I ERG-läge eller under ett Power Zone-pass på Peloton skickar appen en begäran om ”måleffekt”. Om den begärda effekten inte stämmer med din aktuella effekt (beräknad från kadens och motståndsnivå) ändras målmotståndet för att hjälpa dig närmare måleffekten. Med högre filtervärden justeras målmotståndet mindre och du måste öka kadensen för att nå måleffekten. Inställningarna för uppåt- och nedåtfilter anger den övre och nedre marginalen innan en motståndsjustering skickas. Exempel: Om båda filtren är satta till 10 och måleffekten är 100&#xa0;watt skickas en ändring av motståndet bara om cykeln ger mindre än 90&#xa0;watt eller mer än 110&#xa0;watt. Standard: 10.</translation>
     </message>
     <message>
         <source>Zwift ERG Watt Down Filter:</source>
@@ -5456,7 +5536,7 @@ Vill du byta till den klassiska virtuella Bluetooth-enheten för den här sessio
     </message>
     <message>
         <source>Set 100mm as wheel circumference in settings of ant+ speed sensor</source>
-        <translation>Ange 100 mm som hjulomkrets i inställningarna för ANT+-hastighetssensorn.</translation>
+        <translation>Ange 100&#xa0;mm som hjulomkrets i inställningarna för ANT+-hastighetssensorn.</translation>
     </message>
     <message>
         <source>Ant+ Cadence</source>
@@ -6038,27 +6118,27 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>1 mile pace (total time):</source>
-        <translation>Tempo för 1 engelsk mil (total tid):</translation>
+        <translation>Tempo för 1&#xa0;engelsk mil (total tid):</translation>
     </message>
     <message>
         <source>Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.</source>
-        <translation>Ange din måltid för 1 engelsk mil och tryck på OK. Inställningen används när du följer ett träningsprogram med hastighetsstyrning. Värdena bör också stämma med inställningarna i Zwift-appen. Mer information: https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
+        <translation>Ange din måltid för 1&#xa0;engelsk mil och tryck på OK. Inställningen används när du följer ett träningsprogram med hastighetsstyrning. Värdena bör också stämma med inställningarna i Zwift-appen. Mer information: https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
     </message>
     <message>
         <source>5 km pace (total time):</source>
-        <translation>Tempo för 5 km (total tid):</translation>
+        <translation>Tempo för 5&#xa0;km (total tid):</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
-        <translation>Se Tempo för 1 engelsk mil ovan; samma sak, men för 5 km i stället för 1 engelsk mil.</translation>
+        <translation>Se Tempo för 1&#xa0;engelsk mil ovan; samma sak, men för 5&#xa0;km i stället för 1&#xa0;engelsk mil.</translation>
     </message>
     <message>
         <source>10 km pace (total time):</source>
-        <translation>Tempo för 10 km (total tid):</translation>
+        <translation>Tempo för 10&#xa0;km (total tid):</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
-        <translation>Se Tempo för 1 engelsk mil ovan; samma sak, men för 10 km i stället för 1 engelsk mil.</translation>
+        <translation>Se Tempo för 1&#xa0;engelsk mil ovan; samma sak, men för 10&#xa0;km i stället för 1&#xa0;engelsk mil.</translation>
     </message>
     <message>
         <source>Half Marathon pace (total time):</source>
@@ -6066,7 +6146,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except half marathon distance instead of 1 mile.</source>
-        <translation>Se Tempo för 1 engelsk mil ovan; samma sak, men för halvmaratondistansen i stället för 1 engelsk mil.</translation>
+        <translation>Se Tempo för 1&#xa0;engelsk mil ovan; samma sak, men för halvmaratondistansen i stället för 1&#xa0;engelsk mil.</translation>
     </message>
     <message>
         <source>Marathon pace (total time):</source>
@@ -6074,7 +6154,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>See 1 Mile Pace above; same except marathon distance instead of 1 mile.</source>
-        <translation>Se Tempo för 1 engelsk mil ovan; samma sak, men för maratondistansen i stället för 1 engelsk mil.</translation>
+        <translation>Se Tempo för 1&#xa0;engelsk mil ovan; samma sak, men för maratondistansen i stället för 1&#xa0;engelsk mil.</translation>
     </message>
     <message>
         <source>Default Pace:</source>
@@ -6090,7 +6170,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
-        <translation>Anger wattsteget vid träning i pulszoner i ERG-läge. Standard: 5 watt.</translation>
+        <translation>Anger wattsteget vid träning i pulszoner i ERG-läge. Standard: 5&#xa0;watt.</translation>
     </message>
     <message>
         <source>Training Program Random</source>
@@ -6170,7 +6250,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.</source>
-        <translation>Panelerna Målhastighet och Mållutning gör att du kan öka eller minska den aktuella svårighetsgraden med plus- och minusknapparna. Som standard, när inställningen är av, ändras hastighet och lutning med 3 % för varje tryckning. Om du slår på inställningen lägger QZ i stället till 0.1 på hastigheten eller 0.5 på lutningen.</translation>
+        <translation>Panelerna Målhastighet och Mållutning gör att du kan öka eller minska den aktuella svårighetsgraden med plus- och minusknapparna. Som standard, när inställningen är av, ändras hastighet och lutning med 3&#xa0;% för varje tryckning. Om du slår på inställningen lägger QZ i stället till 0.1 på hastigheten eller 0.5 på lutningen.</translation>
     </message>
     <message>
         <source>Speed Step:</source>
@@ -6178,7 +6258,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
-        <translation>(Hastighetspanel) Anger hur mycket hastigheten ökar eller minskar (i km/h eller mph) när du trycker på plus- eller minusknappen på hastighetspanelen. Standard: 0.5 km/h.</translation>
+        <translation>(Hastighetspanel) Anger hur mycket hastigheten ökar eller minskar (i km/h eller mph) när du trycker på plus- eller minusknappen på hastighetspanelen. Standard: 0.5&#xa0;km/h.</translation>
     </message>
     <message>
         <source>Min. Inclination:</source>
@@ -6202,7 +6282,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
-        <translation>Använder det här värdet i stället för löpbandets högsta hastighet (för att begränsa den). Standard: 100 km/h (62.1 mph).</translation>
+        <translation>Använder det här värdet i stället för löpbandets högsta hastighet (för att begränsa den). Standard: 100&#xa0;km/h (62.1&#xa0;mph).</translation>
     </message>
     <message>
         <source>Min. Speed:</source>
@@ -6210,7 +6290,7 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
-        <translation>Använder det här värdet i stället för löpbandets lägsta hastighet (för att begränsa den). Standard: 0 km/h (0 mph).</translation>
+        <translation>Använder det här värdet i stället för löpbandets lägsta hastighet (för att begränsa den). Standard: 0&#xa0;km/h (0&#xa0;mph).</translation>
     </message>
     <message>
         <source>Step Count Gain:</source>
@@ -6327,19 +6407,19 @@ Ange den nedan:</translation>
     </message>
     <message>
         <source>Remap 5 km/h button:</source>
-        <translation>Ändra knappen 5 km/h:</translation>
+        <translation>Ändra knappen 5&#xa0;km/h:</translation>
     </message>
     <message>
         <source>Remap 10 km/h button:</source>
-        <translation>Ändra knappen 10 km/h:</translation>
+        <translation>Ändra knappen 10&#xa0;km/h:</translation>
     </message>
     <message>
         <source>Remap 16 km/h button:</source>
-        <translation>Ändra knappen 16 km/h:</translation>
+        <translation>Ändra knappen 16&#xa0;km/h:</translation>
     </message>
     <message>
         <source>Remap 22 km/h button:</source>
-        <translation>Ändra knappen 22 km/h:</translation>
+        <translation>Ändra knappen 22&#xa0;km/h:</translation>
     </message>
     <message>
         <source>Pool time (ms):</source>
@@ -6732,10 +6812,10 @@ IMPORTANT NOTES:
         <translation>Om effekten som utrustningen skickar till QZ varierar mycket ger den här inställningen jämnare effektzonsdiagram. Den är också användbar med effektmätarpedaler. Harmoniskt medelvärde används, vilket jämnar ut effekttoppar bättre än aritmetiskt medelvärde. Om någon mätning är 0 blir effekten genast 0. Standard: av.
 
 VIKTIGT:
-- Ingen medelvärdesberäkning eller utjämning i inställningarna för vanliga smart trainers som arbetar med 1 Hz (inget tävlingsläge tillgängligt)
-- Inaktivera medelvärdet i tredjepartsappar (Rouvy/Zwift/MyWhoosh m.m.) eller välj 1 s i appen!
+- Ingen medelvärdesberäkning eller utjämning i inställningarna för vanliga smart trainers som arbetar med 1&#xa0;Hz (inget tävlingsläge tillgängligt)
+- Inaktivera medelvärdet i tredjepartsappar (Rouvy/Zwift/MyWhoosh m.m.) eller välj 1&#xa0;s i appen!
 - QZ måste användas som virtuell enhet!
-- För Elite-trainers och andra med tävlingsläge (10 Hz): om det inte räcker för vissa användare blir resultatet bättre med utjämning i Elite-trainern eller din smart trainer utöver utjämningen i QZ.</translation>
+- För Elite-trainers och andra med tävlingsläge (10&#xa0;Hz): om det inte räcker för vissa användare blir resultatet bättre med utjämning i Elite-trainern eller din smart trainer utöver utjämningen i QZ.</translation>
     </message>
     <message>
         <source>Instant Power on Pause</source>
@@ -6759,7 +6839,7 @@ VIKTIGT:
     </message>
     <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
-        <translation>Lutningsjustering och lutningsfaktor används för att anpassa lutningen som Zwift ställer in, i stället för eller tillsammans med inställningen Zwift-motståndsfaktor i QZ. Om Zwift till exempel ändrar lutningen till 1 % kan löpbandet ändras till 2 %. Talet du anger som justering läggs till lutningen från Zwift eller någon annan tredjepartsapp. Standard: 0.</translation>
+        <translation>Lutningsjustering och lutningsfaktor används för att anpassa lutningen som Zwift ställer in, i stället för eller tillsammans med inställningen Zwift-motståndsfaktor i QZ. Om Zwift till exempel ändrar lutningen till 1&#xa0;% kan löpbandet ändras till 2&#xa0;%. Talet du anger som justering läggs till lutningen från Zwift eller någon annan tredjepartsapp. Standard: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
@@ -6855,7 +6935,7 @@ VIKTIGT:
     </message>
     <message>
         <source>Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.</source>
-        <translation>Hjulförhållandet är multiplikatorn som QZ använder för att beräkna hastigheten utifrån kadensen. Om du till exempel anger hjulförhållandet 1 och cyklar med kadensen 30 visar QZ hastigheten 30 km/h. Standardvärdet 0.33 stämmer för de flesta cyklar.</translation>
+        <translation>Hjulförhållandet är multiplikatorn som QZ använder för att beräkna hastigheten utifrån kadensen. Om du till exempel anger hjulförhållandet 1 och cyklar med kadensen 30 visar QZ hastigheten 30&#xa0;km/h. Standardvärdet 0.33 stämmer för de flesta cyklar.</translation>
     </message>
     <message>
         <source>Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.</source>
@@ -6982,8 +7062,8 @@ Default: A = -0.96, B = 1.33</source>
 För Stryd-sensorer: A = -0.96, B = 1.33
 
 Exempel med de här värdena:
-• 8 km/h, 10 % lutning: (-0.96 + 1.33×8) × 10 = 97 W läggs till
-• 11 km/h, 10 % lutning: (-0.96 + 1.33×11) × 10 = 137 W läggs till
+• 8&#xa0;km/h, 10&#xa0;% lutning: (-0.96 + 1.33×8) × 10 = 97&#xa0;W läggs till
+• 11&#xa0;km/h, 10&#xa0;% lutning: (-0.96 + 1.33×11) × 10 = 137&#xa0;W läggs till
 
 Om både A och B är 0 använder QZ standardformeln: 9.8 × vikt × (lutning/100).
 
@@ -7175,7 +7255,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device</source>
-        <translation>Standard: 200 ms. Sänk värdet om du vill att växlarna ska reagera snabbare. Varning: ett lägre värde ökar strömförbrukningen på enheten som kör QZ.</translation>
+        <translation>Standard: 200&#xa0;ms. Sänk värdet om du vill att växlarna ska reagera snabbare. Varning: ett lägre värde ökar strömförbrukningen på enheten som kör QZ.</translation>
     </message>
     <message>
         <source>TTS (Text to Speech) Settings 🔊</source>
@@ -7215,7 +7295,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Bluetooth hangs after 30 m</source>
-        <translation>Bluetooth hänger sig efter 30 min</translation>
+        <translation>Bluetooth hänger sig efter 30&#xa0;min</translation>
     </message>
     <message>
         <source>Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.</source>
@@ -7379,7 +7459,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.</source>
-        <translation>Som standard skickar QZ data till Zwift eller andra tredjepartsappar med ett intervall på 1000 ms. Med tävlingsläget på skickas de var 100:e ms (10 Hz). Flaskhalsen är förstås alltid cykeln eller löpbandet.</translation>
+        <translation>Som standard skickar QZ data till Zwift eller andra tredjepartsappar med ett intervall på 1000&#xa0;ms. Med tävlingsläget på skickas de var 100:e&#xa0;ms (10&#xa0;Hz). Flaskhalsen är förstås alltid cykeln eller löpbandet.</translation>
     </message>
     <message>
         <source>Run Cadence Sensor</source>
@@ -7503,7 +7583,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Dold på sin sida just nu: ändra här</translation>
+        <translation type="vanished">Dold på sin sida just nu: ändra här</translation>
     </message>
     <message>
         <source>On</source>
@@ -7835,7 +7915,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.</source>
-        <translation>Slå på om du vill att löpbandets FIT-filer sparas som löpaktiviteter även när medelhastigheten är under 6.5 km/h. Det kan hjälpa Garmin att beräkna Training Effect för löpbandspass med stor lutning. Standard: av.</translation>
+        <translation>Slå på om du vill att löpbandets FIT-filer sparas som löpaktiviteter även när medelhastigheten är under 6.5&#xa0;km/h. Det kan hjälpa Garmin att beräkna Training Effect för löpbandspass med stor lutning. Standard: av.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>
@@ -7855,7 +7935,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.</source>
-        <translation>Begränsar effekten som QZ skickar. Ange 0 om du vill ta bort gränsen. Standard: 9999 W.</translation>
+        <translation>Begränsar effekten som QZ skickar. Ange 0 om du vill ta bort gränsen. Standard: 9999&#xa0;W.</translation>
     </message>
     <message>
         <source>Always</source>
@@ -7887,7 +7967,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.</source>
-        <translation>Största tillåtna skillnad mellan hastigheten från effektsensorn och löpbandets hastighet innan QZ slutar använda den relativa korrigeringen. Standard: 20 %.</translation>
+        <translation>Största tillåtna skillnad mellan hastigheten från effektsensorn och löpbandets hastighet innan QZ slutar använda den relativa korrigeringen. Standard: 20&#xa0;%.</translation>
     </message>
     <message>
         <source>Heart</source>
@@ -8015,7 +8095,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation>Ändrar storleken på panelerna som visar dina mätvärden. Standard: 100 %. Välj en lägre procentsats om du vill få plats med fler paneler på skärmen. Välj en procentsats över 100 % om du vill göra dem större. Ange inte procenttecknet. Hette tidigare ”UI Zoom”.</translation>
+        <translation>Ändrar storleken på panelerna som visar dina mätvärden. Standard: 100&#xa0;%. Välj en lägre procentsats om du vill få plats med fler paneler på skärmen. Välj en procentsats över 100&#xa0;% om du vill göra dem större. Ange inte procenttecknet. Hette tidigare ”UI Zoom”.</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -8023,7 +8103,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
-        <translation>Appens text följer textstorleken i telefonens eller surfplattans inställningar, upp till 150 %. Stäng av om du vill välja storleken nedan, till exempel för en skärm som du läser på avstånd under passet. Standard: på.</translation>
+        <translation>Appens text följer textstorleken i telefonens eller surfplattans inställningar, upp till 150&#xa0;%. Stäng av om du vill välja storleken nedan, till exempel för en skärm som du läser på avstånd under passet. Standard: på.</translation>
     </message>
     <message>
         <source>Text size:</source>
@@ -8136,6 +8216,30 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Endast iOS. Håller QZ igång när skärmen är av eller QZ körs i bakgrunden, så att Bluetooth-anslutningar och passets timrar inte fryser. Det sker med ett tyst ljudspår som mixas med din musik, så det du lyssnar på avbryts inte. Aktivera om du behöver träna med låst skärm eller med QZ i bakgrunden. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Alternativ för Daum-cykel</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Serieport för klassiska Daum-ergometrar, som 8008 TRS 3. På Android med en USB-till-serieadapter använder du &apos;usb&apos;. COM1, COM2 osv. godtas som alias för sökning efter USB-adaptern, men är inte Android-portnamn. På Windows används COM1 eller COM3; på Linux/macOS sökvägen till serieenheten, t.ex. /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Fördröjning mellan motståndsavläsningar:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Använder inställningen Fördröjning för lutning för att begränsa hur ofta QZ skickar uppdateringar av motstånd och effekt till Daum. Standard: 0 sekunder.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Lutningsfilter (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Vid GPX-träning ignoreras lutningsändringar som är mindre än detta värde. Ett nytt kommando skickas först när skillnaden från senast skickat värde når den angivna tröskeln. Standard: 0 (inaktiverat).</translation>
     </message>
 </context>
 <context>
@@ -8595,7 +8699,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Displays metabolic equivalents (METs), a measurement of energy expenditure and amount of oxygen used by the body compared to the body at rest. (e.g., 4 METS requires the body to use 4 times as much oxygen than when at rest, which means it requires more energy and burns more calories).</source>
-        <translation>Visar metabola ekvivalenter (METs), ett mått på energiförbrukning och hur mycket syre kroppen använder jämfört med i vila. (Till exempel kräver 4 METS att kroppen använder 4 gånger så mycket syre som i vila, vilket innebär att den behöver mer energi och förbränner fler kalorier.)</translation>
+        <translation>Visar metabola ekvivalenter (METs), ett mått på energiförbrukning och hur mycket syre kroppen använder jämfört med i vila. (Till exempel kräver 4&#xa0;METS att kroppen använder 4 gånger så mycket syre som i vila, vilket innebär att den behöver mer energi och förbränner fler kalorier.)</translation>
     </message>
     <message>
         <source>Target METS</source>
@@ -8671,7 +8775,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Pace Last 500m</source>
-        <translation>Tempo senaste 500 m</translation>
+        <translation>Tempo senaste 500&#xa0;m</translation>
     </message>
     <message>
         <source>Step Count</source>
@@ -8915,7 +9019,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.</source>
-        <translation>Panelknapp som växlar mellan lägena för medeleffekt: Av, 3 s medel (harmoniskt), 5 s medel (harmoniskt). Tryck för att växla läge. Bara för cyklar.</translation>
+        <translation>Panelknapp som växlar mellan lägena för medeleffekt: Av, 3&#xa0;s medel (harmoniskt), 5&#xa0;s medel (harmoniskt). Tryck för att växla läge. Bara för cyklar.</translation>
     </message>
     <message>
         <source>HRV (Heart Rate Variability)</source>
@@ -8976,157 +9080,157 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Override 0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 0 %:</translation>
+        <translation>I stället för 0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 0.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 0.5 %:</translation>
+        <translation>I stället för 0.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 1.0 %:</translation>
+        <translation>I stället för 1.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 1.5 %:</translation>
+        <translation>I stället för 1.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 2.0 %:</translation>
+        <translation>I stället för 2.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 2.5 %:</translation>
+        <translation>I stället för 2.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 3.0 %:</translation>
+        <translation>I stället för 3.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 3.5 %:</translation>
+        <translation>I stället för 3.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 4.0 %:</translation>
+        <translation>I stället för 4.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 4.5 %:</translation>
+        <translation>I stället för 4.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 5.0 %:</translation>
+        <translation>I stället för 5.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 5.5 %:</translation>
+        <translation>I stället för 5.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 6.0 %:</translation>
+        <translation>I stället för 6.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 6.5 %:</translation>
+        <translation>I stället för 6.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 7.0 %:</translation>
+        <translation>I stället för 7.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 7.5 %:</translation>
+        <translation>I stället för 7.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 8.0 %:</translation>
+        <translation>I stället för 8.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 8.5 %:</translation>
+        <translation>I stället för 8.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 9.0 %:</translation>
+        <translation>I stället för 9.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 9.5 %:</translation>
+        <translation>I stället för 9.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 10.0 %:</translation>
+        <translation>I stället för 10.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 10.5 %:</translation>
+        <translation>I stället för 10.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 11.0 %:</translation>
+        <translation>I stället för 11.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 11.5 %:</translation>
+        <translation>I stället för 11.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 12.0 %:</translation>
+        <translation>I stället för 12.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 12.5 %:</translation>
+        <translation>I stället för 12.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 13.0 %:</translation>
+        <translation>I stället för 13.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 13.5 %:</translation>
+        <translation>I stället för 13.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 14.0 %:</translation>
+        <translation>I stället för 14.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 14.5 %:</translation>
+        <translation>I stället för 14.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 15.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stället för 15.0 %:</translation>
+        <translation>I stället för 15.0&#xa0;%:</translation>
     </message>
 </context>
 <context>
@@ -9306,69 +9410,6 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Maxwatt/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Kontakta QZ-supporten</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Förbered ett supportmejl med diagnostikuppgifter</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Ingen enhet är ansluten</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Hastighet och effekt är noll</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>QZ-support</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Klart</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Dölj tangentbordet</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Stäng supportärendet</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Berätta vad som inte fungerar. QZ lägger till information om enheten och appen.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Beskriv problemet...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Beskriv problemet</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Bifoga felsökningslogg om den finns</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Du kan granska eller redigera mejlet innan du skickar det. Inget skickas automatiskt.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Öppna e-post</translation>
     </message>
 </context>
 </TS>

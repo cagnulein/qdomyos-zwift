@@ -1219,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contactar con el soporte de QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar un correo de soporte con datos de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>No hay ningún dispositivo conectado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>La velocidad y la potencia están a cero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Soporte de QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Listo</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Cerrar solicitud de soporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Cuéntanos qué no funciona. QZ añadirá información de tu dispositivo y de la aplicación.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Describe el problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Describe el problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Adjuntar registro de depuración si está disponible</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Puedes revisar o editar el correo antes de enviarlo. No se envía nada automáticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir correo</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -5825,7 +5888,7 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Abrir</translation>
+        <translation type="vanished">Abrir</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -8084,7 +8147,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Oculta en su página ahora mismo: cámbiala aquí</translation>
+        <translation type="vanished">Oculta en su página ahora mismo: cámbiala aquí</translation>
     </message>
     <message>
         <source>On</source>
@@ -8205,6 +8268,30 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Solo iOS. Mantiene QZ en funcionamiento con la pantalla apagada o en segundo plano, para que las conexiones Bluetooth y los temporizadores de la sesión no se congelen. Usa una pista de audio silenciosa mezclada con tu música, así que no se interrumpe lo que estés escuchando. Actívalo si necesitas entrenar con la pantalla bloqueada o con QZ en segundo plano. Por defecto, está desactivado.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Opciones de bicicleta Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Puerto serie para ergómetros Daum clásicos, como el 8008 TRS 3. En Android, con un adaptador USB a serie, usa &apos;usb&apos;. COM1, COM2, etc., se aceptan como alias para buscar el adaptador USB, pero no son nombres de puertos de Android. En Windows usa COM1 o COM3; en Linux/macOS, la ruta del dispositivo serie, por ejemplo /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Intervalo de consulta de resistencia:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Usa el ajuste Retraso de inclinación para limitar la frecuencia con la que QZ envía actualizaciones de resistencia y potencia a Daum. Predeterminado: 0 segundos.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtro de inclinación (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>En entrenamientos GPX, ignora los cambios de inclinación inferiores a este valor y solo envía una nueva orden cuando la diferencia respecto al último valor enviado alcance el umbral configurado. Predeterminado: 0 (desactivado).</translation>
     </message>
 </context>
 <context>
@@ -9391,69 +9478,6 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Vatios/kg máx.</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Contactar con el soporte de QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Preparar un correo de soporte con datos de diagnóstico</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>No hay ningún dispositivo conectado</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>La velocidad y la potencia están a cero</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Soporte de QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Listo</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Ocultar teclado</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Cerrar solicitud de soporte</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Cuéntanos qué no funciona. QZ añadirá información de tu dispositivo y de la aplicación.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Describe el problema...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Describe el problema</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Adjuntar registro de depuración si está disponible</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Puedes revisar o editar el correo antes de enviarlo. No se envía nada automáticamente.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Abrir correo</translation>
     </message>
 </context>
 </TS>

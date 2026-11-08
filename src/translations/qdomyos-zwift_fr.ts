@@ -1219,6 +1219,69 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contacter l’assistance QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Préparer un e-mail d’assistance avec les données de diagnostic</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Aucun appareil connecté</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>La vitesse et la puissance sont à zéro</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Assistance QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Terminé</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Masquer le clavier</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fermer la demande d’assistance</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Indiquez ce qui ne fonctionne pas. QZ ajoutera les informations de votre appareil et de l’application.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Décrivez le problème...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Décrire le problème</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Joindre le journal de débogage s’il est disponible</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Vous pouvez vérifier ou modifier l’e-mail avant de l’envoyer. Rien n’est envoyé automatiquement.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Ouvrir l’e-mail</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -5765,7 +5828,7 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Ouvrir</translation>
+        <translation type="vanished">Ouvrir</translation>
     </message>
     <message>
         <source>App Language:</source>
@@ -8096,7 +8159,7 @@ Par défaut : A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Masqué sur sa page pour l’instant : modifiez-le ici</translation>
+        <translation type="vanished">Masqué sur sa page pour l’instant : modifiez-le ici</translation>
     </message>
     <message>
         <source>On</source>
@@ -8217,6 +8280,30 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS uniquement. Maintient QZ actif lorsque l&apos;écran est éteint ou que QZ est en arrière-plan, afin que les connexions Bluetooth et les minuteurs de session ne se figent pas. Une piste audio silencieuse est mélangée à votre musique : rien de ce que vous écoutez n&apos;est interrompu. Activez-le si vous devez vous entraîner avec l&apos;écran verrouillé ou avec QZ en arrière-plan. Par défaut, désactivé.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Options du vélo Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Port série utilisé par les ergomètres Daum classiques, comme le 8008 TRS 3. Sur Android avec un adaptateur USB-série, utilisez &apos;usb&apos;. COM1, COM2, etc. sont acceptés comme alias pour rechercher l&apos;adaptateur USB, mais ne sont pas des noms de ports Android. Sur Windows, utilisez COM1 ou COM3 ; sur Linux/macOS, le chemin du périphérique série, par exemple /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Délai d&apos;interrogation de la résistance :</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Utilise le réglage Délai d&apos;inclinaison pour limiter la fréquence d&apos;envoi des mises à jour de résistance et de puissance à Daum. Par défaut : 0 seconde.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtre d&apos;inclinaison (%) :</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Pour les entraînements GPX, ignore les variations d&apos;inclinaison inférieures à cette valeur et n&apos;envoie une nouvelle commande que lorsque l&apos;écart par rapport à la dernière valeur envoyée atteint le seuil défini. Par défaut : 0 (désactivé).</translation>
     </message>
 </context>
 <context>
@@ -9399,69 +9486,6 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Watts/kg max</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Contacter l’assistance QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Préparer un e-mail d’assistance avec les données de diagnostic</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Aucun appareil connecté</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>La vitesse et la puissance sont à zéro</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Assistance QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Terminé</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Masquer le clavier</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Fermer la demande d’assistance</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Indiquez ce qui ne fonctionne pas. QZ ajoutera les informations de votre appareil et de l’application.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Décrivez le problème...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Décrire le problème</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Joindre le journal de débogage s’il est disponible</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Vous pouvez vérifier ou modifier l’e-mail avant de l’envoyer. Rien n’est envoyé automatiquement.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Ouvrir l’e-mail</translation>
     </message>
 </context>
 </TS>

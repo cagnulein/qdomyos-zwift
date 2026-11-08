@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>S&apos;ha trobat un sensor de freqüència cardíaca: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>S&apos;han trobat sensors de freqüència cardíaca: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Connecta</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Tria</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Ara no</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>No ho tornis a preguntar</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Tria un sensor de freqüència cardíaca</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (sensor cardíac): no hi ha dades de freqüència cardíaca. Comprova que les estigui transmetent.</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>S&apos;estan cercant sensors de freqüència cardíaca...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>S&apos;està cercant %1 (sensor cardíac)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>No s&apos;ha trobat %1 (sensor cardíac). Comprova que estigui encès i transmetent la freqüència cardíaca.</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>No s&apos;ha trobat cap sensor de freqüència cardíaca a prop. Comprova que estigui encès i transmetent.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cancel·la</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contacta amb el suport de QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Prepara un correu al suport amb dades de diagnòstic</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>No hi ha cap dispositiu connectat</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>La velocitat i la potència són zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Suport de QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fet</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Amaga el teclat</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Tanca la sol·licitud de suport</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Explica&apos;ns què no funciona. QZ afegirà la informació del dispositiu i de l&apos;aplicació.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descriu el problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descriu el problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Adjunta el registre de depuració si està disponible</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Pots revisar o editar el correu abans d&apos;enviar-lo. No s&apos;envia res automàticament.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel·la</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Obre el correu</translation>
     </message>
 </context>
 <context>
@@ -1308,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cancel·la</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -3890,6 +4004,11 @@ This may take a few moments on first startup.</source>
         <source>Unable to open an email application</source>
         <translation>No s’ha pogut obrir cap aplicació de correu electrònic</translation>
     </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ s&apos;està executant</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4500,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5772,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cancel·la</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7320,10 +7435,6 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7954,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Configura com es converteix la inclinació de l&apos;aplicació virtual en resistència de la bicicleta.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Utilitza una correspondència personalitzada quan QZ converteix la inclinació de l&apos;aplicació virtual en resistència.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Una parella inclinació|resistència per línia. QZ interpola entre els punts i limita els valors fora del rang configurat.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nom d&apos;usuari del compte Life Fitness per iniciar sessió al servei. Es desa localment i mai s&apos;escriu als registres de depuració.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Contrasenya del compte Life Fitness per iniciar sessió al servei. Es desa localment i mai s&apos;escriu als registres de depuració.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Acció de càmera</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Acció d&apos;emoticona</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulador de Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posició del gràfic de potència</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posició del gràfic de freqüència cardíaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posició del gràfic de resistència i resistència objectiu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posició del gràfic de resistència de Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posició del gràfic de cadència</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posició del gràfic de distribució de potència</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posició del gràfic de velocitat i inclinació</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posició numèrica d&apos;aquest gràfic a l&apos;historial d&apos;entrenaments. Canvia&apos;n l&apos;ordre amb els botons amunt i avall de les opcions generals de la interfície.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Cerca un sensor de freqüència cardíaca en iniciar</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Durant els primers 5 minuts després de connectar la màquina, si no arriba la freqüència cardíaca, QZ cerca un sensor un cop per minut: connecta la banda de pit seleccionada tan bon punt la troba o, si no n&apos;hi ha cap de seleccionada, ofereix un sensor proper. Pots iniciar una cerca en qualsevol moment tocant el quadre de freqüència cardíaca o la icona Bluetooth de la pàgina inicial.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Opcions de la bicicleta Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Port sèrie utilitzat pels ergòmetres Daum clàssics, com el 8008 TRS 3. A Android, amb un adaptador USB a sèrie, utilitza &apos;usb&apos;. COM1, COM2, etc. s&apos;accepten com a àlies per cercar l&apos;adaptador USB, però no són noms de ports d&apos;Android. A Windows utilitza COM1 o COM3; a Linux/macOS, la ruta del dispositiu sèrie, per exemple /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Retard de consulta de la resistència:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Utilitza el paràmetre Retard d&apos;inclinació per limitar la freqüència amb què QZ envia actualitzacions de resistència i potència a Daum. Per defecte: 0 segons.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtre d&apos;inclinació (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>En entrenaments GPX, ignora els canvis d&apos;inclinació inferiors a aquest valor i només envia una ordre nova quan la diferència respecte de l&apos;últim valor enviat arriba al llindar configurat. Per defecte: 0 (desactivat).</translation>
     </message>
 </context>
 <context>
@@ -9124,69 +9331,6 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Contacta amb el suport de QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Prepara un correu al suport amb dades de diagnòstic</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>No hi ha cap dispositiu connectat</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>La velocitat i la potència són zero</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Suport de QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Fet</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Amaga el teclat</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Tanca la sol·licitud de suport</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Explica'ns què no funciona. QZ afegirà la informació del dispositiu i de l'aplicació.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Descriu el problema...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Descriu el problema</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Adjunta el registre de depuració si està disponible</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Pots revisar o editar el correu abans d'enviar-lo. No s'envia res automàticament.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancel·la</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Obre el correu</translation>
     </message>
 </context>
 </TS>

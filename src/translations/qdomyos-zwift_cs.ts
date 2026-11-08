@@ -1219,6 +1219,69 @@ Aktualizovat nastavení QZ?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontaktovat podporu QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Připravit e-mail podpoře s diagnostickými údaji</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Není připojeno žádné zařízení</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Rychlost a výkon jsou nulové</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Podpora QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Hotovo</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skrýt klávesnici</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Zavřít žádost o podporu</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Popište, co nefunguje. QZ přidá informace o zařízení a aplikaci.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Popište problém...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Popište problém</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Přiložit protokol ladění, pokud je k dispozici</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Před odesláním můžete e-mail zkontrolovat nebo upravit. Nic se neodešle automaticky.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Otevřít e-mail</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -4628,7 +4691,7 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     </message>
     <message>
         <source>Open</source>
-        <translation>Otevřít</translation>
+        <translation type="vanished">Otevřít</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -7568,7 +7631,7 @@ Výchozí: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Na své stránce je teď skryto: změňte to zde</translation>
+        <translation type="vanished">Na své stránce je teď skryto: změňte to zde</translation>
     </message>
     <message>
         <source>On</source>
@@ -8177,6 +8240,30 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Jen iOS. Udrží QZ v chodu při vypnuté obrazovce nebo na pozadí, aby připojení Bluetooth a časovače relace nezamrzaly. Používá tichou zvukovou stopu smíchanou s vaší hudbou, takže nic, co posloucháte, se nepřeruší. Zapněte, pokud potřebujete trénovat se zamčenou obrazovkou nebo s QZ na pozadí. Výchozí: vypnuto.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Možnosti kola Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Sériový port používaný klasickými ergometry Daum, například 8008 TRS 3. V Androidu s adaptérem USB–sériový port použijte &apos;usb&apos;. COM1, COM2 atd. fungují v Androidu jako aliasy pro vyhledání USB adaptéru, nejsou to však názvy portů Androidu. Ve Windows použijte COM1 nebo COM3; v Linuxu/macOS cestu k sériovému zařízení, například /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Interval dotazování na odpor:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Používá nastavení Zpoždění sklonu k omezení četnosti odesílání aktualizací odporu a výkonu zařízení Daum. Výchozí hodnota: 0 sekund.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtr sklonu (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Při trénincích GPX ignoruje změny sklonu menší než tato hodnota a nový příkaz odešle až tehdy, když rozdíl oproti poslední odeslané hodnotě dosáhne nastaveného prahu. Výchozí hodnota: 0 (vypnuto).</translation>
     </message>
 </context>
 <context>
@@ -9347,69 +9434,6 @@ Výchozí: A = -0.96, B = 1.33</translation>
     <message>
         <source>Max Watt/KG</source>
         <translation>Max. W/kg</translation>
-    </message>
-</context>
-<context>
-    <name>SupportHelpButton</name>
-    <message>
-        <source>Contact QZ support</source>
-        <translation>Kontaktovat podporu QZ</translation>
-    </message>
-    <message>
-        <source>Prepare a support email with diagnostics</source>
-        <translation>Připravit e-mail podpoře s diagnostickými údaji</translation>
-    </message>
-    <message>
-        <source>No device connected</source>
-        <translation>Není připojeno žádné zařízení</translation>
-    </message>
-    <message>
-        <source>Speed and power at zero</source>
-        <translation>Rychlost a výkon jsou nulové</translation>
-    </message>
-    <message>
-        <source>QZ Support</source>
-        <translation>Podpora QZ</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation>Hotovo</translation>
-    </message>
-    <message>
-        <source>Hide keyboard</source>
-        <translation>Skrýt klávesnici</translation>
-    </message>
-    <message>
-        <source>Close support request</source>
-        <translation>Zavřít žádost o podporu</translation>
-    </message>
-    <message>
-        <source>Tell us what is not working. QZ will add your device and app information.</source>
-        <translation>Popište, co nefunguje. QZ přidá informace o zařízení a aplikaci.</translation>
-    </message>
-    <message>
-        <source>Describe the problem...</source>
-        <translation>Popište problém...</translation>
-    </message>
-    <message>
-        <source>Describe the problem</source>
-        <translation>Popište problém</translation>
-    </message>
-    <message>
-        <source>Attach debug log if available</source>
-        <translation>Přiložit protokol ladění, pokud je k dispozici</translation>
-    </message>
-    <message>
-        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
-        <translation>Před odesláním můžete e-mail zkontrolovat nebo upravit. Nic se neodešle automaticky.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
-    </message>
-    <message>
-        <source>Open email</source>
-        <translation>Otevřít e-mail</translation>
     </message>
 </context>
 </TS>
