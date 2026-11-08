@@ -7,6 +7,17 @@
 #include "qzsettings.h"
 
 namespace {
+// RUN 71 advertises a BLE GATT serial service at UUID 0x1101, with
+// FFF2 (WriteNoResponse) and FFF1 (Notify). These values are taken from
+// the customer's actual QZ log; UUID 0x1101 is used as a *GATT* service,
+// not through Bluetooth Classic or RFCOMM.
+const QBluetoothUuid BleSerialService(quint16(0x1101));
+const QBluetoothUuid BleSerialWrite(quint16(0xFFF2));
+const QBluetoothUuid BleSerialNotify(quint16(0xFFF1));
+
+// A different RUN variant may expose the standard ISSC transparent UART.
+// These are NOT the ISSC connection-parameter (6daa) or air-patch (aca3)
+// vendor-control characteristics observed on the customer's hardware.
 const QBluetoothUuid IsscService(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 const QBluetoothUuid IsscWrite(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
 const QBluetoothUuid IsscNotify(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
@@ -47,10 +58,18 @@ void kettlerrun7treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
 }
 
 void kettlerrun7treadmill::serviceScanDone() {
-    service = m_control->createServiceObject(IsscService, this);
-    if (!service) {
-        fail(QStringLiteral("ISSC UART service not found"));
-        return;
+    // Prefer the actual RUN 71 BLE GATT serial profile; it coexists with
+    // an ISSC vendor service whose characteristics are not a UART.
+    service = m_control->createServiceObject(BleSerialService, this);
+    if (service) {
+        emit debug(QStringLiteral("Kettler RUN 7 BLE: using GATT 0x1101 FFF2/FFF1 transport"));
+    } else {
+        service = m_control->createServiceObject(IsscService, this);
+        if (!service) {
+            fail(QStringLiteral("BLE serial service (0x1101 or ISSC) not found"));
+            return;
+        }
+        emit debug(QStringLiteral("Kettler RUN 7 BLE: trying standard ISSC transparent UART"));
     }
     connect(service, &QLowEnergyService::stateChanged,
             this, &kettlerrun7treadmill::serviceStateChanged);
@@ -66,29 +85,35 @@ void kettlerrun7treadmill::serviceScanDone() {
 void kettlerrun7treadmill::serviceStateChanged(QLowEnergyService::ServiceState state) {
     if (state != QLowEnergyService::ServiceDiscovered)
         return;
-    txCharacteristic = service->characteristic(IsscWrite);
-    rxCharacteristic = service->characteristic(IsscNotify);
+    const bool isBleSerial = service->serviceUuid() == BleSerialService;
+    const QBluetoothUuid txUuid = isBleSerial ? BleSerialWrite : IsscWrite;
+    const QBluetoothUuid rxUuid = isBleSerial ? BleSerialNotify : IsscNotify;
+    txCharacteristic = service->characteristic(txUuid);
+    rxCharacteristic = service->characteristic(rxUuid);
     if (!txCharacteristic.isValid() || !rxCharacteristic.isValid()) {
-        fail(QStringLiteral("ISSC UART write/notify characteristics not found"));
+        fail(QStringLiteral("BLE serial write/notify characteristics not found (TX=") +
+             txUuid.toString() + QStringLiteral(", RX=") + rxUuid.toString() + ')');
         return;
     }
+    emit debug(QStringLiteral("Kettler RUN 7 BLE: TX=") + txUuid.toString() +
+               QStringLiteral(" RX=") + rxUuid.toString());
     const auto properties = txCharacteristic.properties();
     if (properties & QLowEnergyCharacteristic::Write) {
         writeWithResponse = true;
     } else if (properties & QLowEnergyCharacteristic::WriteNoResponse) {
         writeWithResponse = false;
     } else {
-        fail(QStringLiteral("ISSC UART write characteristic is not writable"));
+        fail(QStringLiteral("BLE UART write characteristic is not writable"));
         return;
     }
     if (!(rxCharacteristic.properties() & QLowEnergyCharacteristic::Notify)) {
-        fail(QStringLiteral("ISSC UART receive characteristic cannot notify"));
+        fail(QStringLiteral("BLE UART receive characteristic cannot notify"));
         return;
     }
     const QLowEnergyDescriptor cccd =
         rxCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
     if (!cccd.isValid()) {
-        fail(QStringLiteral("ISSC UART notification descriptor missing"));
+        fail(QStringLiteral("BLE UART notification descriptor missing"));
         return;
     }
     emit debug(QStringLiteral("Kettler RUN 7 BLE: enabling notifications"));
@@ -149,7 +174,7 @@ void kettlerrun7treadmill::sendNextChunk() {
 void kettlerrun7treadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                                  const QByteArray &value) {
     Q_UNUSED(value);
-    if (writeWithResponse && waitingForWrite && characteristic.uuid() == IsscWrite)
+    if (writeWithResponse && waitingForWrite && characteristic.uuid() == txCharacteristic.uuid())
         chunkWritten();
 }
 
@@ -166,7 +191,7 @@ void kettlerrun7treadmill::chunkWritten() {
 
 void kettlerrun7treadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                  const QByteArray &value) {
-    if (characteristic.uuid() != IsscNotify)
+    if (characteristic.uuid() != rxCharacteristic.uuid())
         return;
     emit debug(QStringLiteral("Kettler RUN 7 BLE RX chunk: ") + value.toHex(' '));
     receiveBuffer.append(value);
