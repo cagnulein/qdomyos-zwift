@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>तय करें कि वर्चुअल ऐप के झुकाव को बाइक के प्रतिरोध में कैसे बदला जाए।</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>जब QZ वर्चुअल ऐप के झुकाव को प्रतिरोध में बदलता है, तब कस्टम मैपिंग का उपयोग करें।</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>हर पंक्ति में एक झुकाव|प्रतिरोध जोड़ी दर्ज करें। QZ बिंदुओं के बीच मान निकालता है और निर्धारित सीमा के बाहर के मान सीमित करता है।</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का उपयोगकर्ता नाम। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का पासवर्ड। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>कैमरा क्रिया</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>इमोट क्रिया</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattbike एमुलेटर</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>पावर चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>हृदय गति चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>प्रतिरोध बनाम लक्ष्य प्रतिरोध चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton प्रतिरोध चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>कैडेंस चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>पावर वितरण चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>गति और झुकाव चार्ट की स्थिति</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>वर्कआउट इतिहास में इस चार्ट का संख्यात्मक स्थान। सामान्य UI विकल्पों में ऊपर और नीचे बटन से क्रम बदलें।</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>शुरू होने पर हृदय गति सेंसर खोजें</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>फ़िटनेस मशीन जुड़ने के पहले 5 मिनट में यदि हृदय गति प्राप्त नहीं होती, तो QZ हर मिनट सेंसर खोजता है। चुनी गई हृदय गति बेल्ट मिलते ही कनेक्ट करता है; कोई बेल्ट चुनी नहीं गई हो तो पास में मिले सेंसर का सुझाव देता है। होम स्क्रीन पर हृदय गति टाइल या Bluetooth आइकन दबाकर किसी भी समय खोज सकते हैं।</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
