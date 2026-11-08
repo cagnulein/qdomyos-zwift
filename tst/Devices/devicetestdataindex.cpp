@@ -841,6 +841,17 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Kettler RUN 7 BLE (ISSC serial transport with kdri IRMP framing).
+#ifndef Q_OS_IOS
+    RegisterNewDeviceTestData(DeviceIndex::KettlerRun7Treadmill)
+        ->expectDevice<kettlerrun7treadmill>()
+        ->acceptDeviceName("RUN 71", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN71", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN 7", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN 72", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XRUN71", DeviceNameComparison::IgnoreCase);
+#endif
+
     // Kettler Classic / MyHomeFIT RFCOMM
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
