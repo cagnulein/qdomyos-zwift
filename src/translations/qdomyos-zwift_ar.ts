@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>تم العثور على مستشعر نبض القلب: %1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>تم العثور على مستشعرات نبض القلب: %1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>اتصال</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>ليس الآن</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>لا تسأل مرة أخرى</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>اختر مستشعر نبض القلب</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (مستشعر النبض): لا توجد قراءة للنبض. تأكد من أنه يبث بيانات نبض القلب.</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>جارٍ البحث عن مستشعرات نبض القلب...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>جارٍ البحث عن %1 (مستشعر النبض)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>تعذر العثور على %1 (مستشعر النبض). تأكد من تشغيله وبث بيانات نبض القلب.</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>لم يتم العثور على مستشعر نبض قلب قريب. تأكد من تشغيله وبث بيانات نبض القلب.</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ قيد التشغيل</translation>
     </message>
 </context>
 <context>
