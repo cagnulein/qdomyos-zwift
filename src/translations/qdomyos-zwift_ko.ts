@@ -8243,27 +8243,27 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum 자전거 옵션</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>8008 TRS 3 같은 기존 Daum 에르고미터에 사용하는 직렬 포트입니다. Android에서 USB-직렬 어댑터를 사용할 경우 &apos;usb&apos;를 입력하세요. COM1, COM2 등은 Android에서 USB 어댑터 검색을 위한 별칭으로 허용되지만 Android 포트 이름은 아닙니다. Windows에서는 COM1 또는 COM3을, Linux/macOS에서는 /dev/ttyUSB0 같은 직렬 장치 경로를 사용하세요.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>저항 조회 지연:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>경사 지연 설정을 사용해 QZ가 Daum에 저항 및 파워 업데이트를 보내는 빈도를 제한합니다. 기본값: 0초.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>경사 필터 (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
     </message>
 </context>
 <context>
