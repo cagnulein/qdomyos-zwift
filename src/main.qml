@@ -492,8 +492,11 @@ ApplicationWindow {
         }
 
         stackView.pop()
-        toolButtonLoadSettings.visible = false;
-        toolButtonSaveSettings.visible = false;
+        // Back from a page opened out of the settings (Tiles Options...) the settings keep their
+        // load and save buttons, and with them the tile lock, map, video and chart stay hidden
+        var backOnSettings = stackView.depth > 1 && headerToolbar.settingsPageActive
+        toolButtonLoadSettings.visible = backOnSettings;
+        toolButtonSaveSettings.visible = backOnSettings;
         rootItem.sortTiles()
         if (remindToSaveProfile) {
             toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
@@ -1428,6 +1431,10 @@ ApplicationWindow {
                     if (stackView.depth > 1) {
                         stackView.pop()
                     }
+                    // Back on the home page: no load and save there, the lock, map, video and chart again
+                    var backOnSettings = stackView.depth > 1 && headerToolbar.settingsPageActive
+                    toolButtonLoadSettings.visible = backOnSettings;
+                    toolButtonSaveSettings.visible = backOnSettings;
                     popupLoadSettings.open();
                  });
                 drawer.close()
