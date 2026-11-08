@@ -60,6 +60,21 @@ For a KICKR setup where the goal is to reproduce real chainring/cassette ratios,
 
 This physical reference does not need to change when switching between training apps such as Zwift and ROUVY, as long as the bike remains in the same mechanical gear.
 
+## My Wahoo KICKR gearing feels different in other apps after using QZ. How can I restore it?
+
+With **Without Wheel Diameter Protocol** disabled, QZ writes a calculated wheel circumference to a compatible Wahoo KICKR when connecting and can update it when virtual gears change. The trainer can retain that value after QZ closes, which may change the gearing feel in other apps.
+
+To stop QZ changing the stored circumference and reset it:
+
+1. In **QZ Settings > Bike Options > Wahoo Options**, enable **Without Wheel Diameter Protocol**. QZ then handles virtual shifting through grade-based control rather than wheel-circumference writes.
+2. **Connect the trainer to QZ** and confirm it is connected.
+3. In the Wahoo virtual-gearing settings, tap **Restore Default Setting to the Trainer**. This writes a fixed **2070 mm** circumference to the trainer; it **does not recover your previously stored value**.
+4. Check the gearing again in the other training app.
+
+**Important:** The restore button only sends a command while a compatible Wahoo trainer is connected to QZ. If it is disconnected, the button silently does nothing. If you want to set a particular circumference instead, some riders report adjusting wheel size in the **Wahoo app's trainer settings**.
+
+On newer QZ versions, the first connection can ask whether QZ may change the trainer's wheel circumference. Choosing **No** enables **Without Wheel Diameter Protocol**; choosing **Yes** allows the usual circumference-based virtual gears. Selecting No does *not* itself reset any value left on the trainer from an earlier session.
+
 ## Zwift Ride or Play shifts more than one virtual gear per press. What can I try?
 
 In QZ's Zwift Play/controller settings, enable **Buttons debouncing** and reconnect the controllers. This option filters repeated button/shift events that can otherwise cause multiple gear changes from a single press. Test with deliberate individual presses before changing other gearing settings.
