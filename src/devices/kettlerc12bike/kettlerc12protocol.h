@@ -16,22 +16,12 @@ constexpr int maxResistanceLevel = 20;
 
 // MyHomeFIT SecureData.txt is a sequential index-to-16-byte-response table:
 // "0000:<32 hex digits>" through "FFFF:<32 hex digits>".
-// Its runtime challenge conversion is unsigned big-endian, as verified in
-// the attached independent protocol analysis. A full table is not included
-// here: it must be supplied separately. This helper can decode 1-4 byte
-// challenges but only accepts indices within the 16-bit table.
+// The ERGO C12 characteristic 638a1104 returns precisely two bytes.
+// Require that observed width instead of truncating/accepting other formats.
 inline bool challengeIndex(const uint8_t *bytes, std::size_t length, uint16_t &index) {
-    if (!bytes || length < 1 || length > 4)
+    if (!bytes || length != 2)
         return false;
-
-    uint32_t value = 0;
-    for (std::size_t i = 0; i < length; ++i) {
-        value = (value << 8) | bytes[i];
-    }
-    if (value > 0xffff)
-        return false;
-
-    index = static_cast<uint16_t>(value);
+    index = static_cast<uint16_t>((static_cast<uint16_t>(bytes[0]) << 8) | bytes[1]);
     return true;
 }
 
@@ -64,15 +54,6 @@ inline bool parseSecurityRow(const char *row, std::size_t length, uint16_t expec
         if (high < 0 || low < 0) return false;
         response[i] = static_cast<uint8_t>((high << 4) | low);
     }
-    return true;
-}
-
-// The captured pair is a test vector and also a single-challenge fallback if
-// the full lookup asset is unavailable. Never use this for a different index.
-inline bool capturedHandshakeResponse(uint16_t index, std::array<uint8_t, 16> &response) {
-    if (index != 0x3e7c) return false;
-    response = {{0x4e, 0x0e, 0x07, 0x9d, 0xe0, 0xe7, 0xba, 0x94,
-                 0x74, 0xaa, 0xab, 0x50, 0x3c, 0x5f, 0x4c, 0xc3}};
     return true;
 }
 
