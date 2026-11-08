@@ -592,8 +592,11 @@ ApplicationWindow {
         }
 
         stackView.pop()
-        toolButtonLoadSettings.visible = false;
-        toolButtonSaveSettings.visible = false;
+        // Back from a page opened out of the settings (Tiles Options...) the settings keep their
+        // load and save buttons, and with them the tile lock, map, video and chart stay hidden
+        var backOnSettings = stackView.depth > 1 && headerToolbar.settingsPageActive
+        toolButtonLoadSettings.visible = backOnSettings;
+        toolButtonSaveSettings.visible = backOnSettings;
         rootItem.sortTiles()
         if (remindToSaveProfile) {
             toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
@@ -1610,7 +1613,9 @@ ApplicationWindow {
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.mapsVisible
+            // Hidden where load and save are shown (settings, profiles), as the tile lock: there the
+            // map, video and chart buttons lie over search, load and the title
+            visible: rootItem.mapsVisible && !toolButtonSaveSettings.visible
         }      
 
         ToolButton {
@@ -1628,7 +1633,7 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.videoIconVisible
+            visible: rootItem.videoIconVisible && !toolButtonSaveSettings.visible
         }
 
         ToolButton {
@@ -1637,7 +1642,7 @@ ApplicationWindow {
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.chartIconVisible
+            visible: rootItem.chartIconVisible && !toolButtonSaveSettings.visible
         }
 
         // Share the workout file of the page (PreviewChart.qml opened from the workout history)
@@ -2063,6 +2068,14 @@ ApplicationWindow {
         StackView {
             id: stackView
             initialItem: "Home.qml"
+            // The home page has no load and save buttons, whichever way it is reached (a profile
+            // saved, a settings file loaded): with them shown the lock, map, video and chart hide
+            onDepthChanged: {
+                if (depth === 1) {
+                    toolButtonLoadSettings.visible = false;
+                    toolButtonSaveSettings.visible = false;
+                }
+            }
             anchors.fill: parent
             // Below the toolbar, which hangs over the pages (headerToolbar)
             anchors.topMargin: headerToolbar.contentHeight
