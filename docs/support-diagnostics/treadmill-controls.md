@@ -101,3 +101,24 @@
 - The same treadmill can expose standard FTMS telemetry while QZ's automatic name-based detection chooses a manufacturer-specific driver with different control support. Bluetooth discovery and readable speed do not establish that the chosen driver implements speed commands.
 - A confirmed test on an FTMS-advertising treadmill restored QZ speed control by selecting its exact name under **FTMS Treadmill** instead of the automatically chosen manufacturer driver. A separate model-specific treadmill case required clearing the forced FTMS selection and choosing a matching profile. These outcomes show why the **advertised services and active QZ profile must be collected together**, not why FTMS should be forced universally.
 - Comparing one safe command across explicitly recorded profiles separates **driver selection** from a missing control-point response or an underlying treadmill fault. For protocol-level failures, continue with the [general treadmill control intake](#qz-reads-treadmill-metrics-but-some-commands-do-not-work).
+
+## FTMS treadmill advertises incline control but rejects remote commands
+
+### Provide first
+
+- Exact treadmill and console model, firmware version if available, and the Bluetooth name shown in nRF Connect.
+- Confirm whether speed and incline values **read correctly** in QZ or the receiving app, separately from whether either app can **change** the treadmill's incline.
+- State whether any manufacturer-supported app can actually change incline remotely, or only read it. Include the exact app name and the action tested.
+- If already captured, share the nRF Connect **Fitness Machine Service (0x1826)** characteristics, especially **Fitness Machine Control Point (0x2AD9)**, **Supported Inclination Range (0x2AD5)**, and the complete response to a **Request Control** attempt. Do not infer control support from the presence of these characteristics alone.
+
+### If still unclear
+
+- If the manufacturer app genuinely controls incline, capture its app version and a short, isolated comparison of one small incline adjustment with QZ closed; only then consider a manufacturer-app Bluetooth trace with support guidance.
+- If an FTMS Request Control response was captured, report the exact response bytes and decoded status. For example, **0x80 0x00 0x05** indicates a Request Control response with **Control Not Permitted**; distinguish this from a transport/write failure or a missing response.
+- Capture a short QZ debug log with one safe, low-incline control attempt only when the command response or active driver remains unclear. Keep the safety key available; do not repeatedly force incline changes after an explicit rejection.
+
+### Why it matters
+
+- Advertising the FTMS control point and an inclination range does **not** guarantee that firmware grants external control. Successful telemetry can coexist with rejected commands.
+- An explicit **Control Not Permitted** response narrows the issue to device-side permission or initialization rather than a missing incline range or an unrelated receiving-app pairing problem.
+- A demonstrated manufacturer-app control path is stronger evidence for investigating a proprietary initialization sequence than a manufacturer's general claim of app connectivity. Without such evidence, do not assume a hidden unlock exists.
