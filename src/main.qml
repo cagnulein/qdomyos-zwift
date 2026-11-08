@@ -1510,7 +1510,9 @@ ApplicationWindow {
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.mapsVisible
+            // Hidden where load and save are shown (settings, profiles), as the tile lock: there the
+            // map, video and chart buttons lie over search, load and the title
+            visible: rootItem.mapsVisible && !toolButtonSaveSettings.visible
         }      
 
         ToolButton {
@@ -1528,7 +1530,7 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.videoIconVisible
+            visible: rootItem.videoIconVisible && !toolButtonSaveSettings.visible
         }
 
         ToolButton {
@@ -1537,7 +1539,7 @@ ApplicationWindow {
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
             anchors.verticalCenter: parent.verticalCenter
-            visible: rootItem.chartIconVisible
+            visible: rootItem.chartIconVisible && !toolButtonSaveSettings.visible
         }
 
         // Share the workout file of the page (PreviewChart.qml opened from the workout history)
