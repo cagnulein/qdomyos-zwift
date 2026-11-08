@@ -155,11 +155,11 @@ The QZ settings UI exposes `treadmill_step_speed`; the speed-control code uses t
 **Yes.** QZ has built-in **Preset Speed** dashboard tiles, so you do not need to program a workout or modify the treadmill's physical console buttons to create quick speed targets.
 
 1. Open **QZ Settings > Tiles Options**.
-2. Find **Preset Speed 1**, **Preset Speed 2**, etc. Enable the presets you want displayed. QZ provides **five** configurable preset-speed tiles.
+2. Find **Preset Speed 1**, **Preset Speed 2**, etc. Enable the presets you want displayed. QZ provides **ten** configurable preset-speed tiles.
 3. For each enabled preset, set the target **speed** and a descriptive **label** (for example, `5 km/h` and `10 km/h`), then save the fields using **OK**.
 4. Return to the QZ dashboard and use those preset tiles to request the configured speed on a connected, controllable treadmill.
 
-This capability is **verified in QZ code**: `settings-tiles.qml` defines the five preset-speed values/labels and `homeform.cpp` routes a pressed preset to the treadmill's `changeSpeed()` function. It was discussed in support as an alternative to customizing the treadmill's physical buttons, but it was **not separately validated on that customer's specific device**.
+This capability is **verified in QZ code**: `settings-tiles.qml` defines the ten preset-speed values/labels and `homeform.cpp` routes a pressed preset to the treadmill's `changeSpeed()` function. It was discussed in support as an alternative to customizing the treadmill's physical buttons, but it was **not separately validated on that customer's specific device**.
 
 **Safety:** Preset buttons can request a substantial speed change. Start with modest targets and test with the belt clear of people before using them while running. Actual behavior depends on whether the treadmill supports speed commands from QZ and on its acceleration behavior.
 
