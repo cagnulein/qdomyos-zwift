@@ -18,7 +18,7 @@ constexpr int maxResistanceLevel = 20;
 // receives 3e 7c, and sends exactly 16 bytes to 638a1105 (ATT 0x32).
 // A single capture does not establish a general authentication algorithm.
 // Never replay this one response for a different challenge.
-inline bool matchesCapturedChallenge(const uint8_t *value, size_t length) {
+inline bool matchesCapturedChallenge(const uint8_t *value, std::size_t length) {
     return length == 2 && value[0] == 0x3e && value[1] == 0x7c;
 }
 
@@ -31,7 +31,6 @@ inline uint8_t encodeResistanceLevel(int level) {
     return static_cast<uint8_t>(level < minResistanceLevel ? minResistanceLevel :
                                 level > maxResistanceLevel ? maxResistanceLevel : level);
 }
-
 
 inline std::array<uint8_t, 2> encodeTargetPower(int watts) {
     if (watts < 0)
