@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ตัวเลือกจักรยาน Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>พอร์ตอนุกรมสำหรับเครื่องออกกำลังกาย Daum รุ่นเก่า เช่น 8008 TRS 3 บน Android ที่ใช้อะแดปเตอร์ USB เป็นพอร์ตอนุกรม ให้ใช้ &apos;usb&apos; ค่า COM1, COM2 ฯลฯ ใช้เป็นชื่อแทนเพื่อค้นหาอะแดปเตอร์ USB ได้ แต่ไม่ใช่ชื่อพอร์ตของ Android บน Windows ใช้ COM1 หรือ COM3 ส่วน Linux/macOS ใช้พาธอุปกรณ์อนุกรม เช่น /dev/ttyUSB0</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>ช่วงหน่วงในการตรวจสอบแรงต้าน:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>ใช้การตั้งค่าหน่วงความชันเพื่อจำกัดความถี่ที่ QZ ส่งการอัปเดตแรงต้านและกำลังไปยัง Daum ค่าเริ่มต้น: 0 วินาที</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>ตัวกรองความชัน (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>ในการออกกำลังกาย GPX ให้ข้ามการเปลี่ยนความชันที่น้อยกว่าค่านี้ และส่งคำสั่งใหม่เมื่อผลต่างจากค่าที่ส่งล่าสุดถึงเกณฑ์ที่กำหนดเท่านั้น ค่าเริ่มต้น: 0 (ปิดใช้งาน)</translation>
     </message>
 </context>
 <context>
