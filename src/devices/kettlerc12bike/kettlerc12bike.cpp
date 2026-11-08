@@ -91,6 +91,7 @@ QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) 
 
     const QStringList locations = {
         QStringLiteral(":/kettlerc12/SecureData.txt"),
+        QStringLiteral("assets:/SecureData.txt"), // Qt Android assets; if packaged in src/android/assets
         QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
             QStringLiteral("/kettlerc12/SecureData.txt"),
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
