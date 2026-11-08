@@ -79,13 +79,13 @@ QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) 
     if (!KettlerC12Protocol::challengeIndex(
             reinterpret_cast<const uint8_t *>(challenge.constData()),
             static_cast<std::size_t>(challenge.size()), index)) {
-        qDebug() << QStringLiteral("C12 invalid security challenge length/value:") << challenge.toHex(' ');
+        qDebug() << QStringLiteral("C12 invalid security challenge (expected exactly 2 bytes)");
         return QByteArray();
     }
 
-    // The app-specific 65,536-entry table must be supplied separately.
-    // Never ship or synthesize an incomplete table under this filename. The
-    // expected digest is for the independently verified MyHomeFIT 2.3.5 asset.
+    // The complete 65,536-entry asset has been independently verified.
+    // The public source tree intentionally does not redistribute its bytes.
+    // Only the exact reviewed asset digest is accepted at runtime.
     const QByteArray expectedSha256 =
         QByteArrayLiteral("70d3eeec6c510e132383fa69b2466e28dec0c89065ab0481a33d191e6281b3a3");
 
@@ -126,13 +126,11 @@ QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) 
                 const QByteArray record = content.mid(pos, end - pos);
                 if (KettlerC12Protocol::parseSecurityRow(record.constData(),
                         static_cast<std::size_t>(record.size()), index, decoded)) {
-                    qDebug() << QStringLiteral("C12 security response loaded from verified table; challenge")
-                             << QString::number(index, 16);
+                    qDebug() << QStringLiteral("C12 security response found in verified table");
                     return QByteArray(reinterpret_cast<const char *>(decoded.data()),
                                       static_cast<int>(decoded.size()));
                 }
-                qDebug() << QStringLiteral("C12 security table row invalid for challenge")
-                         << QString::number(index, 16);
+                qDebug() << QStringLiteral("C12 security table row invalid");
                 break;
             }
             if (newline < 0) break;
@@ -140,14 +138,7 @@ QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) 
         }
     }
 
-    if (KettlerC12Protocol::capturedHandshakeResponse(index, decoded)) {
-        qDebug() << QStringLiteral("C12 using Kinomap verified 3e7c fallback; full security table not installed");
-        return QByteArray(reinterpret_cast<const char *>(decoded.data()),
-                          static_cast<int>(decoded.size()));
-    }
-    qDebug() << QStringLiteral("C12 security response unavailable for challenge")
-             << QString::number(index, 16)
-             << QStringLiteral("(SecureData.txt missing or invalid)");
+    qDebug() << QStringLiteral("C12 security response unavailable (verified SecureData.txt missing or invalid)");
     return QByteArray();
 }
 
@@ -654,7 +645,7 @@ void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characte
     }
 
     challengeReadPending = false;
-    qDebug() << QStringLiteral("C12 handshake challenge read") << newValue.toHex(' ');
+    qDebug() << QStringLiteral("C12 handshake challenge received");
 
     const QByteArray response = lookupHandshakeResponse(newValue);
     if (response.size() != 16) {
@@ -675,7 +666,10 @@ void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characte
 }
 
 void kettlerc12bike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("characteristicWritten") << characteristic.uuid() << newValue.toHex(' ');
+    // The 16-byte security response must never appear in production logs.
+    if (characteristic.uuid() != KETTLER_HANDSHAKE_CHAR_UUID) {
+        qDebug() << QStringLiteral("characteristicWritten") << characteristic.uuid() << newValue.toHex(' ');
+    }
     if (characteristic.uuid() == KETTLER_HANDSHAKE_CHAR_UUID && handshakeWritePending) {
         if (newValue == pendingHandshakeResponse) {
             handshakeWritePending = false;
