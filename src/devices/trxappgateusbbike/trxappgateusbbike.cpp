@@ -390,11 +390,13 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             } else {
                 heart = ((uint8_t)(packet.at(17))) + (((uint8_t)(packet.at(16))) * 83);
             }
-            if (!compactIConsole && (heart == 0.0 ||
-                settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool())) {
-                update_hr_from_external();
-            } else {
-                Heart = heart;
+            if (!compactIConsole) {
+                if (heart == 0.0 ||
+                    settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+                    update_hr_from_external();
+                } else {
+                    Heart = heart;
+                }
             }
         }
     }
@@ -458,14 +460,14 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double cr = 97.62165482;
 
     if (!compactIConsole) {
-    m_pelotonResistance =
-        (((sqrt(pow(br, 2.0) -
-                4.0 * ar *
-                    (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-           br) /
-          (2.0 * ar)) *
-         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+        m_pelotonResistance =
+            (((sqrt(pow(br, 2.0) -
+                    4.0 * ar *
+                        (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         m_pelotonResistance = 0;
     }
