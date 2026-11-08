@@ -2380,9 +2380,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
             }
 #ifndef Q_OS_IOS
-            else if ((b.name().compare(QStringLiteral("RUN 71"), Qt::CaseInsensitive) == 0 ||
-                      b.name().compare(QStringLiteral("RUN71"), Qt::CaseInsensitive) == 0 ||
-                      b.name().compare(QStringLiteral("RUN 7"), Qt::CaseInsensitive) == 0) &&
+            else if (b.name().size() == 5 &&
+                     b.name().startsWith(QStringLiteral("RUN"), Qt::CaseInsensitive) &&
+                     b.name().at(3).isDigit() && b.name().at(4).isDigit() &&
                      !kettlerRun7Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
