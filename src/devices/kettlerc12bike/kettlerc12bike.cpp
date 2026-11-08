@@ -456,6 +456,8 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                 Qt::UniqueConnection);
         connect(service, &QLowEnergyService::characteristicWritten, this, &kettlerc12bike::characteristicWritten,
                 Qt::UniqueConnection);
+        connect(service, &QLowEnergyService::characteristicRead, this, &kettlerc12bike::characteristicRead,
+                Qt::UniqueConnection);
         connect(service,
                 static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
                 this, &kettlerc12bike::errorService, Qt::UniqueConnection);
@@ -468,7 +470,9 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << QStringLiteral("Kettler C12 custom service discovered") << activeServiceUuid.toString();
 
             gattWriteCharacteristic = QLowEnergyCharacteristic();
+            gattChallengeCharacteristic = QLowEnergyCharacteristic();
             gattHandshakeCharacteristic = QLowEnergyCharacteristic();
+            gattResistanceCharacteristic = QLowEnergyCharacteristic();
             gattTargetPowerCharacteristic = QLowEnergyCharacteristic();
         }
 
@@ -495,8 +499,12 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                     gattWriteCharacteristic = c;
                     qDebug() << QStringLiteral("Found Kettler control characteristic") << c.uuid()
                              << "handle:" << QString::number(c.handle(), 16);
+                } else if (c.uuid() == KETTLER_CHALLENGE_CHAR_UUID) {
+                    gattChallengeCharacteristic = c;
                 } else if (c.uuid() == KETTLER_HANDSHAKE_CHAR_UUID) {
                     gattHandshakeCharacteristic = c;
+                } else if (c.uuid() == KETTLER_RESISTANCE_CHAR_UUID) {
+                    gattResistanceCharacteristic = c;
                 } else if (c.uuid() == KETTLER_CADENCE_CHAR_UUID) {
                     gattNotify0x0034 = c;
                 } else if (c.uuid() == KETTLER_POWER_CHAR_UUID) {
@@ -537,12 +545,8 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
             if (!gattTargetPowerCharacteristic.isValid()) {
                 qDebug() << QStringLiteral("C12 watt target characteristic not found (expected ATT 0x0042)");
             }
-            if (gattWriteCharacteristic.isValid()) {
-                qDebug() << QStringLiteral("Starting initialization...");
-                initRequest = true;
-            } else {
-                qDebug() << QStringLiteral("ERROR: Write characteristic not found!");
-            }
+            qDebug() << QStringLiteral("Starting C12 Kinomap initialization...");
+            initRequest = true;
         }
     }
 }
