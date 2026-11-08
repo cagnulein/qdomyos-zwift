@@ -8219,27 +8219,27 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum kerékpár beállításai</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>A klasszikus Daum ergométerekhez (pl. 8008 TRS 3) használt soros port. Androidon USB–soros adapterrel az &apos;usb&apos; értéket használja. A COM1, COM2 stb. Androidon az USB-adapter keresésének álnevei, nem valódi Android-portnevek. Windowson COM1 vagy COM3; Linux/macOS rendszeren a soros eszköz útvonala használható, pl. /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellenállás-lekérdezés késleltetése:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>A Dőlésszög késleltetése beállítással korlátozza, milyen gyakran küld a QZ ellenállás- és teljesítményfrissítéseket a Daum eszköznek. Alapértelmezés: 0 másodperc.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Dőlésszögszűrő (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-edzéseknél az ennél kisebb dőlésszög-változásokat figyelmen kívül hagyja. Új parancsot csak akkor küld, ha az utoljára küldött értékhez képest a változás eléri a megadott küszöböt. Alapértelmezés: 0 (kikapcsolva).</translation>
     </message>
 </context>
 <context>
