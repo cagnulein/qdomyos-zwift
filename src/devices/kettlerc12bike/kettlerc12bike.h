@@ -44,8 +44,7 @@ class kettlerc12bike : public bike {
     bool connected() override;
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
+    bool setNativeResistanceLevel(int level);
     void btinit();
     void forceResistance(resistance_t requestResistance);
     bool setTargetPower(uint16_t watts);
@@ -61,7 +60,9 @@ class kettlerc12bike : public bike {
     QList<QLowEnergyService *> gattMetricServices;
 
     QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattChallengeCharacteristic;
     QLowEnergyCharacteristic gattHandshakeCharacteristic;
+    QLowEnergyCharacteristic gattResistanceCharacteristic;
     QLowEnergyCharacteristic gattTargetPowerCharacteristic; // ATT 0x0042 in Tom's Kinomap capture
     QLowEnergyCharacteristic gattNotify0x0034;
     QLowEnergyCharacteristic gattNotify0x003e;            // Power notifications
@@ -69,6 +70,11 @@ class kettlerc12bike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool challengeReadPending = false;
+    bool handshakeWritePending = false;
+    bool controlReady = false;
+    bool initialResistanceSent = false;
+    int pendingNativeResistance = -1;
     bool connectedAndDiscoveredEmitted = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -94,6 +100,8 @@ class kettlerc12bike : public bike {
     const QBluetoothUuid KETTLER_ALT_SERVICE_UUID = QBluetoothUuid(QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a"));
     const QBluetoothUuid KETTLER_CONTROL_CHAR_UUID =
         QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_CHALLENGE_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1104-7bde-3e25-ffc5-9de9b2a0197a"));
     const QBluetoothUuid KETTLER_HANDSHAKE_CHAR_UUID =
         QBluetoothUuid(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a"));
     const QBluetoothUuid KETTLER_CADENCE_CHAR_UUID =
@@ -126,6 +134,7 @@ class kettlerc12bike : public bike {
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
