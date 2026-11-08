@@ -2491,6 +2491,33 @@ import AndroidStatusBar 1.0
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
 
+            // Additional treadmill speed presets (append-only to preserve persisted settings order)
+            property bool tile_preset_speed_6_enabled: false
+            property int tile_preset_speed_6_order: 80
+            property real tile_preset_speed_6_value: 13.0
+            property string tile_preset_speed_6_label: "13 km/h"
+            property string tile_preset_speed_6_color: "grey"
+            property bool tile_preset_speed_7_enabled: false
+            property int tile_preset_speed_7_order: 81
+            property real tile_preset_speed_7_value: 14.0
+            property string tile_preset_speed_7_label: "14 km/h"
+            property string tile_preset_speed_7_color: "grey"
+            property bool tile_preset_speed_8_enabled: false
+            property int tile_preset_speed_8_order: 82
+            property real tile_preset_speed_8_value: 15.0
+            property string tile_preset_speed_8_label: "15 km/h"
+            property string tile_preset_speed_8_color: "grey"
+            property bool tile_preset_speed_9_enabled: false
+            property int tile_preset_speed_9_order: 83
+            property real tile_preset_speed_9_value: 16.0
+            property string tile_preset_speed_9_label: "16 km/h"
+            property string tile_preset_speed_9_color: "grey"
+            property bool tile_preset_speed_10_enabled: false
+            property int tile_preset_speed_10_order: 84
+            property real tile_preset_speed_10_value: 17.0
+            property string tile_preset_speed_10_label: "17 km/h"
+            property string tile_preset_speed_10_color: "grey"
+
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
