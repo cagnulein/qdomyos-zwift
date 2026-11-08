@@ -161,6 +161,7 @@ void kettlerc12bike::update() {
                 // Manual resistance controls the C12 native 1..20 level, not watts.
                 pendingNativeResistance = KettlerC12Protocol::encodeResistanceLevel(requestResistance);
                 targetPowerActive = false;
+                initialResistanceSent = false;
                 emit debug(QStringLiteral("Kettler C12 requested native resistance: ") +
                            QString::number(pendingNativeResistance));
             }
@@ -170,6 +171,7 @@ void kettlerc12bike::update() {
 
         if (requestStop != -1) {
             targetPowerActive = false;
+            initialResistanceSent = false;
             requestStop = -1;
         }
 
@@ -571,7 +573,7 @@ void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("C12 handshake challenge read") << newValue.toHex(' ');
 
     const auto *bytes = reinterpret_cast<const uint8_t *>(newValue.constData());
-    if (!KettlerC12Protocol::matchesCapturedChallenge(bytes, static_cast<size_t>(newValue.size()))) {
+    if (!KettlerC12Protocol::matchesCapturedChallenge(bytes, static_cast<std::size_t>(newValue.size()))) {
         // Only one challenge/response pair was captured from Kinomap.
         // Do not send a stale response when the challenge changes.
         qDebug() << QStringLiteral("C12 authentication needs another challenge/response capture; watt control disabled for this session");
