@@ -485,11 +485,12 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                      << "properties:" << c.properties();
 
             if (customService) {
-                // The capture begins after Android's cached GATT discovery, so
-                // the UUID for 0x0042 is not present in the snoop. Match the
-                // observed ATT value handle on this C12 firmware, but never
-                // attempt to write unless the characteristic is writable.
-                if (c.handle() == KettlerC12Protocol::targetPowerHandle &&
+                // Tom's QZ GATT log maps Kinomap's ATT 0x42 to 638a100e.
+                // Prefer the UUID so the driver also works if ATT handles move.
+                // Keep the observed handle only as a firmware-specific fallback.
+                if ((c.uuid() == KETTLER_CONTROL_CHAR_UUID ||
+                     (c.handle() == KettlerC12Protocol::targetPowerHandle &&
+                      !gattTargetPowerCharacteristic.isValid())) &&
                     (c.properties() & (QLowEnergyCharacteristic::Write |
                                        QLowEnergyCharacteristic::WriteNoResponse))) {
                     gattTargetPowerCharacteristic = c;
