@@ -2491,6 +2491,7 @@ import AndroidStatusBar 1.0
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
 
+			// merge syncronization point - properties for features not yet merged to master should be placed after this line
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
