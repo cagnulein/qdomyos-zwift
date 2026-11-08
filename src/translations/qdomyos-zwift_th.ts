@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>กำหนดวิธีแปลงความชันจากแอปเสมือนเป็นแรงต้านของจักรยาน</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>ใช้การจับคู่แบบกำหนดเองเมื่อ QZ แปลงความชันจากแอปเสมือนเป็นแรงต้าน</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>ระบุคู่ ความชัน|แรงต้าน หนึ่งคู่ต่อบรรทัด QZ จะคำนวณค่าระหว่างจุดและจำกัดค่าให้อยู่ในช่วงที่ตั้งไว้</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>ชื่อผู้ใช้บัญชี Life Fitness สำหรับเข้าสู่ระบบบริการ เก็บไว้ในอุปกรณ์เท่านั้น และไม่บันทึกลงในล็อกดีบัก</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>รหัสผ่านบัญชี Life Fitness สำหรับเข้าสู่ระบบบริการ เก็บไว้ในอุปกรณ์เท่านั้น และไม่บันทึกลงในล็อกดีบัก</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>การทำงานของกล้อง</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>การทำงานของอีโมต</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>ตัวจำลอง Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟกำลัง</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟอัตราการเต้นหัวใจ</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟแรงต้านเทียบกับแรงต้านเป้าหมาย</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟแรงต้าน Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟรอบขา</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟการกระจายกำลัง</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>ตำแหน่งกราฟความเร็วและความชัน</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>ลำดับตัวเลขของกราฟนี้ในประวัติการออกกำลังกาย เปลี่ยนลำดับด้วยปุ่มขึ้นและลงในตัวเลือก UI ทั่วไป</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>ค้นหาเซ็นเซอร์วัดชีพจรเมื่อเริ่มต้น</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>ใน 5 นาทีแรกหลังเชื่อมต่อเครื่องออกกำลังกาย หากยังไม่ได้รับข้อมูลชีพจร QZ จะค้นหาเซ็นเซอร์ทุกนาที โดยเชื่อมต่อสายคาดอกที่เลือกทันทีเมื่อพบ หรือเสนอเซ็นเซอร์ใกล้เคียงหากยังไม่ได้เลือก สามารถแตะช่องอัตราการเต้นหัวใจหรือไอคอน Bluetooth บนหน้าหลักเพื่อค้นหาได้ทุกเมื่อ</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
