@@ -173,8 +173,8 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page (searchHiddenSettings, in "Changed" only; any setting
-            // when the index could not be built): the results stay, the tap says why
+            // A setting the index does not place on any page (a page or the whole index could not
+            // be read): the results stay, the tap says why
             if (!where) {
                 toast.show(qsTr("This setting was not found on the settings pages"))
                 return
@@ -780,14 +780,12 @@ import AndroidStatusBar 1.0
         }
 
         // Settings the catalog lists but no page shows: the results only show a value, so they
-        // could not be changed from there either. Garmin ANT+ (moves the ANT channels to Garmin's
-        // private network, switched on by chance it cuts the ANT+ sensors off), Peloton Bike OCR
-        // (its switch is commented out on the page), the camera and emote of MyWhoosh Link (QZ
-        // cycles them with a controller button itself). Left out of the search by text only:
-        // "Changed" still lists Garmin ANT+ and Peloton Bike OCR, so one switched on by chance is
-        // seen there (the MyWhoosh keys are written by QZ, isPrivateSetting keeps them out of it)
-        readonly property var searchHiddenSettings: ({ "ant_garmin": true, "peloton_bike_ocr": true,
-                                                       "mywhoosh_link_camera_value": true,
+        // could not be changed from there either: the camera and emote of MyWhoosh Link (QZ
+        // cycles them with a controller button itself). Left out of the search by text only;
+        // QZ writes them, isPrivateSetting keeps them out of "Changed". Garmin ANT+ and Peloton
+        // Bike OCR are no longer offered (their switches are commented out on the pages): they
+        // are visible: false in the catalog, so neither the search nor "Changed" lists them
+        readonly property var searchHiddenSettings: ({ "mywhoosh_link_camera_value": true,
                                                        "mywhoosh_link_emote_value": true })
 
         // Not listed among the changed settings:
