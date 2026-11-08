@@ -7,8 +7,13 @@
 #include "homeform.h"
 #include "qzsettings.h"
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDateTime>
+#include <QDir>
 #include <QFile>
+#include <QStandardPaths>
+#include <QStringList>
 #include <QMetaEnum>
 #include <QSettings>
 #include <chrono>
@@ -69,11 +74,88 @@ bool kettlerc12bike::setNativeResistanceLevel(int level) {
     return true;
 }
 
+QByteArray kettlerc12bike::lookupHandshakeResponse(const QByteArray &challenge) {
+    uint16_t index = 0;
+    if (!KettlerC12Protocol::challengeIndex(
+            reinterpret_cast<const uint8_t *>(challenge.constData()),
+            static_cast<std::size_t>(challenge.size()), index)) {
+        qDebug() << QStringLiteral("C12 invalid security challenge length/value:") << challenge.toHex(' ');
+        return QByteArray();
+    }
+
+    // The app-specific 65,536-entry table must be supplied separately.
+    // Never ship or synthesize an incomplete table under this filename. The
+    // expected digest is for the independently verified MyHomeFIT 2.3.5 asset.
+    const QByteArray expectedSha256 =
+        QByteArrayLiteral("70d3eeec6c510e132383fa69b2466e28dec0c89065ab0481a33d191e6281b3a3");
+
+    const QStringList locations = {
+        QStringLiteral(":/kettlerc12/SecureData.txt"),
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+            QStringLiteral("/kettlerc12/SecureData.txt"),
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+            QStringLiteral("/QZ/SecureData.txt"),
+        QCoreApplication::applicationDirPath() + QStringLiteral("/SecureData.txt")
+    };
+
+    std::array<uint8_t, 16> decoded{};
+    for (const QString &path : locations) {
+        QFile table(path);
+        if (!table.exists()) continue;
+        if (!table.open(QIODevice::ReadOnly)) {
+            qDebug() << QStringLiteral("C12 unable to open security table") << path << table.errorString();
+            continue;
+        }
+        // One request per connection: reading a ~2.5 MB file and verifying
+        // it once is cheaper than keeping 65,536 responses in memory.
+        const QByteArray content = table.readAll();
+        if (QCryptographicHash::hash(content, QCryptographicHash::Sha256).toHex() != expectedSha256) {
+            qDebug() << QStringLiteral("C12 security table SHA-256 mismatch") << path;
+            continue;
+        }
+
+        // SecureData.txt has sequential HHHH:HH... rows, starting at 0000.
+        // Scan through index to accommodate both LF and CRLF on disk.
+        int pos = 0;
+        for (uint32_t row = 0; row <= index; ++row) {
+            const int newline = content.indexOf('\n', pos);
+            const int end = newline < 0 ? content.size() : newline;
+            if (end <= pos) break;
+            if (row == index) {
+                const QByteArray record = content.mid(pos, end - pos);
+                if (KettlerC12Protocol::parseSecurityRow(record.constData(),
+                        static_cast<std::size_t>(record.size()), index, decoded)) {
+                    qDebug() << QStringLiteral("C12 security response loaded from verified table; challenge")
+                             << QString::number(index, 16);
+                    return QByteArray(reinterpret_cast<const char *>(decoded.data()),
+                                      static_cast<int>(decoded.size()));
+                }
+                qDebug() << QStringLiteral("C12 security table row invalid for challenge")
+                         << QString::number(index, 16);
+                break;
+            }
+            if (newline < 0) break;
+            pos = newline + 1;
+        }
+    }
+
+    if (KettlerC12Protocol::capturedHandshakeResponse(index, decoded)) {
+        qDebug() << QStringLiteral("C12 using Kinomap verified 3e7c fallback; full security table not installed");
+        return QByteArray(reinterpret_cast<const char *>(decoded.data()),
+                          static_cast<int>(decoded.size()));
+    }
+    qDebug() << QStringLiteral("C12 security response unavailable for challenge")
+             << QString::number(index, 16)
+             << QStringLiteral("(SecureData.txt missing or invalid)");
+    return QByteArray();
+}
+
 void kettlerc12bike::btinit() {
     qDebug() << QStringLiteral("kettlerc12bike::btinit - starting observed Kinomap handshake");
     initDone = true; // Keep collecting metrics even if authentication is not confirmed.
     challengeReadPending = false;
     handshakeWritePending = false;
+    pendingHandshakeResponse.clear();
     controlReady = false;
     initialResistanceSent = false;
 
@@ -573,25 +655,20 @@ void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characte
     challengeReadPending = false;
     qDebug() << QStringLiteral("C12 handshake challenge read") << newValue.toHex(' ');
 
-    const auto *bytes = reinterpret_cast<const uint8_t *>(newValue.constData());
-    if (!KettlerC12Protocol::matchesCapturedChallenge(bytes, static_cast<std::size_t>(newValue.size()))) {
-        // Only one challenge/response pair was captured from Kinomap.
-        // Do not send a stale response when the challenge changes.
-        qDebug() << QStringLiteral("C12 authentication needs another challenge/response capture; watt control disabled for this session");
-        emit debug(QStringLiteral("C12 authentication challenge differs from recorded Kinomap session"));
+    const QByteArray response = lookupHandshakeResponse(newValue);
+    if (response.size() != 16) {
+        qDebug() << QStringLiteral("C12 no valid authentication response; control disabled this session");
+        emit debug(QStringLiteral("C12 security lookup missing: supply the verified SecureData.txt"));
         return;
     }
-
     if (!gattHandshakeCharacteristic.isValid() || !gattCommunicationChannelService) {
         qDebug() << QStringLiteral("C12 handshake response characteristic unavailable");
         return;
     }
 
-    const auto bytesToSend = KettlerC12Protocol::capturedHandshakeResponse();
-    const QByteArray response(reinterpret_cast<const char *>(bytesToSend.data()),
-                              static_cast<int>(bytesToSend.size()));
+    pendingHandshakeResponse = response;
     handshakeWritePending = true;
-    qDebug() << QStringLiteral("C12 handshake sending response on 638a1105");
+    qDebug() << QStringLiteral("C12 handshake sending 16-byte security response on 638a1105");
     gattCommunicationChannelService->writeCharacteristic(
         gattHandshakeCharacteristic, response, QLowEnergyService::WriteWithResponse);
 }
@@ -599,11 +676,9 @@ void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characte
 void kettlerc12bike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicWritten") << characteristic.uuid() << newValue.toHex(' ');
     if (characteristic.uuid() == KETTLER_HANDSHAKE_CHAR_UUID && handshakeWritePending) {
-        const auto expected = KettlerC12Protocol::capturedHandshakeResponse();
-        const QByteArray response(reinterpret_cast<const char *>(expected.data()),
-                                  static_cast<int>(expected.size()));
-        if (newValue == response) {
+        if (newValue == pendingHandshakeResponse) {
             handshakeWritePending = false;
+            pendingHandshakeResponse.clear();
             controlReady = true;
             qDebug() << QStringLiteral("C12 handshake write acknowledged (acceptance by bike unverified)");
         }
@@ -619,6 +694,7 @@ void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerStat
         initRequest = false;
         challengeReadPending = false;
         handshakeWritePending = false;
+        pendingHandshakeResponse.clear();
         controlReady = false;
         initialResistanceSent = false;
         pendingNativeResistance = -1;
