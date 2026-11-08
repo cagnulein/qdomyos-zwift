@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opsi Sepeda Daum</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Port serial untuk ergometer Daum klasik seperti 8008 TRS 3. Di Android dengan adaptor USB-ke-serial, gunakan &apos;usb&apos;. COM1, COM2, dan seterusnya diterima sebagai alias untuk memindai adaptor USB, tetapi bukan nama port Android. Di Windows gunakan COM1 atau COM3; di Linux/macOS gunakan jalur perangkat serial, misalnya /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeda pemeriksaan resistansi:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Menggunakan pengaturan Jeda Kemiringan untuk membatasi seberapa sering QZ mengirim pembaruan resistansi dan daya ke Daum. Default: 0 detik.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter Kemiringan (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>Untuk latihan GPX, abaikan perubahan kemiringan yang lebih kecil dari nilai ini dan kirim perintah baru hanya ketika selisih dari nilai terakhir yang dikirim mencapai ambang yang ditentukan. Default: 0 (dinonaktifkan).</translation>
     </message>
 </context>
 <context>
