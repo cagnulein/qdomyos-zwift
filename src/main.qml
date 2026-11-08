@@ -249,6 +249,11 @@ ApplicationWindow {
         property string ui_theme: "graphite"
         property string ui_accent: "violet"
         property string ui_theme_mode: "auto"
+        property string shortcut_preset_speed_6: ""
+        property string shortcut_preset_speed_7: ""
+        property string shortcut_preset_speed_8: ""
+        property string shortcut_preset_speed_9: ""
+        property string shortcut_preset_speed_10: ""
     }
 
     // Modern look (settings.ui_modern, off by default). Pages and Ui* components read the palette
