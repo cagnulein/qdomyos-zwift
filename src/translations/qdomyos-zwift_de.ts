@@ -8263,27 +8263,27 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum-Fahrradoptionen</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Serieller Anschluss für klassische Daum-Ergometer wie das 8008 TRS 3. Unter Android mit USB-Seriell-Adapter &apos;usb&apos; verwenden. COM1, COM2 usw. werden unter Android als Aliase für die USB-Adaptersuche akzeptiert, sind aber keine Android-Portnamen. Unter Windows COM1 oder COM3 verwenden; unter Linux/macOS den Gerätepfad, z. B. /dev/ttyUSB0.</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abfrageintervall für Widerstand:</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet die Einstellung für die Steigungsverzögerung, um die Häufigkeit der Widerstands- und Leistungsaktualisierungen an Daum zu begrenzen. Standard: 0 Sekunden.</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>Steigungsfilter (%):</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei GPX-Trainings werden Steigungsänderungen unter diesem Wert ignoriert. Ein neuer Steigungsbefehl wird erst gesendet, wenn die Abweichung vom zuletzt gesendeten Wert den festgelegten Schwellenwert erreicht. Standard: 0 (deaktiviert).</translation>
     </message>
 </context>
 <context>
