@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã tìm thấy cảm biến nhịp tim: %1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã tìm thấy các cảm biến nhịp tim: %1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Kết nối</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Để sau</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Đừng hỏi lại</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Chọn cảm biến nhịp tim</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (cảm biến nhịp tim): không có dữ liệu nhịp tim. Hãy chắc chắn cảm biến đang phát dữ liệu.</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang tìm cảm biến nhịp tim...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang tìm %1 (cảm biến nhịp tim)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Không tìm thấy %1 (cảm biến nhịp tim). Hãy chắc chắn cảm biến đã bật và đang phát dữ liệu nhịp tim.</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Không tìm thấy cảm biến nhịp tim gần đây. Hãy chắc chắn cảm biến đã bật và đang phát dữ liệu.</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ đang chạy</translation>
     </message>
 </context>
 <context>
