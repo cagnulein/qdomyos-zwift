@@ -12,8 +12,9 @@
 #include "devices/kettlerclassicbike/kettlerclassicprotocol.h"
 #include "devices/treadmill.h"
 
-// BLE/ISSC transport for the Kettler RUN 7 IRMP protocol. The IRMP codec is
-// shared with Kettler Classic, but no RFCOMM/Classic discovery is used here.
+// BLE GATT serial transport for Kettler RUN-series IRMP.
+// Uses 0x1101/FFF1/FFF2 on RUN 71 and an ISSC UART fallback if present.
+// Shares IRMP framing with Kettler Classic, but never uses RFCOMM/Classic.
 // Experimental read-only implementation; no motor/start/stop writes.
 class kettlerrun7treadmill : public treadmill {
     Q_OBJECT
