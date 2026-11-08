@@ -4023,7 +4023,7 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ kjører</translation>
     </message>
 </context>
 <context>
