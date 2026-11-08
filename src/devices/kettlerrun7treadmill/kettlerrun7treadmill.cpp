@@ -3,6 +3,8 @@
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDebug>
+#include <QSettings>
+#include "qzsettings.h"
 
 namespace {
 const QBluetoothUuid IsscService(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
@@ -296,5 +298,6 @@ void kettlerrun7treadmill::update() {
         enqueueRead(Pulse);
         sendNextRequest();
     }
-    update_metrics(false, watts());
+    QSettings settings;
+    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 }
