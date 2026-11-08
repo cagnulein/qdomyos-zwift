@@ -3907,6 +3907,631 @@ ScrollView {
             }
         }
         AccordionCheckElement {
+            id: presetSpeed6EnabledAccordion
+            title: qsTr("Preset Speed 6")
+            linkedBoolSetting: "tile_preset_speed_6_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: ColumnLayout {
+                spacing: 10
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed6Order
+                        text: qsTr("order index:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: presetSpeed6TextField
+                        Accessible.name: presetSpeed6EnabledAccordion.title + ", " + labelPresetSpeed6Order.text + " " + displayText
+                        model: rootItem.tile_order
+                        savedText: settings.tile_preset_speed_6_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = presetSpeed6TextField.currentValue
+                        }
+                    }
+                    Button {
+                        id: okPresetSpeed6OrderButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed6TextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_6_order = presetSpeed6TextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed6Value
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed6ValueTextField
+                        Accessible.name: presetSpeed6EnabledAccordion.title + ", " + labelPresetSpeed6Value.text + ", " + text
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_6_value)
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed6ValueButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed6ValueTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {
+                            settings.tile_preset_speed_6_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed6ValueTextField.displayText);
+                            presetSpeed6ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_6_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed6Label
+                        text: qsTr("label:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed6LabelTextField
+                        Accessible.name: presetSpeed6EnabledAccordion.title + ", " + labelPresetSpeed6Label.text + " " + text
+                        savedText: settings.tile_preset_speed_6_label
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed6LabelButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed6LabelTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_6_label = presetSpeed6LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed6Color
+								text: qsTr("color:")
+        wrapMode: window.labelWrap
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed6
+								title: qsTr("Please choose a color")
+								onAccepted: {
+								    presetSpeed6ColorTextField.text = colorPresetSpeed6.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  SettingsTextField {
+						      id: presetSpeed6ColorTextField
+						      Accessible.name: presetSpeed6EnabledAccordion.title + ", " + labelPresetSpeed6Color.text + " " + text
+								savedText: settings.tile_preset_speed_6_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+                                    if(OS_VERSION !== "Android") colorPresetSpeed6.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed6ColorButton
+								text: qsTr("OK")
+								enabled: presetSpeed6ColorTextField.dirty
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {settings.tile_preset_speed_6_color = presetSpeed6ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
+						  }
+					 }
+            }
+        }
+        AccordionCheckElement {
+            id: presetSpeed7EnabledAccordion
+            title: qsTr("Preset Speed 7")
+            linkedBoolSetting: "tile_preset_speed_7_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: ColumnLayout {
+                spacing: 10
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed7Order
+                        text: qsTr("order index:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: presetSpeed7TextField
+                        Accessible.name: presetSpeed7EnabledAccordion.title + ", " + labelPresetSpeed7Order.text + " " + displayText
+                        model: rootItem.tile_order
+                        savedText: settings.tile_preset_speed_7_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = presetSpeed7TextField.currentValue
+                        }
+                    }
+                    Button {
+                        id: okPresetSpeed7OrderButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed7TextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_7_order = presetSpeed7TextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed7Value
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed7ValueTextField
+                        Accessible.name: presetSpeed7EnabledAccordion.title + ", " + labelPresetSpeed7Value.text + ", " + text
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_7_value)
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed7ValueButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed7ValueTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {
+                            settings.tile_preset_speed_7_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed7ValueTextField.displayText);
+                            presetSpeed7ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_7_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed7Label
+                        text: qsTr("label:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed7LabelTextField
+                        Accessible.name: presetSpeed7EnabledAccordion.title + ", " + labelPresetSpeed7Label.text + " " + text
+                        savedText: settings.tile_preset_speed_7_label
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed7LabelButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed7LabelTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_7_label = presetSpeed7LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed7Color
+								text: qsTr("color:")
+        wrapMode: window.labelWrap
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed7
+								title: qsTr("Please choose a color")
+								onAccepted: {
+								    presetSpeed7ColorTextField.text = colorPresetSpeed7.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  SettingsTextField {
+						      id: presetSpeed7ColorTextField
+						      Accessible.name: presetSpeed7EnabledAccordion.title + ", " + labelPresetSpeed7Color.text + " " + text
+								savedText: settings.tile_preset_speed_7_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+                                    if(OS_VERSION !== "Android") colorPresetSpeed7.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed7ColorButton
+								text: qsTr("OK")
+								enabled: presetSpeed7ColorTextField.dirty
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {settings.tile_preset_speed_7_color = presetSpeed7ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
+						  }
+					 }
+            }
+        }
+        AccordionCheckElement {
+            id: presetSpeed8EnabledAccordion
+            title: qsTr("Preset Speed 8")
+            linkedBoolSetting: "tile_preset_speed_8_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: ColumnLayout {
+                spacing: 10
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed8Order
+                        text: qsTr("order index:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: presetSpeed8TextField
+                        Accessible.name: presetSpeed8EnabledAccordion.title + ", " + labelPresetSpeed8Order.text + " " + displayText
+                        model: rootItem.tile_order
+                        savedText: settings.tile_preset_speed_8_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = presetSpeed8TextField.currentValue
+                        }
+                    }
+                    Button {
+                        id: okPresetSpeed8OrderButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed8TextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_8_order = presetSpeed8TextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed8Value
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed8ValueTextField
+                        Accessible.name: presetSpeed8EnabledAccordion.title + ", " + labelPresetSpeed8Value.text + ", " + text
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_8_value)
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed8ValueButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed8ValueTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {
+                            settings.tile_preset_speed_8_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed8ValueTextField.displayText);
+                            presetSpeed8ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_8_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed8Label
+                        text: qsTr("label:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed8LabelTextField
+                        Accessible.name: presetSpeed8EnabledAccordion.title + ", " + labelPresetSpeed8Label.text + " " + text
+                        savedText: settings.tile_preset_speed_8_label
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed8LabelButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed8LabelTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_8_label = presetSpeed8LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed8Color
+								text: qsTr("color:")
+        wrapMode: window.labelWrap
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed8
+								title: qsTr("Please choose a color")
+								onAccepted: {
+								    presetSpeed8ColorTextField.text = colorPresetSpeed8.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  SettingsTextField {
+						      id: presetSpeed8ColorTextField
+						      Accessible.name: presetSpeed8EnabledAccordion.title + ", " + labelPresetSpeed8Color.text + " " + text
+								savedText: settings.tile_preset_speed_8_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+                                    if(OS_VERSION !== "Android") colorPresetSpeed8.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed8ColorButton
+								text: qsTr("OK")
+								enabled: presetSpeed8ColorTextField.dirty
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {settings.tile_preset_speed_8_color = presetSpeed8ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
+						  }
+					 }
+            }
+        }
+        AccordionCheckElement {
+            id: presetSpeed9EnabledAccordion
+            title: qsTr("Preset Speed 9")
+            linkedBoolSetting: "tile_preset_speed_9_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: ColumnLayout {
+                spacing: 10
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed9Order
+                        text: qsTr("order index:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: presetSpeed9TextField
+                        Accessible.name: presetSpeed9EnabledAccordion.title + ", " + labelPresetSpeed9Order.text + " " + displayText
+                        model: rootItem.tile_order
+                        savedText: settings.tile_preset_speed_9_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = presetSpeed9TextField.currentValue
+                        }
+                    }
+                    Button {
+                        id: okPresetSpeed9OrderButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed9TextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_9_order = presetSpeed9TextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed9Value
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed9ValueTextField
+                        Accessible.name: presetSpeed9EnabledAccordion.title + ", " + labelPresetSpeed9Value.text + ", " + text
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_9_value)
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed9ValueButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed9ValueTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {
+                            settings.tile_preset_speed_9_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed9ValueTextField.displayText);
+                            presetSpeed9ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_9_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed9Label
+                        text: qsTr("label:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed9LabelTextField
+                        Accessible.name: presetSpeed9EnabledAccordion.title + ", " + labelPresetSpeed9Label.text + " " + text
+                        savedText: settings.tile_preset_speed_9_label
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed9LabelButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed9LabelTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_9_label = presetSpeed9LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed9Color
+								text: qsTr("color:")
+        wrapMode: window.labelWrap
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed9
+								title: qsTr("Please choose a color")
+								onAccepted: {
+								    presetSpeed9ColorTextField.text = colorPresetSpeed9.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  SettingsTextField {
+						      id: presetSpeed9ColorTextField
+						      Accessible.name: presetSpeed9EnabledAccordion.title + ", " + labelPresetSpeed9Color.text + " " + text
+								savedText: settings.tile_preset_speed_9_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+                                    if(OS_VERSION !== "Android") colorPresetSpeed9.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed9ColorButton
+								text: qsTr("OK")
+								enabled: presetSpeed9ColorTextField.dirty
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {settings.tile_preset_speed_9_color = presetSpeed9ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
+						  }
+					 }
+            }
+        }
+        AccordionCheckElement {
+            id: presetSpeed10EnabledAccordion
+            title: qsTr("Preset Speed 10")
+            linkedBoolSetting: "tile_preset_speed_10_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: ColumnLayout {
+                spacing: 10
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed10Order
+                        text: qsTr("order index:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    UiComboBox {
+                        id: presetSpeed10TextField
+                        Accessible.name: presetSpeed10EnabledAccordion.title + ", " + labelPresetSpeed10Order.text + " " + displayText
+                        model: rootItem.tile_order
+                        savedText: settings.tile_preset_speed_10_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = presetSpeed10TextField.currentValue
+                        }
+                    }
+                    Button {
+                        id: okPresetSpeed10OrderButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed10TextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_10_order = presetSpeed10TextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed10Value
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed10ValueTextField
+                        Accessible.name: presetSpeed10EnabledAccordion.title + ", " + labelPresetSpeed10Value.text + ", " + text
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_10_value)
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed10ValueButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed10ValueTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {
+                            settings.tile_preset_speed_10_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed10ValueTextField.displayText);
+                            presetSpeed10ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_10_value);
+                            toast.show(qsTr("Setting saved!"));
+                        }
+                    }
+                }
+                RowLayout {
+                    Label {
+                        id: labelPresetSpeed10Label
+                        text: qsTr("label:")
+                        wrapMode: window.labelWrap
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    SettingsTextField {
+                        id: presetSpeed10LabelTextField
+                        Accessible.name: presetSpeed10EnabledAccordion.title + ", " + labelPresetSpeed10Label.text + " " + text
+                        savedText: settings.tile_preset_speed_10_label
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okPresetSpeed10LabelButton
+                        text: qsTr("OK")
+                        enabled: presetSpeed10LabelTextField.dirty
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_preset_speed_10_label = presetSpeed10LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
+                }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed10Color
+								text: qsTr("color:")
+        wrapMode: window.labelWrap
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed10
+								title: qsTr("Please choose a color")
+								onAccepted: {
+								    presetSpeed10ColorTextField.text = colorPresetSpeed10.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  SettingsTextField {
+						      id: presetSpeed10ColorTextField
+						      Accessible.name: presetSpeed10EnabledAccordion.title + ", " + labelPresetSpeed10Color.text + " " + text
+								savedText: settings.tile_preset_speed_10_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+                                    if(OS_VERSION !== "Android") colorPresetSpeed10.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed10ColorButton
+								text: qsTr("OK")
+								enabled: presetSpeed10ColorTextField.dirty
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {settings.tile_preset_speed_10_color = presetSpeed10ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
+						  }
+					 }
+            }
+        }
+        AccordionCheckElement {
             id: presetInclination1EnabledAccordion
             title: qsTr("Preset Inclination 1")
             linkedBoolSetting: "tile_preset_inclination_1_enabled"
