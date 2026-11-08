@@ -561,9 +561,50 @@ void kettlerc12bike::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
     }
 }
 
+void kettlerc12bike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (characteristic.uuid() != KETTLER_CHALLENGE_CHAR_UUID || !challengeReadPending ||
+        sender() != gattCommunicationChannelService) {
+        return;
+    }
+
+    challengeReadPending = false;
+    qDebug() << QStringLiteral("C12 handshake challenge read") << newValue.toHex(' ');
+
+    const auto *bytes = reinterpret_cast<const uint8_t *>(newValue.constData());
+    if (!KettlerC12Protocol::matchesCapturedChallenge(bytes, static_cast<size_t>(newValue.size()))) {
+        // Only one challenge/response pair was captured from Kinomap.
+        // Do not send a stale response when the challenge changes.
+        qDebug() << QStringLiteral("C12 authentication needs another challenge/response capture; watt control disabled for this session");
+        emit debug(QStringLiteral("C12 authentication challenge differs from recorded Kinomap session"));
+        return;
+    }
+
+    if (!gattHandshakeCharacteristic.isValid() || !gattCommunicationChannelService) {
+        qDebug() << QStringLiteral("C12 handshake response characteristic unavailable");
+        return;
+    }
+
+    const auto bytesToSend = KettlerC12Protocol::capturedHandshakeResponse();
+    const QByteArray response(reinterpret_cast<const char *>(bytesToSend.data()),
+                              static_cast<int>(bytesToSend.size()));
+    handshakeWritePending = true;
+    qDebug() << QStringLiteral("C12 handshake sending response on 638a1105");
+    gattCommunicationChannelService->writeCharacteristic(
+        gattHandshakeCharacteristic, response, QLowEnergyService::WriteWithResponse);
+}
+
 void kettlerc12bike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    Q_UNUSED(characteristic);
-    qDebug() << QStringLiteral("characteristicWritten ") << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicWritten") << characteristic.uuid() << newValue.toHex(' ');
+    if (characteristic.uuid() == KETTLER_HANDSHAKE_CHAR_UUID && handshakeWritePending) {
+        const auto expected = KettlerC12Protocol::capturedHandshakeResponse();
+        const QByteArray response(reinterpret_cast<const char *>(expected.data()),
+                                  static_cast<int>(expected.size()));
+        if (newValue == response) {
+            handshakeWritePending = false;
+            controlReady = true;
+            qDebug() << QStringLiteral("C12 handshake write acknowledged (acceptance by bike unverified)");
+        }
+    }
 }
 
 void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerState state) {
@@ -573,6 +614,11 @@ void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerStat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         initRequest = false;
+        challengeReadPending = false;
+        handshakeWritePending = false;
+        controlReady = false;
+        initialResistanceSent = false;
+        pendingNativeResistance = -1;
         targetPowerActive = false;
         lastTargetPowerWrite.invalidate();
         gattTargetPowerCharacteristic = QLowEnergyCharacteristic();
