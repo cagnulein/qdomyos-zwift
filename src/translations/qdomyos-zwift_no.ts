@@ -1051,15 +1051,15 @@ Vil du oppdatere QZ-innstillingene?</translation>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (pulssensor): ingen pulsdata. Kontroller at sensoren sender pulsdata.</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>Søker etter %1 (pulssensor)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fant ikke %1 (pulssensor). Kontroller at den er på og sender pulsdata.</translation>
     </message>
 </context>
 <context>
