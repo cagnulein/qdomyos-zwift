@@ -8140,27 +8140,27 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Daum Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Daum 單車選項</translation>
     </message>
     <message>
         <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
-        <translation type="unfinished"></translation>
+        <translation>供 8008 TRS 3 等傳統 Daum 測功車使用的序列埠。在 Android 使用 USB 轉序列埠轉接器時，請輸入 &apos;usb&apos;。COM1、COM2 等在 Android 可作為搜尋 USB 轉接器的別名，但並不是 Android 連接埠名稱。Windows 使用 COM1 或 COM3；Linux/macOS 使用序列裝置路徑，例如 /dev/ttyUSB0。</translation>
     </message>
     <message>
         <source>Resistance Polling Delay:</source>
-        <translation type="unfinished"></translation>
+        <translation>阻力輪詢延遲：</translation>
     </message>
     <message>
         <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用「坡度延遲」設定限制 QZ 向 Daum 傳送阻力與功率更新的頻率。預設：0 秒。</translation>
     </message>
     <message>
         <source>Inclination Filter (%):</source>
-        <translation type="unfinished"></translation>
+        <translation>坡度篩選（%）：</translation>
     </message>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
-        <translation type="unfinished"></translation>
+        <translation>在 GPX 訓練中，忽略小於此值的坡度變化。只有與上次傳送的數值差距達到設定門檻時，才會傳送新的坡度指令。預設：0（停用）。</translation>
     </message>
 </context>
 <context>
