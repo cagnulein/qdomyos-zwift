@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Määritä, miten virtuaalisovelluksen kaltevuus vastaa pyörän vastusta.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Käytä mukautettua muunnosta, kun QZ muuntaa virtuaalisovelluksen kaltevuuden vastukseksi.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yksi kaltevuus|vastus-pari riviä kohden. QZ interpoloi pisteiden välillä ja rajaa arvot määritetyn alueen ulkopuolella.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness -tilin käyttäjänimi palveluun kirjautumista varten. Tallennetaan paikallisesti, eikä sitä koskaan kirjoiteta vianmäärityslokeihin.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Life Fitness -tilin salasana palveluun kirjautumista varten. Tallennetaan paikallisesti, eikä sitä koskaan kirjoiteta vianmäärityslokeihin.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Kameratoiminto</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Emote-toiminto</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Wattbike-emulaattori</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Tehokaavion sijainti</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Sykekaavion sijainti</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Vastuksen ja tavoitevastuksen kaavion sijainti</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton-vastuskaavion sijainti</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Poljinnopeuskaavion sijainti</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Tehon jakautumiskaavion sijainti</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Nopeus- ja kaltevuuskaavion sijainti</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tämän kaavion numeerinen sijainti harjoitushistoriassa. Muuta järjestystä Yleiset käyttöliittymäasetukset -kohdan ylös- ja alas-painikkeilla.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Etsi sykesensori käynnistyksen yhteydessä</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ensimmäisten 5 minuutin aikana kuntolaitteen yhdistämisestä QZ etsii sykesensoria kerran minuutissa, jos sykettä ei saada. Valittu sykevyö yhdistetään heti sen löydyttyä, tai jos vyötä ei ole valittu, QZ ehdottaa lähellä löytynyttä sensoria. Sykeruudun tai etusivun Bluetooth-kuvakkeen napautus käynnistää haun milloin tahansa.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
