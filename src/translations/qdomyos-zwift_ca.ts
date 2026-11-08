@@ -73,31 +73,31 @@
     <name>HeartRateSuggestion</name>
     <message>
         <source>Heart rate sensor found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha trobat un sensor de freqüència cardíaca: %1</translation>
     </message>
     <message>
         <source>Heart rate sensors found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;han trobat sensors de freqüència cardíaca: %1</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Connecta</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria</translation>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Ara no</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>No ho tornis a preguntar</translation>
     </message>
     <message>
         <source>Choose a heart rate sensor</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un sensor de freqüència cardíaca</translation>
     </message>
 </context>
 <context>
@@ -1036,23 +1036,23 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (sensor cardíac): no hi ha dades de freqüència cardíaca. Comprova que les estigui transmetent.</translation>
     </message>
     <message>
         <source>Searching for heart rate sensors...</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;estan cercant sensors de freqüència cardíaca...</translation>
     </message>
     <message>
         <source>Searching for %1 (HR sensor)...</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;està cercant %1 (sensor cardíac)...</translation>
     </message>
     <message>
         <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat %1 (sensor cardíac). Comprova que estigui encès i transmetent la freqüència cardíaca.</translation>
     </message>
     <message>
         <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat cap sensor de freqüència cardíaca a prop. Comprova que estigui encès i transmetent.</translation>
     </message>
 </context>
 <context>
@@ -4007,7 +4007,7 @@ This may take a few moments on first startup.</source>
     <message>
         <source>QZ is running</source>
         <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>QZ s&apos;està executant</translation>
     </message>
 </context>
 <context>
