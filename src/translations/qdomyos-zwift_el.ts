@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ρυθμίστε πώς η κλίση της εικονικής εφαρμογής αντιστοιχεί στην αντίσταση του ποδηλάτου.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Χρησιμοποιήστε προσαρμοσμένη αντιστοίχιση όταν το QZ μετατρέπει την κλίση της εικονικής εφαρμογής σε αντίσταση.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ένα ζεύγος κλίση|αντίσταση ανά γραμμή. Το QZ παρεμβάλλει τιμές μεταξύ των σημείων και περιορίζει τις τιμές εκτός του καθορισμένου εύρους.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Όνομα χρήστη λογαριασμού Life Fitness για σύνδεση στην υπηρεσία. Αποθηκεύεται τοπικά και δεν καταγράφεται ποτέ στα αρχεία αποσφαλμάτωσης.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Κωδικός πρόσβασης λογαριασμού Life Fitness για σύνδεση στην υπηρεσία. Αποθηκεύεται τοπικά και δεν καταγράφεται ποτέ στα αρχεία αποσφαλμάτωσης.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Ενέργεια κάμερας</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Ενέργεια έκφρασης</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Εξομοιωτής Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος ισχύος</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος καρδιακών παλμών</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος αντίστασης και αντίστασης-στόχου</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος αντίστασης Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος ρυθμού πεταλιών</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος κατανομής ισχύος</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Θέση γραφήματος ταχύτητας και κλίσης</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Αριθμητική θέση του γραφήματος στο ιστορικό προπονήσεων. Αλλάξτε τη σειρά με τα κουμπιά πάνω και κάτω στις γενικές επιλογές διεπαφής.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Αναζήτηση αισθητήρα καρδιακών παλμών κατά την εκκίνηση</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Στα πρώτα 5 λεπτά μετά τη σύνδεση του οργάνου γυμναστικής, εφόσον δεν λαμβάνονται παλμοί, το QZ αναζητά αισθητήρα μία φορά το λεπτό: συνδέει την επιλεγμένη ζώνη παλμών μόλις τη βρει ή, αν δεν έχει επιλεγεί κάποια, προτείνει έναν κοντινό αισθητήρα. Μπορείτε να αναζητήσετε ανά πάσα στιγμή αγγίζοντας το πλακίδιο παλμών ή το εικονίδιο Bluetooth στην αρχική σελίδα.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
