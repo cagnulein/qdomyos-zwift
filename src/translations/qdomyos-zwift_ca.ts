@@ -8068,75 +8068,75 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Configure how virtual-app inclination maps to bike resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura com es converteix la inclinació de l&apos;aplicació virtual en resistència de la bicicleta.</translation>
     </message>
     <message>
         <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilitza una correspondència personalitzada quan QZ converteix la inclinació de l&apos;aplicació virtual en resistència.</translation>
     </message>
     <message>
         <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Una parella inclinació|resistència per línia. QZ interpola entre els punts i limita els valors fora del rang configurat.</translation>
     </message>
     <message>
         <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;usuari del compte Life Fitness per iniciar sessió al servei. Es desa localment i mai s&apos;escriu als registres de depuració.</translation>
     </message>
     <message>
         <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Contrasenya del compte Life Fitness per iniciar sessió al servei. Es desa localment i mai s&apos;escriu als registres de depuració.</translation>
     </message>
     <message>
         <source>Camera Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Acció de càmera</translation>
     </message>
     <message>
         <source>Emote Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Acció d&apos;emoticona</translation>
     </message>
     <message>
         <source>Wattbike Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Emulador de Wattbike</translation>
     </message>
     <message>
         <source>Power Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de potència</translation>
     </message>
     <message>
         <source>Heart Rate Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de freqüència cardíaca</translation>
     </message>
     <message>
         <source>Resistance vs Target Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de resistència i resistència objectiu</translation>
     </message>
     <message>
         <source>Peloton Resistance Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de resistència de Peloton</translation>
     </message>
     <message>
         <source>Cadence Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de cadència</translation>
     </message>
     <message>
         <source>Power Distribution Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de distribució de potència</translation>
     </message>
     <message>
         <source>Speed and Inclination Chart Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició del gràfic de velocitat i inclinació</translation>
     </message>
     <message>
         <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Posició numèrica d&apos;aquest gràfic a l&apos;historial d&apos;entrenaments. Canvia&apos;n l&apos;ordre amb els botons amunt i avall de les opcions generals de la interfície.</translation>
     </message>
     <message>
         <source>Search for a Heart Rate Sensor at Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca un sensor de freqüència cardíaca en iniciar</translation>
     </message>
     <message>
         <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Durant els primers 5 minuts després de connectar la màquina, si no arriba la freqüència cardíaca, QZ cerca un sensor un cop per minut: connecta la banda de pit seleccionada tan bon punt la troba o, si no n&apos;hi ha cap de seleccionada, ofereix un sensor proper. Pots iniciar una cerca en qualsevol moment tocant el quadre de freqüència cardíaca o la icona Bluetooth de la pàgina inicial.</translation>
     </message>
     <message>
         <source>Daum Bike Options</source>
