@@ -143,6 +143,8 @@ QByteArray wahookickrsnapbike::setResistanceMode(double resistance) {
     r.append(_setResistanceMode);
     r.append((uint8_t)(norm & 0xFF));
     r.append((uint8_t)(norm >> 8 & 0xFF));
+    // A direct resistance command leaves the trainer outside SIM mode.
+    lastCommandResistanceMode = true;
     return r;
 }
 
@@ -159,6 +161,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
     lastCommandErgMode = true;
+    lastCommandResistanceMode = false;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -179,6 +182,9 @@ QByteArray wahookickrsnapbike::setSimMode(double weight, double rollingResistanc
     r.append((uint8_t)(rrcN >> 8 & 0xFF));
     r.append((uint8_t)(wrcN & 0xFF));
     r.append((uint8_t)(wrcN >> 8 & 0xFF));
+    // This command restores SIM mode for both ERG and direct resistance.
+    lastCommandErgMode = false;
+    lastCommandResistanceMode = false;
     return r;
 }
 
@@ -241,6 +247,7 @@ void wahookickrsnapbike::update() {
 
     if (initRequest) {
         lastCommandErgMode = false;
+        lastCommandResistanceMode = false;
         QByteArray a = unlockCommand();
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
@@ -1010,20 +1017,19 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QSettings settings;
     
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
-        const bool restoreSimMode = lastCommandErgMode;
+        const bool restoreSimMode = lastCommandErgMode || lastCommandResistanceMode;
         if (!restoreSimMode && lastGrade == grade && lastGearValue == gears()) {
             return;
         }
         if (restoreSimMode) {
-            // ERG (0x42) overrides SIM mode. Restore SIM (0x43) before sending
-            // a grade (0x46), otherwise KICKR Core 2 rejects it with 01 46 40.
+            // ERG (0x42) and direct resistance (0x40) override SIM mode.
+            // Restore SIM (0x43) before grade (0x46), or KICKR Core 2 can reject it.
             QByteArray sim = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
                                         0.004, 0.4);
             uint8_t command[20];
             memcpy(command, sim.constData(), sim.length());
-            emit debug(QStringLiteral("restoring SIM mode after ERG"));
-            writeCharacteristic(command, sim.length(), "setSimMode (after ERG)", false, true);
-            lastCommandErgMode = false;
+            emit debug(QStringLiteral("restoring SIM mode after ERG/resistance"));
+            writeCharacteristic(command, sim.length(), "setSimMode (after ERG/resistance)", false, true);
         }
         lastGrade = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
