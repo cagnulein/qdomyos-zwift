@@ -35,9 +35,10 @@ When you have obtained the exact `assets/SecureData.txt` from MyHomeFIT,
 keep it external unless you have confirmed redistribution rights. QZ looks for:
 
 1. Qt resource `:/kettlerc12/SecureData.txt` (only if a future build bundles it).
-2. `QStandardPaths::AppDataLocation/kettlerc12/SecureData.txt`.
-3. `QStandardPaths::DocumentsLocation/QZ/SecureData.txt`.
-4. `<QZ executable directory>/SecureData.txt`.
+2. Android package asset `assets:/SecureData.txt` (when the file is packaged under `src/android/assets/`).
+3. `QStandardPaths::AppDataLocation/kettlerc12/SecureData.txt`.
+4. `QStandardPaths::DocumentsLocation/QZ/SecureData.txt`.
+5. `<QZ executable directory>/SecureData.txt`.
 
 On Android/iOS, storage access may be limited to app-specific directories;
 a properly packaged resource is preferable once licensing has been checked.
