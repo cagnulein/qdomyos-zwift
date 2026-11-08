@@ -94,6 +94,19 @@ RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
 
 This set of instructions adds a valid device name, and an invalid one. Various overloads of these methods, other methods, and other members of the comparison enumeration provide other capabilities for specifying test data. If you add a valid device name that says the name should start with a value, additional names will be added automatically to the valid list with additional characters to test that it is in fact a "starts with" relationship. Also, valid and invalid names will be generated based on whether the comparison is case sensitive or not.
 
+For example, the CSC as bike scenario contains this condition:
+
+```
+(b.name().toUpper().startsWith(QStringLiteral("BGYM")) && b.name().length() == 8))
+```
+for this you can specify 
+```
+	...
+	->acceptDeviceName("BGYM",DeviceNameComparison::StartsWithIgnoreCase, 8)
+	... 
+```
+to specify that the name should start with "BGYM" (case insensitively) and be 8 characters wrong, instructing the test framework to also generate tests against invalid lengths.
+
 ### Configuration Settings
 
 Consider the CompuTrainer bike. This device is not detected by name, but only by whether or not it is enabled in the settings.
