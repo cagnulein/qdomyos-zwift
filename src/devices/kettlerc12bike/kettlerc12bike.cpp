@@ -1,4 +1,5 @@
 #include "kettlerc12bike.h"
+#include "kettlerc12protocol.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -41,6 +42,7 @@ kettlerc12bike::kettlerc12bike(bool noWriteResistance, bool noHeartService, bool
     this->bikeResistanceGain = bikeResistanceGain;
 
     initDone = false;
+    ergModeSupported = true; // C12 accepts direct target watt commands
     connect(refresh, &QTimer::timeout, this, &kettlerc12bike::update);
     refresh->start(500ms);
 }
@@ -131,29 +133,36 @@ void kettlerc12bike::btinit() {
 }
 
 void kettlerc12bike::forceResistance(resistance_t requestResistance) {
-    // For ergometer mode: resistance directly maps to target power in watts
-    // Since this is an ergometer (0-250W), we treat resistance as target power
-    qDebug() << QStringLiteral("kettlerc12bike::forceResistance") << requestResistance;
-    setTargetPower((uint16_t)requestResistance);
+    // QZ resistance requests are treated as watt targets, as in the existing
+    // C12 driver. The separate 1-byte Kinomap writes to handle 0x0038 are
+    // physical resistance levels and must not be confused with watt targets.
+    targetPowerWatts = qBound(0, static_cast<int>(requestResistance),
+                              KettlerC12Protocol::maxTargetPowerWatts);
+    targetPowerActive = true;
+    lastTargetPowerWrite.invalidate();
 }
 
-void kettlerc12bike::setTargetPower(uint16_t targetWatts) {
-    if (noWriteResistance) {
-        return;
+bool kettlerc12bike::setTargetPower(uint16_t targetWatts) {
+    if (noWriteResistance || !gattCommunicationChannelService ||
+        !gattTargetPowerCharacteristic.isValid() ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered) {
+        return false;
     }
 
-    // Clamp to valid range (0-250 watts for ergometer)
-    if (targetWatts > 250) targetWatts = 250;
-
-    qDebug() << QStringLiteral("kettlerc12bike::setTargetPower") << targetWatts << QStringLiteral("watts");
-
-    const uint8_t wattsLow = targetWatts & 0xff;
-    const uint8_t wattsHigh = (targetWatts >> 8) & 0xff;
-
-    uint8_t powercmd[] = {0x81, kettlerCommandSequence++, 0x00, 0x06, 0x84,
-                          0x12, 0x01, 0x0c, wattsLow, wattsHigh};
-    writeCharacteristic(powercmd, sizeof(powercmd),
-                        QStringLiteral("kinomap_target_power_") + QString::number(targetWatts), false, true);
+    // Kinomap uses a *plain 2-byte little-endian watt value* on ATT handle
+    // 0x0042 (e.g. 19 00 = 25 W; 32 00 = 50 W). It does not send the
+    // 10-byte 81/... control frame previously used here.
+    const auto bytes = KettlerC12Protocol::encodeTargetPower(targetWatts);
+    const QByteArray payload(reinterpret_cast<const char *>(bytes.data()),
+                             static_cast<int>(bytes.size()));
+    const auto mode = (gattTargetPowerCharacteristic.properties() & QLowEnergyCharacteristic::Write)
+                          ? QLowEnergyService::WriteWithResponse
+                          : QLowEnergyService::WriteWithoutResponse;
+    gattCommunicationChannelService->writeCharacteristic(gattTargetPowerCharacteristic, payload, mode);
+    qDebug() << QStringLiteral("Kettler C12 target power") << targetWatts
+             << QStringLiteral("W ->") << payload.toHex(' ')
+             << QStringLiteral("characteristic") << gattTargetPowerCharacteristic.uuid();
+    return true;
 }
 
 void kettlerc12bike::sendPoll() {
@@ -177,6 +186,36 @@ void kettlerc12bike::update() {
                initDone) {
 
         update_metrics(true, watts());
+
+        // Consume QZ Target Watt tile, workout and virtual FTMS ERG commands.
+        // Power takes precedence over manual resistance requests.
+        if (!noWriteResistance) {
+            if (requestPower >= 0) {
+                forceResistance(requestPower);
+                emit debug(QStringLiteral("Kettler C12 requested watt target: ") +
+                           QString::number(targetPowerWatts));
+            } else if (requestResistance != -1) {
+                forceResistance(requestResistance);
+                emit debug(QStringLiteral("Kettler C12 requested resistance as watt target: ") +
+                           QString::number(targetPowerWatts));
+            }
+        }
+        requestPower = -1;
+        requestResistance = -1;
+
+        if (requestStop != -1) {
+            targetPowerActive = false;
+            requestStop = -1;
+        }
+
+        // Kinomap refreshes the same watt target approximately once per second
+        // during an active session. Stop repeating after a QZ stop request.
+        if (targetPowerActive &&
+            (!lastTargetPowerWrite.isValid() || lastTargetPowerWrite.elapsed() >= 1000)) {
+            if (setTargetPower(targetPowerWatts)) {
+                lastTargetPowerWrite.start();
+            }
+        }
 
         // Send periodic poll commands
         sendPoll();
@@ -381,6 +420,12 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         oldCrankRevs = CrankRevs;
         emit cadenceChanged(Cadence.value());
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    } else if ((characteristic.uuid() == KETTLER_RESISTANCE_CHAR_UUID || handle == 0x38) &&
+               newValue.length() >= 1) {
+        // The native resistance-level characteristic sends a single byte.
+        Resistance = static_cast<uint8_t>(newValue.at(0));
+        emit resistanceRead(Resistance.value());
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     } else if (newValue.length() >= 2) {
         const uint16_t value = readUInt16LE(newValue, 0);
         const QBluetoothUuid uuid = characteristic.uuid();
@@ -396,9 +441,6 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         } else if (uuid == KETTLER_SPEED_CHAR_UUID || handle == 0x48) {
             Speed = value / 10.0;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        } else if (uuid == KETTLER_RESISTANCE_CHAR_UUID || handle == 0x38) {
-            Resistance = value;
-            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         } else if (uuid == QBluetoothUuid(QStringLiteral("638a1005-7bde-3e25-ffc5-9de9b2a0197a")) ||
                    uuid == QBluetoothUuid(QStringLiteral("638a100a-7bde-3e25-ffc5-9de9b2a0197a")) ||
                    handle == 0x4c || handle == 0x63) {
@@ -453,6 +495,7 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
 
             gattWriteCharacteristic = QLowEnergyCharacteristic();
             gattHandshakeCharacteristic = QLowEnergyCharacteristic();
+            gattTargetPowerCharacteristic = QLowEnergyCharacteristic();
         }
 
         foreach (QLowEnergyCharacteristic c, service->characteristics()) {
@@ -462,6 +505,18 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                      << "properties:" << c.properties();
 
             if (customService) {
+                // The capture begins after Android's cached GATT discovery, so
+                // the UUID for 0x0042 is not present in the snoop. Match the
+                // observed ATT value handle on this C12 firmware, but never
+                // attempt to write unless the characteristic is writable.
+                if (c.handle() == KettlerC12Protocol::targetPowerHandle &&
+                    (c.properties() & (QLowEnergyCharacteristic::Write |
+                                       QLowEnergyCharacteristic::WriteNoResponse))) {
+                    gattTargetPowerCharacteristic = c;
+                    qDebug() << QStringLiteral("Found C12 watt target characteristic")
+                             << c.uuid() << QStringLiteral("handle:") << QString::number(c.handle(), 16);
+                }
+
                 if (c.uuid() == KETTLER_CONTROL_CHAR_UUID) {
                     gattWriteCharacteristic = c;
                     qDebug() << QStringLiteral("Found Kettler control characteristic") << c.uuid()
@@ -505,6 +560,9 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
         }
 
         if (customService) {
+            if (!gattTargetPowerCharacteristic.isValid()) {
+                qDebug() << QStringLiteral("C12 watt target characteristic not found (expected ATT 0x0042)");
+            }
             if (gattWriteCharacteristic.isValid()) {
                 qDebug() << QStringLiteral("Starting initialization...");
                 initRequest = true;
@@ -537,6 +595,9 @@ void kettlerc12bike::controllerStateChanged(QLowEnergyController::ControllerStat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         initRequest = false;
+        targetPowerActive = false;
+        lastTargetPowerWrite.invalidate();
+        gattTargetPowerCharacteristic = QLowEnergyCharacteristic();
         connectBackLater();
     }
 }
