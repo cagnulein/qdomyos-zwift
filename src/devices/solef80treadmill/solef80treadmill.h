@@ -34,7 +34,8 @@
 class SoleF63TelemetryGuard {
   public:
     bool recordVendorPacket(const QByteArray &packet, qint64 nowMs) {
-        if (packet.size() != 18 || packet.at(0) != char(0x5b) || packet.at(17) != char(0x5d))
+        if (packet.size() != 18 || packet.at(0) != char(0x5b) || packet.at(1) != char(0x0f) ||
+            packet.at(2) != char(0x06) || packet.at(17) != char(0x5d))
             return false;
         lastTelemetryMs = nowMs;
         return true;
@@ -71,8 +72,9 @@ class SoleF63InitRetryState {
             ++attempts;
     }
 
-    bool receiveNotification() {
-        if (!waitingForResponse || attempts == 0)
+    bool receiveNotification(const QByteArray &packet) {
+        // Only the BM70 F0 reply can complete the initial handshake.
+        if (!waitingForResponse || attempts == 0 || packet != QByteArray::fromHex("5b08f0900000b40a0f125d"))
             return false;
 
         waitingForResponse = false;
@@ -100,6 +102,37 @@ class SoleF63InitRetryState {
     quint64 attempts = 0;
 };
 
+// Only frames actually observed in Olivier's October 19 SOLE Fitness capture.
+class SoleF63NativeProtocol {
+  public:
+    static QList<QByteArray> startFrames() {
+        return {
+            QByteArray::fromHex("5b06070123009baa5d"),
+            QByteArray::fromHex("5b030820025d"),
+            QByteArray::fromHex("5b0504000000005d"),
+            QByteArray::fromHex("5b0222095d"),
+            QByteArray::fromHex("5b0222095d"),
+            QByteArray::fromHex("5b0202025d"),
+            QByteArray::fromHex("5b0400104f4b5d"),
+            QByteArray::fromHex("5b0400104f4b5d"),
+            QByteArray::fromHex("5b0400404f4b5d"),
+            QByteArray::fromHex("5b0400404f4b5d"),
+            QByteArray::fromHex("5b0400104f4b5d"),
+            QByteArray::fromHex("5b0400104f4b5d"),
+            QByteArray::fromHex("5b0203035d"),
+            QByteArray::fromHex("5b0203035d"),
+            QByteArray::fromHex("5b0203035d")
+        };
+    }
+    static QList<QByteArray> stopFrames() {
+        return {
+            QByteArray::fromHex("5b0203065d"),
+            QByteArray::fromHex("5b0203065d"),
+            QByteArray::fromHex("5b0203065d")
+        };
+    }
+};
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -121,12 +154,25 @@ class solef80treadmill : public treadmill {
     void startDiscover();
     void btinit();
     void sendF63Stop();
+    void writeF63Frame(const QByteArray &frame, const QString &label);
+    void queueF63Start();
+    void sendF63SequenceStep();
+    void f63PollTick();
+    void resetF63Session();
 
     QTimer *refresh;
     QTimer f63InitRetryTimer;
     SoleF63InitRetryState f63InitRetryState;
     SoleF63TelemetryGuard f63TelemetryGuard;
-    bool f63StopInProgress = false;
+    enum class F63Phase { Handshake, Ready, Preparing, AwaitingTelemetry, Running, Stopping };
+    F63Phase f63Phase = F63Phase::Handshake;
+    QTimer f63CommandTimer;
+    QTimer f63PollTimer;
+    QList<QByteArray> f63Frames;
+    int f63FrameIndex = 0;
+    int f63PollCounter = 0;
+    qint64 f63StartDeadlineMs = -1;
+    qint64 f63LastMotionMs = -1;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
