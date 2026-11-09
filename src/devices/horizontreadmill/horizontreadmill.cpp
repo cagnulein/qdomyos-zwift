@@ -2783,7 +2783,8 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
             schwinn_810_treadmill = true;
             qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("YS_W2"))) {
             yesoul_treadmill = true;
             qDebug() << QStringLiteral("YESOUL TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
