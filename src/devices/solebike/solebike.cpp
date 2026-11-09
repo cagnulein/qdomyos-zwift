@@ -77,14 +77,13 @@ void solebike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void solebike::forceResistance(resistance_t requestResistance) {
-    // LCR reports its current level with opcode 0x13, but ignores writes using that opcode.
-    // Try the distinct UserLevel (0x27) message used by other Sole BLE devices.
-    // Keep LCB/R92 on their existing keypad protocol.
+    // The legacy Sole LCR reports 0-based levels and uses opcode 0x13 for direct resistance control.
+    // Keep the existing keypad behavior for LCB/R92 until their control protocol is verified.
     if (bluetoothDevice.name().startsWith(QLatin1String("LCR"), Qt::CaseInsensitive)) {
         const uint8_t level = static_cast<uint8_t>(
             qBound(1, static_cast<int>(requestResistance), static_cast<int>(max_resistance)) - 1);
-        uint8_t setUserLevel[] = {0x5b, 0x02, 0x27, level, 0x5d};
-        writeCharacteristic(setUserLevel, sizeof(setUserLevel), QStringLiteral("LCR UserLevel (0x27)"), false, true);
+        uint8_t setResistance[] = {0x5b, 0x02, 0x13, level, 0x5d};
+        writeCharacteristic(setResistance, sizeof(setResistance), QStringLiteral("set resistance"), false, true);
         return;
     }
 
@@ -440,14 +439,9 @@ void solebike::btinit() {
     initDone = true;
 
     if (lastResistanceBeforeDisconnection != -1) {
-        if (bluetoothDevice.name().startsWith(QLatin1String("LCR"), Qt::CaseInsensitive)) {
-            // Do not issue an unverified LCR UserLevel command automatically during reconnection.
-            qDebug() << QStringLiteral("LCR: skipping automatic resistance restore after reconnection");
-        } else {
-            qDebug() << QStringLiteral("forcing resistance to ") + QString::number(lastResistanceBeforeDisconnection) +
-                            QStringLiteral(". It was the last value before the disconnection.");
-            forceResistance(lastResistanceBeforeDisconnection);
-        }
+        qDebug() << QStringLiteral("forcing resistance to ") + QString::number(lastResistanceBeforeDisconnection) +
+                        QStringLiteral(". It was the last value before the disconnection.");
+        forceResistance(lastResistanceBeforeDisconnection);
         lastResistanceBeforeDisconnection = -1;
     }
 }
