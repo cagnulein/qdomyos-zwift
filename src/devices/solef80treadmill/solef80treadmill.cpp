@@ -40,6 +40,10 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
     f63InitRetryTimer.setInterval(300ms);
     connect(&f63InitRetryTimer, &QTimer::timeout, this, &solef80treadmill::retryF63InitHandshake);
+    f63CommandTimer.setInterval(300ms);
+    connect(&f63CommandTimer, &QTimer::timeout, this, &solef80treadmill::sendF63SequenceStep);
+    f63PollTimer.setInterval(300ms);
+    connect(&f63PollTimer, &QTimer::timeout, this, &solef80treadmill::f63PollTick);
     refresh->start(300ms);
 }
 
@@ -95,22 +99,18 @@ void solef80treadmill::btinit() {
     bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
     bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
     bool f63Model = f63 && treadmill_type == F63;
+    // F63 uses the asynchronous, capture-based state machine in update().
+    // Never replay a workout/start sequence as a side effect of BLE discovery.
+    if (f63Model)
+        return;
 
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03_f63[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03b_f63[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03c_f63[] = {0x5b, 0x02, 0x03, 0x00, 0x5d};
-    uint8_t initData03d_f63[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
-    uint8_t initData03e_f63[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03f_f63[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03_tt8[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData04_f63[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
     uint8_t initData04_tt8[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
     uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
-    uint8_t initData05_f63[] = {0x5b, 0x03, 0x08, 0x20, 0x02, 0x5d};
     uint8_t initData05_tt8[] = {0x5b, 0x03, 0x08, 0x20, 0x02, 0x5d};
     uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
     uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
@@ -119,20 +119,10 @@ void solef80treadmill::btinit() {
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
-    uint8_t initData07_f63[] = {0x5b, 0x16, 0x24, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData07b_f63[] = {0x00, 0x00, 0x00, 0x00, 0x5d};
 
     if (gattCustomService) {
-        if (f63Model) {
-            if (!f63InitRetryState.takeResponse())
-                return;
-            // The native F63 capture sends this query immediately after the first init response.
-            writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a_f63"), false, true);
-        } else {
-            writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
-            waitForAPacket();
-        }
+        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
+        waitForAPacket();
 
         if (f65 && !f63Model) {
             waitForAPacket();
@@ -166,70 +156,6 @@ void solef80treadmill::btinit() {
             writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
 
             writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
-
-        } else if (f63Model) {
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03b_f63, sizeof(initData03b_f63), QStringLiteral("init3b_f63"), false, true);
-
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, false);
-
-            writeCharacteristic(initData03d_f63, sizeof(initData03d_f63), QStringLiteral("init3d_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03e_f63, sizeof(initData03e_f63), QStringLiteral("init3e_f63"), false, false);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
-            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData04_f63, sizeof(initData04_f63), QStringLiteral("init4_f63"), false, true);
-
-            writeCharacteristic(initData05_f63, sizeof(initData05_f63), QStringLiteral("init5_f63"), false, true);
-
-            writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init6"), false, true);
-
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, false);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-
-            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, false);
-            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
-
-            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
 
         } else if (f65) {
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
@@ -278,34 +204,84 @@ void solef80treadmill::update() {
         return;
     }
 
-    // Nested BLE response event loops can re-enter update() while a stop is in flight.
-    if (f63Model && f63StopInProgress)
-        return;
-
-    // Stop must not depend on a successfully decoded speed or even a finished init.
-    // In particular, do not wait behind periodic status polls or motion commands.
-    if (f63Model && requestStop != -1) {
-        requestStart = -1;
-        requestSpeed = -1;
-        requestInclination = -100;
-        requestSpeedState = IDLE;
-        requestInclinationState = IDLE;
-        if (gattCustomService && gattWriteCharCustomService.isValid() &&
-            m_control->state() == QLowEnergyController::DiscoveredState) {
+    if (f63Model) {
+        // Stop wins over every other command, including an in-flight Start script.
+        if (requestStop != -1) {
             requestStop = -1;
-            f63StopInProgress = true;
             sendF63Stop();
-            f63StopInProgress = false;
-        } else {
-            emit debug(QStringLiteral("F63 Stop pending: vendor BLE characteristic unavailable"));
+            return;
+        }
+        if (initRequest && firstStateChanged) {
+            initRequest = false;
+            if (f63InitRetryState.takeResponse()) {
+                initDone = true;
+                f63Phase = F63Phase::Ready;
+                f63PollCounter = 0;
+                f63PollTimer.start();
+                emit debug(QStringLiteral("F63 BM70 ready; no treadmill workout commands sent during discovery"));
+            }
+            return;
+        }
+        if (!initDone)
+            return;
+
+        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
+        if (f63Phase == F63Phase::AwaitingTelemetry && nowMs >= f63StartDeadlineMs) {
+            emit debug(QStringLiteral("F63 Start timed out without telemetry: cancelling and sending Stop"));
+            sendF63Stop();
+            return;
+        }
+
+        const bool freshTelemetry = f63TelemetryGuard.isFresh(nowMs);
+        if (!freshTelemetry) {
+            if (requestSpeed != -1 || requestInclination != -100)
+                emit debug(QStringLiteral("F63 motion rejected: no recent 18-byte telemetry"));
+            requestSpeed = -1;
+            requestInclination = -100;
+            requestSpeedState = IDLE;
+            requestInclinationState = IDLE;
+        }
+
+        if (requestStart != -1) {
+            requestStart = -1;
+            if (f63Phase == F63Phase::Ready)
+                queueF63Start();
+            else
+                emit debug(QStringLiteral("F63 Start ignored: session is not idle"));
+            return;
+        }
+
+        // At most one remote adjustment per 900 ms, only in confirmed Running state.
+        // Never issue an unbounded burst based on a speed stuck at zero.
+        if (f63Phase == F63Phase::Running && freshTelemetry &&
+            (f63LastMotionMs < 0 || nowMs - f63LastMotionMs >= 900)) {
+            if (requestSpeed != -1) {
+                if (requestSpeed < 0 || requestSpeed > 22 ||
+                    fabs(requestSpeed - currentSpeed().value()) < 0.11) {
+                    requestSpeed = -1;
+                } else {
+                    writeF63Frame(QByteArray::fromHex(requestSpeed > currentSpeed().value()
+                                                        ? "5b02f1025d" : "5b02f1035d"),
+                                  QStringLiteral("controlled speed step"));
+                    f63LastMotionMs = nowMs;
+                }
+            } else if (requestInclination != -100) {
+                if (requestInclination < 0 || requestInclination > 15 ||
+                    fabs(requestInclination - currentInclination().value()) < 0.5) {
+                    requestInclination = -100;
+                } else {
+                    writeF63Frame(QByteArray::fromHex(requestInclination > currentInclination().value()
+                                                        ? "5b02f1045d" : "5b02f1055d"),
+                                  QStringLiteral("controlled incline step"));
+                    f63LastMotionMs = nowMs;
+                }
+            }
         }
         return;
     }
 
     if (initRequest && firstStateChanged) {
-        // Avoid re-entering the long F63 init sequence from nested BLE response loops.
-        if (f63Model)
-            initRequest = false;
         btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() && initDone //&&
@@ -322,18 +298,6 @@ void solef80treadmill::update() {
                 .value(QZSettings::sole_treadmill_inclination_fast, QZSettings::default_sole_treadmill_inclination_fast)
                 .toBool();
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
-
-        if (f63Model && !f63TelemetryGuard.isFresh(QDateTime::currentMSecsSinceEpoch())) {
-            // The short F63 notifications are only command replies. Repeated writes
-            // with an always-zero measured speed can inadvertently keep accelerating.
-            if (requestSpeed != -1 || requestInclination != -100 || requestStart != -1)
-                emit debug(QStringLiteral("F63 motion command rejected: no fresh 18-byte speed telemetry"));
-            requestSpeed = -1;
-            requestInclination = -100;
-            requestStart = -1;
-            requestSpeedState = IDLE;
-            requestInclinationState = IDLE;
-        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
@@ -456,18 +420,115 @@ void solef80treadmill::update() {
     }
 }
 
-void solef80treadmill::sendF63Stop() {
-    uint8_t stop[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
-    uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
-    if (!gattCustomService)
+void solef80treadmill::writeF63Frame(const QByteArray &frame, const QString &label) {
+    if (!gattCustomService || !gattWriteCharCustomService.isValid() || !m_control ||
+        m_control->state() != QLowEnergyController::DiscoveredState)
         return;
-    emit debug(QStringLiteral("F63 Stop: sending existing vendor stop sequence"));
-    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+    // Never enter the legacy nested QEventLoop on BM70. WriteWithoutResponse does
+    // not emit characteristicWritten and previously caused repeated 2s stalls.
+    if (gattWriteCharCustomService.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame,
+                                               QLowEnergyService::WriteWithoutResponse);
+    else
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame);
+    emit debug(QStringLiteral("F63 >> ") + frame.toHex(' ') + QStringLiteral(" // ") + label);
+}
+
+void solef80treadmill::queueF63Start() {
+    if (f63Phase != F63Phase::Ready)
+        return;
+    f63PollTimer.stop();
+    f63CommandTimer.stop();
+    f63Frames = SoleF63NativeProtocol::startFrames();
+    f63FrameIndex = 0;
+    f63Phase = F63Phase::Preparing;
+    emit debug(QStringLiteral("F63 native Start sequence scheduled one frame per 300ms"));
+    sendF63SequenceStep();
+}
+
+void solef80treadmill::sendF63SequenceStep() {
+    if (f63FrameIndex >= f63Frames.size()) {
+        f63CommandTimer.stop();
+        f63Frames.clear();
+        f63FrameIndex = 0;
+        if (f63Phase == F63Phase::Preparing) {
+            f63Phase = F63Phase::AwaitingTelemetry;
+            f63StartDeadlineMs = QDateTime::currentMSecsSinceEpoch() + 5000;
+            f63PollCounter = 0;
+            f63PollTimer.start();
+            emit debug(QStringLiteral("F63 Start sent; waiting for confirmed 5B 0F 06 telemetry"));
+        } else if (f63Phase == F63Phase::Stopping) {
+            f63Phase = F63Phase::Ready;
+            f63TelemetryGuard.reset();
+            f63PollCounter = 0;
+            f63PollTimer.start();
+            emit debug(QStringLiteral("F63 stop frames sent; physical stop effectiveness is unverified"));
+        }
+        return;
+    }
+    if (f63Phase != F63Phase::Preparing && f63Phase != F63Phase::Stopping) {
+        f63CommandTimer.stop();
+        f63Frames.clear();
+        f63FrameIndex = 0;
+        return;
+    }
+    const QByteArray frame = f63Frames.at(f63FrameIndex++);
+    writeF63Frame(frame, f63Phase == F63Phase::Stopping ? QStringLiteral("native stop")
+                                                        : QStringLiteral("native startup"));
+    f63CommandTimer.start();
+}
+
+void solef80treadmill::sendF63Stop() {
+    // Cancel any queued motion/start frames before transmitting the native Stop.
+    f63CommandTimer.stop();
+    f63PollTimer.stop();
+    f63Frames.clear();
+    f63FrameIndex = 0;
+    requestStart = -1;
+    requestSpeed = -1;
+    requestInclination = -100;
+    requestSpeedState = IDLE;
+    requestInclinationState = IDLE;
+    f63LastMotionMs = -1;
+    f63StartDeadlineMs = -1;
+    f63Phase = F63Phase::Stopping;
+    f63Frames = SoleF63NativeProtocol::stopFrames();
+    emit debug(QStringLiteral("F63 Stop: cancelled pending commands, sending 3 captured vendor stop frames"));
+    sendF63SequenceStep();
+}
+
+void solef80treadmill::f63PollTick() {
+    if (!initDone || f63Phase == F63Phase::Handshake || f63Phase == F63Phase::Preparing ||
+        f63Phase == F63Phase::Stopping)
+        return;
+    if (f63Phase == F63Phase::Ready) {
+        if (++f63PollCounter % 3 == 0)
+            writeF63Frame(QByteArray::fromHex("5b0400104f4b5d"), QStringLiteral("idle status"));
+    } else if (f63Phase == F63Phase::Running || f63Phase == F63Phase::AwaitingTelemetry) {
+        // SOLE Fitness uses one status query followed by two 0x06 polls every 300ms.
+        const bool statusQuery = (f63PollCounter++ % 3) == 0;
+        writeF63Frame(QByteArray::fromHex(statusQuery ? "5b0400104f4b5d" : "5b0400064f4b5d"),
+                      QStringLiteral("workout status"));
+    }
+}
+
+void solef80treadmill::resetF63Session() {
+    f63InitRetryTimer.stop();
+    f63CommandTimer.stop();
+    f63PollTimer.stop();
+    f63InitRetryState.cancel();
+    f63TelemetryGuard.reset();
+    f63Frames.clear();
+    f63FrameIndex = 0;
+    f63PollCounter = 0;
+    f63StartDeadlineMs = -1;
+    f63LastMotionMs = -1;
+    f63Phase = F63Phase::Handshake;
+    initRequest = false;
+    initDone = false;
+    requestStart = -1;
+    requestSpeed = -1;
+    requestInclination = -100;
 }
 
 double solef80treadmill::minStepInclination() { return 1.0; }
@@ -556,11 +617,30 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == _gattNotifyCharId) {
-        if (f63InitRetryState.receiveNotification()) {
+        if (f63InitRetryState.receiveNotification(newValue)) {
             f63InitRetryTimer.stop();
             initRequest = true;
             emit debug(QStringLiteral("F63 BM70 init1 response received after ") +
                        QString::number(f63InitRetryState.attemptCount()) + QStringLiteral(" attempt(s)"));
+        }
+        if (f63 && treadmill_type == F63) {
+            if (newValue == QByteArray::fromHex("5b0203065d") && f63Phase != F63Phase::Stopping) {
+                f63CommandTimer.stop();
+                f63Frames.clear();
+                f63FrameIndex = 0;
+                requestStart = -1;
+                requestSpeed = -1;
+                requestInclination = -100;
+                f63Phase = F63Phase::Ready;
+                f63TelemetryGuard.reset();
+                emit debug(QStringLiteral("F63 physical Stop observed: pending commands cancelled"));
+            }
+            if (f63TelemetryGuard.recordVendorPacket(newValue, QDateTime::currentMSecsSinceEpoch()) &&
+                (uint8_t)newValue.at(10) > 0 && f63Phase != F63Phase::Stopping) {
+                if (f63Phase != F63Phase::Running)
+                    emit tapeStarted();
+                f63Phase = F63Phase::Running;
+            }
         }
         emit packetReceived();
         // when treadmill is in the inclination mode and it's in pause it doesn't send at all frames
@@ -573,9 +653,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
-        if (f63 && treadmill_type == F63)
-            f63TelemetryGuard.recordVendorPacket(newValue, QDateTime::currentMSecsSinceEpoch());
-
         // the treadmill send the speed in miles always
         double miles = 1;
         if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
@@ -983,9 +1060,7 @@ void solef80treadmill::characteristicRead(const QLowEnergyCharacteristic &charac
 void solef80treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    f63InitRetryTimer.stop();
-    f63InitRetryState.cancel();
-    f63TelemetryGuard.reset();
+    resetF63Session();
     f63NotifyCccdDescriptor = QLowEnergyDescriptor();
     f63NotifyCccdWritePending = false;
     gattCustomService = nullptr;
@@ -1092,9 +1167,7 @@ bool solef80treadmill::connected() {
 void solef80treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        f63InitRetryTimer.stop();
-        f63InitRetryState.cancel();
-        f63TelemetryGuard.reset();
+        resetF63Session();
         f63NotifyCccdDescriptor = QLowEnergyDescriptor();
         f63NotifyCccdWritePending = false;
         initRequest = false;
