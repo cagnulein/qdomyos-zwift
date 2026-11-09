@@ -185,8 +185,9 @@ Item {
         baseMargins = []
         Qt.callLater(frames.regroup)
     }
-    // Made by a Loader once the look turns modern, the content is often there already: the change
-    // above does not come for it
+    // Made by a Loader once the look turns modern, the content is often there already: the frames
+    // are laid out when made as well, not only on a change of it (a second call on the same turn
+    // is merged into one)
     Component.onCompleted: Qt.callLater(frames.regroup)
     // A section opened again (StaticAccordionElement keeps its content while closed): the
     // settings are visible again, the groups are made anew
