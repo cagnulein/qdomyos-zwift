@@ -272,7 +272,7 @@ ColumnLayout {
                                     id: fileName
                                     Layout.fillWidth: true
                                     text: !isItemFolder ?
-                                          itemFileName.substring(0, itemFileName.length-4) :
+                                          itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
                                           itemFileName
                                     color: isItemFolder ? Material.color(Material.Orange) : "white"
                                     font.pixelSize: window.fontPx(16)
