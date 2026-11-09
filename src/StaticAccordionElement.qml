@@ -95,6 +95,9 @@ ColumnLayout {
         id: contentBox
         visible: rootElement.isOpen
         Layout.fillWidth: true
+        // Takes the free height as the column it replaces did (a layout fills by default): a page
+        // that gives the section the rest of its height (the list of profiles) keeps it
+        Layout.fillHeight: true
         // Set on a change, not bound: a binding made a loop with the layout of the column
         implicitHeight: 0
         Connections {
@@ -121,6 +124,7 @@ ColumnLayout {
         ColumnLayout {
             id: contentPlaceholder
             width: parent.width
+            height: parent.height
         }
     }
 }
