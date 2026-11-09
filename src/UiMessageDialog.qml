@@ -195,7 +195,7 @@ Popup {
             id: buttonsRow
             width: parent.width
             layoutDirection: Qt.RightToLeft
-            spacing: 4
+            spacing: 8
             topPadding: 8
 
             Repeater {
@@ -209,7 +209,8 @@ Popup {
                         : modelData === P.MessageDialog.No ? (root.noText.length > 0 ? root.noText : qsTr("No"))
                         : modelData === P.MessageDialog.Ok ? qsTr("OK")
                         : root.cancelText.length > 0 ? root.cancelText : qsTr("Cancel")
-                    flat: !positive
+                    // the negative ones a grey pill: a pill reads as a button, accent text did not
+                    cardSurface: true
                     highlighted: positive
                     danger: positive && root.destructive
                     onClicked: root.answer(modelData)
