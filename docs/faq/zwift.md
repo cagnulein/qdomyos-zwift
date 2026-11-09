@@ -12,6 +12,19 @@ In confirmed support cases, waiting about three minutes in Zwift before continui
 
 An active Zwift subscription is not required for this handshake procedure; a Zwift account that can reach the pairing flow is sufficient.
 
+## Why can't Zwift find QZ or Wahoo KICKR 0000 when QZ is in the background on iOS?
+
+On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
+
+1. Open QZ on the iPhone and make sure it has connected to the physical trainer. Enable the virtual-device transport you want to use.
+2. **Leave QZ in the foreground** while opening Zwift's pairing screen on the other device.
+3. When QZ / Wahoo KICKR 0000 appears, pair it to Zwift as the appropriate **Power Source** and **Controllable** device (and cadence if offered).
+4. Only after pairing succeeds, put QZ in the background. With **iOS Background Keep Alive** enabled under **Experimental Settings**, check that power, resistance control and any virtual shifting still work during a short test.
+
+**Why:** iOS does not advertise a Bluetooth peripheral's local name when its app is in the background, and background service UUID discovery is restricted. Wahoo Direct Connect uses **Bonjour/mDNS over Wi-Fi**, not BLE advertising, but its discovery responses also depend on QZ being allowed to execute and access the local network. **iOS Background Keep Alive may help keep an established session running; it is not a guarantee that Zwift can discover a new virtual trainer in the background.** In a confirmed support report, existing Zwift pairing worked with QZ backgrounded, but first-time discovery required returning QZ to the foreground, even with Keep Alive enabled.
+
+This concerns the **virtual trainer's discovery**, not the separate Zwift Click v2 controller keepalive/handshake.
+
 ## QZ and Zwift show different virtual gear numbers. How can I keep them aligned?
 
 When QZ is handling a custom virtual gear table and Zwift is also showing its virtual gear UI, enable QZ's **Align Gear** option so QZ can follow the gear number reported by the virtual bike connection instead of letting the two displays drift apart.
