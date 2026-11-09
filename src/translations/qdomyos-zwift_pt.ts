@@ -1678,6 +1678,16 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Forçar velocidade</translation>
     </message>
     <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Manter FC por meio de</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Como definido</translation>
+    </message>
+    <message>
         <source>Fan</source>
         <translation>Ventilador</translation>
     </message>
