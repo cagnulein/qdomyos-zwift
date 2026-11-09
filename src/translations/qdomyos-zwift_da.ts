@@ -1401,6 +1401,40 @@ Vil du opdatere QZ-indstillingerne?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>timer</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutter</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekunder</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -4157,6 +4191,14 @@ Vil du starte det nu?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Gemt! Se i appen Filer.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Gemt! Se i appens private mappe.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du er allerede tilsluttet Peloton. Vil du logge ud?</translation>
     </message>
@@ -4169,6 +4211,18 @@ Vil du starte det nu?</translation>
         <translation>Du er allerede tilsluttet Intervals.icu. Vil du logge ud?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Tilbage</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hovedmenu</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Flydende vindue</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Du kan flytte felterne!</translation>
     </message>
@@ -4177,12 +4231,48 @@ Vil du starte det nu?</translation>
         <translation>Felterne er nu låst</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Indlæs indstillinger</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Gem indstillinger</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kort</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Graf</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Lås felterne op</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lås felterne</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Deaktiver automatisk modstand</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Aktivér automatisk modstand</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4243,6 +4333,46 @@ Vil du starte det nu?</translation>
     <message>
         <source>Quit</source>
         <translation>Afslut</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Afbryd forbindelsen til Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Opret forbindelse til Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Afbryd forbindelsen til Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Opret forbindelse til Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Indstillinger for Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Afbryd forbindelsen til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Opret forbindelse til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Træning</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Tjenester</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
