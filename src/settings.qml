@@ -128,7 +128,7 @@ import AndroidStatusBar 1.0
 
         // A section title without its emoji ("Maps 🗺️") for a message
         function plainTitle(text) {
-            return String(text).replace(/\s*(?:[\uD83C-\uD83E][\uDC00-\uDFFF]|[⌀-⏿☀-➿])️?/g, "").trim()
+            return window.ui.plainTitle(text)
         }
 
         // A text field keeps the focus (and the keyboard) until another control takes it

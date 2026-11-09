@@ -19,7 +19,7 @@ Item {
     visible: false
     readonly property int compactHeight: 44
     // The rows fade out under the copy instead of being cut through a line of text by its edge
-    readonly property int fadeHeight: Math.round(16 * window.ui.textScale)
+    readonly property int fadeHeight: Math.round(16 * window.textScale)
     property Item copy: null
     readonly property Item pageFlickable: {
         for (var p = section ? section.parent : null; p; p = p.parent)
@@ -68,7 +68,7 @@ Item {
 
     Connections {
         target: sticky.pageFlickable
-        enabled: sticky.section !== null && sticky.section.isOpen && sticky.section.depth === 1
+        enabled: window.ui.modern && sticky.section !== null && sticky.section.isOpen && sticky.section.depth === 1
         function onContentYChanged() { sticky.update() }
         function onHeightChanged() { sticky.update() }
     }
@@ -77,6 +77,11 @@ Item {
         function onIsOpenChanged() { sticky.update() }
         function onHeightChanged() { if (sticky.section.isOpen) sticky.update() }
         function onVisibleChanged() { sticky.update() }
+    }
+    // The look switched over: in the classic look the copy goes away at once, not at the next scroll
+    Connections {
+        target: window.ui
+        function onModernChanged() { sticky.update() }
     }
     Component.onDestruction: if (copy) copy.destroy()
 
