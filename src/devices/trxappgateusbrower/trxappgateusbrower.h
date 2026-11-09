@@ -38,6 +38,8 @@
 class trxappgateusbrower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, 32, 1}; }
     trxappgateusbrower(bool noWriteResistance = false, bool noHeartService = false, int8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;

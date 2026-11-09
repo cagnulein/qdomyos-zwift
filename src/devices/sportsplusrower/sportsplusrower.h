@@ -32,6 +32,8 @@
 class sportsplusrower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {true, true, 1, max_resistance, 1}; }
     sportsplusrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 

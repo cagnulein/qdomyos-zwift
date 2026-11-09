@@ -37,6 +37,8 @@
 class ftmsrower : public rower {
     Q_OBJECT
   public:
+
+    FtmsRowerResistanceCapabilities ftmsResistanceCapabilities() const override { return {!PM5, !PM5, 1, 25, 1}; }
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
