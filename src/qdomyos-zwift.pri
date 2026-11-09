@@ -990,7 +990,8 @@ RESOURCES += \
 # Adding a page: the same file in SETTINGS_QMLCACHE_FILES and in settings-qmlcache.qrc (missing
 # in the first, the link fails; missing in the second, qmlcachegen fails), and in qml.qrc.
 # iOS builds from the committed Xcode project, not from this file: the new qmlcache_<page>_qml.cpp
-# goes into its target next to settings_qmlcache_loader.cpp (missing there, the iOS link fails).
+# goes into its target next to settings_qmlcache_loader.cpp (missing there, the iOS link fails),
+# and a qmlcachegen line for it into build-qrc-qml.sh (the local iOS build).
 # Do not combine with CONFIG += qtquickcompiler: both would define the same compiled units.
 SETTINGS_QMLCACHE_QRC = $$PWD/settings-qmlcache.qrc
 SETTINGS_QMLCACHE_FILES = $$PWD/settings.qml $$PWD/settings-tiles.qml
