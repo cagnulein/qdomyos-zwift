@@ -446,7 +446,9 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(max_resistance > 0 && requestResistance > max_resistance) {
+        // DrumFit accepts the 0x01xx FTMS range needed with higher offsets.
+        // Clamp its encoded target separately below instead of using 32.
+        if(max_resistance > 0 && requestResistance > max_resistance && !DRUMFIT) {
             qDebug() << "Resistance" << requestResistance << "exceeds max_resistance" << max_resistance << "- clamping";
             requestResistance = max_resistance;
         }
@@ -458,11 +460,13 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
            INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             uint16_t encodedResistance = static_cast<uint16_t>(requestResistance) * 10;
-            // DrumFit appears to use only the low byte of the FTMS resistance target:
-            // values above 25.5 wrap back to zero on the bike.
-            if (DRUMFIT && encodedResistance > 0xFF) {
-                qDebug() << "DRUMFIT FTMS resistance exceeds 25.5, clamping" << requestResistance;
-                encodedResistance = 0xFF;
+            // DrumFit appears to apply only the low byte to physical resistance.
+            // 0x01F4 (50.0) still increases resistance, but 0x0226 (55.0)
+            // wraps it down. Cap at 0x01FF, not 0x00FF, to preserve the
+            // working 0x01xx range (physical maximum 25.5).
+            if (DRUMFIT && encodedResistance > 0x01FF) {
+                qDebug() << "DRUMFIT FTMS resistance exceeds 51.1, clamping" << requestResistance;
+                encodedResistance = 0x01FF;
             }
             write[1] = encodedResistance & 0xFF;
             write[2] = encodedResistance >> 8;
