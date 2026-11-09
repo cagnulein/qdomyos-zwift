@@ -9,18 +9,31 @@ QT_ARCHIVE_NAME="qt-5.15.2-xcode27-uiscene.tar.xz"
 # GitHub Releases' browser download endpoint can intermittently return 504 on CI.
 # Fetch pinned assets via the REST API and reject truncated/error responses.
 download_qt_release_asset() {
-    local asset_id="$1" output="$2" expected_sha256="$3"
+    local asset_id="$1" output="$2" expected_sha256="$3" browser_url="$4"
     local attempt
 
     for attempt in 1 2 3; do
+        # On GitHub Actions, authenticate the REST asset endpoint to avoid 403s.
+        # Xcode Cloud has no GITHUB_TOKEN and can use the browser URL directly.
+        if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+            rm -f "$output"
+            if curl -fsSL --retry 2 --retry-all-errors --retry-delay 3 \
+                    -H "Accept: application/octet-stream" \
+                    -H "Authorization: Bearer $GITHUB_TOKEN" \
+                    -o "$output" "https://api.github.com/repos/cagnulein/qt5.15.2/releases/assets/$asset_id" \
+                    && printf '%s  %s\n' "$expected_sha256" "$output" | shasum -a 256 -c -; then
+                return 0
+            fi
+            echo "WARNING: API download failed verification; trying browser URL for asset $asset_id" >&2
+        fi
+
         rm -f "$output"
-        if curl -fsSL --retry 3 --retry-all-errors --retry-delay 3 \
-                -H "Accept: application/octet-stream" \
-                -o "$output" "https://api.github.com/repos/cagnulein/qt5.15.2/releases/assets/$asset_id" \
+        if curl -fsSL --retry 2 --retry-all-errors --retry-delay 3 \
+                -o "$output" "$browser_url" \
                 && printf '%s  %s\n' "$expected_sha256" "$output" | shasum -a 256 -c -; then
             return 0
         fi
-        echo "WARNING: Qt asset $asset_id failed download or SHA-256 verification (attempt $attempt/3)" >&2
+        echo "WARNING: Qt asset $asset_id download failed (attempt $attempt/3)" >&2
         if [[ "$attempt" -lt 3 ]]; then sleep $((attempt * 5)); fi
     done
 
@@ -84,7 +97,7 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
         # Download precompiled Qt 5.15.2 from your GitHub release
         echo "Downloading precompiled Qt 5.15.2 from GitHub..."
         cd /tmp
-        download_qt_release_asset 567674009 "$QT_ARCHIVE_NAME" "2d85fdb3cd64b8520ddaed3b4916bfc96da0e11d5d9716e447ee072c54ccce1a"
+        download_qt_release_asset 567674009 "$QT_ARCHIVE_NAME" "2d85fdb3cd64b8520ddaed3b4916bfc96da0e11d5d9716e447ee072c54ccce1a" "https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2-iOS27/$QT_ARCHIVE_NAME"
         
         if [[ -f "$QT_ARCHIVE_NAME" ]]; then
             echo "Extracting precompiled Qt 5.15.2..."
@@ -150,12 +163,12 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
 
             # Download libqmldbg_debugger.a
             echo "Downloading libqmldbg_debugger.a.zip..."
-            download_qt_release_asset 356241667 libqmldbg_debugger.a.zip "534f40e0fcc866630ae74a792f1804d72e144a348fae66b883edf4af0cb62d29"
+            download_qt_release_asset 356241667 libqmldbg_debugger.a.zip "534f40e0fcc866630ae74a792f1804d72e144a348fae66b883edf4af0cb62d29" "https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2/libqmldbg_debugger.a.zip"
             unzip -o libqmldbg_debugger.a.zip
 
             # Download libqmldbg_nativedebugger.a (from the old zip)
             echo "Downloading libqmldbg_nativedebugger.zip..."
-            download_qt_release_asset 356195157 libqmldbg_nativedebugger.zip "a98951390e564513322db385cb0adc495145ec79b836c52b04d6e71efd990411"
+            download_qt_release_asset 356195157 libqmldbg_nativedebugger.zip "a98951390e564513322db385cb0adc495145ec79b836c52b04d6e71efd990411" "https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2/libqmldbg_debugger.zip"
             unzip -o libqmldbg_nativedebugger.zip
 
             echo "Contents after extraction:"
