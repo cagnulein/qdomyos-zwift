@@ -27,6 +27,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#include <QSet>
 #include <QTextToSpeech>
 #include <QThread>
 
@@ -155,6 +156,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
     Q_PROPERTY(QString stopColor READ stopColor NOTIFY stopColorChanged)
     Q_PROPERTY(QStringList metrics READ metrics)
+    Q_PROPERTY(QStringList translatedLanguages READ translatedLanguages CONSTANT)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
@@ -207,6 +209,10 @@ class homeform : public QObject {
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
     Q_PROPERTY(bool androidNotificationPromptRequested READ androidNotificationPromptRequested NOTIFY androidNotificationPromptRequestedChanged)
+    // heart rate sensors nearby to offer, the strongest first: {name, address, rssi}
+    Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
+                   heartRateSensorSuggestionsChanged)
+    Q_PROPERTY(bool heartRateSensorOfferOnTap READ heartRateSensorOfferOnTap NOTIFY heartRateSensorSuggestionsChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -247,12 +253,25 @@ class homeform : public QObject {
     Q_INVOKABLE QString bluetoothSearchStatus();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
-    // Heart rate sensor chosen in the settings (name) or a tap on the Bluetooth icon (no name, the saved one):
-    // connect it without a restart
+    // Heart rate sensor chosen in the settings (name) or a tap on the heart rate tile or the Bluetooth icon (no
+    // name, the saved one): connect it without a restart. With none chosen and the machine connected, the tap
+    // searches for one to offer, also with heart_rate_belt_suggest off, and offers again the sensors hidden with Not
+    // now (the user asks for it); with no machine the icon searches for the machine only, and Not now stays.
     Q_INVOKABLE void reconnectHeartRateBelt(const QString &name = QString()) {
+        if (name.isEmpty() && bluetoothManager && bluetoothManager->device())
+            heartRateSensorsDismissed.clear();
         if (bluetoothManager)
             bluetoothManager->reconnectHeartRateBelt(name);
     }
+    QVariantList heartRateSensorSuggestions() const { return m_heartRateSensorSuggestions; }
+    // The bar shows a sensor found by the search a tap started: the user asked, so no "Don't ask again"
+    bool heartRateSensorOfferOnTap() const { return m_heartRateSensorOfferOnTap; }
+    // "Connect" on an offered sensor: chosen in the settings and connected without a restart.
+    // address: of the sensor shown, so another one with the same name nearby is not connected instead
+    Q_INVOKABLE void heartRateSensorSuggestionConnect(const QString &name, const QString &address);
+    // "Not now" (dontAskAgain false): the sensors offered now are not offered again until QZ restarts;
+    // "Don't ask again" (dontAskAgain true): heart_rate_belt_suggest off as well
+    Q_INVOKABLE void heartRateSensorSuggestionDismiss(bool dontAskAgain);
 
     Q_INVOKABLE void save_screenshot() {
 
@@ -407,7 +426,9 @@ class homeform : public QObject {
         }
     }
 
-    Q_INVOKABLE bool firstRun() {
+    // QZ has never connected a device: no last device, IP or port. Static for main.cpp, which decides the
+    // first-setup log before homeform exists
+    static bool neverConnected() {
         QSettings settings;
         
         bool android_antbike = settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
@@ -416,6 +437,8 @@ class homeform : public QObject {
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
         QString freebeatSerialPort =
             settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+        QString daumSerialPort =
+            settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
         QString computrainerSerialPort =
             settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
 
@@ -438,8 +461,16 @@ class homeform : public QObject {
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
                 !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
-                freebeatSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
+                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
+
+    Q_INVOKABLE bool firstRun() { return neverConnected(); }
+
+    // The debug log is on in this run only because of the first-setup log (log_debug off): set by main.cpp at
+    // start from startFirstSetupLog(), the log itself is set up once per run
+    static bool firstSetupLog;
+    static bool startFirstSetupLog();
+    Q_INVOKABLE bool firstSetupLogActive() const { return firstSetupLog; }
 
 
     Q_INVOKABLE bool autoInclinationEnabled() {
@@ -567,6 +598,7 @@ class homeform : public QObject {
     QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
+    QStringList translatedLanguages();
     QStringList bluetoothDevices();
     QStringList tile_order();
     bool autoResistance() { return m_autoresistance; }
@@ -607,6 +639,11 @@ class homeform : public QObject {
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
     void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
+    // Wahoo trainer at its first connection: true while QZ waits for the answer to the wheel circumference
+    // question (asks it once per session), false when it is answered or was never needed
+    bool wahooWheelQuestionPending();
+    // the answer from QML: false turns on Without Wheel Diameter Protocol
+    Q_INVOKABLE void wahooWheelAnswer(bool writeWheelCircumference);
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -700,12 +737,18 @@ class homeform : public QObject {
     Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
+    // The system share sheet with the FIT file (Android, iOS); on a computer, its folder
+    Q_INVOKABLE void shareWorkoutFile(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
+    // Contextual support: check the actual link state, not merely whether an object exists.
+    Q_INVOKABLE bool supportDeviceConnected() const;
+    Q_INVOKABLE bool supportMetricsActive() const;
+    Q_INVOKABLE bool composeSupportEmail(const QString &description, const QString &reason, bool includeLog);
 
 private:
     void clearWebViewCache();
@@ -737,6 +780,16 @@ public:
     // the workout history page was shown: a pending offer to recover the workouts of a
     // previous install is made there (historyRecoveryOfferRequested)
     Q_INVOKABLE void historyPageOpened();
+    // the list of training programs was shown: copies a restore left under a temporary name are
+    // finished; once per run, with a saved folder grant the folder is checked for programs of a
+    // previous install, and without one the user is asked if a bundled program shows them
+    // (trainingRestoreOfferRequested)
+    Q_INVOKABLE void trainingProgramsPageOpened();
+    // the user asked to look for programs of a previous install (a button of the list): the
+    // same question as the automatic one; none while the quiet restore runs
+    Q_INVOKABLE void offerTrainingRestore();
+    // the user agreed: the folder picker opens, even with a saved grant
+    Q_INVOKABLE void restoreTrainingPrograms();
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
@@ -1027,6 +1080,8 @@ public:
 
   private:
     static homeform *m_singleton;
+    // the wheel circumference question was shown in this session (it stays pending until answered)
+    bool m_wahooWheelQuestionShown = false;
     void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
@@ -1095,6 +1150,9 @@ public:
     bool m_echelonEnablePromptRequested = false;
     bool m_androidNotificationPromptRequested = false;
     bool m_androidNotificationPromptPending = false;
+    QVariantList m_heartRateSensorSuggestions;
+    bool m_heartRateSensorOfferOnTap = false;
+    QSet<QString> heartRateSensorsDismissed; // addresses
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
@@ -1120,6 +1178,10 @@ public:
     bool startFitFolderImport(bool allowPicker);
     void offerHistoryRecovery();
     void maybeOfferHistoryRecovery();
+    bool startTrainingFolderRestore(bool allowPicker);
+    static bool trainingFolderHasLockedFiles();
+    static int restoredTrainingProgramCount(const QString &paths);
+    void recoverTrainingRestoreCopies();
     int historyWorkoutCount();
     QString m_historyDatabasePath;
     bool m_historyDatabaseIsNew = false;
@@ -1129,6 +1191,11 @@ public:
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
     bool m_fitImportRunning = false;
+    // one attempt per run: a restore that finds nothing must not repeat on every visit
+    bool m_trainingRestoreTried = false;
+    // restore through a saved grant, true while it runs: no toast when nothing was restored,
+    // and no question on request meanwhile
+    bool m_trainingRestoreQuiet = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1277,6 +1344,7 @@ public:
     void floatingOpen();
     void openFloatingWindowBrowser();
     void deviceFound(const QString &name);
+    void heartRateSensorFound(const QString &name, const QString &address, int rssi, bool onTap);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);    
     void trainprogram_open_other_folder(const QUrl &fileName);
@@ -1364,6 +1432,14 @@ public:
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();
+    // programs of a previous install are hidden in the training folder: QML asks whether to
+    // look for them (restoreTrainingPrograms())
+    void trainingRestoreOfferRequested();
+    void trainingProgramsRestored();
+    // wahooWheelQuestionPending(): QML asks whether QZ may write the wheel circumference of the trainer
+    void wahooWheelQuestionRequested();
+    // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
+    void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
@@ -1394,6 +1470,11 @@ public:
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
     void androidNotificationPromptRequestedChanged(bool value);
+    void heartRateSensorSuggestionsChanged();
+    // The bar's answer saved in QSettings from here: a QML page open meanwhile (settings, wizard) holds its own
+    // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these
+    void heartRateSensorChosenFromOffer(const QString &name);
+    void heartRateSensorOfferTurnedOff();
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

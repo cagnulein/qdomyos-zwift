@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>发现心率传感器：%1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>发现心率传感器：%1 个</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>选择</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>以后再说</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>不再询问</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>选择心率传感器</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1（心率传感器）已连接！</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>正在搜索心率传感器...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>正在搜索 %1（心率传感器）...</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 已连接！</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>附近未找到心率传感器。请确认它已开启并正在广播心率。</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1180,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>联系 QZ 支持</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>准备包含诊断信息的支持邮件</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>未连接设备</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>速度和功率为零</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 支持</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>隐藏键盘</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>关闭支持请求</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>请告诉我们哪里无法正常工作。QZ 会添加设备和应用信息。</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>描述问题...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>描述问题</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>有调试日志时附加</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>发送前可以查看或编辑邮件。不会自动发送任何内容。</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>打开邮件</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1296,6 +1398,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>恢复训练计划</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2750,6 +2856,10 @@ This may take a few moments on first startup.</source>
         <translation>所有文件 (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>上传到 Strava</translation>
     </message>
@@ -3464,6 +3574,14 @@ This may take a few moments on first startup.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>无法分享此训练的 FIT 文件</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>许可证已批准！</translation>
     </message>
@@ -3621,6 +3739,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>已导入训练：%1。</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>无法将文件复制到 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>已恢复训练计划：%1。</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>未找到以前安装的训练计划。</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3801,6 +3931,131 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Spotify songs:</source>
         <translation>Spotify 歌曲:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 正在运行</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>支持请求</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 问题 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>你好，Roberto：</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>我需要 QZ 的帮助。</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>问题：</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[请描述问题]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>预期行为：</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[请描述应当发生什么]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 诊断信息 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 版本：%1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>平台：%1（%2）</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>配置文件：%1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>设备：%1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>已连接</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>连接状态：%1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>速度：%1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>不可用</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>功率：%1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>检测到的情况：%1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>未请求调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>调试日志已关闭。请先启用调试日志并重启 QZ，然后再重现问题。</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>未找到调试日志。</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>调试日志不可用或文件过大，无法准备。</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>已附加调试日志（gzip）。</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>无法写入调试日志附件。</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>无法压缩调试日志，或附件超过 10 MB。</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>请手动附加生成的调试日志</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>未检测到设备</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>无法打开电子邮件应用</translation>
     </message>
 </context>
 <context>
@@ -4060,6 +4315,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>搜索设置</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>配置文件: </translation>
     </message>
@@ -4156,6 +4415,20 @@ In the next window, allow access to the QZ folder.</source>
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>训练计划</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>后台连接已断开</translation>
     </message>
@@ -4182,6 +4455,22 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>不再询问</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo 虚拟变速</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>为模拟虚拟变速，QZ 会更改骑行台中保存的车轮周长。关闭 QZ 后，该值可能仍保留在骑行台中，并影响骑行台在其他应用中的表现。
+
+是否允许 QZ 更改该值？
+
+“否”：QZ 将开启“无车轮直径协议”（设置 &gt; 自行车选项 &gt; Wahoo 选项），虚拟变速通过坡度实现。选择“是”后，以后可在同一位置撤销：开启该选项，然后在骑行台已连接时点按“将骑行台恢复为默认设置”。</translation>
     </message>
 </context>
 <context>
@@ -4451,6 +4740,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
         <translation>Apple Watch 用户：请保持禁用！只需在手表上打开应用</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>启动时搜索心率传感器</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>健身器材连接后的前 5 分钟内，若没有心率数据，QZ 每分钟搜索一次心率传感器：找到已选的心率带后立即连接；若未选择，则提示连接附近发现的传感器。点击主页上的心率卡片或蓝牙图标可随时搜索。</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -5627,7 +5924,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>打开</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -7830,7 +8127,15 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>当前在其所在页面中隐藏：请在此处更改</translation>
+        <translation type="vanished">当前在其所在页面中隐藏：请在此处更改</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>开</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>按当前设置，在其所在页面中隐藏</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7875,6 +8180,74 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Workout History Charts</source>
         <translation>训练历史图表</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>在设置页面中未找到此设置</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>设置虚拟应用的坡度如何换算为单车阻力。</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ 将虚拟应用的坡度换算为阻力时使用自定义对应关系。</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>每行一组“坡度|阻力”。QZ 在各点之间插值，超出设定范围时使用端点的值。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户用户名。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>用于登录该服务的 Life Fitness 账户密码。仅保存在本机，绝不会写入调试日志。</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>当前摄像机视角</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>当前表情</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 模拟器</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>功率图表位置</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>心率图表位置</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>阻力与目标阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 阻力图表位置</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>踏频图表位置</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>功率分布图表位置</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>速度与坡度图表位置</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>此图表在训练历史中的顺序。可在“通用 UI 选项”中用上移和下移按钮调整顺序。</translation>
     </message>
     <message>
         <source>Heart Rate</source>
@@ -7947,6 +8320,30 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>仅限 iOS。在屏幕关闭或 QZ 位于后台时保持 QZ 运行，使蓝牙连接和训练计时器不会冻结。它使用与您的音乐混合播放的静音音轨，因此您正在收听的内容不会被打断。如果需要在锁屏状态下或 QZ 位于后台时训练，请启用此项。默认关闭。</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 单车选项</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>用于 8008 TRS 3 等经典 Daum 功率车的串口。Android 使用 USB 转串口适配器时请输入 &apos;usb&apos;。Android 也接受 COM1、COM2 等作为搜索 USB 适配器的别名，但它们并非 Android 的串口名称。Windows 使用 COM1 或 COM3；Linux/macOS 使用串口设备路径，例如 /dev/ttyUSB0。</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>阻力轮询延迟：</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>使用“坡度延迟”设置限制 QZ 向 Daum 发送阻力和功率更新的频率。默认：0 秒。</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>坡度过滤阈值（%）：</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>在 GPX 训练中，忽略小于此值的坡度变化。只有与上次发送的数值之差达到设置的阈值时，才发送新的坡度指令。默认：0（禁用）。</translation>
     </message>
 </context>
 <context>

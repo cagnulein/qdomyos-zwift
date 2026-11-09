@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>พบเซ็นเซอร์วัดชีพจร: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>พบเซ็นเซอร์วัดชีพจร: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>เลือก</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>ไม่ใช่ตอนนี้</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>ไม่ต้องถามอีก</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>เลือกเซ็นเซอร์วัดชีพจร</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (เซ็นเซอร์ชีพจร): ไม่มีข้อมูลอัตราการเต้นหัวใจ ตรวจสอบว่าเซ็นเซอร์กำลังส่งข้อมูลอยู่</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>กำลังค้นหาเซ็นเซอร์วัดชีพจร...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>กำลังค้นหา %1 (เซ็นเซอร์ชีพจร)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>ไม่พบ %1 (เซ็นเซอร์ชีพจร) ตรวจสอบว่าเปิดอยู่และกำลังส่งข้อมูลอัตราการเต้นหัวใจ</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>ไม่พบเซ็นเซอร์วัดชีพจรในบริเวณใกล้เคียง ตรวจสอบว่าเปิดอยู่และกำลังส่งข้อมูล</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ยกเลิก</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>ติดต่อฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>เตรียมอีเมลถึงฝ่ายสนับสนุนพร้อมข้อมูลการวินิจฉัย</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>ไม่มีอุปกรณ์เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>ความเร็วและกำลังเป็นศูนย์</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>ฝ่ายสนับสนุน QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>เสร็จสิ้น</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>ซ่อนแป้นพิมพ์</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>ปิดคำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>แจ้งเราว่าส่วนใดใช้งานไม่ได้ QZ จะเพิ่มข้อมูลอุปกรณ์และแอปของคุณ</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>อธิบายปัญหา...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>อธิบายปัญหา</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>แนบบันทึกการดีบักหากมี</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>คุณตรวจสอบหรือแก้ไขอีเมลก่อนส่งได้ ระบบจะไม่ส่งอะไรโดยอัตโนมัติ</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>ยกเลิก</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>เปิดอีเมล</translation>
     </message>
 </context>
 <context>
@@ -1263,6 +1377,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1304,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ยกเลิก</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -2798,6 +2916,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3433,6 +3555,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3446,6 +3576,18 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Workouts imported: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3742,6 +3884,131 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>คำขอรับการสนับสนุน</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>ปัญหา QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>สวัสดี Roberto</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>ฉันต้องการความช่วยเหลือเกี่ยวกับ QZ</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>ปัญหา:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[โปรดอธิบายปัญหา]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>ลักษณะการทำงานที่คาดหวัง:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[โปรดอธิบายว่าควรเกิดอะไรขึ้น]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- การวินิจฉัย QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>เวอร์ชัน QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>แพลตฟอร์ม: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>โปรไฟล์: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>อุปกรณ์: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>เชื่อมต่อแล้ว</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>การเชื่อมต่อ: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>ความเร็ว: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>ไม่พร้อมใช้งาน</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>กำลัง: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>สถานการณ์ที่ตรวจพบ: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>ไม่ได้เลือกบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>ปิดการบันทึกการดีบักอยู่ โปรดเปิดการบันทึกและเริ่ม QZ ใหม่ก่อนทำซ้ำปัญหา</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>ไม่พบบันทึกการดีบัก</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>ไม่มีบันทึกการดีบักหรือมีขนาดใหญ่เกินกว่าจะเตรียมได้</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>แนบบันทึกการดีบักแล้ว (gzip)</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>เขียนไฟล์แนบบันทึกการดีบักไม่ได้</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>บีบอัดบันทึกการดีบักไม่ได้ หรือไฟล์แนบมีขนาดเกิน 10 MB</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>โปรดแนบบันทึกการดีบักที่สร้างขึ้นด้วยตนเอง</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>ไม่พบอุปกรณ์</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ไม่สามารถเปิดแอปอีเมลได้</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ กำลังทำงาน</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3886,6 +4153,10 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -3978,6 +4249,17 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
     </message>
     <message>
         <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
@@ -4337,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5609,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ยกเลิก</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7157,7 +7435,11 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7783,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>กำหนดวิธีแปลงความชันจากแอปเสมือนเป็นแรงต้านของจักรยาน</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>ใช้การจับคู่แบบกำหนดเองเมื่อ QZ แปลงความชันจากแอปเสมือนเป็นแรงต้าน</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>ระบุคู่ ความชัน|แรงต้าน หนึ่งคู่ต่อบรรทัด QZ จะคำนวณค่าระหว่างจุดและจำกัดค่าให้อยู่ในช่วงที่ตั้งไว้</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>ชื่อผู้ใช้บัญชี Life Fitness สำหรับเข้าสู่ระบบบริการ เก็บไว้ในอุปกรณ์เท่านั้น และไม่บันทึกลงในล็อกดีบัก</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>รหัสผ่านบัญชี Life Fitness สำหรับเข้าสู่ระบบบริการ เก็บไว้ในอุปกรณ์เท่านั้น และไม่บันทึกลงในล็อกดีบัก</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>การทำงานของกล้อง</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>การทำงานของอีโมต</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>ตัวจำลอง Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>ตำแหน่งกราฟกำลัง</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>ตำแหน่งกราฟอัตราการเต้นหัวใจ</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>ตำแหน่งกราฟแรงต้านเทียบกับแรงต้านเป้าหมาย</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>ตำแหน่งกราฟแรงต้าน Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>ตำแหน่งกราฟรอบขา</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>ตำแหน่งกราฟการกระจายกำลัง</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>ตำแหน่งกราฟความเร็วและความชัน</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>ลำดับตัวเลขของกราฟนี้ในประวัติการออกกำลังกาย เปลี่ยนลำดับด้วยปุ่มขึ้นและลงในตัวเลือก UI ทั่วไป</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>ค้นหาเซ็นเซอร์วัดชีพจรเมื่อเริ่มต้น</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>ใน 5 นาทีแรกหลังเชื่อมต่อเครื่องออกกำลังกาย หากยังไม่ได้รับข้อมูลชีพจร QZ จะค้นหาเซ็นเซอร์ทุกนาที โดยเชื่อมต่อสายคาดอกที่เลือกทันทีเมื่อพบ หรือเสนอเซ็นเซอร์ใกล้เคียงหากยังไม่ได้เลือก สามารถแตะช่องอัตราการเต้นหัวใจหรือไอคอน Bluetooth บนหน้าหลักเพื่อค้นหาได้ทุกเมื่อ</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>ตัวเลือกจักรยาน Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>พอร์ตอนุกรมสำหรับเครื่องออกกำลังกาย Daum รุ่นเก่า เช่น 8008 TRS 3 บน Android ที่ใช้อะแดปเตอร์ USB เป็นพอร์ตอนุกรม ให้ใช้ &apos;usb&apos; ค่า COM1, COM2 ฯลฯ ใช้เป็นชื่อแทนเพื่อค้นหาอะแดปเตอร์ USB ได้ แต่ไม่ใช่ชื่อพอร์ตของ Android บน Windows ใช้ COM1 หรือ COM3 ส่วน Linux/macOS ใช้พาธอุปกรณ์อนุกรม เช่น /dev/ttyUSB0</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>ช่วงหน่วงในการตรวจสอบแรงต้าน:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>ใช้การตั้งค่าหน่วงความชันเพื่อจำกัดความถี่ที่ QZ ส่งการอัปเดตแรงต้านและกำลังไปยัง Daum ค่าเริ่มต้น: 0 วินาที</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>ตัวกรองความชัน (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>ในการออกกำลังกาย GPX ให้ข้ามการเปลี่ยนความชันที่น้อยกว่าค่านี้ และส่งคำสั่งใหม่เมื่อผลต่างจากค่าที่ส่งล่าสุดถึงเกณฑ์ที่กำหนดเท่านั้น ค่าเริ่มต้น: 0 (ปิดใช้งาน)</translation>
     </message>
 </context>
 <context>

@@ -2,6 +2,8 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private sql concurrent
+# Android: Qt's accessibility functions for Java run on the Qt thread (main.cpp, androidAccessibility)
+android: QT += gui-private
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -21,6 +23,12 @@ qtHaveModule(httpserver) {
 #	 win32: {
 #	     DEFINES += CHARTJS
 #		}
+}
+
+# Native iOS mail composer (also compiled with IO_UNDER_QT).
+ios: {
+    OBJECTIVE_SOURCES += ios/support_email.mm
+    LIBS += -framework MessageUI
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
@@ -163,6 +171,7 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/daumbike/DaumUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
 devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
@@ -175,6 +184,7 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/daumbike/daumbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
@@ -490,6 +500,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/daumbike/DaumUSB.h \
 devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
@@ -500,6 +511,7 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/daumbike/daumbike.h \
 devices/freebeatbike/freebeatbike.h \
 devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
@@ -965,6 +977,49 @@ RESOURCES += \
 	qml.qrc \
 	translations.qrc
 
+# The two largest settings pages (settings.qml about 1.1 MB, settings-tiles.qml about 285 KB)
+# are compiled at build time: otherwise their first open after an install or an update compiles
+# them right then and the app freezes (for seconds with settings.qml). The engine takes a unit
+# compiled ahead by its qrc path before the source (QQmlTypeLoader::getType, Qt 5.15).
+# Not CONFIG += qtquickcompiler: it removes every .qml and .js file from the resources, and the
+# settings search reads qrc:/settings.qml as text, the charts read the templates in
+# inner_templates/. So the pages stay in qml.qrc, at the same paths as in settings-qmlcache.qrc,
+# which only lists them for qmlcachegen: the qrc path of each page and the loader (not a resource).
+# The source in qml.qrc is also what the engine falls back to when the compiled unit does not
+# match the Qt version (no error then, the page is compiled at run time as before).
+# Adding a page: the same file in SETTINGS_QMLCACHE_FILES and in settings-qmlcache.qrc (missing
+# in the first, the link fails; missing in the second, qmlcachegen fails), and in qml.qrc.
+# Do not combine with CONFIG += qtquickcompiler: both would define the same compiled units.
+SETTINGS_QMLCACHE_QRC = $$PWD/settings-qmlcache.qrc
+SETTINGS_QMLCACHE_FILES = $$PWD/settings.qml $$PWD/settings-tiles.qml
+qtPrepareTool(SETTINGS_QMLCACHEGEN, qmlcachegen)
+
+settings_qmlcache.input = SETTINGS_QMLCACHE_FILES
+settings_qmlcache.output = qmlcache_${QMAKE_FILE_BASE}_qml$${first(QMAKE_EXT_CPP)}
+settings_qmlcache.commands = $$SETTINGS_QMLCACHEGEN --resource=$$shell_quote($$SETTINGS_QMLCACHE_QRC) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+settings_qmlcache.depends = $$SETTINGS_QMLCACHE_QRC
+settings_qmlcache.name = qmlcachegen ${QMAKE_FILE_IN}
+settings_qmlcache.variable_out = GENERATED_SOURCES
+settings_qmlcache.dependency_type = TYPE_C
+
+# registers the compiled pages with the engine at start-up; the output name has to end with
+# qmlcache_loader.cpp, that is how qmlcachegen knows it writes the loader
+settings_qmlcache_loader.input = SETTINGS_QMLCACHE_QRC
+settings_qmlcache_loader.output = settings_qmlcache_loader.cpp
+settings_qmlcache_loader.commands = $$SETTINGS_QMLCACHEGEN --resource-file-mapping=$$shell_quote($$SETTINGS_QMLCACHE_QRC) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+settings_qmlcache_loader.name = qmlcachegen loader ${QMAKE_FILE_IN}
+settings_qmlcache_loader.variable_out = SOURCES
+settings_qmlcache_loader.dependency_type = TYPE_C
+settings_qmlcache_loader.CONFIG = combine
+
+# rebuilt by a new qmlcachegen (another Qt), as qtquickcompiler.prf does
+unix {
+    settings_qmlcache.depends += $$SETTINGS_QMLCACHEGEN
+    settings_qmlcache_loader.depends += $$SETTINGS_QMLCACHEGEN
+}
+
+QMAKE_EXTRA_COMPILERS += settings_qmlcache settings_qmlcache_loader
+
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
@@ -1002,6 +1057,13 @@ DISTFILES += \
 	android/gradlew.bat \
    android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
+	android/res/drawable/ic_launcher_background.xml \
+	android/res/drawable/ic_launcher_foreground.xml \
+	android/res/drawable/ic_launcher_monochrome.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher_round.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher_round.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
    android/src/FloatingHandler.java \

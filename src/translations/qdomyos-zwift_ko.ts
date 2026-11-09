@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>심박 센서 발견: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>심박 센서 %1개 발견</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>선택</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>나중에</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>다시 묻지 않음</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>심박 센서 선택</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Would you like to enable the required services?</source>
         <translation>%1(심박 센서) 연결됨!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>심박 센서 검색 중…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>%1(심박 센서) 검색 중…</translation>
     </message>
@@ -561,6 +596,10 @@ Would you like to enable the required services?</source>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride 연결됨!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>근처에서 심박 센서를 찾을 수 없습니다. 켜져 있고 심박수를 전송하는지 확인하세요.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1180,6 +1219,69 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ 지원 문의</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>진단 정보가 포함된 지원 이메일 준비</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>연결된 기기가 없습니다</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>속도와 파워가 0입니다</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ 지원</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>키보드 숨기기</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>지원 요청 닫기</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>작동하지 않는 내용을 알려주세요. QZ가 기기와 앱 정보를 추가합니다.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>문제를 설명하세요...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>문제 설명</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>사용 가능한 경우 디버그 로그 첨부</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>이메일을 보내기 전에 검토하거나 수정할 수 있습니다. 자동으로 전송되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>이메일 열기</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1296,6 +1398,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>프로그램 복원</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2742,6 +2848,10 @@ This may take a few moments on first startup.</source>
         <translation>모든 파일 (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Strava에 업로드</translation>
     </message>
@@ -3493,6 +3603,18 @@ This may take a few moments on first startup.</source>
         <translation>가져온 운동: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>파일을 QZ 폴더에 복사할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>복원된 훈련 프로그램: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>이미 기록에 있음: %1.</translation>
     </message>
@@ -3637,6 +3759,14 @@ This may take a few moments on first startup.</source>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>이 운동의 FIT 파일을 공유할 수 없습니다</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3785,6 +3915,131 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Spotify songs:</source>
         <translation>Spotify 노래:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ 실행 중</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>지원 요청</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ 문제 | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>안녕하세요 Roberto님,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZ에 대한 도움이 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>문제:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[문제를 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>예상 동작:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[어떻게 동작해야 하는지 설명해 주세요]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ 진단 정보 ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ 버전: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>플랫폼: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>프로필: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>기기: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결되지 않음</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>연결 상태: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>속도: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>파워: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>감지된 상황: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>디버그 로그를 요청하지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>디버그 로그가 비활성화되어 있습니다. 문제를 재현하기 전에 로그를 켜고 QZ를 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>디버그 로그를 찾을 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>디버그 로그를 사용할 수 없거나 준비하기에 너무 큽니다.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>디버그 로그가 첨부되었습니다 (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>디버그 로그 첨부 파일을 쓸 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>디버그 로그를 압축하지 못했거나 첨부 파일이 10 MB를 초과합니다.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>생성된 디버그 로그를 직접 첨부하세요</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>기기가 감지되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>이메일 앱을 열 수 없습니다</translation>
     </message>
 </context>
 <context>
@@ -3942,6 +4197,10 @@ Do you want to start it now?</source>
         <translation>설정 검색</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>프로필: </translation>
     </message>
@@ -4041,6 +4300,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>이전 설치의 운동이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>훈련 프로그램</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
 찾아보시겠습니까?
 
 다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
@@ -4166,6 +4439,22 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>파일을 선택하세요</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo 가상 기어</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>가상 기어를 구현하기 위해 QZ는 트레이너에 저장된 휠 둘레를 변경합니다. 이 값은 QZ를 닫은 후에도 트레이너에 남아 있을 수 있으며, 다른 앱에서 트레이너 동작에 영향을 줄 수 있습니다.
+
+QZ가 이 값을 변경하도록 허용하시겠습니까?
+
+[아니요]: QZ가 [휠 지름 없는 프로토콜]을 켜고([설정] &gt; [자전거 옵션] &gt; [Wahoo 옵션]), 가상 기어는 경사를 통해 작동합니다. [예]를 선택하면 나중에 같은 곳에서 되돌릴 수 있습니다. 이 옵션을 켜고 트레이너가 연결된 상태에서 [트레이너 기본 설정 복원]을 누르세요.</translation>
     </message>
 </context>
 <context>
@@ -4418,7 +4707,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>열기</translation>
+        <translation type="vanished">열기</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4443,6 +4732,74 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>App Language:</source>
         <translation>앱 언어:</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>설정 페이지에서 이 설정을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>가상 앱의 경사도를 자전거 저항으로 변환하는 방식을 설정합니다.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ가 가상 앱의 경사도를 저항으로 변환할 때 사용자 지정 대응표를 사용합니다.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>한 줄에 경사도|저항 한 쌍. QZ는 점 사이를 보간하고, 설정 범위 밖에서는 끝점 값을 사용합니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 사용자 이름입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>서비스 로그인에 사용하는 Life Fitness 계정 비밀번호입니다. 기기에만 저장되며 디버그 로그에는 절대 기록되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>현재 카메라 앵글</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>현재 이모트</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike 에뮬레이터</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>파워 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>심박수 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>저항 및 목표 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton 저항 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>케이던스 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>파워 분포 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>속도 및 경사도 그래프 위치</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>운동 기록에서 이 그래프의 순서입니다. 순서는 일반 UI 옵션의 위로/아래로 버튼으로 바꿉니다.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -4603,6 +4960,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Refresh Devices List</source>
         <translation>기기 목록 새로 고침</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>시작할 때 심박 센서 찾기</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>운동 기구가 연결된 후 처음 5분 동안 심박수가 들어오지 않으면 QZ가 1분마다 심박 센서를 찾습니다. 선택한 심박 벨트는 찾는 즉시 연결하고, 선택한 것이 없으면 근처에서 찾은 센서를 제안합니다. 홈 화면의 심박수 타일이나 Bluetooth 아이콘을 탭하면 언제든지 찾습니다.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7286,7 +7651,15 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
+        <translation type="vanished">현재 원래 페이지에서 숨겨져 있습니다: 여기에서 변경하세요</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켬</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>현재 설정에서는 원래 페이지에서 숨겨져 있습니다</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7887,6 +8260,30 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>iOS 전용. 화면이 꺼져 있거나 QZ가 백그라운드에 있을 때도 QZ가 계속 실행되도록 해 Bluetooth 연결과 세션 타이머가 멈추지 않게 합니다. 음악과 함께 재생되는 무음 오디오 트랙을 사용하므로 듣고 있는 음악이 끊기지 않습니다. 화면을 잠근 상태나 QZ를 백그라운드에 둔 상태로 운동해야 한다면 켜세요. 기본값: 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum 자전거 옵션</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 같은 기존 Daum 에르고미터에 사용하는 직렬 포트입니다. Android에서 USB-직렬 어댑터를 사용할 경우 &apos;usb&apos;를 입력하세요. COM1, COM2 등은 Android에서 USB 어댑터 검색을 위한 별칭으로 허용되지만 Android 포트 이름은 아닙니다. Windows에서는 COM1 또는 COM3을, Linux/macOS에서는 /dev/ttyUSB0 같은 직렬 장치 경로를 사용하세요.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>저항 조회 지연:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>경사 지연 설정을 사용해 QZ가 Daum에 저항 및 파워 업데이트를 보내는 빈도를 제한합니다. 기본값: 0초.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>경사 필터 (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
     </message>
 </context>
 <context>

@@ -2,9 +2,11 @@
 
 The GitHub Actions workflow **Release iOS to TestFlight** is a manual release path on `master`. The iOS Simulator CI job calls `.github/scripts/build_ios_simulator.sh` for pull requests. The release workflow applies the same generated-project preparation, then lets Fastlane create a signed archive for a physical iOS device; a Simulator build cannot be uploaded to App Store Connect.
 
+The release archive must include **all four native Xcode targets**: `qdomyoszwift` (iPhone/iPad), `watchkit`, `watchkit Extension`, and `QZWidgetExtension`. Do not run `.github/scripts/ios_simulator_project.py` on the TestFlight release path: that script deliberately removes the Apple Watch target dependency and embed phase for the separate **iOS Simulator CI** build. The release workflow instead checks that the WatchKit dependency and both embed phases are retained. Fastlane then validates the **signed .xcarchive and exported .ipa before upload**, checking the nested Watch app, WatchKit extension, widget, bundle relationships and matching build numbers. A missing companion target fails the release rather than publishing an incomplete TestFlight build. This validation does not replace a physical iPhone/Apple Watch installation test.
+
 Run it from **Actions → Release iOS to TestFlight → Run workflow** on `master`. Leave `publish` unchecked to create a signed IPA artifact only. Check it to upload the IPA to TestFlight.
 
-To test an open pull request before merging, add the `testflight-upload` label. This label triggers the signed device archive and TestFlight upload for same-repository pull requests targeting `master`. Other pull request updates do not upload automatically, and fork pull requests cannot use the App Store Connect secrets.
+To **check the signed archive without uploading**, add the `ios-archive-check` label to a same-repository pull request. This runs the complete signed device archive/export and bundled-target verification, and retains the IPA as an Actions artifact. Once the archive is validated, add the `testflight-upload` label to build and upload a TestFlight beta. Both labels apply only to same-repository pull requests targeting `master`; fork pull requests cannot use App Store Connect secrets. Other pull request updates do not upload automatically.
 
 ## GitHub Actions secrets
 

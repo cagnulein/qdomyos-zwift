@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Знайдено пульсометр: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Знайдено пульсометрів: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Під’єднати</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Вибрати</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Не зараз</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Більше не питати</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Виберіть пульсометр</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1038,6 +1069,14 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Не вдалося ініціалізувати YPOO M5, потрібно перепідключитися</translation>
     </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Пошук пульсометрів…</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Пульсометр поруч не знайдено. Перевірте, що він увімкнений і транслює пульс.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1180,6 +1219,69 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Зв’язатися зі службою підтримки QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Підготувати лист до підтримки з діагностичними даними</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Пристрій не підключено</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Швидкість і потужність дорівнюють нулю</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Підтримка QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Сховати клавіатуру</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Закрити запит до підтримки</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Опишіть, що не працює. QZ додасть відомості про пристрій і застосунок.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Опишіть проблему...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Опис проблеми</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Додати журнал налагодження, якщо він доступний</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Перш ніж надсилати лист, ви можете переглянути або відредагувати його. Він не надсилається автоматично.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Відкрити пошту</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1296,6 +1398,10 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Відновити програми</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2730,6 +2836,10 @@ This may take a few moments on first startup.</source>
         <translation>ккал</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Вивантажити в Strava</translation>
     </message>
@@ -3583,6 +3693,14 @@ This may take a few moments on first startup.</source>
         <translation>Помилка отримання токена доступу, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Не вдалося поділитися файлом FIT цього тренування</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Ліцензію підтверджено!</translation>
     </message>
@@ -3605,6 +3723,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>Імпортовано тренувань: %1.</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Не вдалося скопіювати файл у папку QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Відновлено програм тренувань: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Програм тренувань попереднього встановлення не знайдено.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3785,6 +3915,131 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Spotify songs:</source>
         <translation>Пісні Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ працює</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Запит до служби підтримки</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Проблема QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Вітаю, Роберто!</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Мені потрібна допомога з QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Проблема:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Опишіть проблему]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Очікувана поведінка:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Опишіть, що мало б статися]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Діагностика QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Версія QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Платформа: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Профіль: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Пристрій: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Підключено</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не підключено</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>З’єднання: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Швидкість: %1 км/год</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Недоступно</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Потужність: %1 Вт</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Виявлена ситуація: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Журнал налагодження не запитувався.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Журнал налагодження вимкнено. Увімкніть його та перезапустіть QZ перед відтворенням проблеми.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Журнал налагодження не знайдено.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Журнал налагодження недоступний або завеликий для підготовки.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Журнал налагодження додано (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Не вдалося записати вкладення журналу налагодження.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Не вдалося стиснути журнал або вкладення перевищує 10 МБ.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Додайте створений журнал налагодження вручну</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Пристрій не виявлено</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Не вдалося відкрити поштову програму</translation>
     </message>
 </context>
 <context>
@@ -4044,6 +4299,10 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Пошук налаштувань</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Профіль: </translation>
     </message>
@@ -4140,6 +4399,20 @@ In the next window, allow access to the QZ folder.</source>
 У наступному вікні дозвольте доступ до папки QZ.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>Програми тренувань</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
+Знайти їх?
+
+У наступному вікні дозвольте доступ до папки QZ.</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>Зв’язок втрачено у фоні</translation>
     </message>
@@ -4166,6 +4439,22 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Більше не питати</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Віртуальні передачі Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Щоб імітувати віртуальні передачі, QZ змінює довжину кола колеса, збережену в тренажері. Це значення може залишитися в тренажері після закриття QZ і впливати на його роботу в інших застосунках.
+
+Дозволити QZ змінювати це значення?
+
+«Ні»: QZ увімкне «Без протоколу діаметра колеса» (Налаштування &gt; Параметри велотренажера &gt; Параметри Wahoo), і віртуальні передачі працюватимуть через ухил. Якщо обрати «Так», це можна згодом скасувати там само: увімкніть цей параметр і за підключеного тренажера натисніть «Відновити типові налаштування тренажера».</translation>
     </message>
 </context>
 <context>
@@ -4418,7 +4707,7 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>Відкрити</translation>
+        <translation type="vanished">Відкрити</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -6401,6 +6690,74 @@ Please enter it below:</source>
         <translation>Нахил</translation>
     </message>
     <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Це налаштування не знайдено на сторінках налаштувань</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Налаштуйте, як нахил із віртуального застосунку переводиться в опір велотренажера.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Використовувати власну відповідність, коли QZ переводить нахил із віртуального застосунку в опір.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Одна пара «нахил|опір» на рядок. Між точками QZ обчислює значення, а поза заданим діапазоном бере крайню точку.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Ім’я користувача облікового запису Life Fitness для входу в сервіс. Зберігається лише на пристрої та ніколи не записується в журнал налагодження.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Пароль облікового запису Life Fitness для входу в сервіс. Зберігається лише на пристрої та ніколи не записується в журнал налагодження.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Поточний ракурс камери</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Поточна емоція</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Емулятор Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Позиція графіка потужності</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Позиція графіка пульсу</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Позиція графіка опору й цільового опору</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Позиція графіка опору Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Позиція графіка каденсу</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Позиція графіка розподілу потужності</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Позиція графіка швидкості й нахилу</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Номер цього графіка в історії тренувань. Порядок змінюють кнопками вгору та вниз у розділі «Загальні параметри інтерфейсу».</translation>
+    </message>
+    <message>
         <source>Tile size:</source>
         <translation>Розмір плиток:</translation>
     </message>
@@ -7778,7 +8135,15 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Зараз приховане на своїй сторінці – змінюйте його тут</translation>
+        <translation type="vanished">Зараз приховане на своїй сторінці – змінюйте його тут</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Увімк.</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Приховане на своїй сторінці за поточних налаштувань</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7891,6 +8256,38 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Лише для iOS. QZ продовжує працювати з вимкненим екраном або у фоні, щоб з’єднання Bluetooth і таймери сесії не завмирали. Для цього використовується беззвучна звукова доріжка, що змішується з вашою музикою, тож те, що ви слухаєте, не переривається. Увімкніть, якщо тренуєтеся із заблокованим екраном або з QZ у фоні. Типово вимкнено.</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Шукати пульсометр на старті</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>У перші 5 хвилин після під’єднання тренажера, поки пульсу немає, QZ раз на хвилину шукає пульсометр: вибраний під’єднує, щойно знайде, а якщо пульсометр не вибрано, пропонує знайдений поруч. Натискання на плитку пульсу або значок Bluetooth на головній запускає пошук будь-коли.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Параметри велосипеда Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Послідовний порт для класичних велоергометрів Daum, наприклад 8008 TRS 3. На Android з перехідником USB–послідовний порт використовуйте &apos;usb&apos;. COM1, COM2 тощо приймаються як псевдоніми для пошуку USB-адаптера, але це не назви портів Android. На Windows використовуйте COM1 або COM3, на Linux/macOS — шлях до послідовного пристрою, наприклад /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Затримка опитування опору:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Використовує налаштування затримки нахилу, щоб обмежити частоту надсилання оновлень опору й потужності до Daum. Типово: 0 секунд.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Фільтр нахилу (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>У тренуваннях GPX зміни нахилу, менші за це значення, ігноруються. Нова команда надсилається лише тоді, коли різниця від останнього надісланого значення досягає встановленого порога. Типово: 0 (вимкнено).</translation>
     </message>
 </context>
 <context>

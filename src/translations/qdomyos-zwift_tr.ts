@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Nabız sensörü bulundu: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Bulunan nabız sensörleri: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Bağlan</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Seç</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Şimdi değil</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Bir daha sorma</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Bir nabız sensörü seçin</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <translation>Bağlandı: %1 (nabız sensörü)</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Nabız sensörleri aranıyor…</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Aranıyor: %1 (nabız sensörü)…</translation>
     </message>
@@ -561,6 +596,10 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride bağlandı</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Yakınlarda nabız sensörü bulunamadı. Açık olduğunu ve nabız yayınladığını kontrol edin.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1180,6 +1219,69 @@ QZ ayarları güncellensin mi?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ desteğiyle iletişime geç</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Tanılama bilgileriyle destek e-postası hazırla</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Bağlı cihaz yok</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hız ve güç sıfır</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ Desteği</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Bitti</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Klavyeyi gizle</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Destek talebini kapat</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Neyin çalışmadığını bize anlat. QZ cihaz ve uygulama bilgilerini ekleyecek.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Sorunu açıklayın...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Sorunu açıklayın</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Varsa hata ayıklama günlüğünü ekle</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>E-postayı göndermeden önce inceleyebilir veya düzenleyebilirsiniz. Hiçbir şey otomatik gönderilmez.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>E-postayı aç</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1296,6 +1398,10 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Programları geri yükle</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2742,6 +2848,10 @@ This may take a few moments on first startup.</source>
         <translation>Tüm dosyalar (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Strava&apos;ya yükle</translation>
     </message>
@@ -3493,6 +3603,18 @@ This may take a few moments on first startup.</source>
         <translation>İçe aktarılan antrenman: %1.</translation>
     </message>
     <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Dosya QZ klasörüne kopyalanamadı.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Geri yüklenen antrenman programı: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+    </message>
+    <message>
         <source>Already in the history: %1.</source>
         <translation>Geçmişte zaten var: %1.</translation>
     </message>
@@ -3637,6 +3759,14 @@ This may take a few moments on first startup.</source>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Bu antrenmanın FIT dosyası paylaşılamadı</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3785,6 +3915,131 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Spotify songs:</source>
         <translation>Spotify şarkıları:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ çalışıyor</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Destek talebi</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ sorunu | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Merhaba Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>QZ hakkında yardıma ihtiyacım var.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Sorun:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Lütfen sorunu açıklayın]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Beklenen davranış:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Ne olması gerektiğini açıklayın]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ tanılama bilgileri ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ sürümü: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Platform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Cihaz: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Bağlı</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Bağlı değil</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Bağlantı: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hız: %1 km/sa</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Kullanılamıyor</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Güç: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Algılanan durum: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Hata ayıklama günlüğü istenmedi.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Hata ayıklama günlüğü devre dışı. Sorunu yeniden oluşturmadan önce günlük kaydını etkinleştirip QZ&apos;yi yeniden başlatın.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Hata ayıklama günlüğü bulunamadı.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Hata ayıklama günlüğü kullanılamıyor veya hazırlanamayacak kadar büyük.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Hata ayıklama günlüğü eklendi (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Hata ayıklama günlüğü eki yazılamadı.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Günlük sıkıştırılamadı veya ek 10 MB sınırını aşıyor.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Oluşturulan hata ayıklama günlüğünü manuel olarak ekleyin</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Cihaz algılanmadı</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Bir e-posta uygulaması açılamadı</translation>
     </message>
 </context>
 <context>
@@ -3942,6 +4197,10 @@ Do you want to start it now?</source>
         <translation>Ayarlarda ara</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>FIT dosyasını paylaş</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
@@ -4041,6 +4300,20 @@ Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
         <translation>Önceki bir kurulumdan kalan antrenmanlar QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation>Antrenman programları</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
 Bunlar aransın mı?
 
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
@@ -4166,6 +4439,22 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>Please choose a file</source>
         <translation>Bir dosya seçin</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo sanal vitesleri</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Sanal vitesleri simüle etmek için QZ, antrenman cihazınızda kayıtlı tekerlek çevresini değiştirir. Bu değer QZ kapatıldıktan sonra cihazda kalabilir ve cihazın diğer uygulamalardaki davranışını etkileyebilir.
+
+QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
+
+“Hayır”: QZ, “Tekerlek çapı protokolü olmadan” seçeneğini açar (Ayarlar &gt; Bisiklet seçenekleri &gt; Wahoo seçenekleri) ve sanal vitesler eğim üzerinden çalışır. “Evet” derseniz bunu daha sonra aynı yerden geri alabilirsiniz: bu seçeneği açın ve cihaz bağlıyken “Antrenman cihazının varsayılan ayarını geri yükle” düğmesine dokunun.</translation>
     </message>
 </context>
 <context>
@@ -4418,7 +4707,7 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Aç</translation>
+        <translation type="vanished">Aç</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4443,6 +4732,74 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>App Language:</source>
         <translation>Uygulama dili:</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Bu ayar, ayar sayfalarında bulunamadı</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Sanal uygulamadaki eğimin bisiklet direncine nasıl dönüştürüleceğini ayarlar.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>QZ sanal uygulamadaki eğimi dirence dönüştürürken özel bir eşleme kullanır.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Satır başına bir eğim|direnç çifti. QZ noktalar arasındaki değerleri hesaplar, ayarlanan aralığın dışında uç noktayı kullanır.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının kullanıcı adı. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Hizmette oturum açmak için kullanılan Life Fitness hesabının şifresi. Yalnızca cihazda saklanır ve hata ayıklama günlüklerine asla yazılmaz.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Geçerli kamera açısı</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Geçerli ifade</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike emülatörü</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Güç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Nabız grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Direnç ve hedef direnç grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton direnci grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Kadans grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Güç dağılımı grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Hız ve eğim grafiğinin konumu</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Bu grafiğin antrenman geçmişindeki sırası. Sıra, Genel arayüz seçeneklerindeki yukarı ve aşağı düğmeleriyle değiştirilir.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -4603,6 +4960,14 @@ Bu seans için klasik Bluetooth sanal cihazına geçilsin mi?</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Cihaz listesini yenile</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Başlangıçta nabız sensörü ara</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Egzersiz aleti bağlandıktan sonraki ilk 5 dakika boyunca, nabız gelmediği sürece QZ dakikada bir nabız sensörü arar: seçilen nabız sensörünü bulur bulmaz bağlar, seçilmiş bir sensör yoksa yakında bulunan birini önerir. Ana sayfadaki nabız kutucuğuna veya Bluetooth simgesine dokunmak her zaman arama başlatır.</translation>
     </message>
     <message>
         <source>Heart Rate Zone Options</source>
@@ -7286,7 +7651,15 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Şu anda kendi sayfasında gizli: buradan değiştirin</translation>
+        <translation type="vanished">Şu anda kendi sayfasında gizli: buradan değiştirin</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Açık</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Mevcut ayarlarla kendi sayfasında gizli</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7887,6 +8260,30 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Yalnızca iOS. Ekran kapalıyken veya QZ arka plandayken QZ&apos;nin çalışmaya devam etmesini sağlar; böylece Bluetooth bağlantıları ve oturum zamanlayıcıları donmaz. Müziğinizle karıştırılan sessiz bir ses parçası kullanır, bu yüzden dinlediğiniz hiçbir şey kesilmez. Ekran kilitliyken veya QZ arka plandayken antrenman yapmanız gerekiyorsa açın. Varsayılan: kapalı.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum Bisiklet Seçenekleri</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 gibi klasik Daum ergometreleri için kullanılan seri bağlantı noktası. Android&apos;de USB-seri adaptörü ile &apos;usb&apos; kullanın. COM1, COM2 vb. Android&apos;de USB adaptörünü taramak için takma ad olarak kabul edilir ancak Android bağlantı noktası adları değildir. Windows&apos;ta COM1 veya COM3; Linux/macOS&apos;te /dev/ttyUSB0 gibi seri aygıt yolu kullanın.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Direnç sorgulama gecikmesi:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>QZ&apos;nin Daum&apos;a direnç ve güç güncellemelerini gönderme sıklığını sınırlamak için Eğim Gecikmesi ayarını kullanır. Varsayılan: 0 saniye.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Eğim Filtresi (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX antrenmanlarında bu değerden küçük eğim değişikliklerini yok sayar ve yalnızca son gönderilen değere göre fark ayarlanan eşiğe ulaştığında yeni eğim komutu gönderir. Varsayılan: 0 (devre dışı).</translation>
     </message>
 </context>
 <context>

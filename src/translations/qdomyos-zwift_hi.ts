@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>हृदय गति सेंसर मिला: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>हृदय गति सेंसर मिले: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>चुनें</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>अभी नहीं</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>फिर न पूछें</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>हृदय गति सेंसर चुनें</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -1003,6 +1034,26 @@ Do you want to update QZ settings?</source>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (हृदय गति सेंसर): हृदय गति उपलब्ध नहीं है। सुनिश्चित करें कि सेंसर हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
+    <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>हृदय गति सेंसर खोजे जा रहे हैं...</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>%1 (हृदय गति सेंसर) खोजा जा रहा है...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>%1 (हृदय गति सेंसर) नहीं मिला। सुनिश्चित करें कि यह चालू है और हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>आसपास कोई हृदय गति सेंसर नहीं मिला। सुनिश्चित करें कि वह चालू है और हृदय गति प्रसारित कर रहा है।</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1056,7 +1107,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1142,6 +1193,69 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Maximum: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>QZ सहायता से संपर्क करें</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>निदान जानकारी के साथ सहायता ईमेल तैयार करें</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>कोई डिवाइस कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>गति और पावर शून्य हैं</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ सहायता</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>हो गया</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>कीबोर्ड छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>सहायता अनुरोध बंद करें</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>हमें बताएँ कि क्या काम नहीं कर रहा। QZ आपके डिवाइस और ऐप की जानकारी जोड़ देगा।</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>समस्या बताएँ...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>समस्या बताएँ</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>उपलब्ध होने पर डिबग लॉग संलग्न करें</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>भेजने से पहले आप ईमेल की समीक्षा या संपादन कर सकते हैं। कुछ भी अपने आप नहीं भेजा जाता।</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>ईमेल खोलें</translation>
     </message>
 </context>
 <context>
@@ -1263,6 +1377,10 @@ Do you want to update QZ settings?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Restore programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1304,7 +1422,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
         <source>Confirm</source>
@@ -2798,6 +2916,10 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Previous month</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3433,6 +3555,14 @@ This may take a few moments on first startup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3446,6 +3576,18 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Workouts imported: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3742,6 +3884,131 @@ This may take a few moments on first startup.</source>
         <source>Spotify songs:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>सहायता अनुरोध</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ समस्या | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>नमस्ते Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>मुझे QZ के लिए सहायता चाहिए।</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>समस्या:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[कृपया समस्या बताएँ]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>अपेक्षित व्यवहार:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[कृपया बताएँ कि क्या होना चाहिए]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ निदान ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ संस्करण: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>प्लेटफ़ॉर्म: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>प्रोफ़ाइल: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>डिवाइस: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>कनेक्ट है</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>कनेक्ट नहीं है</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>कनेक्शन: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>गति: %1 किमी/घंटा</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>पावर: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>पहचानी गई स्थिति: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>डिबग लॉग का अनुरोध नहीं किया गया।</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>डिबग लॉग बंद है। समस्या दोहराने से पहले डिबग लॉग चालू करें और QZ को फिर से शुरू करें।</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>डिबग लॉग नहीं मिला।</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>डिबग लॉग उपलब्ध नहीं है या तैयार करने के लिए बहुत बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>डिबग लॉग संलग्न है (gzip)।</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>डिबग लॉग संलग्नक लिख नहीं सके।</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>डिबग लॉग संपीड़ित नहीं हो सका या संलग्नक 10 MB से बड़ा है।</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>बनाया गया डिबग लॉग मैन्युअल रूप से संलग्न करें</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>कोई डिवाइस नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>ईमेल ऐप नहीं खोला जा सका</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ चल रहा है</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3886,6 +4153,10 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -3978,6 +4249,17 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
     </message>
     <message>
         <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
@@ -4337,10 +4619,6 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Changed settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5609,7 +5887,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
         <source>Submit</source>
@@ -7157,7 +7435,11 @@ Default: A = -0.96, B = 1.33</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hidden on its page right now: change it here</source>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7783,6 +8065,102 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>तय करें कि वर्चुअल ऐप के झुकाव को बाइक के प्रतिरोध में कैसे बदला जाए।</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>जब QZ वर्चुअल ऐप के झुकाव को प्रतिरोध में बदलता है, तब कस्टम मैपिंग का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>हर पंक्ति में एक झुकाव|प्रतिरोध जोड़ी दर्ज करें। QZ बिंदुओं के बीच मान निकालता है और निर्धारित सीमा के बाहर के मान सीमित करता है।</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का उपयोगकर्ता नाम। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>सेवा में साइन इन करने के लिए Life Fitness खाते का पासवर्ड। स्थानीय रूप से संग्रहीत होता है और डिबग लॉग में कभी नहीं लिखा जाता।</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>कैमरा क्रिया</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>इमोट क्रिया</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike एमुलेटर</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>पावर चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>हृदय गति चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>प्रतिरोध बनाम लक्ष्य प्रतिरोध चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Peloton प्रतिरोध चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>कैडेंस चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>पावर वितरण चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>गति और झुकाव चार्ट की स्थिति</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>वर्कआउट इतिहास में इस चार्ट का संख्यात्मक स्थान। सामान्य UI विकल्पों में ऊपर और नीचे बटन से क्रम बदलें।</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>शुरू होने पर हृदय गति सेंसर खोजें</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>फ़िटनेस मशीन जुड़ने के पहले 5 मिनट में यदि हृदय गति प्राप्त नहीं होती, तो QZ हर मिनट सेंसर खोजता है। चुनी गई हृदय गति बेल्ट मिलते ही कनेक्ट करता है; कोई बेल्ट चुनी नहीं गई हो तो पास में मिले सेंसर का सुझाव देता है। होम स्क्रीन पर हृदय गति टाइल या Bluetooth आइकन दबाकर किसी भी समय खोज सकते हैं।</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Daum बाइक विकल्प</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>8008 TRS 3 जैसे पुराने Daum एर्गोमीटर के लिए सीरियल पोर्ट। Android पर USB-से-सीरियल अडैप्टर के साथ &apos;usb&apos; इस्तेमाल करें। COM1, COM2 आदि Android पर USB अडैप्टर खोजने के उपनाम हैं, Android पोर्ट के नाम नहीं। Windows पर COM1 या COM3 और Linux/macOS पर सीरियल डिवाइस पथ, जैसे /dev/ttyUSB0, इस्तेमाल करें।</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>प्रतिरोध पोलिंग विलंब:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>QZ द्वारा Daum को प्रतिरोध और पावर अपडेट भेजने की आवृत्ति सीमित करने के लिए झुकाव विलंब सेटिंग का उपयोग करता है। डिफ़ॉल्ट: 0 सेकंड।</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>झुकाव फ़िल्टर (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>GPX वर्कआउट में इस मान से छोटे झुकाव बदलावों को अनदेखा करें। नया झुकाव आदेश तभी भेजें जब पिछली भेजी गई वैल्यू से अंतर निर्धारित सीमा तक पहुँच जाए। डिफ़ॉल्ट: 0 (बंद)।</translation>
     </message>
 </context>
 <context>

@@ -70,6 +70,37 @@
     </message>
 </context>
 <context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Sensor de FC encontrado: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Sensores de FC encontrados: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Conectar</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Escolher</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Agora não</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Escolha um sensor de FC</translation>
+    </message>
+</context>
+<context>
     <name>Home</name>
     <message>
         <source>Peloton Workout in progress</source>
@@ -515,6 +546,10 @@ Pretende ativar os serviços necessários?</translation>
         <translation>%1 (sensor de FC) conectado!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Procurando sensores de FC...</translation>
+    </message>
+    <message>
         <source>Searching for %1 (HR sensor)...</source>
         <translation>Procurando %1 (sensor de FC)...</translation>
     </message>
@@ -561,6 +596,10 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>Zwift Play/Ride Connected!</source>
         <translation>Zwift Play/Ride conectado!</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Nenhum sensor de FC encontrado por perto. Verifique se está ligado e transmitindo a frequência cardíaca.</translation>
     </message>
     <message>
         <source>%1 connected!</source>
@@ -1180,6 +1219,69 @@ Deseja atualizar as configurações do QZ?</translation>
     </message>
 </context>
 <context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Contactar o suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Preparar um e-mail de suporte com dados de diagnóstico</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Nenhum dispositivo ligado</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>A velocidade e a potência estão a zero</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>Suporte do QZ</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Ocultar teclado</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Fechar pedido de suporte</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Diga-nos o que não está a funcionar. O QZ adicionará informações sobre o dispositivo e a aplicação.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Descreva o problema...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Descreva o problema</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Anexar registo de depuração, se disponível</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Pode rever ou editar o e-mail antes de o enviar. Nada é enviado automaticamente.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Abrir e-mail</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
@@ -1296,6 +1398,10 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation>Restaurar programas</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -2750,6 +2856,10 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Todos os arquivos (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Enviar ao Strava</translation>
     </message>
@@ -3549,6 +3659,14 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Erro ao recuperar token de acesso, %1 (%2)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>Não foi possível compartilhar o arquivo FIT deste treino</translation>
+    </message>
+    <message>
         <source>License Approved!</source>
         <translation>Licença aprovada!</translation>
     </message>
@@ -3613,6 +3731,18 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>Treinos importados: %1.</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Não foi possível copiar o arquivo para a pasta QZ.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation>Programas de treino restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation>Nenhum programa de treino de uma instalação anterior foi encontrado.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3793,6 +3923,131 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Spotify songs:</source>
         <translation>Músicas do Spotify:</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ em execução</translation>
+    </message>
+    <message>
+        <source>Support request</source>
+        <translation>Pedido de suporte</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>Problema do QZ | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Olá, Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Preciso de ajuda com o QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problema:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Descreva o problema]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Comportamento esperado:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Descreva o que deveria acontecer]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- Diagnóstico do QZ ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>Versão do QZ: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plataforma: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Perfil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Dispositivo: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Ligado</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Desligado</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Ligação: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Velocidade: %1 km/h</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Indisponível</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Potência: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Situação detetada: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>O registo de depuração não foi solicitado.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>O registo de depuração está desativado. Ative-o e reinicie o QZ antes de reproduzir o problema.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Não foi encontrado qualquer registo de depuração.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>O registo de depuração está indisponível ou é demasiado grande para preparar.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Registo de depuração anexado (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Não foi possível escrever o anexo do registo de depuração.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Não foi possível comprimir o registo ou o anexo excede 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Anexe manualmente o registo de depuração gerado</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Nenhum dispositivo detetado</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Não foi possível abrir uma aplicação de e-mail</translation>
     </message>
 </context>
 <context>
@@ -4052,6 +4307,10 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Buscar configurações</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Perfil: </translation>
     </message>
@@ -4148,6 +4407,20 @@ Deseja procurá-los?
 Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
+        <source>Training Programs</source>
+        <translation>Programas de treino</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Os programas de treino de uma instalação anterior podem ainda estar na pasta QZ.
+Deseja procurá-los?
+
+Na próxima janela, permita o acesso à pasta QZ.</translation>
+    </message>
+    <message>
         <source>Connection lost in the background</source>
         <translation>Conexão perdida em segundo plano</translation>
     </message>
@@ -4174,6 +4447,22 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Don&apos;t ask again</source>
         <translation>Não perguntar novamente</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Marchas virtuais Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Para simular marchas virtuais, o QZ altera a circunferência da roda armazenada no rolo. Esse valor pode permanecer no rolo depois de fechar o QZ e afetar o funcionamento dele em outros aplicativos.
+
+Permitir que o QZ altere esse valor?
+
+“Não”: o QZ ativa “Sem protocolo de diâmetro da roda” (Configurações &gt; Opções de Bicicleta &gt; Opções Wahoo), e as marchas virtuais funcionam pela inclinação. Com “Sim”, você pode desfazer isso depois no mesmo lugar: ative essa opção e, com o rolo conectado, toque em “Restaurar a configuração padrão no rolo”.</translation>
     </message>
 </context>
 <context>
@@ -5587,7 +5876,7 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Abrir</translation>
+        <translation type="vanished">Abrir</translation>
     </message>
     <message>
         <source>Tile size:</source>
@@ -5600,6 +5889,74 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>App Language:</source>
         <translation>Idioma do Aplicativo:</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Esta configuração não foi encontrada nas páginas de configurações</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Define como a inclinação do aplicativo virtual é convertida em resistência da bicicleta.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Usa um mapeamento personalizado quando o QZ converte a inclinação do aplicativo virtual em resistência.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Um par inclinação|resistência por linha. O QZ interpola entre os pontos e, fora do intervalo configurado, usa o ponto extremo.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Nome de usuário da conta Life Fitness usado para entrar no serviço. Fica salvo apenas no dispositivo e nunca é gravado nos logs de depuração.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Senha da conta Life Fitness usada para entrar no serviço. Fica salva apenas no dispositivo e nunca é gravada nos logs de depuração.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Ângulo atual da câmera</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Emote atual</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Emulador Wattbike</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Posição do gráfico de potência</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Posição do gráfico de frequência cardíaca</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Posição do gráfico de resistência vs resistência alvo</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Posição do gráfico de resistência Peloton</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Posição do gráfico de cadência</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Posição do gráfico de distribuição de potência</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Posição do gráfico de velocidade e inclinação</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Posição deste gráfico no histórico de treinos. A ordem é alterada com os botões para cima e para baixo em Opções gerais da interface.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -5640,6 +5997,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Refresh Devices List</source>
         <translation>Atualizar Lista de Dispositivos</translation>
+    </message>
+    <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Procurar um sensor de FC ao iniciar</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>Nos primeiros 5 minutos após a conexão do equipamento, enquanto não chega frequência cardíaca, o QZ procura um sensor de FC uma vez por minuto: conecta a cinta escolhida assim que a encontra ou, sem nenhuma escolhida, sugere um sensor encontrado por perto. Tocar no bloco de frequência cardíaca ou no ícone Bluetooth da tela inicial procura a qualquer momento.</translation>
     </message>
     <message>
         <source>Resting Heart Rate</source>
@@ -7798,7 +8163,15 @@ Padrão: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Oculta na própria página no momento: altere-a aqui</translation>
+        <translation type="vanished">Oculta na própria página no momento: altere-a aqui</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Ligado</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Oculta na própria página com as definições atuais</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7911,6 +8284,30 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Somente iOS. Mantém o QZ em execução com a tela desligada ou em segundo plano, para que as conexões Bluetooth e os temporizadores da sessão não congelem. Usa uma faixa de áudio silenciosa mixada com a sua música, então nada do que você está ouvindo é interrompido. Ative se você precisa treinar com a tela bloqueada ou com o QZ em segundo plano. Padrão é desativado.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Opções da bicicleta Daum</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Porta série utilizada por ergómetros Daum clássicos, como o 8008 TRS 3. No Android, com um adaptador USB-série, utiliza &apos;usb&apos;. COM1, COM2, etc. são aceites como nomes alternativos para procurar o adaptador USB, mas não são nomes de portas Android. No Windows utiliza COM1 ou COM3; no Linux/macOS, o caminho do dispositivo série, por exemplo /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Intervalo de consulta da resistência:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Utiliza a definição Atraso de inclinação para limitar a frequência com que o QZ envia atualizações de resistência e potência ao Daum. Predefinição: 0 segundos.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Filtro de inclinação (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Nos treinos GPX, ignora alterações de inclinação inferiores a este valor e só envia um novo comando quando a diferença relativamente ao último valor enviado atinge o limite configurado. Predefinição: 0 (desativado).</translation>
     </message>
 </context>
 <context>

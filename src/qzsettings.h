@@ -963,6 +963,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 
@@ -1872,6 +1875,9 @@ class QZSettings {
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
 
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
+
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
 
@@ -2527,6 +2533,9 @@ class QZSettings {
 
     static const QString proform_treadmill_sport_55;
     static constexpr bool default_proform_treadmill_sport_55 = false;
+
+    static const QString proform_treadmill_sport_6_0;
+    static constexpr bool default_proform_treadmill_sport_6_0 = false;
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
@@ -3448,6 +3457,41 @@ class QZSettings {
 
     static const QString moovio_lynx_konect_2_0;
     static constexpr bool default_moovio_lynx_konect_2_0 = false;
+
+    // The background search of the first 5 minutes while no heart rate comes: connects the chosen sensor or, with
+    // none chosen, offers one found nearby. Off by default (a tap on the heart rate tile or the Bluetooth icon
+    // searches anyway); "Don't ask again" on its bar turns it off
+    static const QString heart_rate_belt_suggest;
+    static constexpr bool default_heart_rate_belt_suggest = false;
+
+    // The debug log of a new user: on until the first workout with data, 7 days at most. Decided once, at the
+    // first start of a QZ that has never connected a device (homeform::startFirstSetupLog()); log_debug and its
+    // switch stay as they are
+    static const QString log_debug_first_setup;
+    static constexpr bool default_log_debug_first_setup = false;
+    // the day the first-setup log was turned on (ISO date), for the 7 days
+    static const QString log_debug_first_setup_since;
+    static const QString default_log_debug_first_setup_since;
+
+    // The modern look of the interface (main.qml window.ui), off by default: with it off every page
+    // keeps its classic look. The theme, the accent and the theme mode apply to the modern look only
+    static const QString ui_modern;
+    static constexpr bool default_ui_modern = false;
+    // colour set of the modern look: graphite, oled, midnight
+    static const QString ui_theme;
+    static const QString default_ui_theme;
+    // accent colour of the modern look: violet, blue, teal, green, orange, pink
+    static const QString ui_accent;
+    static const QString default_ui_accent;
+    // auto (follows the night mode of the phone), dark, light
+    static const QString ui_theme_mode;
+    static const QString default_ui_theme_mode;
+
+    // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
+    // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
+    // already was the last device, so it was connected before the question existed
+    static const QString wahoo_wheel_question_answered;
+    static constexpr bool default_wahoo_wheel_question_answered = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

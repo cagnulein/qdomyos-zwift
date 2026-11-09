@@ -19,7 +19,7 @@
     </queries>
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
+	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:usesCleartextTraffic="true">
              <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop" android:enableOnBackInvokedCallback="false">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
@@ -129,7 +129,19 @@
                                     android:name="com.google.mlkit.vision.DEPENDENCIES"
                                     android:value="ocr" />
 
-				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+				<!-- Share a temporary gzip debug log with the user's chosen mail app.
+                                     No external storage permission or file:// URLs required. -->
+                                <provider
+                                    android:name="androidx.core.content.FileProvider"
+                                    android:authorities="org.cagnulen.qdomyoszwift.support"
+                                    android:exported="false"
+                                    android:grantUriPermissions="true">
+                                    <meta-data
+                                        android:name="android.support.FILE_PROVIDER_PATHS"
+                                        android:resource="@xml/qz_support_file_paths" />
+                                </provider>
+
+                                <activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
                                 <activity
                                     android:name=".HealthConnectPermissionActivity"
                                     android:exported="false"
@@ -155,6 +167,10 @@
                                         <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                                     </intent-filter>
                                 </receiver>
+                                <!-- a workout file to the share sheet (FitShare.java) -->
+                                <provider android:name=".FitFileProvider" android:authorities="${applicationId}.fitshare" android:exported="false" android:grantUriPermissions="true">
+                                    <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/fit_share_paths" />
+                                </provider>
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 

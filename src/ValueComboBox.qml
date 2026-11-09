@@ -13,9 +13,8 @@ UiComboBox {
     property string value
     property var labels: ({})
 
-    function labelFor(v) {
-        return labels.hasOwnProperty(v) ? labels[v] : v
-    }
+    // UiComboBox's list items and labelFor() show these labels
+    itemLabels: labels
 
     displayText: labelFor(value)
     onActivated: value = currentValue
@@ -25,14 +24,5 @@ UiComboBox {
     function showSaved() {
         if (savedText !== undefined)
             value = savedText
-    }
-
-    // Same as the Material style's default delegate; only the text goes through labelFor()
-    delegate: MenuItem {
-        width: ListView.view.width
-        text: control.labelFor(modelData)
-        Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
-        highlighted: control.highlightedIndex === index
-        hoverEnabled: control.hoverEnabled
     }
 }

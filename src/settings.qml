@@ -147,6 +147,8 @@ import AndroidStatusBar 1.0
 
         // A page among the results ("Wahoo Options"): back from it lands on the results
         function openPageResult(entry) {
+            // A setting tapped before the index came must not open over this page later
+            pendingJump = null
             searchReturn = currentSearch(true)
             // Or the search field takes the focus back with the keyboard on the way back
             dropTextFocus()
@@ -171,10 +173,12 @@ import AndroidStatusBar 1.0
                     if (persistent[v].virtualParent === entry.key)
                         where = settingsIndex[persistent[v].key] || null
             }
-            // A setting that is on no page: the result is the only place to change it, the tap
-            // leaves the results as they are
-            if (!where)
+            // A setting the index does not place on any page (a page or the whole index could not
+            // be read): the results stay, the tap says why
+            if (!where) {
+                toast.show(qsTr("This setting was not found on the settings pages"))
                 return
+            }
             var page = settingsPane
             var context = "settings"
             searchReturn = currentSearch(false)
@@ -230,7 +234,7 @@ import AndroidStatusBar 1.0
             })
             // A setting its page hides with the current values ("Use kg for weight" shows only
             // with miles on) - the whole section was lit instead. Back to the results, the
-            // sections opened on the way closed again: the result has the control itself
+            // sections opened on the way closed again
             if (!target && findItem(container, named)) {
                 for (var k = 0; k < opened.length; k++)
                     opened[k].isOpen = false
@@ -238,7 +242,7 @@ import AndroidStatusBar 1.0
                     stackView.pop()
                 else
                     restoreSearch()
-                toast.show(qsTr("Hidden on its page right now: change it here"))
+                toast.show(qsTr("Hidden on its page with the current settings"))
                 return
             }
             // The fields of a switched-off section are not on the page yet
@@ -288,6 +292,9 @@ import AndroidStatusBar 1.0
             if (searchReturn && searchReturn.viaPush)
                 restoreSearch()
         }
+        // Another page coming on top: a result tapped before the index came must not open over
+        // it. At the start of the transition - deactivated comes only at its end
+        StackView.onDeactivating: pendingJump = null
         StackView.onDeactivated: {
             if (searchReturn && !searchReturn.viaPush)
                 searchReturn = null
@@ -412,8 +419,10 @@ import AndroidStatusBar 1.0
         }
 
         function hideSettingsSearch() {
-            // The search closed is done with: back no longer brings its results up
+            // The search closed is done with: back no longer brings its results up, a result
+            // tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             changedOnly = false
             settingsSearchTextField.text = ""
@@ -523,12 +532,13 @@ import AndroidStatusBar 1.0
                     return
 
                 settingsCatalogLoading = false
+                var catalog = null
                 if (xhr.status === 200 || xhr.status === 0) {
                     try {
-                        settingsCatalog = JSON.parse(xhr.responseText)
-                        settingsCatalogLoaded = true
-                        settingsCatalogError = ""
-                        buildSearchableSettings()
+                        catalog = JSON.parse(xhr.responseText)
+                        // "null" parses too: no catalog all the same
+                        if (!catalog)
+                            throw "empty catalog"
                     } catch (e) {
                         settingsCatalogError = "Unable to parse settings catalog"
                         console.log(settingsCatalogError + ": " + e)
@@ -536,6 +546,18 @@ import AndroidStatusBar 1.0
                 } else {
                     settingsCatalogError = "Unable to load settings catalog"
                     console.log(settingsCatalogError + ": " + xhr.status)
+                }
+                if (catalog) {
+                    settingsCatalog = catalog
+                    settingsCatalogLoaded = true
+                    settingsCatalogError = ""
+                    // Apart from the parsing: a failure here is not a broken catalog
+                    try {
+                        buildSearchableSettings()
+                    } catch (e) {
+                        settingsCatalogError = "Unable to build the settings list"
+                        console.log(settingsCatalogError + ": " + e)
+                    }
                 }
             }
             xhr.send()
@@ -595,7 +617,28 @@ import AndroidStatusBar 1.0
         readonly property var translationContexts: [
             "settings", "settings-tiles", "settings-tts",
             "settings-shortcuts", "settings-treadmill-inclination-override",
-            "homeform"
+            "custominclinationresistance", "homeform"
+        ]
+
+        // Catalog texts that no settings page shows: listed here only so that lupdate takes them
+        // into the settings context and the search can show them translated
+        readonly property var catalogOnlyTexts: [
+            QT_TR_NOOP("Configure how virtual-app inclination maps to bike resistance."),
+            QT_TR_NOOP("Use a custom mapping when QZ converts virtual-app inclination into resistance."),
+            QT_TR_NOOP("One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range."),
+            QT_TR_NOOP("Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs."),
+            QT_TR_NOOP("Camera Action"),
+            QT_TR_NOOP("Emote Action"),
+            QT_TR_NOOP("Wattbike Emulator"),
+            QT_TR_NOOP("Power Chart Position"),
+            QT_TR_NOOP("Heart Rate Chart Position"),
+            QT_TR_NOOP("Resistance vs Target Resistance Chart Position"),
+            QT_TR_NOOP("Peloton Resistance Chart Position"),
+            QT_TR_NOOP("Cadence Chart Position"),
+            QT_TR_NOOP("Power Distribution Chart Position"),
+            QT_TR_NOOP("Speed and Inclination Chart Position"),
+            QT_TR_NOOP("Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.")
         ]
 
         // Try to find a translation for a catalog entry name by probing common QML contexts.
@@ -700,6 +743,8 @@ import AndroidStatusBar 1.0
             for (var i = 0; i < searchableSettings.length; i++) {
                 if (changedOnly && !isChanged(searchableSettings[i]))
                     continue
+                if (!changedOnly && searchHiddenSettings[searchableSettings[i].key])
+                    continue
                 var haystack = searchableText(searchableSettings[i])
                 var matched = true
                 for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -722,8 +767,10 @@ import AndroidStatusBar 1.0
 
         function setChangedOnly(on) {
             changedOnly = on
-            // A new list of one's own: back no longer returns to the previous one
+            // A new list of one's own: back no longer returns to the previous one, a result of
+            // the previous one tapped before the index came no longer opens
             searchReturn = null
+            pendingJump = null
             settingsSearchDebounceTimer.stop()
             settingsSearchActive = on || settingsSearchTextField.text.trim().length > 0
             settingsSearchPending = settingsSearchActive
@@ -731,6 +778,15 @@ import AndroidStatusBar 1.0
             loadSettingsCatalog()
             updateFilteredSettings()
         }
+
+        // Settings the catalog lists but no page shows: the results only show a value, so they
+        // could not be changed from there either: the camera and emote of MyWhoosh Link (QZ
+        // cycles them with a controller button itself). Left out of the search by text only;
+        // QZ writes them, isPrivateSetting keeps them out of "Changed". Garmin ANT+ and Peloton
+        // Bike OCR are no longer offered (their switches are commented out on the pages): they
+        // are visible: false in the catalog, so neither the search nor "Changed" lists them
+        readonly property var searchHiddenSettings: ({ "mywhoosh_link_camera_value": true,
+                                                       "mywhoosh_link_emote_value": true })
 
         // Not listed among the changed settings:
         // - the accounts and passwords: the same keys QZSettings::isSensitiveSettingKey keeps
@@ -752,8 +808,8 @@ import AndroidStatusBar 1.0
             return appWrittenKeys.indexOf(entry.key) >= 0
         }
 
-        // From the store, not from this page's Settings: another settings page (tiles, voice)
-        // writes through a Settings object of its own, which this one does not hear about. The
+        // From the store: what "Changed" compares with the default, and the value of a key that
+        // is not a property of this page's Settings (settingValue reads the property first). The
         // store may give a boolean back as the string "true"
         function storedValue(key, type, fallback) {
             var value = settings.value(key, fallback)
@@ -792,85 +848,156 @@ import AndroidStatusBar 1.0
                    differsFromDefault(entry.key, entry.type, entry.defaultValue)
         }
 
-        // From the store as well: a value changed on the voice or tiles page, opened over this
-        // one, is not in this page's copy until the settings are opened again. The copy stays the
-        // fallback of a key not written yet, and keeps the bindings of the cards on its property
+        // From this page's Settings: the pages opened over it (voice, tiles...) write into the same
+        // object, and the card is bound to its property. Not from the store: Settings writes a
+        // change there only a moment later, a card read again at once got the old value and kept
+        // it. The store only for a key that is not a property here
         function settingValue(entry) {
             var copy = settings[entry.key]
-            var value = storedValue(entry.key, entry.type, copy === undefined ? entry.defaultValue : copy)
+            var value = copy === undefined ? storedValue(entry.key, entry.type, entry.defaultValue) : copy
             if ((entry.type === "integer" || entry.type === "number") && value !== null && value !== "")
                 return Number(value)
             return value === undefined ? entry.defaultValue : value
         }
 
-        function setSettingValue(entry, value) {
-            if (entry.type === "boolean") {
-                value = !!value
-            } else if (entry.type === "integer") {
-                // An empty field stores 0, as the int property turned NaN into before
-                value = parseInt(value) || 0
-            } else if (entry.type === "number") {
-                value = parseFloat(value)
+        // The value of a result as text, read only. It is changed on its own page, where its
+        // rules are (the range, the settings it depends on, the restart question); an editor
+        // here would have to repeat them all. Empty when the value cannot be told for sure - a
+        // Bluetooth device, a stored value that is not one of the list, a secret, a text of
+        // several lines, a type not known here: then the result shows no value rather than a
+        // wrong one
+        function searchValueText(entry) {
+            try {
+                if (entry.catalogKind === "virtual") {
+                    var picked = entry.options ? entry.options[virtualSelectedIndex(entry)] : null
+                    return picked && picked.label ? translatedText(picked.label) : ""
+                }
+                if (entry.catalogKind !== "setting")
+                    return ""
+                if (isPrivateSetting(entry) || isBluetoothDeviceSetting(entry))
+                    return ""
+                var value = settingValue(entry)
+                if (value === undefined || value === null)
+                    return ""
+                if (entry.type === "boolean")
+                    return value ? qsTr("On") : qsTr("Off")
+                // As its page: a saved language with no translation is loaded as Auto
+                if (entry.key === "app_language") {
+                    for (var k = 0; k < appLanguageOptions.length; k++) {
+                        if (appLanguageOptions[k].value === String(value))
+                            return appLanguageOptions[k].label
+                    }
+                    return appLanguageOptions[0].label
+                }
+                // A list of the catalog, as its page shows it: the translated label of the value
+                // by its place ("Horizontal" for 1), or the value itself translated ("Male"). A
+                // list made at run time (rootItem.metrics) is not read: it has no change signal,
+                // a card bound to it warned in the log
+                var values = entry.options && entry.options.values ? entry.options.values : []
+                if (values.length > 0) {
+                    var labels = entry.options.labels || []
+                    for (var i = 0; i < values.length; i++) {
+                        if (String(values[i]) !== String(value))
+                            continue
+                        var shown = labels[i] !== undefined ? labels[i] : values[i]
+                        return typeof shown === "string" ? translatedText(shown) : String(shown)
+                    }
+                    return ""
+                }
+                if (entry.type === "integer" || entry.type === "number") {
+                    // A real written as a float by the C++ side reads back as 0.33000001
+                    if (!isFinite(value))
+                        return ""
+                    var inUnits = searchUnitValueText(entry, value)
+                    if (inUnits.length > 0)
+                        return inUnits
+                    return String(value % 1 === 0 ? value : parseFloat(value.toPrecision(7)))
+                }
+                if (entry.type === "string") {
+                    // A text of several lines (a table of rows): its first line alone would
+                    // read as the whole value
+                    var text = String(value)
+                    return text.indexOf("\n") >= 0 ? "" : text
+                }
+            } catch (e) {
+                console.log("settings search: no value for " + entry.key + ": " + e)
             }
-            // Straight into the store, and before the copy: the card reads the store back
-            // (settingValue) as soon as the copy changes, and the page's Settings writes it only
-            // a moment later. Stored after the copy, the card got the old value and the switch
-            // flipped back
-            settings.setValue(entry.key, value)
-            settings[entry.key] = value
-
-            // The text size applies at once, like on its own page
-            if (entry.key === "ui_text_scale" || entry.key === "ui_text_scale_system") {
-                window.setTextScaleOption(entry.key, settings[entry.key])
-                toast.show(qsTr("Setting saved!"))
-                return
-            }
-
-            // The page is made again: nothing of it may run after (applyAppLanguage)
-            if (entry.key === "app_language") {
-                applyAppLanguage(value)
-                return
-            }
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
+            return ""
         }
 
-        function optionValues(entry) {
-            if (!entry.options)
-                return []
+        // Numbers whose page shows them in other units than they are kept in. A result shows them
+        // as the page does, with its formula:
+        // - the pace of a distance, kept in seconds per km: the time of the whole distance,
+        //   "00:25:00" for 5 km at 300
+        // - the warmup, cooldown and rest paces, in seconds per km: as hh:mm:ss, "00:07:00" at 420
+        // - with "Use Miles unit in UI": the weights in pounds (unless "Weight in kg"), the height
+        //   in feet'inches, the speeds in mph, the autolap distance in miles
+        readonly property var searchPaceDistances: ({ "pacef_1mile": 1.60934, "pacef_5km": 5, "pacef_10km": 10,
+                                                      "pacef_halfmarathon": 21, "pacef_marathon": 42 })
+        readonly property var searchPaceKeys: ["trainprogram_warmup_speed", "trainprogram_cooldown_speed",
+                                               "trainprogram_rest_speed"]
+        readonly property var searchSpeedKeys: ["treadmill_speed_max", "treadmill_speed_min", "treadmill_step_speed",
+                                                "peloton_treadmill_walking_min_speed",
+                                                "peloton_treadmill_running_min_speed", "autolap_distance"]
 
-            if (entry.options.values)
-                return entry.options.values
-
-            if (entry.options.expression && entry.options.expression.indexOf("rootItem.") === 0) {
-                var propertyName = entry.options.expression.substring("rootItem.".length)
-                if (typeof rootItem !== "undefined" && rootItem && rootItem[propertyName] !== undefined)
-                    return rootItem[propertyName]
-            }
-
-            return []
+        function searchInPounds() {
+            return settings.miles_unit && !settings.weight_kg_unit
         }
 
-        // What the list shows for each value, as on the setting's page: the translated label of
-        // the catalog ("Gear Up" for 1), or the value itself translated ("Male"). The value
-        // written is still the one of optionValues at the same place. A list made at run time
-        // (Bluetooth devices) shows its values as they are
-        function optionTexts(entry) {
-            var values = optionValues(entry)
-            if (!entry.options || !entry.options.values)
-                return values
-
-            var labels = entry.options.labels || []
-            var texts = []
-            for (var i = 0; i < values.length; i++) {
-                var text = labels[i] !== undefined ? labels[i] : values[i]
-                if (typeof text === "string")
-                    text = translatedText(text)
-                texts.push(String(text))
-            }
-            return texts
+        // The speed values of the tiles page (tile_preset_speed_1_value ... _5_value)
+        function isTileSpeedPreset(key) {
+            return key.indexOf("tile_preset_speed_") === 0 && key.endsWith("_value")
         }
 
+        // The unit of a value shown converted, "" for any other setting. A pace needs none: its
+        // name says it
+        function searchUnit(entry) {
+            if (entry.catalogKind !== "setting")
+                return ""
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return searchInPounds() ? qsTr("lbs") : qsTr("kg")
+            if (entry.key === "height")
+                return settings.miles_unit ? qsTr("ft/in") : qsTr("cm")
+            if (entry.key === "autolap_distance")
+                return settings.miles_unit ? qsTr("Mi") : qsTr("KM")
+            if (searchSpeedKeys.indexOf(entry.key) >= 0 || isTileSpeedPreset(entry.key))
+                return settings.miles_unit ? qsTr("mph") : qsTr("km/h")
+            return ""
+        }
+
+        // The name of a result with the unit of its value, as the page writes it next to the
+        // field: "Bike Weight (lbs)". A page label made of a translated template ("Bike Weight
+        // (%1)") is taken as it is: Japanese and Chinese put the unit in full-width brackets
+        function searchTitle(entry) {
+            var name = entry._translatedName || entry.name || entry.key
+            var unit = searchUnit(entry)
+            if (unit.length === 0)
+                return name
+            var template = (entry.name || entry.key) + " (%1)"
+            var translated = translatedText(template)
+            return translated !== template ? translated.arg(unit) : name + " (" + unit + ")"
+        }
+
+        // A number as its page shows it, "" when the page shows it as it is kept
+        function searchUnitValueText(entry, value) {
+            if (searchPaceDistances[entry.key] !== undefined)
+                return paceSecondsToTime(value * searchPaceDistances[entry.key])
+            if (searchPaceKeys.indexOf(entry.key) >= 0)
+                return paceSecondsToTime(value)
+            if (entry.key === "weight" || entry.key === "bike_weight")
+                return String(Number((searchInPounds() ? value * 2.20462 : value).toFixed(2)))
+            if (entry.key === "height")
+                return settings.miles_unit ? Math.floor(value / 30.48) + "'" + Math.round((value % 30.48) / 2.54) + '"' : ""
+            if (searchSpeedKeys.indexOf(entry.key) >= 0)
+                return (settings.miles_unit ? value * 0.621371 : value).toFixed(1)
+            // The tiles page drops a trailing ".0"
+            if (isTileSpeedPreset(entry.key))
+                return String(Number((settings.miles_unit ? value * 0.621371 : value).toFixed(1)))
+            return ""
+        }
+
+        // A text of a settings page translated in the context it is shown in, the text itself
+        // when there is no translation
         function translatedText(text) {
             var contexts = translationContexts
             for (var i = 0; i < contexts.length; i++) {
@@ -886,25 +1013,6 @@ import AndroidStatusBar 1.0
                    entry.options.expression.indexOf("bluetoothDevices") >= 0
         }
 
-        function optionIndex(entry) {
-            var values = optionValues(entry)
-            var value = settingValue(entry)
-            var bluetoothDeviceSetting = isBluetoothDeviceSetting(entry)
-            for (var i = 0; i < values.length; i++) {
-                var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]
-                if (candidate === value)
-                    return i
-            }
-            return bluetoothDeviceSetting ? -1 : 0
-        }
-
-        function virtualOptionLabels(entry) {
-            var labels = []
-            for (var i = 0; entry.options && i < entry.options.length; i++)
-                labels.push(entry.options[i].label)
-            return labels
-        }
-
         function virtualSelectedIndex(entry) {
             if (!entry.options)
                 return 0
@@ -914,22 +1022,6 @@ import AndroidStatusBar 1.0
                     return i
             }
             return 0
-        }
-
-        function setVirtualSelection(entry, index) {
-            if (!entry.options)
-                return
-
-            for (var i = 0; i < entry.options.length; i++) {
-                if (entry.options[i].sets)
-                    settings[entry.options[i].sets] = false
-            }
-
-            if (entry.options[index] && entry.options[index].sets)
-                settings[entry.options[index].sets] = true
-
-            window.settings_restart_to_apply = true
-            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -2389,7 +2481,17 @@ import AndroidStatusBar 1.0
             property real virtual_device_rower_cadence_gain: 1.0
             property real virtual_device_rower_cadence_offset: 0.0
             property bool proform_treadmill_sport_55: false
+            property string daum_serialport: ""
+            property real trainprogram_inclination_filter: 0.0
+            property bool heart_rate_belt_suggest: false
+
+            property bool proform_treadmill_sport_6_0: false
+            property bool ui_modern: false
+            property string ui_theme: "graphite"
+            property string ui_accent: "violet"
+            property string ui_theme_mode: "auto"
             property bool nordictrack_tseries8_treadmill: false
+
         }
 
         // The home page has its own Settings copy, read once when it is created: hand it every new
@@ -2404,6 +2506,20 @@ import AndroidStatusBar 1.0
             function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
             function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
             function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+        }
+
+        // The heart rate sensor bar (HeartRateSuggestion.qml) saves its answer from C++, and this copy does not
+        // read QSettings again: take the new value, so Heart Rate Options shows it while this page is open
+        Connections {
+            target: rootItem
+            function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
+            function onHeartRateSensorOfferTurnedOff() { settings.heart_rate_belt_suggest = false }
+        }
+
+        // The same for the Wahoo wheel circumference question (main.qml): No turns on the option from C++
+        Connections {
+            target: rootItem
+            function onWahooWheelAnswered(withoutWheelDiameter) { settings.wahoo_without_wheel_diameter = withoutWheelDiameter }
         }
 
 
@@ -2441,7 +2557,7 @@ import AndroidStatusBar 1.0
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
-        property var appLanguageOptions: [
+        property var appLanguageNames: [
             { label: qsTr("Auto (System)"), value: "auto" },
             { label: qsTr("English"), value: "en" },
             { label: qsTr("Italian"), value: "it" },
@@ -2475,6 +2591,13 @@ import AndroidStatusBar 1.0
             { label: qsTr("Hebrew"), value: "he" },
             { label: qsTr("Catalan"), value: "ca" }
         ]
+        // A language without enough of a translation in this build is not offered
+        property var appLanguageOptions: {
+            var translated = rootItem.translatedLanguages
+            return appLanguageNames.filter(function(option) {
+                return option.value === "auto" || option.value === "en" || translated.indexOf(option.value) >= 0
+            })
+        }
         Timer {
             id: settingsSearchDebounceTimer
             interval: 1500
@@ -2504,8 +2627,12 @@ import AndroidStatusBar 1.0
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
-                    // A new search of one's own: back no longer returns to the previous one
-                    onTextEdited: settingsPane.searchReturn = null
+                    // A new search of one's own: back no longer returns to the previous one, and
+                    // the result tapped before the index came is not wanted any more
+                    onTextEdited: {
+                        settingsPane.searchReturn = null
+                        settingsPane.pendingJump = null
+                    }
                     onTextChanged: {
                         if (settingsPane.restoringSearch)
                             return
@@ -2557,6 +2684,8 @@ import AndroidStatusBar 1.0
                 Label {
                     // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                    // The catalog error above says it all: no "Searching..." or "No settings found"
+                    visible: settingsCatalogError.length === 0
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
                           changedOnly && filteredSettings.length > 0 ?
@@ -2594,12 +2723,30 @@ import AndroidStatusBar 1.0
                             radius: 2
                         }
 
-                        // A tap on the card (not on its controls) opens the setting itself
+                        // The value as text: a binding on the setting, so it follows a change
+                        // made on its page
+                        readonly property string valueText: settingsPane.searchValueText(entry)
+                        readonly property bool valueOn: entry.type === "boolean" && valueText.length > 0 &&
+                                                        !!settingsPane.settingValue(entry)
+
+                        function open() {
+                            if (entry.catalogKind === "page")
+                                settingsPane.openPageResult(entry)
+                            else
+                                settingsPane.jumpToSetting(entry)
+                        }
+
+                        // A tap on the card opens the setting itself, the one way to change it.
+                        // For the screen reader a button; the value goes into the name: Qt 5.15
+                        // on Android reads the description only without a name
                         MouseArea {
                             id: resultArea
                             anchors.fill: parent
-                            onClicked: entry.catalogKind === "page" ? settingsPane.openPageResult(entry)
-                                                                    : settingsPane.jumpToSetting(entry)
+                            onClicked: searchResultFrame.open()
+                            Accessible.role: Accessible.Button
+                            Accessible.name: settingsPane.plainTitle(settingsPane.searchTitle(entry)) +
+                                             (searchResultFrame.valueText.length > 0 ? ": " + searchResultFrame.valueText : "")
+                            Accessible.onPressAction: searchResultFrame.open()
                         }
 
                         ColumnLayout {
@@ -2622,7 +2769,7 @@ import AndroidStatusBar 1.0
 
                                     Label {
                                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
-                                        text: entry._translatedName || entry.name || entry.key
+                                        text: settingsPane.searchTitle(entry)
                                         font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
@@ -2640,16 +2787,29 @@ import AndroidStatusBar 1.0
                                     }
                                 }
 
-                                Switch {
-                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
-                                    checked: visible ? settingsPane.settingValue(entry) : false
-                                    onClicked: settingsPane.setSettingValue(entry, checked)
+                                // "On" in the accent; as wide as 42 % of the card at most, cut at
+                                // the end; nothing when the value is not known
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    visible: searchResultFrame.valueText.length > 0
+                                    text: searchResultFrame.valueText
+                                    color: searchResultFrame.valueOn ? Material.accent : Material.color(Material.Grey)
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    textFormat: Text.PlainText
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.maximumWidth: Math.max(0, searchResultFrame.width * 0.42)
                                 }
 
-                                Button {
-                                    visible: entry.catalogKind === "page"
-                                    text: qsTr("Open")
-                                    onClicked: settingsPane.openPageResult(entry)
+                                Label {
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                                    text: "›"
+                                    font.bold: true
+                                    color: Material.color(Material.Grey)
+                                    Accessible.ignored: true
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                             }
 
@@ -2667,104 +2827,6 @@ import AndroidStatusBar 1.0
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                            }
-
-                            RowLayout {
-                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                spacing: 8
-
-                                TextField {
-                                    id: searchSettingTextField
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    text: visible ? settingsPane.settingValue(entry) : ""
-                                    horizontalAlignment: Text.AlignRight
-                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settingsPane.setSettingValue(entry, text)
-                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
-                                }
-
-                                Button {
-                                    text: qsTr("OK")
-                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchSettingComboBox
-                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionTexts(entry) : []
-                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
-                                displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
-                                             ? settingsPane.settingValue(entry)
-                                             : currentText
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchSettingComboBox.displayText
-                                    font: searchSettingComboBox.font
-                                    color: searchSettingComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchSettingComboBox.font
-                                        color: searchSettingComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: {
-                                    // The model holds the texts shown: the value is at the same place
-                                    var selectedValue = settingsPane.optionValues(entry)[index]
-                                    if (settingsPane.isBluetoothDeviceSetting(entry))
-                                        selectedValue = settingsPane.stripRssi(selectedValue)
-                                    settingsPane.setSettingValue(entry, selectedValue)
-                                }
-                            }
-
-                            UiComboBox {
-                                id: searchVirtualComboBox
-                                visible: entry.catalogKind === "virtual"
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
-                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchVirtualComboBox.displayText
-                                    font: searchVirtualComboBox.font
-                                    color: searchVirtualComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: ListView.view.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchVirtualComboBox.font
-                                        color: searchVirtualComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
                             }
                         }
                     }
@@ -3537,6 +3599,40 @@ import AndroidStatusBar 1.0
                         text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchHeartRateBeltSuggestDelegate
+                        text: qsTr("Search for a Heart Rate Sensor at Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.heart_rate_belt_suggest
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.heart_rate_belt_suggest = checked
+                    }
+                    // a tap on the switch replaces its binding: "Don't ask again" on the bar after that still shows here
+                    Connections {
+                        target: settings
+                        function onHeart_rate_belt_suggestChanged() { switchHeartRateBeltSuggestDelegate.checked = settings.heart_rate_belt_suggest }
+                    }
+
+                    Label {
+                        text: qsTr("During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -6563,6 +6659,94 @@ import AndroidStatusBar 1.0
                         }
                     }
 										}
+
+
+                    AccordionElement {
+                        id: daumBikeAccordion
+                        title: qsTr("Daum Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDaumSerialPort
+                                    text: qsTr("Serial Port:")
+                                    Layout.fillWidth: true
+                                }
+                                SettingsTextField {
+                                    id: daumSerialPortTextField
+                                    savedText: settings.daum_serialport
+                                    Accessible.name: labelDaumSerialPort.text + " " + text
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: { settings.daum_serialport = text; window.settings_restart_to_apply = true; }
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okDaumSerialPortButton
+                                    text: qsTr("OK")
+                                    enabled: daumSerialPortTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.daum_serialport = daumSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use 'usb'. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDaumResistanceDelay
+                                    text: qsTr("Resistance Polling Delay:")
+                                    Layout.fillWidth: true
+                                }
+                                SettingsNumberField {
+                                    id: daumResistanceDelayTextField
+                                    savedText: settings.inclination_delay_seconds
+                                    Accessible.name: labelDaumResistanceDelay.text + " " + text
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: if (valid) settings.inclination_delay_seconds = value
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    enabled: daumResistanceDelayTextField.valid && daumResistanceDelayTextField.dirty
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.inclination_delay_seconds = daumResistanceDelayTextField.value; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
 
 
                     AccordionElement {
@@ -11338,6 +11522,45 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelTrainProgramInclinationFilter
+                            text: qsTr("Inclination Filter (%):")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: trainProgramInclinationFilterTextField
+                            savedText: settings.trainprogram_inclination_filter
+                            Accessible.name: labelTrainProgramInclinationFilter.text + " " + text
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: if (valid) settings.trainprogram_inclination_filter = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramInclinationFilter
+                            text: qsTr("OK")
+                            enabled: trainProgramInclinationFilterTextField.valid && trainProgramInclinationFilterTextField.dirty
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_inclination_filter = trainProgramInclinationFilterTextField.value; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelTrainProgramRandomResistanceMin
                             text: qsTr("Resistance min.:")
                             wrapMode: window.labelWrap
@@ -11588,7 +11811,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                 
+
                     IndicatorOnlySwitch {
                         id: treadmillDifficultyGainOffsetDelegate
                         text: qsTr("Difficulty offset based")
@@ -12045,7 +12268,6 @@ import AndroidStatusBar 1.0
                                     "Proform Carbon TLS",
                                     "Proform 995i",
                                     "NordicTrack Series 7",
-                                    "Nordictrack T Series 8",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
                                     "ProForm Carbon TLX PFTL90924C.7",
@@ -12060,6 +12282,8 @@ import AndroidStatusBar 1.0
                                     "ProForm 305 CST PETL59817.0",
                                     "Freemotion T10.9B (HCI snoop)",
                                     "Proform Sport 5.5",
+                                    "Proform Sport 6.0",
+                                    "Nordictrack T Series 8",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -12131,21 +12355,22 @@ import AndroidStatusBar 1.0
                                                     settings.proform_treadmill_carbon_tls ? 52 :
                                                     settings.proform_treadmill_995i ? 53 :
                                                     settings.nordictrack_series_7 ? 54 :
-                                                    settings.nordictrack_tseries8_treadmill ? 55 :
-                                                    settings.proform_trainer_9_0 ? 56 :
-                                                    settings.proform_treadmill_sport_3_0 ? 57 :
-                                                    settings.proform_carbon_tlx_treadmill ? 58 :
-                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 59 :
-                                                    settings.proform_carbon_tl_PFTL59723_6 ? 60 :
-                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 61 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 62 :
-                                                    settings.proform_treadmill_105_cst ? 63 :
-                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 64 :
-                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 65 :
-                                                    settings.proform_trainer_8_0_pftl59721_0 ? 66 :
-                                                    settings.proform_treadmill_305_cst ? 67 :
-                                                    settings.freemotion_t10_9b_hci ? 68 :
-                                                    settings.proform_treadmill_sport_55 ? 69 : 0;
+                                                    settings.proform_trainer_9_0 ? 55 :
+                                                    settings.proform_treadmill_sport_3_0 ? 56 :
+                                                    settings.proform_carbon_tlx_treadmill ? 57 :
+                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
+                                                    settings.proform_carbon_tl_PFTL59723_6 ? 59 :
+                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
+                                                    settings.proform_treadmill_105_cst ? 62 :
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
+                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 :
+                                                    settings.proform_trainer_8_0_pftl59721_0 ? 65 :
+                                                    settings.proform_treadmill_305_cst ? 66 :
+                                                    settings.freemotion_t10_9b_hci ? 67 :
+                                                    settings.proform_treadmill_sport_55 ? 68 :
+                                                    settings.proform_treadmill_sport_6_0 ? 69 :
+                                                    settings.nordictrack_tseries8_treadmill ? 70 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -12214,7 +12439,6 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
                                     settings.nordictrack_series_7 = false;
-                                    settings.nordictrack_tseries8_treadmill = false;
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
                                     settings.proform_carbon_tlx_treadmill = false;
@@ -12229,6 +12453,8 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_305_cst = false;
                                     settings.freemotion_t10_9b_hci = false;
                                     settings.proform_treadmill_sport_55 = false;
+                                    settings.proform_treadmill_sport_6_0 = false;
+                                    settings.nordictrack_tseries8_treadmill = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -12286,21 +12512,22 @@ import AndroidStatusBar 1.0
                                         case 52: settings.proform_treadmill_carbon_tls = true; break;
                                         case 53: settings.proform_treadmill_995i = true; break;
                                         case 54: settings.nordictrack_series_7 = true; break;
-                                        case 55: settings.nordictrack_tseries8_treadmill = true; break;
-                                        case 56: settings.proform_trainer_9_0 = true; break;
-                                        case 57: settings.proform_treadmill_sport_3_0 = true; break;
-                                        case 58: settings.proform_carbon_tlx_treadmill = true; break;
-                                        case 59: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
-                                        case 60: settings.proform_carbon_tl_PFTL59723_6 = true; break;
-                                        case 61: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
-                                        case 62: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
-                                        case 63: settings.proform_treadmill_105_cst = true; break;
-                                        case 64: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
-                                        case 65: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
-                                        case 66: settings.proform_trainer_8_0_pftl59721_0 = true; break;
-                                        case 67: settings.proform_treadmill_305_cst = true; break;
-                                        case 68: settings.freemotion_t10_9b_hci = true; break;
-                                        case 69: settings.proform_treadmill_sport_55 = true; break;
+                                        case 55: settings.proform_trainer_9_0 = true; break;
+                                        case 56: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 57: settings.proform_carbon_tlx_treadmill = true; break;
+                                        case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
+                                        case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
+                                        case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
+                                        case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 62: settings.proform_treadmill_105_cst = true; break;
+                                        case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
+                                        case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
+                                        case 65: settings.proform_trainer_8_0_pftl59721_0 = true; break;
+                                        case 66: settings.proform_treadmill_305_cst = true; break;
+                                        case 67: settings.freemotion_t10_9b_hci = true; break;
+                                        case 68: settings.proform_treadmill_sport_55 = true; break;
+                                        case 69: settings.proform_treadmill_sport_6_0 = true; break;
+                                        case 70: settings.nordictrack_tseries8_treadmill = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -18561,10 +18788,14 @@ import AndroidStatusBar 1.0
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)
                         color: Material.backgroundColor
+                        // The Loader of AccordionElement creates the content each time the section opens,
+                        // so the template entries are made from there: the content is a component, its
+                        // id is not reachable from the accordion's own Component.onCompleted
                         accordionContent: ColumnLayout {
                             id: templateSettingsContent
+                            Component.onCompleted: templateSettingsAccordion.createTemplates(templateSettingsContent)
                         }
-                        Component.onCompleted: function() {
+                        function createTemplates(parentItem) {
                             let template_ids = settings.value("template_user_ids", []);
                             console.log("template_ids current val "+template_ids);
                             if (template_ids) {
@@ -18581,12 +18812,13 @@ import AndroidStatusBar 1.0
                                         if (component) {
                                             let key_enabled = "template_" + template_id + "_enabled";
                                             console.log("Creating component object for id "+template_id);
-                                            let template_object = component.createObject(null,
+                                            // parentItem owns it, so it is not garbage collected and goes with the section
+                                            let template_object = component.createObject(parentItem,
                                                                                          {
                                                                                              settings: settings,
                                                                                              templateId: template_id
                                                                                          });
-                                            let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                            let accordionCheck = accordionCheckComponent.createObject(parentItem,
                                                                                                       {
                                                                                                           title: template_id +" (" + template_type +")",
                                                                                                           settings: settings,

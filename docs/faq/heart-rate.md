@@ -1,5 +1,15 @@
 # Heart rate
 
+## My bike or treadmill connects to QZ as a heart-rate monitor, and QZ stops receiving its data. What should I try?
+
+Some bikes and treadmills automatically connect to any nearby Bluetooth heart-rate service. If QZ is also advertising its separate virtual heart-rate service, the machine may connect to QZ as if it were a heart-rate monitor, which can interfere with its normal data connection to QZ.
+
+As a diagnostic step, open **QZ Settings > Heart Rate Options** and turn **off** **Heart Rate service outside FTMS**, then fully close and restart QZ. This suppresses QZ's separate virtual heart-rate service. The virtual FTMS connection remains available; on the iOS virtual treadmill, heart rate is still included in FTMS Treadmill Data.
+
+If another app gets heart rate by pairing to QZ's separate virtual HR sensor, that sensor will no longer be available while this setting is off. If the bike or treadmill still does not send data, restore your previous setting and send a QZ debug log.
+
+**Confirmed diagnostic result:** In one Domyos Run 500 case, the treadmill automatically selected an available Bluetooth heart-rate service; turning off QZ's separate HR service was part of the configuration in which treadmill data resumed. Another HR-related setting was also changed during that test, so this is a useful troubleshooting step, not proof that it is always the only cause.
+
 ## My external or companion heart rate is available, but QZ keeps using the heart rate from the fitness machine. What should I do?
 
 If the bike, treadmill, rower, or other fitness machine reports its own heart-rate value, QZ can prefer that built-in value over an external source. This can make a heart-rate source connected through QZ Companion or another supported external HR source appear not to update QZ correctly.
@@ -22,7 +32,9 @@ When using QZ Garmin Companion on a Garmin watch with QZ on an iPhone, enable **
 
 Start Garmin Companion on the watch, reconnect QZ and confirm the QZ Heart Rate tile updates before recording. This combination was confirmed working with a supported elliptical and Garmin watch: the watch's heart rate appeared in QZ and in the resulting Garmin Connect activity.
 
-Garmin Companion supplies watch data such as heart rate to QZ; it does not mirror the fitness machine's workout metrics onto the watch screen. For heart rate alone, the watch's Bluetooth HR Broadcast feature is another option; do not enable both input paths at the same time.
+Garmin Companion supplies watch data such as heart rate to QZ; it does not mirror the fitness machine's workout metrics onto the watch screen. For heart rate alone, the watch's Bluetooth HR Broadcast feature is another option **on watches that support Bluetooth HR broadcasting**; do not enable both input paths at the same time.
+
+**Garmin vívoactive 4 on Android:** This model's heart-rate broadcast is ANT+, so do not expect it to appear as a Bluetooth belt under **Heart Rate Belt Name**. Instead, use the **QZ Garmin Companion** watch app, enable **Garmin Companion** in QZ on Android, and leave **Heart Rate Belt Name** disabled. A user confirmed that simply **opening the companion app on the watch**, without pressing its Start button, made heart rate appear in QZ after updating to the QZ Android beta. The beta update may have contributed; the exact reason the previous configuration failed was not isolated.
 
 ## Can QZ on an iPhone receive heart rate from a Garmin watch without pairing QZ to the watch as a bike sensor?
 
