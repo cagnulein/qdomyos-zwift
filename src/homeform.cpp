@@ -759,6 +759,36 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         settings.value(QZSettings::tile_preset_speed_5_label, QZSettings::default_tile_preset_speed_5_label).toString(),
         settings.value(QZSettings::tile_preset_speed_5_color, QZSettings::default_tile_preset_speed_5_color)
             .toString());
+    preset_speed_6 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_speed_6"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_speed_6_label, QZSettings::default_tile_preset_speed_6_label).toString(),
+        settings.value(QZSettings::tile_preset_speed_6_color, QZSettings::default_tile_preset_speed_6_color)
+            .toString());
+    preset_speed_7 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_speed_7"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_speed_7_label, QZSettings::default_tile_preset_speed_7_label).toString(),
+        settings.value(QZSettings::tile_preset_speed_7_color, QZSettings::default_tile_preset_speed_7_color)
+            .toString());
+    preset_speed_8 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_speed_8"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_speed_8_label, QZSettings::default_tile_preset_speed_8_label).toString(),
+        settings.value(QZSettings::tile_preset_speed_8_color, QZSettings::default_tile_preset_speed_8_color)
+            .toString());
+    preset_speed_9 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_speed_9"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_speed_9_label, QZSettings::default_tile_preset_speed_9_label).toString(),
+        settings.value(QZSettings::tile_preset_speed_9_color, QZSettings::default_tile_preset_speed_9_color)
+            .toString());
+    preset_speed_10 = new DataObject(
+        "", "", "", false, QStringLiteral("preset_speed_10"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true,
+        settings.value(QZSettings::tile_preset_speed_10_label, QZSettings::default_tile_preset_speed_10_label).toString(),
+        settings.value(QZSettings::tile_preset_speed_10_color, QZSettings::default_tile_preset_speed_10_color)
+            .toString());
     preset_inclination_1 = new DataObject(
         "", "", "", false, QStringLiteral("preset_inclination_1"), 48, labelFontSize, QStringLiteral("white"),
         QLatin1String(""), 0, true,
@@ -3059,6 +3089,41 @@ void homeform::sortTiles() {
                 preset_speed_5->setGridId(i);
                 dataList.append(preset_speed_5);
             }
+            if (settings.value(QZSettings::tile_preset_speed_6_enabled, QZSettings::default_tile_preset_speed_6_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_6_order, QZSettings::default_tile_preset_speed_6_order)
+                        .toInt() == i) {
+                preset_speed_6->setGridId(i);
+                dataList.append(preset_speed_6);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_7_enabled, QZSettings::default_tile_preset_speed_7_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_7_order, QZSettings::default_tile_preset_speed_7_order)
+                        .toInt() == i) {
+                preset_speed_7->setGridId(i);
+                dataList.append(preset_speed_7);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_8_enabled, QZSettings::default_tile_preset_speed_8_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_8_order, QZSettings::default_tile_preset_speed_8_order)
+                        .toInt() == i) {
+                preset_speed_8->setGridId(i);
+                dataList.append(preset_speed_8);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_9_enabled, QZSettings::default_tile_preset_speed_9_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_9_order, QZSettings::default_tile_preset_speed_9_order)
+                        .toInt() == i) {
+                preset_speed_9->setGridId(i);
+                dataList.append(preset_speed_9);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_10_enabled, QZSettings::default_tile_preset_speed_10_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_10_order, QZSettings::default_tile_preset_speed_10_order)
+                        .toInt() == i) {
+                preset_speed_10->setGridId(i);
+                dataList.append(preset_speed_10);
+            }
             if (settings
                     .value(QZSettings::tile_preset_inclination_1_enabled,
                            QZSettings::default_tile_preset_inclination_1_enabled)
@@ -3453,6 +3518,41 @@ void homeform::sortTiles() {
                         .toInt() == i) {
                 preset_speed_5->setGridId(i);
                 dataList.append(preset_speed_5);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_6_enabled, QZSettings::default_tile_preset_speed_6_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_6_order, QZSettings::default_tile_preset_speed_6_order)
+                        .toInt() == i) {
+                preset_speed_6->setGridId(i);
+                dataList.append(preset_speed_6);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_7_enabled, QZSettings::default_tile_preset_speed_7_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_7_order, QZSettings::default_tile_preset_speed_7_order)
+                        .toInt() == i) {
+                preset_speed_7->setGridId(i);
+                dataList.append(preset_speed_7);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_8_enabled, QZSettings::default_tile_preset_speed_8_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_8_order, QZSettings::default_tile_preset_speed_8_order)
+                        .toInt() == i) {
+                preset_speed_8->setGridId(i);
+                dataList.append(preset_speed_8);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_9_enabled, QZSettings::default_tile_preset_speed_9_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_9_order, QZSettings::default_tile_preset_speed_9_order)
+                        .toInt() == i) {
+                preset_speed_9->setGridId(i);
+                dataList.append(preset_speed_9);
+            }
+            if (settings.value(QZSettings::tile_preset_speed_10_enabled, QZSettings::default_tile_preset_speed_10_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_preset_speed_10_order, QZSettings::default_tile_preset_speed_10_order)
+                        .toInt() == i) {
+                preset_speed_10->setGridId(i);
+                dataList.append(preset_speed_10);
             }
             if (settings
                     .value(QZSettings::tile_preset_inclination_1_enabled,
@@ -5469,30 +5569,55 @@ void homeform::LargeButton(const QString &name) {
                                         .toDouble());
         }
     } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
-        if (name.contains(QStringLiteral("preset_speed_1"))) {
+        if (name == QStringLiteral("preset_speed_1")) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(
                     settings.value(QZSettings::tile_preset_speed_1_value, QZSettings::default_tile_preset_speed_1_value)
                         .toDouble());
-        } else if (name.contains(QStringLiteral("preset_speed_2"))) {
+        } else if (name == QStringLiteral("preset_speed_2")) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(
                     settings.value(QZSettings::tile_preset_speed_2_value, QZSettings::default_tile_preset_speed_2_value)
                         .toDouble());
-        } else if (name.contains(QStringLiteral("preset_speed_3"))) {
+        } else if (name == QStringLiteral("preset_speed_3")) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(
                     settings.value(QZSettings::tile_preset_speed_3_value, QZSettings::default_tile_preset_speed_3_value)
                         .toDouble());
-        } else if (name.contains(QStringLiteral("preset_speed_4"))) {
+        } else if (name == QStringLiteral("preset_speed_4")) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(
                     settings.value(QZSettings::tile_preset_speed_4_value, QZSettings::default_tile_preset_speed_4_value)
                         .toDouble());
-        } else if (name.contains(QStringLiteral("preset_speed_5"))) {
+        } else if (name == QStringLiteral("preset_speed_5")) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(
                     settings.value(QZSettings::tile_preset_speed_5_value, QZSettings::default_tile_preset_speed_5_value)
+                        .toDouble());
+        } else if (name == QStringLiteral("preset_speed_6")) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(
+                    settings.value(QZSettings::tile_preset_speed_6_value, QZSettings::default_tile_preset_speed_6_value)
+                        .toDouble());
+        } else if (name == QStringLiteral("preset_speed_7")) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(
+                    settings.value(QZSettings::tile_preset_speed_7_value, QZSettings::default_tile_preset_speed_7_value)
+                        .toDouble());
+        } else if (name == QStringLiteral("preset_speed_8")) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(
+                    settings.value(QZSettings::tile_preset_speed_8_value, QZSettings::default_tile_preset_speed_8_value)
+                        .toDouble());
+        } else if (name == QStringLiteral("preset_speed_9")) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(
+                    settings.value(QZSettings::tile_preset_speed_9_value, QZSettings::default_tile_preset_speed_9_value)
+                        .toDouble());
+        } else if (name == QStringLiteral("preset_speed_10")) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(
+                    settings.value(QZSettings::tile_preset_speed_10_value, QZSettings::default_tile_preset_speed_10_value)
                         .toDouble());
         } else if (name.contains(QStringLiteral("preset_inclination_1"))) {
             ((treadmill *)bluetoothManager->device())
@@ -5790,6 +5915,16 @@ bool homeform::handleKeyboardShortcut(const QString &sequence) {
         LargeButton(QStringLiteral("preset_speed_4"));
     } else if (matches(QZSettings::shortcut_preset_speed_5, QZSettings::default_shortcut_preset_speed_5)) {
         LargeButton(QStringLiteral("preset_speed_5"));
+    } else if (matches(QZSettings::shortcut_preset_speed_6, QZSettings::default_shortcut_preset_speed_6)) {
+        LargeButton(QStringLiteral("preset_speed_6"));
+    } else if (matches(QZSettings::shortcut_preset_speed_7, QZSettings::default_shortcut_preset_speed_7)) {
+        LargeButton(QStringLiteral("preset_speed_7"));
+    } else if (matches(QZSettings::shortcut_preset_speed_8, QZSettings::default_shortcut_preset_speed_8)) {
+        LargeButton(QStringLiteral("preset_speed_8"));
+    } else if (matches(QZSettings::shortcut_preset_speed_9, QZSettings::default_shortcut_preset_speed_9)) {
+        LargeButton(QStringLiteral("preset_speed_9"));
+    } else if (matches(QZSettings::shortcut_preset_speed_10, QZSettings::default_shortcut_preset_speed_10)) {
+        LargeButton(QStringLiteral("preset_speed_10"));
     } else if (matches(QZSettings::shortcut_preset_inclination_1,
                        QZSettings::default_shortcut_preset_inclination_1)) {
         LargeButton(QStringLiteral("preset_inclination_1"));

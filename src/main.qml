@@ -249,6 +249,11 @@ ApplicationWindow {
         property string ui_theme: "graphite"
         property string ui_accent: "violet"
         property string ui_theme_mode: "auto"
+        property string shortcut_preset_speed_6: ""
+        property string shortcut_preset_speed_7: ""
+        property string shortcut_preset_speed_8: ""
+        property string shortcut_preset_speed_9: ""
+        property string shortcut_preset_speed_10: ""
     }
 
     // Modern look (settings.ui_modern, off by default). Pages and Ui* components read the palette
@@ -2345,6 +2350,11 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_3") }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_4") }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_6; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_6") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_7; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_7") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_8; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_8") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_9; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_9") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_10; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_10") }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_1") }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_2") }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_3") }

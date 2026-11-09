@@ -1712,6 +1712,66 @@ class QZSettings {
     static const QString tile_preset_speed_5_label;
     static const QString default_tile_preset_speed_5_label;
 
+    static const QString tile_preset_speed_6_enabled;
+    static constexpr bool default_tile_preset_speed_6_enabled = false;
+
+    static const QString tile_preset_speed_6_order;
+    static constexpr int default_tile_preset_speed_6_order = 80;
+
+    static const QString tile_preset_speed_6_value;
+    static constexpr double default_tile_preset_speed_6_value = 13;
+
+    static const QString tile_preset_speed_6_label;
+    static const QString default_tile_preset_speed_6_label;
+
+    static const QString tile_preset_speed_7_enabled;
+    static constexpr bool default_tile_preset_speed_7_enabled = false;
+
+    static const QString tile_preset_speed_7_order;
+    static constexpr int default_tile_preset_speed_7_order = 81;
+
+    static const QString tile_preset_speed_7_value;
+    static constexpr double default_tile_preset_speed_7_value = 14;
+
+    static const QString tile_preset_speed_7_label;
+    static const QString default_tile_preset_speed_7_label;
+
+    static const QString tile_preset_speed_8_enabled;
+    static constexpr bool default_tile_preset_speed_8_enabled = false;
+
+    static const QString tile_preset_speed_8_order;
+    static constexpr int default_tile_preset_speed_8_order = 82;
+
+    static const QString tile_preset_speed_8_value;
+    static constexpr double default_tile_preset_speed_8_value = 15;
+
+    static const QString tile_preset_speed_8_label;
+    static const QString default_tile_preset_speed_8_label;
+
+    static const QString tile_preset_speed_9_enabled;
+    static constexpr bool default_tile_preset_speed_9_enabled = false;
+
+    static const QString tile_preset_speed_9_order;
+    static constexpr int default_tile_preset_speed_9_order = 83;
+
+    static const QString tile_preset_speed_9_value;
+    static constexpr double default_tile_preset_speed_9_value = 16;
+
+    static const QString tile_preset_speed_9_label;
+    static const QString default_tile_preset_speed_9_label;
+
+    static const QString tile_preset_speed_10_enabled;
+    static constexpr bool default_tile_preset_speed_10_enabled = false;
+
+    static const QString tile_preset_speed_10_order;
+    static constexpr int default_tile_preset_speed_10_order = 84;
+
+    static const QString tile_preset_speed_10_value;
+    static constexpr double default_tile_preset_speed_10_value = 17;
+
+    static const QString tile_preset_speed_10_label;
+    static const QString default_tile_preset_speed_10_label;
+
     static const QString tile_preset_inclination_1_enabled;
     static constexpr bool default_tile_preset_inclination_1_enabled = false;
 
@@ -1801,6 +1861,21 @@ class QZSettings {
 
     static const QString tile_preset_speed_5_color;
     static const QString default_tile_preset_speed_5_color;
+
+    static const QString tile_preset_speed_6_color;
+    static const QString default_tile_preset_speed_6_color;
+
+    static const QString tile_preset_speed_7_color;
+    static const QString default_tile_preset_speed_7_color;
+
+    static const QString tile_preset_speed_8_color;
+    static const QString default_tile_preset_speed_8_color;
+
+    static const QString tile_preset_speed_9_color;
+    static const QString default_tile_preset_speed_9_color;
+
+    static const QString tile_preset_speed_10_color;
+    static const QString default_tile_preset_speed_10_color;
 
     static const QString tile_preset_inclination_1_color;
     static const QString default_tile_preset_inclination_1_color;
@@ -3304,6 +3379,17 @@ class QZSettings {
     static const QString default_shortcut_preset_speed_4;
     static const QString shortcut_preset_speed_5;
     static const QString default_shortcut_preset_speed_5;
+
+    static const QString shortcut_preset_speed_6;
+    static const QString default_shortcut_preset_speed_6;
+    static const QString shortcut_preset_speed_7;
+    static const QString default_shortcut_preset_speed_7;
+    static const QString shortcut_preset_speed_8;
+    static const QString default_shortcut_preset_speed_8;
+    static const QString shortcut_preset_speed_9;
+    static const QString default_shortcut_preset_speed_9;
+    static const QString shortcut_preset_speed_10;
+    static const QString default_shortcut_preset_speed_10;
 
     static const QString shortcut_preset_inclination_1;
     static const QString default_shortcut_preset_inclination_1;
