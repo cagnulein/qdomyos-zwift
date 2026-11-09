@@ -6,8 +6,8 @@ import QtQuick.Layouts 1.3
 // lives on the flickable, not in its content, and goes up with the end of the section; a tap
 // on it scrolls back to the real header. It appears as soon as the real header starts going up
 // and shrinks with the scroll from the height of the real one to its compact height.
-// Goes into the section (AccordionElement, StaticAccordionElement) as an invisible item: the
-// column of the section leaves it out of the layout.
+// Goes into the section (AccordionElement, StaticAccordionElement) or into its header as an
+// invisible item: the column of the section leaves it out of the layout.
 Item {
     id: sticky
 

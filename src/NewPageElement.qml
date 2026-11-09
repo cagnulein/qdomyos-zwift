@@ -26,13 +26,21 @@ ColumnLayout {
 
     Layout.fillWidth: true;
 
-    UiSectionHeader {
-        visible: window.ui.modern
-        title: rootElement.title
-        isOpen: rootElement.isOpen
-        nested: rootElement.nested
-        chevron: "chevron_right"
-        onClicked: stackView.push(rootElement.accordionContent, { settings: rootElement.pageSettings })
+    // Modern look: the header, made only while the look is on (as in AccordionElement)
+    Loader {
+        active: window.ui.modern
+        visible: active
+        Layout.fillWidth: true
+        Layout.leftMargin: item ? item.Layout.leftMargin : 0
+        Layout.rightMargin: item ? item.Layout.rightMargin : 0
+        Layout.topMargin: item ? item.Layout.topMargin : 0
+        sourceComponent: UiSectionHeader {
+            title: rootElement.title
+            isOpen: rootElement.isOpen
+            nested: rootElement.nested
+            chevron: "chevron_right"
+            onClicked: stackView.push(rootElement.accordionContent, { settings: rootElement.pageSettings })
+        }
     }
 
     Rectangle {

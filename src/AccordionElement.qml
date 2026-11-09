@@ -30,22 +30,33 @@ ColumnLayout {
     spacing: 0
     Layout.fillWidth: true
 
-    // Modern look: a short copy of the header at the top of the page while the open section
-    // scrolls under it
-    UiStickyHeader {
-        section: rootElement
-        header: sectionHeader
-    }
-
-    UiSectionHeader {
+    // Modern look: the header of the section, made only while the look is on - the classic look
+    // does not carry it hidden in every section of a page. The loader stands in the column for the
+    // header: the layout margins and the corners are the ones of the header
+    Loader {
         id: sectionHeader
-        visible: window.ui.modern
-        title: rootElement.title
-        isOpen: rootElement.isOpen
-        nested: rootElement.nested
-        depth: rootElement.depth
-        chevron: "expand_more"
-        onClicked: rootElement.isOpen = !rootElement.isOpen
+        active: window.ui.modern
+        visible: active
+        Layout.fillWidth: true
+        Layout.leftMargin: item ? item.Layout.leftMargin : 0
+        Layout.rightMargin: item ? item.Layout.rightMargin : 0
+        Layout.topMargin: item ? item.Layout.topMargin : 0
+        readonly property real radius: item ? item.radius : 0
+        sourceComponent: UiSectionHeader {
+            title: rootElement.title
+            isOpen: rootElement.isOpen
+            nested: rootElement.nested
+            depth: rootElement.depth
+            chevron: "expand_more"
+            onClicked: rootElement.isOpen = !rootElement.isOpen
+
+            // A short copy of the header at the top of the page while the open section scrolls
+            // under it
+            UiStickyHeader {
+                section: rootElement
+                header: sectionHeader
+            }
+        }
     }
 
     Rectangle {
@@ -117,12 +128,25 @@ ColumnLayout {
         z: -1
         asynchronous: false
 
-        UiSettingFrames {
+        // Modern look: made the first time the look is on, and kept - back in the classic look it
+        // gives the settings their own margins again
+        Loader {
             id: settingFrames
+            property bool used: false
+            active: window.ui.modern || used
+            onLoaded: used = true
             z: -1
-            content: contentLoader.item
-            header: sectionHeader
-            depth: rootElement.depth
+            readonly property int insetLeft: item ? item.insetLeft : 0
+            readonly property int insetRight: item ? item.insetRight : 0
+            readonly property int insetTop: item ? item.insetTop : 0
+            readonly property int insetBottom: item ? item.insetBottom : 0
+            readonly property int framePadH: item ? item.framePadH : 0
+            sourceComponent: UiSettingFrames {
+                holder: contentLoader
+                content: contentLoader.item
+                header: sectionHeader
+                depth: rootElement.depth
+            }
         }
 
         onLoaded: {

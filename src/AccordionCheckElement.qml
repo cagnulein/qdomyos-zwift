@@ -76,56 +76,61 @@ ColumnLayout {
     }
 
     // Modern look: a plain switch row like the other switches of the settings; a tap anywhere
-    // on the row switches it
-    Rectangle {
+    // on the row switches it. Made only while the look is on (as the header of AccordionElement):
+    // the classic page of tiles does not carry a hidden switch in every section
+    Loader {
         id: modernHeader
-        visible: window.ui.modern
+        active: window.ui.modern
+        visible: active
         Layout.fillWidth: true
-        implicitHeight: Math.max(48, modernTitle.implicitHeight + 16)
-        radius: 12
-        color: modernArea.pressed ? window.ui.surfaceHigh : "transparent"
+        readonly property real radius: item ? item.radius : 0
+        sourceComponent: Rectangle {
+            implicitHeight: Math.max(48, modernTitle.implicitHeight + 16)
+            radius: 12
+            color: modernArea.pressed ? window.ui.surfaceHigh : "transparent"
 
-        Accessible.role: Accessible.CheckBox
-        Accessible.name: rootElement.title
-        Accessible.checkable: true
-        Accessible.checked: rootElement.isOpen
-        Accessible.onPressAction: rootElement.toggle(!rootElement.isOpen)
+            Accessible.role: Accessible.CheckBox
+            Accessible.name: rootElement.title
+            Accessible.checkable: true
+            Accessible.checked: rootElement.isOpen
+            Accessible.onPressAction: rootElement.toggle(!rootElement.isOpen)
 
-        MouseArea {
-            id: modernArea
-            anchors.fill: parent
-            onClicked: rootElement.toggle(!rootElement.isOpen)
-        }
-
-        Label {
-            id: modernTitle
-            anchors.left: parent.left
-            // Open, the element is a block out to the edges of the setting frames: the title as
-            // far in as the text of a setting in its frame. Closed, it is a setting in a frame
-            // itself: no room of its own, as the other switches
-            anchors.leftMargin: rootElement.isOpen ? settingFrames.framePadH : 0
-            anchors.right: modernSwitch.left
-            anchors.rightMargin: 8
-            anchors.verticalCenter: parent.verticalCenter
-            text: rootElement.title
-            wrapMode: Text.WordWrap
-            color: window.ui.textMain
-            font.pixelSize: window.ui.fontBase
-        }
-
-        UiSwitch {
-            id: modernSwitch
-            anchors.right: parent.right
-            anchors.rightMargin: rootElement.isOpen ? settingFrames.framePadH : 0
-            anchors.verticalCenter: parent.verticalCenter
-            checked: rootElement.isOpen
-            onClicked: {
-                rootElement.toggle(checked)
-                // A tap set checked and broke the binding: follow isOpen again, so a change from
-                // elsewhere (a reset, the search) still moves the switch
-                checked = Qt.binding(function() { return rootElement.isOpen })
+            MouseArea {
+                id: modernArea
+                anchors.fill: parent
+                onClicked: rootElement.toggle(!rootElement.isOpen)
             }
-            Accessible.ignored: true
+
+            Label {
+                id: modernTitle
+                anchors.left: parent.left
+                // Open, the element is a block out to the edges of the setting frames: the title as
+                // far in as the text of a setting in its frame. Closed, it is a setting in a frame
+                // itself: no room of its own, as the other switches
+                anchors.leftMargin: rootElement.isOpen ? settingFrames.framePadH : 0
+                anchors.right: modernSwitch.left
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                text: rootElement.title
+                wrapMode: Text.WordWrap
+                color: window.ui.textMain
+                font.pixelSize: window.ui.fontBase
+            }
+
+            UiSwitch {
+                id: modernSwitch
+                anchors.right: parent.right
+                anchors.rightMargin: rootElement.isOpen ? settingFrames.framePadH : 0
+                anchors.verticalCenter: parent.verticalCenter
+                checked: rootElement.isOpen
+                onClicked: {
+                    rootElement.toggle(checked)
+                    // A tap set checked and broke the binding: follow isOpen again, so a change from
+                    // elsewhere (a reset, the search) still moves the switch
+                    checked = Qt.binding(function() { return rootElement.isOpen })
+                }
+                Accessible.ignored: true
+            }
         }
     }
 
@@ -192,12 +197,25 @@ ColumnLayout {
         // Under the switch row: the block frame starts behind it
         z: -1
 
-        UiSettingFrames {
+        // Modern look: made the first time the look is on, and kept - back in the classic look it
+        // gives the settings their own margins again
+        Loader {
             id: settingFrames
+            property bool used: false
+            active: window.ui.modern || used
+            onLoaded: used = true
             z: -1
-            content: contentPlaceholder.children.length > 0 ? contentPlaceholder.children[0] : null
-            header: modernHeader
-            depth: rootElement.depth
+            readonly property int insetLeft: item ? item.insetLeft : 0
+            readonly property int insetRight: item ? item.insetRight : 0
+            readonly property int insetTop: item ? item.insetTop : 0
+            readonly property int insetBottom: item ? item.insetBottom : 0
+            readonly property int framePadH: item ? item.framePadH : 0
+            sourceComponent: UiSettingFrames {
+                holder: contentBox
+                content: contentPlaceholder.children.length > 0 ? contentPlaceholder.children[0] : null
+                header: modernHeader
+                depth: rootElement.depth
+            }
         }
 
         ColumnLayout {
