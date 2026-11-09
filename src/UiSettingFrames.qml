@@ -120,8 +120,10 @@ Item {
             var b = baseOf(c)
             var want = { item: c, top: b.top, bottom: b.bottom, left: b.left, right: b.right }
             entries.push(want)
+            // A list (the profiles, the settings files) is not a setting: it fills its section
+            // by its anchors, and layout margins of a frame moved it off its place
             if (!window.ui.modern || !c.visible || (c.height <= 0 && c.implicitHeight <= 0)
-                    || exclude.indexOf(c) >= 0)
+                    || exclude.indexOf(c) >= 0 || c.contentY !== undefined)
                 continue
             if (isSectionLike(c)) {
                 // Out to the edges of the frames around it
