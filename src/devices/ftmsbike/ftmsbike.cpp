@@ -446,7 +446,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(max_resistance > 0 && requestResistance > max_resistance) {
+        if(max_resistance > 0 && requestResistance > max_resistance && !DRUMFIT) {
             qDebug() << "Resistance" << requestResistance << "exceeds max_resistance" << max_resistance << "- clamping";
             requestResistance = max_resistance;
         }
@@ -2394,7 +2394,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 DRUMFIT = true;
                 max_resistance = 32;
                 resistance_lvl_mode = true;
-                ergModeSupported = false;
+                ergModeSupported = true;
             }
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
