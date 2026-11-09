@@ -183,7 +183,7 @@ ColumnLayout {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
                                 font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
-                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.lastIndexOf(".")):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
