@@ -15,11 +15,42 @@ ColumnLayout {
     // Signal emitted when content becomes visible
     signal contentBecameVisible()
 
+    // How deep the section is: 1 - a top-level one, 2 - inside it, and so on. The modern look
+    // frames an open section of the first two levels as one block, a deeper one only indents
+    readonly property int depth: {
+        var d = 1
+        for (var p = parent; p; p = p.parent)
+            if (p.isOpen !== undefined && p.title !== undefined && p.accordionContent !== undefined)
+                d++
+        return d
+    }
+    // Inside another section: the modern look draws it as a flat row instead of a card
+    readonly property bool nested: depth > 1
+
     spacing: 0
     Layout.fillWidth: true
 
+    // Modern look: a short copy of the header at the top of the page while the open section
+    // scrolls under it
+    UiStickyHeader {
+        section: rootElement
+        header: sectionHeader
+    }
+
+    UiSectionHeader {
+        id: sectionHeader
+        visible: window.ui.modern
+        title: rootElement.title
+        isOpen: rootElement.isOpen
+        nested: rootElement.nested
+        depth: rootElement.depth
+        chevron: "expand_more"
+        onClicked: rootElement.isOpen = !rootElement.isOpen
+    }
+
     Rectangle {
         id: accordionHeader
+        visible: !window.ui.modern
         color: "red"
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true
@@ -77,7 +108,22 @@ ColumnLayout {
         active: rootElement.isOpen
         visible: false // Start invisible
         Layout.fillWidth: true
+        // Modern look: inside the block of the section and inside the frames of its settings
+        Layout.leftMargin: settingFrames.insetLeft
+        Layout.rightMargin: settingFrames.insetRight
+        Layout.topMargin: settingFrames.insetTop
+        Layout.bottomMargin: settingFrames.insetBottom
+        // Under the header: the block frame starts behind it
+        z: -1
         asynchronous: false
+
+        UiSettingFrames {
+            id: settingFrames
+            z: -1
+            content: contentLoader.item
+            header: sectionHeader
+            depth: rootElement.depth
+        }
 
         onLoaded: {
             if (item) {

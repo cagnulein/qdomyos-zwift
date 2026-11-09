@@ -11,6 +11,14 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     property string accordionContent: ""
+    // Inside another section: the modern look draws it as a flat row instead of a card
+    readonly property bool nested: {
+        for (var p = parent; p; p = p.parent)
+            if (p.isOpen !== undefined && p.title !== undefined && p.accordionContent !== undefined)
+                return true
+        return false
+    }
+
     // The Settings object of the settings page, given to the page this element opens: the
     // pages share one object, so none of them writes back an old copy of what another changed
     property var pageSettings: null
@@ -18,8 +26,18 @@ ColumnLayout {
 
     Layout.fillWidth: true;
 
+    UiSectionHeader {
+        visible: window.ui.modern
+        title: rootElement.title
+        isOpen: rootElement.isOpen
+        nested: rootElement.nested
+        chevron: "chevron_right"
+        onClicked: stackView.push(rootElement.accordionContent, { settings: rootElement.pageSettings })
+    }
+
     Rectangle {
         id: accordionHeader
+        visible: !window.ui.modern
         color: "red"
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true;
