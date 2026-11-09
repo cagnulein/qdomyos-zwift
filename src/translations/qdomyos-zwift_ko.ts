@@ -1436,6 +1436,17 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>펼쳐짐</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>접힘</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
