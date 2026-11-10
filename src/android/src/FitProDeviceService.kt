@@ -233,6 +233,16 @@ object FitProDeviceService {
         send(DeviceCommand.SetIncline(target))
     }
 
+    /**
+     * Absolute incline target for the QZ elliptical bridge. A delta based on the Qt-side
+     * cached incline can be applied to a newer Kotlin snapshot, overshooting the target
+     * when the MCU reports an incline change between the two reads.
+     */
+    @JvmStatic
+    fun setIncline(target: Double) {
+        if (target.isFinite()) send(DeviceCommand.SetIncline(target.toFloat()))
+    }
+
     @JvmStatic
     fun adjustResistance(delta: Double) {
         val target = ((latest.resistance ?: 0) + delta).roundToInt().coerceAtLeast(0)
