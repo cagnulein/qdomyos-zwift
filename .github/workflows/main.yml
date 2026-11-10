@@ -2203,7 +2203,8 @@ jobs:
   fitpro-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Allow the Carbon E7 integration PR to produce a testable FitPro elliptical APK.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.head_ref == 'fix/issue-5467-fitpro-elliptical')
 
     strategy:
       matrix:
@@ -2231,7 +2232,8 @@ jobs:
       - name: Checkout FitPro branch code
         uses: actions/checkout@v3
         with:
-          ref: claude/fervent-newton-a25bb2
+          # PR builds must use the code under review, rather than the old FitPro base.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'claude/fervent-newton-a25bb2' }}
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
 
