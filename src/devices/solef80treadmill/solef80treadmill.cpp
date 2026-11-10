@@ -38,11 +38,11 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
-    f63InitRetryTimer.setInterval(300ms);
+    f63InitRetryTimer.setInterval(1000ms);
     connect(&f63InitRetryTimer, &QTimer::timeout, this, &solef80treadmill::retryF63InitHandshake);
     f63CommandTimer.setInterval(300ms);
     connect(&f63CommandTimer, &QTimer::timeout, this, &solef80treadmill::sendF63SequenceStep);
-    f63PollTimer.setInterval(300ms);
+    f63PollTimer.setInterval(50ms);
     connect(&f63PollTimer, &QTimer::timeout, this, &solef80treadmill::f63PollTick);
     refresh->start(300ms);
 }
@@ -205,79 +205,19 @@ void solef80treadmill::update() {
     }
 
     if (f63Model) {
-        // Stop wins over every other command, including an in-flight Start script.
-        if (requestStop != -1) {
-            requestStop = -1;
-            sendF63Stop();
-            return;
-        }
-        if (initRequest && firstStateChanged) {
-            initRequest = false;
-            if (f63InitRetryState.takeResponse()) {
-                initDone = true;
-                f63Phase = F63Phase::Ready;
-                f63PollCounter = 0;
-                f63PollTimer.start();
-                emit debug(QStringLiteral("F63 BM70 ready; no treadmill workout commands sent during discovery"));
-            }
-            return;
-        }
-        if (!initDone)
-            return;
-
-        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
-        if (f63Phase == F63Phase::AwaitingTelemetry && nowMs >= f63StartDeadlineMs) {
-            emit debug(QStringLiteral("F63 Start timed out without telemetry: cancelling and sending Stop"));
-            sendF63Stop();
-            return;
-        }
-
-        const bool freshTelemetry = f63TelemetryGuard.isFresh(nowMs);
-        if (!freshTelemetry) {
-            if (requestSpeed != -1 || requestInclination != -100)
-                emit debug(QStringLiteral("F63 motion rejected: no recent 18-byte telemetry"));
-            requestSpeed = -1;
-            requestInclination = -100;
-            requestSpeedState = IDLE;
-            requestInclinationState = IDLE;
-        }
-
-        if (requestStart != -1) {
-            requestStart = -1;
-            if (f63Phase == F63Phase::Ready)
-                queueF63Start();
-            else
-                emit debug(QStringLiteral("F63 Start ignored: session is not idle"));
-            return;
-        }
-
-        // At most one remote adjustment per 900 ms, only in confirmed Running state.
-        // Never issue an unbounded burst based on a speed stuck at zero.
-        if (f63Phase == F63Phase::Running && freshTelemetry &&
-            (f63LastMotionMs < 0 || nowMs - f63LastMotionMs >= 900)) {
-            if (requestSpeed != -1) {
-                if (requestSpeed < 0 || requestSpeed > 22 ||
-                    fabs(requestSpeed - currentSpeed().value()) < 0.11) {
-                    requestSpeed = -1;
-                } else {
-                    writeF63Frame(QByteArray::fromHex(requestSpeed > currentSpeed().value()
-                                                        ? "5b02f1025d" : "5b02f1035d"),
-                                  QStringLiteral("controlled speed step"));
-                    f63LastMotionMs = nowMs;
-                }
-            } else if (requestInclination != -100) {
-                if (requestInclination < 0 || requestInclination > 15 ||
-                    fabs(requestInclination - currentInclination().value()) < 0.5) {
-                    requestInclination = -100;
-                } else {
-                    writeF63Frame(QByteArray::fromHex(requestInclination > currentInclination().value()
-                                                        ? "5b02f1045d" : "5b02f1055d"),
-                                  QStringLiteral("controlled incline step"));
-                    f63LastMotionMs = nowMs;
-                }
-            }
-        }
+        // Passive telemetry only: Olivier's bridge validates physical START
+        // before connecting BLE; any remote command may seize console controls.
+        if (requestStart != -1 || requestStop != -1 ||
+            requestSpeed != -1 || requestInclination != -100)
+            emit debug(QStringLiteral("F63 passive mode: remote Start/Stop/speed/incline disabled; use physical controls"));
+        requestStart = -1;
+        requestStop = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        requestSpeedState = IDLE;
+        requestInclinationState = IDLE;
+        if (initDone)
+            update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
         return;
     }
 
@@ -431,6 +371,7 @@ void solef80treadmill::writeF63Frame(const QByteArray &frame, const QString &lab
                                                QLowEnergyService::WriteWithoutResponse);
     else
         gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame);
+    f63LastWriteMs = QDateTime::currentMSecsSinceEpoch();
     emit debug(QStringLiteral("F63 >> ") + frame.toHex(' ') + QStringLiteral(" // ") + label);
 }
 
@@ -498,18 +439,15 @@ void solef80treadmill::sendF63Stop() {
 }
 
 void solef80treadmill::f63PollTick() {
-    if (!initDone || f63Phase == F63Phase::Handshake || f63Phase == F63Phase::Preparing ||
-        f63Phase == F63Phase::Stopping)
+    if (!initDone || f63Replies.pendingCount() == 0)
         return;
-    if (f63Phase == F63Phase::Ready) {
-        if (++f63PollCounter % 3 == 0)
-            writeF63Frame(QByteArray::fromHex("5b0400104f4b5d"), QStringLiteral("idle status"));
-    } else if (f63Phase == F63Phase::Running || f63Phase == F63Phase::AwaitingTelemetry) {
-        // SOLE Fitness uses one status query followed by two 0x06 polls every 300ms.
-        const bool statusQuery = (f63PollCounter++ % 3) == 0;
-        writeF63Frame(QByteArray::fromHex(statusQuery ? "5b0400104f4b5d" : "5b0400064f4b5d"),
-                      QStringLiteral("workout status"));
-    }
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    // The proven bridge serializes responses; never invent periodic status polls.
+    if (f63LastWriteMs >= 0 && nowMs - f63LastWriteMs < 300)
+        return;
+    const QByteArray reply = f63Replies.nextReply(nowMs);
+    if (!reply.isEmpty())
+        writeF63Frame(reply, QStringLiteral("solicited F63 response"));
 }
 
 void solef80treadmill::resetF63Session() {
@@ -518,6 +456,9 @@ void solef80treadmill::resetF63Session() {
     f63PollTimer.stop();
     f63InitRetryState.cancel();
     f63TelemetryGuard.reset();
+    f63Replies.reset();
+    f63LastWriteMs = -1;
+    f63RxSeen = false;
     f63Frames.clear();
     f63FrameIndex = 0;
     f63PollCounter = 0;
@@ -617,26 +558,26 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == _gattNotifyCharId) {
-        if (f63InitRetryState.receiveNotification(newValue)) {
-            f63InitRetryTimer.stop();
-            initRequest = true;
-            emit debug(QStringLiteral("F63 BM70 init1 response received after ") +
-                       QString::number(f63InitRetryState.attemptCount()) + QStringLiteral(" attempt(s)"));
-        }
         if (f63 && treadmill_type == F63) {
-            if (newValue == QByteArray::fromHex("5b0203065d") && f63Phase != F63Phase::Stopping) {
-                f63CommandTimer.stop();
-                f63Frames.clear();
-                f63FrameIndex = 0;
-                requestStart = -1;
-                requestSpeed = -1;
-                requestInclination = -100;
-                f63Phase = F63Phase::Ready;
-                f63TelemetryGuard.reset();
-                emit debug(QStringLiteral("F63 physical Stop observed: pending commands cancelled"));
+            f63RxSeen = true;
+            f63InitRetryTimer.stop(); // never resend F0 after ANY notification
+            f63InitRetryState.cancel();
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            f63Replies.observe(newValue, nowMs);
+            if (newValue.size() == 5 && quint8(newValue.at(0)) == 0x5b &&
+                quint8(newValue.at(1)) == 0x02 && quint8(newValue.at(2)) == 0x03 &&
+                quint8(newValue.at(4)) == 0x5d) {
+                const quint8 mode = quint8(newValue.at(3));
+                if (mode == 3 || mode == 4) {
+                    f63Phase = F63Phase::Running;
+                } else {
+                    f63Phase = F63Phase::Ready;
+                    Speed = 0; // invalidate stale data on pause / stop / end
+                    f63TelemetryGuard.reset();
+                }
             }
-            if (f63TelemetryGuard.recordVendorPacket(newValue, QDateTime::currentMSecsSinceEpoch()) &&
-                (uint8_t)newValue.at(10) > 0 && f63Phase != F63Phase::Stopping) {
+            if (f63TelemetryGuard.recordVendorPacket(newValue, nowMs) &&
+                quint8(newValue.at(10)) > 0) {
                 if (f63Phase != F63Phase::Running)
                     emit tapeStarted();
                 f63Phase = F63Phase::Running;
@@ -652,7 +593,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
+    if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18 &&
+        (!f63 || (quint8(newValue.at(0)) == 0x5b && quint8(newValue.at(1)) == 0x0f &&
+                  quint8(newValue.at(2)) == 0x06 && quint8(newValue.at(17)) == 0x5d))) {
         // the treadmill send the speed in miles always
         double miles = 1;
         if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
@@ -997,14 +940,17 @@ void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
         f63NotifyCccdWritePending = false;
         if (!f63InitRetryState.beginAfterNotifyCccdWrite(f63Model, currentF63NotifyCccd,
                                                          newValue == QByteArray::fromHex("0100"))) {
-            emit debug(QStringLiteral("F63 BM70 notify CCCD write returned unexpected value ") + newValue.toHex(' '));
+            emit debug(QStringLiteral("F63 BM70 notification subscription unsuccessful"));
             return;
         }
-
-        initDone = false;
+        // Start receiving even if F0 identity never arrives: proven bridge does so.
+        initDone = true;
         initRequest = false;
-        emit debug(QStringLiteral("F63 BM70 init1 retry scheduled every 300 ms until a notification arrives"));
+        f63Phase = F63Phase::Ready;
+        f63PollTimer.start();  // replies ONLY, never autonomous polling
         f63InitRetryTimer.start();
+        retryF63InitHandshake(); // first F0 only after CCCD success
+        emit debug(QStringLiteral("F63 passive mode ready; physical START BEFORE BLE connection required"));
     } else {
         initRequest = true;
     }
@@ -1013,10 +959,14 @@ void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 }
 
 void solef80treadmill::retryF63InitHandshake() {
-    if (!f63InitRetryState.shouldRetry()) {
+    if (!f63InitRetryState.shouldRetry() || f63RxSeen || f63InitRetryState.attemptCount() >= 3) {
         f63InitRetryTimer.stop();
         return;
     }
+    // A bounded diagnostic F0 probe, never a 300 ms infinite retry loop.
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (f63LastWriteMs >= 0 && nowMs - f63LastWriteMs < 1000)
+        return;
 
     if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState || !gattCustomService ||
         !gattWriteCharCustomService.isValid()) {
@@ -1039,8 +989,11 @@ void solef80treadmill::retryF63InitHandshake() {
         gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame);
     }
 
-    emit debug(QStringLiteral("F63 BM70 init1 attempt ") + QString::number(f63InitRetryState.attemptCount()) +
+    f63LastWriteMs = nowMs;
+    emit debug(QStringLiteral("F63 BM70 bounded identity attempt ") + QString::number(f63InitRetryState.attemptCount()) +
                QStringLiteral(" >> ") + frame.toHex(' '));
+    if (f63InitRetryState.attemptCount() >= 3)
+        f63InitRetryTimer.stop();
 }
 
 void solef80treadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
