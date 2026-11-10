@@ -40,8 +40,6 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
     f63InitRetryTimer.setInterval(1000ms);
     connect(&f63InitRetryTimer, &QTimer::timeout, this, &solef80treadmill::retryF63InitHandshake);
-    f63CommandTimer.setInterval(300ms);
-    connect(&f63CommandTimer, &QTimer::timeout, this, &solef80treadmill::sendF63SequenceStep);
     f63PollTimer.setInterval(50ms);
     connect(&f63PollTimer, &QTimer::timeout, this, &solef80treadmill::f63PollTick);
     refresh->start(300ms);
@@ -55,6 +53,11 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     bool inclination =
         settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
+    if (treadmill_type == F63 &&
+        settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: legacy BLE write blocked"));
+        return;
+    }
     if (!inclination) {
         qDebug() << "inclination support disabled";
         return;
@@ -301,23 +304,13 @@ void solef80treadmill::update() {
                 lastSpeed = 0.5;
             }
             uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
-            uint8_t start_f63[] = {0x5b, 0x02, 0x03, 0x03, 0x5d};
             uint8_t start2[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
-                if (f63Model) {
-                    // The native F63 capture shows two 0x40 requests followed by three 0x03 requests.
-                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start_f63_40"), false, true);
-                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start_f63_40"), false, true);
-                    writeCharacteristic(start_f63, sizeof(start_f63), QStringLiteral("start_f63_03"), false, true);
-                    writeCharacteristic(start_f63, sizeof(start_f63), QStringLiteral("start_f63_03"), false, true);
-                    writeCharacteristic(start_f63, sizeof(start_f63), QStringLiteral("start_f63_03"), false, true);
-                } else {
-                    writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
-                    writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
-                    writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
-                }
-                if (!f63Model && !f65)
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                if (!f65)
                     writeCharacteristic(start2, sizeof(start2), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
@@ -326,9 +319,7 @@ void solef80treadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if(treadmill_type == F63) {
-                sendF63Stop();
-            } else {
+            {
                 uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
                 uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
                 uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
@@ -375,69 +366,6 @@ void solef80treadmill::writeF63Frame(const QByteArray &frame, const QString &lab
     emit debug(QStringLiteral("F63 >> ") + frame.toHex(' ') + QStringLiteral(" // ") + label);
 }
 
-void solef80treadmill::queueF63Start() {
-    if (f63Phase != F63Phase::Ready)
-        return;
-    f63PollTimer.stop();
-    f63CommandTimer.stop();
-    f63Frames = SoleF63NativeProtocol::startFrames();
-    f63FrameIndex = 0;
-    f63Phase = F63Phase::Preparing;
-    emit debug(QStringLiteral("F63 native Start sequence scheduled one frame per 300ms"));
-    sendF63SequenceStep();
-}
-
-void solef80treadmill::sendF63SequenceStep() {
-    if (f63FrameIndex >= f63Frames.size()) {
-        f63CommandTimer.stop();
-        f63Frames.clear();
-        f63FrameIndex = 0;
-        if (f63Phase == F63Phase::Preparing) {
-            f63Phase = F63Phase::AwaitingTelemetry;
-            f63StartDeadlineMs = QDateTime::currentMSecsSinceEpoch() + 5000;
-            f63PollCounter = 0;
-            f63PollTimer.start();
-            emit debug(QStringLiteral("F63 Start sent; waiting for confirmed 5B 0F 06 telemetry"));
-        } else if (f63Phase == F63Phase::Stopping) {
-            f63Phase = F63Phase::Ready;
-            f63TelemetryGuard.reset();
-            f63PollCounter = 0;
-            f63PollTimer.start();
-            emit debug(QStringLiteral("F63 stop frames sent; physical stop effectiveness is unverified"));
-        }
-        return;
-    }
-    if (f63Phase != F63Phase::Preparing && f63Phase != F63Phase::Stopping) {
-        f63CommandTimer.stop();
-        f63Frames.clear();
-        f63FrameIndex = 0;
-        return;
-    }
-    const QByteArray frame = f63Frames.at(f63FrameIndex++);
-    writeF63Frame(frame, f63Phase == F63Phase::Stopping ? QStringLiteral("native stop")
-                                                        : QStringLiteral("native startup"));
-    f63CommandTimer.start();
-}
-
-void solef80treadmill::sendF63Stop() {
-    // Cancel any queued motion/start frames before transmitting the native Stop.
-    f63CommandTimer.stop();
-    f63PollTimer.stop();
-    f63Frames.clear();
-    f63FrameIndex = 0;
-    requestStart = -1;
-    requestSpeed = -1;
-    requestInclination = -100;
-    requestSpeedState = IDLE;
-    requestInclinationState = IDLE;
-    f63LastMotionMs = -1;
-    f63StartDeadlineMs = -1;
-    f63Phase = F63Phase::Stopping;
-    f63Frames = SoleF63NativeProtocol::stopFrames();
-    emit debug(QStringLiteral("F63 Stop: cancelled pending commands, sending 3 captured vendor stop frames"));
-    sendF63SequenceStep();
-}
-
 void solef80treadmill::f63PollTick() {
     if (!initDone || f63Replies.pendingCount() == 0)
         return;
@@ -452,18 +380,12 @@ void solef80treadmill::f63PollTick() {
 
 void solef80treadmill::resetF63Session() {
     f63InitRetryTimer.stop();
-    f63CommandTimer.stop();
     f63PollTimer.stop();
     f63InitRetryState.cancel();
     f63TelemetryGuard.reset();
     f63Replies.reset();
     f63LastWriteMs = -1;
     f63RxSeen = false;
-    f63Frames.clear();
-    f63FrameIndex = 0;
-    f63PollCounter = 0;
-    f63StartDeadlineMs = -1;
-    f63LastMotionMs = -1;
     f63Phase = F63Phase::Handshake;
     initRequest = false;
     initDone = false;
@@ -475,6 +397,12 @@ void solef80treadmill::resetF63Session() {
 double solef80treadmill::minStepInclination() { return 1.0; }
 
 void solef80treadmill::forceSpeed(double requestSpeed) {
+    QSettings passiveSettings;
+    if (treadmill_type == F63 &&
+        passiveSettings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: direct motion command rejected"));
+        return;
+    }
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
@@ -506,6 +434,12 @@ void solef80treadmill::forceSpeed(double requestSpeed) {
 }
 
 void solef80treadmill::forceIncline(double requestIncline) {
+    QSettings passiveSettings;
+    if (treadmill_type == F63 &&
+        passiveSettings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: direct motion command rejected"));
+        return;
+    }
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
@@ -569,6 +503,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 quint8(newValue.at(4)) == 0x5d) {
                 const quint8 mode = quint8(newValue.at(3));
                 if (mode == 3 || mode == 4) {
+                    if (f63Phase != F63Phase::Running)
+                        emit tapeStarted();
                     f63Phase = F63Phase::Running;
                 } else {
                     f63Phase = F63Phase::Ready;
@@ -1103,10 +1039,8 @@ void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void solef80treadmill::stopWhenIdle() {
-    QSettings settings;
-    if (treadmill_type == F63 &&
-        settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool())
-        stop(false);
+    // F63 passive receiver must never generate an automatic motor Stop.
+    // The physical console and safety key remain authoritative.
 }
 
 bool solef80treadmill::connected() {
