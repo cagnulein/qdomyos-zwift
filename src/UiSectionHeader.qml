@@ -3,7 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 // Header of a settings section in the modern look: a rounded card for a top-level section,
-// a flat row inside an open one, a chevron that turns when the section opens
+// a filled card inside an open one, a chevron that turns when the section opens
 Rectangle {
     id: header
     property string title: ""
@@ -24,7 +24,7 @@ Rectangle {
     color: headerArea.pressed ? window.ui.surfaceHighest
          : isOpen ? window.ui.surfaceHigh
          : depth >= 2 ? window.ui.surfaceHigh
-         : nested ? "transparent" : window.ui.surface
+         : window.ui.surface
 
     Accessible.role: Accessible.Button
     Accessible.name: title
