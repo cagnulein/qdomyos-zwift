@@ -312,3 +312,23 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - A video that advances while stationary does not by itself prove a QZ control or Bluetooth failure. The source of the speed/power signal must be identified before choosing a remedy.
 - Comparing QZ's live values with the receiving app's pairing roles separates stale or unexpected physical-machine telemetry from an independently selected sensor or receiving-app motion behavior.
 - A stop/start comparison is more informative than an average-speed screenshot, especially when QZ and the receiving app run on the same Android device.
+
+
+## External shift controller is absent from QZ while the trainer connects
+
+### Provide first
+
+- Name the **trainer and controller separately**, QZ platform/build, and whether the trainer's power/cadence update in QZ while the controller's button presses do not update the **Gears** tile.
+- Screenshot the controller-specific **Accessories** option (for example **ThinkRider VS200 Remote Controller**) and say whether the controller is also paired or actively connected to the manufacturer's utility or another controller app.
+- With that other app fully disconnected, power on the trainer, **wake the controller with a button press**, launch QZ, then press + and − once. Report whether the Gears tile changes before opening the training app.
+
+### If still unclear
+
+- Capture a QZ debug log from startup through controller discovery and two button presses, recording approximate times. State whether the controller was awake and whether the manufacturer's utility was closed for that capture.
+- If the controller is absent from QZ discovery, supply an nRF Connect screenshot of its advertised name and services while awake, with other controller apps disconnected.
+- If the controller appears and connects but the gear does not change, preserve the notification/button-event portion of the log; do not infer controller connectivity from the trainer's resistance changes alone.
+
+### Why it matters
+
+- The controller and trainer use **different connections**. A trainer may be connected to QZ while a controller remains occupied by its manufacturer's app.
+- In a confirmed VS200 case, disconnecting the remote from the manufacturer's utility, waking it before starting QZ, and opening the training app only after QZ connected restored gear updates. This explains why the earlier QZ log contained the trainer but no controller discovery events.
