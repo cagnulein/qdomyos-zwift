@@ -378,6 +378,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             evaluateStepCount();
             parseCadence((uint8_t)value.at(3));
             cadenceAvailable = true;
+            if ((uint8_t)value.at(3) > 0)
+                lastRscCadenceMs = QDateTime::currentMSecsSinceEpoch();
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
         } else {
             emit debug(QStringLiteral("Current cadence from treadmill ignored due to settings/external source"));
@@ -703,17 +705,19 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (!cadenceFromAppleWatch() && !cadenceAvailable && Speed.value() > 0) {
+    // The RSC and the external sensor cadence come in separate packets: a value received in the last 3 seconds
+    // is still current.
+    qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    bool rscCadenceRecent = lastRscCadenceMs > 0 && nowMs - lastRscCadenceMs < 3000;
+    bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
+    if (!cadenceFromAppleWatch() && !cadenceAvailable && !rscCadenceRecent && !sensorCadenceRecent &&
+        Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                   .toString()
                                   .startsWith(QStringLiteral("Disabled"));
-        bool hasCadenceSensor =
-            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                 .toString()
-                 .startsWith(QStringLiteral("Disabled"));
-        if (!hasPowerSensor && !hasCadenceSensor && !garminCompanion) {
+        if (!hasPowerSensor && !garminCompanion) {
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 if (!stepCountAvailable)
