@@ -125,3 +125,43 @@ TEST(SoleF63TelemetryGuardTest, RejectsNonTelemetryEvenWithValidDelimiters) {
     EXPECT_TRUE(guard.recordVendorPacket(QByteArray::fromHex("5b0f06023b00000000000a0001000000015d"), 400));
     EXPECT_TRUE(guard.isFresh(401));
 }
+
+TEST(SoleF63PassiveRepliesTest, AckOnlyInResponseToValidVendorNotification) {
+    SoleF63PassiveReplies replies;
+    EXPECT_TRUE(replies.nextReply(1000).isEmpty());
+    replies.observe(QByteArray::fromHex("5b0f06023b00000000000a0001000000015d"), 1000);
+    EXPECT_EQ(replies.nextReply(1001), QByteArray::fromHex("5b0400064f4b5d"));
+    replies.observe(QByteArray::fromHex("5b0210005d"), 1100);
+    EXPECT_EQ(replies.nextReply(1101), QByteArray::fromHex("5b0400104f4b5d"));
+    replies.observe(QByteArray::fromHex("5b030901005d"), 1200);
+    EXPECT_EQ(replies.nextReply(1201), QByteArray::fromHex("5b0400094f4b5d"));
+    replies.observe(QByteArray::fromHex("5b0400064f4b5d"), 1300); // incoming ACK
+    EXPECT_TRUE(replies.nextReply(1301).isEmpty());
+}
+
+TEST(SoleF63PassiveRepliesTest, StateEchoIsReceivedOnlyFreshAndSingleUse) {
+    SoleF63PassiveReplies replies;
+    replies.observe(QByteArray::fromHex("5b0203035d"), 1000);
+    replies.observe(QByteArray::fromHex("5b0203045d"), 1100);
+    EXPECT_EQ(replies.pendingCount(), 1);
+    EXPECT_EQ(replies.nextReply(1101), QByteArray::fromHex("5b0203045d"));
+    EXPECT_TRUE(replies.nextReply(1102).isEmpty());
+    replies.observe(QByteArray::fromHex("5b0203065d"), 2000);
+    EXPECT_TRUE(replies.nextReply(2901).isEmpty());
+    replies.observe(QByteArray::fromHex("5b0203025d"), 3000); // unknown state
+    EXPECT_TRUE(replies.nextReply(3001).isEmpty());
+}
+
+TEST(SoleF63PassiveRepliesTest, MalformedPacketNoAckAndRepeatedTelemetryCoalesces) {
+    SoleF63PassiveReplies replies;
+    replies.observe(QByteArray::fromHex("5b02030300"), 1000);
+    replies.observe(QByteArray::fromHex("5b0f06023b00000000000a0001000000015d"), 1001);
+    replies.observe(QByteArray::fromHex("5b0f06023b00000000000a0301000000015d"), 1002);
+    EXPECT_EQ(replies.pendingCount(), 1);
+    EXPECT_EQ(replies.nextReply(1003), QByteArray::fromHex("5b0400064f4b5d"));
+    EXPECT_TRUE(replies.nextReply(1004).isEmpty());
+    replies.observe(QByteArray::fromHex("5b08f0900000b40a0f125d"), 2000); // identity
+    EXPECT_TRUE(replies.nextReply(2001).isEmpty());
+    replies.reset();
+    EXPECT_EQ(replies.pendingCount(), 0);
+}
