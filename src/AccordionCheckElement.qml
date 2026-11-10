@@ -125,8 +125,8 @@ ColumnLayout {
                 checked: rootElement.isOpen
                 onClicked: {
                     rootElement.toggle(checked)
-                    // A tap set checked and broke the binding: follow isOpen again, so a change from
-                    // elsewhere (a reset, the search) still moves the switch
+                    // A tap set checked and broke the binding: follow isOpen again, so a later toggle
+                    // by the row or the screen reader still moves the switch
                     checked = Qt.binding(function() { return rootElement.isOpen })
                 }
                 Accessible.ignored: true
