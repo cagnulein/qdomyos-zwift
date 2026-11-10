@@ -466,8 +466,6 @@ ApplicationWindow {
         id: toast
     }
 
-    HeartRateSuggestion {}
-
     property bool lapPromptVisible: false
     property string lapPromptText: ""
 
@@ -2371,6 +2369,13 @@ ApplicationWindow {
             anchors.bottomMargin: 16 + window.getBottomPadding()
         }
     }
+
+    // After the pages, not before them: TalkBack finds the item under a finger among the window's
+    // items from the last declared to the first, whatever their z (Qt 5.15; Qt 6.10.3 and 6.11
+    // take the drawing order, QTBUG-137823, qtdeclarative 292896c799). Declared before the pages, a
+    // touch on the bar reached the tile or the support button under it. Anything else with buttons drawn
+    // over the pages and not in a Popup goes here too (the toasts and the lap prompt above have none).
+    HeartRateSuggestion {}
 }
 
 /*##^##
