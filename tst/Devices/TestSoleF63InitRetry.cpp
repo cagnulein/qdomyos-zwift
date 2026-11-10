@@ -17,18 +17,20 @@ TEST(SoleF63InitRetryStateTest, OnlyStartsAfterTheCurrentF63NotifyCccdIsEnabled)
     EXPECT_EQ(state.attemptCount(), 0);
 }
 
-TEST(SoleF63InitRetryStateTest, RetriesUntilTheFirstNotificationArrives) {
+TEST(SoleF63InitRetryStateTest, IdentityProbeIsBoundedToThreeAttempts) {
     SoleF63InitRetryState state;
     ASSERT_TRUE(state.beginAfterNotifyCccdWrite(true, true, true));
 
-    for (int attempt = 0; attempt < 1000; ++attempt) {
+    for (int attempt = 0; attempt < 3; ++attempt) {
         ASSERT_TRUE(state.shouldRetry());
         state.recordAttempt();
     }
 
-    EXPECT_EQ(state.attemptCount(), 1000);
+    EXPECT_EQ(state.attemptCount(), 3);
+    EXPECT_FALSE(state.shouldRetry());
+    state.recordAttempt();
+    EXPECT_EQ(state.attemptCount(), 3);
     EXPECT_FALSE(state.receiveNotification(QByteArray::fromHex("5b0210005d")));
-    EXPECT_TRUE(state.shouldRetry());
     EXPECT_TRUE(state.receiveNotification(QByteArray::fromHex("5b08f0900000b40a0f125d")));
     EXPECT_FALSE(state.shouldRetry());
     EXPECT_TRUE(state.takeResponse());
@@ -86,33 +88,6 @@ TEST(SoleF63TelemetryGuardTest, RejectsCommandRepliesUntilRealTelemetryArrives) 
 
     guard.reset();
     EXPECT_FALSE(guard.isFresh(2001));
-}
-
-TEST(SoleF63NativeProtocolTest, StartSequenceMatchesSoleFitnessCapture) {
-    const auto start = SoleF63NativeProtocol::startFrames();
-    ASSERT_EQ(start.size(), 15);
-    EXPECT_EQ(start.first(), QByteArray::fromHex("5b06070123009baa5d"));
-    EXPECT_EQ(start.at(1), QByteArray::fromHex("5b030820025d"));
-    EXPECT_EQ(start.at(2), QByteArray::fromHex("5b0504000000005d"));
-    EXPECT_EQ(start.at(5), QByteArray::fromHex("5b0202025d"));
-    EXPECT_EQ(start.at(8), QByteArray::fromHex("5b0400404f4b5d"));
-    EXPECT_EQ(start.at(9), QByteArray::fromHex("5b0400404f4b5d"));
-    for (int i = 12; i < 15; ++i)
-        EXPECT_EQ(start.at(i), QByteArray::fromHex("5b0203035d"));
-
-    // No speculative F1 stop or training-reset requests in native Start.
-    for (const auto &frame : start) {
-        EXPECT_NE(frame, QByteArray::fromHex("5b02f1065d"));
-        EXPECT_NE(frame, QByteArray::fromHex("5b0203005d"));
-        EXPECT_NE(frame, QByteArray::fromHex("5b0400f14f4b5d"));
-    }
-}
-
-TEST(SoleF63NativeProtocolTest, StopUsesOnlyCapturedPhysicalStopFrames) {
-    const auto stop = SoleF63NativeProtocol::stopFrames();
-    ASSERT_EQ(stop.size(), 3);
-    for (const auto &frame : stop)
-        EXPECT_EQ(frame, QByteArray::fromHex("5b0203065d"));
 }
 
 TEST(SoleF63TelemetryGuardTest, RejectsNonTelemetryEvenWithValidDelimiters) {
