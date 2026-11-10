@@ -20,6 +20,7 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
@@ -133,6 +134,50 @@ class SoleF63NativeProtocol {
     }
 };
 
+// Mirrors the proven passive F63 bridge: respond only to incoming vendor frames.
+// No unsolicited mode/Start/Stop/motion commands are ever generated here.
+class SoleF63PassiveReplies {
+  public:
+    void observe(const QByteArray &frame, qint64 nowMs) {
+        if (frame.size() < 5 || quint8(frame.at(0)) != 0x5b ||
+            frame.size() != quint8(frame.at(1)) + 3 || quint8(frame.at(frame.size() - 1)) != 0x5d)
+            return;
+        const quint8 type = quint8(frame.at(2));
+        if (type == 0x03 && frame.size() == 5) {
+            // A later mode supersedes the previous state echo.
+            pending.remove(type);
+            const quint8 mode = quint8(frame.at(3));
+            if (mode == 1 || mode == 3 || mode == 4 || mode == 6 || mode == 7 || mode == 0x80)
+                pending.insert(type, Pending{frame, nowMs});
+        } else if ((type == 0x06 && frame.size() == 18) ||
+                   (type == 0x09 && frame.size() == 6) ||
+                   (type == 0x10 && frame.size() == 5) ||
+                   (type == 0x32 && frame.size() == 13) ||
+                   (type == 0x40 && frame.size() == 22)) {
+            QByteArray ack = QByteArray::fromHex("5b0400004f4b5d");
+            ack[3] = char(type);
+            pending.insert(type, Pending{ack, nowMs}); // coalesce duplicate type
+        }
+        // Never acknowledge acknowledgements, F0 identity or unknown frames.
+    }
+    QByteArray nextReply(qint64 nowMs) {
+        while (!pending.isEmpty()) {
+            auto it = pending.begin();
+            const Pending reply = it.value();
+            pending.erase(it);
+            if (nowMs >= reply.timestamp && nowMs - reply.timestamp <= 900)
+                return reply.frame;
+        }
+        return QByteArray();
+    }
+    int pendingCount() const { return pending.size(); }
+    void reset() { pending.clear(); }
+
+  private:
+    struct Pending { QByteArray frame; qint64 timestamp; };
+    QMap<quint8, Pending> pending;
+};
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -168,6 +213,9 @@ class solef80treadmill : public treadmill {
     F63Phase f63Phase = F63Phase::Handshake;
     QTimer f63CommandTimer;
     QTimer f63PollTimer;
+    SoleF63PassiveReplies f63Replies;
+    qint64 f63LastWriteMs = -1;
+    bool f63RxSeen = false;
     QList<QByteArray> f63Frames;
     int f63FrameIndex = 0;
     int f63PollCounter = 0;
