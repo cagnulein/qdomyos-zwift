@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
@@ -54,6 +55,8 @@ ColumnLayout {
 
     }*/
     SwitchDelegate {
+        // on iOS the title of a switch kept the size of the style while the text around it grew: with a size other than 100 % it takes the one of the window font
+        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
         spacing: 0
@@ -65,6 +68,18 @@ ColumnLayout {
         id: indicatCbx
         text: rootElement.title
         checked: rootElement.isOpen
+        // Screen reader: Qt 5.15 gives a SwitchDelegate no press or toggle action, so on Android its
+        // node is not clickable and TalkBack's swipe passed over the switch of every section.
+        // The press action makes it a stop; it turns the switch and saves it as a tap does, as
+        // Qt 6.11.2 does itself (QTBUG-144350). A TalkBack double tap presses it with the space
+        // key instead, see CustomQtActivity
+        Accessible.name: text
+        Accessible.checkable: true
+        Accessible.checked: checked
+        Accessible.onPressAction: {
+            checked = !checked
+            clicked()
+        }
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {

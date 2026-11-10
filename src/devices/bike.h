@@ -12,6 +12,10 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
+    static double powerZoneValueToFtpPercentage(double zoneValue);
+    static int powerZoneValueToWatts(double zoneValue, double ftp);
+    static bool targetPowerOverridesExternalApp(qint64 lastAppFrame, qint64 now, bool appErgMode,
+                                                bool autoResistance);
 
     virtualbike *VirtualBike();
 
@@ -37,9 +41,16 @@ class bike : public bluetoothdevice {
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
+    int metricValueForSetting(const QString &setting) override;
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
+    // Current gear index/state. Use gearsModifier() when applying gears to resistance, inclination, slope, or power.
     double gears();
+    double gearsModifier();
+    double gearsModifier(double gear);
+    // Virtual-shifting bikes add the gear modifier to resistance/power. A
+    // device with a physical gearbox can opt out of that software offset.
+    virtual bool applyGearModifier() const { return true; }
     double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
@@ -69,14 +80,16 @@ class bike : public bluetoothdevice {
     void gearUp() {
         QSettings settings;
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-        setGears(gears() + (gears_zwift_ratio ? 1 :
-                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+        bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
+        setGears((gears_custom_table_enabled ? m_gears : gears()) + ((gears_zwift_ratio || gears_custom_table_enabled) ? 1 :
+                 settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
     }
     void gearDown() {
         QSettings settings;
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
-        setGears(gears() - (gears_zwift_ratio ? 1 :
-                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
+        bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
+        setGears((gears_custom_table_enabled ? m_gears : gears()) - ((gears_zwift_ratio || gears_custom_table_enabled) ? 1 :
+                 settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble()));
     }
 
   Q_SIGNALS:

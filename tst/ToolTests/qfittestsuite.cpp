@@ -1,0 +1,366 @@
+#include "qfittestsuite.h"
+#include "../../src/qfit.h"
+#include "../../src/fitdatabaseprocessor.h"
+#include <QDateTime>
+#include <QFile>
+#include <QDir>
+#include <QDebug>
+#include <QEventLoop>
+#include <QTimer>
+#include <QSettings>
+#include "../../src/qzsettings.h"
+#include "../../src/fit-sdk/fit_decode.hpp"
+#include "../../src/fit-sdk/fit_record_mesg.hpp"
+#include "../../src/fit-sdk/fit_session_mesg.hpp"
+#include <fstream>
+#include <vector>
+
+QFitTestSuite::QFitTestSuite() : tempDir(nullptr) {
+}
+
+QFitTestSuite::~QFitTestSuite() {
+    if (tempDir) {
+        delete tempDir;
+        tempDir = nullptr;
+    }
+}
+
+void QFitTestSuite::SetUp() {
+    tempDir = new QTemporaryDir();
+    ASSERT_TRUE(tempDir->isValid()) << "Failed to create temporary directory";
+}
+
+void QFitTestSuite::TearDown() {
+    if (tempDir) {
+        delete tempDir;
+        tempDir = nullptr;
+    }
+}
+
+QList<SessionLine> QFitTestSuite::createTestSession() {
+    QList<SessionLine> session;
+    QDateTime startTime = QDateTime::currentDateTime();
+
+    // Create a simple 10-minute workout session
+    for (int i = 0; i < 600; i += 5) {  // 5 second intervals for 10 minutes
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.05;  // 3 km/h = 0.05 km per 5 seconds
+        line.speed = 3.0;  // 3 km/h
+        line.cadence = 60;
+        line.heart = 120 + (i % 30);  // Varying HR between 120-150
+        line.calories = i / 10;
+        line.watt = 100;
+
+        session.append(line);
+    }
+
+    return session;
+}
+
+QString QFitTestSuite::createNewFormatFitFile() {
+    QString filename = tempDir->filePath("test_new_format.fit");
+    QList<SessionLine> session = createTestSession();
+
+    // Create a FIT file with developer fields
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING,
+               "Test Workout Title",
+               "Test Device",
+               "PELOTON",
+               "test_workout_id_123",
+               "https://peloton.com/workout/123",
+               "/path/to/training.zwo");
+
+    return filename;
+}
+
+bool QFitTestSuite::verifyDeveloperFields(const QString& workoutName, const QString& workoutSource,
+                                          const QString& pelotonWorkoutId, const QString& pelotonUrl,
+                                          const QString& trainingProgramFile) {
+    bool allCorrect = true;
+
+    if (workoutName != "Test Workout Title") {
+        qDebug() << "Workout name mismatch. Expected: 'Test Workout Title', Got:" << workoutName;
+        allCorrect = false;
+    }
+
+    if (workoutSource != "PELOTON") {
+        qDebug() << "Workout source mismatch. Expected: 'PELOTON', Got:" << workoutSource;
+        allCorrect = false;
+    }
+
+    if (pelotonWorkoutId != "test_workout_id_123") {
+        qDebug() << "Peloton workout ID mismatch. Expected: 'test_workout_id_123', Got:" << pelotonWorkoutId;
+        allCorrect = false;
+    }
+
+    if (pelotonUrl != "https://peloton.com/workout/123") {
+        qDebug() << "Peloton URL mismatch. Expected: 'https://peloton.com/workout/123', Got:" << pelotonUrl;
+        allCorrect = false;
+    }
+
+    if (trainingProgramFile != "/path/to/training.zwo") {
+        qDebug() << "Training program file mismatch. Expected: '/path/to/training.zwo', Got:" << trainingProgramFile;
+        allCorrect = false;
+    }
+
+    return allCorrect;
+}
+
+void QFitTestSuite::test_newFormatDeveloperFields() {
+    // Create a FIT file with new format
+    QString filename = createNewFormatFitFile();
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    // Copy to test-artifacts directory for download
+    QDir artifactsDir("test-artifacts");
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkpath(".");
+    }
+    QString artifactPath = "test-artifacts/test_new_format.fit";
+    QFile::remove(artifactPath);
+    QFile::copy(filename, artifactPath);
+    qDebug() << "FIT file saved to:" << artifactPath;
+
+    // Read the file back
+    QList<SessionLine> session;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    QString workoutName;
+    QString workoutSource;
+    QString pelotonWorkoutId;
+    QString pelotonUrl;
+    QString trainingProgramFile;
+
+    qfit::open(filename, &session, &sport, &workoutName, &workoutSource,
+               &pelotonWorkoutId, &pelotonUrl, &trainingProgramFile);
+
+    // Verify basic data was read
+    EXPECT_FALSE(session.isEmpty()) << "Session should not be empty";
+    EXPECT_EQ(sport, FIT_SPORT_CYCLING) << "Sport should be cycling";
+
+    // Verify all developer fields were read correctly from WorkoutMesg
+    EXPECT_TRUE(verifyDeveloperFields(workoutName, workoutSource, pelotonWorkoutId,
+                                      pelotonUrl, trainingProgramFile))
+        << "Developer fields should be read correctly from WorkoutMesg";
+
+    qDebug() << "✓ New format developer fields test passed";
+}
+
+void QFitTestSuite::test_recordAltitudeIncludesDescent() {
+    QString filename = tempDir->filePath("test_descent_altitude.fit");
+    QList<SessionLine> session;
+    QDateTime startTime = QDateTime::currentDateTime();
+    const double elevationGain[] = {0.0, 10.0, 10.0, 20.0};
+    const double negativeElevationGain[] = {0.0, 0.0, 5.0, 5.0};
+
+    for (int i = 0; i < 4; ++i) {
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.01;
+        line.speed = 10.0;
+        line.cadence = 60;
+        line.elevationGain = elevationGain[i];
+        line.negativeElevationGain = negativeElevationGain[i];
+        session.append(line);
+    }
+
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING);
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    QList<SessionLine> decoded;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(filename, &decoded, &sport);
+
+    ASSERT_EQ(decoded.size(), 4);
+    const double expectedNetElevation[] = {0.0, 10.0, 5.0, 15.0};
+    for (int i = 0; i < 4; ++i) {
+        EXPECT_FALSE(decoded.at(i).coordinate.isValid())
+            << "A FIT record without GPS positions must not acquire a valid coordinate";
+        EXPECT_NEAR(decoded.at(i).elevationGain, expectedNetElevation[i], 0.25);
+    }
+}
+
+void QFitTestSuite::test_recordGpsCoordinatesRoundTrip() {
+    const QString filename = tempDir->filePath("test_gps_coordinates.fit");
+    QList<SessionLine> session;
+    const QDateTime startTime = QDateTime::currentDateTime();
+    const QGeoCoordinate coordinates[] = {
+        QGeoCoordinate(44.529, 10.866, 275.5),
+        QGeoCoordinate(-33.865, 151.209, 21.25)
+    };
+
+    for (int i = 0; i < 2; ++i) {
+        SessionLine line;
+        line.time = startTime.addSecs(i);
+        line.elapsedTime = i;
+        line.distance = i * 0.01;
+        line.speed = 10.0;
+        line.cadence = 60;
+        line.elevationGain = 0.0;
+        line.negativeElevationGain = 0.0;
+        line.coordinate = coordinates[i];
+        session.append(line);
+    }
+
+    qfit::save(filename, session, BIKE, QFIT_PROCESS_NONE, FIT_SPORT_CYCLING);
+    ASSERT_TRUE(QFile::exists(filename));
+
+    QList<SessionLine> decoded;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(filename, &decoded, &sport);
+
+    ASSERT_EQ(decoded.size(), 2);
+    for (int i = 0; i < 2; ++i) {
+        const QGeoCoordinate &actual = decoded.at(i).coordinate;
+        EXPECT_TRUE(actual.isValid());
+        EXPECT_NEAR(actual.latitude(), coordinates[i].latitude(), 0.00001);
+        EXPECT_NEAR(actual.longitude(), coordinates[i].longitude(), 0.00001);
+        EXPECT_NEAR(actual.altitude(), coordinates[i].altitude(), 0.25);
+    }
+}
+
+void QFitTestSuite::test_databaseReadability() {
+    // Create a FIT file with new format
+    QString filename = createNewFormatFitFile();
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    // Copy to test-artifacts directory for download
+    QDir artifactsDir("test-artifacts");
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkpath(".");
+    }
+    QString artifactPath = "test-artifacts/test_database_readability.fit";
+    QFile::remove(artifactPath);
+    QFile::copy(filename, artifactPath);
+    qDebug() << "FIT file saved to:" << artifactPath;
+
+    // Create a temporary database path
+    QString dbPath = tempDir->filePath("test_db.sqlite");
+
+    // Create a FIT database processor with the database path
+    FitDatabaseProcessor processor(dbPath);
+
+    // Setup event loop to wait for async processing
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    timeout.setInterval(5000);  // 5 second timeout
+
+    // Process the FIT file
+    bool processed = false;
+    QObject::connect(&processor, &FitDatabaseProcessor::fileProcessed,
+                     [&processed, &loop](const QString&) {
+                         processed = true;
+                         loop.quit();
+                     });
+
+    bool error = false;
+    QString errorMsg;
+    QObject::connect(&processor, &FitDatabaseProcessor::error,
+                     [&error, &errorMsg, &loop](const QString& msg) {
+                         qDebug() << "Database processor error:" << msg;
+                         error = true;
+                         errorMsg = msg;
+                         loop.quit();
+                     });
+
+    QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    processor.processFile(filename);
+    timeout.start();
+
+    // Wait for processing to complete or timeout
+    loop.exec();
+    timeout.stop();
+
+    EXPECT_TRUE(processed) << "FIT file should be processed successfully by database";
+    EXPECT_FALSE(error) << "No errors should occur during database processing. Error: "
+                        << errorMsg.toStdString();
+
+    // Copy database file to test-artifacts directory for download
+    if (QFile::exists(dbPath)) {
+        QString dbArtifactPath = "test-artifacts/test_database.sqlite";
+        QFile::remove(dbArtifactPath);
+        QFile::copy(dbPath, dbArtifactPath);
+        qDebug() << "Database file saved to:" << dbArtifactPath;
+    }
+
+    qDebug() << "✓ Database readability test passed";
+}
+
+TEST(QFitExport, HalfCadenceSessionStatistics) {
+    QTemporaryDir tempDir;
+    ASSERT_TRUE(tempDir.isValid());
+
+    QList<SessionLine> workout;
+    const QDateTime start = QDateTime::currentDateTime();
+    const std::vector<FIT_UINT8> originalCadences = {150, 151, 160, 164};
+    for (int i = 0; i < static_cast<int>(originalCadences.size()); ++i) {
+        SessionLine line;
+        line.time = start.addSecs(i);
+        line.elapsedTime = i;
+        line.speed = 8.0;
+        line.distance = i * 0.01;
+        line.cadence = originalCadences[i];
+        line.heart = 120;
+        line.watt = 100;
+        workout.append(line);
+    }
+
+    struct CadenceReader : fit::MesgListener {
+        std::vector<FIT_UINT8> records;
+        FIT_UINT8 average = 0;
+        FIT_UINT8 maximum = 0;
+        bool hasSession = false;
+
+        void OnMesg(fit::Mesg &mesg) override {
+            if (mesg.GetNum() == FIT_MESG_NUM_RECORD) {
+                records.push_back(fit::RecordMesg(mesg).GetCadence());
+            } else if (mesg.GetNum() == FIT_MESG_NUM_SESSION) {
+                fit::SessionMesg summary(mesg);
+                average = summary.GetAvgCadence();
+                maximum = summary.GetMaxCadence();
+                hasSession = true;
+            }
+        }
+    };
+
+    QSettings settings;
+    const QString key = QZSettings::powr_sensor_running_cadence_half_on_strava;
+    const bool existed = settings.contains(key);
+    const QVariant previous = settings.value(key);
+
+    const auto verify = [&](BLUETOOTH_TYPE device, FIT_SPORT sport, bool half, const QString &name) {
+        settings.setValue(key, half);
+        settings.sync();
+        const QString path = tempDir.filePath(name);
+        qfit::save(path, workout, device, QFIT_PROCESS_NONE, sport);
+
+        std::ifstream file(path.toStdString(), std::ios::binary);
+        ASSERT_TRUE(file.is_open()) << "Missing FIT file: " << path.toStdString();
+
+        fit::Decode decoder;
+        CadenceReader reader;
+        ASSERT_TRUE(decoder.Read(file, reader));
+        ASSERT_TRUE(reader.hasSession);
+        const std::vector<FIT_UINT8> expected = half
+            ? std::vector<FIT_UINT8>{75, 75, 80, 82}
+            : originalCadences;
+        EXPECT_EQ(expected, reader.records);
+        EXPECT_EQ(half ? 78 : 156, reader.average);
+        EXPECT_EQ(half ? 82 : 164, reader.maximum);
+    };
+
+    verify(TREADMILL, FIT_SPORT_RUNNING, false, "running_full.fit");
+    verify(TREADMILL, FIT_SPORT_RUNNING, true, "running_half.fit");
+    verify(BIKE, FIT_SPORT_CYCLING, false, "cycling_full.fit");
+    verify(BIKE, FIT_SPORT_CYCLING, true, "cycling_half.fit");
+
+    if (existed)
+        settings.setValue(key, previous);
+    else
+        settings.remove(key);
+    settings.sync();
+}

@@ -1,0 +1,311 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2017 Nathan Osman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+#include <QCoreApplication>
+#include <QDebug>
+#include <QNetworkInterface>
+#include <qmdnsengine/abstractserver.h>
+#include <qmdnsengine/dns.h>
+#include <qmdnsengine/hostname.h>
+#include <qmdnsengine/mdns.h>
+#include <qmdnsengine/message.h>
+#include <qmdnsengine/prober.h>
+#include <qmdnsengine/provider.h>
+#include <qmdnsengine/query.h>
+
+#include "provider_p.h"
+#include "localipaddress.h"
+
+using namespace QMdnsEngine;
+
+ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostname *hostname)
+    : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false),
+      saidGoodbye(false), announcesRemaining(0), announceDelayMs(0) {
+    connect(server, &AbstractServer::messageReceived, this, &ProviderPrivate::onMessageReceived);
+    connect(hostname, &Hostname::hostnameChanged, this, &ProviderPrivate::onHostnameChanged);
+
+    announceTimer.setSingleShot(true);
+    connect(&announceTimer, &QTimer::timeout, this, &ProviderPrivate::onAnnounceTimeout);
+
+    // Destruction is not guaranteed to run on every exit path, and a client that
+    // keeps the cached record will then try to connect to a port nobody is
+    // listening on and remember the failure. Sending the goodbye when the app
+    // decides to quit covers the ordinary window-close case too.
+    if (QCoreApplication::instance()) {
+        connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &ProviderPrivate::sayGoodbye);
+    }
+
+    browsePtrProposed.setName(MdnsBrowseType);
+    browsePtrProposed.setType(PTR);
+    ptrProposed.setType(PTR);
+    srvProposed.setType(SRV);
+    txtProposed.setType(TXT);
+}
+
+ProviderPrivate::~ProviderPrivate() {
+    sayGoodbye();
+}
+
+void ProviderPrivate::sayGoodbye() {
+    if (!confirmed || saidGoodbye) {
+        return;
+    }
+    saidGoodbye = true;
+
+    // Nothing should re-announce the records we are about to invalidate.
+    announceTimer.stop();
+    announcesRemaining = 0;
+
+    qDebug() << "ProviderPrivate::sayGoodbye" << ptrRecord.name();
+    farewell();
+}
+
+void ProviderPrivate::announce() {
+    // Broadcast a message with each of the records
+
+    Message message;
+    message.setResponse(true);
+    message.addRecord(ptrRecord);
+    message.addRecord(srvRecord);
+    message.addRecord(ARecord);
+    message.addRecord(txtRecord);
+    server->sendMessageToAll(message);
+}
+
+void ProviderPrivate::confirm() {
+    // Confirm that the desired name is unique through probing
+
+    if (prober) {
+        delete prober;
+    }
+
+    // Probe from the name update() asked for. srvProposed holds the name the
+    // last prober confirmed, which may already carry a "-2"; feeding that back
+    // in makes Prober treat it as the base name and compound the suffix into
+    // "-2-2-2..." rather than counting 2, 3, 4.
+    if (!desiredFqName.isEmpty()) {
+        srvProposed.setName(desiredFqName);
+    }
+
+    prober = new Prober(server, srvProposed, this);
+    qDebug() << "ProviderPrivate::confirm()";
+    connect(prober, &Prober::nameConfirmed, [this](const QByteArray &name) {
+        // If existing records were confirmed, indicate that they are no
+        // longer valid
+
+        qDebug() << "Prober::nameConfirmed" << confirmed;
+        
+        if (confirmed) {
+            farewell();
+        } else {
+            confirmed = true;
+        }
+
+        // Update the proposed records
+        ptrProposed.setTarget(name);
+        srvProposed.setName(name);
+        txtProposed.setName(name);
+
+        // Publish the proposed records and announce them
+        publish();
+
+        delete prober;
+        prober = nullptr;
+    });
+}
+
+void ProviderPrivate::farewell() {
+    // Send a message indicating that the existing records are no longer valid
+    // by setting their TTL to 0
+
+    ptrRecord.setTtl(0);
+    srvRecord.setTtl(0);
+    txtRecord.setTtl(0);
+    announce();
+}
+
+void ProviderPrivate::publish() {
+    // Copy the proposed records over and announce them
+
+    browsePtrRecord = browsePtrProposed;
+    ptrRecord = ptrProposed;
+    srvRecord = srvProposed;
+    txtRecord = txtProposed;
+
+    // zwift
+    ARecord.setType(A);
+    ARecord.setName(srvRecord.target());
+    // set directly when we receive a message
+    //ARecord.setAddress(QHostAddress("172.31.100.161"));
+
+    QHostAddress r = localipaddress::getIP(QHostAddress());
+    qDebug() << "ProviderPrivate::publish" << r;
+    if(!r.isNull())
+        ARecord.setAddress(r);
+
+    announce();
+
+    // Repeat the announcement a few times with a widening gap. A single
+    // datagram is easily lost on Wi-Fi, and a browser that misses it stays
+    // blind until it happens to query again.
+    announcesRemaining = 3;
+    announceDelayMs = 1000;
+    announceTimer.start(announceDelayMs);
+}
+
+void ProviderPrivate::onAnnounceTimeout() {
+    if (!confirmed || saidGoodbye || announcesRemaining <= 0) {
+        return;
+    }
+
+    --announcesRemaining;
+    qDebug() << "ProviderPrivate::onAnnounceTimeout repeat, remaining" << announcesRemaining;
+    announce();
+
+    if (announcesRemaining > 0) {
+        announceDelayMs *= 2;
+        announceTimer.start(announceDelayMs);
+    }
+}
+
+void ProviderPrivate::onMessageReceived(const Message &message) {
+    if (!confirmed || message.isResponse()) {
+        return;
+    }
+
+    bool sendBrowsePtr = false;
+    bool sendPtr = false;
+    bool sendSrv = false;
+    bool sendTxt = false;
+
+    ARecord.setAddress(localipaddress::getIP(message.address()));
+
+    // Determine which records to send based on the queries
+    const auto queries = message.queries();
+    for (const Query &query : queries) {
+        if (query.type() == PTR && query.name() == MdnsBrowseType) {
+            sendBrowsePtr = true;
+        } else if (query.type() == PTR && query.name() == ptrRecord.name()) {
+            sendPtr = true;
+        } else if (query.type() == SRV && query.name() == srvRecord.name()) {
+            sendSrv = true;
+        } else if (query.type() == TXT && query.name() == txtRecord.name()) {
+            sendTxt = true;
+        }
+    }
+
+    // Remove records to send if they are already known
+    const auto records = message.records();
+    for (const Record &record : records) {
+        if (record == ptrRecord) {
+            sendPtr = false;
+        } else if (record == srvRecord) {
+            sendSrv = false;
+        } else if (record == txtRecord) {
+            sendTxt = false;
+        }
+    }
+
+    // Include the SRV and TXT if the PTR is being sent
+    if (sendPtr) {
+        sendSrv = sendTxt = true;
+    }
+
+    // If any records should be sent, compose a message reply
+    if (sendBrowsePtr || sendPtr || sendSrv || sendTxt) {
+        Message reply;
+        reply.reply(message);
+        if (sendBrowsePtr) {
+            reply.addRecord(browsePtrRecord);
+        }
+        if (sendPtr) {
+            reply.addRecord(ptrRecord);
+        }
+        if (sendSrv) {
+            reply.addRecord(srvRecord);
+
+            // zwift need it
+            reply.addRecord(ARecord);
+        }
+        if (sendTxt) {
+            reply.addRecord(txtRecord);
+        }
+        server->sendMessage(reply);
+    }
+}
+
+void ProviderPrivate::onHostnameChanged(const QByteArray &newHostname) {
+    // Update the proposed SRV record
+    srvProposed.setTarget(newHostname);
+
+    // If initialized, confirm the record
+    if (initialized) {
+        confirm();
+    }
+}
+
+Provider::Provider(AbstractServer *server, Hostname *hostname, QObject *parent)
+    : QObject(parent), d(new ProviderPrivate(this, server, hostname)) {}
+
+void Provider::update(const Service &service) {
+    d->initialized = true;
+
+    // Clean the service name
+    QByteArray serviceName = service.name();
+    serviceName = serviceName.replace('.', '-');
+
+    // A name parsed off the wire always ends in a dot - parseName() appends one
+    // after every label - and onMessageReceived() matches queries against these
+    // record names by exact compare. A type given without the trailing dot
+    // therefore matches nothing, and the service answers no queries at all: it
+    // is only ever discovered by whoever happens to be listening when publish()
+    // announces. Nothing downstream can tell the difference, because writeName()
+    // chops the trailing dot before encoding.
+    QByteArray serviceType = service.type();
+    if (!serviceType.endsWith('.')) {
+        serviceType.append('.');
+    }
+
+    // Update the proposed records
+    QByteArray fqName = serviceName + "." + serviceType;
+    d->desiredFqName = fqName;
+    d->browsePtrProposed.setTarget(serviceType);
+    d->ptrProposed.setName(serviceType);
+    d->ptrProposed.setTarget(fqName);
+    d->srvProposed.setName(fqName);
+    d->srvProposed.setPort(service.port());
+    d->srvProposed.setTarget(d->hostname->hostname());
+    d->txtProposed.setName(fqName);
+    d->txtProposed.setAttributes(service.attributes());
+
+    // Assuming a valid hostname exists, check to see if the new service uses
+    // a different name - if so, it must first be confirmed
+    if (d->hostname->isRegistered()) {
+        if (!d->confirmed || fqName != d->srvRecord.name()) {
+            d->confirm();
+        } else {
+            d->publish();
+        }
+    }
+}

@@ -42,11 +42,25 @@ void heartratebelt::update() {
         
         // Reconnect after 1 second
         QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
+            if (m_control && !disconnectingForGood) {
                 emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
                 m_control->connectToDevice();
             }
         });
+    }
+
+    // A watch that stops broadcasting keeps the link up, and a lost link sends nothing more: either way the
+    // last heart rate would stay in the tile, the workout and Zwift. Send 0 once instead, as with no sensor
+    if (!heartRateSilent && lastHeartRateTime.isValid() &&
+        lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) > NO_HEART_RATE_TIMEOUT) {
+        heartRateSilent = true;
+        Heart = 0;
+        emit debug(QStringLiteral("no heart rate for %1 s, heart rate set to 0").arg(NO_HEART_RATE_TIMEOUT / 1000));
+        emit heartRate(0);
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.")
+                    .arg(bluetoothDevice.name()));
     }
 }
 
@@ -62,6 +76,12 @@ void heartratebelt::disconnectBluetooth() {
     }
 }
 
+void heartratebelt::disconnectForGood() {
+    disconnectingForGood = true;
+    updateTimer->stop();
+    disconnectBluetooth();
+}
+
 void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     emit packetReceived();
@@ -74,7 +94,7 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
             uint8_t battery = (uint8_t)newValue.at(0);
             if(battery != battery_level) {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
             }
             battery_level = battery;
             qDebug() << QStringLiteral("battery: ") << battery;
@@ -82,10 +102,58 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
         return;
     }
 
-    // Handle Heart Rate Measurement
+    // Handle Heart Rate Measurement according to Bluetooth Heart Rate Profile
     if (newValue.length() > 1) {
-        Heart = (uint8_t)newValue[1];
+        uint8_t flags = (uint8_t)newValue[0];
+        int index = 1;
+
+        // Bit 0: Heart Rate Value Format
+        // 0 = UINT8, 1 = UINT16
+        bool hrFormat16bit = (flags & 0x01) != 0;
+
+        if (hrFormat16bit && newValue.length() > 2) {
+            // 16-bit heart rate value
+            Heart = (uint16_t)(((uint8_t)newValue[2] << 8) | (uint8_t)newValue[1]);
+            index = 3;
+        } else {
+            // 8-bit heart rate value
+            Heart = (uint8_t)newValue[1];
+            index = 2;
+        }
+        // 0 is what some chest straps send without skin contact: not a heart rate
+        if (Heart.value() > 0) {
+            lastHeartRateTime = QDateTime::currentDateTime();
+            if (heartRateSilent) {
+                heartRateSilent = false;
+                emit debug(QStringLiteral("heart rate is back"));
+                if (homeform::singleton())
+                    homeform::singleton()->setToastRequested(
+                        QObject::tr("%1 (HR sensor) connected!").arg(bluetoothDevice.name()));
+            }
+        }
         emit heartRate((uint8_t)Heart.value());
+
+        // Bit 3: Energy Expended Status
+        // If set, 2 bytes of Energy Expended follow the HR value
+        bool energyExpendedPresent = (flags & 0x08) != 0;
+        if (energyExpendedPresent) {
+            index += 2; // Skip 2 bytes of energy expended
+        }
+
+        // Bit 4: RR-Interval
+        // If set, one or more RR-Interval values are present (2 bytes each)
+        // RR-Interval is in units of 1/1024 seconds
+        bool rrIntervalPresent = (flags & 0x10) != 0;
+        if (rrIntervalPresent) {
+            while (index + 1 < newValue.length()) {
+                uint16_t rrRaw = (uint16_t)(((uint8_t)newValue[index + 1] << 8) | (uint8_t)newValue[index]);
+                // Convert from 1/1024 seconds to milliseconds
+                double rrMs = (rrRaw / 1024.0) * 1000.0;
+                emit debug(QStringLiteral("RR-Interval: ") + QString::number(rrMs, 'f', 1) + QStringLiteral(" ms"));
+                emit rrIntervalReceived(rrMs);
+                index += 2;
+            }
+        }
     }
 
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
@@ -206,8 +274,8 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
 
-    if(homeform::singleton())
-        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+    // No "connected!" here: nothing is connected yet. bluetooth::connectHeartRateBelt() says it on the first
+    // heart rate
 
     // if(device.name().startsWith(heartRateBeltName))
     {
@@ -261,8 +329,8 @@ void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState
         connectingTime = QDateTime();  // Reset timestamp for other states
     }
     
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState && m_control && !disconnectingForGood) {
         qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

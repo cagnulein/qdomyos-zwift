@@ -34,6 +34,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+class DirconManager;
+
 class fakebike : public bike {
     Q_OBJECT
   public:
@@ -44,6 +46,7 @@ class fakebike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     double maxGears() override;
     double minGears() override;
+    void switchToClassicVirtualBikeBridge();
     
   private:
     QTimer *refresh;
@@ -56,6 +59,8 @@ class fakebike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool classicBridgePromptShown = false;
+    bool classicVirtualBridgeActive = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -79,5 +84,9 @@ class fakebike : public bike {
     void update();
     
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+
+  private:
+    void createVirtualBike(bool forceClassicMode = false, DirconManager *existingDirconManager = nullptr);
+    void maybePromptForClassicBridge(bool virtualEchelonEnabled);
 };
 #endif // FAKEBIKE_H

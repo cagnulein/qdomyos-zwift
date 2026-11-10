@@ -11,13 +11,71 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
+    signal trainprogram_autostart_requested()
+    property url selectedWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "training") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+        // programs of a previous install were copied back into the training folder
+        function onTrainingProgramsRestored() {
+            var currentFolder = folderModel.folder
+            folderModel.folder = ""
+            folderModel.folder = currentFolder
+        }
+    }
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        selectedWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        powerSeries.clear();
+        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+        {
+            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+        }
+        rootItem.update_chart_power(powerChart);
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+        rootItem.trainingProgramsPageOpened()
+    }
+
+    MessageDialog {
+        id: deleteDialog
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
+                selectedWorkoutUrl = ""
+                var currentFolder = folderModel.folder
+                folderModel.folder = ""
+                folderModel.folder = currentFolder
+            }
+            visible = false
+        }
+        onNoClicked: visible = false
+    }
+
     Loader {
         id: fileDialogLoader
         active: false
         sourceComponent: Component {
             FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -42,20 +100,20 @@ ColumnLayout {
 
     RowLayout{
         spacing: 2
-        anchors.top: parent.top
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
 
         ColumnLayout {
             spacing: 0
-            anchors.top: parent.top
-            anchors.fill: parent
+            Layout.fillHeight: true
 
             Row
             {
                 spacing: 5
+                leftPadding: window.contentSideMargin
                 Text
                 {
-                    text:"Filter"
+                    text:qsTr("Filter")
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -69,9 +127,15 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
+                    // the field kept its 120 of Material and showed less of the hint as the text grew.
+                    // The list column has no width of its own here: at most half of the window, so
+                    // the back button stays on a narrow screen
+                    width: window.textScale !== 1
+                           ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth), window.width / 2))
+                           : implicitWidth
                     onTextChanged: updateFilter()
                 }
                      Button {
@@ -86,14 +150,13 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
-                Layout.preferredHeight: parent.height
+                Layout.fillHeight: true
                 ScrollBar.vertical: ScrollBar {}
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo"]
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
                           showDotAndDotDot: false
                     showDirs: true
@@ -105,11 +168,12 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                                 color: Material.backgroundColor
                         z: 1
                         Item {
                             id: root
+                            x: window.contentSideMargin
                             property alias text: fileTextBox.text
                             property int spacing: 30
                             width: fileTextBox.width + spacing
@@ -118,8 +182,8 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.lastIndexOf(".")):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
@@ -134,7 +198,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 }
                             }
                         }
@@ -176,7 +240,8 @@ ColumnLayout {
                 focus: true
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                    if (fileUrl) {
+                    if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                        selectedWorkoutUrl = fileUrl
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
@@ -188,6 +253,8 @@ ColumnLayout {
                         rootItem.update_chart_power(powerChart);
                         //trainprogram_open_clicked(fileUrl);
                         //popup.open()
+                    } else {
+                        selectedWorkoutUrl = ""
                     }
                 }
                 Component.onCompleted: {
@@ -197,10 +264,11 @@ ColumnLayout {
         }
 
         ScrollView {
-            anchors.top: parent.top
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            // Padding, not a margin: the content moves in, the scroll bar stays at the edge
+            rightPadding: window.contentSideMargin
             contentHeight: date.height + description.height + powerChart.height
-            Layout.preferredHeight: parent.height
+            Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
@@ -221,7 +289,7 @@ ColumnLayout {
                     id: date
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
@@ -234,7 +302,7 @@ ColumnLayout {
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
+                    font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
@@ -255,8 +323,8 @@ ColumnLayout {
                         legend.visible: false
                         height: 400
                         width: parent.width
-                        title: "Power"
-                        titleFont.pixelSize: 20
+                        title: qsTr("Power")
+                        titleFont.pixelSize: window.fontPx(20)
 
                         DateTimeAxis {
                             id: valueAxisX
@@ -267,7 +335,7 @@ ColumnLayout {
                             //labelsVisible: false
                             gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         ValueAxis {
@@ -280,7 +348,7 @@ ColumnLayout {
                             //labelsVisible: false
                             //gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         LineSeries {
@@ -298,19 +366,40 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
-        height: 50
-        width: parent.width
-        text: "Other folders"
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+    RowLayout {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 50
+
+        Button {
+            Layout.fillWidth: true
+            text: qsTr("Start Workout")
+            visible: selectedWorkoutUrl != ""
+            onClicked: {
+                trainprogram_open_clicked(selectedWorkoutUrl)
+                trainprogram_autostart_requested()
+            }
         }
-        anchors {
-            bottom: parent.bottom
+
+        Button {
+            id: deleteButton
+            Layout.fillWidth: true
+            text: qsTr("Delete")
+            visible: selectedWorkoutUrl != ""
+            onClicked: deleteDialog.visible = true
+        }
+
+        Button {
+            id: searchButton
+            Layout.fillWidth: true
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("training")
+                } else {
+                    fileDialogLoader.active = true
+                }
+            }
         }
     }
 }

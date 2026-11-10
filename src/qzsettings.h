@@ -9,6 +9,8 @@ class QZSettings {
     QZSettings() {}
 
   public:
+    static bool isSensitiveSettingKey(const QString &key);
+
     //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
     //--------------------------------------------------------------------------------------------
@@ -91,6 +93,12 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString rpe_feel_popup_enabled;
+    static constexpr bool default_rpe_feel_popup_enabled = false;
+
+    static const QString garmin_download_workouts_on_start;
+    static constexpr bool default_garmin_download_workouts_on_start = true;
+
     static const QString garmin_access_token;
     static const QString default_garmin_access_token;
 
@@ -118,6 +126,12 @@ class QZSettings {
     static const QString garmin_last_refresh;
     static const QString default_garmin_last_refresh;
 
+    static const QString garmin_last_seen_cycling_ftp_create_time;
+    static const QString default_garmin_last_seen_cycling_ftp_create_time;
+
+    static const QString garmin_last_seen_running_ftp_create_time;
+    static const QString default_garmin_last_seen_running_ftp_create_time;
+
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 
@@ -137,6 +151,12 @@ class QZSettings {
      */
     static const QString ui_zoom;
     static constexpr float default_ui_zoom = 100.0;
+
+    /**
+     *@brief Preferred application language. Use "auto" to follow system locale.
+     */
+    static const QString app_language;
+    static const QString default_app_language;
 
     /**
      *@brief Disable (true) or use (false) the device's heart rate service.
@@ -272,6 +292,12 @@ class QZSettings {
     static const QString miles_unit;
     static constexpr bool default_miles_unit = false;
 
+    /**
+     *@brief Use kg for weight even when miles_unit is true (for UK users).
+     */
+    static const QString weight_kg_unit;
+    static constexpr bool default_weight_kg_unit = false;
+
     static const QString pause_on_start;
     static constexpr bool default_pause_on_start = false;
 
@@ -280,6 +306,9 @@ class QZSettings {
      */
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
+
+    static const QString treadmill_force_running_activity;
+    static constexpr bool default_treadmill_force_running_activity = false;
 
     static const QString pause_on_start_treadmill;
     static constexpr bool default_pause_on_start_treadmill = false;
@@ -412,6 +441,12 @@ class QZSettings {
     static const QString tile_avg_pace_order;
     static constexpr int default_tile_avg_pace_order = 76;
 
+    static const QString tile_grade_adjusted_pace_enabled;
+    static constexpr bool default_tile_grade_adjusted_pace_enabled = false;
+
+    static const QString tile_grade_adjusted_pace_order;
+    static constexpr int default_tile_grade_adjusted_pace_order = 79;
+
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
 
@@ -447,6 +482,9 @@ class QZSettings {
 
     static const QString tile_heart_order;
     static constexpr int default_tile_heart_order = 11;
+
+    static const QString tile_heart_show_as_percent;
+    static constexpr bool default_tile_heart_show_as_percent = false;
 
     static const QString tile_fan_enabled;
     static constexpr bool default_tile_fan_enabled = true;
@@ -622,6 +660,9 @@ class QZSettings {
     static const QString heart_max_override_value;
     static constexpr float default_heart_max_override_value = 195.0;
 
+    static const QString heart_rate_resting;
+    static constexpr uint8_t default_heart_rate_resting = 60;
+
     static const QString peloton_gain;
     static constexpr float default_peloton_gain = 1.0;
 
@@ -630,6 +671,8 @@ class QZSettings {
 
     static const QString treadmill_pid_heart_zone;
     static const QString default_treadmill_pid_heart_zone;
+    static const QString treadmill_pid_heart_control;
+    static const QString default_treadmill_pid_heart_control;
     /**
      *@brief 1 mile time goal, for a training program with the speed control.
      */
@@ -655,6 +698,12 @@ class QZSettings {
      */
     static const QString pacef_marathon;
     static constexpr float default_pacef_marathon = 360;
+    static const QString trainprogram_warmup_speed;
+    static constexpr float default_trainprogram_warmup_speed = 420;
+    static const QString trainprogram_cooldown_speed;
+    static constexpr float default_trainprogram_cooldown_speed = 420;
+    static const QString trainprogram_rest_speed;
+    static constexpr float default_trainprogram_rest_speed = 420;
 
     /**
      *@brief default pace to be used when the ZWO file does not indicate a precise pace.
@@ -685,6 +734,8 @@ class QZSettings {
     static constexpr bool default_eslinker_cadenza = true;
     static const QString eslinker_ypoo;
     static constexpr bool default_eslinker_ypoo = false;
+    static const QString gymstick_gx6_0_elliptical;
+    static constexpr bool default_gymstick_gx6_0_elliptical = false;
     /**
      *@brief Choose between the standard and MGARCEA watt table.
      */
@@ -724,6 +775,9 @@ class QZSettings {
     static const QString pafers_treadmill;
     static constexpr bool default_pafers_treadmill = false;
 
+    static const QString pafers_rower;
+    static constexpr bool default_pafers_rower = false;
+
     static const QString yesoul_peloton_formula;
     static constexpr bool default_yesoul_peloton_formula = false;
 
@@ -735,6 +789,9 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_ultra_le;
     static constexpr bool default_nordictrack_treadmill_ultra_le = false;
+
+    static const QString nordictrack_treadmill_commercial_le;
+    static constexpr bool default_nordictrack_treadmill_commercial_le = false;
 
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
@@ -756,6 +813,9 @@ class QZSettings {
 
     static const QString jtx_fitness_sprint_treadmill;
     static constexpr bool default_jtx_fitness_sprint_treadmill = false;
+
+    static const QString flow_fitness_runner_dtm2000i;
+    static constexpr bool default_flow_fitness_runner_dtm2000i = false;
 
     static const QString dkn_endurun_treadmill;
     static constexpr bool default_dkn_endurun_treadmill = false;
@@ -802,6 +862,9 @@ class QZSettings {
     static const QString fitplus_bike;
     static constexpr bool default_fitplus_bike = false;
 
+    static const QString lifespan_bike;
+    static constexpr bool default_lifespan_bike = false;
+
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
@@ -810,6 +873,36 @@ class QZSettings {
 
     static const QString flywheel_life_fitness_ic8;
     static constexpr bool default_flywheel_life_fitness_ic8 = false;
+
+    static const QString life_fitness_ic5;
+    static constexpr bool default_life_fitness_ic5 = false;
+
+    static const QString life_fitness_first_name;
+    static const QString default_life_fitness_first_name;
+
+    static const QString life_fitness_last_name;
+    static const QString default_life_fitness_last_name;
+
+    static const QString life_fitness_username;
+    static const QString default_life_fitness_username;
+
+    static const QString life_fitness_password;
+    static const QString default_life_fitness_password;
+
+    static const QString life_fitness_api_key;
+    static const QString default_life_fitness_api_key;
+
+    static const QString life_fitness_token;
+    static const QString default_life_fitness_token;
+
+    static const QString life_fitness_preset_summary;
+    static const QString default_life_fitness_preset_summary;
+
+    static const QString life_fitness_guest_login;
+    static constexpr bool default_life_fitness_guest_login = false;
+
+    static const QString technogym_bike;
+    static constexpr bool default_technogym_bike = false;
 
     static const QString sole_treadmill_inclination;
     static constexpr bool default_sole_treadmill_inclination = false;
@@ -834,6 +927,9 @@ class QZSettings {
 
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
+
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
 
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
@@ -865,6 +961,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 
@@ -883,11 +982,23 @@ class QZSettings {
     static const QString watt_gain;
     static constexpr float default_watt_gain = 1;
 
+    /**
+     * @brief Caps the effective watt output. Zero disables the cap.
+     */
+    static const QString watt_max;
+    static constexpr float default_watt_max = 9999;
+
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
+    static const QString power_avg_3s;
+    static constexpr bool default_power_avg_3s = false;
+
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
+
+    static const QString toputure_teb1;
+    static constexpr bool default_toputure_teb1 = false;
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -922,8 +1033,26 @@ class QZSettings {
     static const QString cadence_sensor_as_bike;
     static constexpr bool default_cadence_sensor_as_bike = false;
 
+    static const QString cadence_sensor_as_treadmill;
+    static constexpr bool default_cadence_sensor_as_treadmill = false;
+
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
+
+    static const QString cscbike_custom_resistance_power_table;
+    static constexpr bool default_cscbike_custom_resistance_power_table = false;
+
+    static const QString cscbike_custom_resistance_level_1;
+    static constexpr float default_cscbike_custom_resistance_level_1 = 1;
+
+    static const QString cscbike_custom_watt_1;
+    static constexpr float default_cscbike_custom_watt_1 = 100;
+
+    static const QString cscbike_custom_resistance_level_2;
+    static constexpr float default_cscbike_custom_resistance_level_2 = 15;
+
+    static const QString cscbike_custom_watt_2;
+    static constexpr float default_cscbike_custom_watt_2 = 300;
 
     static const QString power_hr_pwr1;
     static constexpr float default_power_hr_pwr1 = 200;
@@ -945,6 +1074,15 @@ class QZSettings {
 
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
+
+    static const QString power_sensor_speed_correction_threshold;
+    static constexpr double default_power_sensor_speed_correction_threshold = 20.0;
+
+    static const QString power_sensor_speed_inclination_coeff_a;
+    static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
+
+    static const QString power_sensor_speed_inclination_coeff_b;
+    static constexpr double default_power_sensor_speed_inclination_coeff_b = 0.0;
 
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
@@ -1040,6 +1178,22 @@ class QZSettings {
      */
     static const QString virtual_device_rower;
     static constexpr bool default_virtual_device_rower = false;
+    /**
+     *@brief When virtual_device_rower is enabled, use the Concept2 PM5 protocol instead of FTMS.
+     * This enables compatibility with apps like Mywhoosh that only support PM5 rowers.
+     */
+    static const QString virtual_device_rower_pm5;
+    static constexpr bool default_virtual_device_rower_pm5 = false;
+    /**
+     *@brief Gain applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_gain;
+    static constexpr double default_virtual_device_rower_cadence_gain = 1.0;
+    /**
+     *@brief Offset applied to the stroke rate advertised by the virtual rower.
+     */
+    static const QString virtual_device_rower_cadence_offset;
+    static constexpr double default_virtual_device_rower_cadence_offset = 0.0;
     /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
@@ -1143,6 +1297,12 @@ class QZSettings {
 
     static const QString tile_cadence_color_enabled;
     static constexpr bool default_tile_cadence_color_enabled = false;
+
+    static const QString tile_watt_color_enabled;
+    static constexpr bool default_tile_watt_color_enabled = true;
+
+    static const QString tile_pace_color_enabled;
+    static constexpr bool default_tile_pace_color_enabled = true;
 
     static const QString tile_peloton_remaining_enabled;
     static constexpr bool default_tile_peloton_remaining_enabled = false;
@@ -1678,6 +1838,12 @@ class QZSettings {
     static const QString trainprogram_stop_at_end;
     static constexpr bool default_trainprogram_stop_at_end = false;
 
+    static const QString trainprogram_clipboard_workout_enabled;
+    static constexpr bool default_trainprogram_clipboard_workout_enabled = false;
+
+    static const QString trainprogram_sound_on_segment;
+    static constexpr bool default_trainprogram_sound_on_segment = false;
+
     static const QString domyos_elliptical_inclination;
     static constexpr bool default_domyos_elliptical_inclination = true;
 
@@ -1706,6 +1872,12 @@ class QZSettings {
     static const QString default_kettler_usb_serialport;
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
+
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
+
+    static const QString freebeat_serialport;
+    static const QString default_freebeat_serialport;
 
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
@@ -1745,6 +1917,8 @@ class QZSettings {
 
     static const QString sportstech_sx600;
     static constexpr bool default_sportstech_sx600 = false;
+    static const QString sportstech_esx500;
+    static constexpr bool default_sportstech_esx500 = false;
 
     static const QString sole_elliptical_inclination;
     static constexpr bool default_sole_elliptical_inclination = false;
@@ -1859,6 +2033,9 @@ class QZSettings {
     static const QString horizon_treadmill_7_0_at_24;
     static constexpr bool default_horizon_treadmill_7_0_at_24 = false;
 
+    static const QString treadmill_direct_distance;
+    static constexpr bool default_treadmill_direct_distance = false;
+
     static const QString treadmill_pid_heart_min;
     static constexpr int default_treadmill_pid_heart_min = 0;
 
@@ -1873,6 +2050,12 @@ class QZSettings {
 
     static const QString nordictrack_incline_trainer_x7i;
     static constexpr bool default_nordictrack_incline_trainer_x7i = false;
+
+    static const QString nordictrack_incline_trainer_x7i_ntl15010_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+
+    static const QString nordictrack_incline_trainer_x7i_netl18716_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_netl18716_0 = false;
 
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;
@@ -1925,11 +2108,20 @@ class QZSettings {
     static const QString gears_gain;
     static constexpr double default_gears_gain = 1.0;
 
+    static const QString gears_custom_table_enabled;
+    static constexpr bool default_gears_custom_table_enabled = false;
+
+    static const QString gears_custom_table;
+    static const QString default_gears_custom_table;
+
     static const QString proform_treadmill_8_0;
     static constexpr bool default_proform_treadmill_8_0 = false;
 
     static const QString zero_zt2500_treadmill;
     static constexpr bool default_zero_zt2500_treadmill = false;
+
+    static const QString umay_s100_treadmill;
+    static constexpr bool default_umay_s100_treadmill = false;
 
     static const QString kingsmith_encrypt_v5;
     static constexpr bool default_kingsmith_encrypt_v5 = false;
@@ -1951,6 +2143,9 @@ class QZSettings {
 
     static const QString csafe_elliptical_port;
     static const QString default_csafe_elliptical_port;
+
+    static const QString waterrower_usb;
+    static constexpr bool default_waterrower_usb = false;
 
     static const QString ftms_rower;
     static const QString default_ftms_rower;
@@ -2039,7 +2234,9 @@ class QZSettings {
     static constexpr bool default_freemotion_coachbike_b22_7 = false;
 
     static const QString proform_cycle_trainer_300_ci;
+    static const QString nordictrack_gx_4_5_pro;
     static constexpr bool default_proform_cycle_trainer_300_ci = false;
+    static constexpr bool default_nordictrack_gx_4_5_pro = false;
 
     static const QString kingsmith_encrypt_g1_walking_pad;
     static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
@@ -2077,6 +2274,9 @@ class QZSettings {
     static const QString treadmill_speed_max;
     static constexpr float default_treadmill_speed_max = 100.0;
 
+    static const QString treadmill_speed_min;
+    static constexpr float default_treadmill_speed_min = 0.0;
+
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
 
@@ -2104,6 +2304,15 @@ class QZSettings {
     static const QString domyos_treadmill_t900a;
     static constexpr bool default_domyos_treadmill_t900a = false;
 
+    static const QString domyos_treadmill_ts100;
+    static constexpr bool default_domyos_treadmill_ts100 = false;
+
+    static const QString domyos_run100e;
+    static constexpr bool default_domyos_run100e = false;
+
+    static const QString domyos_treadmill_sync_start;
+    static constexpr bool default_domyos_treadmill_sync_start = false;
+
     static const QString enerfit_SPX_9500;
     static constexpr bool default_enerfit_SPX_9500 = false;
 
@@ -2115,6 +2324,12 @@ class QZSettings {
     
     static const QString zwift_click;
     static constexpr bool default_zwift_click = false;
+
+    static const QString thinkrider_controller;
+    static constexpr bool default_thinkrider_controller = false;
+
+    static const QString cycplus_bc2_controller;
+    static constexpr bool default_cycplus_bc2_controller = false;
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
@@ -2151,6 +2366,9 @@ class QZSettings {
 
     static const QString stryd_speed_instead_treadmill;
     static constexpr bool default_stryd_speed_instead_treadmill = false;
+
+    static const QString treadmill_runn_closed_loop;
+    static constexpr bool default_treadmill_runn_closed_loop = false;
     static const QString inclination_delay_seconds;
     static constexpr float default_inclination_delay_seconds = 0.0;
 
@@ -2190,6 +2408,9 @@ class QZSettings {
     static const QString proform_treadmill_8_7;
     static constexpr bool default_proform_treadmill_8_7 = false;
 
+    static const QString virtual_device_tacx;
+    static constexpr bool default_virtual_device_tacx = false;
+    
     static const QString proform_bike_325_csx;
     static constexpr bool default_proform_bike_325_csx = false;
 
@@ -2216,6 +2437,12 @@ class QZSettings {
 
     static const QString peloton_treadmill_walk_level;
     static constexpr int default_peloton_treadmill_walk_level = 1;
+
+    static const QString peloton_treadmill_walking_min_speed;
+    static constexpr double default_peloton_treadmill_walking_min_speed = 0.0;
+
+    static const QString peloton_treadmill_running_min_speed;
+    static constexpr double default_peloton_treadmill_running_min_speed = 0.0;
 
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
@@ -2285,7 +2512,10 @@ class QZSettings {
     static const QString default_peloton_code;
     
     static const QString proform_carbon_tl_PFTL59720;
-    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;
+
+    static const QString freemotion_t10_9b_hci;
+    static constexpr bool default_freemotion_t10_9b_hci = false;
 
     static const QString proform_treadmill_sport_70;
     static constexpr bool default_proform_treadmill_sport_70 = false;
@@ -2298,6 +2528,12 @@ class QZSettings {
 
     static const QString proform_treadmill_575i;
     static constexpr bool default_proform_treadmill_575i = false;
+
+    static const QString proform_treadmill_sport_55;
+    static constexpr bool default_proform_treadmill_sport_55 = false;
+
+    static const QString proform_treadmill_sport_6_0;
+    static constexpr bool default_proform_treadmill_sport_6_0 = false;
 
     static const QString zwift_play_emulator;
     static constexpr bool default_zwift_play_emulator = false;
@@ -2328,6 +2564,12 @@ class QZSettings {
 
     static const QString trainprogram_pid_pushy;
     static constexpr bool default_trainprogram_pid_pushy = true;
+
+    static const QString trainprogram_pid_hr_pushy_zone_limit;
+    static constexpr double default_trainprogram_pid_hr_pushy_zone_limit = 0.8;
+
+    static const QString trainprogram_pid_hr_recovery_zone_limit;
+    static constexpr double default_trainprogram_pid_hr_recovery_zone_limit = 60.0;
 
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
@@ -2397,6 +2639,10 @@ class QZSettings {
 
     static const QString proform_trainer_8_0;
     static constexpr bool default_proform_trainer_8_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_int_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_int_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_0 = false;
 
     static const QString tile_biggears_swap;
     static constexpr bool default_tile_biggears_swap = false;
@@ -2409,6 +2655,9 @@ class QZSettings {
 
     static const QString fit_file_garmin_device_training_effect_device;
     static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
+
+    static const QString garmin_device_serial;
+    static constexpr uint32_t default_garmin_device_serial = 3313379353;
 
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
@@ -2763,6 +3012,18 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Enable power averaging tile
+     */
+    static const QString tile_power_avg_enabled;
+    static constexpr bool default_tile_power_avg_enabled = false;
+
+    /**
+     * @brief Order of power averaging tile
+     */
+    static const QString tile_power_avg_order;
+    static constexpr int default_tile_power_avg_order = 77;
+
+    /**
      * @brief Enable negative inclination tile
      */
     static const QString tile_negative_inclination_enabled;
@@ -2775,10 +3036,34 @@ class QZSettings {
     static constexpr int default_tile_negative_inclination_order = 75;
 
     /**
+     * @brief Enable HRV (Heart Rate Variability) tile
+     */
+    static const QString tile_hrv_enabled;
+    static constexpr bool default_tile_hrv_enabled = false;
+
+    /**
+     * @brief Order of HRV tile
+     */
+    static const QString tile_hrv_order;
+    static constexpr int default_tile_hrv_order = 78;
+
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
+
+    /**
+     * @brief Metric shown on the leading side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_leading_metric;
+    static const QString default_ios_live_activity_compact_leading_metric;
+
+    /**
+     * @brief Metric shown on the trailing side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_trailing_metric;
+    static const QString default_ios_live_activity_compact_trailing_metric;
 
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
@@ -2809,12 +3094,402 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+    static const QString proform_bike_325_csx_PFEX439210INT_0;
+    static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
+
+    static const QString nordictrack_gx_le;
+    static constexpr bool default_nordictrack_gx_le = false;
+
+    static const QString nordictrack_vr21;
+    static constexpr bool default_nordictrack_vr21 = false;
 
     /**
      * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
      */
     static const QString skandika_wiri_x2000_protocol;
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
+
+    // MyWhoosh Link Options
+    /**
+     * @brief Enable MyWhoosh Link server for sending control commands to MyWhoosh app
+     */
+    static const QString mywhoosh_link_enabled;
+    static constexpr bool default_mywhoosh_link_enabled = false;
+
+    /**
+     * @brief Override local gear changes when MyWhoosh Link is enabled (true = only send to MyWhoosh, false = both)
+     */
+    static const QString mywhoosh_link_override_gears;
+    static constexpr bool default_mywhoosh_link_override_gears = false;
+
+    // Left Controller Button Mappings (0=Disabled, 1=GearUp, 2=GearDown, 3=SteerLeft, 4=SteerRight, 5=UTurn, 6=CameraAngle, 7=Emote, 8=Tuck)
+    static const QString mywhoosh_link_left_up;
+    static constexpr int default_mywhoosh_link_left_up = 1; // GearUp
+
+    static const QString mywhoosh_link_left_down;
+    static constexpr int default_mywhoosh_link_left_down = 2; // GearDown
+
+    static const QString mywhoosh_link_left_left;
+    static constexpr int default_mywhoosh_link_left_left = 0; // Disabled
+
+    static const QString mywhoosh_link_left_right;
+    static constexpr int default_mywhoosh_link_left_right = 0; // Disabled
+
+    static const QString mywhoosh_link_left_shoulder;
+    static constexpr int default_mywhoosh_link_left_shoulder = 5; // UTurn
+
+    static const QString mywhoosh_link_left_power;
+    static constexpr int default_mywhoosh_link_left_power = 0; // Disabled
+
+    // Right Controller Button Mappings
+    static const QString mywhoosh_link_right_y;
+    static constexpr int default_mywhoosh_link_right_y = 6; // CameraAngle
+
+    static const QString mywhoosh_link_right_a;
+    static constexpr int default_mywhoosh_link_right_a = 0; // Disabled
+
+    static const QString mywhoosh_link_right_b;
+    static constexpr int default_mywhoosh_link_right_b = 7; // Emote
+
+    static const QString mywhoosh_link_right_z;
+    static constexpr int default_mywhoosh_link_right_z = 0; // Disabled
+
+    static const QString mywhoosh_link_right_shoulder;
+    static constexpr int default_mywhoosh_link_right_shoulder = 0; // Disabled
+
+    static const QString mywhoosh_link_right_power;
+    static constexpr int default_mywhoosh_link_right_power = 0; // Disabled
+
+    // Cycling values for Camera Angle and Emote actions
+    static const QString mywhoosh_link_camera_value;
+    static constexpr int default_mywhoosh_link_camera_value = 1;
+
+    static const QString mywhoosh_link_emote_value;
+    static constexpr int default_mywhoosh_link_emote_value = 1;
+
+    /**
+     * @brief Automatically trigger a lap when completing each workout segment/row in TrainProgram
+     */
+    static const QString trainprogram_auto_lap_on_segment;
+    static constexpr bool default_trainprogram_auto_lap_on_segment = false;
+
+    /**
+     * @brief Enable hardware button handling (Start/Pause/Stop) for KingSmith R2 Treadmill
+     */
+    static const QString kingsmith_r2_enable_hw_buttons;
+    static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
+
+    /**
+     * @brief Enable keyboard shortcuts
+     */
+    static const QString shortcuts_enabled;
+    static constexpr bool default_shortcuts_enabled = false;
+
+    static const QString shortcut_speed_plus;
+    static const QString default_shortcut_speed_plus;
+    static const QString shortcut_speed_minus;
+    static const QString default_shortcut_speed_minus;
+
+    static const QString shortcut_inclination_plus;
+    static const QString default_shortcut_inclination_plus;
+    static const QString shortcut_inclination_minus;
+    static const QString default_shortcut_inclination_minus;
+
+    static const QString shortcut_resistance_plus;
+    static const QString default_shortcut_resistance_plus;
+    static const QString shortcut_resistance_minus;
+    static const QString default_shortcut_resistance_minus;
+
+    static const QString shortcut_peloton_resistance_plus;
+    static const QString default_shortcut_peloton_resistance_plus;
+    static const QString shortcut_peloton_resistance_minus;
+    static const QString default_shortcut_peloton_resistance_minus;
+
+    static const QString shortcut_target_resistance_plus;
+    static const QString default_shortcut_target_resistance_plus;
+    static const QString shortcut_target_resistance_minus;
+    static const QString default_shortcut_target_resistance_minus;
+
+    static const QString shortcut_target_power_plus;
+    static const QString default_shortcut_target_power_plus;
+    static const QString shortcut_target_power_minus;
+    static const QString default_shortcut_target_power_minus;
+
+    static const QString shortcut_target_zone_plus;
+    static const QString default_shortcut_target_zone_plus;
+    static const QString shortcut_target_zone_minus;
+    static const QString default_shortcut_target_zone_minus;
+
+    static const QString shortcut_target_speed_plus;
+    static const QString default_shortcut_target_speed_plus;
+    static const QString shortcut_target_speed_minus;
+    static const QString default_shortcut_target_speed_minus;
+
+    static const QString shortcut_target_incline_plus;
+    static const QString default_shortcut_target_incline_plus;
+    static const QString shortcut_target_incline_minus;
+    static const QString default_shortcut_target_incline_minus;
+
+    static const QString shortcut_fan_plus;
+    static const QString default_shortcut_fan_plus;
+    static const QString shortcut_fan_minus;
+    static const QString default_shortcut_fan_minus;
+
+    static const QString shortcut_peloton_offset_plus;
+    static const QString default_shortcut_peloton_offset_plus;
+    static const QString shortcut_peloton_offset_minus;
+    static const QString default_shortcut_peloton_offset_minus;
+
+    static const QString shortcut_peloton_remaining_plus;
+    static const QString default_shortcut_peloton_remaining_plus;
+    static const QString shortcut_peloton_remaining_minus;
+    static const QString default_shortcut_peloton_remaining_minus;
+
+    static const QString shortcut_remaining_time_plus;
+    static const QString default_shortcut_remaining_time_plus;
+    static const QString shortcut_remaining_time_minus;
+    static const QString default_shortcut_remaining_time_minus;
+
+    static const QString shortcut_gears_plus;
+    static const QString default_shortcut_gears_plus;
+    static const QString shortcut_gears_minus;
+    static const QString default_shortcut_gears_minus;
+
+    static const QString shortcut_pid_hr_plus;
+    static const QString default_shortcut_pid_hr_plus;
+    static const QString shortcut_pid_hr_minus;
+    static const QString default_shortcut_pid_hr_minus;
+
+    static const QString shortcut_ext_incline_plus;
+    static const QString default_shortcut_ext_incline_plus;
+    static const QString shortcut_ext_incline_minus;
+    static const QString default_shortcut_ext_incline_minus;
+
+    static const QString shortcut_biggears_plus;
+    static const QString default_shortcut_biggears_plus;
+    static const QString shortcut_biggears_minus;
+    static const QString default_shortcut_biggears_minus;
+
+    static const QString shortcut_avs_cruise;
+    static const QString default_shortcut_avs_cruise;
+    static const QString shortcut_avs_climb;
+    static const QString default_shortcut_avs_climb;
+    static const QString shortcut_avs_sprint;
+    static const QString default_shortcut_avs_sprint;
+
+    static const QString shortcut_power_avg;
+    static const QString default_shortcut_power_avg;
+
+    static const QString shortcut_erg_mode;
+    static const QString default_shortcut_erg_mode;
+
+    static const QString shortcut_preset_resistance_1;
+    static const QString default_shortcut_preset_resistance_1;
+    static const QString shortcut_preset_resistance_2;
+    static const QString default_shortcut_preset_resistance_2;
+    static const QString shortcut_preset_resistance_3;
+    static const QString default_shortcut_preset_resistance_3;
+    static const QString shortcut_preset_resistance_4;
+    static const QString default_shortcut_preset_resistance_4;
+    static const QString shortcut_preset_resistance_5;
+    static const QString default_shortcut_preset_resistance_5;
+
+    static const QString shortcut_preset_speed_1;
+    static const QString default_shortcut_preset_speed_1;
+    static const QString shortcut_preset_speed_2;
+    static const QString default_shortcut_preset_speed_2;
+    static const QString shortcut_preset_speed_3;
+    static const QString default_shortcut_preset_speed_3;
+    static const QString shortcut_preset_speed_4;
+    static const QString default_shortcut_preset_speed_4;
+    static const QString shortcut_preset_speed_5;
+    static const QString default_shortcut_preset_speed_5;
+
+    static const QString shortcut_preset_inclination_1;
+    static const QString default_shortcut_preset_inclination_1;
+    static const QString shortcut_preset_inclination_2;
+    static const QString default_shortcut_preset_inclination_2;
+    static const QString shortcut_preset_inclination_3;
+    static const QString default_shortcut_preset_inclination_3;
+    static const QString shortcut_preset_inclination_4;
+    static const QString default_shortcut_preset_inclination_4;
+    static const QString shortcut_preset_inclination_5;
+    static const QString default_shortcut_preset_inclination_5;
+
+    static const QString shortcut_preset_powerzone_1;
+    static const QString default_shortcut_preset_powerzone_1;
+    static const QString shortcut_preset_powerzone_2;
+    static const QString default_shortcut_preset_powerzone_2;
+    static const QString shortcut_preset_powerzone_3;
+    static const QString default_shortcut_preset_powerzone_3;
+    static const QString shortcut_preset_powerzone_4;
+    static const QString default_shortcut_preset_powerzone_4;
+    static const QString shortcut_preset_powerzone_5;
+    static const QString default_shortcut_preset_powerzone_5;
+    static const QString shortcut_preset_powerzone_6;
+    static const QString default_shortcut_preset_powerzone_6;
+    static const QString shortcut_preset_powerzone_7;
+    static const QString default_shortcut_preset_powerzone_7;
+
+    static const QString shortcut_auto_resistance;
+    static const QString default_shortcut_auto_resistance;
+
+    static const QString shortcut_lap;
+    static const QString default_shortcut_lap;
+
+    static const QString shortcut_start_stop;
+    static const QString default_shortcut_start_stop;
+
+    static const QString shortcut_stop;
+    static const QString default_shortcut_stop;
+
+    /*
+     * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
+     */
+    static const QString step_gain;
+    static constexpr double default_step_gain = 1.0;
+
+    static const QString proform_carbon_tlx_treadmill;
+    static constexpr bool default_proform_carbon_tlx_treadmill = false;
+    static const QString proform_carbon_tlx_v84_314_treadmill;
+    static constexpr bool default_proform_carbon_tlx_v84_314_treadmill = false;
+    static const QString proform_carbon_tl_PFTL59723_6;
+    static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
+    static const QString proform_treadmill_cst_505_pftl59420_0;
+    static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_105_cst;
+    static constexpr bool default_proform_treadmill_105_cst = false;
+    static const QString proform_treadmill_305_cst;
+    static constexpr bool default_proform_treadmill_305_cst = false;
+
+    /**
+     * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from
+     * Apple Watch step cadence using cadence_sensor_speed_ratio. Lets users do indoor walking
+     * or slow jogging without a physical treadmill, broadcasting cadence-driven speed via
+     * the existing virtual treadmill / RSC pipeline. Default off; iOS-only effect.
+     */
+    static const QString applewatch_as_treadmill_speed;
+    static constexpr bool default_applewatch_as_treadmill_speed = false;
+
+    static const QString horizon_treadmill_omega_z;
+    static constexpr bool default_horizon_treadmill_omega_z = false;
+
+    /**
+     * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
+     * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
+     * profiles), so it is gated behind its own setting to avoid affecting other models.
+     */
+    static const QString nordictrack_elliptical_s700;
+    static constexpr bool default_nordictrack_elliptical_s700 = false;
+    
+    /**
+     * @brief Per-button gear mapping for Zwift Play/Ride controllers.
+     * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
+     */
+    static const QString zwiftplay_gear_ls1; // Left Shift Up
+    static constexpr int default_zwiftplay_gear_ls1 = 2; // Gear Down
+    static const QString zwiftplay_gear_ls2; // Left Shift Down
+    static constexpr int default_zwiftplay_gear_ls2 = 2; // Gear Down
+    static const QString zwiftplay_gear_rs1; // Right Shift Up
+    static constexpr int default_zwiftplay_gear_rs1 = 1; // Gear Up
+    static const QString zwiftplay_gear_rs2; // Right Shift Down
+    static constexpr int default_zwiftplay_gear_rs2 = 1; // Gear Up
+    static const QString zwiftplay_gear_paddle_left; // Left Paddle (ZL)
+    static constexpr int default_zwiftplay_gear_paddle_left = 2; // Gear Down
+    static const QString zwiftplay_gear_paddle_right; // Right Paddle (ZR)
+    static constexpr int default_zwiftplay_gear_paddle_right = 1; // Gear Up
+    static const QString zwiftplay_gear_lb; // Power Up (LB)
+    static constexpr int default_zwiftplay_gear_lb = 0; // Disabled
+    static const QString zwiftplay_gear_rb; // Ride On (RB)
+    static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
+
+    static const QString ios_background_keepalive;
+    static constexpr bool default_ios_background_keepalive = false;
+    static const QString renpho_bike_knob_gears;
+    static constexpr bool default_renpho_bike_knob_gears = false;
+
+    static const QString android_landscape_cutout_margin;
+    static constexpr bool default_android_landscape_cutout_margin = true;
+
+    static const QString android_landscape_cutout_prompt_shown;
+    static constexpr bool default_android_landscape_cutout_prompt_shown = false;
+
+    // "Don't ask again" in the prompt that offers android_notification_v2 after Android cut QZ's network
+    static const QString android_notification_prompt_disabled;
+    static constexpr bool default_android_notification_prompt_disabled = false;
+
+    // Android Notification (foreground service), on by default. Replaces android_notification, which
+    // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
+    static const QString android_notification_v2;
+    static constexpr bool default_android_notification_v2 = true;
+
+    // Size of the text of the app (not the tiles), in percent (80-170), used when ui_text_scale_system is off
+    static const QString ui_text_scale;
+    static constexpr int default_ui_text_scale = 100;
+
+    // Android and iOS: the text of the app follows the system text size instead of ui_text_scale
+    static const QString ui_text_scale_system;
+    static constexpr bool default_ui_text_scale_system = true;
+
+    // With treadmill_direct_distance: add only the increase of the treadmill distance counter, so a counter
+    // already running when QZ connects, or reset on the treadmill during the workout, does not change the
+    // workout distance. Off: the counter is the workout distance, as before
+    static const QString treadmill_direct_distance_increment;
+    static constexpr bool default_treadmill_direct_distance_increment = false;
+
+    // Chart positions in the Workout History preview.
+    static const QString history_chart_power_order;
+    static constexpr int default_history_chart_power_order = 0;
+    static const QString history_chart_heart_order;
+    static constexpr int default_history_chart_heart_order = 1;
+    static const QString history_chart_resistance_order;
+    static constexpr int default_history_chart_resistance_order = 2;
+    static const QString history_chart_peloton_resistance_order;
+    static constexpr int default_history_chart_peloton_resistance_order = 3;
+    static const QString history_chart_cadence_order;
+    static constexpr int default_history_chart_cadence_order = 4;
+    static const QString history_chart_power_distribution_order;
+    static constexpr int default_history_chart_power_distribution_order = 5;
+    static const QString history_chart_speed_inclination_order;
+    static constexpr int default_history_chart_speed_inclination_order = 6;
+
+    static const QString moovio_lynx_konect_2_0;
+    static constexpr bool default_moovio_lynx_konect_2_0 = false;
+
+    // The background search of the first 5 minutes while no heart rate comes: connects the chosen sensor or, with
+    // none chosen, offers one found nearby. Off by default (a tap on the heart rate tile or the Bluetooth icon
+    // searches anyway); "Don't ask again" on its bar turns it off
+    static const QString heart_rate_belt_suggest;
+    static constexpr bool default_heart_rate_belt_suggest = false;
+
+    // The debug log of a new user: on until the first workout with data, 7 days at most. Decided once, at the
+    // first start of a QZ that has never connected a device (homeform::startFirstSetupLog()); log_debug and its
+    // switch stay as they are
+    static const QString log_debug_first_setup;
+    static constexpr bool default_log_debug_first_setup = false;
+    // the day the first-setup log was turned on (ISO date), for the 7 days
+    static const QString log_debug_first_setup_since;
+    static const QString default_log_debug_first_setup_since;
+
+    // The modern look of the interface (main.qml window.ui), off by default: with it off every page
+    // keeps its classic look. The theme, the accent and the theme mode apply to the modern look only
+    static const QString ui_modern;
+    static constexpr bool default_ui_modern = false;
+    // colour set of the modern look: graphite, oled, midnight
+    static const QString ui_theme;
+    static const QString default_ui_theme;
+    // accent colour of the modern look: violet, blue, teal, green, orange, pink
+    static const QString ui_accent;
+    static const QString default_ui_accent;
+    // auto (follows the night mode of the phone), dark, light
+    static const QString ui_theme_mode;
+    static const QString default_ui_theme_mode;
+
+    // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
+    // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
+    // already was the last device, so it was connected before the question existed
+    static const QString wahoo_wheel_question_answered;
+    static constexpr bool default_wahoo_wheel_question_answered = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

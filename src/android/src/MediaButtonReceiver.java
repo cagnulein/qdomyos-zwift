@@ -35,7 +35,12 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             }
 
             // Process the gear change
-            nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
+            try {
+                nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
+            } catch (UnsatisfiedLinkError e) {
+                // Qt not ready yet; ignore early volume events.
+                return;
+            }
 
             // Auto-restore volume to middle value after a short delay to enable infinite gear changes
             if (currentVolume != TARGET_VOLUME) {

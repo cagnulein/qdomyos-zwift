@@ -15,7 +15,12 @@ void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
     m_bluetooth_type = bt;
 }
 
-void metric::setValue(double v, bool applyGainAndOffset) {
+double metric::capWatt(double value, double maxWatt) {
+    return maxWatt > 0.0 ? qMin(value, maxWatt) : value;
+}
+
+// watt and speed gain and offset, watt cap: read on every value, so a changed setting applies at once
+double metric::applySettings(double v, bool applyGainAndOffset) {
     QSettings settings;
     // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
@@ -45,7 +50,25 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         }
     }
 
-    QDateTime now = QDateTime::currentDateTime();
+    if (m_type == METRIC_WATT) {
+        const double maxWatt = settings.value(QZSettings::watt_max, QZSettings::default_watt_max).toDouble();
+        const double cappedWatt = capWatt(v, maxWatt);
+        if (cappedWatt != v) {
+            qDebug() << QStringLiteral("watt value was ") << v
+                     << QStringLiteral("but it will be capped to") << cappedWatt;
+            v = cappedWatt;
+        }
+    }
+    return v;
+}
+
+void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
+    // QSettings only for the types that read it: setValue runs for every value of every metric
+    if (m_type == METRIC_WATT || m_type == METRIC_SPEED)
+        v = applySettings(v, applyGainAndOffset);
+
+    // UTC: no local-time conversion on every value; callers only use differences (msecsTo/secsTo) and epoch
+    QDateTime now = QDateTime::currentDateTimeUtc();
     if (v != m_value && v != INFINITY) {
         m_valueChanged = now;
         if (m_last5.count() > 1) {
@@ -60,6 +83,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
 
     // it has to be here, even if the value is the same, due to https://github.com/cagnulein/qdomyos-zwift/issues/1325
     m_lastChanged = now;
+    ++m_updateSequence;
 
     m_value = v;
 
@@ -67,13 +91,17 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         return;
     }
 
-    if (value() != 0 && value() != INFINITY) {
+    if ((value() != 0 || includeZeroInStats) && value() != INFINITY) {
         m_countValue++;
         m_lapCountValue++;
         m_totValue += value();
         m_lapTotValue += value();
+        m_last3.append(value());
         m_last5.append(value());
         m_last20.append(value());
+
+        if (m_last3.count() > 3)
+            m_last3.removeAt(0);
 
         if (m_last5.count() > 5)
             m_last5.removeAt(0);
@@ -107,6 +135,7 @@ void metric::clear(bool accumulator) {
     m_totValue = 0;
     m_countValue = 0;
     m_min = 999999999;
+    m_last3.clear();
     m_last5.clear();
     m_last20.clear();
     clearLap(accumulator);
@@ -118,6 +147,8 @@ void metric::clear(bool accumulator) {
 
 double metric::valueRaw() {
     double v = m_value;
+    if (m_type != METRIC_WATT && m_type != METRIC_SPEED)
+        return v;
     QSettings settings;
 
     if (m_type == METRIC_WATT) {
@@ -184,6 +215,60 @@ double metric::average5s() {
 
         if (c > 0)
             return (sum / c);
+        else
+            return 0;
+    }
+}
+
+double metric::average5sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last5.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last5);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
+        else
+            return 0;
+    }
+}
+
+double metric::average3sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last3.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last3);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
         else
             return 0;
     }
@@ -387,6 +472,9 @@ double metric::powerPeak(QList<SessionLine> *session, int seconds) {
 // power = 5 min peak power for a specific ride
 double metric::calculateVO2Max(QList<SessionLine> *session) {       
     double peak = powerPeak(session, 5*60);
+    // -1: shorter than 5 min; 0: no power data or no full window. The formula would still give about 7
+    if (peak <= 0)
+        return 0;
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *

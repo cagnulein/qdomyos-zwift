@@ -14,7 +14,8 @@ ColumnLayout {
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chartlive.htm"
+        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/" +
+             (rootItem.chartTreadmillMode ? "treadmillchartlive.htm" : "chartlive.htm")
         visible: rootItem.chartFooterVisible
         onLoadingChanged: {
             if (loadRequest.errorString) {

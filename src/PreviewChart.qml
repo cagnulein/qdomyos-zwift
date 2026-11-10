@@ -8,6 +8,8 @@ import QtWebView 1.1
 ColumnLayout {
     signal popupclose()
     id: column1
+    // the workout file shown, set by the workout history: the toolbar shows Share for it
+    property string fitFilePath: ""
     spacing: 10
     anchors.fill: parent
     Settings {
@@ -26,6 +28,14 @@ ColumnLayout {
         }
     }
 
+    // a new app language: the page asks for its texts again
+    Connections {
+        target: rootItem
+        function onAppLanguageChanged() {
+            webView.runJavaScript("window.qzRequestTranslations && window.qzRequestTranslations()")
+        }
+    }
+
     Timer {
         id: chartJscheckStartFromWeb
         interval: 200; running: true; repeat: true
@@ -36,10 +46,11 @@ ColumnLayout {
         id: closeButton
         height: 50
         width: parent.width
-        text: "Close"
+        text: qsTr("Close")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        // nothing listens to popupclose(): back the same way as the toolbar arrow
         onClicked: {
-            popupclose();
+            window.navigateBack(false);
         }
         anchors {
             bottom: parent.bottom

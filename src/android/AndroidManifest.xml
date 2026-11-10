@@ -1,22 +1,41 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.20.21" android:versionCode="1240" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.22.0" android:versionCode="1404" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
-			<!-- %%INSERT_PERMISSIONS -->
+            <!--
+                QZ declares its Android permissions explicitly below.
+                Do not restore %%INSERT_PERMISSIONS: Qt 5.15 androiddeployqt injects
+                unbounded ACCESS_FINE_LOCATION, which duplicates QZ's API<=30
+                declaration and fails Android Gradle Plugin 9 manifest validation.
+                It would also restore the modern location permission we intentionally removed.
+            -->
 
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
 	      Remove the comment if you do not require these default features. -->
 			<!-- %%INSERT_FEATURES -->
 
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
-             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop">
+	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:usesCleartextTraffic="true">
+             <activity android:theme="@style/Theme.AppCompat" android:exported="true" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.cagnulen.qdomyoszwift.CustomQtActivity" android:label="QZ" android:launchMode="singleTop" android:enableOnBackInvokedCallback="false">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
 					</intent-filter>
                                         <intent-filter>
                                             <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                                        </intent-filter>
+                                        <intent-filter android:autoVerify="true">
+                                            <action android:name="android.intent.action.VIEW" />
+                                            <category android:name="android.intent.category.DEFAULT" />
+                                            <category android:name="android.intent.category.BROWSABLE" />
+                                            <data
+                                                android:scheme="https"
+                                                android:host="www.qzfitness.com"
+                                                android:pathPrefix="/peloton/callback" />
                                         </intent-filter>
                                         <meta-data
                                             android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
@@ -110,28 +129,77 @@
                                     android:name="com.google.mlkit.vision.DEPENDENCIES"
                                     android:value="ocr" />
 
-				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+				<!-- Share a temporary gzip debug log with the user's chosen mail app.
+                                     No external storage permission or file:// URLs required. -->
+                                <provider
+                                    android:name="androidx.core.content.FileProvider"
+                                    android:authorities="org.cagnulen.qdomyoszwift.support"
+                                    android:exported="false"
+                                    android:grantUriPermissions="true">
+                                    <meta-data
+                                        android:name="android.support.FILE_PROVIDER_PATHS"
+                                        android:resource="@xml/qz_support_file_paths" />
+                                </provider>
+
+                                <activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+                                <activity
+                                    android:name=".HealthConnectPermissionActivity"
+                                    android:exported="false"
+                                    android:theme="@style/Theme.AppCompat">
+                                    <intent-filter>
+                                        <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+                                    </intent-filter>
+                                </activity>
+
+                                <activity-alias
+                                    android:name="ViewPermissionUsageActivity"
+                                    android:exported="true"
+                                    android:targetActivity=".HealthConnectPermissionActivity"
+                                    android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+                                    <intent-filter>
+                                        <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                                        <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+                                    </intent-filter>
+                                </activity-alias>
 
                                 <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
                                     <intent-filter>
                                         <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                                     </intent-filter>
                                 </receiver>
+                                <!-- a workout file to the share sheet (FitShare.java) -->
+                                <provider android:name=".FitFileProvider" android:authorities="${applicationId}.fitshare" android:exported="false" android:grantUriPermissions="true">
+                                    <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/fit_share_paths" />
+                                </provider>
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 
-<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="36" />
+<!-- AGP 9 reads minSdk/targetSdk from build.gradle; keep only the library override here. -->
+<uses-sdk tools:overrideLibrary="com.google.android.play.agesignals,com.google.android.gms.common,androidx.health.connect.client" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 <uses-permission android:name="android.permission.RECEIVE_MEDIA_BUTTON" />
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <!-- Qt 5 historically auto-injected these permissions. Keep the legacy
+         Bluetooth/storage declarations when disabling the auto-injection above.
+         Android 12+ uses the separate Nearby devices permissions below. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <!-- Legacy Android requires Location permission for Bluetooth discovery. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+    <!-- QZ uses scan results to identify exercise equipment, not to derive physical location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 17: LAN device discovery/control and local TCP/UDP/mDNS servers. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -140,4 +208,15 @@
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
 	     tools:ignore="ProtectedPermissions" />
+         <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+         <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+         <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" />
+         <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+         <uses-permission android:name="android.permission.health.WRITE_POWER" />
+         <uses-permission android:name="android.permission.health.WRITE_SPEED" />
+         <uses-permission android:name="android.permission.health.WRITE_CYCLING_PEDALING_CADENCE" />
+         <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED" />
+         <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+         <uses-permission android:name="android.permission.health.WRITE_STEPS_CADENCE" />
+         <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY" />
 </manifest>

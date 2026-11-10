@@ -186,8 +186,9 @@ void MainWindow::update() {
                       verticalOscillation, stepCount,
                       target_cadence, target_watt, target_resistance, target_inclination, target_speed,
                       bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(),
-                      bluetoothManager->device()->HeatStrainIndex.value() // TODO add lap
-        );
+                      bluetoothManager->device()->HeatStrainIndex.value(),
+                      bluetoothManager->device()->currentHRV().value(),
+                      bluetoothManager->device()->getRRIntervalsAndClear());
 
         Session.append(s);
 

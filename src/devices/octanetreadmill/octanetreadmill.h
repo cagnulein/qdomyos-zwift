@@ -39,7 +39,10 @@ class octanetreadmill : public treadmill {
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     bool canStartStop() override { return false; }
     bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }    
+    bool canHandleInclineChange() override { return false; }
+
+    // For testing: activate ZR8 parsing mode
+    void activateZR8Mode() { ZR8 = true; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);
@@ -61,7 +64,16 @@ class octanetreadmill : public treadmill {
 
     QByteArray actualPaceSign;
     QByteArray actualPace2Sign;
+    QByteArray actualPace3Sign;
     QByteArray cadenceSign;
+
+    QDateTime lastValidSpeedTime;
+    QDateTime lastCadenceZeroTime;
+    QDateTime lastValidCadenceTime;
+
+    // Packet reassembly buffer for fragmented BLE messages
+    QByteArray packetBuffer;
+    int expectedPacketLength = 0;
 
     QTimer *refresh;
 

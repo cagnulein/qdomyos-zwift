@@ -12,6 +12,48 @@
 
 using namespace std::chrono_literals;
 
+bool apexbike::usesWlt8266bmDistanceCounterMetrics(const QString &deviceName) {
+    // WLT8266BM bikes report cadence and distance in 0x31 packets.
+    // Their 0x30 packet is a counter and must not be used as distance.
+    Q_UNUSED(deviceName);
+    return false;
+}
+
+bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue) {
+    return usesWlt8266bmDistanceCounterMetrics(deviceName) && newValue.length() == 10 &&
+           static_cast<uint8_t>(newValue.at(2)) == 0x30;
+}
+
+// Some WLT8266BM bikes send 0x31 packets with a nonzero byte 3.
+// In the 2026-10-30 capture these packets produced impossible 302-394 RPM
+// spikes, while all normal cadence packets had byte 3 == 0.
+// Reject only the cadence value on the WLT8266BM model family; keep other
+// models and resistance data unaffected.
+bool apexbike::isWlt8266bmCadenceSpikePacket(const QString &deviceName, const QByteArray &newValue) {
+    return deviceName.startsWith(QStringLiteral("WLT8266BM"), Qt::CaseInsensitive) &&
+           newValue.length() == 10 && static_cast<uint8_t>(newValue.at(2)) == 0x31 &&
+           static_cast<uint8_t>(newValue.at(3)) != 0;
+}
+
+uint16_t apexbike::wlt8266bmDistanceCounterFromPacket(const QByteArray &newValue) {
+    return (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(3))) << 8) |
+           static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(4)));
+}
+
+double apexbike::wlt8266bmSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs) {
+    if (deltaDistance <= 0 || deltaTimeMs <= 0) {
+        return 0;
+    }
+
+    constexpr double distanceCounterKm = 0.005333;
+    const double timeHours = static_cast<double>(deltaTimeMs) / (1000.0 * 60.0 * 60.0);
+    return (deltaDistance * distanceCounterKm) / timeHours;
+}
+
+double apexbike::wlt8266bmCadenceFromSpeed(double speed) {
+    return speed / 0.37497622;
+}
+
 apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -145,38 +187,82 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastPacket = newValue;
 
-    if (newValue.length() == 10 && newValue.at(2) == 0x31) {
+    const bool useWlt8266bmDistanceCounterMetrics =
+        usesWlt8266bmDistanceCounterMetrics(bluetoothDevice.name());
+
+    if (newValue.length() == 10 && static_cast<uint8_t>(newValue.at(2)) == 0x31) {
         // Invert resistance: bike resistance 1-32 maps to app display 32-1
         uint8_t rawResistance = newValue.at(5);
         Resistance = 33 - rawResistance;  // Invert: 1->32, 32->1
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = Resistance.value();
 
-        // Parse cadence from 5th byte (index 4) and multiply by 2
-        uint8_t rawCadence = newValue.at(4);
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            Cadence = rawCadence * 2;
+        if (!useWlt8266bmDistanceCounterMetrics) {
+            // Other Apex-style bikes use this packet for cadence/metrics; keep that behavior unchanged.
+            uint8_t rawCadence = newValue.at(4);
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                if (isWlt8266bmCadenceSpikePacket(bluetoothDevice.name(), newValue)) {
+                    qDebug() << QStringLiteral("Ignoring suspicious WLT8266BM cadence packet; keeping previous cadence")
+                             << Cadence.value();
+                } else {
+                    Cadence = rawCadence * 2;
+                }
+            }
+
+            qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value()) + QStringLiteral(", Raw cadence: ") + QString::number(rawCadence) + QStringLiteral(", Final cadence: ") + QString::number(Cadence.value());
+        } else {
+            qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value());
+        }
+    }
+
+    if (!useWlt8266bmDistanceCounterMetrics) {
+        if (newValue.length() != 10 || static_cast<uint8_t>(newValue.at(2)) != 0x31) {
+            return;
         }
 
-        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value()) + QStringLiteral(", Raw cadence: ") + QString::number(rawCadence) + QStringLiteral(", Final cadence: ") + QString::number(Cadence.value());
-    }
+        // Calculate speed using the same method as echelon bike
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = 0.37497622 * ((double)Cadence.value());
+        } else {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
+    } else if (isWlt8266bmDistanceCounterMetricsPacket(bluetoothDevice.name(), newValue)) {
+        double distance = wlt8266bmDistanceCounterFromPacket(newValue);
 
-    if (newValue.length() != 10 || newValue.at(2) != 0x31) {
-        return;
-    }
-
-    uint16_t distanceData = (newValue.at(7) << 8) | ((uint8_t)newValue.at(8));
-    double distance = ((double)distanceData);
-
-    // Calculate speed using the same method as echelon bike
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = 0.37497622 * ((double)Cadence.value());
+        if (distance != lastDistance) {
+            if (lastDistance != 0) {
+                double deltaDistance = distance - lastDistance;
+                qint64 deltaTime = qAbs(lastTS.msecsTo(now));
+                Speed = wlt8266bmSpeedFromDistanceCounterDelta(deltaDistance, deltaTime);
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    Cadence = wlt8266bmCadenceFromSpeed(Speed.value());
+                }
+            }
+            lastDistance = distance;
+            lastTS = now;
+            qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+        } else {
+            // Check if speed and cadence should be reset due to timeout (2 seconds)
+            if (lastTS.msecsTo(now) > 2000) {
+                if (Speed.value() > 0) {
+                    Speed = 0;
+                    qDebug() << "Speed reset to 0 due to timeout";
+                }
+                if (Cadence.value() > 0) {
+                    Cadence = 0;
+                    qDebug() << "Cadence reset to 0 due to timeout";
+                }
+                lastTS = now;
+            }
+        }
     } else {
-        Speed = metric::calculateSpeedFromPower(
-            watts(), Inclination.value(), Speed.value(),
-            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        return;
     }
 
     if (watts())
@@ -510,6 +596,6 @@ void apexbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

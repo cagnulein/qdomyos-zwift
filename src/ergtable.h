@@ -86,9 +86,10 @@ class ergTable : public QObject {
         loadSettings();
     }
 
-    ~ergTable() {
-        saveSettings();
-    }
+    // No save here: every change is already saved when it happens. Every bluetoothdevice owns an
+    // ergTable (heart rate belts and sensors too), so saving in the destructor let a copy loaded at
+    // startup overwrite the points the bike learned during the session.
+    ~ergTable() {}
 
     void reset() {
         wattageData.clear();
@@ -184,7 +185,15 @@ class ergTable : public QObject {
         return sameResPoints.first().wattage;
     }
 
+    void setCadenceResistanceBandStep(uint16_t step) {
+        cadenceResistanceBandStep = step;
+    }
+
     uint16_t resistanceFromPowerRequest(uint16_t power, uint16_t cadence, uint16_t maxResistance) {
+        if (cadenceResistanceBandStep > 1) {
+            cadence = (cadence / cadenceResistanceBandStep) * cadenceResistanceBandStep;
+        }
+
         qDebug() << QStringLiteral("resistanceFromPowerRequest") << cadence;
 
         if (cadence == 0)
@@ -234,10 +243,36 @@ class ergTable : public QObject {
         return maxRes;
     }
 
+    /**
+     * @brief Load default calibration data for a specific bike model.
+     * Only populates if the table is currently empty (won't overwrite user's learned data).
+     * Data format: "cadence|wattage|resistance;cadence|wattage|resistance;..."
+     */
+    void loadDefaultData(const QString& defaultDataString) {
+        if (!consolidatedData.isEmpty()) {
+            qDebug() << "ergTable: skipping defaults, user data already exists ("
+                     << consolidatedData.size() << "points)";
+            return;
+        }
+        QStringList dataList = defaultDataString.split(";", Qt::SkipEmptyParts);
+        for (const QString& triple : dataList) {
+            QStringList fields = triple.split("|");
+            if (fields.size() == 3) {
+                uint16_t cadence = fields[0].toUInt();
+                uint16_t wattage = fields[1].toUInt();
+                uint16_t resistance = fields[2].toUInt();
+                consolidatedData.append(ergDataPoint(cadence, wattage, resistance));
+            }
+        }
+        qDebug() << "ergTable: loaded" << consolidatedData.size() << "default data points";
+        saveSettings();
+    }
+
   private:
     QMap<CadenceResistancePair, WattageStats> wattageData;
     QList<ergDataPoint> consolidatedData;
     uint16_t lastResistanceValue = 0xFFFF;
+    uint16_t cadenceResistanceBandStep = 0;
     QDateTime lastResistanceTime = QDateTime::currentDateTime();
 
     void updateDataTable(const CadenceResistancePair& pair) {
@@ -247,6 +282,11 @@ class ergTable : public QObject {
         for (int i = consolidatedData.size() - 1; i >= 0; --i) {
             if (consolidatedData[i].cadence == pair.cadence &&
                 consolidatedData[i].resistance == pair.resistance) {
+                // This runs on every metrics update once a pair has enough samples; when the median
+                // did not move there is nothing to update, and rewriting the settings file would
+                // only cost I/O on the main thread.
+                if (consolidatedData[i].wattage == medianWattage)
+                    return;
                 consolidatedData.removeAt(i);
                 break;
             }
@@ -254,6 +294,7 @@ class ergTable : public QObject {
 
         // Add new point
         consolidatedData.append(ergDataPoint(pair.cadence, medianWattage, pair.resistance));
+
         qDebug() << "Added/Updated point:"
                  << "C:" << pair.cadence
                  << "W:" << medianWattage

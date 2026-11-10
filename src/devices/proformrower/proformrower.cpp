@@ -16,6 +16,91 @@
 
 using namespace std::chrono_literals;
 
+void ProformRowerTelemetryParser::reset() {
+    body.clear();
+    expectedLength = 0;
+    expectedPackets = 0;
+    receivedPackets = 0;
+}
+
+bool ProformRowerTelemetryParser::consumeFragment(const QByteArray &fragment, ProformRowerTelemetry &telemetry) {
+    if (fragment.size() != 20) {
+        reset();
+        return false;
+    }
+
+    const uint8_t first = static_cast<uint8_t>(fragment.at(0));
+    const uint8_t second = static_cast<uint8_t>(fragment.at(1));
+    if (first == 0xfe && second == 0x02) {
+        reset();
+        expectedLength = static_cast<uint8_t>(fragment.at(2));
+        expectedPackets = static_cast<uint8_t>(fragment.at(3));
+        if (!((expectedLength == 50 && expectedPackets == 4) ||
+              (expectedLength == 33 && expectedPackets == 3)))
+            reset();
+        else
+            receivedPackets = 1;
+        return false;
+    }
+
+    if (expectedLength == 0 || receivedPackets == 0) {
+        reset();
+        return false;
+    }
+
+    if (first == static_cast<uint8_t>(receivedPackets - 1) && second == 0x12 && receivedPackets < expectedPackets) {
+        if (body.size() + 18 > expectedLength) {
+            reset();
+            return false;
+        }
+        body.append(fragment.constData() + 2, 18);
+        ++receivedPackets;
+    } else if (first == 0xff && receivedPackets + 1 == expectedPackets) {
+        const int finalLength = second;
+        if (finalLength == 0 || finalLength > 18 || finalLength != expectedLength - body.size()) {
+            reset();
+            return false;
+        }
+        body.append(fragment.constData() + 2, finalLength);
+        ++receivedPackets;
+    } else {
+        reset();
+        return false;
+    }
+
+    if (receivedPackets != expectedPackets)
+        return false;
+
+    const int completeLength = expectedLength;
+    const QByteArray response = body;
+    reset();
+    if (response.size() != completeLength || response.size() < 2)
+        return false;
+
+    unsigned int checksum = 0;
+    for (int i = 4; i < response.size() - 1; ++i)
+        checksum += static_cast<uint8_t>(response.at(i));
+    if ((checksum & 0xff) != static_cast<uint8_t>(response.at(response.size() - 1)))
+        return false;
+
+    if (response.size() == 50 && response.startsWith(QByteArray::fromHex("0104022e142e0202"))) {
+        telemetry.strokeCount = static_cast<uint16_t>(static_cast<uint8_t>(response.at(46))) |
+                                (static_cast<uint16_t>(static_cast<uint8_t>(response.at(47))) << 8);
+        telemetry.cadence = static_cast<uint8_t>(response.at(48));
+        telemetry.hasStrokeCount = true;
+        telemetry.hasCadence = true;
+        return true;
+    }
+    if (response.size() == 33 && response.startsWith(QByteArray::fromHex("0104021d141d0202"))) {
+        const uint16_t pace = static_cast<uint16_t>(static_cast<uint8_t>(response.at(27))) |
+                              (static_cast<uint16_t>(static_cast<uint8_t>(response.at(28))) << 8);
+        telemetry.speedKmh = pace > 0 ? 1800.0 / static_cast<double>(pace) : 0;
+        telemetry.hasSpeed = true;
+        return true;
+    }
+    return false;
+}
+
 proformrower::proformrower(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
@@ -579,13 +664,38 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     lastPacket = newValue;
 
+    if (settings.value(QZSettings::proform_rower_750r, QZSettings::default_proform_rower_750r).toBool()) {
+        ProformRowerTelemetry telemetry;
+        if (telemetry750rParser.consumeFragment(newValue, telemetry)) {
+            if (telemetry.hasCadence)
+                Cadence = telemetry.cadence;
+            if (telemetry.hasStrokeCount)
+                StrokesCount = telemetry.strokeCount;
+            if (telemetry.hasSpeed)
+                Speed = telemetry.speedKmh;
+        }
+    } else {
+        telemetry750rParser.reset();
+    }
+
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
-        Cadence = (uint8_t)(newValue.at(12));
+        const bool rowerTelemetryFrame = (uint8_t)newValue.at(2) == 0 && (uint8_t)newValue.at(3) == 0 &&
+                                         (uint8_t)newValue.at(4) == 0 && (uint8_t)newValue.at(5) == 0 &&
+                                         (uint8_t)newValue.at(6) == 0 && (uint8_t)newValue.at(7) == 0 &&
+                                         (uint8_t)newValue.at(8) == 0 && (uint8_t)newValue.at(9) == 0;
+        if (!rowerTelemetryFrame) {
+            return;
+        }
+        const uint8_t cadence = (uint8_t)(newValue.at(12));
+        uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
+        if (cadence == 0 && s > 0) {
+            return;
+        }
+        Cadence = cadence;
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)) / 60000;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
-        uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
         if (s > 0)
             Speed = (60.0 / (double)(s)) * 30.0;
         else
@@ -595,7 +705,8 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     }
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30) ||
+        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
+        (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
@@ -1047,7 +1158,7 @@ void proformrower::controllerStateChanged(QLowEnergyController::ControllerState 
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 

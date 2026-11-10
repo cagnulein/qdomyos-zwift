@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>
@@ -135,18 +136,25 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     double kcal = 0;
     bool cadence_eval = false;
 
-    m_watt = ((newValue.at(10) >> 4) * 10) + (newValue.at(10) & 0x0F);
-    emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
-
     if(newValue.at(1) == 0x10) {
         Cadence = ((newValue.at(3) >> 4) * 10) + (newValue.at(3) & 0x0F);
         Speed = 0.37497622 * ((double)Cadence.value());
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }
 
+    if (Speed.value() > 0) {
+        double paceSeconds = 1800.0 / Speed.value();
+        m_watt = rower::calculateWattsFromPace(paceSeconds);
+    } else {
+        m_watt = 0;
+    }
+    emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+
     if (!firstCharChanged) {
-        Distance +=
-            ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        double elapsedMs = lastTimeCharChanged.msecsTo(now);
+        Distance += ((Speed.value() / 3600.0) / (1000.0 / elapsedMs));
+        // Accumulate stroke count from cadence since the device doesn't send it directly
+        StrokesCount += (Cadence.value() / 60.0) * (elapsedMs / 1000.0);
     }
 
     lastTimeCharChanged = now;
@@ -183,7 +191,7 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     Resistance = requestResistance;
-    KCal = kcal;
+    KCal += kcal;
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -214,13 +222,18 @@ double sportsplusrower::GetWattFromPacket(const QByteArray &packet) {
 void sportsplusrower::btinit(bool startTape) {
     Q_UNUSED(startTape);
 
-    const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    if(XM_FITNESS) {
+        const uint8_t initData1[] = {0x40, 0x00, 0xd1, 0x5f, 0x70};    
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else {
+        const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};    
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -241,11 +254,20 @@ void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
         // QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
+        QBluetoothUuid _gattNotify2AltCharacteristicId(QStringLiteral("0000ffe2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("0000fff3-0000-1000-8000-00805f9b34fb"));
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        // Some devices use ffe2 instead of fff2
+        if (!gattWriteCharacteristic.isValid()) {
+            XM_FITNESS = true;
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2AltCharacteristicId);
+        }
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        if (!gattNotify2Characteristic.isValid()) {
+            gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2AltCharacteristicId);
+        }
         gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
@@ -261,17 +283,26 @@ void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &sportsplusrower::descriptorWritten);
 
-        // ******************************************* virtual bike init *************************************
+        // ******************************************* virtual bike/rower init *************************************
         if (!firstVirtualBike && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual bike interface..."));
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                // connect(virtualBike,&virtualbike::debug ,this,&sportsplusrower::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusrower::changeInclination);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                if (!virtual_device_rower) {
+                    emit debug(QStringLiteral("creating virtual bike interface..."));
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    // connect(virtualBike,&virtualbike::debug ,this,&sportsplusrower::debug);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusrower::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    emit debug(QStringLiteral("creating virtual rower interface..."));
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&sportsplusrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
             }
         }
         firstVirtualBike = 1;
@@ -401,6 +432,6 @@ void sportsplusrower::controllerStateChanged(QLowEnergyController::ControllerSta
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

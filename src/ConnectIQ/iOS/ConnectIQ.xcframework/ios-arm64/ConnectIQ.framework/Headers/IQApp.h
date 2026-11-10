@@ -6,8 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ConnectIQ/IQDevice.h>
-#import <ConnectIQ/IQAppStatus.h>
+
+#import "IQDevice.h"
+#import "IQAppStatus.h"
 
 /// @brief  Represents an instance of a ConnectIQ app that is installed on a
 ///         Garmin device.

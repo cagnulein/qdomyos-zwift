@@ -1,0 +1,306 @@
+import QtQuick 2.7
+import QtQml 2.15
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.0
+
+ScrollView {
+    contentWidth: -1
+    // The column with its top and bottom margins, which are not in its implicit height
+    contentHeight: customGearsColumn.implicitHeight + 2 * customGearsColumn.anchors.topMargin
+    focus: true
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
+    id: customGearSettingsWindow
+    visible: true
+    clip: true
+
+    // The Settings object of settings.qml, given by the page that opens this one: one object
+    // for all the settings pages, so a page no longer writes back an old copy of what another
+    // page changed
+    property var settings
+
+    ListModel {
+        id: gearListModel
+    }
+
+    property var gearRows: []
+    // the rows, the fields and their -/+ grow with the text like the Wahoo gear table
+    // (from 40 and 30), never below their size at 100 %
+    property int rowHeight: window.textScale !== 1 ? Math.max(55, window.fontPx(40)) : 55
+    property int offsetControlHeight: window.textScale !== 1 ? Math.max(43, window.fontPx(30)) : 43
+
+    Component.onCompleted: {
+        loadGearRows()
+    }
+
+    function clampOffset(value) {
+        if (isNaN(value)) {
+            return 0
+        }
+        return Math.max(-100, Math.min(100, value))
+    }
+
+    function parseOffset(value) {
+        return parseFloat(String(value).replace(",", "."))
+    }
+
+    function defaultGearRows() {
+        var rows = []
+        for (var i = 1; i <= 24; i++) {
+            rows.push({ gear: i, offset: i })
+        }
+        return rows
+    }
+
+    function loadGearRows() {
+        var parsed = stringToGearRows(settings.gears_custom_table)
+        gearRows = parsed.length === 24 ? parsed : defaultGearRows()
+        updateGearListModel()
+        saveGearRows()
+    }
+
+    function stringToGearRows(gearString) {
+        if (!gearString) {
+            return []
+        }
+
+        var rows = []
+        var lines = gearString.split("\n")
+        for (var i = 0; i < lines.length; i++) {
+            var parts = lines[i].split("|")
+            if (parts.length < 2) {
+                continue
+            }
+            var gear = parseInt(parts[0])
+            var offset = clampOffset(parseOffset(parts[1]))
+            if (gear >= 1 && gear <= 24) {
+                rows[gear - 1] = { gear: gear, offset: offset }
+            }
+        }
+
+        var compactRows = []
+        for (var j = 1; j <= 24; j++) {
+            compactRows.push(rows[j - 1] ? rows[j - 1] : { gear: j, offset: j })
+        }
+        return compactRows
+    }
+
+    function gearRowsToString(rows) {
+        return rows.map(function(row) {
+            return row.gear + "|" + clampOffset(parseOffset(row.offset))
+        }).join("\n")
+    }
+
+    function saveGearRows() {
+        settings.gears_custom_table = gearRowsToString(gearRows)
+    }
+
+    function updateGearListModel() {
+        if (!gearListModel) {
+            return
+        }
+        gearListModel.clear()
+        for (var i = 0; i < gearRows.length; i++) {
+            gearListModel.append(gearRows[i])
+        }
+    }
+
+    ColumnLayout {
+        id: customGearsColumn
+        // Top, left and right only: filling the content item too tied the column height to the
+        // content height made from it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 10
+        anchors.leftMargin: window.contentSideMargin
+        anchors.rightMargin: window.contentSideMargin
+        spacing: 10
+
+        IndicatorOnlySwitch {
+            text: qsTr("Enable Custom Gear Table")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.gears_custom_table_enabled
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.gears_custom_table_enabled = checked
+        }
+
+        Label {
+            text: qsTr("Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.")
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
+            color: Material.accent
+        }
+
+        Button {
+            text: qsTr("Reset to Linear Defaults")
+            Layout.fillWidth: true
+            Layout.preferredHeight: window.fontPx(40)
+            onClicked: {
+                gearRows = defaultGearRows()
+                updateGearListModel()
+                saveGearRows()
+            }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 40
+            color: "#f0f0f0"
+            border.width: 1
+            border.color: "#cccccc"
+
+            Row {
+                anchors.fill: parent
+
+                Rectangle {
+                    width: parent.width / 2
+                    height: parent.height
+                    border.width: 1
+                    border.color: "#cccccc"
+                    color: "transparent"
+
+                    Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        anchors.centerIn: parent
+                        text: qsTr("Gear")
+                        font.bold: true
+                        color: "black"
+                    }
+                }
+
+                Rectangle {
+                    width: parent.width / 2
+                    height: parent.height
+                    border.width: 1
+                    border.color: "#cccccc"
+                    color: "transparent"
+
+                    Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        anchors.centerIn: parent
+                        text: qsTr("Offset")
+                        font.bold: true
+                        color: "black"
+                    }
+                }
+            }
+        }
+
+        ListView {
+            id: gearTable
+            Layout.fillWidth: true
+            Layout.preferredHeight: 24 * rowHeight
+            clip: true
+            model: gearListModel
+
+            Component.onCompleted: {
+                updateGearListModel()
+            }
+
+            ScrollBar.vertical: ScrollBar {
+                policy: ScrollBar.AsNeeded
+            }
+
+            delegate: Rectangle {
+                width: gearTable.width
+                height: rowHeight
+                color: index % 2 === 0 ? "white" : "#fafafa"
+
+                Row {
+                    anchors.fill: parent
+
+                    Rectangle {
+                        width: parent.width / 2
+                        height: parent.height
+                        border.width: 1
+                        border.color: "#cccccc"
+                        color: "transparent"
+
+                        Text {
+                            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                            anchors.centerIn: parent
+                            text: gear
+                            color: "black"
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width / 2
+                        height: parent.height
+                        border.width: 1
+                        border.color: "#cccccc"
+                        color: "transparent"
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            width: parent.width * 0.92
+                            height: offsetControlHeight
+                            spacing: 4
+
+                            Button {
+                                text: "-"
+                                Layout.preferredWidth: window.fontPx(34)
+                                Layout.fillHeight: true
+                                onClicked: {
+                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) - 0.5)
+                                    offsetTextField.text = gearRows[index].offset
+                                    saveGearRows()
+                                }
+                            }
+
+                            TextField {
+                                id: offsetTextField
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                text: offset
+                                color: "black"
+                                selectedTextColor: "white"
+                                selectionColor: Material.accent
+                                horizontalAlignment: Text.AlignHCenter
+                                // Material pads 8 above and 16 below: with a bigger text the number sat
+                                // well over the middle of the field
+                                topPadding: window.textScale !== 1 ? 0 : 8
+                                bottomPadding: window.textScale !== 1 ? 0 : 16
+                                background: Rectangle {
+                                    color: "white"
+                                    border.color: "#cccccc"
+                                    radius: 2
+                                }
+                                function applyOffset() {
+                                    var newOffset = clampOffset(parseOffset(text))
+                                    gearRows[index].offset = newOffset
+                                    text = newOffset
+                                    saveGearRows()
+                                }
+                                onAccepted: applyOffset()
+                                onEditingFinished: applyOffset()
+                            }
+
+                            Button {
+                                text: "+"
+                                Layout.preferredWidth: window.fontPx(34)
+                                Layout.fillHeight: true
+                                onClicked: {
+                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + 0.5)
+                                    offsetTextField.text = gearRows[index].offset
+                                    saveGearRows()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -46,6 +46,7 @@ class deerruntreadmill : public treadmill {
   private:
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    void forceSpeedAndInclination(double requestSpeed, double requestInclination);
     void btinit(bool startTape);
     void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
                              const QString &info, bool disable_log = false, bool wait_for_response = false);

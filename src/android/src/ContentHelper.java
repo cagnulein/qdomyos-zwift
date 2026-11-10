@@ -4,25 +4,355 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import org.cagnulen.qdomyoszwift.QLog;
 
 public class ContentHelper {
 
     public static String getFileName(Context context, Uri uri) {
+        if (uri == null) {
+            return null;
+        }
+
         String result = null;
-        if (uri.getScheme().equals("content")) {
+        String scheme = uri.getScheme();
+        if ("content".equals(scheme)) {
             QLog.d("ContentHelper", "content");
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-            QLog.d("ContentHelper", "cursor " + cursor);
+            Cursor cursor = null;
             try {
+                cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null);
+                QLog.d("ContentHelper", "cursor " + cursor);
                 if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    QLog.d("ContentHelper", "result " + result);
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        result = cursor.getString(nameIndex);
+                        QLog.d("ContentHelper", "result " + result);
+                    }
                 }
+            } catch (Exception e) {
+                QLog.d("ContentHelper", "getFileName query failed " + e);
             } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+        if ((result == null || result.isEmpty()) && uri.getLastPathSegment() != null) {
+            result = uri.getLastPathSegment();
+        }
+        return result;
+    }
+
+    // Size in bytes reported by the provider, or -1 when it is unknown.
+    public static long getFileSize(Context context, Uri uri) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.SIZE}, null, null, null);
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "getFileSize query failed " + e);
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
         }
-        return result;
+        return -1;
+    }
+
+    public static boolean copyContentToFile(Context context, Uri uri, String destinationPath) {
+        if (context == null || uri == null || destinationPath == null || destinationPath.isEmpty()) {
+            return false;
+        }
+
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try {
+            inputStream = context.getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                QLog.d("ContentHelper", "copyContentToFile null input stream for " + uri);
+                return false;
+            }
+
+            outputStream = new FileOutputStream(destinationPath, false);
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+            return true;
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "copyContentToFile failed " + e);
+            return false;
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public static String importContentToAppDir(Context context, Uri uri, String destinationDirPath) {
+        if (context == null || uri == null || destinationDirPath == null || destinationDirPath.isEmpty()) {
+            return "";
+        }
+
+        String fileName = sanitizeFileName(getFileName(context, uri));
+        if (fileName.isEmpty()) {
+            fileName = "imported_file";
+        }
+
+        File destinationDir = new File(destinationDirPath);
+        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
+            QLog.d("ContentHelper", "importContentToAppDir could not create " + destinationDirPath);
+            return "";
+        }
+
+        File destinationFile = new File(destinationDir, fileName);
+        if (destinationFile.exists() && !destinationFile.delete()) {
+            // after a reinstall a file of the previous install keeps its name in the folder, but
+            // this install can neither replace nor read it: the picked file goes under a free name,
+            // and picking it again reuses that copy. Size -1: a copy is reused only when its content
+            // is the same, an edited file of the same length must not open the old copy
+            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath()
+                + ", importing under another name");
+            return importContentToAppDirKeepExisting(context, uri, fileName, -1, destinationDirPath);
+        }
+
+        if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
+            if (destinationFile.exists()) {
+                destinationFile.delete();
+            }
+            return "";
+        }
+
+        return destinationFile.getAbsolutePath();
+    }
+
+    // Copies a picked file into destinationDirPath without replacing anything there: a file with
+    // the same name and size is taken as already imported, otherwise a free name gets a "_N"
+    // suffix. A name taken by a file this install cannot see (left by an uninstalled copy of the
+    // app) fails to open for writing, so the next suffix is tried as well.
+    public static String importContentToAppDirKeepExisting(Context context, Uri uri, String fileName, long size,
+                                                           String destinationDirPath) {
+        if (context == null || uri == null || destinationDirPath == null || destinationDirPath.isEmpty()) {
+            return "";
+        }
+
+        fileName = sanitizeFileName(fileName);
+        if (fileName.isEmpty()) {
+            fileName = sanitizeFileName(getFileName(context, uri));
+        }
+        if (fileName.isEmpty()) {
+            fileName = "imported_file";
+        }
+
+        File destinationDir = new File(destinationDirPath);
+        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
+            QLog.d("ContentHelper", "importContentToAppDirKeepExisting could not create " + destinationDirPath);
+            return "";
+        }
+
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        for (int attempt = 0; attempt < 100; attempt++) {
+            String candidate = attempt == 0 ? fileName : base + "_" + attempt + extension;
+            File destinationFile = new File(destinationDir, candidate);
+            if (destinationFile.exists()) {
+                // a same-size file counts as this workout only if the app can read it: after a
+                // reinstall the copies made by the previous install are still listed but unreadable
+                if (size >= 0 && destinationFile.length() == size && isReadable(destinationFile)) {
+                    return destinationFile.getAbsolutePath();
+                }
+                continue;
+            }
+            if (copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
+                // the same workout may already be here under another name (name_1.fit, ...):
+                // keep one copy, otherwise every import multiplies them
+                File twin = findIdenticalFile(destinationDir, destinationFile);
+                if (twin != null) {
+                    destinationFile.delete();
+                    return twin.getAbsolutePath();
+                }
+                return destinationFile.getAbsolutePath();
+            }
+            if (destinationFile.exists()) {
+                destinationFile.delete();
+            }
+        }
+        QLog.d("ContentHelper", "importContentToAppDirKeepExisting gave up on " + fileName);
+        return "";
+    }
+
+    // A readable file of the folder with the same bytes as file, or null.
+    private static File findIdenticalFile(File dir, File file) {
+        File[] others = dir.listFiles();
+        if (others == null) {
+            return null;
+        }
+        // under FUSE passthrough (seen on Android 15) length() of a recently written file can stay
+        // 0 for a long time: the size of file is counted from its content, and another file
+        // reporting 0 is compared by content too
+        long length = contentLength(file);
+        if (length < 0) {
+            return null;
+        }
+        for (File other : others) {
+            if (other.equals(file) || !other.isFile()) {
+                continue;
+            }
+            long otherLength = other.length();
+            if (otherLength != length && otherLength != 0) {
+                continue;
+            }
+            if (sameContent(other, file)) {
+                return other;
+            }
+        }
+        return null;
+    }
+
+    // Number of bytes read from file, -1 when it cannot be read.
+    private static long contentLength(File file) {
+        java.io.FileInputStream in = null;
+        try {
+            in = new java.io.FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                total += read;
+            }
+            return total;
+        } catch (Exception e) {
+            return -1;
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    static boolean sameContent(File a, File b) {
+        InputStream inA = null;
+        InputStream inB = null;
+        try {
+            inA = new java.io.FileInputStream(a);
+            inB = new java.io.FileInputStream(b);
+            return sameBytes(inA, inB);
+        } catch (Exception e) {
+            // unreadable (a file of a previous install): not a copy this install can use
+            return false;
+        } finally {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    // The document behind uri holds the same bytes as file: a copy is checked this way before
+    // the document it was made from is removed.
+    public static boolean sameContent(Context context, Uri uri, File file) {
+        if (context == null || uri == null || file == null) {
+            return false;
+        }
+        InputStream inA = null;
+        InputStream inB = null;
+        try {
+            inA = context.getContentResolver().openInputStream(uri);
+            if (inA == null) {
+                return false;
+            }
+            inB = new java.io.FileInputStream(file);
+            return sameBytes(inA, inB);
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "sameContent failed " + e);
+            return false;
+        } finally {
+            closeQuietly(inA);
+            closeQuietly(inB);
+        }
+    }
+
+    private static boolean sameBytes(InputStream inA, InputStream inB) throws java.io.IOException {
+        byte[] bufA = new byte[8192];
+        byte[] bufB = new byte[8192];
+        while (true) {
+            int readA = readFully(inA, bufA);
+            int readB = readFully(inB, bufB);
+            if (readA != readB) {
+                return false;
+            }
+            if (readA <= 0) {
+                return true;
+            }
+            for (int i = 0; i < readA; i++) {
+                if (bufA[i] != bufB[i]) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private static void closeQuietly(InputStream in) {
+        try {
+            if (in != null) {
+                in.close();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static int readFully(InputStream in, byte[] buffer) throws java.io.IOException {
+        int total = 0;
+        while (total < buffer.length) {
+            int read = in.read(buffer, total, buffer.length - total);
+            if (read == -1) {
+                break;
+            }
+            total += read;
+        }
+        return total;
+    }
+
+    // false for a file of a previous install: still listed under its name, but not openable
+    public static boolean isReadable(File file) {
+        java.io.FileInputStream stream = null;
+        try {
+            stream = new java.io.FileInputStream(file);
+            return stream.read() != -1 || file.length() == 0;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try {
+                if (stream != null) {
+                    stream.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static String sanitizeFileName(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replace('\\', '_').replace('/', '_').trim();
     }
 }

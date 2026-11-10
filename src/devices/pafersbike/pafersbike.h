@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "devices/bike.h"
+#include "ergtable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -43,6 +44,7 @@ class pafersbike : public bike {
 
   private:
     const resistance_t max_resistance = 24;
+    ergTable _ergTable;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t wattsFromResistance(double resistance);

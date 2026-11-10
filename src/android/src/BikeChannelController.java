@@ -15,6 +15,8 @@ import com.dsi.ant.plugins.antplus.pcc.AntPlusFitnessEquipmentPcc.HeartRateDataS
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.ICalculatedPowerReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.IInstantaneousCadenceReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikePowerPcc.ICalculatedCrankCadenceReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedAccumulatedDistanceReceiver;
@@ -62,6 +64,7 @@ public class BikeChannelController {
     
     // Bike data fields - from dedicated sensors
     public int powerSensorPower = 0;     // Power from dedicated power sensor
+    public int powerSensorCadence = 0;   // Cadence from dedicated power sensor
     public int speedSensorCadence = 0;   // Cadence from speed/cadence sensor
     public BigDecimal speedSensorSpeed = new BigDecimal(0); // Speed from speed/cadence sensor
     public long speedSensorDistance = 0; // Distance from speed/cadence sensor
@@ -78,8 +81,9 @@ public class BikeChannelController {
                 equipmentState = state;
                 QLog.d(TAG, "Equipment type: " + type + ", State: " + state);
 
-                // Only subscribe to bike specific data if this is actually a bike
-                if (type == EquipmentType.BIKE && !isSubscribedToBikeData) {
+                // Many smart trainers (e.g. Tacx Flow) report as TRAINER while still exposing bike metrics.
+                // Subscribe to bike-specific data for BIKE and TRAINER.
+                if ((type == EquipmentType.BIKE || type == EquipmentType.TRAINER) && !isSubscribedToBikeData) {
                     subscribeToBikeSpecificData();
                     isSubscribedToBikeData = true;
                 }
@@ -90,10 +94,12 @@ public class BikeChannelController {
         this.context = Ant.activity;
         
         if (technoGymGroupCycle) {
-            // For Technogym Group Cycle: disable openChannel, enable openPowerSensorChannel
+            // Group Cycle mode should still keep FE data (speed/cadence when available)
+            // and add a dedicated power channel for better power compatibility.
+            openChannel();
             openPowerSensorChannel(antBikeDeviceNumber);
         } else {
-            // Standard behavior: enable openChannel, disable openPowerSensorChannel
+            // Standard behavior: fitness equipment channel
             openChannel();
         }
         
@@ -328,6 +334,34 @@ public class BikeChannelController {
                 }
             });
 
+            // Some trainers expose cadence only via bike-power profile pages.
+            powerPcc.subscribeInstantaneousCadenceEvent(new IInstantaneousCadenceReceiver() {
+                @Override
+                public void onNewInstantaneousCadence(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                      AntPlusBikePowerPcc.DataSource dataSource,
+                                                      int instantaneousCadence) {
+                    if (instantaneousCadence > 0 && instantaneousCadence != 0xFF) {
+                        powerSensorCadence = instantaneousCadence;
+                        QLog.d(TAG, "Power Sensor Instant Cadence - Cadence: " + powerSensorCadence + "rpm");
+                    }
+                }
+            });
+
+            powerPcc.subscribeCalculatedCrankCadenceEvent(new ICalculatedCrankCadenceReceiver() {
+                @Override
+                public void onNewCalculatedCrankCadence(long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                                        AntPlusBikePowerPcc.DataSource dataSource,
+                                                        BigDecimal calculatedCrankCadence) {
+                    if (calculatedCrankCadence != null) {
+                        int cadenceValue = calculatedCrankCadence.intValue();
+                        if (cadenceValue > 0) {
+                            powerSensorCadence = cadenceValue;
+                            QLog.d(TAG, "Power Sensor Calc Cadence - Cadence: " + powerSensorCadence + "rpm");
+                        }
+                    }
+                }
+            });
+
             // Also subscribe to calculated power events
             powerPcc.subscribeCalculatedPowerEvent(new ICalculatedPowerReceiver() {
                 @Override
@@ -449,8 +483,8 @@ public class BikeChannelController {
             return cadence; // From fitness equipment
         } else if (isSpeedCadenceConnected && speedSensorCadence > 0) {
             return speedSensorCadence; // From dedicated speed/cadence sensor
-        } else if (isPowerConnected && speedSensorCadence > 0) {
-            return speedSensorCadence; // From power sensor (if it provides cadence)
+        } else if (isPowerConnected && powerSensorCadence > 0) {
+            return powerSensorCadence; // From power sensor cadence pages
         }
         return 0;
     }

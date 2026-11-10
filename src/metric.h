@@ -20,13 +20,17 @@ class metric {
 
     metric();
     void setType(_metric_type t, BLUETOOTH_TYPE bt = UNKNOWN);
-    void setValue(double value, bool applyGainAndOffset = true);
+    void setValue(double value, bool applyGainAndOffset = true, bool includeZeroInStats = false);
+    static double capWatt(double value, double maxWatt);
     double value();
     double valueRaw();
     QDateTime lastChanged() { return m_lastChanged; }
+    quint64 updateSequence() const { return m_updateSequence; }
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
+    double average5sHarmonic();
+    double average3sHarmonic();
     double average20s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
@@ -65,6 +69,7 @@ class metric {
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+    QList<double> m_last3;
     QList<double> m_last5;
     QList<double> m_last20;
 
@@ -74,14 +79,17 @@ class metric {
     double m_lapMin = 999999999;
     double m_lapMax = 0;
 
-    QDateTime m_lastChanged = QDateTime::currentDateTime();
-    QDateTime m_valueChanged = QDateTime::currentDateTime();
+    QDateTime m_lastChanged = QDateTime::currentDateTimeUtc();
+    quint64 m_updateSequence = 0;
+    QDateTime m_valueChanged = QDateTime::currentDateTimeUtc();
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
     BLUETOOTH_TYPE m_bluetooth_type = UNKNOWN;
 
     bool paused = false;
+
+    double applySettings(double v, bool applyGainAndOffset);
 };
 
 #endif // METRIC_H

@@ -19,6 +19,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
@@ -45,6 +46,13 @@ class domyosbike : public bike {
     bool connected() override;
 
   private:
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
+
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -56,6 +64,9 @@ class domyosbike : public bike {
     void btinit_telink(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeCharacteristicBlocking(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                                     bool wait_for_response = false);
+    void processWriteQueue();
     void startDiscover();
     uint16_t watts() override;
 
@@ -80,6 +91,11 @@ class domyosbike : public bike {
     bool searchStopped = false;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstCharacteristicChanged = true;
 

@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -15,6 +16,7 @@ ColumnLayout {
     signal trainprogram_autostart_requested()
 
     property url pendingWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
 
     Settings {
         id: settings
@@ -22,6 +24,66 @@ ColumnLayout {
     }
 
     property var selectedFileUrl: ""
+    property bool isSearching: false
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "training") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+    }
+
+    // Called by main.qml on the Android back button: leave the workout preview first
+    function handleBack() {
+        if (stackView.depth > 1) {
+            stackView.pop()
+            return true
+        }
+        return false
+    }
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        pendingWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        stackView.push(detailView)
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+        rootItem.trainingProgramsPageOpened()
+    }
+
+    // Model for search results
+    ListModel {
+        id: searchResultsModel
+    }
+
+    // Function to perform C++-based recursive search
+    function searchRecursively(folderUrl, filter) {
+        searchResultsModel.clear()
+
+        if (!filter || filter.trim() === "") {
+            isSearching = false
+            return
+        }
+
+        isSearching = true
+
+        // Call C++ FileSearcher for fast recursive search
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"])
+
+        // Populate search results model
+        for (var i = 0; i < results.length; i++) {
+            searchResultsModel.append(results[i])
+        }
+    }
 
     Loader {
         id: fileDialogLoader
@@ -29,8 +91,9 @@ ColumnLayout {
         sourceComponent: Component {
             FileDialog {
                 id: fileDialog
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -53,6 +116,24 @@ ColumnLayout {
         }
     }
 
+    MessageDialog {
+        id: deleteDialog
+        property url fileUrl: ""
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            if (rootItem.deleteTrainingProgramFile(fileUrl)) {
+                pendingWorkoutUrl = ""
+                isSearching = false
+                stackView.clear()
+                stackView.push(masterView)
+            }
+            visible = false
+        }
+        onNoClicked: visible = false
+    }
+
     StackView {
         id: stackView
         Layout.fillWidth: true
@@ -66,12 +147,24 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 5
 
+                // programs of a previous install were copied back into the training folder
+                Connections {
+                    target: rootItem
+                    function onTrainingProgramsRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
+
                 Row {
                     Layout.fillWidth: true
                     spacing: 5
 
                     Text {
-                        text: "Filter"
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        text: qsTr("Filter")
                         color: "white"
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -79,21 +172,44 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        // in a Row fillWidth does nothing: the field kept its 120 of Material and
+                        // showed less of the hint as the text grew. It grows with the text, but
+                        // leaves room for the back button on a narrow screen
+                        width: window.textScale !== 1
+                               ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth),
+                                     parent.width - x - (filterBackButton.visible ? filterBackButton.width + parent.spacing : 0)))
+                               : implicitWidth
+                        placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
-                            var text = filterField.text
-                            var filter = "*"
-                            for(var i = 0; i<text.length; i++)
-                               filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
-                            filter+="*"
-                            folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                            var text = filterField.text.trim()
+
+                            if (text === "") {
+                                // No filter - use normal folder browsing
+                                isSearching = false
+                            } else {
+                                // Trigger recursive C++ search
+                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                searchRecursively(baseFolder, text)
+                            }
                         }
 
-                        onTextChanged: updateFilter()
+                        onTextChanged: {
+                            searchTimer.restart()
+                        }
+
+                        Timer {
+                            id: searchTimer
+                            interval: 300
+                            repeat: false
+                            onTriggered: filterField.updateFilter()
+                        }
                     }
 
                     Button {
+                        id: filterBackButton
                         text: "←"
+                        visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
                     }
                 }
@@ -106,7 +222,7 @@ ColumnLayout {
 
                     FolderListModel {
                         id: folderModel
-                        nameFilters: ["*.xml", "*.zwo"]
+                        nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                         folder: "file://" + rootItem.getWritableAppDir() + 'training'
                         showDotAndDotDot: false
                         showDirs: true
@@ -114,63 +230,84 @@ ColumnLayout {
                         showDirsFirst: true
                     }
 
-                    model: folderModel
+                    model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: Component {
-                        Rectangle {
-                            width: ListView.view.width
-                            height: 50
+                    delegate: ItemDelegate {
+                        id: workoutDelegate
+                        width: ListView.view.width
+                        // a bigger text: the row grows with the name and the path of a search result
+                        height: window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50
+
+                        // Determine item properties based on which model is active
+                        property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
+                        // || "": while the folder is set again (onTrainingProgramsRestored) the model
+                        // is empty for a moment and get() gives undefined to the rows still shown
+                        property string itemFileName: isSearching ? model.fileName : (folderModel.get(index, "fileName") || "")
+                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
+                        property string itemRelativePath: isSearching ? model.relativePath : ""
+
+                        background: Rectangle {
                             color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                        }
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 10
+                        contentItem: RowLayout {
+                            spacing: 10
 
-                                Text {
-                                    id: fileIcon
-                                    text: folderModel.isFolder(index) ? "📁" : "📄"
-                                    font.pixelSize: 24
-                                }
+                            Item {
+                                width: 10
+                                height: 1
+                            }
+
+                            Text {
+                                id: fileIcon
+                                text: isItemFolder ? "📁" : "📄"
+                                font.pixelSize: window.fontPx(24)
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
 
                                 Text {
                                     id: fileName
                                     Layout.fillWidth: true
-                                    text: !folderModel.isFolder(index) ?
-                                          folderModel.get(index, "fileName").substring(0, folderModel.get(index, "fileName").length-4) :
-                                          folderModel.get(index, "fileName")
-                                    color: folderModel.isFolder(index) ? Material.color(Material.Orange) : "white"
-                                    font.pixelSize: 16
+                                    text: !isItemFolder ?
+                                          itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
+                                          itemFileName
+                                    color: isItemFolder ? Material.color(Material.Orange) : "white"
+                                    font.pixelSize: window.fontPx(16)
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
-                                    text: "›"
-                                    font.pixelSize: 24
+                                    Layout.fillWidth: true
+                                    text: itemRelativePath
                                     color: Material.color(Material.Grey)
-                                    visible: !ListView.isCurrentItem
+                                    font.pixelSize: window.fontPx(12)
+                                    elide: Text.ElideMiddle
+                                    visible: isSearching && itemRelativePath !== ""
                                 }
                             }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    list.currentIndex = index
-                                    let fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL');
+                            Text {
+                                text: "›"
+                                font.pixelSize: window.fontPx(24)
+                                color: Material.color(Material.Grey)
+                                visible: !ListView.isCurrentItem
+                            }
+                        }
 
-                                    if (folderModel.isFolder(index)) {
-                                        // Navigate to folder
-                                        folderModel.folder = fileUrl
-                                    } else if (fileUrl) {
-                                        // Load preview and show detail view
-                                        console.log('Loading preview for: ' + fileUrl);
-                                        trainprogram_preview(fileUrl)
-                                        pendingWorkoutUrl = fileUrl
+                        onClicked: {
+                            list.currentIndex = index
 
-                                        // Wait for preview to load then push detail view
-                                        detailViewTimer.restart()
-                                    }
+                            if (isItemFolder) {
+                                // Navigate to folder (only in browse mode)
+                                if (!isSearching) {
+                                    folderModel.folder = itemFileUrl
                                 }
+                            } else if (itemFileUrl) {
+                                // Load preview and show detail view
+                                openWorkoutPreview(itemFileUrl)
                             }
                         }
                     }
@@ -178,22 +315,30 @@ ColumnLayout {
                     focus: true
                 }
 
-                Button {
+                RowLayout {
                     Layout.fillWidth: true
-                    height: 50
-                    text: "Other folders"
-                    onClicked: {
-                        fileDialogLoader.active = true
-                    }
-                }
 
-                // Timer to push detail view after preview loads
-                Timer {
-                    id: detailViewTimer
-                    interval: 300
-                    repeat: false
-                    onTriggered: {
-                        stackView.push(detailView)
+                    Button {
+                        Layout.fillWidth: true
+                        height: 50
+                        text: qsTr("Other folders")
+                        onClicked: {
+                            if (Qt.platform.os === "android") {
+                                rootItem.openAndroidDocumentPicker("training")
+                            } else {
+                                fileDialogLoader.active = true
+                            }
+                        }
+                    }
+
+                    // programs of a previous install that no bundled program points to are
+                    // found only on request
+                    Button {
+                        Layout.fillWidth: true
+                        height: 50
+                        visible: Qt.platform.os === "android"
+                        text: qsTr("Restore programs")
+                        onClicked: rootItem.offerTrainingRestore()
                     }
                 }
             }
@@ -213,14 +358,24 @@ ColumnLayout {
                     spacing: 10
 
                     Button {
-                        text: "← Back"
+                        text: qsTr("← Back")
                         onClicked: stackView.pop()
                     }
 
                     Item { Layout.fillWidth: true }
 
                     Button {
-                        text: "Start Workout"
+                        text: qsTr("Delete")
+                        visible: pendingWorkoutUrl.toString() !== ""
+                        Material.background: Material.Red
+                        onClicked: {
+                            deleteDialog.fileUrl = pendingWorkoutUrl
+                            deleteDialog.visible = true
+                        }
+                    }
+
+                    Button {
+                        text: qsTr("Start Workout")
                         highlighted: true
                         Material.background: Material.Green
                         onClicked: {
@@ -229,6 +384,7 @@ ColumnLayout {
                             stackView.pop()
                         }
                     }
+
                 }
 
                 // Descrizione workout
@@ -236,7 +392,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.margins: 10
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     font.bold: true
                     color: "white"
                     wrapMode: Text.WordWrap
@@ -248,99 +404,27 @@ ColumnLayout {
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 12
+                    font.pixelSize: window.fontPx(12)
                     wrapMode: Text.WordWrap
                     color: Material.color(Material.Grey, Material.Shade400)
                     horizontalAlignment: Text.AlignHCenter
                 }
 
                 // WebView con grafico
+                // Preview data is now loaded via WebSocket, no runJavaScript needed
                 WebView {
                     id: previewWebView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
 
-                    Component.onCompleted: {
-                        // Update workout after a short delay to ensure data is loaded
-                        updateTimer.restart()
-                    }
-
-                    Timer {
-                        id: updateTimer
-                        interval: 400
-                        repeat: false
-                        onTriggered: previewWebView.updateWorkout()
-                    }
-
-                    function updateWorkout() {
-                        if (!rootItem.preview_workout_points) return;
-
-                        // Build arrays for the workout data
-                        var watts = [];
-                        var speed = [];
-                        var inclination = [];
-                        var resistance = [];
-                        var cadence = [];
-
-                        var hasWatts = false;
-                        var hasSpeed = false;
-                        var hasInclination = false;
-                        var hasResistance = false;
-                        var hasCadence = false;
-
-                        for (var i = 0; i < rootItem.preview_workout_points; i++) {
-                            if (rootItem.preview_workout_watt && rootItem.preview_workout_watt[i] !== undefined && rootItem.preview_workout_watt[i] > 0) {
-                                watts.push({ x: i, y: rootItem.preview_workout_watt[i] });
-                                hasWatts = true;
-                            }
-                            if (rootItem.preview_workout_speed && rootItem.preview_workout_speed[i] !== undefined && rootItem.preview_workout_speed[i] > 0) {
-                                speed.push({ x: i, y: rootItem.preview_workout_speed[i] });
-                                hasSpeed = true;
-                            }
-                            if (rootItem.preview_workout_inclination && rootItem.preview_workout_inclination[i] !== undefined && rootItem.preview_workout_inclination[i] > -200) {
-                                inclination.push({ x: i, y: rootItem.preview_workout_inclination[i] });
-                                hasInclination = true;
-                            }
-                            if (rootItem.preview_workout_resistance && rootItem.preview_workout_resistance[i] !== undefined && rootItem.preview_workout_resistance[i] >= 0) {
-                                resistance.push({ x: i, y: rootItem.preview_workout_resistance[i] });
-                                hasResistance = true;
-                            }
-                            if (rootItem.preview_workout_cadence && rootItem.preview_workout_cadence[i] !== undefined && rootItem.preview_workout_cadence[i] > 0) {
-                                cadence.push({ x: i, y: rootItem.preview_workout_cadence[i] });
-                                hasCadence = true;
-                            }
+                    // a new app language: the page takes its texts when loaded and asks the server
+                    // for the program itself, so a reload loses nothing
+                    Connections {
+                        target: rootItem
+                        function onAppLanguageChanged() {
+                            previewWebView.reload()
                         }
-
-                        // Determine device type based on available data
-                        var deviceType = 'bike'; // default
-
-                        // Priority 1: If has resistance, it's a bike (regardless of inclination)
-                        if (hasResistance) {
-                            deviceType = 'bike';
-                        }
-                        // Priority 2: If has speed or inclination (without resistance), it's a treadmill
-                        else if (hasSpeed || hasInclination) {
-                            deviceType = 'treadmill';
-                        }
-                        // Priority 3: If has power or cadence (bike metrics), it's a bike
-                        else if (hasWatts || hasCadence) {
-                            deviceType = 'bike';
-                        }
-
-                        // Call JavaScript function in the WebView
-                        var data = {
-                            points: rootItem.preview_workout_points,
-                            watts: watts,
-                            speed: speed,
-                            inclination: inclination,
-                            resistance: resistance,
-                            cadence: cadence,
-                            deviceType: deviceType,
-                            miles_unit: settings.value("miles_unit", false)
-                        };
-
-                        runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
                     }
                 }
             }
