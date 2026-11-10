@@ -99,6 +99,12 @@ If the controllers appear connected but gear changes do not work in Kinomap, che
 
 If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
 
+## ROUVY sees QZ's Wahoo KICKR virtual trainer but never finishes connecting. What should I check?
+
+If ROUVY on a computer detects **Wahoo KICKR 0000** from QZ but remains on the connecting spinner, check whether a **VPN is enabled on the phone running QZ**. Temporarily disable the VPN and retry the connection, keeping QZ and ROUVY on the same local network. A VPN can interfere with local-network discovery or communication even when the virtual trainer is listed.
+
+This fixed a reported iPhone-to-Mac ROUVY connection: the same setup connected normally on a second iPhone, and disabling the VPN on the original iPhone restored its connection too. You do not need to change your virtual gear settings just to test this network issue.
+
 ## Can I use QZ virtual gears with Rouvy?
 
 Yes. QZ can manage virtual gear changes while ROUVY controls the bike or trainer through QZ. ROUVY continues sending terrain/grade changes, while QZ applies the current virtual gear on top of the resistance requested for the route.

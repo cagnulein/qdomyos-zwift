@@ -134,8 +134,11 @@ class wahookickrsnapbike : public bike {
     bool WAHOO_KICKR = false;
     bool KICKR_BIKE = false;
     bool KICKR_SNAP = false;
+    // first connection: the init and every write wait for the wheel circumference question
+    bool waitForWheelQuestion(bool withoutWheelDiameter);
     
     bool lastCommandErgMode = false;
+    bool lastCommandResistanceMode = false;
 
     volatile int notificationSubscribed = 0;
 

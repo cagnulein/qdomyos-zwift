@@ -1417,6 +1417,40 @@ Aktualizovat nastavení QZ?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ano</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ne</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>hodiny</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minuty</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekundy</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1634,6 +1668,16 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Nastavit rychlost</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Udržování tepu mění</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Z nastavení</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4173,6 +4217,14 @@ Spustit ho nyní?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Uloženo! Podívejte se do aplikace Soubory.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Uloženo! Podívejte se do soukromé složky aplikace.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>K Pelotonu jste již připojeni. Odhlásit se?</translation>
     </message>
@@ -4185,6 +4237,18 @@ Spustit ho nyní?</translation>
         <translation>K Intervals.icu jste již připojeni. Odhlásit se?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Zpět</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hlavní nabídka</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Plovoucí okno</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Dlaždice můžete přesouvat!</translation>
     </message>
@@ -4193,12 +4257,48 @@ Spustit ho nyní?</translation>
         <translation>Dlaždice jsou nyní uzamčeny</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Načíst nastavení</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Hledat v nastavení</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Uložit nastavení</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Mapa</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Graf</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Sdílet soubor FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Odemknout dlaždice</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Zamknout dlaždice</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Vypnout automatický odpor</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Zapnout automatický odpor</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4259,6 +4359,46 @@ Spustit ho nyní?</translation>
     <message>
         <source>Quit</source>
         <translation>Ukončit</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Odpojit Stravu</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Připojit Stravu</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Odpojit Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Připojit Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Nastavení Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Odpojit Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Připojit Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Trénink</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Aplikace</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Služby</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4439,6 +4579,22 @@ Přepnout pro tuto relaci na klasické virtuální zařízení Bluetooth?</trans
     <message>
         <source>Please choose a file</source>
         <translation>Vyberte soubor</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuální převody Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Pro simulaci virtuálních převodů QZ mění obvod kola uložený v trenažéru. Tato hodnota může v trenažéru zůstat i po zavření QZ a ovlivňovat jeho chování v jiných aplikacích.
+
+Povolit QZ tuto hodnotu měnit?
+
+„Ne“: QZ zapne „Bez protokolu průměru kola“ (Nastavení &gt; Možnosti kola &gt; Možnosti Wahoo) a virtuální převody budou fungovat přes stoupání. Při volbě „Ano“ to můžete později vrátit tamtéž: zapněte tuto možnost a při připojeném trenažéru klepněte na „Obnovit výchozí nastavení trenažéru“.</translation>
     </message>
 </context>
 <context>

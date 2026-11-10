@@ -639,6 +639,11 @@ class homeform : public QObject {
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
     void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
+    // Wahoo trainer at its first connection: true while QZ waits for the answer to the wheel circumference
+    // question (asks it once per session), false when it is answered or was never needed
+    bool wahooWheelQuestionPending();
+    // the answer from QML: false turns on Without Wheel Diameter Protocol
+    Q_INVOKABLE void wahooWheelAnswer(bool writeWheelCircumference);
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -1075,6 +1080,8 @@ public:
 
   private:
     static homeform *m_singleton;
+    // the wheel circumference question was shown in this session (it stays pending until answered)
+    bool m_wahooWheelQuestionShown = false;
     void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
@@ -1428,6 +1435,10 @@ public:
     // look for them (restoreTrainingPrograms())
     void trainingRestoreOfferRequested();
     void trainingProgramsRestored();
+    // wahooWheelQuestionPending(): QML asks whether QZ may write the wheel circumference of the trainer
+    void wahooWheelQuestionRequested();
+    // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
+    void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
