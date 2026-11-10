@@ -6,7 +6,7 @@ For the captured name `iConsole+0014` (also accepting the `I-CONSOLE+0014` spell
 
 The encoder accepts **exactly twenty minutes of positive, whole-minute, non-ramp rows**, or the **experimental ten-minute format with rows in whole 30-second multiples**, with finite nonnegative encodable speeds. Both formats expand exactly into twenty slots (60 or 30 seconds respectively). Missing inclination is encoded as zero. Unsupported timelines are rejected rather than stretched, compressed or sampled across interval boundaries.
 
-The twenty-minute format follows the successful captured program and the completed November 3 hardware test. A4 stays at `0x15` in both formats. Its meaning is still uncertain: the shorter experiment changes only A9/AA to distinguish duration-table behavior from A4. Thirty-second slots are not yet hardware-validated; this is a controlled test, not general support for arbitrary durations.
+The twenty-minute format follows the successful captured program and November 3 hardware test. **November 9 hardware feedback:** the earlier ten-minute experiment (A4=`0x15`, A9/AA encoding 30-second slots) correctly changed speed/inclination every 30 seconds, but the console began at 19:59 and ran beyond ten minutes, despite QZ's workout scheduler finishing at 600 seconds. This separates the interval durations from the console's total countdown; the user safely stopped the belt with its physical Stop button. The next isolated experiment sets the first A4 payload byte to `0x0b` (hypothesis: total minutes + 1) for ten-minute programs only, preserving A4=`0x15` byte-for-byte for the hardware-verified twenty-minute format. This interpretation **is not confirmed** and does not imply support for arbitrary lengths.
 
 A conservative input example is available at `train-programs-examples/iconsole-tx90-20min.xml`. Physical validation of the revised QZ build remains necessary.
 
@@ -46,7 +46,7 @@ The ordered upload is A3, A4, A6, A7, A8, A9, AA, AF. Each request receives its 
 | Command | Captured meaning established by the complete flow |
 | --- | --- |
 | A3 | Program selection payload `02 01 01 01 01 01 01` |
-| A4 | Parameter payload `15` followed by ten `01` bytes; exact broader field semantics remain uncertain |
+| A4 | Hardware-verified 20-minute payload: `15` followed by ten `01` bytes. New **unverified** 10-minute probe: `0b` followed by the same ten `01` bytes (possible total-minutes-plus-one field) |
 | A6 | First ten speed slots |
 | A7 | Second ten speed slots; the recorded second half repeats the first half |
 | A8 | Twenty inclination values |
@@ -84,7 +84,7 @@ The belt then pauses, with a frozen countdown of 14:35, later reports the ready 
 3. At 22:01:04.411 a workout is queued inside a polling response wait. At 22:01:04.655 the old code consumes Start before the deferred upload begins. Start must remain queued until upload and console readiness complete.
 4. The TX90 responds to A4 with `F0 B4 01 D3 15 01 01 01 01 01 01 01 01 01 01 97`: **16 bytes**, with a valid checksum. The old branch expected 17, timed out, and stopped before sending A6/A7/A8/A9/AA/AF/A5. The response size is corrected.
 5. The previous implementation sent Start immediately after profile acknowledgement instead of waiting for the ready tuple. The revised sequence follows the successful capture's state order; it does not invent a fixed delay or infer readiness from an ACK.
-6. Earlier workout encoders guessed that twenty half-minute slots and a fixed A4 `15` represented ten minutes. The golden captured transaction proves a twenty-minute program; the twenty-minute path now follows that evidenced format. The new ten-minute experiment is explicitly awaiting hardware validation.
+6. The November 9 trial with 20 half-minute slots and A4=`15` succeeded in changing programmed speed/incline every 30 seconds, but the console's total countdown still started at 19:59 and did not stop at ten minutes. The verified twenty-minute encoder is unchanged. The next ten-minute experiment changes only A4's first parameter (plus its checksum) and retains the already-observed A9/AA thirty-second tables.
 7. ACKs and telemetry require separate complete-frame extraction. The revised receive path handles fragmented/coalesced notifications, validates checksums and routes only B2 into metric decoding. Reconnection clears framing and acknowledged-profile state.
 
 Completing the upload and readiness handshake addresses concrete software defects. The evidence does not independently prove the exact reason the user's physical Start button was blocked after the aborted A4 transaction, or whether a console reset is required after that older failure.
@@ -93,11 +93,11 @@ Completing the upload and readiness handshake addresses concrete software defect
 
 - Actual driver and parser-test translation units compiled with Qt 5.15.13. One existing `PlayerStateWrapper::getCadence()` missing-return warning is outside this change.
 - Prior revision: **39 focused tests passed**, linked with the actual driver object, including the full eight-request captured profile and recorded idle/ready/running/pause/resume B2 frames.
-- Current duration change: **42 tests passed** in an isolated Qt 5.15.13 harness using the production static helper bodies verbatim and all checked-in parser/encoder tests. This checks the unchanged twenty-minute golden frames, exact thirty-second A9/AA frames and rejection of misaligned rows; it is not a complete application build. Both XML examples have twenty identical speed/incline slots, with totals of 1,200 and 600 seconds respectively.
+- Previous revision: **42 tests passed** in an isolated Qt 5.15.13 harness using production static helper bodies verbatim. The new A4 experiment adds explicit byte-for-byte expected A4 frames for both durations and asserts all other non-duration frames remain identical; **CI/build and fresh hardware validation are pending**. Both XML examples still have twenty identical speed/incline slots, totaling 1,200 versus 600 seconds.
 - Same sixteen-byte B4 regression check against the old and revised compiled driver: old REJECTED, revised ACCEPTED.
 - All 3,413 received notifications in the four available QZ logs reassemble without residual bytes. The original HCI contributes 1,049 treadmill notifications, including 1,036 B2 telemetry frames and thirteen ACKs.
 - The November 3 TX90 hardware test completed the full twenty minutes: all eight upload requests were acknowledged, Start followed readiness, all twenty speed/incline slots matched, and the treadmill stopped at countdown zero before QZ Stop. The photo shows `00:09` remaining near the end; additional graph columns do not establish additional running time.
-- The new thirty-second experiment and platform builds for this revision remain to be validated. Focused encoder tests do not simulate a GATT peripheral.
+- November 9: 30-second slot transitions are now hardware-observed, but the A4=`0x15` console still displayed 19:59 and continued beyond 10 minutes. A4=`0x0b` is a new targeted experiment; fresh hardware validation is pending. Focused encoder tests do not simulate a GATT peripheral.
 - Other total durations, rows not aligned to the selected slot length, and ramps remain unsupported. No timeline is silently changed.
 - Live speed writes and a physical iConsole Stop command remain unimplemented; the capture contains neither. Use the treadmill's physical stop for hardware testing.
 - QZ's general UI/workout scheduler is unchanged. Emitting `tapeStarted` after movement is the driver's confirmation; this is not a claim that every UI clock path waits for that signal, particularly when continuous-moving settings are enabled.
@@ -106,12 +106,12 @@ Completing the upload and readiness handshake addresses concrete software defect
 
 Use `train-programs-examples/iconsole-tx90-10min-30sec.xml` with the updated build. It has the same twenty speed/incline slots as the verified twenty-minute example: 3/4/5/4/3 km/h and 0/0/1/1/0% repeated four times. Each slot lasts 30 seconds, total ten minutes.
 
-A3/A4/A6/A7/A8/AF remain byte-identical between the two examples. A9 and AA contain ten `01 1f` duration pairs each (0 minutes + 1, 30 seconds + 1), replacing `02 01`; their checksums become `ad` and `ae` respectively.
+A3/A6/A7/A8/AF remain byte-identical between the two examples. A4 is the **only additional changed command**: 20 minutes sends `f0 a4 01 d3 15 01 01 01 01 01 01 01 01 01 01 87`; the 10-minute probe sends `f0 a4 01 d3 0b 01 01 01 01 01 01 01 01 01 01 7d`. A9 and AA still contain ten `01 1f` duration pairs each (0 minutes + 1, 30 seconds + 1), replacing `02 01`; their checksums remain `ad` and `ae` respectively.
 
 1. Enable the QZ debug log, install the new build, reconnect, and load the shorter XML.
-2. Press QZ Start as in the successful test; record the initial console countdown (expected approximately 9:59, but 19:59 would be informative too) and take a photo.
+2. Press QZ Start as in the successful test; **first check the initial console countdown**. If A4 is the total-minutes-plus-one field, it should start near 9:59 instead of the previously observed 19:59. Take a photo. If it still starts near 19:59, stop the treadmill physically after a short check rather than running a full 20 minutes.
 3. Verify transitions at 30 seconds (4 km/h, 0%), 60 seconds (5 km/h, 1%), and 90 seconds (4 km/h, 1%). Consecutive identical slots intentionally have no visible transition.
 4. A two-minute run establishes the initial timing. If completing the test, check whether the treadmill stops by itself at ten minutes; report any mismatch between console countdown, QZ time and actual changes.
 5. Use the physical treadmill Stop if ending early or if it continues beyond ten minutes. Do not rely on QZ Stop to stop the belt. Return the complete debug log and photos.
 
-Do not change A4 in this experiment. If timing does not follow A9/AA, use that evidence to design a separate test changing A4 alone.
+This is the **A4-only follow-up** to the November 9 hardware result, relative to the previous ten-minute build. The encoder retains the verified 20-minute A4=`0x15`; the experimental ten-minute A4=`0x0b` may or may not change the console's total countdown. Do not interpret an A4 upload ACK alone as proof of acceptance of a ten-minute running session.

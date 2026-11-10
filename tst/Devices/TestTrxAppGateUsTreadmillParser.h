@@ -485,8 +485,10 @@ TEST(TrxAppGateUsTreadmillParserTest, LimitsExperimentalSessionToCapturedTx90Nam
     EXPECT_FALSE(trxappgateusbtreadmill::isIconsoleTx90DeviceName(QStringLiteral("iConsole+")));
 }
 
-// Keep every captured program parameter unchanged except the duration tables.
-TEST(TrxAppGateUsTreadmillParserTest, TenMinuteTestChangesOnlyDurationFrames) {
+// Nov 9 hardware test confirmed thirty-second intervals with the original A4
+// parameter, but the console retained a 20-minute countdown. Change only A4's
+// first payload byte (and its checksum) in addition to the duration tables.
+TEST(TrxAppGateUsTreadmillParserTest, TenMinuteTestChangesOnlyA4AndDurationFrames) {
     QList<trainrow> rows;
     const QList<double> speeds = {3, 4, 5, 4, 3};
     const QList<double> inclines = {0, 0, 1, 1, 0};
@@ -505,9 +507,13 @@ TEST(TrxAppGateUsTreadmillParserTest, TenMinuteTestChangesOnlyDurationFrames) {
     QList<QByteArray> testFrames;
     ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames(rows, &testFrames));
     ASSERT_EQ(testFrames.size(), 8);
-    for (int i : {0, 1, 2, 3, 4, 7}) {
+    for (int i : {0, 2, 3, 4, 7}) {
         EXPECT_EQ(testFrames.at(i), verifiedFrames.at(i));
     }
+    // Golden twenty-minute A4 must not change. Experimental ten-minute A4:
+    // 0x15 -> 0x0b, additive checksum 0x87 -> 0x7d.
+    EXPECT_EQ(verifiedFrames.at(1), QByteArray::fromHex("f0a401d3150101010101010101010187"));
+    EXPECT_EQ(testFrames.at(1), QByteArray::fromHex("f0a401d30b010101010101010101017d"));
     EXPECT_EQ(testFrames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
     EXPECT_EQ(testFrames.at(6), QByteArray::fromHex("f0aa01d3011f011f011f011f011f011f011f011f011f011fae"));
 }
@@ -519,7 +525,8 @@ TEST(TrxAppGateUsTreadmillParserTest, ExpandsConstantTenMinuteTestWithoutRescali
     QList<QByteArray> frames;
     ASSERT_TRUE(trxappgateusbtreadmill::buildIconsoleWorkoutFrames({row}, &frames));
     ASSERT_EQ(frames.size(), 8);
-    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011f011fad"));
+    EXPECT_EQ(frames.at(1), QByteArray::fromHex("f0a401d30b010101010101010101017d"));
+    EXPECT_EQ(frames.at(5), QByteArray::fromHex("f0a901d3011f011f011f011f011f011f011f011f011fad"));
 }
 
 TEST(TrxAppGateUsTreadmillParserTest, KeepsTwentyMinuteRowsAlignedToVerifiedMinuteSlots) {

@@ -259,9 +259,11 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         totalDurationSeconds += durationSeconds;
     }
 
-    // Twenty one-minute slots are hardware-verified. The ten-minute test keeps
-    // all twenty slots and A4's observed 0x15, changing only A9/AA durations.
-    // A4's meaning and half-minute slots still require hardware validation.
+    // Twenty one-minute slots are hardware-verified. The Nov 9 test confirmed
+    // thirty-second changes with A9/AA but the console still counted down from
+    // 19:59 and ran past ten minutes. Test A4 0x0b (ten minutes + 1) for the
+    // ten-minute profile; A4 0x15 remains unchanged for verified twenty minutes.
+    // The A4 duration interpretation is a hardware hypothesis, not yet confirmed.
     if (totalDurationSeconds != 1200 && totalDurationSeconds != 600) {
         return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes or the ten-minute test; duration is not rescaled"));
     }
@@ -303,7 +305,10 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
     modePayload.append(QByteArray(6, static_cast<char>(0x01)));
 
     QByteArray parameterPayload;
-    parameterPayload.append(static_cast<char>(0x15));
+    // Unverified TX90 experiment: the console may encode total minutes + 1
+    // here. Keep the hardware-verified 20-minute payload byte-identical.
+    const quint8 totalMinutesParameter = totalDurationSeconds == 600 ? 0x0b : 0x15;
+    parameterPayload.append(static_cast<char>(totalMinutesParameter));
     parameterPayload.append(QByteArray(10, static_cast<char>(0x01)));
 
     const QList<double> speedFirst = speedSlots.mid(0, 10);
