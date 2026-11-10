@@ -539,8 +539,19 @@ void nordictrackifitadbelliptical::update() {
         bool speedPowerBased =
             settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
 
-        if (!speedPowerBased && currentSpeed != Speed.value()) {
-            Speed = currentSpeed;
+        if (!speedPowerBased) {
+            // Some FitPro ellipticals (e.g. ProForm Carbon E7) report ACTUAL_KPH=0
+            // while cadence and power are non-zero. Preserve a valid native speed;
+            // otherwise reuse QZ's configurable cadence-to-speed conversion.
+            const double cadenceSpeedRatio =
+                settings.value(QZSettings::cadence_sensor_speed_ratio,
+                               QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+            const double fallbackSpeed =
+                currentCadence > 0.0 && cadenceSpeedRatio > 0.0 ? currentCadence * cadenceSpeedRatio : 0.0;
+            const double effectiveSpeed = currentSpeed > 0.0 ? currentSpeed : fallbackSpeed;
+            if (effectiveSpeed != Speed.value()) {
+                Speed = effectiveSpeed;
+            }
         }
         if (currentIncline != Inclination.value()) {
             Inclination = currentIncline;
@@ -726,7 +737,7 @@ void nordictrackifitadbelliptical::setFitProIncline(double incline) {
 #ifdef Q_OS_ANDROID
     if (fitproInitialized)
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
-                                                  "adjustIncline", "(D)V", incline - Inclination.value());
+                                                  "setIncline", "(D)V", incline);
 #endif
 }
 // *****************************************************************************************************************
