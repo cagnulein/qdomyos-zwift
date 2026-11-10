@@ -11,7 +11,7 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     property string accordionContent: ""
-    // Inside another section: the modern look draws it as a flat row instead of a card
+    // Inside another section: the modern look draws it as a smaller filled card
     readonly property bool nested: {
         for (var p = parent; p; p = p.parent)
             if (p.isOpen !== undefined && p.title !== undefined && p.accordionContent !== undefined)

@@ -16,7 +16,7 @@ ColumnLayout {
     signal contentBecameVisible()
 
     // How deep the section is: 1 - a top-level one, 2 - inside it, and so on. The modern look
-    // frames an open section of the first two levels as one block, a deeper one only indents
+    // frames an open section as one block, a section inside another one (at any depth) as the second level
     readonly property int depth: {
         var d = 1
         for (var p = parent; p; p = p.parent)
@@ -24,7 +24,7 @@ ColumnLayout {
                 d++
         return d
     }
-    // Inside another section: the modern look draws it as a flat row instead of a card
+    // Inside another section: the modern look draws it as a smaller filled card
     readonly property bool nested: depth > 1
 
     spacing: 0

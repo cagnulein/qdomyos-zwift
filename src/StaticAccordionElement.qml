@@ -19,7 +19,7 @@ ColumnLayout {
                 d++
         return d
     }
-    // Inside another section: the modern look draws it as a flat row instead of a card
+    // Inside another section: the modern look draws it as a smaller filled card
     readonly property bool nested: depth > 1
 
     spacing: 0

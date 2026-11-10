@@ -8,7 +8,7 @@ import QtQuick.Layouts 1.3
 // frame drawn by the geometry of its first and last item. Sections inside are left out: they draw
 // their own block. The block of the section itself (the header on top of it) is drawn here too.
 // Goes into the item that holds the content at its (0, 0) - the Loader of AccordionElement, the
-// box of StaticAccordionElement - which is laid out in the column of the section under its header;
+// box of StaticAccordionElement and AccordionCheckElement - which is laid out in the column of the section under its header;
 // made by a Loader of its own there, it is told that item by holder.
 Item {
     id: frames
