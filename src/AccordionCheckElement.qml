@@ -75,7 +75,7 @@ ColumnLayout {
         }
     }
 
-    // Modern look: a plain switch row like the other switches of the settings; a tap anywhere
+    // Modern look: a plain switch row with the switch of the modern look; a tap anywhere
     // on the row switches it. Made only while the look is on (as the header of AccordionElement):
     // the classic page of tiles does not carry a hidden switch in every section
     Loader {

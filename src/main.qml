@@ -335,8 +335,9 @@ ApplicationWindow {
 
         function alpha(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
         // A title without its emoji ("Maps 🗺️", "Video 🎥"): Qt 5 on Android draws no colour emoji
-        // with the app font, they showed as boxes. Titles of the modern look only. Drops a
-        // pictograph (a surrogate pair from U+1F000 up, or U+2300-23FF, U+2600-27BF) with the
+        // with the app font, they showed as boxes. For the headers of the modern look and the
+        // toast and search results of the settings page (its plainTitle() calls this). Drops a
+        // pictograph (a surrogate pair in U+1F000-1FBFF, or U+2300-23FF, U+2600-27BF) with the
         // spaces before it and the emoji style mark (U+FE0F) after it
         function plainTitle(text) {
             var s = String(text)
