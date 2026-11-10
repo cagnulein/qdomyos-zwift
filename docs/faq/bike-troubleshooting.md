@@ -109,6 +109,14 @@ Yes, on a QZ build that includes **direct Echelon unlock**. If you previously ne
 **Confirmed on two models:** An EX-7S owner reported that this setup worked after updating QZ without reopening the Echelon app. Separately, an **EX-3** owner affected by the firmware lock installed the **iOS TestFlight beta**, kept **Virtual Echelon disabled**, and confirmed that Zwift riding worked again without the second-device unlock. Close the official Echelon app on other devices so it does not hold the Bluetooth connection. QZ's Echelon bike driver contains a direct unlock handshake. This does not guarantee the same behavior on older QZ builds or every Echelon model/firmware. If direct unlock is unavailable or fails, use the two-device unlock procedure above rather than assuming the bike is unsupported.
 
 
+## How do I connect a ProForm TDF 5.0 to QZ and MyWhoosh?
+
+For the **ProForm Tour de France TDF 5.0** Wi-Fi connection, enter the bike's current local IP address in **QZ's TDF4 IP** field (not TDF1 IP), and leave **ADB disabled**. Start QZ and confirm that the bike's live power/cadence metrics update before configuring the training app.
+
+To use MyWhoosh, run **QZ on one device** and **MyWhoosh on another**. In QZ enable **Virtual Device** and **Virtual Device Bluetooth**, restart QZ, and connect the physical TDF 5.0 first. In MyWhoosh pair **QZ's advertised virtual trainer** as the power source, rather than the physical bike. If the trainer is not visible, keep QZ in the foreground during discovery and check Bluetooth permissions. A rider confirmed receiving bike metrics in QZ and subsequently connecting MyWhoosh using a separate device; this does not establish automatic resistance control on that particular bike.
+
+If QZ's displayed speed differs from the bike console, the **Speed Based on Power** option under Bike Options changes QZ's speed calculation. The displayed virtual speed in MyWhoosh may still differ because the training app computes its own speed from power.
+
 ## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
 
 QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP address. If the router assigns the bike a different address through DHCP, QZ can keep trying the old address and no longer connect even though nothing changed in QZ.
