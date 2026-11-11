@@ -19,6 +19,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qpointer.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
@@ -57,7 +58,8 @@ class bkoolbike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
     QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
+    // QPointer becomes null if Qt destroys this service during disconnect/reconnect.
+    QPointer<QLowEnergyService> gattCustomService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
