@@ -49,6 +49,7 @@ ScrollView {
             Layout.fillWidth: true
             text: qsTr("A very big thanks to<br>all the developers<br>(alphabetical sorted):").split("<br>").join(" ")
             color: window.ui.textMuted
+            font.pixelSize: window.ui.fontCaption
             wrapMode: Text.WordWrap
         }
 
