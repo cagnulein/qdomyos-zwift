@@ -69,6 +69,7 @@ ColumnLayout {
             Layout.fillWidth: true
             text: qsTr("Tap a file to select it, then Load.")
             color: window.ui.textMuted
+            font.pixelSize: window.ui.fontCaption
             wrapMode: Text.WordWrap
         }
 

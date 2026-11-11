@@ -366,7 +366,7 @@ ColumnLayout {
                                     Layout.fillWidth: true
                                     text: itemRelativePath
                                     color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey)
-                                    font.pixelSize: window.fontPx(12)
+                                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
                                     elide: Text.ElideMiddle
                                     visible: isSearching && itemRelativePath !== ""
                                 }
@@ -519,7 +519,7 @@ ColumnLayout {
                     Layout.rightMargin: 10
                     text: rootItem.previewWorkoutTags
                     visible: !window.ui.modern || text !== ""
-                    font.pixelSize: window.fontPx(12)
+                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
                     wrapMode: Text.WordWrap
                     color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey, Material.Shade400)
                     horizontalAlignment: Text.AlignHCenter
