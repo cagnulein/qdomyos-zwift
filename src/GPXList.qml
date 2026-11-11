@@ -262,7 +262,8 @@ ColumnLayout {
                 // On the list itself: children of a ListView land in its content item, empty here
                 parent: modernList
                 anchors.centerIn: parent
-                visible: modernList.count === 0
+                // only once the folder is read: the model fills in asynchronously
+                visible: modernList.count === 0 && folderModel.status === FolderListModel.Ready
                 text: qsTr("No GPX files here")
                 color: window.ui.textMuted
             }

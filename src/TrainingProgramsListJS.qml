@@ -179,7 +179,7 @@ ColumnLayout {
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         visible: !window.ui.modern
                         text: qsTr("Filter")
-                        color: window.ui.ink("white")
+                        color: "white"
                         verticalAlignment: Text.AlignVCenter
                     }
 
@@ -528,8 +528,10 @@ ColumnLayout {
                         visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
                         url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
                         property bool pageLoaded: false
+                        // a failed load is shown too: the page tells why, not an endless spinner
                         onLoadingChanged: {
-                            if (loadRequest.status === WebView.LoadSucceededStatus)
+                            if (loadRequest.status === WebView.LoadSucceededStatus
+                                    || loadRequest.status === WebView.LoadFailedStatus)
                                 pageLoaded = true
                         }
 
