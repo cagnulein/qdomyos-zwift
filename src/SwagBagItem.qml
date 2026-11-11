@@ -63,7 +63,7 @@ Rectangle {
     visible: product.status == Product.Registered
     // Modern look: a filled card of the theme with room around the text
     readonly property int pad: window.ui.modern ? 16 : 0
-    radius: window.ui.modern ? 20 : 10
+    radius: window.ui.modern ? 16 : 10
     color: window.ui.modern ? window.ui.surface : "white"
 
     height: titleText.contentHeight + descriptionText.contentHeight +  2 + 2 * pad

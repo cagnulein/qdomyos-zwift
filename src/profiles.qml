@@ -159,7 +159,7 @@ ColumnLayout {
         Layout.rightMargin: profilesPage.modernMargin
         Layout.topMargin: 12
         implicitHeight: modernNameColumn.implicitHeight + 32
-        radius: 20
+        radius: 16
         color: window.ui.surface
 
         ColumnLayout {
