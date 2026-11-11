@@ -4646,6 +4646,10 @@ Povolit QZ tuto hodnotu měnit?
         <translation>Odstranit tento profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Odstranit</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil uložen</translation>
     </message>
@@ -4676,6 +4680,26 @@ Povolit QZ tuto hodnotu měnit?
     <message>
         <source>Profile name</source>
         <translation>Název profilu</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nový profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Uložené profily</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Klepnutím vyberte profil a pak zvolte Načíst. Dlouhým stisknutím ho odstraníte.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktivní</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Načíst</translation>
     </message>
     <message>
         <source>Profiles</source>

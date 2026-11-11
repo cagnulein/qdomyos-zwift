@@ -4658,6 +4658,10 @@ QZ がこの値を変更することを許可しますか？
         <translation>このプロファイルを削除しますか？</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>プロファイルを保存しました</translation>
     </message>
@@ -4690,8 +4694,28 @@ QZ がこの値を変更することを許可しますか？
         <translation>プロファイル名</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>新しいプロフィール</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>保存されたプロフィール</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>プロフィールをタップして選択し、「読み込み」をタップしてください。長押しで削除します。</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>使用中</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>読み込み</translation>
     </message>
     <message>
         <source>Profiles</source>
