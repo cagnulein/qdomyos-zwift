@@ -140,6 +140,19 @@ import AndroidStatusBar 1.0
             }
         }
 
+        // A drag of the page puts the on-screen keyboard away: it covers the lower search results. A
+        // tap on the field brings it back. A drag starts even when the results are shorter than the
+        // page (it overshoots), while a mouse wheel or a contentY set by the code starts none. Only
+        // while the keyboard is up: a trackpad scroll on a Mac is a drag too, and there the field
+        // keeps its focus.
+        Connections {
+            target: settingsPane.contentItem
+            function onDragStarted() {
+                if (Qt.inputMethod.visible)
+                    settingsPane.dropTextFocus()
+            }
+        }
+
         function currentSearch(viaPush) {
             return { query: settingsSearchTextField.text, changedOnly: changedOnly,
                      results: filteredSettings, scroll: contentItem.contentY, viaPush: viaPush }
