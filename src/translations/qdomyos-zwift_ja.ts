@@ -4695,7 +4695,7 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>New profile</source>
-        <translation>新しいプロフィール</translation>
+        <translation>新しいプロファイル</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4703,11 +4703,11 @@ QZ がこの値を変更することを許可しますか？
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation>保存されたプロフィール</translation>
+        <translation>保存されたプロファイル</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation>プロフィールをタップして選択し、「読み込み」をタップしてください。長押しで削除します。</translation>
+        <translation>プロファイルをタップして選択し、「読み込み」をタップしてください。長押しで削除します。</translation>
     </message>
     <message>
         <source>Active</source>

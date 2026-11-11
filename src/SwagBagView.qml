@@ -110,6 +110,8 @@ Item {
             id: appleDescription
             width: parent.width
             topPadding: window.ui.modern ? 16 : 5
+            // the default link blue is hard to read on the dark modern page ("blue" is the default)
+            linkColor: window.ui.modern ? window.ui.accent : "blue"
             color: window.ui.modern ? window.ui.textMuted : "white"
             font.pointSize: (window.ui.modern ? 11 : 8) * window.textScale
             wrapMode: TextArea.Wrap

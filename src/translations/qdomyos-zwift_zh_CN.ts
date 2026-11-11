@@ -4699,7 +4699,7 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>New profile</source>
-        <translation>新建档案</translation>
+        <translation>新建配置文件</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4707,11 +4707,11 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     </message>
     <message>
         <source>Saved profiles</source>
-        <translation>已保存的档案</translation>
+        <translation>已保存的配置文件</translation>
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation>点击档案将其选中，然后点击“加载”。长按可删除。</translation>
+        <translation>点击配置文件将其选中，然后点击“加载”。长按可删除。</translation>
     </message>
     <message>
         <source>Active</source>
