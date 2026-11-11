@@ -1420,6 +1420,17 @@ Vill du uppdatera QZ-inställningarna?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Expanderat</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Komprimerat</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

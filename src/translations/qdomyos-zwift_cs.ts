@@ -1436,6 +1436,17 @@ Aktualizovat nastavení QZ?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Rozbaleno</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Sbaleno</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

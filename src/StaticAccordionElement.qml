@@ -11,12 +11,53 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     default property alias accordionContent: contentPlaceholder.data
+    // How deep the section is: 1 - a top-level one, 2 - inside it, and so on (as AccordionElement)
+    readonly property int depth: {
+        var d = 1
+        for (var p = parent; p; p = p.parent)
+            if (p.isOpen !== undefined && p.title !== undefined && p.accordionContent !== undefined)
+                d++
+        return d
+    }
+    // Inside another section: the modern look draws it as a smaller filled card
+    readonly property bool nested: depth > 1
+
     spacing: 0
 
     Layout.fillWidth: true;
 
+    // Modern look: the header of the section, made only while the look is on - the classic look
+    // does not carry it hidden in every section of a page. The loader stands in the column for the
+    // header: the layout margins and the corners are the ones of the header
+    Loader {
+        id: sectionHeader
+        active: window.ui.modern
+        visible: active
+        Layout.fillWidth: true
+        Layout.leftMargin: item ? item.Layout.leftMargin : 0
+        Layout.rightMargin: item ? item.Layout.rightMargin : 0
+        Layout.topMargin: item ? item.Layout.topMargin : 0
+        readonly property real radius: item ? item.radius : 0
+        sourceComponent: UiSectionHeader {
+            title: rootElement.title
+            isOpen: rootElement.isOpen
+            nested: rootElement.nested
+            depth: rootElement.depth
+            chevron: "expand_more"
+            onClicked: rootElement.isOpen = !rootElement.isOpen
+
+            // A short copy of the header at the top of the page while the open section scrolls
+            // under it
+            UiStickyHeader {
+                section: rootElement
+                header: sectionHeader
+            }
+        }
+    }
+
     Rectangle {
         id: accordionHeader
+        visible: !window.ui.modern
         color: "red"
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true;
@@ -59,10 +100,55 @@ ColumnLayout {
         }
     }
 
-    // This will get filled with the content
-    ColumnLayout {
-        id: contentPlaceholder
+    // This will get filled with the content. Held in a plain item: the frames of the modern look
+    // lie beside the content there, a column would lay them out as rows
+    Item {
+        id: contentBox
         visible: rootElement.isOpen
-        Layout.fillWidth: true;
+        Layout.fillWidth: true
+        // Takes the free height as the column it replaces did (a layout fills by default): a page
+        // that gives the section the rest of its height (the list of profiles) keeps it
+        Layout.fillHeight: true
+        // Set on a change, not bound: a binding made a loop with the layout of the column
+        implicitHeight: 0
+        Connections {
+            target: contentPlaceholder
+            function onImplicitHeightChanged() { contentBox.implicitHeight = contentPlaceholder.implicitHeight }
+        }
+        Component.onCompleted: implicitHeight = contentPlaceholder.implicitHeight
+        // Modern look: inside the block of the section and inside the frames of its settings
+        Layout.leftMargin: settingFrames.insetLeft
+        Layout.rightMargin: settingFrames.insetRight
+        Layout.topMargin: settingFrames.insetTop
+        Layout.bottomMargin: settingFrames.insetBottom
+        // Under the header: the block frame starts behind it
+        z: -1
+
+        // Modern look: made the first time the look is on, and kept - back in the classic look it
+        // gives the settings their own margins again
+        Loader {
+            id: settingFrames
+            property bool used: false
+            active: window.ui.modern || used
+            onLoaded: used = true
+            z: -1
+            readonly property int insetLeft: item ? item.insetLeft : 0
+            readonly property int insetRight: item ? item.insetRight : 0
+            readonly property int insetTop: item ? item.insetTop : 0
+            readonly property int insetBottom: item ? item.insetBottom : 0
+            readonly property int framePadH: item ? item.framePadH : 0
+            sourceComponent: UiSettingFrames {
+                holder: contentBox
+                content: contentPlaceholder.children.length > 0 ? contentPlaceholder.children[0] : null
+                header: sectionHeader
+                depth: rootElement.depth
+            }
+        }
+
+        ColumnLayout {
+            id: contentPlaceholder
+            width: parent.width
+            height: parent.height
+        }
     }
 }

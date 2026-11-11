@@ -128,7 +128,7 @@ import AndroidStatusBar 1.0
 
         // A section title without its emoji ("Maps 🗺️") for a message
         function plainTitle(text) {
-            return String(text).replace(/\s*(?:[\uD83C-\uD83E][\uDC00-\uDFFF]|[⌀-⏿☀-➿])️?/g, "").trim()
+            return window.ui.plainTitle(text)
         }
 
         // A text field keeps the focus (and the keyboard) until another control takes it
@@ -137,6 +137,19 @@ import AndroidStatusBar 1.0
             if (item && item.cursorPosition !== undefined) {
                 item.focus = false
                 Qt.inputMethod.hide()
+            }
+        }
+
+        // A drag of the page puts the on-screen keyboard away: it covers the lower search results. A
+        // tap on the field brings it back. A drag starts even when the results are shorter than the
+        // page (it overshoots), while a mouse wheel or a contentY set by the code starts none. Only
+        // while the keyboard is up: a trackpad scroll on a Mac is a drag too, and there the field
+        // keeps its focus.
+        Connections {
+            target: settingsPane.contentItem
+            function onDragStarted() {
+                if (Qt.inputMethod.visible)
+                    settingsPane.dropTextFocus()
             }
         }
 

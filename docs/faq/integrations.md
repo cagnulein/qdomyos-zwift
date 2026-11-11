@@ -244,3 +244,11 @@ If QZ displays the correct running cadence during a treadmill workout, but **Gar
 Despite its name, this option also affects cadence written into the exported FIT activity used by Garmin Connect, not just Strava. It does **not** halve the live cadence shown on the QZ dashboard. A treadmill user explicitly confirmed that enabling it fixed doubled cadence in **both Garmin Connect and Strava**, while the live QZ reading had already been correct.
 
 Use this only when the exported cadence is actually doubled; do not enable it to correct an inaccurate live cadence reading or a separately recorded activity from a watch.
+
+## Sole+ connects to QZ but shows no workout data when I select an elliptical. What should I choose?
+
+In **Sole+**, remove the unsuccessful elliptical pairing and pair QZ as a **bike** instead, even when the physical machine connected to QZ is an elliptical. Keep QZ running on one device and Sole+ on another, and check that the live metrics are updating in QZ before pairing.
+
+QZ's existing virtual-device path can expose elliptical metrics using a virtual bike profile rather than a native virtual elliptical profile. Selecting **elliptical** in Sole+ can therefore connect to the wrong profile and show no data. In a confirmed iPhone-to-iPad test, selecting QZ as a bike restored data in Sole+ for **both** a physical exercise bike and an elliptical; selecting it as an elliptical returned no data for either.
+
+This is a **pairing/profile workaround**, not a claim that Sole+ receives every elliptical-specific metric. A native virtual elliptical profile is a separate feature and is not required for this workaround.

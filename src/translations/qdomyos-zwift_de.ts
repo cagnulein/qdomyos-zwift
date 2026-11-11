@@ -1436,6 +1436,17 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Ausgeklappt</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Eingeklappt</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
