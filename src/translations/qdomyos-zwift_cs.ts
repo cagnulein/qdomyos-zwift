@@ -61,6 +61,26 @@
         <translation>Filtr</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Nadřazená složka</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Otevřít</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Žádné soubory GPX</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Vzdálenost: %1 km, převýšení: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ Aktualizovat nastavení QZ?</translation>
         <translation>Vyberte soubor</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Klepnutím vyberte soubor a pak zvolte Načíst.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Načíst</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Žádná uložená nastavení</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Další složky</translation>
     </message>
@@ -1394,6 +1426,18 @@ Aktualizovat nastavení QZ?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Hledat (včetně podsložek)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Nadřazená složka</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nenalezeny žádné tréninky</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Žádné tréninky</translation>
     </message>
     <message>
         <source>Other folders</source>

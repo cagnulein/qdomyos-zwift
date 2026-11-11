@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Åbn</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Ingen GPX-filer her</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance: %1 km, højdemeter: %2</translation>
     </message>
@@ -1171,6 +1191,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Vælg en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på "Indlæs".</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ingen gemte indstillinger</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
@@ -1378,6 +1410,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Søg (inkl. undermapper)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Ingen træningspas fundet</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Ingen træningspas her</translation>
     </message>
     <message>
         <source>Other folders</source>

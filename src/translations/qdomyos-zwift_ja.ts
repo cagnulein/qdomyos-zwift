@@ -61,6 +61,26 @@
         <translation>フィルター</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上のフォルダー</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>開く</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>ここにGPXファイルはありません</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>距離 %1 km 獲得標高: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ QZの設定を更新しますか?</translation>
         <translation>設定フォルダ</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>ファイルをタップして選択し、「読み込み」をタップしてください。</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>読み込み</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>保存された設定はありません</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
@@ -1394,6 +1426,18 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>検索（サブフォルダーを含む）...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>上のフォルダー</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>ワークアウトが見つかりません</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>ここにワークアウトはありません</translation>
     </message>
     <message>
         <source>Other folders</source>
