@@ -209,7 +209,8 @@ ColumnLayout {
     Label {
         visible: window.ui.modern
         Layout.fillWidth: true
-        Layout.leftMargin: profilesPage.modernMargin + 4
+        // on the page margin, as the card above and the headers of the other list pages
+        Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
         Layout.topMargin: 12
         text: qsTr("Saved profiles")
@@ -221,7 +222,7 @@ ColumnLayout {
     Label {
         visible: window.ui.modern
         Layout.fillWidth: true
-        Layout.leftMargin: profilesPage.modernMargin + 4
+        Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
         text: qsTr("Tap a profile to select it, then Load. Long press to delete it.")
         color: window.ui.textMuted

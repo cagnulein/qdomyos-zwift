@@ -88,6 +88,9 @@ Item {
             Binding on font.pointSize { when: !window.ui.modern; value: 22 * (1 + (window.textScale - 1) / 2); restoreMode: Binding.RestoreNone }
             Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreNone }
             topPadding: window.ui.modern ? 16 : 5
+            // Modern look: the text on the page margin, as on the other pages
+            leftPadding: window.ui.modern ? 0 : 5
+            rightPadding: window.ui.modern ? 0 : 5
             lineHeight: window.ui.modern ? 1.15 : 1
             wrapMode: TextArea.Wrap
             text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!")
@@ -115,6 +118,8 @@ Item {
             id: appleDescription
             width: parent.width
             topPadding: window.ui.modern ? 16 : 5
+            leftPadding: window.ui.modern ? 0 : 5
+            rightPadding: window.ui.modern ? 0 : 5
             // the default link blue is hard to read on the dark modern page ("blue" is the default)
             linkColor: window.ui.modern ? window.ui.accent : "blue"
             color: window.ui.modern ? window.ui.textMuted : "white"
