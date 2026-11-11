@@ -60,16 +60,21 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     QEventLoop loop;
     QTimer timeout;
 
-    if (!gattCustomService) {
-        qDebug() << QStringLiteral("ERROR: no gattCustomService!");
+    // The custom Bkool service is optional during discovery; never connect a
+    // signal on an uninitialized or stale QLowEnergyService pointer.
+    if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState ||
+        !gattCustomService || gattCustomService->state() != QLowEnergyService::ServiceDiscovered ||
+        !gattWriteCharCustomId.isValid()) {
+        emit debug(QStringLiteral("BKOOL write skipped: custom service/characteristic not ready (") + info + ')');
         return;
     }
 
+    QLowEnergyService *service = gattCustomService.data();
     if (wait_for_response) {
-        connect(gattCustomService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCustomService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
@@ -79,10 +84,10 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     writeBuffer = new QByteArray((const char *)data, data_len);
 
     if (gattWriteCharCustomId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer,
+        service->writeCharacteristic(gattWriteCharCustomId, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
+        service->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
     }    
 
     if (!disable_log) {
@@ -146,12 +151,17 @@ void bkoolbike::forceInclination(double inclination) {
 }
 
 void bkoolbike::update() {
-    if (m_control->state() == QLowEnergyController::UnconnectedState) {
+    if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
 
     if (initRequest) {
+        // Keep initialization pending if a descriptor from another service was
+        // subscribed before the Bkool command characteristic was discovered.
+        if (!gattCustomService || gattCustomService->state() != QLowEnergyService::ServiceDiscovered ||
+            !gattWriteCharCustomId.isValid() || m_control->state() != QLowEnergyController::DiscoveredState)
+            return;
         initRequest = false;
         QSettings settings;
         bool tacx_neo2_peloton =
@@ -743,12 +753,21 @@ void bkoolbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
-    auto services = m_control->services();
+    // Never reuse characteristic/service handles from a previous discovery.
+    gattCommunicationChannelService.clear();
+    gattCustomService = nullptr;
+    gattPowerService = nullptr;
+    gattWriteCharCustomId = QLowEnergyCharacteristic();
+    gattWriteCharControlPointId = QLowEnergyCharacteristic();
+
+    const auto services = m_control->services();
     for (const QBluetoothUuid &s : services) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &bkoolbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        QLowEnergyService *service = m_control->createServiceObject(s);
+        if (!service)
+            continue;
+        gattCommunicationChannelService.append(service);
+        connect(service, &QLowEnergyService::stateChanged, this, &bkoolbike::stateChanged);
+        service->discoverDetails();
     }
 }
 
@@ -825,6 +844,13 @@ uint16_t bkoolbike::watts() {
 void bkoolbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        // Service objects and characteristic handles are invalid after disconnect.
+        gattCustomService = nullptr;
+        gattPowerService = nullptr;
+        gattWriteCharCustomId = QLowEnergyCharacteristic();
+        gattWriteCharControlPointId = QLowEnergyCharacteristic();
+        gattCommunicationChannelService.clear();
+        initRequest = false;
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         connectBackLater();
