@@ -292,6 +292,15 @@ ColumnLayout {
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
+                        // Modern look: the card is read and opened by the screen reader (contentItem
+                        // replaces the label, so the delegate text is empty; a double tap of Qt 5.15
+                        // sends no clicked() to a delegate). The classic row as before
+                        Accessible.name: window.ui.modern ? fileName.text : text
+                        Accessible.onPressAction: {
+                            if (window.ui.modern)
+                                workoutDelegate.clicked()
+                        }
+
                         background: Rectangle {
                             radius: window.ui.modern ? 16 : 0
                             color: window.ui.modern ? (workoutDelegate.pressed ? window.ui.surfaceHigh : window.ui.surface)
@@ -405,7 +414,9 @@ ColumnLayout {
                     Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 0
                     Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
                     Layout.bottomMargin: window.ui.modern ? 8 : 0
-                    spacing: window.ui.modern ? 8 : 5
+                    // Classic look: the platform default spacing, as before (8 dp on Android and
+                    // iOS, 5 px elsewhere) - a written value would replace it everywhere
+                    Binding on spacing { when: window.ui.modern; value: 8; restoreMode: Binding.RestoreBindingOrValue }
 
                     UiButton {
                         Layout.fillWidth: true
