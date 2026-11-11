@@ -1452,6 +1452,14 @@ Do you want to update QZ settings?</source>
         <translation>← Назад</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Згорнути</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Ще</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>

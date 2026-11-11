@@ -1436,6 +1436,14 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>← Vissza</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Kevesebb</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Több</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Törlés</translation>
     </message>

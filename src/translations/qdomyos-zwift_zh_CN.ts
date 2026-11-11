@@ -1452,6 +1452,14 @@ Do you want to update QZ settings?</source>
         <translation>← 返回</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>收起</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>展开</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>删除</translation>
     </message>

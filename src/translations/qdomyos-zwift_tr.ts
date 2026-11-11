@@ -1452,6 +1452,14 @@ QZ ayarları güncellensin mi?</translation>
         <translation>← Geri</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Daha az</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Daha fazla</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Sil</translation>
     </message>

@@ -1452,6 +1452,14 @@ Aktualizovat nastavení QZ?</translation>
         <translation>← Zpět</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Zobrazit méně</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Zobrazit více</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Odstranit</translation>
     </message>
