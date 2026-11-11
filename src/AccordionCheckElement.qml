@@ -2,6 +2,7 @@ import QtQuick 2.7
 import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
 ColumnLayout {
@@ -11,6 +12,8 @@ ColumnLayout {
     property string linkedBoolSetting: "example_setting"
     property bool isOpen: false
     property string title: ""
+    // A note under the element (what the setting does); empty - none
+    property string description: ""
     default property alias accordionContent: contentPlaceholder.data
     spacing: 0
 
@@ -223,5 +226,22 @@ ColumnLayout {
             width: parent.width
             height: parent.height
         }
+    }
+
+    // The note of the element, under it (description): the pages wrote it as a label of their own
+    // after each element
+    Label {
+        visible: rootElement.description.length > 0
+        text: rootElement.description
+        font.bold: true
+        font.italic: true
+        font.pixelSize: window.fontHint
+        bottomPadding: window.hintGap
+        textFormat: Text.PlainText
+        wrapMode: Text.WordWrap
+        verticalAlignment: Text.AlignVCenter
+        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+        Layout.fillWidth: true
+        color: Material.color(Material.Lime)
     }
 }
