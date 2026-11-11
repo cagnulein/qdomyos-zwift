@@ -69,11 +69,14 @@ Rectangle {
     height: titleText.contentHeight + descriptionText.contentHeight +  2 + 2 * pad
     // ![0]
     Text {
-        // a plain Text does not inherit the window font: the text size while it is not 100 %
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        // a plain Text does not inherit the window font: the text size while it is not 100 %.
+        // Modern look: the sizes of the type scale, as the profile cards (the platform default
+        // of a plain Text is smaller than the page text on Android and larger on iOS)
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: titleText
         text: product.title
-        font.bold: true
+        font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
         anchors.right: priceText.left
         anchors.top: parent.top
         anchors.left: parent.left
@@ -84,7 +87,8 @@ Rectangle {
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontCaption; restoreMode: Binding.RestoreBindingOrValue }
         id: descriptionText
         text: product.description
         anchors.right: priceText.left
@@ -98,7 +102,8 @@ Rectangle {
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: priceText
         text: product.price
         anchors.right: parent.right
