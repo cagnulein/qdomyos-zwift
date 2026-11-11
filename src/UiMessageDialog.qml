@@ -19,6 +19,7 @@ Popup {
     // cannot be undone
     property string yesText: ""
     property string noText: ""
+    property string cancelText: ""
     property bool destructive: false
     // The question stands while a flag of the C++ side is set (visible: rootItem.xxxRequested),
     // and only the answer clears it: the back key closes the card without one, the flag stays
@@ -54,7 +55,11 @@ Popup {
         else if (button === P.MessageDialog.Ok) okClicked()
         else if (button === P.MessageDialog.Abort) abortClicked()
         else if (button === P.MessageDialog.Cancel) cancelClicked()
-        close()
+        // The handler can ask the next question at once (the queued Garmin workouts): the flag goes
+        // false and true again, the card opens anew and aboutToShow clears answered. Closing it then
+        // would drop that question (classic: the native dialog closes with the flag still set)
+        if (answered)
+            close()
         if (button === P.MessageDialog.Yes || button === P.MessageDialog.Ok) accepted()
         else rejected()
     }
@@ -66,7 +71,12 @@ Popup {
     width: modern ? Math.min(parent.width - 48, 440) : 0
     height: modern ? implicitHeight : 0
     x: Math.round((parent.width - width) / 2)
-    y: Math.round((parent.height - height) / 2)
+    // Centred between the system bars: the window goes under them (edge to edge). Read only for
+    // an open modern card: on iOS getTopPadding() reads a property with no notify signal, and every
+    // closed card of main.qml logged that warning at the start (54 lines, classic look too)
+    readonly property real insetTop: modern && visible ? window.getTopPadding() : 0
+    readonly property real insetBottom: modern && visible ? window.getBottomPadding() : 0
+    y: Math.round(insetTop + (parent.height - insetTop - insetBottom - height) / 2)
     padding: 24
     bottomPadding: 12
 
@@ -76,11 +86,22 @@ Popup {
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
-    onClosed: {
+    // Classic: the native dialog goes at once, as a MessageDialog does when its flag clears. In
+    // onClosed it stayed when the code cleared the flag and set it again at once (a new clipboard
+    // workout): the opening cancels the exit, closed never comes, and open() of a dialog still
+    // shown does nothing, so the old text stayed
+    onAboutToHide: {
         if (nativeDialog.visible)
             nativeDialog.close()
-        if (backAnswersNo && !answered)
+    }
+    // The back key (or the code closing it) answers No once the card has gone: the answer often
+    // asks the next question (the queued Garmin workouts), and an opening from aboutToHide is undone
+    // by the exit transition that starts right after it (the card stays opened, transparent)
+    onClosed: {
+        if (backAnswersNo && !answered) {
+            answered = true
             noClicked()
+        }
     }
 
     P.MessageDialog {
@@ -111,34 +132,56 @@ Popup {
         visible: root.modern
         spacing: 12
 
-        Label {
-            width: parent.width
-            visible: text.length > 0
-            text: root.title.length > 0 ? root.title : root.text
-            wrapMode: Text.WordWrap
-            font.pixelSize: window.ui.fontTitle
-            font.weight: Font.DemiBold
-            color: window.ui.textMain
-        }
-
+        // The title scrolls with the text: with a large font the title alone can take the screen,
+        // and the buttons below must stay on it
         Flickable {
             id: bodyFlick
             width: parent.width
-            height: Math.min(body.implicitHeight, root.parent.height * 0.55)
-            visible: body.text.length > 0
-            contentHeight: body.implicitHeight
+            // The text below the title takes up to 55 % of the window; and the whole is no taller
+            // than the room the buttons and the system bars leave, so the buttons stay on screen
+            height: Math.min(textColumn.implicitHeight,
+                             (titleLabel.visible ? titleLabel.height + textColumn.spacing : 0)
+                             + root.parent.height * 0.55,
+                             Math.max(window.ui.fontBody * 3,
+                                      root.parent.height - root.insetTop - root.insetBottom - 48
+                                      - root.topPadding - root.bottomPadding
+                                      - buttonsRow.height - parent.spacing))
+            contentHeight: textColumn.implicitHeight
             clip: contentHeight > height
             boundsBehavior: Flickable.StopAtBounds
-            Label {
-                id: body
+
+            Column {
+                id: textColumn
                 width: parent.width
-                text: root.title.length > 0 && root.text.length > 0
-                      ? root.text + (root.informativeText.length > 0 ? "\n\n" + root.informativeText : "")
-                      : root.informativeText
-                wrapMode: Text.WordWrap
-                font.pixelSize: window.ui.fontBody
-                lineHeight: 1.15
-                color: window.ui.textMuted
+                spacing: 12
+
+                Label {
+                    id: titleLabel
+                    width: parent.width
+                    visible: text.length > 0
+                    text: root.title.length > 0 ? root.title : root.text
+                    // Text.Wrap: a word longer than the line (large font) breaks instead of running out
+                    wrapMode: Text.Wrap
+                    font.pixelSize: window.ui.fontTitle
+                    font.weight: Font.DemiBold
+                    color: window.ui.textMain
+                }
+
+                Label {
+                    id: body
+                    width: parent.width
+                    visible: text.length > 0
+                    // room for the scroll bar of a long text: without it the ends of the lines ran
+                    // under the bar. Always kept, so the width does not depend on the height it makes
+                    rightPadding: 12
+                    text: root.title.length > 0 && root.text.length > 0
+                          ? root.text + (root.informativeText.length > 0 ? "\n\n" + root.informativeText : "")
+                          : root.informativeText
+                    wrapMode: Text.Wrap
+                    font.pixelSize: window.ui.fontBody
+                    lineHeight: 1.15
+                    color: window.ui.textMuted
+                }
             }
             // A long text: the bar stays to show there is more below
             ScrollIndicator.vertical: ScrollIndicator {
@@ -146,22 +189,28 @@ Popup {
             }
         }
 
-        Row {
-            anchors.right: parent.right
-            spacing: 4
+        // Flow, not Row: three translated buttons don't fit one row on a phone (the classic popup
+        // of the Android notification question does the same). Laid out from the right
+        Flow {
+            id: buttonsRow
+            width: parent.width
+            layoutDirection: Qt.RightToLeft
+            spacing: 8
             topPadding: 8
 
             Repeater {
-                // Order of the buttons: negative ones first, the positive one on the right
-                model: [P.MessageDialog.Cancel, P.MessageDialog.Abort, P.MessageDialog.No,
-                        P.MessageDialog.Yes, P.MessageDialog.Ok].filter(function(b) { return (root.buttons & b) !== 0 })
+                // The positive one on the right, the negative ones to its left (and on the next
+                // row when they don't fit)
+                model: [P.MessageDialog.Ok, P.MessageDialog.Yes, P.MessageDialog.No,
+                        P.MessageDialog.Abort, P.MessageDialog.Cancel].filter(function(b) { return (root.buttons & b) !== 0 })
                 UiButton {
                     readonly property bool positive: modelData === P.MessageDialog.Yes || modelData === P.MessageDialog.Ok
                     text: modelData === P.MessageDialog.Yes ? (root.yesText.length > 0 ? root.yesText : qsTr("Yes"))
                         : modelData === P.MessageDialog.No ? (root.noText.length > 0 ? root.noText : qsTr("No"))
                         : modelData === P.MessageDialog.Ok ? qsTr("OK")
-                        : qsTr("Cancel")
-                    flat: !positive
+                        : root.cancelText.length > 0 ? root.cancelText : qsTr("Cancel")
+                    // the negative ones a grey pill: a pill reads as a button, accent text did not
+                    cardSurface: true
                     highlighted: positive
                     danger: positive && root.destructive
                     onClicked: root.answer(modelData)

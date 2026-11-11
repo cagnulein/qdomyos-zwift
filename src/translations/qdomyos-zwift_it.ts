@@ -1417,6 +1417,40 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Sì</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>ore</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minuti</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>secondi</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1642,6 +1676,16 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Forza la velocità</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>PID FC – attuatore</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Come impostato</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4131,6 +4175,14 @@ riavvia l&apos;app.</translation>
         <translation>Salvato! Controlla la tua cartella privata (Android)&lt;br&gt;o App File (iOS)</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Salvato! Cerca nell&apos;app File.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Salvato! Cerca nella cartella privata dell&apos;app.</translation>
+    </message>
+    <message>
         <source>Your Strava account is now connected!&lt;br&gt;&lt;br&gt;When you will save a FIT file it will&lt;br&gt;automatically uploaded to Strava!</source>
         <translation>Il tuo account Strava è ora connesso!&lt;br&gt;&lt;br&gt;Quando salverai un file FIT, questo verrà&lt;br&gt;caricato automaticamente su Strava!</translation>
     </message>
@@ -4283,6 +4335,18 @@ Vuoi passare al bridge Bluetooth classico per questa sessione?</translation>
         <translation>Sei già connesso a Intervals.icu. Vuoi effettuare il logout?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Indietro</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu principale</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Finestra flottante</translation>
+    </message>
+    <message>
         <source>Auto Resistance enabled</source>
         <translation>Resistenza automatica attivata</translation>
     </message>
@@ -4299,12 +4363,48 @@ Vuoi passare al bridge Bluetooth classico per questa sessione?</translation>
         <translation>Le piastrelle sono bloccate ora</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Carica impostazioni</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Cerca impostazioni</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Salva impostazioni</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Mappa</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Grafico</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Condividi file FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Sblocca piastrelle</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Blocca piastrelle</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Disattiva resistenza automatica</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Attiva resistenza automatica</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4337,6 +4437,46 @@ Vuoi passare al bridge Bluetooth classico per questa sessione?</translation>
     <message>
         <source>Please choose a file</source>
         <translation>Scegli un file</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Disconnetti da Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Connetti con Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Disconnetti da Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Connetti con Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Impostazioni Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Disconnetti da Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Connetti con Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Allenamento</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Servizi</translation>
     </message>
     <message>
         <source>Charts</source>

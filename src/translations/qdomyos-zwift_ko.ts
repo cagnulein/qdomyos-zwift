@@ -1417,6 +1417,40 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>예</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>아니요</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>시간</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>분</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>초</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1634,6 +1668,16 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Force Speed</source>
         <translation>속도 지정</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>심박수 유지(PID) 조절 대상</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>설정에 따름</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4173,6 +4217,14 @@ Do you want to start it now?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>저장했습니다! 파일 앱을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>저장했습니다! 앱의 개인 폴더를 확인하세요.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>이미 Peloton에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
@@ -4185,6 +4237,18 @@ Do you want to start it now?</source>
         <translation>이미 Intervals.icu에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>메인 메뉴</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>플로팅 창</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>타일을 옮길 수 있습니다!</translation>
     </message>
@@ -4193,12 +4257,48 @@ Do you want to start it now?</source>
         <translation>타일이 고정되었습니다</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>설정 불러오기</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>설정 검색</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>설정 저장</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>지도</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>동영상</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>그래프</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT 파일 공유</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>타일 고정 해제</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>타일 고정</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>자동 저항 끄기</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>자동 저항 켜기</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4259,6 +4359,46 @@ Do you want to start it now?</source>
     <message>
         <source>Quit</source>
         <translation>종료</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Strava 연결</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Peloton 연결</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect 설정</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu 연결 해제</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icu 연결</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>운동</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>앱</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>서비스</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>

@@ -1417,6 +1417,40 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>否</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>小时</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>分钟</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>秒</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1642,6 +1676,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Force Speed</source>
         <translation>强制速度</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>保持心率区间调节项</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>按设置</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4283,6 +4327,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>已保存！请在“文件”应用中查看。</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>已保存！请在应用的私有文件夹中查看。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>您已连接到 Peloton。是否要登出？</translation>
     </message>
@@ -4293,6 +4345,18 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>您已连接到 Intervals.icu。是否要登出？</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>返回</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>主菜单</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>浮动窗口</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4311,12 +4375,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>卡片已锁定</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>加载设置</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>搜索设置</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>保存设置</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>地图</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>视频</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>图表</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>解锁卡片</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>锁定卡片</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>禁用自动阻力</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>启用自动阻力</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4381,6 +4481,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>断开与 Strava 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>连接到 Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>断开与 Peloton 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>连接到 Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect 设置</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>断开与 Intervals.icu 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>连接到 Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>训练</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>服务</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>

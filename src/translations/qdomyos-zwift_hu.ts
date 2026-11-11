@@ -1401,6 +1401,40 @@ Szeretné frissíteni a QZ beállításait?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Igen</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nem</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>óra</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>perc</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>másodperc</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1618,6 +1652,16 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Sebesség beállítása</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>PID-pulzusszabályozás módja</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Beállítás szerint</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4157,6 +4201,14 @@ Szeretné most elindítani?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Mentve. A Fájlok alkalmazásban találja.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Mentve. Az alkalmazás saját mappájában találja.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Már csatlakozott a Pelotonhoz. Szeretne kijelentkezni?</translation>
     </message>
@@ -4169,6 +4221,18 @@ Szeretné most elindítani?</translation>
         <translation>Már csatlakozott az Intervals.icu szolgáltatáshoz. Szeretne kijelentkezni?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Vissza</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Főmenü</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Lebegő ablak</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>A csempék mozgathatók.</translation>
     </message>
@@ -4177,12 +4241,48 @@ Szeretné most elindítani?</translation>
         <translation>A csempék rögzítve vannak.</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Beállítások betöltése</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Keresés a beállításokban</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Beállítások mentése</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Térkép</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Videó</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagram</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Csempék feloldása</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Csempék rögzítése</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Automatikus ellenállás kikapcsolása</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4243,6 +4343,46 @@ Szeretné most elindítani?</translation>
     <message>
         <source>Quit</source>
         <translation>Kilépés</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Csatlakozás a Stravához</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Csatlakozás a Pelotonhoz</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-beállítások</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Csatlakozás az Intervals.icu szolgáltatáshoz</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Edzés</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Szolgáltatások</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>

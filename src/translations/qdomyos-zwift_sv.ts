@@ -1401,6 +1401,40 @@ Vill du uppdatera QZ-inställningarna?</translation>
     </message>
 </context>
 <context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>timmar</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minuter</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekunder</translation>
+    </message>
+</context>
+<context>
     <name>WebIntervalsICUAuth</name>
     <message>
         <source>Your Intervals.icu account is now connected!&lt;br&gt;&lt;br&gt;When you will press STOP on QZ a file&lt;br&gt;will be automatically uploaded to Intervals.icu!</source>
@@ -1618,6 +1652,16 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Styr hastigheten</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Håll pulsen (PID) ändrar</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Som inställt</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4157,6 +4201,14 @@ Vill du starta det nu?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Sparat! Titta i appen Filer.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Sparat! Titta i appens privata mapp.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du är redan ansluten till Peloton. Vill du logga ut?</translation>
     </message>
@@ -4169,6 +4221,18 @@ Vill du starta det nu?</translation>
         <translation>Du är redan ansluten till Intervals.icu. Vill du logga ut?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Tillbaka</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Huvudmeny</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Flytande fönster</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Du kan flytta panelerna!</translation>
     </message>
@@ -4177,12 +4241,48 @@ Vill du starta det nu?</translation>
         <translation>Panelerna är nu låsta</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Läs in inställningar</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Sök i inställningar</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Spara inställningar</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Karta</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagram</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Dela FIT-fil</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Lås upp panelerna</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lås panelerna</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Slå av automatiskt motstånd</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Slå på automatiskt motstånd</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4243,6 +4343,46 @@ Vill du starta det nu?</translation>
     <message>
         <source>Quit</source>
         <translation>Avsluta</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Koppla från Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Anslut till Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Koppla från Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Anslut till Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-inställningar</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Koppla från Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Anslut till Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Träning</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Tjänster</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
