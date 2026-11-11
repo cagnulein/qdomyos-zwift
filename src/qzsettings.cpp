@@ -161,6 +161,8 @@ const QString QZSettings::tile_elevation_enabled = QStringLiteral("tile_elevatio
 const QString QZSettings::tile_elevation_order = QStringLiteral("tile_elevation_order");
 const QString QZSettings::tile_vam_enabled = QStringLiteral("tile_vam_enabled");
 const QString QZSettings::tile_vam_order = QStringLiteral("tile_vam_order");
+const QString QZSettings::tile_elevation_remaining_enabled = QStringLiteral("tile_elevation_remaining_enabled");
+const QString QZSettings::tile_elevation_remaining_order = QStringLiteral("tile_elevation_remaining_order");
 const QString QZSettings::tile_calories_enabled = QStringLiteral("tile_calories_enabled");
 const QString QZSettings::tile_calories_order = QStringLiteral("tile_calories_order");
 const QString QZSettings::tile_odometer_enabled = QStringLiteral("tile_odometer_enabled");
@@ -1453,6 +1455,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_cadence_order, QZSettings::default_tile_cadence_order},
     {QZSettings::tile_elevation_enabled, QZSettings::default_tile_elevation_enabled},
     {QZSettings::tile_elevation_order, QZSettings::default_tile_elevation_order},
+    {QZSettings::tile_vam_enabled, QZSettings::default_tile_vam_enabled},
+    {QZSettings::tile_vam_order, QZSettings::default_tile_vam_order},
+    {QZSettings::tile_elevation_remaining_enabled, QZSettings::default_tile_elevation_remaining_enabled},
+    {QZSettings::tile_elevation_remaining_order, QZSettings::default_tile_elevation_remaining_order},
     {QZSettings::tile_calories_enabled, QZSettings::default_tile_calories_enabled},
     {QZSettings::tile_calories_order, QZSettings::default_tile_calories_order},
     {QZSettings::tile_odometer_enabled, QZSettings::default_tile_odometer_enabled},

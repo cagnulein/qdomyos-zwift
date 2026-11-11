@@ -540,6 +540,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                QStringLiteral("elevation"), 48, labelFontSize);
     vam = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
                          QStringLiteral("0"), false, QStringLiteral("vam"), 48, labelFontSize);
+    elevation_remaining = new DataObject(QString(), QStringLiteral("icons/icons/elevationgain.png"),
+                                         QStringLiteral("--"), false,
+                                         QStringLiteral("elevation_remaining"), 48, labelFontSize);
     calories = new DataObject(QString(), QStringLiteral("icons/icons/kcal.png"),
                               QStringLiteral("0"), false, QStringLiteral("calories"), 48, labelFontSize);
     odometer = new DataObject(QString(),
@@ -2429,6 +2432,7 @@ void homeform::setTileNames() {
     cadence->setName(tr("Cadence (rpm)"));
     elevation->setName(tr("Elev. Gain (%1)").arg(meters));
     vam->setName(tr("VAM (m/h)"));
+    elevation_remaining->setName(tr("Elev. Left (m)"));
     calories->setName(tr("Calories (KCal)"));
     odometer->setName(tr("Odometer (%1)").arg(unit));
     pace->setName(tr("Pace (m/%1)").arg(unit));
@@ -2523,6 +2527,14 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
                 vam->setGridId(i);
                 dataList.append(vam);
+            }
+
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -2936,6 +2948,14 @@ void homeform::sortTiles() {
                 dataList.append(vam);
             }
 
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
+            }
+
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elapsed_order, 0).toInt() == i) {
                 elapsed->setGridId(i);
@@ -3335,6 +3355,14 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
                 vam->setGridId(i);
                 dataList.append(vam);
+            }
+
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -3822,6 +3850,14 @@ void homeform::sortTiles() {
                 dataList.append(vam);
             }
 
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
+            }
+
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elapsed_order, 0).toInt() == i) {
                 elapsed->setGridId(i);
@@ -4192,6 +4228,14 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
                 vam->setGridId(i);
                 dataList.append(vam);
+            }
+
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -4574,6 +4618,14 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_vam_order, QZSettings::default_tile_vam_order).toInt() == i) {
                 vam->setGridId(i);
                 dataList.append(vam);
+            }
+
+            if (settings.value(QZSettings::tile_elevation_remaining_enabled,
+                               QZSettings::default_tile_elevation_remaining_enabled).toBool() &&
+                settings.value(QZSettings::tile_elevation_remaining_order,
+                               QZSettings::default_tile_elevation_remaining_order).toInt() == i) {
+                elevation_remaining->setGridId(i);
+                dataList.append(elevation_remaining);
             }
 
             if (settings.value(QZSettings::tile_elapsed_enabled, true).toBool() &&
@@ -7694,6 +7746,20 @@ void homeform::update() {
                 " /min");
         } else {
             elevation->setSecondLine("");
+        }
+
+        // Current training interval's remaining positive elevation (not session D+).
+        // Keep units in meters, just like the elevation targets in the workout editor.
+        if (trainProgram && trainProgram->isStarted() && trainProgram->currentRow().elevationGain > 0) {
+            const double target = trainProgram->currentRow().elevationGain;
+            const double left = qMax(0.0, target - trainProgram->currentRowElevationGain());
+            elevation_remaining->setValue(QString::number(left, 'f', 1));
+            elevation_remaining->setSecondLine(
+                tr("of %1 m target").arg(QString::number(target, 'f', 1)));
+        } else {
+            // Time/distance intervals or no running workout have no D+ remaining target.
+            elevation_remaining->setValue(QStringLiteral("--"));
+            elevation_remaining->setSecondLine(QString());
         }
 
         const double instantVam = instantaneousVam(dev->currentSpeed().value(),

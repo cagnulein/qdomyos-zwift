@@ -271,6 +271,51 @@ ScrollView {
         }
 
         AccordionCheckElement {
+            id: elevationRemainingEnabledAccordion
+            title: qsTr("Elevation Left in Interval (m)")
+            linkedBoolSetting: "tile_elevation_remaining_enabled"
+            settings: settingsTilesPane.settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelElevationRemainingOrder
+                    text: qsTr("order index:")
+                    wrapMode: window.labelWrap
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                UiComboBox {
+                    id: elevationRemainingOrderTextField
+                    Accessible.name: elevationRemainingEnabledAccordion.title + ", " + labelElevationRemainingOrder.text
+                    model: rootItem.tile_order
+                    savedText: settings.tile_elevation_remaining_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = elevationRemainingOrderTextField.currentValue
+                }
+                Button {
+                    text: qsTr("OK")
+                    enabled: elevationRemainingOrderTextField.dirty
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {
+                        settings.tile_elevation_remaining_order = elevationRemainingOrderTextField.displayText
+                        toast.show(qsTr("Setting saved!"))
+                    }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows remaining elevation gain in meters for the current workout interval with a D+ target. Shows -- otherwise.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: window.fontHint
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
             id: elevationEnabledAccordion
             title: qsTr("Elevation Gain")
             linkedBoolSetting: "tile_elevation_enabled"

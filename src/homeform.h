@@ -941,6 +941,7 @@ public:
     DataObject *cadence;
     DataObject *elevation;
     DataObject *vam;
+    DataObject *elevation_remaining;
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;

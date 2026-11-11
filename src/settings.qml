@@ -2393,6 +2393,8 @@ import AndroidStatusBar 1.0
             property real trainprogram_inclination_filter: 0.0
             property bool tile_vam_enabled: false
             property int tile_vam_order: 80
+            property bool tile_elevation_remaining_enabled: false
+            property int tile_elevation_remaining_order: 81
 
         }
 
