@@ -115,7 +115,7 @@ public class AccessibilityStressTest {
             for (int i = 1; i <= cycles; i++) {
                 // From wherever QZ is (home, menu, settings): a finger's tap on the next step to the
                 // tiles page, again if a tap was lost, up to 45 s. Finger taps and not the press of
-                // the accessibility action (but for taps that do not reach QZ, below): this test is
+                // the accessibility action (but for taps Android gave to the input sink, below): this test is
                 // about the reads.
                 long end = SystemClock.uptimeMillis() + 45000;
                 long emptySince = 0;
@@ -129,8 +129,10 @@ public class AccessibilityStressTest {
                 // the same step, if the logcat has such lines for QZ since the first of them, the step
                 // is pressed with the accessibility action, which does not go through the input
                 // dispatcher; the first time "dumpsys input" tells which windows took the touch.
-                // Taps that reach QZ and do nothing are not pressed: that is a fault of QZ, and the
-                // page that does not open fails the test
+                // Taps with no such line are not pressed: they may have reached QZ and done nothing, and
+                // the page that does not open fails the test. Each press is a warning of the run
+                // (android_accessibility_stress_test.sh): why the window of QZ did not take the touch
+                // is not known
                 String lastStep = null;
                 String stepSince = null;
                 int repeats = 0;
