@@ -1420,6 +1420,17 @@ Vil du opdatere QZ-indstillingerne?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Udvidet</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Skjult</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

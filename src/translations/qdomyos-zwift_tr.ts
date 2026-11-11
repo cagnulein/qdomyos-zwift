@@ -1436,6 +1436,17 @@ QZ ayarları güncellensin mi?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Genişletildi</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Daraltıldı</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

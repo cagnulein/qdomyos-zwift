@@ -1436,6 +1436,17 @@ Zaktualizować ustawienia QZ?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Rozwinięte</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Zwinięte</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

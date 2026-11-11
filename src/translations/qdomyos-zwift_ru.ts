@@ -1436,6 +1436,17 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Развёрнуто</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Свёрнуто</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>

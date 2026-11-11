@@ -330,8 +330,41 @@ ApplicationWindow {
         readonly property int fontBody: fontPx(16)     // dialog text, list titles, fields
         readonly property int fontLabel: fontPx(15)    // drawer entries, group titles
         readonly property int fontCaption: fontPx(13)  // secondary lines, chips, captions
+        // The app font (12 on the emulator, not the Material 14): labels, fields, buttons, lists
+        readonly property int fontBase: fontPx(window.appFontPx)
 
         function alpha(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
+        // A title without its emoji ("Maps 🗺️", "Video 🎥"): Qt 5 on Android draws no colour emoji
+        // with the app font, they showed as boxes. For the headers of the modern look and the
+        // toast and search results of the settings page (its plainTitle() calls this). Drops a
+        // pictograph (a surrogate pair in U+1F000-1FBFF, or U+2300-23FF, U+2600-27BF) with the
+        // spaces before it and the emoji style mark (U+FE0F) after it
+        function plainTitle(text) {
+            var s = String(text)
+            var out = ""
+            var gap = ""
+            for (var i = 0; i < s.length; i++) {
+                var c = s.charCodeAt(i)
+                var n = 0
+                if (c >= 0xD83C && c <= 0xD83E && i + 1 < s.length
+                        && s.charCodeAt(i + 1) >= 0xDC00 && s.charCodeAt(i + 1) <= 0xDFFF)
+                    n = 2
+                else if ((c >= 0x2300 && c <= 0x23FF) || (c >= 0x2600 && c <= 0x27BF))
+                    n = 1
+                if (n > 0) {
+                    gap = ""
+                    i += n - 1
+                    if (i + 1 < s.length && s.charCodeAt(i + 1) === 0xFE0F)
+                        i++
+                } else if (s[i].trim() === "") {
+                    gap += s[i]
+                } else {
+                    out += gap + s[i]
+                    gap = ""
+                }
+            }
+            return (out + gap).trim()
+        }
         // Text that the classic look paints in a fixed colour (mostly white) on the page
         // background: the theme text colour in the modern look, the old colour otherwise
         function ink(classic) { return modern ? textMain : classic }

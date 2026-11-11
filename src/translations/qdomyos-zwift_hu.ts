@@ -1420,6 +1420,17 @@ Szeretné frissíteni a QZ beállításait?</translation>
     </message>
 </context>
 <context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Kibontva</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Összecsukva</translation>
+    </message>
+</context>
+<context>
     <name>UiTextField</name>
     <message>
         <source>hours</source>
