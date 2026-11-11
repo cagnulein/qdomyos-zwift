@@ -124,9 +124,10 @@ Item {
         id: restoreButton
         wrapsText: true
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: window.ui.modern ? 16 : 0
+        anchors.bottomMargin: window.ui.modern ? 8 : 0
         anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width * .5
+        // Modern look: the full width between the page margins, as Other folders on the list pages
+        width: window.ui.modern ? parent.width - 2 * swagBagPage.modernMargin : parent.width * .5
         text: qsTr("Restore Purchases")
         onClicked: {
             console.log("restoring...");
