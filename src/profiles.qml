@@ -8,6 +8,9 @@ import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0 as FileDialogClass
 
 ColumnLayout {
+    id: profilesPage
+    // Modern look: side margin of the cards and the buttons
+    readonly property int modernMargin: Math.max(16, window.contentSideMargin)
 
     anchors.top: parent.top
     anchors.fill: parent
@@ -53,7 +56,7 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: quitDialog
         title: qsTr("Profile loaded")
         text: qsTr("Would you like to quit?")
@@ -67,12 +70,16 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: deleteDialog
         property string fileUrl
         title: qsTr("Delete profile")
         text: qsTr("Would you like to delete this profile?")
-        buttons: (MessageDialog.Yes | MessageDialog.No)
+        // modern look: Cancel / Delete in red, as the other questions that cannot be undone;
+        // the native dialog of the classic look keeps its Yes / No
+        buttons: modern ? (MessageDialog.Yes | MessageDialog.Cancel) : (MessageDialog.Yes | MessageDialog.No)
+        yesText: qsTr("Delete")
+        destructive: true
         onYesClicked: {
             deleteSettings(fileUrl)
         }
@@ -81,7 +88,7 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: saveDialog
         title: qsTr("Profile Saved")
         text: qsTr("Profile saved correctly!")
@@ -91,7 +98,7 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: restoreSettingsDialog
         title: qsTr("New Profile")
         text: qsTr("New Profile Created with default values. Save it with a name and restart the app to apply them.")
@@ -101,7 +108,7 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: newProfileDialog
         title: qsTr("Save Current Profile?")
         text: qsTr("You're creating a new profile with the default values, would you like to save the current one before?")
@@ -126,7 +133,222 @@ ColumnLayout {
         }
     }
 
+    function loadProfileAt(i) {
+        let fileUrl = folderModel.get(i, 'fileUrl') || folderModel.get(i, 'fileURL');
+        if (fileUrl) {
+            loadSettings(fileUrl);
+            quitDialog.visible = true
+        }
+    }
+
+    function askDeleteProfileAt(i) {
+        let name = folderModel.get(i, 'fileName')
+        deleteDialog.informativeText = name.substring(0, name.length-4)
+        deleteDialog.fileUrl = folderModel.get(i, 'fileUrl') || folderModel.get(i, 'fileURL')
+        deleteDialog.visible = true
+    }
+
+    // Modern look: a card with the name and the save buttons, the profiles as a list of
+    // cards (tap selects, Load or a second tap loads, long press deletes). Same model and
+    // dialogs as the classic layout below, which is hidden.
+
+    Rectangle {
+        visible: window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: profilesPage.modernMargin
+        Layout.rightMargin: profilesPage.modernMargin
+        Layout.topMargin: 12
+        implicitHeight: modernNameColumn.implicitHeight + 32
+        radius: 20
+        color: window.ui.surface
+
+        ColumnLayout {
+            id: modernNameColumn
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 4
+
+            Label {
+                text: qsTr("Profile name")
+                color: window.ui.textMuted
+                font.pixelSize: window.ui.fontCaption
+            }
+            UiTextField {
+                id: modernNameField
+                Layout.fillWidth: true
+                Accessible.name: qsTr("Profile name") + ": " + text
+                text: settings.profile_name
+                font.pixelSize: window.ui.fontTitleSmall
+                onAccepted: settings.profile_name = text
+                onActiveFocusChanged: if (activeFocus) cursorPosition = text.length
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Item { Layout.fillWidth: true }
+                UiButton {
+                    text: qsTr("New profile")
+                    onClicked: {
+                        profileNameTextField.text = modernNameField.text
+                        newProfileDialog.visible = true;
+                    }
+                }
+                UiButton {
+                    text: qsTr("Save")
+                    highlighted: true
+                    onClicked: {
+                        profileNameTextField.text = modernNameField.text
+                        saveProfile(modernNameField.text);
+                        saveDialog.visible = true;
+                    }
+                }
+            }
+        }
+    }
+
+    Label {
+        visible: window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: profilesPage.modernMargin + 4
+        Layout.rightMargin: profilesPage.modernMargin
+        Layout.topMargin: 12
+        text: qsTr("Saved profiles")
+        color: window.ui.textMain
+        font.pixelSize: window.ui.fontBody
+        font.weight: Font.DemiBold
+        wrapMode: Text.WordWrap
+    }
+    Label {
+        visible: window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: profilesPage.modernMargin + 4
+        Layout.rightMargin: profilesPage.modernMargin
+        text: qsTr("Tap a profile to select it, then Load. Long press to delete it.")
+        color: window.ui.textMuted
+        font.pixelSize: window.ui.fontCaption
+        wrapMode: Text.WordWrap
+    }
+
+    ListView {
+        id: modernList
+        visible: window.ui.modern
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.leftMargin: profilesPage.modernMargin
+        Layout.rightMargin: profilesPage.modernMargin
+        Layout.topMargin: 4
+        clip: true
+        spacing: 8
+        currentIndex: -1
+        model: folderModel
+        boundsBehavior: Flickable.StopAtBounds
+
+        // UiFrame, not Rectangle.border: a thin border breaks up on Android
+        delegate: UiFrame {
+            id: profileCard
+            readonly property bool selected: ListView.isCurrentItem
+            readonly property string profileName: fileName.substring(0, fileName.length-4)
+            readonly property bool active: profileName === settings.profile_name
+            width: ListView.view.width
+            height: 64
+            radius: 16
+            fill: selected ? window.ui.alpha(window.ui.accent, 0.14)
+                           : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)
+            strokeWidth: selected ? 1 : 0
+            stroke: window.ui.alpha(window.ui.accent, 0.6)
+
+            // a tap selects a profile, a second tap loads it
+            function activate() {
+                // as in the classic list: the user picked, a rescan must not reset it
+                list.clicked = true
+                if (index === modernList.currentIndex)
+                    loadProfileAt(index)
+                else
+                    modernList.currentIndex = index
+            }
+
+            MouseArea {
+                id: cardArea
+                anchors.fill: parent
+                onClicked: profileCard.activate()
+                onPressAndHold: askDeleteProfileAt(index)
+                Accessible.role: Accessible.Button
+                Accessible.name: profileCard.profileName
+                Accessible.onPressAction: profileCard.activate()
+            }
+
+            Rectangle {
+                id: avatar
+                anchors.left: parent.left
+                anchors.leftMargin: 12
+                anchors.verticalCenter: parent.verticalCenter
+                width: 40
+                height: 40
+                radius: 20
+                color: profileCard.active ? window.ui.accent : window.ui.surfaceHighest
+                UiIcon {
+                    anchors.centerIn: parent
+                    width: 22
+                    height: 22
+                    name: "person"
+                    color: profileCard.active ? window.ui.accentInk : window.ui.textMuted
+                }
+            }
+
+            Column {
+                anchors.left: avatar.right
+                anchors.leftMargin: 12
+                anchors.right: loadButton.visible ? loadButton.left : parent.right
+                anchors.rightMargin: 12
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2
+                Label {
+                    width: parent.width
+                    text: profileCard.profileName
+                    color: profileCard.selected ? window.ui.accent : window.ui.textMain
+                    font.pixelSize: window.ui.fontBody
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+                Label {
+                    visible: profileCard.active
+                    text: qsTr("Active")
+                    color: window.ui.textMuted
+                    font.pixelSize: window.ui.fontCaption
+                }
+            }
+
+            UiButton {
+                id: loadButton
+                visible: profileCard.selected
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                text: qsTr("Load")
+                highlighted: true
+                onClicked: loadProfileAt(index)
+            }
+        }
+    }
+
+    UiButton {
+        visible: window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: profilesPage.modernMargin
+        Layout.rightMargin: profilesPage.modernMargin
+        Layout.bottomMargin: 8
+        text: qsTr("Other folders")
+        onClicked: {
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("profile")
+            } else {
+                fileDialogLoader.active = true
+            }
+        }
+    }
+
     RowLayout {
+        visible: !window.ui.modern
         spacing: 10
         Layout.leftMargin: window.contentSideMargin
         Layout.rightMargin: window.contentSideMargin
@@ -167,6 +389,7 @@ ColumnLayout {
     }
 
     StaticAccordionElement {
+        visible: !window.ui.modern
         title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
@@ -191,6 +414,7 @@ ColumnLayout {
                                 if(folderModel.get(i,
                                                    "fileBaseName") === settings.profile_name) {
                                     list.currentIndex = i;
+                                    modernList.currentIndex = i;
                                     return;
                                 }
                             }
@@ -274,6 +498,7 @@ ColumnLayout {
 
     Button {
         id: searchButton
+        visible: !window.ui.modern
         height: 50
         width: parent.width
         text: qsTr("Other folders")
