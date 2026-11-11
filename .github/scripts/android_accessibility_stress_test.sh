@@ -83,8 +83,8 @@ echo "== tiles page $CYCLES times" | tee -a $OUT
 timeout 600 adb shell "CLASSPATH=/data/local/tmp/a11y-stress.jar app_process / AccessibilityStressTest pages $CYCLES" \
   | tr -d '\r' | tee -a $OUT
 after_pages=$(qz_crashes)
-# A step pressed with the accessibility action because Android gave its finger taps to the input
-# sink of QZ's activity passes, but shows as a warning on the run, so that it does not hide when it
+# A step whose finger taps Android gave to the input sink of QZ's activity (pressed with the
+# accessibility action or not) shows as a warning on the run, so that it does not hide when it
 # comes again and again: why the window of QZ did not take the touch is not known
 while read -r line; do
   case "$line" in

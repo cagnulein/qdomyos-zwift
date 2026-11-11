@@ -130,9 +130,9 @@ public class AccessibilityStressTest {
                 // is pressed with the accessibility action, which does not go through the input
                 // dispatcher; the first time "dumpsys input" tells which windows took the touch.
                 // Taps with no such line are not pressed: they may have reached QZ and done nothing, and
-                // the page that does not open fails the test. Each press is a warning of the run
-                // (android_accessibility_stress_test.sh): why the window of QZ did not take the touch
-                // is not known
+                // the page that does not open fails the test. Each step Android gave to the input sink
+                // (pressed or not) is a warning of the run (android_accessibility_stress_test.sh): why
+                // the window of QZ did not take the touch is not known
                 String lastStep = null;
                 String stepSince = null;
                 int repeats = 0;
