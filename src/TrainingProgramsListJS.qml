@@ -516,14 +516,14 @@ ColumnLayout {
                     id: detailBody
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // the cells are placed in order, the text first: an explicit Layout.column 1 was
+                    // warned about for a moment on turning upright, the columns already 1
                     columns: detailColumn.sideBySide ? 2 : 1
                     columnSpacing: 6
                     rowSpacing: detailColumn.spacing
 
                     ColumnLayout {
                         id: textColumn
-                        Layout.row: 0
-                        Layout.column: 0
                         Layout.fillWidth: true
                         Layout.fillHeight: detailColumn.sideBySide
                         // the two columns share the width equally
@@ -696,8 +696,6 @@ ColumnLayout {
                     // WebView con grafico
                     // Preview data is now loaded via WebSocket, no runJavaScript needed
                     Item {
-                        Layout.row: detailColumn.sideBySide ? 0 : 1
-                        Layout.column: detailColumn.sideBySide ? 1 : 0
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.preferredWidth: 1
