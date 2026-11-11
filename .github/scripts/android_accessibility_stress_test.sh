@@ -6,7 +6,8 @@
 # Fails on a crash or an ANR of QZ, on a page that did not open or close, and when QZ did not
 # move Qt's accessibility functions for Java to the Qt thread (main.cpp, androidAccessibility):
 # Qt 5.15.0 runs them on the Android UI thread, and QZ crashed in this test (QTBUG-95764,
-# QTBUG-144911). The output is in accessibility_stress_test.txt.
+# QTBUG-144911). A step the pages part pressed with the accessibility action (AccessibilityStressTest)
+# is a warning of the run. The output is in accessibility_stress_test.txt.
 # Usage: android_accessibility_stress_test.sh <cycles> <connects>
 
 PKG=org.cagnulen.qdomyoszwift
@@ -82,6 +83,14 @@ echo "== tiles page $CYCLES times" | tee -a $OUT
 timeout 600 adb shell "CLASSPATH=/data/local/tmp/a11y-stress.jar app_process / AccessibilityStressTest pages $CYCLES" \
   | tr -d '\r' | tee -a $OUT
 after_pages=$(qz_crashes)
+# A step pressed with the accessibility action because Android gave its finger taps to the input
+# sink of QZ's activity passes, but shows as a warning on the run, so that it does not hide when it
+# comes again and again: why the window of QZ did not take the touch is not known
+while read -r line; do
+  case "$line" in
+    "INFO Android gave "*) echo "::warning title=Accessibility stress test::${line#INFO }" ;;
+  esac
+done < $OUT
 
 echo "== accessibility on and off $CONNECTS times" | tee -a $OUT
 ensure_qz
