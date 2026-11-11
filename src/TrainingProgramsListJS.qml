@@ -10,6 +10,7 @@ import Qt.labs.platform 1.1
 import QtWebView 1.1
 
 ColumnLayout {
+    id: programsPage
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
@@ -25,6 +26,10 @@ ColumnLayout {
 
     property var selectedFileUrl: ""
     property bool isSearching: false
+
+    // Modern look: a filled search field, the workouts as cards and pill buttons; the classic
+    // look keeps its list and buttons
+    readonly property int modernMargin: Math.max(16, window.contentSideMargin)
 
     Connections {
         target: rootItem
@@ -116,12 +121,16 @@ ColumnLayout {
         }
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: deleteDialog
         property url fileUrl: ""
         text: qsTr("Delete workout?")
         informativeText: qsTr("This cannot be undone.")
-        buttons: (MessageDialog.Yes | MessageDialog.No)
+        // modern look: Cancel / Delete in red, as the other questions that cannot be undone;
+        // the native dialog of the classic look keeps its Yes / No
+        buttons: modern ? (MessageDialog.Yes | MessageDialog.Cancel) : (MessageDialog.Yes | MessageDialog.No)
+        yesText: qsTr("Delete")
+        destructive: true
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(fileUrl)) {
                 pendingWorkoutUrl = ""
@@ -145,7 +154,7 @@ ColumnLayout {
             id: masterView
 
             ColumnLayout {
-                spacing: 5
+                spacing: window.ui.modern ? 8 : 5
 
                 // programs of a previous install were copied back into the training folder
                 Connections {
@@ -158,28 +167,48 @@ ColumnLayout {
                 }
 
                 Row {
+                    id: filterRow
                     Layout.fillWidth: true
-                    spacing: 5
+                    Layout.topMargin: window.ui.modern ? 8 : 0
+                    spacing: window.ui.modern ? 8 : 5
+                    leftPadding: window.ui.modern ? programsPage.modernMargin : 0
+                    rightPadding: window.ui.modern ? programsPage.modernMargin : 0
 
                     Text {
                         // a plain Text does not inherit the window font: the text size while it is not 100 %
                         Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+                        visible: !window.ui.modern
                         text: qsTr("Filter")
-                        color: "white"
+                        color: window.ui.ink("white")
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    TextField {
+                    UiTextField {
                         id: filterField
                         Layout.fillWidth: true
-                        // in a Row fillWidth does nothing: the field kept its 120 of Material and
+                        // Row has no fill: the modern field takes what the up button leaves. In a Row
+                        // fillWidth does nothing: the classic field kept its 120 of Material and
                         // showed less of the hint as the text grew. It grows with the text, but
                         // leaves room for the back button on a narrow screen
-                        width: window.textScale !== 1
+                        width: window.ui.modern ? filterRow.width - filterRow.leftPadding - filterRow.rightPadding
+                                         - (upButton.visible ? upButton.width + filterRow.spacing : 0)
+                               : window.textScale !== 1
                                ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth),
-                                     parent.width - x - (filterBackButton.visible ? filterBackButton.width + parent.spacing : 0)))
+                                     parent.width - x - (upButton.visible ? upButton.width + parent.spacing : 0)))
                                : implicitWidth
+                        leftPadding: window.ui.modern ? 44 : padding
                         placeholderText: qsTr("Search (recursive)...")
+
+                        UiIcon {
+                            visible: window.ui.modern
+                            anchors.left: parent.left
+                            anchors.leftMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 22
+                            height: 22
+                            name: "search"
+                            color: window.ui.textMuted
+                        }
 
                         function updateFilter() {
                             var text = filterField.text.trim()
@@ -206,17 +235,34 @@ ColumnLayout {
                         }
                     }
 
-                    Button {
-                        id: filterBackButton
-                        text: "←"
+                    UiButton {
+                        id: upButton
+                        text: window.ui.modern ? "" : "←"
+                        width: window.ui.modern ? 48 : implicitWidth
+                        leftPadding: window.ui.modern ? 0 : horizontalPadding
+                        rightPadding: window.ui.modern ? 0 : horizontalPadding
                         visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
+                        // Modern look: an icon without text, the screen reader needs a name
+                        Accessible.name: window.ui.modern ? qsTr("Parent folder") : text
+                        UiIcon {
+                            visible: window.ui.modern
+                            anchors.centerIn: parent
+                            width: 22
+                            height: 22
+                            name: "arrow_back"
+                            color: window.ui.textMain
+                        }
                     }
                 }
 
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 0
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
+                    spacing: window.ui.modern ? 8 : 0
+                    clip: window.ui.modern
                     ScrollBar.vertical: ScrollBar {}
                     id: list
 
@@ -236,7 +282,7 @@ ColumnLayout {
                         id: workoutDelegate
                         width: ListView.view.width
                         // a bigger text: the row grows with the name and the path of a search result
-                        height: window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50
+                        height: window.ui.modern ? 60 : (window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50)
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -247,21 +293,39 @@ ColumnLayout {
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
                         background: Rectangle {
-                            color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                            radius: window.ui.modern ? 16 : 0
+                            color: window.ui.modern ? (workoutDelegate.pressed ? window.ui.surfaceHigh : window.ui.surface)
+                                         : (ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor)
                         }
 
                         contentItem: RowLayout {
                             spacing: 10
 
                             Item {
-                                width: 10
+                                width: window.ui.modern ? 0 : 10
                                 height: 1
                             }
 
                             Text {
                                 id: fileIcon
+                                visible: !window.ui.modern
                                 text: isItemFolder ? "📁" : "📄"
                                 font.pixelSize: window.fontPx(24)
+                            }
+
+                            Rectangle {
+                                visible: window.ui.modern
+                                Layout.preferredWidth: 40
+                                Layout.preferredHeight: 40
+                                radius: 20
+                                color: window.ui.surfaceHighest
+                                UiIcon {
+                                    anchors.centerIn: parent
+                                    width: 22
+                                    height: 22
+                                    name: isItemFolder ? "folder" : "list_alt"
+                                    color: window.ui.textMuted
+                                }
                             }
 
                             ColumnLayout {
@@ -274,15 +338,18 @@ ColumnLayout {
                                     text: !isItemFolder ?
                                           itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
                                           itemFileName
-                                    color: isItemFolder ? Material.color(Material.Orange) : "white"
-                                    font.pixelSize: window.fontPx(16)
+                                    color: window.ui.modern ? window.ui.textMain
+                                         : isItemFolder ? Material.color(Material.Orange)
+                                         : "white"
+                                    font.pixelSize: window.ui.fontBody
+                                    font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
                                     text: itemRelativePath
-                                    color: Material.color(Material.Grey)
+                                    color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey)
                                     font.pixelSize: window.fontPx(12)
                                     elide: Text.ElideMiddle
                                     visible: isSearching && itemRelativePath !== ""
@@ -293,7 +360,15 @@ ColumnLayout {
                                 text: "›"
                                 font.pixelSize: window.fontPx(24)
                                 color: Material.color(Material.Grey)
-                                visible: !ListView.isCurrentItem
+                                visible: !window.ui.modern && !ListView.isCurrentItem
+                            }
+
+                            UiIcon {
+                                visible: window.ui.modern
+                                Layout.preferredWidth: 22
+                                Layout.preferredHeight: 22
+                                name: "chevron_right"
+                                color: window.ui.textMuted
                             }
                         }
 
@@ -313,12 +388,26 @@ ColumnLayout {
                     }
 
                     focus: true
+
+                    Label {
+                        parent: list
+                        anchors.centerIn: parent
+                        // only once the folder is read: the model fills in asynchronously
+                        visible: window.ui.modern && list.count === 0
+                                 && (isSearching || folderModel.status === FolderListModel.Ready)
+                        text: isSearching ? qsTr("No workouts found") : qsTr("No workouts here")
+                        color: window.ui.textMuted
+                    }
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 0
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 0
+                    Layout.bottomMargin: window.ui.modern ? 8 : 0
+                    spacing: window.ui.modern ? 8 : 5
 
-                    Button {
+                    UiButton {
                         Layout.fillWidth: true
                         height: 50
                         text: qsTr("Other folders")
@@ -333,7 +422,7 @@ ColumnLayout {
 
                     // programs of a previous install that no bundled program points to are
                     // found only on request
-                    Button {
+                    UiButton {
                         Layout.fillWidth: true
                         height: 50
                         visible: Qt.platform.os === "android"
@@ -355,18 +444,23 @@ ColumnLayout {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.margins: 5
-                    spacing: 10
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                    spacing: window.ui.modern ? 8 : 10
 
-                    Button {
+                    UiButton {
                         text: qsTr("← Back")
+                        // Modern look: the toolbar arrow goes back to the list (main.qml)
+                        visible: !window.ui.modern
                         onClicked: stackView.pop()
                     }
 
                     Item { Layout.fillWidth: true }
 
-                    Button {
+                    UiButton {
                         text: qsTr("Delete")
                         visible: pendingWorkoutUrl.toString() !== ""
+                        danger: true
                         Material.background: Material.Red
                         onClicked: {
                             deleteDialog.fileUrl = pendingWorkoutUrl
@@ -374,7 +468,7 @@ ColumnLayout {
                         }
                     }
 
-                    Button {
+                    UiButton {
                         text: qsTr("Start Workout")
                         highlighted: true
                         Material.background: Material.Green
@@ -392,9 +486,11 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.margins: 10
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: window.fontPx(14)
-                    font.bold: true
-                    color: "white"
+                    // Modern look: an empty line kept its height and margins, a gap above the chart
+                    visible: !window.ui.modern || text !== ""
+                    font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(14)
+                    font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
+                    color: window.ui.ink("white")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -404,26 +500,48 @@ ColumnLayout {
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
                     text: rootItem.previewWorkoutTags
+                    visible: !window.ui.modern || text !== ""
                     font.pixelSize: window.fontPx(12)
                     wrapMode: Text.WordWrap
-                    color: Material.color(Material.Grey, Material.Shade400)
+                    color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey, Material.Shade400)
                     horizontalAlignment: Text.AlignHCenter
                 }
 
                 // WebView con grafico
                 // Preview data is now loaded via WebSocket, no runJavaScript needed
-                WebView {
-                    id: previewWebView
+                Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
 
-                    // a new app language: the page takes its texts when loaded and asks the server
-                    // for the program itself, so a reload loses nothing
-                    Connections {
-                        target: rootItem
-                        function onAppLanguageChanged() {
-                            previewWebView.reload()
+                    // Modern look: the native view is white until the page is loaded, so it is
+                    // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
+                    // QML item, so it hides while the card-styled delete question is open
+                    BusyIndicator {
+                        anchors.centerIn: parent
+                        visible: window.ui.modern && !previewWebView.pageLoaded
+                        running: visible
+                    }
+
+                    WebView {
+                        id: previewWebView
+                        anchors.fill: parent
+                        visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
+                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                        property bool pageLoaded: false
+                        onLoadingChanged: {
+                            if (loadRequest.status === WebView.LoadSucceededStatus)
+                                pageLoaded = true
+                        }
+
+                        // a new app language: the page takes its texts when loaded and asks the server
+                        // for the program itself, so a reload loses nothing
+                        Connections {
+                            target: rootItem
+                            function onAppLanguageChanged() {
+                                // hidden again until loaded, as at the first load
+                                previewWebView.pageLoaded = false
+                                previewWebView.reload()
+                            }
                         }
                     }
                 }
