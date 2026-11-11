@@ -151,7 +151,10 @@ void bkoolbike::forceInclination(double inclination) {
 }
 
 void bkoolbike::update() {
-    if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
+    // The periodic timer starts before Bluetooth discovery has created a controller.
+    if (!m_control)
+        return;
+    if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
@@ -603,6 +606,11 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 void bkoolbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    // Ignore late callbacks from a previous, already-disconnected discovery.
+    if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState ||
+        gattCommunicationChannelService.isEmpty())
+        return;
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
