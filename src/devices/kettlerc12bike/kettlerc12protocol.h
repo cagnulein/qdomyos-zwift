@@ -10,7 +10,7 @@ namespace KettlerC12Protocol {
 // ATT handle observed on the ERGO C12 in the Kinomap HCI capture.
 // This is a firmware-specific fallback, not a portable characteristic UUID.
 constexpr uint16_t targetPowerHandle = 0x0042;
-constexpr int maxTargetPowerWatts = 250;
+constexpr int maxTargetPowerWatts = 500;
 constexpr int minResistanceLevel = 1;
 constexpr int maxResistanceLevel = 20;
 
