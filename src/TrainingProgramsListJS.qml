@@ -307,11 +307,18 @@ ColumnLayout {
                                          : (ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor)
                         }
 
-                        contentItem: RowLayout {
-                            spacing: 10
+                        // Modern look: the icon 12 from the card edge and 12 from the text, as on the
+                        // GPX, settings file and profile cards; the classic row as before
+                        leftPadding: window.ui.modern ? 12 : horizontalPadding
 
+                        contentItem: RowLayout {
+                            spacing: window.ui.modern ? 12 : 10
+
+                            // hidden, not zero-wide, in the modern look: a visible empty item still
+                            // takes the spacing of the row
                             Item {
-                                width: window.ui.modern ? 0 : 10
+                                visible: !window.ui.modern
+                                width: 10
                                 height: 1
                             }
 

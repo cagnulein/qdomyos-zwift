@@ -133,7 +133,7 @@ ColumnLayout {
                 Rectangle {
                     id: settingsAvatar
                     anchors.left: parent.left
-                    anchors.leftMargin: 10
+                    anchors.leftMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
                     width: 40
                     height: 40
