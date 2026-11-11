@@ -8771,6 +8771,10 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <translation>現在の運動で発生しているワット数を表示します。ワットは出力とも呼ばれます（Pelotonなど）。機器がワット数を送信しない場合、QZが負荷とケイデンスからワット数を計算します。</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>画面タイル表示設定</translation>
+    </message>
+    <message>
         <source>Weight loss</source>
         <translation>減量</translation>
     </message>

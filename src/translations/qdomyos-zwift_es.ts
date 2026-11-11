@@ -8663,6 +8663,10 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <translation>Cadencia de pedaleo de bicicleta en revoluciones por minuto (RPM) o cadencia de cinta de correr si se utiliza un sensor de cadencia montado en zapatos o la aplicación QZ para Apple Watch.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Opciones de mosaicos</translation>
+    </message>
+    <message>
         <source>Elevation Gain</source>
         <translation>Ganancia de elevación</translation>
     </message>

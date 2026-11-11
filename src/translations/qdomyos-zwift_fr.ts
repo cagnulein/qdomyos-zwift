@@ -8747,6 +8747,10 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <translation>Affiche les watts générés par votre effort actuel. Le watt est également appelé puissance (par exemple, sur Peloton). Si votre équipement ne communique pas les watts, QZ calculera les watts en utilisant la résistance et la cadence.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Options des tuiles</translation>
+    </message>
+    <message>
         <source>Weight loss</source>
         <translation>Perte de poids</translation>
     </message>

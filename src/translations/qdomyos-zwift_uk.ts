@@ -8933,6 +8933,10 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Показує цільовий опір у шкалі опору вашого велотренажера. Наприклад, на занятті Peloton або у Zwift потрібно, щоб значення на цій плитці збігалося з плиткою «Опір». На занятті Peloton (лише велотренажер) кнопки +/- зсувають цільовий опір заняття вгору або вниз до кінця тренування.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Параметри плиток</translation>
+    </message>
+    <message>
         <source>Stroke Length</source>
         <translation>Довжина гребка</translation>
     </message>

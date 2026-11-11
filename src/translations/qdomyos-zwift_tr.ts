@@ -8871,6 +8871,10 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <translation>Arayüzde 2 büyük vites düğmesi gösterir</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Kutucuk seçenekleri</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>Kalan süre/satır</translation>

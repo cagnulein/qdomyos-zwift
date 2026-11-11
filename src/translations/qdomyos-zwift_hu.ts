@@ -8847,6 +8847,10 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
         <translation>2 nagy fokozatgombot jelenít meg a felületen.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Csempék beállításai</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>Hátralévő idő/sor</translation>

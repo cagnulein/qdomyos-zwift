@@ -8847,6 +8847,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Viser 2 store girknapper i brukergrensesnittet.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Flisalternativer</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>Gjenstående tid/rad</translation>

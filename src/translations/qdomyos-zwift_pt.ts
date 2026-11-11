@@ -8659,6 +8659,10 @@ Padrão: A = -0.96, B = 1.33</translation>
         <translation>Cadência do pedal da bicicleta em rotações por minuto (RPM) ou da esteira, se você usar um sensor no calçado ou o app QZ no Apple Watch.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Opções de Blocos</translation>
+    </message>
+    <message>
         <source>Elevation Gain</source>
         <translation>Ganho de Elevação</translation>
     </message>
