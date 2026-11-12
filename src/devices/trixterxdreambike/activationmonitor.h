@@ -1,5 +1,4 @@
-#ifndef ACTIVATION_MONITOR_H
-#define ACTIVATION_MONITOR_H
+#pragma once
 
 #include <queue>
 #include <functional>
@@ -43,4 +42,3 @@ private:
 
 };
 
-#endif // ACTIVATION_MONITOR_H

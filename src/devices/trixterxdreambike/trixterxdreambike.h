@@ -4,6 +4,7 @@
 #include "trixterxdreamserial.h"
 #include "trixterxdreamsettings.h"
 #include "activationmonitor.h"
+#include "wheelcircumference.h"
 #include <optional>
 #include <queue>
 
@@ -11,11 +12,30 @@ class trixterxdreambike : public bike
 {
     Q_OBJECT
 
-private:
+  private:
     /**
      * @brief SettingsUpdateTimerIntervalMilliseconds The object will check for a settings update at this interval.
      */
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
+
+    struct settingscache {
+      public:
+        bool useZwiftRatio;
+        double weight;
+        double bikeWeight;
+        double Crr;
+
+        void update()
+        {
+            QSettings settings;
+
+            useZwiftRatio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+            weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            bikeWeight = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
+            Crr = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
+        }
+    };
+
 
     /**
      * @brief A queue of states read from the client. Syncronized by statesMutex.
@@ -92,9 +112,15 @@ private:
 
     /**
      * @brief The simulated circumference of the bike's wheels, for converting
-     * angular velocity to a speed. Units: kilometers.
+     * angular velocity to a speed. Units: meters.
      */
     double wheelCircumference;
+
+
+    /**
+     * @brief crankCircumference The crank circumference. Units: meters
+     */
+    double crankCircumference = DefaultCrankLength * 2.0 * M_PI;
 
     /**
      * @brief requestIsPower Indicates if the last power request (for resistance) came
@@ -154,6 +180,18 @@ private:
      */
     QRecursiveMutex updateMutex;
 
+
+    /**
+     * @brief gearTable The gear information when not using the Zwift ratio
+     */
+    wheelCircumference::GearTable gearTable;
+
+
+    /**
+     * @brief settingsCache Cache of QSettings used for calculations
+     */
+    settingscache settingsCache;
+
     /**
      * @brief Processes the state queue
      */
@@ -212,9 +250,16 @@ private:
      * @brief watts Calculate the power output using the current Cadence. Unit: watts
      * @return
      */
-    uint16_t watts() override;;
+    uint16_t watts() override;
 
-protected:
+
+    /**
+     * @brief get_footToRoadRatio Combine crank length, wheel circumference and gear ratio to get foot to road ratio.
+     * @return
+     */
+    double get_footToRoadRatio();
+
+  protected:
 
     /**
      * @brief Processes timer events, e.g. for resistance.
@@ -227,7 +272,7 @@ protected:
      */
     void disconnectPort();
 
-public:
+  public:
     /**
      * @brief The maximum supported wheel diameter. Unit: meters
      */
@@ -241,7 +286,13 @@ public:
     /**
      * @brief The default wheel diameter. Unit: meters
      */
-    constexpr static double DefaultWheelDiameter = 26*0.0254;
+    constexpr static double DefaultWheelDiameter = 29*0.0254;
+
+
+    /**
+     * @brief The default crank length. Unit: meters
+     */
+    constexpr static double DefaultCrankLength = 0.175;
 
     /**
      * @brief The number of milliseconds of no packets processed required before
@@ -285,7 +336,7 @@ public:
      * @brief maxGears The maximum gear index.
      * @return
      */
-    double maxGears() override { return 12.0; }
+    double maxGears() override { return this->settingsCache.useZwiftRatio ? 24 : this->gearTable.maxGears; }
 
     /**
      * @brief maxGears The minimum gear index.

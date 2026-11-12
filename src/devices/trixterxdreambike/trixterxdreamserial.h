@@ -1,5 +1,4 @@
-#ifndef TRIXTERXDREAMSERIAL_H
-#define TRIXTERXDREAMSERIAL_H
+#pragma once
 
 #include <QMutex>
 #include <QThread>
@@ -89,4 +88,3 @@ protected:
     uint32_t pulseIntervalMilliseconds = 10;
 };
 
-#endif // TRIXTERXDREAMSERIAL_H

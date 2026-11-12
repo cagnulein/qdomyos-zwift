@@ -1,12 +1,8 @@
-#ifndef TRIXTERXDREAMSETTINGS_H
-#define TRIXTERXDREAMSETTINGS_H
-
+#pragma once
 
 #include <cstdint>
 #include "qmutex.h"
 #include "qsettings.h"
-#include "qzsettings.h"
-
 
 /**
  * @brief The trixterxdreambikesettings class encapsulates the application settings for the Trixter X-Dream Bike.
@@ -221,6 +217,3 @@ public:
     // */
     //void Save(const QSettings& settings);
 };
-
-
-#endif // TRIXTERXDREAMSETTINGS_H

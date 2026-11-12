@@ -1,5 +1,4 @@
-#ifndef QSERIALDATASOURCE_H
-#define QSERIALDATASOURCE_H
+#pragma once
 #include <qglobal.h>
 
 // Not compatible with Android and iOS.
@@ -31,4 +30,4 @@ class qserialdatasource : public serialdatasource {
 };
 
 #endif
-#endif // QSERIALDATASOURCE_H
+

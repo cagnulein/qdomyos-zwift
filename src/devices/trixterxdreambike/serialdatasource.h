@@ -1,5 +1,4 @@
-#ifndef SERIALDATASOURCE_H
-#define SERIALDATASOURCE_H
+#pragma once
 
 #include <QByteArray>
 #include <QStringList>
@@ -69,4 +68,3 @@ class serialdatasource
     virtual ~serialdatasource() = default;
 };
 
-#endif // SERIALDATASOURCE_H
