@@ -289,8 +289,10 @@ ColumnLayout {
                 fileDialogLoader.active = true
             }
         }
+        // Modern look: placed by the layout (the list above fills the height), so its bottom
+        // margin takes effect - an anchor would override it
         anchors {
-            bottom: parent.bottom
+            bottom: window.ui.modern ? undefined : parent.bottom
         }
     }
 }
