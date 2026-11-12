@@ -7,6 +7,7 @@
 #include "bluetoothdevicetestdatabuilder.h"
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
+#include "TrixterXDreamBike/trixterxdreambikestub.h"
 
 
 
@@ -1402,6 +1403,16 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("TRX ROUTE KEY", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"BH DUALKIT TREAD", "BH-TR-", "MASTERT40-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Trixter X-Dream Bike
+    RegisterNewDeviceTestData(DeviceIndex::TrixterXDreambike)
+        ->expectDevice<trixterxdreambike>()
+        ->initializeWith([]() -> void {
+            // use the test serial data source because the bike won't be there usually, during test runs.
+            trixterxdreamserial::serialDataSourceFactory = TrixterXDreamBikeStub::create;
+        })
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::trixter_xdream_bike_enabled);
+
     // True Treadmill
     RegisterNewDeviceTestData(DeviceIndex::TrueTreadmill)
         ->expectDevice<truetreadmill>()
@@ -1676,7 +1687,7 @@ void DeviceTestDataIndex::Initialize() {
 
         try {
             auto exclusions = deviceTestData->Exclusions();
-        } catch(std::domain_error) {
+        } catch(std::domain_error&) {
             qDebug() << "Device: " << deviceTestData->Name() << " specifies at least 1 exclusion for which no test data was found.";
         }
 

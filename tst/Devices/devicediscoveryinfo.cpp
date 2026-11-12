@@ -55,6 +55,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::toorx_bike, QZSettings::default_toorx_bike);
     trackedSettings.insert(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms);
     trackedSettings.insert(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled);
     trackedSettings.insert(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe);
 };
 
