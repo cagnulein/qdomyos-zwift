@@ -68,6 +68,10 @@
         <source>Other folders</source>
         <translation>Otras carpetas</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar archivos</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1190,6 +1194,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation>Otras carpetas</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar archivos</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1400,8 +1408,12 @@ Do you want to update QZ settings?</source>
         <translation>Otras carpetas</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurar archivos</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Restaurar programas</translation>
+        <translation type="vanished">Restaurar programas</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3706,6 +3718,14 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>velocidad cambiada a</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Archivos restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>No se encontraron archivos de una instalación anterior.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Error de análisis JSON</translation>
     </message>
@@ -3793,11 +3813,11 @@ Esto puede tardar un poco en el primer inicio.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Programas de entrenamiento restaurados: %1.</translation>
+        <translation type="vanished">Programas de entrenamiento restaurados: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>No se encontraron programas de entrenamiento de una instalación anterior.</translation>
+        <translation type="vanished">No se encontraron programas de entrenamiento de una instalación anterior.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4338,6 +4358,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>¡Guardado! Búscalo en la carpeta privada de la app.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurar archivos</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Los programas de entrenamiento, las rutas GPX, los archivos de configuración y los perfiles de una instalación anterior pueden seguir en la carpeta QZ.
+¿Quieres buscarlos?
+
+En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Estás ya conectado a Peloton. ¿Quieres cerrar sesión?</translation>
     </message>
@@ -4559,14 +4593,14 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Programas de entrenamiento</translation>
+        <translation type="vanished">Programas de entrenamiento</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Los programas de entrenamiento de una instalación anterior pueden seguir en la carpeta QZ.
+        <translation type="vanished">Los programas de entrenamiento de una instalación anterior pueden seguir en la carpeta QZ.
 ¿Quieres buscarlos?
 
 En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
@@ -4696,6 +4730,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Other folders</source>
         <translation>Otras carpetas</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar archivos</translation>
     </message>
 </context>
 <context>

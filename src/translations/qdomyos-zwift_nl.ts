@@ -68,6 +68,10 @@
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1190,6 +1194,10 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1400,8 +1408,12 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Andere mappen</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programma&apos;s herstellen</translation>
+        <translation type="vanished">Programma&apos;s herstellen</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3634,6 +3646,14 @@ Bij de eerste start kan dit even duren.</translation>
         <translation>snelheid gewijzigd naar </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Bestanden hersteld: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Geen bestanden van een eerdere installatie gevonden.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Fout bij het verwerken van JSON</translation>
     </message>
@@ -3663,11 +3683,11 @@ Bij de eerste start kan dit even duren.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Trainingsprogramma&apos;s hersteld: %1.</translation>
+        <translation type="vanished">Trainingsprogramma&apos;s hersteld: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
+        <translation type="vanished">Geen trainingsprogramma&apos;s van een eerdere installatie gevonden.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4236,6 +4256,20 @@ Wil je die nu starten?</translation>
         <translation>Opgeslagen! Kijk in de privémap van de app.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Trainingsprogramma&apos;s, GPX-routes, instellingenbestanden en profielen van een eerdere installatie staan mogelijk nog in de QZ-map.
+Wil je ernaar zoeken?
+
+Geef in het volgende venster toegang tot de QZ-map.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Je bent al verbonden met Peloton. Wil je uitloggen?</translation>
     </message>
@@ -4457,14 +4491,14 @@ Geef in het volgende venster toegang tot de QZ-map.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Trainingsprogramma&apos;s</translation>
+        <translation type="vanished">Trainingsprogramma&apos;s</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
+        <translation type="vanished">Trainingsprogramma&apos;s van een eerdere installatie staan mogelijk nog in de QZ-map.
 Wil je ernaar zoeken?
 
 Geef in het volgende venster toegang tot de QZ-map.</translation>
@@ -4680,6 +4714,10 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Profiles</source>
         <translation>Profielen</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Bestanden herstellen</translation>
     </message>
     <message>
         <source>Save</source>

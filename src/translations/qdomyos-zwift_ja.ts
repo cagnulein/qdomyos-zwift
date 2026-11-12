@@ -68,6 +68,10 @@
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1190,6 +1194,10 @@ QZの設定を更新しますか?</translation>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1400,8 +1408,12 @@ QZの設定を更新しますか?</translation>
         <translation>その他のフォルダー</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>プログラムを復元</translation>
+        <translation type="vanished">プログラムを復元</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3710,6 +3722,14 @@ This may take a few moments on first startup.</source>
         <translation>速度は</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>復元したファイル: %1。</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>以前のインストールのファイルは見つかりませんでした。</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSONパーサーエラー</translation>
     </message>
@@ -3797,11 +3817,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>復元したトレーニングプログラム: %1。</translation>
+        <translation type="vanished">復元したトレーニングプログラム: %1。</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
+        <translation type="vanished">以前のインストールのトレーニングプログラムは見つかりませんでした。</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4342,6 +4362,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>保存しました！アプリのプライベートフォルダーで確認してください。</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前のインストールのトレーニングプログラム、GPXルート、設定ファイル、プロファイルがQZフォルダーに残っている可能性があります。
+検索しますか？
+
+次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Pelotonにすでに接続されています。ログアウトしますか？</translation>
     </message>
@@ -4563,14 +4597,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>トレーニングプログラム</translation>
+        <translation type="vanished">トレーニングプログラム</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
+        <translation type="vanished">以前のインストールのトレーニングプログラムがQZフォルダーに残っている可能性があります。
 検索しますか？
 
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
@@ -4700,6 +4734,10 @@ QZ がこの値を変更することを許可しますか？
     <message>
         <source>Other folders</source>
         <translation>その他のフォルダ</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>ファイルを復元</translation>
     </message>
 </context>
 <context>

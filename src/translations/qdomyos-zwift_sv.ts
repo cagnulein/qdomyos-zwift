@@ -68,6 +68,10 @@
         <source>Other folders</source>
         <translation>Andra mappar</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1174,6 +1178,10 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1384,8 +1392,12 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>Andra mappar</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Återställ program</translation>
+        <translation type="vanished">Återställ program</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3618,6 +3630,14 @@ Det kan ta en stund vid första starten.</translation>
         <translation>hastigheten ändrad till </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Återställda filer: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Inga filer från en tidigare installation hittades.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-tolkningsfel</translation>
     </message>
@@ -3647,11 +3667,11 @@ Det kan ta en stund vid första starten.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Återställda träningsprogram: %1.</translation>
+        <translation type="vanished">Återställda träningsprogram: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Inga träningsprogram från en tidigare installation hittades.</translation>
+        <translation type="vanished">Inga träningsprogram från en tidigare installation hittades.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4220,6 +4240,20 @@ Vill du starta det nu?</translation>
         <translation>Sparat! Titta i appens privata mapp.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Träningsprogram, GPX-rutter, inställningsfiler och profiler från en tidigare installation kan finnas kvar i QZ-mappen.
+Vill du leta efter dem?
+
+Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du är redan ansluten till Peloton. Vill du logga ut?</translation>
     </message>
@@ -4441,14 +4475,14 @@ Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Träningsprogram</translation>
+        <translation type="vanished">Träningsprogram</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Träningsprogram från en tidigare installation kan finnas kvar i QZ-mappen.
+        <translation type="vanished">Träningsprogram från en tidigare installation kan finnas kvar i QZ-mappen.
 Vill du leta efter dem?
 
 Tillåt åtkomst till QZ-mappen i nästa fönster.</translation>
@@ -4664,6 +4698,10 @@ Vill du tillåta att QZ ändrar värdet?
     <message>
         <source>Profiles</source>
         <translation>Profiler</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Återställ filer</translation>
     </message>
     <message>
         <source>Save</source>

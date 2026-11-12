@@ -68,6 +68,10 @@
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1190,6 +1194,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1400,8 +1408,12 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Outras pastas</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Restaurar programas</translation>
+        <translation type="vanished">Restaurar programas</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3706,6 +3718,14 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>velocidade alterada para</translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Arquivos restaurados: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Nenhum arquivo de uma instalação anterior foi encontrado.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Erro no analisador JSON</translation>
     </message>
@@ -3793,11 +3813,11 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Programas de treino restaurados: %1.</translation>
+        <translation type="vanished">Programas de treino restaurados: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Nenhum programa de treino de uma instalação anterior foi encontrado.</translation>
+        <translation type="vanished">Nenhum programa de treino de uma instalação anterior foi encontrado.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4338,6 +4358,20 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Salvo! Veja na pasta privada do app.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Os programas de treino, as rotas GPX, os arquivos de configurações e os perfis de uma instalação anterior podem ainda estar na pasta QZ.
+Deseja procurá-los?
+
+Na próxima janela, permita o acesso à pasta QZ.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Você já está conectado ao Peloton. Deseja sair?</translation>
     </message>
@@ -4559,14 +4593,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Programas de treino</translation>
+        <translation type="vanished">Programas de treino</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Os programas de treino de uma instalação anterior podem ainda estar na pasta QZ.
+        <translation type="vanished">Os programas de treino de uma instalação anterior podem ainda estar na pasta QZ.
 Deseja procurá-los?
 
 Na próxima janela, permita o acesso à pasta QZ.</translation>
@@ -4696,6 +4730,10 @@ Permitir que o QZ altere esse valor?
     <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Restaurar arquivos</translation>
     </message>
 </context>
 <context>
