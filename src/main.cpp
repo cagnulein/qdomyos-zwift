@@ -16,6 +16,7 @@
 #include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
+#include "devices/dircon/dirconmanager.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
@@ -1795,6 +1796,11 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
         homeform *h = new homeform(&engine, &bl);
+
+        // Bring the DIRCON endpoint up now rather than when a bike connects. A client
+        // that caches discovery results and does not retry a failed connect will
+        // otherwise hold a record for a port nobody is listening on.
+        DirconManager::startIdleEndpoint();
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
 #ifdef Q_OS_ANDROID

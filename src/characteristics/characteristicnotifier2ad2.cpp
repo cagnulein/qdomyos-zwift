@@ -5,7 +5,7 @@
 #include <QSettings>
 
 CharacteristicNotifier2AD2::CharacteristicNotifier2AD2(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2ad2, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2ad2, Bike, parent) {}
 
 int CharacteristicNotifier2AD2::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();

@@ -12,6 +12,12 @@ CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeRe
     : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent), notifier(notifier) {}
 
 int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
+    if (!Bike) {
+        // The DIRCON endpoint outlives the bike, so a client can write while nothing
+        // is attached. Refuse rather than dereference a device that is not there.
+        qDebug() << "CharacteristicWriteProcessor2AD9: write with no device attached, ignoring";
+        return CP_INVALID;
+    }
     if (data.size()) {
         BLUETOOTH_TYPE dt = Bike->deviceType();
         QSettings settings;

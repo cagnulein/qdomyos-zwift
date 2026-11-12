@@ -53,6 +53,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("STRIDE40SPT-000269");
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
+        // Treadmills are out of scope for the DIRCON lifetime refactor and keep the
+        // old per-virtual-device ownership. A shared endpoint left over from a bike
+        // earlier in the session would still hold the same base port, so hand it back
+        // first rather than failing to listen.
+        DirconManager::releaseShared();
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
