@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Experimental TX90 test: twenty alternating 20/40-second slots, total ten minutes. Requires the updated variable-duration build. -->
+<rows>
+    <row duration="00:00:20" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:40" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:20" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:20" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:40" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:40" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:20" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="3" inclination="0" forcespeed="1"/>
+    <row duration="00:00:20" speed="4" inclination="0" forcespeed="1"/>
+    <row duration="00:00:40" speed="5" inclination="1" forcespeed="1"/>
+    <row duration="00:00:20" speed="4" inclination="1" forcespeed="1"/>
+    <row duration="00:00:40" speed="3" inclination="0" forcespeed="1"/>
+</rows>
