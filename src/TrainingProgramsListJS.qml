@@ -470,30 +470,17 @@ ColumnLayout {
                 // height on the right, as the GPX page; upright one under another
                 readonly property bool sideBySide: width > height
 
-                GridLayout {
-                    id: detailBody
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    // Two columns in both orientations, the cells set explicitly: upright every cell spans
-                    // both, one under another; side by side the text takes the left column from the top
-                    // of the page, the buttons and the chart under them the right one (the buttons are
-                    // right-aligned, the left of their row was empty). Not columns 1 upright: an explicit
-                    // Layout.column 1 was warned about for a moment on turning upright, the columns already 1
-                    readonly property bool split: detailColumn.sideBySide && textColumn.visible
-                    columns: 2
-                    columnSpacing: 6
-                    rowSpacing: detailColumn.spacing
+                // Header con pulsanti
+                // The buttons row: here over the page upright, over the chart in the right column side by
+                // side, where the description takes the left column from the top of the page (the buttons
+                // are right-aligned, the left of their row was empty). One component in two places, not
+                // explicit grid cells that change on turning: with those (row, column and span set by
+                // sideBySide) Qt 5.15 on Android left the native chart view over the whole width under the
+                // buttons, covering the text, while Qt 6 laid the same grid out right
+                Component {
+                    id: detailButtons
 
-                    // Header con pulsanti
                     RowLayout {
-                        id: detailHeader
-                        Layout.row: 0
-                        Layout.column: detailBody.split ? 1 : 0
-                        Layout.columnSpan: detailBody.split ? 1 : 2
-                        Layout.fillWidth: true
-                        Layout.margins: 5
-                        Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
-                        Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
                         spacing: window.ui.modern ? 8 : 10
 
                         UiButton {
@@ -526,15 +513,35 @@ ColumnLayout {
                                 stackView.pop()
                             }
                         }
-
                     }
+                }
+
+                Loader {
+                    id: detailHeader
+                    active: !detailBody.split
+                    visible: active
+                    Layout.fillWidth: true
+                    Layout.margins: 5
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                    sourceComponent: detailButtons
+                }
+
+                GridLayout {
+                    id: detailBody
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    // side by side only with a text column: without it the chart takes the page under the
+                    // buttons, as upright
+                    readonly property bool split: detailColumn.sideBySide && textColumn.visible
+                    // the cells are placed in order, the text first: an explicit Layout.column 1 was
+                    // warned about for a moment on turning upright, the columns already 1
+                    columns: split ? 2 : 1
+                    columnSpacing: 6
+                    rowSpacing: detailColumn.spacing
 
                     ColumnLayout {
                         id: textColumn
-                        Layout.row: detailBody.split ? 0 : 1
-                        Layout.column: 0
-                        Layout.rowSpan: detailBody.split ? 2 : 1
-                        Layout.columnSpan: detailBody.split ? 1 : 2
                         Layout.fillWidth: true
                         Layout.fillHeight: detailColumn.sideBySide
                         // the two columns share the width equally
@@ -729,46 +736,57 @@ ColumnLayout {
 
                     // WebView con grafico
                     // Preview data is now loaded via WebSocket, no runJavaScript needed
-                    Item {
-                        // upright under the text, or right under the buttons without it (no empty row
-                        // and its spacing)
-                        Layout.row: detailBody.split || !textColumn.visible ? 1 : 2
-                        Layout.column: detailBody.split ? 1 : 0
-                        Layout.columnSpan: detailBody.split ? 1 : 2
+                    ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.preferredWidth: 1
+                        spacing: detailColumn.spacing
 
-                        // Modern look: the native view is white until the page is loaded, so it is
-                        // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
-                        // QML item, so it hides while the card-styled delete question is open
-                        BusyIndicator {
-                            anchors.centerIn: parent
-                            visible: window.ui.modern && !previewWebView.pageLoaded
-                            running: visible
+                        Loader {
+                            active: detailBody.split
+                            visible: active
+                            Layout.fillWidth: true
+                            Layout.margins: 5
+                            Layout.leftMargin: 5
+                            Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                            sourceComponent: detailButtons
                         }
 
-                        WebView {
-                            id: previewWebView
-                            anchors.fill: parent
-                            visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
-                            url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-                            property bool pageLoaded: false
-                            // a failed load is shown too: the page tells why, not an endless spinner
-                            onLoadingChanged: {
-                                if (loadRequest.status === WebView.LoadSucceededStatus
-                                        || loadRequest.status === WebView.LoadFailedStatus)
-                                    pageLoaded = true
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            // Modern look: the native view is white until the page is loaded, so it is
+                            // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
+                            // QML item, so it hides while the card-styled delete question is open
+                            BusyIndicator {
+                                anchors.centerIn: parent
+                                visible: window.ui.modern && !previewWebView.pageLoaded
+                                running: visible
                             }
 
-                            // a new app language: the page takes its texts when loaded and asks the server
-                            // for the program itself, so a reload loses nothing
-                            Connections {
-                                target: rootItem
-                                function onAppLanguageChanged() {
-                                    // hidden again until loaded, as at the first load
-                                    previewWebView.pageLoaded = false
-                                    previewWebView.reload()
+                            WebView {
+                                id: previewWebView
+                                anchors.fill: parent
+                                visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
+                                url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                                property bool pageLoaded: false
+                                // a failed load is shown too: the page tells why, not an endless spinner
+                                onLoadingChanged: {
+                                    if (loadRequest.status === WebView.LoadSucceededStatus
+                                            || loadRequest.status === WebView.LoadFailedStatus)
+                                        pageLoaded = true
+                                }
+
+                                // a new app language: the page takes its texts when loaded and asks the server
+                                // for the program itself, so a reload loses nothing
+                                Connections {
+                                    target: rootItem
+                                    function onAppLanguageChanged() {
+                                        // hidden again until loaded, as at the first load
+                                        previewWebView.pageLoaded = false
+                                        previewWebView.reload()
+                                    }
                                 }
                             }
                         }
