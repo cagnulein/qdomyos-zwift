@@ -212,7 +212,8 @@ ColumnLayout {
         // on the page margin, as the card above and the headers of the other list pages
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        Layout.topMargin: 12
+        // a new section: 24 below the name card
+        Layout.topMargin: 24
         text: qsTr("Saved profiles")
         color: window.ui.textMain
         font.pixelSize: window.ui.fontBody
@@ -237,7 +238,8 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        Layout.topMargin: 4
+        // 12 from the hint, as on the settings file page
+        Layout.topMargin: 12
         clip: true
         spacing: 8
         currentIndex: -1
@@ -251,7 +253,9 @@ ColumnLayout {
             readonly property string profileName: fileName.substring(0, fileName.length-4)
             readonly property bool active: profileName === settings.profile_name
             width: ListView.view.width
-            height: 64
+            // Material 3 list item: two lines (name, "Active") 72, the icon and the button 16 from the
+            // edges, the text 16 after the icon
+            height: 72
             radius: 16
             fill: selected ? window.ui.alpha(window.ui.accent, 0.14)
                            : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)
@@ -283,7 +287,7 @@ ColumnLayout {
             Rectangle {
                 id: avatar
                 anchors.left: parent.left
-                anchors.leftMargin: 12
+                anchors.leftMargin: 16
                 anchors.verticalCenter: parent.verticalCenter
                 width: 40
                 height: 40
@@ -300,9 +304,9 @@ ColumnLayout {
 
             Column {
                 anchors.left: avatar.right
-                anchors.leftMargin: 12
+                anchors.leftMargin: 16
                 anchors.right: loadButton.visible ? loadButton.left : parent.right
-                anchors.rightMargin: 12
+                anchors.rightMargin: 16
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 2
                 // the card is read through cardArea: a touch of the screen reader goes to the deepest
@@ -330,7 +334,7 @@ ColumnLayout {
                 id: loadButton
                 visible: profileCard.selected
                 anchors.right: parent.right
-                anchors.rightMargin: 8
+                anchors.rightMargin: 16
                 anchors.verticalCenter: parent.verticalCenter
                 text: qsTr("Load")
                 highlighted: true
@@ -344,7 +348,8 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        Layout.bottomMargin: 8
+        // 16 to the pill: UiButton has a 6 inset below it
+        Layout.bottomMargin: 10
         text: qsTr("Other folders")
         onClicked: {
             if (Qt.platform.os === "android") {
