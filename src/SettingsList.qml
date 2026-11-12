@@ -61,8 +61,8 @@ ColumnLayout {
                     showDirs: true
                     sortReversed: true
                 }
-                // files of a previous install were copied back into the QZ folder; here, as
-                // the accordion loads this list as a component, out of reach of the page
+                // files of a previous install were copied back into the QZ folder; reload the
+                // model next to it
                 Connections {
                     target: rootItem
                     function onFolderFilesRestored() {
