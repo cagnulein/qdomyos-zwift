@@ -9797,7 +9797,7 @@ QString homeform::historyDatabasePath() {
 // After a reinstall (Android 14+) the files a previous install left in the QZ folder still
 // answer to their names but cannot be opened, and the folder lists leave them out. The bundled
 // programs and GPX routes, always copied at the first start, show it: one of them (or a
-// deletion marker of a program) that exists and does not open belongs to a previous install.
+// deletion marker of one) that exists and does not open belongs to a previous install.
 // Settings files and profiles have no bundled ones; the same restore pass takes them along.
 bool homeform::qzFolderHasLockedFiles() {
 #ifdef Q_OS_ANDROID
@@ -9812,7 +9812,7 @@ bool homeform::qzFolderHasLockedFiles() {
     QDirIterator itGpx(QStringLiteral(":/gpx/"));
     while (itGpx.hasNext()) {
         itGpx.next();
-        paths << gpxDir + itGpx.fileName();
+        paths << gpxDir + itGpx.fileName() << gpxDir + QStringLiteral(".deleted_") + itGpx.fileName();
     }
     for (const QString &path : paths) {
         QFile file(path);
