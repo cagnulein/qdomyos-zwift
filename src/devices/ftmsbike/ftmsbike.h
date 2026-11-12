@@ -240,6 +240,7 @@ class ftmsbike : public bike {
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
     bool TUNTURI_E50_168 = false;
+    bool JOROTO_JH30PRO = false;
     bool SOLE_B94 = false;
     bool VIFHTR = false;
 
