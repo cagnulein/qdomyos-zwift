@@ -355,20 +355,40 @@ ColumnLayout {
         }
     }
 
-    UiButton {
+    // Other folders and, while files of a previous install are found, Restore files in one row
+    // (as on the training programs page); a long label wraps instead of eliding
+    RowLayout {
         visible: window.ui.modern
         Layout.fillWidth: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: 10
-        text: qsTr("Other folders")
-        onClicked: {
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
+        spacing: 8
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            text: qsTr("Other folders")
+            onClicked: {
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
             }
+        }
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 

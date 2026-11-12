@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -301,11 +302,18 @@ ColumnLayout {
         anchors {
             bottom: window.ui.modern ? undefined : parent.bottom
         }
+        // Classic look: the platform default spacing, as before (8 dp on Android and iOS, 5 px
+        // elsewhere) - a written value would replace it everywhere
+        Binding on spacing { when: window.ui.modern; value: 8; restoreMode: Binding.RestoreBindingOrValue }
 
         UiButton {
             id: searchButton
             height: window.ui.modern ? implicitHeight : 50
             Layout.fillWidth: window.ui.modern
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: window.ui.modern
+            // modern look: a long label wraps instead of eliding
+            wrapsText: true
             text: qsTr("Other folders")
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
@@ -318,10 +326,14 @@ ColumnLayout {
         }
 
         // files of a previous install are found only on request; with a saved grant on the
-        // QZ folder the page restores them by itself (the classic look; the modern one asks)
+        // QZ folder the page restores them by itself
         UiButton {
-            height: 50
-            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved && !window.ui.modern
+            height: window.ui.modern ? implicitHeight : 50
+            Layout.fillWidth: window.ui.modern
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: window.ui.modern
+            wrapsText: true
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

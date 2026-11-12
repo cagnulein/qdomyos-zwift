@@ -557,7 +557,9 @@ ColumnLayout {
             }
         }
 
-        UiButton {
+        // Other folders and, while files of a previous install are found, Restore files in one
+        // row (as on the training programs page); a long label wraps instead of eliding
+        RowLayout {
             visible: window.ui.modern
             Layout.row: gpxPage.sideBySide ? 2 : 3
             Layout.column: 0
@@ -567,8 +569,26 @@ ColumnLayout {
             Layout.rightMargin: gpxPage.sideBySide ? 4 : gpxPage.modernMargin
             // 16 to the pill: UiButton has a 6 inset below it
             Layout.bottomMargin: 10
-            text: qsTr("Other folders")
-            onClicked: gpxPage.openOtherFolders()
+            spacing: 8
+
+            UiButton {
+                Layout.fillWidth: true
+                // one height for both pills when only one label wraps
+                Layout.fillHeight: true
+                wrapsText: true
+                text: qsTr("Other folders")
+                onClicked: gpxPage.openOtherFolders()
+            }
+
+            UiButton {
+                Layout.fillWidth: true
+                // one height for both pills when only one label wraps
+                Layout.fillHeight: true
+                wrapsText: true
+                visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                text: qsTr("Restore files")
+                onClicked: rootItem.offerFolderRestore()
+            }
         }
     }
 
