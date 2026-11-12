@@ -259,11 +259,9 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
         totalDurationSeconds += durationSeconds;
     }
 
-    // Twenty one-minute slots are hardware-verified. The Nov 9 test confirmed
-    // thirty-second changes with A9/AA but the console still counted down from
-    // 19:59 and ran past ten minutes. Test A4 0x0b (ten minutes + 1) for the
-    // ten-minute profile; A4 0x15 remains unchanged for verified twenty minutes.
-    // The A4 duration interpretation is a hardware hypothesis, not yet confirmed.
+    // Hardware runs verified 20 minutes with A4 0x15 and 10 minutes with
+    // A4 0x0b, including countdown and automatic stop. Keep those totals;
+    // variable slot durations are the next controlled hardware test.
     if (totalDurationSeconds != 1200 && totalDurationSeconds != 600) {
         return fail(QStringLiteral("iConsole programs currently require exactly twenty minutes or the ten-minute test; duration is not rescaled"));
     }
@@ -273,6 +271,14 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
     QByteArray inclinePayload;
     QList<int> slotDurations;
     for (const WorkoutStage &stage : stages) {
+        // Twenty explicit rows map directly to the twenty protocol slots.
+        // Preserve each interval exactly, without sampling or rescaling it.
+        if (stages.size() == 20) {
+            speedSlots.append(stage.speed);
+            inclinePayload.append(static_cast<char>(qRound(stage.incline) + 1));
+            slotDurations.append(stage.durationSeconds);
+            continue;
+        }
         if (stage.durationSeconds % slotDurationSeconds != 0) {
             return fail(slotDurationSeconds == 60
                             ? QStringLiteral("iConsole twenty-minute programs require whole-minute rows")
@@ -305,8 +311,8 @@ bool trxappgateusbtreadmill::buildIconsoleWorkoutFrames(const QList<trainrow> &r
     modePayload.append(QByteArray(6, static_cast<char>(0x01)));
 
     QByteArray parameterPayload;
-    // Unverified TX90 experiment: the console may encode total minutes + 1
-    // here. Keep the hardware-verified 20-minute payload byte-identical.
+    // Total minutes + 1 is hardware-verified for the 10/20-minute formats.
+    // Keep both acknowledged parameter payloads byte-identical.
     const quint8 totalMinutesParameter = totalDurationSeconds == 600 ? 0x0b : 0x15;
     parameterPayload.append(static_cast<char>(totalMinutesParameter));
     parameterPayload.append(QByteArray(10, static_cast<char>(0x01)));
