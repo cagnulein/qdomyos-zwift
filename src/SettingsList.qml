@@ -124,7 +124,9 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }

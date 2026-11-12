@@ -275,10 +275,14 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
+                        // rows not made yet, or no current row for a moment while a restore renames
+                        // files under the open page
                         for(var i=0; i<folderModel.count; i++) {
-                            list.itemAtIndex(i).textColor = Material.color(Material.Grey)
+                            if (list.itemAtIndex(i))
+                                list.itemAtIndex(i).textColor = Material.color(Material.Grey)
                         }
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }
