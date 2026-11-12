@@ -218,13 +218,13 @@ function process_arr(arr) {
     $('.heart_avg').text(t('chart.heartRateAvgValue', 'Heart Rate AVG: {value}').replace('{value}', Math.floor(heart_avg)));
     $('.heart_max').text(t('chart.heartRateMaxValue', 'Heart Rate MAX: {value}').replace('{value}', heart_max));
 
-    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
-    $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
-    $('.summary_calories').text(Math.floor(calories) + ' kcal');
-    $('.summary_distance').text((distance * miles).toFixed(1) + (miles === 1 ? ' km' : ' mi'));
-    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' ' + t('unit.w', 'W'));
+    $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' ' + t('unit.kj', 'kJ'));
+    $('.summary_calories').text(Math.floor(calories) + ' ' + t('unit.kcal', 'kcal'));
+    $('.summary_distance').text((distance * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.km', 'km') : t('unit.mi', 'mi')));
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
     // Use resistance_avg for ellipticals (deviceType 4), peloton_resistance_avg for bikes/rowers
-    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' lvl');    
+    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' ' + t('unit.level', 'lvl'));
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',

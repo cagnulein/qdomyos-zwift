@@ -53,6 +53,7 @@ class horizontreadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void setDirectDistance(double treadmillDistance, bool increment);
 
     QTimer *refresh;
 
@@ -73,6 +74,11 @@ class horizontreadmill : public treadmill {
     QByteArray lastPacketComplete;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
+    double lastDirectDistance = -1;
+    // Time (ms) of the last non-zero cadence from the treadmill (FTMS or RSC). RSC and FTMS arrive in separate packets,
+    // so the cadence estimated from speed must not overwrite it while it is recent.
+    qint64 lastDeviceCadenceMs = 0;
+    QDateTime lastDirectDistanceChanged;
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
@@ -115,6 +121,7 @@ class horizontreadmill : public treadmill {
     bool DOMYOS = false;
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
+    bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
@@ -128,7 +135,9 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool TM55_TREADMILL = false;
     bool FS_TREADMILL = false;
+    bool SF_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;

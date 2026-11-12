@@ -58,6 +58,14 @@ class bluetoothdevice : public QObject {
 
     ~bluetoothdevice() override;
 
+    struct VirtualTreadmillControl {
+        bool enabled = false;
+        QByteArray speedRange;
+        QByteArray inclineRange;
+    };
+    // Opt-in FTMS forwarding and six-byte FTMS range values; disabled for existing drivers.
+    virtual VirtualTreadmillControl virtualTreadmillControl() const { return {}; }
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -575,6 +583,15 @@ class bluetoothdevice : public QObject {
     QLowEnergyController *m_control = nullptr;
 
     /**
+     * @brief connectBackLater Reconnects m_control 1 s later, if it is still unconnected then.
+     * Called from the UnconnectedState handler instead of m_control->connectToDevice(): with the phone's
+     * Bluetooth off, Android refuses the connection inside connectToDevice() itself, the handler runs
+     * again from there, and the nested retries overflowed the stack (StackOverflowError in
+     * QtBluetoothLE.connect). Retrying every second also reconnects once Bluetooth is back on.
+     */
+    void connectBackLater();
+
+    /**
      * @brief elapsed A metric object to get and set the elapsed time for the session. Units: seconds
      */
     metric elapsed;
@@ -617,6 +634,7 @@ class bluetoothdevice : public QObject {
      */
     metric Heart;
     bool heartRateFromHealthKit = false;
+    quint64 healthKitHeartUpdateSequence = 0;
 
     /**
      * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
@@ -844,6 +862,7 @@ class bluetoothdevice : public QObject {
      * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
      */
     void update_ios_live_activity();
+    bool heartRateIsFromHealthKit();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
@@ -871,6 +890,9 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+
+    // a connectBackLater() retry is already scheduled
+    bool connectBackPending = false;
 
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift

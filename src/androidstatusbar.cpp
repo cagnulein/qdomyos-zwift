@@ -1,17 +1,36 @@
 #include "androidstatusbar.h"
 #include <QQmlEngine>
 #include <QDebug>
+#include <QGuiApplication>
+#include <QFont>
+#include <QMutex>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 AndroidStatusBar* AndroidStatusBar::m_instance = nullptr;
 
+// The JNI callbacks below run on the Android UI thread. The object lives on the Qt thread and is
+// deleted with the QML engine when main() returns, while the activity can outlive it: if the
+// activity is paused at that moment (e.g. the screen is off), Qt finishes it only once it is resumed.
+static QBasicMutex instanceMutex;
+
 AndroidStatusBar::AndroidStatusBar(QObject *parent) : QObject(parent)
 {
+    QMutexLocker locker(&instanceMutex);
     m_instance = this;
+}
+
+AndroidStatusBar::~AndroidStatusBar()
+{
+    QMutexLocker locker(&instanceMutex);
+    if (m_instance == this)
+        m_instance = nullptr;
 }
 
 AndroidStatusBar* AndroidStatusBar::instance()
@@ -35,6 +54,70 @@ int AndroidStatusBar::apiLevel() const
     return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CustomQtActivity", "getApiLevel", "()I");
 #else
     return 0;
+#endif
+}
+
+double AndroidStatusBar::systemFontScale() const
+{
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject context = QtAndroid::androidContext();
+    if (!context.isValid())
+        return 1.0;
+    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QAndroidJniObject configuration = resources.isValid()
+        ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
+        : QAndroidJniObject();
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return 1.0;
+    }
+    if (!configuration.isValid())
+        return 1.0;
+    const jfloat scale = configuration.getField<jfloat>("fontScale");
+    return scale > 0 ? scale : 1.0;
+#elif defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return lockscreen::systemFontScale();
+#elif defined(Q_OS_IOS)
+    // The qmake build has no ios/lockscreen.mm (IO_UNDER_QT). Qt gives the app font the size of the
+    // body text, 17 at the default system text size: the same scale, read when QZ starts
+    const QFont font = QGuiApplication::font();
+    const double size = font.pixelSize() > 0 ? font.pixelSize() : font.pointSizeF();
+    return size > 0 ? size / 17.0 : 1.0;
+#else
+    return 1.0;
+#endif
+}
+
+bool AndroidStatusBar::systemDarkMode() const
+{
+#ifdef Q_OS_ANDROID
+    // The dark theme of the system came with Android 10 (API 29). Before it the night bit is
+    // usually "not night" on phones and gym consoles alike, and following it would turn the page
+    // light, while the look these users know is the dark classic one.
+    if (apiLevel() < 29)
+        return true;
+    QAndroidJniObject context = QtAndroid::androidContext();
+    if (!context.isValid())
+        return true;
+    QAndroidJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+    QAndroidJniObject configuration = resources.isValid()
+        ? resources.callObjectMethod("getConfiguration", "()Landroid/content/res/Configuration;")
+        : QAndroidJniObject();
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return true;
+    }
+    if (!configuration.isValid())
+        return true;
+    const jint uiMode = configuration.getField<jint>("uiMode");
+    // Configuration.UI_MODE_NIGHT_MASK = 0x30, UI_MODE_NIGHT_YES = 0x20
+    return (uiMode & 0x30) == 0x20;
+#elif defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    return lockscreen::systemDarkMode();
+#else
+    return true;
 #endif
 }
 
@@ -80,10 +163,27 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, job
 {
     Q_UNUSED(env);
     Q_UNUSED(thiz);
+    // Queued: the slot and its insetsChanged() run on the Qt thread, where the QML bindings live.
+    // The lock keeps the object from being deleted before the call is posted; a deleted object
+    // drops its pending calls.
+    QMutexLocker locker(&instanceMutex);
     if (AndroidStatusBar::instance()) {
-        AndroidStatusBar::instance()->onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom,
-                                                       waterfallLeft, waterfallRight);
+        QMetaObject::invokeMethod(AndroidStatusBar::instance(), "onInsetsChanged", Qt::QueuedConnection,
+                                  Q_ARG(int, top), Q_ARG(int, bottom), Q_ARG(int, left), Q_ARG(int, right),
+                                  Q_ARG(int, waterfallTop), Q_ARG(int, waterfallBottom),
+                                  Q_ARG(int, waterfallLeft), Q_ARG(int, waterfallRight));
     }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onSystemThemeChanged(JNIEnv *env, jclass clazz)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(clazz);
+    // Queued, as onInsetsChanged: the signal reaches QML on the Qt thread
+    QMutexLocker locker(&instanceMutex);
+    if (AndroidStatusBar::instance())
+        QMetaObject::invokeMethod(AndroidStatusBar::instance(), "systemThemeChanged", Qt::QueuedConnection);
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -92,8 +192,10 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onSystemBarSideInsetsChanged(JNI
 {
     Q_UNUSED(env);
     Q_UNUSED(thiz);
+    QMutexLocker locker(&instanceMutex);
     if (AndroidStatusBar::instance()) {
-        AndroidStatusBar::instance()->onSystemBarSideInsetsChanged(left, right);
+        QMetaObject::invokeMethod(AndroidStatusBar::instance(), "onSystemBarSideInsetsChanged", Qt::QueuedConnection,
+                                  Q_ARG(int, left), Q_ARG(int, right));
     }
 }
 #endif

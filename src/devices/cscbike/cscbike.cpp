@@ -242,12 +242,11 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        const bool fromAccessory = sensorMode == SensorMode::CadenceAccessory ||
-                                    (sensorMode == SensorMode::DefaultBike &&
-                                     !settings.value(QZSettings::cadence_sensor_as_bike,
-                                                     QZSettings::default_cadence_sensor_as_bike)
-                                          .toBool());
-        update_metrics(false, watts(), fromAccessory);
+        // Accessory CSC sensors must not update the main workout. Primary CSC bikes,
+        // including JOROTO-BK-* and BGYM*, must do so even if the user hasn't
+        // enabled "Cadence Sensor as a Bike". The constructor already identifies
+        // this role via noVirtualDevice (true only for accessory instances).
+        update_metrics(false, watts(), noVirtualDevice);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
@@ -818,6 +817,6 @@ void cscbike::controllerStateChanged(QLowEnergyController::ControllerState state
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << "trying to connect back again...";
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

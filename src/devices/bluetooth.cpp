@@ -1,10 +1,12 @@
 #include "bluetooth.h"
 #include "homeform.h"
+#include <QOperatingSystemVersion>
 #include "mywhooshlink.h"
 #include <QBluetoothLocalDevice>
 #include <QRegularExpression>
 #include <QDateTime>
 #include <QFile>
+#include <memory>
 #include <QMetaEnum>
 
 #include <QtXml>
@@ -66,6 +68,17 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     this->useDiscovery = startDiscovery;
+
+    // one timer, so a search started from the home page does not leave a second chain of automatic ones
+    rescanTimer.setSingleShot(true);
+    connect(&rescanTimer, &QTimer::timeout, this, [this]() {
+        nextRescanMs = 0;
+        if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
+            debug(QStringLiteral("BTLE scanning again, no device found yet"));
+            this->startDiscovery();
+        }
+    });
+    connect(&heartRateSensorScanTimer, &QTimer::timeout, this, &bluetooth::heartRateSensorScan);
 
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -150,6 +163,14 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
         debug(QStringLiteral("no bluetooth dongle found!"));
+        // Fake and network devices come up in finished(), and without an adapter no scan ever calls it:
+        // on Android emulators and Waydroid without Bluetooth the fake device never appeared.
+        // No Bluetooth accessory can be found either, so finished() does not wait for one.
+        // Queued, as for the scan error below: finished() must run once the app has connected to our signals
+        if (reliesOnFakeOrVirtualDevice) {
+            forceHeartBeltOffForTimeout = true;
+            QMetaObject::invokeMethod(this, &bluetooth::finished, Qt::QueuedConnection);
+        }
     } else
 
 #endif
@@ -165,6 +186,61 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
+#endif
+#ifdef Q_OS_ANDROID
+        // With Bluetooth off the scan fails at once and finished() never comes, so the rescan loop
+        // in finished() never started: the equipment was not found until the user tapped the
+        // Bluetooth icon or restarted the app. Treat this failure as an empty scan.
+        // Android only: on iOS every new scan may show the system "Turn On Bluetooth" alert again.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 2, 0))
+        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
+#else
+        connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+#endif
+                [this](QBluetoothDeviceDiscoveryAgent::Error error) {
+                    debug(QStringLiteral("BTLE scanning error ") + QString::number(error) + QStringLiteral(" ") +
+                          discoveryAgent->errorString());
+                    if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError) {
+                        // Qt drops this start before it reaches Android: it is not one of the 5 per 30 s,
+                        // or searchNow() would postpone the scan when Bluetooth is switched on
+                        if (!scanStartsMs.isEmpty())
+                            scanStartsMs.removeLast();
+                        if (!bluetoothOffPoll.isActive())
+                            bluetoothOffPoll.start();
+                        finished();
+                    }
+                },
+                // start() reports the error from inside itself, the first time in this constructor:
+                // finished() must run once the app has connected to our signals
+                Qt::QueuedConnection);
+        // ...and scan as soon as Bluetooth is switched on, rather than at the next rescan (up to 60 s later)
+        auto bluetoothSwitchedOn = [this]() {
+            bluetoothOffPoll.stop();
+            if (device() || !discoveryAgent || discoveryAgent->isActive())
+                return;
+            debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
+            searchNow();
+        };
+        QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
+        connect(localDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
+                [bluetoothSwitchedOn](QBluetoothLocalDevice::HostMode mode) {
+                    if (mode != QBluetoothLocalDevice::HostPoweredOff)
+                        bluetoothSwitchedOn();
+                });
+        // Qt 5 learns about Bluetooth only from the scan mode broadcast, and switching Bluetooth on
+        // from the quick settings may never send one: then the equipment was found only at the next
+        // rescan. So the adapter is also asked directly, by the same check that start() makes.
+        bluetoothOffPoll.setInterval(2000);
+        connect(&bluetoothOffPoll, &QTimer::timeout, this, [this, bluetoothSwitchedOn]() {
+            if (device()) {
+                bluetoothOffPoll.stop();
+                return;
+            }
+            QAndroidJniObject adapter = QAndroidJniObject::callStaticObjectMethod(
+                "android/bluetooth/BluetoothAdapter", "getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
+            if (adapter.isValid() && adapter.callMethod<jint>("getState") == 12) // BluetoothAdapter.STATE_ON
+                bluetoothSwitchedOn();
+        });
 #endif
         // Safety net: on some platforms (e.g. Android containers/emulators without a functional
         // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
@@ -203,23 +279,28 @@ void bluetooth::finished() {
         // otherwise discovery stopped for good about 20 s after launch, and equipment that was
         // rebooting or still held by the previous app session was never found again.
         // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
-        // refresh starts it again), so an app left open without equipment does not scan for hours.
+        // refresh and the Bluetooth icon on the home page start it again), so an app left open
+        // without equipment does not scan for hours.
+        // With Bluetooth off a rescan only fails again: bluetoothOffPoll starts the search once it
+        // is on, and the 10 minutes are counted from then
+        if (bluetoothOffPoll.isActive()) {
+            nextRescanMs = 0;
+            return;
+        }
         if (!device()) {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
                 rescanStartedMs = now;
             if (now - rescanStartedMs > 10 * 60 * 1000) {
                 debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
+                nextRescanMs = 0;
+                rescanStopped = true;
                 return;
             }
             const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
             rescanCount++;
-            QTimer::singleShot(delayMs, this, [this]() {
-                if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
-                    debug(QStringLiteral("BTLE scanning again, no device found yet"));
-                    startDiscovery();
-                }
-            });
+            nextRescanMs = now + delayMs;
+            rescanTimer.start(delayMs);
         }
         return;
     }
@@ -338,10 +419,55 @@ void bluetooth::finished() {
     this->startDiscovery();
 }
 
-void bluetooth::startDiscovery() {
+bool bluetooth::isSearching() const { return discoveryAgent && discoveryAgent->isActive(); }
 
-    if (!this->useDiscovery)
+// Drops the scan starts that have left the window the Android limit counts
+void bluetooth::pruneScanStarts(qint64 now) {
+    while (!scanStartsMs.isEmpty() && now - scanStartsMs.first() > scanStartWindowMs)
+        scanStartsMs.removeFirst();
+}
+
+int bluetooth::searchNow() {
+    if (!useDiscovery || !discoveryAgent || device())
+        return 0;
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    rescanCount = 0;
+    rescanStartedMs = now;
+    rescanStopped = false;
+    if (discoveryAgent->isActive())
+        return 0;
+
+    pruneScanStarts(now);
+    // Android 7.0 and later ignore the 6th scan start in 30 s. 4 leaves room for an automatic search.
+    // Instead of a search that would find nothing, the next one is due when a start leaves the 30 s window.
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 4)) + 500;
+        nextRescanMs = now + waitMs;
+        rescanTimer.start(int(waitMs));
+        debug(QStringLiteral("BTLE scanning on request postponed by the Android limit"));
+        return int((waitMs + 999) / 1000);
+    }
+
+    rescanTimer.stop();
+    nextRescanMs = 0;
+    debug(QStringLiteral("BTLE scanning on request"));
+    startDiscovery();
+    return 0;
+}
+
+void bluetooth::startDiscovery() {
+    // no discoveryAgent without a Bluetooth adapter: nothing to scan with
+    if (!this->useDiscovery || !this->discoveryAgent)
         return;
+
+    // Android 7.0 and later ignore the scan starts after the 5th one in 30 s: searchNow() checks this list.
+    // A start while scanning does nothing, so it is not counted.
+    if (discoveryAgent && !discoveryAgent->isActive()) {
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        pruneScanStarts(now);
+        scanStartsMs.append(now);
+    }
 
 #ifndef Q_OS_IOS
     QSettings settings;
@@ -596,6 +722,26 @@ bool bluetooth::deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothU
     return false;
 }
 
+QString bluetooth::deviceAddress(const QBluetoothDeviceInfo &b) {
+    return b.address().isNull() ? b.deviceUuid().toString() : b.address().toString();
+}
+
+bool bluetooth::advertisesFitnessMachine(const QList<QBluetoothUuid> &services) {
+    // not Running Speed and Cadence: a heart rate strap that also measures running pace may advertise it
+    const QList<QBluetoothUuid> machineServices = {
+        QBluetoothUuid(quint16(0x1826)), // Fitness Machine (FTMS)
+        QBluetoothUuid(QBluetoothUuid::CyclingPower),
+        QBluetoothUuid(QBluetoothUuid::CyclingSpeedAndCadence),
+        QBluetoothUuid(QStringLiteral("CE060000-43E5-11E4-916C-0800200C9A66")), // Concept2 PM5
+        QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")), // Echelon
+    };
+    for (const QBluetoothUuid &s : services) {
+        if (machineServices.contains(s))
+            return true;
+    }
+    return false;
+}
+
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
@@ -632,6 +778,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
     bool csc_as_bike =
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     bool csc_as_treadmill =
@@ -674,6 +821,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
+    bool pafers_rower = settings.value(QZSettings::pafers_rower, QZSettings::default_pafers_rower).toBool();
     QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
     QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
     QString proformtreadmillip =
@@ -691,6 +839,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString kettlerUsbSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+    QString daumSerialPort =
+        settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
     QString freebeatSerialPort =
         settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
@@ -878,6 +1028,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            // Some Hammer Speed Race S bikes advertise a four-digit prefix, e.g. "4864 RACER S".
+            // Keep plain "RACER S" on the existing Kettler/Stages paths.
+            bool isNumericRacerS = deviceName.length() == 12 && upperDeviceName.endsWith(QStringLiteral(" RACER S"));
+            if (isNumericRacerS) {
+                for (int i = 0; i < 4; ++i) {
+                    if (!deviceName.at(i).isDigit()) {
+                        isNumericRacerS = false;
+                        break;
+                    }
+                }
+            }
             const bool isConfiguredFtmsRowerDevice =
                 !ftms_rower.contains(QZSettings::default_ftms_rower) &&
                 !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
@@ -899,6 +1060,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             // The device chain below is split in two: MSVC 2019 fails with C1061 (blocks nested too deeply)
             // on a single else-if chain this long. A match in the first part skips the second part, as before.
             bool firstChainMatched = true;
+            bool isDrumFit = upperDeviceName.endsWith(QStringLiteral("DRUMFIT"));
+            if (isDrumFit) {
+                const int drumFitPrefixLength = deviceName.length() - QStringLiteral("DRUMFIT").length();
+                isDrumFit = drumFitPrefixLength > 0;
+                for (int idx = 0; isDrumFit && idx < drumFitPrefixLength; ++idx) {
+                    if (!deviceName.at(idx).isDigit()) {
+                        isDrumFit = false;
+                    }
+                }
+            }
             if (deviceName.startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
                 if (m3ibike::isCorrectUnit(b)) {
@@ -1034,6 +1205,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(kettlerUsbBike);
+            } else if (!daumSerialPort.isEmpty() && !daumBike) {
+                this->stopDiscovery();
+                daumBike = new daumbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(daumBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(daumBike, &daumbike::debug, this, &bluetooth::debug);
+                daumBike->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(daumBike);
             } else if (!freebeatSerialPort.isEmpty() && !freebeatBike) {
                 this->stopDiscovery();
                 freebeatBike =
@@ -1320,7 +1503,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(trxappgateusbElliptical);
-            } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) && !settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool() &&
+            } else if (b.name().startsWith(QStringLiteral("Domyos-EL"), Qt::CaseInsensitive) && !settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool() &&
                        !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1344,7 +1527,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MRK-E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-AS ")) ||
-                        (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
+                        (b.name().startsWith(QStringLiteral("Domyos-EL"), Qt::CaseInsensitive) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
                         (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
@@ -1482,7 +1665,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(bhFitnessElliptical);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("XE88")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E25")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("E55")) ||
@@ -1570,7 +1754,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(kingsmithR2Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) && ftms_treadmill.contains(QZSettings::default_ftms_treadmill)) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) && ftms_treadmill.contains(QZSettings::default_ftms_treadmill) && b.name().compare(ftms_bike, Qt::CaseInsensitive)) ||
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-ST-A1P")) ||  // KingSmith Walkingpad A1 Pro #2041
                         // Poland-distributed WalkingPad R2 TRR2FB
@@ -1752,6 +1936,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
+            } else if ((b.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive) ||
+                        b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive)) &&
+                       !ypooTreadmill && !horizonTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                ypooTreadmill = new ypootreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(ypooTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(ypooTreadmill, &ypootreadmill::debug, this, &bluetooth::debug);
+                ypooTreadmill->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(ypooTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
@@ -1789,6 +1990,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM6500")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TM55-")) || // LifeSmart TM55
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
@@ -1851,7 +2053,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
-                       !horizonTreadmill && filter) {
+                       !horizonTreadmill && !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
@@ -2050,6 +2252,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("VOLT") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("VICTORY")) ||
                         (b.name().toUpper().startsWith("CECOTEC")) ||       // Cecotec DrumFit Indoor 10000 MagnoMotor Connected #2420
+                        isDrumFit ||                                         // Cecotec DrumFit names have a numeric prefix
                         (b.name().toUpper().startsWith("WATTBIKE")) ||
                         (b.name().toUpper().startsWith("ZYCLEZBIKE")) ||
 						(b.name().toUpper().startsWith("ZBIKE2.0")) ||
@@ -2087,6 +2290,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NEO 3M ")) ||
                         (b.name().toUpper().startsWith("JFBK7.0")) ||
                         (b.name().toUpper().startsWith("SPEED RACE S")) ||
+                        isNumericRacerS ||
                         (b.name().toUpper().startsWith("SPEEDRACEX")) ||
                         (b.name().toUpper().startsWith("POOBOO")) ||
                         (b.name().toUpper().startsWith("ZYCLE ZPRO")) ||
@@ -2117,15 +2321,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DMASUN-") && b.name().toUpper().endsWith("-BIKE")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("JOROTO-JH30PRO"))) || // Joroto JH30 PRO FTMS, with optional serial suffix
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("RIVO COG")) ||
                         (b.name().toUpper().startsWith("RAVE")) ||
                         (b.name().toUpper().startsWith("TOPUTURE-")) ||
 						(b.name().toUpper().startsWith("TOPUTURE TEB")) ||
+                        (b.name().toUpper().startsWith("TOPUTURE TBE")) ||
                         (b.name().toUpper().startsWith("BESP-")) ||  // FITFIU BESP 250 indoor bike
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
+                        (b.name().toUpper().startsWith("DFIT-L-B-")) || // DFIT FTMS bike (e.g. DFIT-L-B-02066)
+                        (b.name().toUpper().startsWith("GB3.0-")) || // Gymstick GB3.0 FTMS bike
+                        (b.name().toUpper().startsWith(QStringLiteral("ZV-")) && b.name().length() == 9) || // Sportstech SX600 FTMS (e.g. ZV-C47306)
                         (b.name().toUpper().startsWith("FS-YK-")) ||
 						(b.name().toUpper().startsWith("T600E_")) ||
                         (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
@@ -2137,6 +2346,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NERO")) || (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         (b.name().toUpper().startsWith("USDC-D700-")) ||
+                        (b.name().toUpper().startsWith("VIFHTR2.1") && !toorx_bike) ||
 						(b.name().toUpper().startsWith("RCR-")) || // Van Rysel RCR (Decathlon)
 						(b.name().toUpper().startsWith(QStringLiteral("S-30"))) || // Salter S-30
 						!b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
@@ -2168,6 +2378,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && !ftmsBike && filter) {
+                // the wheel circumference question (homeform::wahooWheelQuestionPending) is only for the first
+                // connection. The key is written here, at the first discovery of a Wahoo trainer, before the last
+                // device is: if this trainer already was the last device, the user connected it before the
+                // question existed and is not asked; otherwise QZ asks, also after a connection that failed
+                if (!settings.contains(QZSettings::wahoo_wheel_question_answered)) {
+                    settings.setValue(QZSettings::wahoo_wheel_question_answered,
+                                      settings.value(QZSettings::bluetooth_lastdevice_name,
+                                                     QZSettings::default_bluetooth_lastdevice_name)
+                                              .toString() == b.name());
+                }
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 wahooKickrSnapBike =
@@ -2234,9 +2454,32 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(kettlerC12Bike, &kettlerc12bike::debug, this, &bluetooth::debug);
                 kettlerC12Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kettlerC12Bike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+            }
+#ifndef Q_OS_IOS
+            else if (bh_spada_2 &&
+                     b.name().toUpper().startsWith("RACER S") &&
+                     !kettlerClassicBike && filter) {
+                // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
+                // Route RACER S-prefixed names to this driver when BH SPADA
+                // Compatibility is enabled; otherwise preserve the existing
+                // BLE Stages path below.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
+                                                            bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kettlerClassicBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerClassicBike, &kettlerclassicbike::debug, this, &bluetooth::debug);
+                connect(kettlerClassicBike, &kettlerclassicbike::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                kettlerClassicBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerClassicBike);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
-                        (b.name().toUpper().startsWith("RACER S")) ||
+                        (b.name().toUpper().startsWith("RACER S") && !bh_spada_2) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("MISURO B+")) ||
@@ -2320,6 +2563,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("S4 COMMS")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("FIT-RW-")) || // Sportstech PROwer (e.g. FIT-RW-5500)
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||
 						b.name().toUpper().startsWith(QStringLiteral("MRK-R15-")) ||
@@ -2641,7 +2885,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                         b.name().length() == 11) ||
+                        sportsplusbike::isCareSportsPlusBike13Name(b.name())) // CARE9040177, CARE113770737
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2657,7 +2902,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
-            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12) ||  // CARE968300122, CARE10692135
+            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
+                         !sportsplusbike::isCareSportsPlusBike13Name(b.name())) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2757,7 +3003,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 deerrunTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(deerrunTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
-                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && filter) {
+                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && !pafers_rower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersTreadmill = new paferstreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -2817,7 +3063,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 crossRope->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(crossRope);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SCHWINN T")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SCHWINN 570T"))) &&
+                       !nautilusTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 nautilusTreadmill = new nautilustreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -2952,6 +3201,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                         (flow_fitness_runner_dtm2000i &&
                          trxappgateusbtreadmill::isFlowFitnessDeviceName(deviceName))) &&
+                       deviceName.compare(ftms_treadmill, Qt::CaseInsensitive) &&
+                       !horizonTreadmill &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
@@ -2969,6 +3220,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
+                        upperDeviceName.startsWith(QStringLiteral("BODYSCULPTURE")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
@@ -3063,7 +3315,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 renphoBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(renphoBike);
-            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !pafers_treadmill && filter) {
+            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersRower && pafers_rower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                pafersRower =
+                    new pafersrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected(b));
+                connect(pafersRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                pafersRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(pafersRower);
+            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !pafers_treadmill &&
+                       !pafers_rower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersBike =
@@ -3091,7 +3353,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
-                        b.name().startsWith(QStringLiteral("MRK-"))) &&
+                        (b.name().startsWith(QStringLiteral("MRK-")) &&
+                         !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")))) &&
                        !fitPlusBike && !fitPlusRower && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3121,6 +3384,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(focusTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TR510-T"))) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) || // Merach T12 Pro uses FitShow control
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -3289,10 +3553,12 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 connect(heartRateBelt, SIGNAL(rrIntervalReceived(double)), this->device(), SLOT(rrIntervalReceived(double)));
-                QBluetoothDeviceInfo bt;
-                bt.setDeviceUuid(QBluetoothUuid(
-                    settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
-                        .toString()));
+                // with the name too: reconnectHeartRateBelt() tells the chosen sensor by bluetoothDevice.name()
+                QBluetoothDeviceInfo bt(
+                    QBluetoothUuid(
+                        settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
+                            .toString()),
+                    b, 0);
                 qDebug() << "UUID" << bt.deviceUuid();
                 heartRateBelt->deviceDiscovered(bt);
             }
@@ -3301,24 +3567,16 @@ void bluetooth::connectedAndDiscovered() {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().startsWith(heartRateBeltName))) && !heartRateBelt &&
                 !heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-                settings.setValue(QZSettings::hrm_lastdevice_name, b.name());
-
-#ifndef Q_OS_IOS
-                settings.setValue(QZSettings::hrm_lastdevice_address, b.address().toString());
-#else
-                settings.setValue(QZSettings::hrm_lastdevice_address, b.deviceUuid().toString());
-#endif
-                heartRateBelt = new heartratebelt();
-                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-                connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
-                connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
-                connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
-                heartRateBelt->deviceDiscovered(b);
-                if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(b.name()));
+                connectHeartRateBelt(b);
                 break;
             }
+        }
+
+        // the first scan after 15 s: the heart rate of the machine, a watch app or the sensor just connected has
+        // come by then
+        if (!heartRateSensorScanStartedMs) {
+            heartRateSensorScanStartedMs = QDateTime::currentMSecsSinceEpoch();
+            heartRateSensorScanTimer.start(15000);
         }
 
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
@@ -3803,8 +4061,11 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number).toInt());
     }
 
-    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool()) {
+        // the context of homeform: the same text as android_notification_apply, translated once
+        //: Android notification: title shown while QZ works in the background.
+        QAndroidJniObject javaNotification =
+            QAndroidJniObject::fromString(QCoreApplication::translate("homeform", "QZ is running"));
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
@@ -3973,12 +4234,327 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
     restart();
 }
 
+void bluetooth::connectHeartRateBelt(const QBluetoothDeviceInfo &b) {
+    QSettings settings;
+    settings.setValue(QZSettings::hrm_lastdevice_name, b.name());
+
+#ifndef Q_OS_IOS
+    settings.setValue(QZSettings::hrm_lastdevice_address, b.address().toString());
+#else
+    settings.setValue(QZSettings::hrm_lastdevice_address, b.deviceUuid().toString());
+#endif
+    heartRateBelt = new heartratebelt();
+    // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+    connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
+    connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
+    connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
+    heartRateBelt->deviceDiscovered(b);
+
+    // "connected!" waits for the first heart rate: a watch accepts the connection even when it does not
+    // broadcast. No heart rate in 15 s – say so instead
+    heartratebelt *belt = heartRateBelt;
+    const QString name = b.name();
+    auto firstHeartRate = std::make_shared<QMetaObject::Connection>();
+    *firstHeartRate = connect(belt, &heartratebelt::heartRate, this, [firstHeartRate, name]() {
+        QObject::disconnect(*firstHeartRate);
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(name));
+    });
+    QTimer::singleShot(15000, belt, [belt, name]() {
+        if (!belt->lastHeartRateTime.isValid() && homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.").arg(name));
+    });
+}
+
+// Applies a heart rate sensor chosen while QZ is running, so no restart is needed:
+// drops the old sensor and connects the new one, scanning for it if it was not seen yet.
+// name: the sensor just chosen in the settings page. Its QML Settings object writes the value to QSettings
+// a moment later, so reading it here would still give the old one; empty (a tap on the heart rate tile or the
+// Bluetooth icon) means take the saved value, and with Disabled saved, search for a sensor to offer
+// (heartRateSensorSearch()).
+// address: the one sensor meant (deviceAddress()), as the heart rate sensor bar shows it: of two sensors with the
+// same name the other one is not connected; empty means any sensor whose name starts with the name.
+void bluetooth::reconnectHeartRateBelt(const QString &name, const QString &address) {
+    QSettings settings;
+    QString heartRateBeltName =
+        name.isEmpty()
+            ? settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString()
+            : name;
+    qDebug() << "bluetooth::reconnectHeartRateBelt()" << heartRateBeltName << address;
+
+    auto isChosen = [heartRateBeltName, address](const QBluetoothDeviceInfo &b) {
+        return b.name().startsWith(heartRateBeltName) && (address.isEmpty() || deviceAddress(b) == address);
+    };
+
+    // Another tap while the search for a sensor to offer a tap started runs: that search goes on
+    if (name.isEmpty() && hrmDiscoveryAgent && hrmDiscoveryOnTap &&
+        heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        qDebug() << "heart rate sensor search already running";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(QObject::tr("Searching for heart rate sensors..."));
+        return;
+    }
+
+    // Already searching for this sensor (or waiting for the Android limit): another tap keeps that scan, also a tap
+    // without an address (the heart rate tile or the Bluetooth icon) during the search for the one sensor of that name
+    if (hrmDiscoveryAgent && hrmDiscoveryName == heartRateBeltName &&
+        (address.isEmpty() || hrmDiscoveryAddress == address)) {
+        qDebug() << "heart rate sensor search already running";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+        return;
+    }
+
+    // Already connected only while the heart rate still comes: a watch that stopped broadcasting keeps the
+    // link up, so a silent sensor is dropped and searched for again below
+    if (heartRateBelt && heartRateBelt->connected() && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        isChosen(heartRateBelt->bluetoothDevice) && heartRateBelt->lastHeartRateTime.isValid() &&
+        heartRateBelt->lastHeartRateTime.msecsTo(QDateTime::currentDateTime()) < 5000) {
+        qDebug() << "heart rate sensor already connected";
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor) connected!").arg(heartRateBelt->bluetoothDevice.name()));
+        return;
+    }
+
+    // The same sensor created less than 15 s ago and no heart rate yet: still connecting, a second tap must not
+    // start it over (connectHeartRateBelt() says "connected!" or "no heart rate" by itself)
+    if (heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        isChosen(heartRateBelt->bluetoothDevice) && !heartRateBelt->lastHeartRateTime.isValid() &&
+        heartRateBelt->createdTime.msecsTo(QDateTime::currentDateTime()) < 15000) {
+        qDebug() << "heart rate sensor still connecting";
+        return;
+    }
+
+    // The same sensor gone silent: the list of seen devices still has it, so connect only after a fresh scan
+    // finds it advertising again
+    const bool silentSameSensor =
+        heartRateBelt && !heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        isChosen(heartRateBelt->bluetoothDevice);
+
+    stopHeartRateBeltDiscovery();
+    if (heartRateBelt) {
+        heartRateBelt->disconnect();
+        heartRateBelt->disconnectForGood();
+        heartRateBelt->deleteLater();
+        heartRateBelt = nullptr;
+        // its last heart rate would stay with nothing left to reset it (the dropped sensor no longer sends 0
+        // when it goes silent)
+        if (this->device())
+            this->device()->heartRate(0);
+    }
+
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        settings.setValue(QZSettings::hrm_lastdevice_name, "");
+        settings.setValue(QZSettings::hrm_lastdevice_address, "");
+        // a tap on the heart rate tile or the Bluetooth icon (no name given), not Disabled chosen in Heart Rate Options
+        if (name.isEmpty())
+            heartRateSensorSearch();
+        return;
+    }
+
+    // without a fitness machine the usual path in connectedAndDiscovered() will connect it
+    if (!this->device())
+        return;
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (!silentSameSensor && isChosen(b)) {
+            connectHeartRateBelt(b);
+            return;
+        }
+    }
+
+    hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    hrmDiscoveryName = heartRateBeltName;
+    hrmDiscoveryAddress = address;
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+            [this, isChosen](const QBluetoothDeviceInfo &b) {
+                if (heartRateBelt || !this->device() || !isChosen(b))
+                    return;
+                stopHeartRateBeltDiscovery();
+                connectHeartRateBelt(b);
+            });
+    auto notFound = [this, heartRateBeltName]() {
+        stopHeartRateBeltDiscovery();
+        if (!heartRateBelt && homeform::singleton())
+            homeform::singleton()->setToastRequested(
+                QObject::tr("%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.")
+                    .arg(heartRateBeltName));
+    };
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, notFound);
+    connect(hrmDiscoveryAgent,
+            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+            notFound);
+    hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(30000);
+    startHeartRateBeltScan(hrmDiscoveryAgent);
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Searching for %1 (HR sensor)...").arg(heartRateBeltName));
+}
+
+// This scan counts in the Android limit too (5 starts in 30 s): like searchNow() it leaves room for an
+// automatic search (a trainer lost meanwhile), so with 4 starts in the window it waits for one to leave it
+// instead of a start that would be ignored and end in "not found". The wait is checked again when it ends:
+// other scans may have started meanwhile.
+// agent: the scan to start; a stopped or replaced one (not hrmDiscoveryAgent any more) is left alone
+void bluetooth::startHeartRateBeltScan(QBluetoothDeviceDiscoveryAgent *agent) {
+    if (agent != hrmDiscoveryAgent || agent->isActive())
+        return;
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    pruneScanStarts(now);
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion::AndroidNougat && scanStartsMs.size() >= 4) {
+        const qint64 waitMs = scanStartWindowMs - (now - scanStartsMs.at(scanStartsMs.size() - 4)) + 500;
+        debug(QStringLiteral("HR sensor scan postponed by the Android limit"));
+        QTimer::singleShot(int(waitMs), agent, [this, agent]() { startHeartRateBeltScan(agent); });
+        return;
+    }
+    scanStartsMs.append(now);
+    agent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+}
+
+void bluetooth::stopHeartRateBeltDiscovery() {
+    if (!hrmDiscoveryAgent)
+        return;
+    hrmDiscoveryAgent->disconnect(this);
+    hrmDiscoveryAgent->stop();
+    hrmDiscoveryAgent->deleteLater();
+    hrmDiscoveryAgent = nullptr;
+    hrmDiscoveryOnTap = false;
+}
+
+// The search for the fitness machine stops as soon as the machine is found, so a heart rate sensor switched on later
+// (or a moment after the machine) was never seen. With heart_rate_belt_suggest on (off by default: Bluetooth scans
+// in the background misbehave on some phones) and while no heart rate comes from any source, this scans for 10 s
+// once a minute during the first 5 minutes after the machine connected: the chosen sensor connects as soon as it is
+// found; with none chosen, a sensor broadcasting heart rate nearby is offered in a bar (heartRateSensorFound).
+// Off, a tap on the heart rate tile or the Bluetooth icon searches (reconnectHeartRateBelt()).
+void bluetooth::heartRateSensorScan() {
+    heartRateSensorScanTimer.setInterval(60000);
+
+    QSettings settings;
+    const QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+
+    if (QDateTime::currentMSecsSinceEpoch() - heartRateSensorScanStartedMs > 5 * 60 * 1000) {
+        qDebug() << "heart rate sensor scan: 5 minutes over";
+        heartRateSensorScanTimer.stop();
+        return;
+    }
+
+    // off: no scan, but the next minute, not the end of the scans: turned on in Heart Rate Options within the
+    // 5 minutes, it starts without a restart
+    if (!settings.value(QZSettings::heart_rate_belt_suggest, QZSettings::default_heart_rate_belt_suggest).toBool()) {
+        qDebug() << "heart rate sensor scan: turned off";
+        return;
+    }
+
+    // the machine object is being recreated (restart()), or a search of reconnectHeartRateBelt() is still running
+    // or waiting for the Android limit: the next minute, not the end of the scans
+    if (!this->device() || hrmDiscoveryAgent)
+        return;
+
+    // a sensor already created reconnects by itself
+    if (heartRateBelt || this->device()->currentHeart().value() > 0) {
+        qDebug() << "heart rate sensor scan: done";
+        heartRateSensorScanTimer.stop();
+        return;
+    }
+
+    qDebug() << "heart rate sensor scan: no heart rate, looking for" << heartRateBeltName;
+    startHeartRateSensorScan(heartRateBeltName, false);
+}
+
+// A tap on the heart rate tile or the Bluetooth icon with no sensor chosen: one scan like those above, at any time
+// and with heart_rate_belt_suggest off too (the user asks for it), also offering again the sensors hidden with Not now
+// (homeform::reconnectHeartRateBelt()). A toast says it searches and, when it offers none and no bar is shown, that
+// none was found. With a heart rate coming there is nothing to offer, and no scan.
+void bluetooth::heartRateSensorSearch() {
+    // no machine yet: the same tap searches for it (homeform::bluetoothSearchNow())
+    if (!this->device())
+        return;
+    if (this->device()->currentHeart().value() > 0) {
+        qDebug() << "heart rate sensor search: the heart rate comes";
+        return;
+    }
+    qDebug() << "heart rate sensor search: on a tap";
+    // before the scan: a start that fails at once (Bluetooth off, no permission) ends it within start(), and its
+    // "none found" toast must not be replaced by this one
+    if (homeform::singleton())
+        homeform::singleton()->setToastRequested(QObject::tr("Searching for heart rate sensors..."));
+    startHeartRateSensorScan(QStringLiteral("Disabled"), true);
+}
+
+// One 10 s scan for the chosen sensor (heartRateBeltName) or, with Disabled, for one to offer.
+// onTap: started by a tap on the heart rate tile or the Bluetooth icon (heartRateSensorSearch()), not by the timer
+void bluetooth::startHeartRateSensorScan(const QString &heartRateBeltName, bool onTap) {
+    const bool noSensorChosen = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
+    const QString machineAddress = deviceAddress(this->device()->bluetoothDevice);
+    hrmDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    // empty: a search of reconnectHeartRateBelt() replaces this one instead of waiting for it
+    hrmDiscoveryName.clear();
+    hrmDiscoveryAddress.clear();
+    hrmDiscoveryOnTap = onTap;
+    hrmDiscoveryOffered = 0;
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+            [this, heartRateBeltName, noSensorChosen, machineAddress, onTap](const QBluetoothDeviceInfo &b) {
+                if (heartRateBelt || !this->device() || b.name().isEmpty())
+                    return;
+                if (!noSensorChosen) {
+                    if (b.name().startsWith(heartRateBeltName)) {
+                        qDebug() << "heart rate sensor scan: the chosen sensor found, connecting" << b.name();
+                        stopHeartRateBeltDiscovery();
+                        connectHeartRateBelt(b);
+                    }
+                    return;
+                }
+                if (!deviceHasService(b, QBluetoothUuid(QBluetoothUuid::HeartRate)))
+                    return;
+                const QString address = deviceAddress(b);
+                // fitness machines may have a heart rate service too
+                if (address == machineAddress)
+                    return;
+                qDebug() << "heart rate sensor scan: found" << b.name() << address << "rssi" << b.rssi();
+                if (advertisesFitnessMachine(b.serviceUuids())) {
+                    qDebug() << "heart rate sensor scan: not offered, a fitness machine service too" << b.name();
+                    return;
+                }
+                if (b.rssi() < heartRateSensorSuggestMinRssi)
+                    return;
+                hrmDiscoveryOffered++;
+                emit heartRateSensorFound(b.name(), address, b.rssi(), onTap);
+            });
+    auto finished = [this]() {
+        // a bar still showing a sensor found before: not "none found" next to it
+        const bool noneOffered = hrmDiscoveryOnTap && !hrmDiscoveryOffered && homeform::singleton() &&
+                                 homeform::singleton()->heartRateSensorSuggestions().isEmpty();
+        stopHeartRateBeltDiscovery();
+        if (noneOffered) {
+            qDebug() << "heart rate sensor search: none found";
+            if (homeform::singleton())
+                homeform::singleton()->setToastRequested(
+                    QObject::tr("No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate."));
+        }
+    };
+    connect(hrmDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, finished);
+    connect(hrmDiscoveryAgent,
+            QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+            finished);
+    hrmDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+    startHeartRateBeltScan(hrmDiscoveryAgent);
+}
+
 void bluetooth::restart() {
 
     QSettings settings;
 
     rescanCount = 0;
     rescanStartedMs = 0;
+    rescanTimer.stop();
+    nextRescanMs = 0;
+    rescanStopped = false;
 
     if (onlyDiscover) {
 
@@ -3991,6 +4567,7 @@ void bluetooth::restart() {
         exit(EXIT_SUCCESS);
     }
 
+    stopHeartRateBeltDiscovery();
     devices.clear();
 
     emit this->bluetoothDeviceDisconnected();
@@ -4014,6 +4591,10 @@ void bluetooth::restart() {
 
         delete focusTreadmill;
         focusTreadmill = nullptr;
+    }
+    if (ypooTreadmill) {
+        delete ypooTreadmill;
+        ypooTreadmill = nullptr;
     }
     if (horizonTreadmill) {
 
@@ -4229,6 +4810,10 @@ void bluetooth::restart() {
         delete stagesBike;
 
         stagesBike = nullptr;
+    }
+    if (kettlerClassicBike) {
+        delete kettlerClassicBike;
+        kettlerClassicBike = nullptr;
     }
     if (toorx) {
 
@@ -4509,6 +5094,10 @@ void bluetooth::restart() {
         delete kettlerUsbBike;
         kettlerUsbBike = nullptr;
     }
+    if (daumBike) {
+        delete daumBike;
+        daumBike = nullptr;
+    }
     if (freebeatBike) {
 
         delete freebeatBike;
@@ -4578,6 +5167,11 @@ void bluetooth::restart() {
 
         delete pafersBike;
         pafersBike = nullptr;
+    }
+    if (pafersRower) {
+
+        delete pafersRower;
+        pafersRower = nullptr;
     }
     if (fitPlusBike) {
 
@@ -4727,6 +5321,8 @@ bluetoothdevice *bluetooth::device() {
         return cycleopsphantomBike;
     } else if (stagesBike) {
         return stagesBike;
+    } else if (kettlerClassicBike) {
+        return kettlerClassicBike;
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
@@ -4761,6 +5357,10 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (xcxBike) {
         return xcxBike;
+    }
+    // Earlier matches return; split the lookup chain to avoid MSVC 2019's nesting limit.
+    if (ypooTreadmill) {
+        return ypooTreadmill;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (wahooKickRunTreadmill) {
@@ -4885,6 +5485,8 @@ bluetoothdevice *bluetooth::device() {
         return renphoBike;
     } else if (pafersBike) {
         return pafersBike;
+    } else if (pafersRower) {
+        return pafersRower;
     } else if (fitPlusBike) {
         return fitPlusBike;
     } else if (fitPlusRower) {
@@ -4900,6 +5502,8 @@ bluetoothdevice *bluetooth::device() {
         return kettlerC12Bike;		
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
+    } else if (daumBike) {
+        return daumBike;
     } else if (freebeatBike) {
         return freebeatBike;
     } else if (csafeRower) {

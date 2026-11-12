@@ -131,3 +131,16 @@ TEST_F(CscBikeSpeedPowerTest, SpeedSensorPowerIgnoresReceivedInclination) {
     EXPECT_DOUBLE_EQ(flatRoadPower, metric::calculatePowerFromSpeed(speed, 0.0));
     EXPECT_NE(metric::calculatePowerFromSpeed(speed, 10.0), flatRoadPower);
 }
+
+TEST(MetricUpdateSequenceTest, CountsRepeatedHeartRateWrites) {
+    metric heart;
+    EXPECT_EQ(heart.updateSequence(), 0u);
+
+    heart = 103.0;
+    const quint64 healthKitWrite = heart.updateSequence();
+    EXPECT_EQ(healthKitWrite, 1u);
+
+    // A device reporting the same BPM must still count as a new source write.
+    heart = 103.0;
+    EXPECT_EQ(heart.updateSequence(), healthKitWrite + 1);
+}

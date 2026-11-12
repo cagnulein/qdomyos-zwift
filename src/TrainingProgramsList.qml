@@ -22,6 +22,12 @@ ColumnLayout {
                 trainprogram_open_clicked(localUrl)
             }
         }
+        // programs of a previous install were copied back into the training folder
+        function onTrainingProgramsRestored() {
+            var currentFolder = folderModel.folder
+            folderModel.folder = ""
+            folderModel.folder = currentFolder
+        }
     }
 
     function openWorkoutPreview(fileUrl) {
@@ -42,6 +48,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
+        rootItem.trainingProgramsPageOpened()
     }
 
     MessageDialog {
@@ -68,7 +75,7 @@ ColumnLayout {
             FileDialog {
                 title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: [qsTr("Training programs (*.xml *.zwo)"), qsTr("All files (*)")]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -120,9 +127,15 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml", filter + ".mrc", filter + ".erg", filter + ".json", filter + ".xsr"]
                     }
                     id: filterField
+                    // the field kept its 120 of Material and showed less of the hint as the text grew.
+                    // The list column has no width of its own here: at most half of the window, so
+                    // the back button stays on a narrow screen
+                    width: window.textScale !== 1
+                           ? Math.max(implicitWidth, Math.min(window.fontPx(implicitWidth), window.width / 2))
+                           : implicitWidth
                     onTextChanged: updateFilter()
                 }
                      Button {
@@ -143,7 +156,7 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml", "*.zwo"]
+                    nameFilters: ["*.xml", "*.zwo", "*.mrc", "*.erg", "*.json", "*.xsr"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
                           showDotAndDotDot: false
                     showDirs: true
@@ -155,7 +168,7 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                                 color: Material.backgroundColor
                         z: 1
                         Item {
@@ -169,8 +182,8 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.lastIndexOf(".")):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
@@ -185,7 +198,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
                                 }
                             }
                         }
@@ -276,7 +289,7 @@ ColumnLayout {
                     id: date
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
@@ -289,7 +302,7 @@ ColumnLayout {
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
+                    font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
@@ -311,7 +324,7 @@ ColumnLayout {
                         height: 400
                         width: parent.width
                         title: qsTr("Power")
-                        titleFont.pixelSize: 20
+                        titleFont.pixelSize: window.fontPx(20)
 
                         DateTimeAxis {
                             id: valueAxisX
@@ -322,7 +335,7 @@ ColumnLayout {
                             //labelsVisible: false
                             gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         ValueAxis {
@@ -335,7 +348,7 @@ ColumnLayout {
                             //labelsVisible: false
                             //gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         LineSeries {
