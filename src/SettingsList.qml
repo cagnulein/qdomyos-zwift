@@ -296,6 +296,9 @@ ColumnLayout {
         Layout.rightMargin: window.ui.modern ? settingsListPage.modernMargin : 0
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: window.ui.modern ? 10 : 0
+        // a layout takes fillHeight from its children by default: the row would take the height
+        // of the page; the pills fill only the height of the taller one
+        Layout.fillHeight: false
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         // Modern look: placed by the layout (the list above fills the height), so its bottom
         // margin takes effect - an anchor would override it

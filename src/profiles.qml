@@ -364,6 +364,9 @@ ColumnLayout {
         Layout.rightMargin: profilesPage.modernMargin
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: 10
+        // a layout takes fillHeight from its children by default: the row would take the height
+        // of the page; the pills fill only the height of the taller one
+        Layout.fillHeight: false
         spacing: 8
 
         UiButton {
