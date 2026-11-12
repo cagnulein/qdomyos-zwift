@@ -217,7 +217,9 @@ ColumnLayout {
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
-                        width: parent.width
+                        // not parent.width: while the folder is set again (onFolderFilesRestored)
+                        // the rows go and have no parent for a moment
+                        width: ListView.view.width
                         height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
