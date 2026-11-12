@@ -377,6 +377,9 @@ const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
 const QString QZSettings::cadence_sensor_as_treadmill = QStringLiteral("cadence_sensor_as_treadmill");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
+const QString QZSettings::speed_sensor_name = QStringLiteral("speed_sensor_name");
+const QString QZSettings::default_speed_sensor_name = QStringLiteral("Disabled");
+const QString QZSettings::speed_sensor_as_bike = QStringLiteral("speed_sensor_as_bike");
 const QString QZSettings::cscbike_custom_resistance_power_table = QStringLiteral("cscbike_custom_resistance_power_table");
 const QString QZSettings::cscbike_custom_resistance_level_1 = QStringLiteral("cscbike_custom_resistance_level_1");
 const QString QZSettings::cscbike_custom_watt_1 = QStringLiteral("cscbike_custom_watt_1");
@@ -1366,7 +1369,7 @@ const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 
-const uint32_t allSettingsCount = 1054;
+const uint32_t allSettingsCount = 1056;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2447,6 +2450,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_accent, QZSettings::default_ui_accent},
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
+    {QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name},
+    {QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

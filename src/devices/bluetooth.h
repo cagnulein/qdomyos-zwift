@@ -402,6 +402,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool heartRateBeltAvaiable();
     bool ftmsAccessoryAvaiable();
     bool cscSensorAvaiable();
+    bool speedSensorAvaiable();
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
