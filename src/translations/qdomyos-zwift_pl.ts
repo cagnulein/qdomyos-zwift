@@ -4690,6 +4690,10 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Usunąć ten profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil został zapisany</translation>
     </message>
@@ -4720,6 +4724,26 @@ Zezwolić QZ na zmianę tej wartości?
     <message>
         <source>Profile name</source>
         <translation>Nazwa profilu</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nowy profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Zapisane profile</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Dotknij profilu, aby go wybrać, a potem „Wczytaj”. Przytrzymaj, aby go usunąć.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktywny</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Wczytaj</translation>
     </message>
     <message>
         <source>Profiles</source>

@@ -4690,6 +4690,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Видалити цей профіль?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Профіль збережено</translation>
     </message>
@@ -4722,8 +4726,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Назва профілю</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Новий профіль</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Зберегти</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Збережені профілі</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Натисніть на профіль, щоб вибрати його, потім «Завантажити». Довге натискання – видалити.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Активний</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
     </message>
     <message>
         <source>Profiles</source>

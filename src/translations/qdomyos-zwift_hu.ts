@@ -4674,6 +4674,10 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Szeretné törölni ezt a profilt?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Törlés</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil mentve</translation>
     </message>
@@ -4704,6 +4708,26 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Profile name</source>
         <translation>Profilnév</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Új profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Mentett profilok</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Koppintson egy profilra a kiválasztásához, majd a Betöltés gombra. A törléshez tartsa lenyomva.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktív</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
     </message>
     <message>
         <source>Profiles</source>

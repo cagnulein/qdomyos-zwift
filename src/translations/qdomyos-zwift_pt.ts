@@ -4698,6 +4698,10 @@ Permitir que o QZ altere esse valor?
         <translation>Deseja excluir este perfil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Perfil Salvo</translation>
     </message>
@@ -4730,8 +4734,28 @@ Permitir que o QZ altere esse valor?
         <translation>Nome do perfil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Novo perfil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salvar</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Perfis salvos</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Toque em um perfil para selecioná-lo e depois em Carregar. Toque longo para excluí-lo.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Ativo</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Profiles</source>

@@ -4674,6 +4674,10 @@ Må QZ ændre værdien?
         <translation>Er du sikker på, at du vil slette denne profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen er gemt</translation>
     </message>
@@ -4704,6 +4708,26 @@ Må QZ ændre værdien?
     <message>
         <source>Profile name</source>
         <translation>Profilnavn</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Gemte profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på "Indlæs". Hold nede for at slette den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
     </message>
     <message>
         <source>Profiles</source>

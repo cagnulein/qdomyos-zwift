@@ -4690,6 +4690,10 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>이 프로필을 삭제하시겠습니까?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>프로필 저장됨</translation>
     </message>
@@ -4720,6 +4724,26 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Profile name</source>
         <translation>프로필 이름</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>새 프로필</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>저장된 프로필</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>프로필을 눌러 선택한 다음 [불러오기]를 누르세요. 길게 누르면 삭제됩니다.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>사용 중</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
     </message>
     <message>
         <source>Profiles</source>

@@ -4690,6 +4690,10 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Bu profil silinsin mi?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Sil</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil kaydedildi</translation>
     </message>
@@ -4720,6 +4724,26 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Profile name</source>
         <translation>Profil adı</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Yeni profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Kayıtlı profiller</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Seçmek için bir profile dokunun, ardından Yükle&apos;ye basın. Silmek için uzun basın.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Etkin</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Yükle</translation>
     </message>
     <message>
         <source>Profiles</source>

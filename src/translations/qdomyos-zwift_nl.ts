@@ -4690,6 +4690,10 @@ Mag QZ deze waarde wijzigen?
         <translation>Dit profiel verwijderen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profiel opgeslagen</translation>
     </message>
@@ -4720,6 +4724,26 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Profile name</source>
         <translation>Profielnaam</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nieuw profiel</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Opgeslagen profielen</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tik op een profiel om het te selecteren en daarna op Laden. Lang indrukken om het te verwijderen.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Actief</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
     </message>
     <message>
         <source>Profiles</source>
