@@ -1552,7 +1552,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
             // The JH30 PRO also sends Indoor Bike Data, which already integrates session
             // distance. Its Cross Trainer total can include an earlier console workout.
-            if (!bluetoothDevice.name().startsWith(QStringLiteral("JOROTO-JH30PRO"), Qt::CaseInsensitive)) {
+            if (!JOROTO_JH30PRO) {
                 Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                       (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint32_t)((uint8_t)newValue.at(index)))) /
@@ -2229,6 +2229,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        JOROTO_JH30PRO = device.name().startsWith(QStringLiteral("JOROTO-JH30PRO"), Qt::CaseInsensitive);
         lastFsIb50Resistance = -1;
         lastFsIb50InclinationCommand = QDateTime();
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
