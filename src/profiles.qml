@@ -253,9 +253,9 @@ ColumnLayout {
             readonly property string profileName: fileName.substring(0, fileName.length-4)
             readonly property bool active: profileName === settings.profile_name
             width: ListView.view.width
-            // Material 3 list item: two lines (name, "Active") 72, the icon and the button 16 from the
-            // edges, the text 16 after the icon
-            height: 72
+            // Material 3 list item: two lines (name, "Active") at least 72, the icon and the button 16
+            // from the edges, the text 16 after the icon; a bigger text grows it, 8 above and below
+            height: Math.max(72, Math.max(40, cardText.implicitHeight) + 16)
             radius: 16
             fill: selected ? window.ui.alpha(window.ui.accent, 0.14)
                            : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)
@@ -303,6 +303,7 @@ ColumnLayout {
             }
 
             Column {
+                id: cardText
                 anchors.left: avatar.right
                 anchors.leftMargin: 16
                 anchors.right: loadButton.visible ? loadButton.left : parent.right
