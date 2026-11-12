@@ -2503,6 +2503,7 @@ import AndroidStatusBar 1.0
             property string ui_theme: "graphite"
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
+            property bool proform_treadmill_cst_505_pftl59420_2026: false
 
         }
 
@@ -12310,6 +12311,7 @@ import AndroidStatusBar 1.0
                                     "Freemotion T10.9B (HCI snoop)",
                                     "Proform Sport 5.5",
                                     "Proform Sport 6.0",
+                                     "ProForm 505 CST PFTL59420 (iFIT 2026)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -12395,7 +12397,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_treadmill_305_cst ? 66 :
                                                     settings.freemotion_t10_9b_hci ? 67 :
                                                     settings.proform_treadmill_sport_55 ? 68 :
-                                                    settings.proform_treadmill_sport_6_0 ? 69 : 0;
+                                                    settings.proform_treadmill_sport_6_0 ? 69 :
+                                                     settings.proform_treadmill_cst_505_pftl59420_2026 ? 70 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -12479,6 +12482,7 @@ import AndroidStatusBar 1.0
                                     settings.freemotion_t10_9b_hci = false;
                                     settings.proform_treadmill_sport_55 = false;
                                     settings.proform_treadmill_sport_6_0 = false;
+                                     settings.proform_treadmill_cst_505_pftl59420_2026 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -12551,6 +12555,7 @@ import AndroidStatusBar 1.0
                                         case 67: settings.freemotion_t10_9b_hci = true; break;
                                         case 68: settings.proform_treadmill_sport_55 = true; break;
                                         case 69: settings.proform_treadmill_sport_6_0 = true; break;
+                                         case 70: settings.proform_treadmill_cst_505_pftl59420_2026 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
