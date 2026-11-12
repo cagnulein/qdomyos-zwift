@@ -1550,10 +1550,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(3, QStringLiteral("total distance")))
                 return;
 
-            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)newValue.at(index)))) /
-                       (TUNTURI_E50_168 ? 10000.0 : 1000.0);
+            // The JH30 PRO also sends Indoor Bike Data, which already integrates session
+            // distance. Its Cross Trainer total can include an earlier console workout.
+            if (!bluetoothDevice.name().startsWith(QStringLiteral("JOROTO-JH30PRO"), Qt::CaseInsensitive)) {
+                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint32_t)((uint8_t)newValue.at(index)))) /
+                           (TUNTURI_E50_168 ? 10000.0 : 1000.0);
+            }
             index += 3;
         } else {
             // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
