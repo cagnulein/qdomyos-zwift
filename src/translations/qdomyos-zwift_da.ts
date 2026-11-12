@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Åbn</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Ingen GPX-filer her</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance: %1 km, højdemeter: %2</translation>
     </message>
@@ -1171,6 +1191,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Vælg en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på "Indlæs".</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ingen gemte indstillinger</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
@@ -1378,6 +1410,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Søg (inkl. undermapper)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Ingen træningspas fundet</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Ingen træningspas her</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4630,6 +4674,10 @@ Må QZ ændre værdien?
         <translation>Er du sikker på, at du vil slette denne profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen er gemt</translation>
     </message>
@@ -4660,6 +4708,26 @@ Må QZ ændre værdien?
     <message>
         <source>Profile name</source>
         <translation>Profilnavn</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Gemte profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på "Indlæs". Hold nede for at slette den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8845,6 +8913,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Viser 2 store gearknapper i brugerfladen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Indstillinger for felter</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

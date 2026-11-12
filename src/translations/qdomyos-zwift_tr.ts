@@ -61,6 +61,26 @@
         <translation>Filtre</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Üst klasör</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Aç</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Burada GPX dosyası yok</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Mesafe: %1 km, toplam tırmanış: %2 metre</translation>
     </message>
@@ -1187,6 +1207,18 @@ QZ ayarları güncellensin mi?</translation>
         <translation>Bir dosya seçin</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Seçmek için bir dosyaya dokunun, ardından Yükle&apos;ye basın.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Yükle</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Kayıtlı ayar yok</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
     </message>
@@ -1394,6 +1426,18 @@ QZ ayarları güncellensin mi?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Ara (alt klasörler dahil)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Üst klasör</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Antrenman bulunamadı</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Burada antrenman yok</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4646,6 +4690,10 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
         <translation>Bu profil silinsin mi?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Sil</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil kaydedildi</translation>
     </message>
@@ -4676,6 +4724,26 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Profile name</source>
         <translation>Profil adı</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Yeni profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Kayıtlı profiller</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Seçmek için bir profile dokunun, ardından Yükle&apos;ye basın. Silmek için uzun basın.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Etkin</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Yükle</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8869,6 +8937,10 @@ Varsayılan: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Arayüzde 2 büyük vites düğmesi gösterir</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Kutucuk seçenekleri</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

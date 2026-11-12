@@ -61,6 +61,26 @@
         <translation>Filtr</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Folder nadrzędny</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Otwórz</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Brak plików GPX</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Dystans: %1 km, suma podejść: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>Wybierz plik</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Dotknij pliku, aby go wybrać, a potem „Wczytaj”.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Wczytaj</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Brak zapisanych ustawień</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Inne foldery</translation>
     </message>
@@ -1394,6 +1426,18 @@ Zaktualizować ustawienia QZ?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Szukaj (z podfolderami)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Folder nadrzędny</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nie znaleziono treningów</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Brak treningów</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4646,6 +4690,10 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Usunąć ten profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil został zapisany</translation>
     </message>
@@ -4676,6 +4724,26 @@ Zezwolić QZ na zmianę tej wartości?
     <message>
         <source>Profile name</source>
         <translation>Nazwa profilu</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nowy profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Zapisane profile</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Dotknij profilu, aby go wybrać, a potem „Wczytaj”. Przytrzymaj, aby go usunąć.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktywny</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Wczytaj</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8869,6 +8937,10 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>W interfejsie użytkownika wyświetlane są 2 duże przyciski biegów</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opcje kafelków</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

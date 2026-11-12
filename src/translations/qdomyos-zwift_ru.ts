@@ -61,6 +61,26 @@
         <translation>Фильтр</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Папка выше</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Здесь нет GPX-файлов</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 км</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 м</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Дистанция: %1 км, набор высоты: %2 м</translation>
     </message>
@@ -1187,6 +1207,18 @@ Do you want to update QZ settings?</source>
         <translation>Папка настроек</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Нажмите на файл, чтобы выбрать его, затем «Загрузить».</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Загрузить</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Нет сохранённых настроек</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Другие папки</translation>
     </message>
@@ -1394,6 +1426,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Search (recursive)...</source>
         <translation>Поиск (включая подпапки)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Папка выше</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Тренировки не найдены</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Здесь нет тренировок</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4646,6 +4690,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Удалить этот профиль?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Профиль сохранён</translation>
     </message>
@@ -4678,8 +4726,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Название профиля</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Новый профиль</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Сохранённые профили</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Нажмите на профиль, чтобы выбрать его, затем «Загрузить». Долгое нажатие – удалить.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Активный</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Загрузить</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8931,6 +8999,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class&apos;s resistance target up or down for the rest of the ride.</source>
         <translation>Показывает целевое сопротивление в шкале сопротивления вашего велотренажёра. Например, на занятии Peloton или в Zwift нужно, чтобы значение на этой плитке совпадало с плиткой «Сопротивление». На занятии Peloton (только велотренажёр) кнопки +/- сдвигают целевое сопротивление занятия вверх или вниз до конца тренировки.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Параметры плиток</translation>
     </message>
     <message>
         <source>Stroke Length</source>

@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Överordnad mapp</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öppna</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Inga GPX-filer här</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distans %1 km, höjdmeter: %2 meter</translation>
     </message>
@@ -1171,6 +1191,18 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>Välj en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryck på en fil för att välja den och sedan på Läs in.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Läs in</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Inga sparade inställningar</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andra mappar</translation>
     </message>
@@ -1378,6 +1410,18 @@ Vill du uppdatera QZ-inställningarna?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Sök (även i undermappar)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Överordnad mapp</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Inga träningspass hittades</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Inga träningspass här</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4630,6 +4674,10 @@ Vill du tillåta att QZ ändrar värdet?
         <translation>Vill du ta bort profilen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen har sparats</translation>
     </message>
@@ -4660,6 +4708,26 @@ Vill du tillåta att QZ ändrar värdet?
     <message>
         <source>Profile name</source>
         <translation>Profilnamn</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Sparade profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryck på en profil för att välja den och sedan på Läs in. Håll ned för att ta bort den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Läs in</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8845,6 +8913,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Visar 2 stora växelknappar i gränssnittet.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Panelalternativ</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

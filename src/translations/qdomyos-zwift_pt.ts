@@ -61,6 +61,26 @@
         <translation>Filtro</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Não há arquivos GPX aqui</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distância %1 km Ganho de elevação: %2 metros</translation>
     </message>
@@ -1187,6 +1207,18 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Pasta de configurações</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Toque em um arquivo para selecioná-lo e depois em Carregar.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nenhuma configuração salva</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
@@ -1394,6 +1426,18 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Pesquisar (recursivo)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nenhum treino encontrado</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Não há treinos aqui</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4654,6 +4698,10 @@ Permitir que o QZ altere esse valor?
         <translation>Deseja excluir este perfil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Perfil Salvo</translation>
     </message>
@@ -4686,8 +4734,28 @@ Permitir que o QZ altere esse valor?
         <translation>Nome do perfil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Novo perfil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salvar</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Perfis salvos</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Toque em um perfil para selecioná-lo e depois em Carregar. Toque longo para excluí-lo.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Ativo</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8657,6 +8725,10 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.</source>
         <translation>Cadência do pedal da bicicleta em rotações por minuto (RPM) ou da esteira, se você usar um sensor no calçado ou o app QZ no Apple Watch.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opções de Blocos</translation>
     </message>
     <message>
         <source>Elevation Gain</source>
