@@ -107,7 +107,9 @@ ColumnLayout {
                 id: settingsCard
                 readonly property bool selected: ListView.isCurrentItem
                 width: ListView.view.width
-                height: 60
+                // Material 3 list item: one line 56, the icon and the button 16 from the edges,
+                // the text 16 after the icon
+                height: 56
                 radius: 16
                 fill: selected ? window.ui.alpha(window.ui.accent, 0.14)
                                : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)
@@ -134,7 +136,7 @@ ColumnLayout {
                 Rectangle {
                     id: settingsAvatar
                     anchors.left: parent.left
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     width: 40
                     height: 40
@@ -156,9 +158,9 @@ ColumnLayout {
                     // would take it from the card (the focus went to the whole window)
                     Accessible.ignored: true
                     anchors.left: settingsAvatar.right
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: 16
                     anchors.right: loadButton.visible ? loadButton.left : parent.right
-                    anchors.rightMargin: 12
+                    anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     text: fileName.substring(0, fileName.length-4)
                     color: settingsCard.selected ? window.ui.accent : window.ui.textMain
@@ -171,7 +173,7 @@ ColumnLayout {
                     id: loadButton
                     visible: settingsCard.selected
                     anchors.right: parent.right
-                    anchors.rightMargin: 8
+                    anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Load")
                     highlighted: true
@@ -275,7 +277,8 @@ ColumnLayout {
         Layout.fillWidth: window.ui.modern
         Layout.leftMargin: window.ui.modern ? settingsListPage.modernMargin : 0
         Layout.rightMargin: window.ui.modern ? settingsListPage.modernMargin : 0
-        Layout.bottomMargin: window.ui.modern ? 8 : 0
+        // 16 to the pill: UiButton has a 6 inset below it
+        Layout.bottomMargin: window.ui.modern ? 10 : 0
         text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
