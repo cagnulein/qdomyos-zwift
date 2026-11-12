@@ -590,7 +590,31 @@ ColumnLayout {
                                 interactive: contentHeight > height
                                 clip: true
                                 boundsBehavior: Flickable.StopAtBounds
-                                ScrollIndicator.vertical: ScrollIndicator { }
+                                // When the text scrolls, a bar that stays: a ScrollIndicator shows only while
+                                // it moves (an active binding is overwritten after every move), the Material
+                                // ScrollBar keeps showing for AlwaysOn
+                                ScrollBar.vertical: ScrollBar {
+                                    z: 1
+                                    interactive: false
+                                    policy: descriptionFlick.interactive ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+                                }
+
+                                // and the last line shown fades into the page until the end of the text is reached
+                                Rectangle {
+                                    id: descriptionFade
+                                    readonly property color page: window.ui.modern ? window.ui.bg : Material.backgroundColor
+                                    // over the Flickable, not in its scrolled content
+                                    parent: descriptionFlick
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    height: Math.min(descriptionFlick.height / 2, descriptionBlock.wholeLines(1))
+                                    visible: descriptionFlick.interactive && !descriptionFlick.atYEnd
+                                    gradient: Gradient {
+                                        GradientStop { position: 0; color: window.ui.alpha(descriptionFade.page, 0) }
+                                        GradientStop { position: 1; color: descriptionFade.page }
+                                    }
+                                }
 
                                 Text {
                                     id: descriptionText
