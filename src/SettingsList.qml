@@ -133,9 +133,6 @@ ColumnLayout {
 
     RowLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        anchors {
-            bottom: parent.bottom
-        }
 
         Button {
             id: searchButton
