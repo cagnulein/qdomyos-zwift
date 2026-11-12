@@ -1,4 +1,5 @@
 import QtQuick 2.12
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
@@ -11,6 +12,10 @@ ColumnLayout {
     id: profilesPage
     // Modern look: side margin of the cards and the buttons
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
+    // Modern look: no spacing, each item gives its own gap. The default spacing of a layout is
+    // per platform (8 dp scaled by the dpi: 6 on Android and iOS, 5 on the desktop), so a margin
+    // written on top of it would differ by platform; the classic look keeps it, as before
+    Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
 
     anchors.top: parent.top
     anchors.fill: parent
@@ -212,9 +217,8 @@ ColumnLayout {
         // on the page margin, as the card above and the headers of the other list pages
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        // a new section: 24 below the name card (19 and the 5 of the page spacing, the
-        // ColumnLayout default)
-        Layout.topMargin: 19
+        // a new section: 24 below the name card
+        Layout.topMargin: 24
         text: qsTr("Saved profiles")
         color: window.ui.textMain
         font.pixelSize: window.ui.fontBody
@@ -226,6 +230,8 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
+        // the hint of the header above: one group, 4 below it
+        Layout.topMargin: 4
         text: qsTr("Tap a profile to select it, then Load. Long press to delete it.")
         color: window.ui.textMuted
         font.pixelSize: window.ui.fontCaption
@@ -239,8 +245,10 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        // 12 from the hint, as on the settings file page (7 and the 5 of the page spacing)
-        Layout.topMargin: 7
+        // 12 from the hint, as on the settings file page; 6 above the pill below (12 seen with
+        // its inset), the gap it had with the page spacing
+        Layout.topMargin: 12
+        Layout.bottomMargin: 6
         clip: true
         spacing: 8
         currentIndex: -1
