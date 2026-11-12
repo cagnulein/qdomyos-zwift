@@ -8871,6 +8871,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <translation>화면에 큰 기어 버튼 2개를 표시합니다</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>타일 옵션</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>남은 시간/행</translation>

@@ -8727,6 +8727,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Zeigt die erzeugten Watt durch Ihre aktuelle Anstrengung. Watt wird auch als Leistung bezeichnet (zum Beispiel bei Peloton). Wenn Ihre Ausrüstung keine Watt übermittelt, berechnet QZ die Watt mithilfe von Widerstand und Trittfrequenz.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Kacheloptionen</translation>
+    </message>
+    <message>
         <source>Weight loss</source>
         <translation>Gewichtsverlust</translation>
     </message>

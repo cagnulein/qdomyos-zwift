@@ -8933,6 +8933,10 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Показывает целевое сопротивление в шкале сопротивления вашего велотренажёра. Например, на занятии Peloton или в Zwift нужно, чтобы значение на этой плитке совпадало с плиткой «Сопротивление». На занятии Peloton (только велотренажёр) кнопки +/- сдвигают целевое сопротивление занятия вверх или вниз до конца тренировки.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Параметры плиток</translation>
+    </message>
+    <message>
         <source>Stroke Length</source>
         <translation>Длина гребка</translation>
     </message>

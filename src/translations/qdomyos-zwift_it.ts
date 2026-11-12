@@ -8723,6 +8723,10 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <translation>Visualizza i watt generati dal tuo sforzo attuale. Watt è anche chiamato output (ad esempio, su Peloton). Se il tuo dispositivo non comunica i watt, QZ calcolerà i watt utilizzando resistenza e cadenza.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Opzioni riquadri</translation>
+    </message>
+    <message>
         <source>Weight loss</source>
         <translation>Perdita di peso</translation>
     </message>

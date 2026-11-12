@@ -8871,6 +8871,10 @@ Výchozí: A = -0.96, B = 1.33</translation>
         <translation>Zobrazí v rozhraní 2 velká tlačítka převodů</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Možnosti dlaždic</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>Zbývající čas/řádek</translation>

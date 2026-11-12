@@ -8767,6 +8767,10 @@ Default: A = -0.96, B = 1.33</source>
         <translation>显示当前努力产生的瓦数。瓦数也称为输出（例如，在 Peloton 中）。如果您的设备无法传输瓦数，QZ 将使用阻力和踏频计算瓦数。</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>卡片选项</translation>
+    </message>
+    <message>
         <source>Weight loss</source>
         <translation>减重</translation>
     </message>

@@ -14,8 +14,15 @@ ColumnLayout {
     property string title: ""
     // A note under the element (what the setting does); empty - none
     property string description: ""
+    // Modern look: the element as a card of its own (the tile page: one card per tile). Off for
+    // the elements nested in the settings sections
+    property bool card: false
     default property alias accordionContent: contentPlaceholder.data
     spacing: 0
+    readonly property bool modernCard: window.ui.modern && card
+    // A card keeps a little room from the cards around it
+    Layout.topMargin: modernCard ? 4 : 0
+    Layout.bottomMargin: modernCard ? 4 : 0
 
     // How deep it is among the settings sections (as AccordionElement): switched on inside a
     // section, it is framed as a subsection of it
@@ -86,6 +93,10 @@ ColumnLayout {
         active: window.ui.modern
         visible: active
         Layout.fillWidth: true
+        // A tile card: the row inside its frame
+        Layout.leftMargin: rootElement.modernCard ? 12 : 0
+        Layout.rightMargin: rootElement.modernCard ? 8 : 0
+        Layout.topMargin: rootElement.modernCard ? 4 : 0
         readonly property real radius: item ? item.radius : 0
         sourceComponent: Rectangle {
             implicitHeight: Math.max(48, modernTitle.implicitHeight + 16)
@@ -109,14 +120,19 @@ ColumnLayout {
                 anchors.left: parent.left
                 // Open, the element is a block out to the edges of the setting frames: the title as
                 // far in as the text of a setting in its frame. Closed, it is a setting in a frame
-                // itself: no room of its own, as the other switches
-                anchors.leftMargin: rootElement.isOpen ? settingFrames.framePadH : 0
+                // itself: no room of its own, as the other switches. A tile card: a little in from
+                // the edge of the pressed shade
+                anchors.leftMargin: rootElement.modernCard ? 4 : rootElement.isOpen ? settingFrames.framePadH : 0
                 anchors.right: modernSwitch.left
                 anchors.rightMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
                 text: rootElement.title
                 wrapMode: Text.WordWrap
-                color: window.ui.textMain
+                // A tile card: its title stands out, in the accent while the tile is on
+                color: rootElement.modernCard && rootElement.isOpen ? window.ui.accent : window.ui.textMain
+                font.weight: rootElement.modernCard ? Font.DemiBold : Font.Normal
+                // The size as well: in Qt 5 a write of the weight alone keeps the size the label
+                // inherits at that moment, and a change of the text size missed it
                 font.pixelSize: window.ui.fontBase
             }
 
@@ -175,11 +191,30 @@ ColumnLayout {
         }
     }
  
+    // A tile card: the note right under the title, before the options. Made only for a card
+    Loader {
+        active: rootElement.modernCard && rootElement.description.length > 0
+        visible: active
+        Layout.fillWidth: true
+        Layout.leftMargin: 16
+        Layout.rightMargin: 16
+        Layout.bottomMargin: 4
+        sourceComponent: Label {
+            text: rootElement.description
+            font.pixelSize: window.fontHint
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            color: window.ui.textMuted
+        }
+    }
+
     // This will get filled with the content. Held in a plain item: in a settings section the
     // modern look lays the frames of its settings beside it (a column would lay them out as
     // rows), the switch row on top of the block
     Item {
         id: contentBox
+        // Framed as a section of settings; a tile card has a frame of its own
+        readonly property bool framed: window.ui.modern && !rootElement.modernCard
         visible: rootElement.isOpen
         Layout.fillWidth: true
         // Takes the free height as the column it replaces did (a layout fills by default): a page
@@ -192,20 +227,21 @@ ColumnLayout {
             function onImplicitHeightChanged() { contentBox.implicitHeight = contentPlaceholder.implicitHeight }
         }
         Component.onCompleted: implicitHeight = contentPlaceholder.implicitHeight
-        // Modern look: inside the block of the element and inside the frames of its settings
-        Layout.leftMargin: settingFrames.insetLeft
-        Layout.rightMargin: settingFrames.insetRight
+        // Modern look: inside the block of the element and inside the frames of its settings. A tile
+        // card: its options under the title, clear of the right line of its frame
+        Layout.leftMargin: rootElement.modernCard ? 16 : settingFrames.insetLeft
+        Layout.rightMargin: rootElement.modernCard ? 18 : settingFrames.insetRight
         Layout.topMargin: settingFrames.insetTop
         Layout.bottomMargin: settingFrames.insetBottom
         // Under the switch row: the block frame starts behind it
         z: -1
 
-        // Modern look: made the first time the look is on, and kept - back in the classic look it
-        // gives the settings their own margins again
+        // Modern look: made the first time the section is framed, and kept - back in the classic look it
+        // gives the settings their own margins again (a tile card is never framed, so it gets none)
         Loader {
             id: settingFrames
             property bool used: false
-            active: window.ui.modern || used
+            active: contentBox.framed || used
             onLoaded: used = true
             z: -1
             readonly property int insetLeft: item ? item.insetLeft : 0
@@ -229,9 +265,9 @@ ColumnLayout {
     }
 
     // The note of the element, under it (description): the pages wrote it as a label of their own
-    // after each element
+    // after each element. A tile card shows it under its title instead
     Label {
-        visible: rootElement.description.length > 0
+        visible: !rootElement.modernCard && rootElement.description.length > 0
         text: rootElement.description
         font.bold: true
         font.italic: true
@@ -243,5 +279,31 @@ ColumnLayout {
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
         color: Material.color(Material.Lime)
+    }
+
+    // A tile card: its frame around the whole element. Laid out as the last row, 12 high - the room
+    // under the content of the card; the frame reaches up over the element and lies under the other
+    // rows (z). A frame as a row of its own would push the rows, and one bound to the height of
+    // the element as its child would make a binding loop with the layout. Made only for a card
+    Loader {
+        id: cardFrame
+        active: rootElement.modernCard
+        visible: active
+        Layout.fillWidth: true
+        Layout.preferredHeight: 12
+        z: -2
+        sourceComponent: Item {
+            UiFrame {
+                y: -cardFrame.y
+                width: parent.width
+                height: rootElement.height
+                radius: 16
+                strokeWidth: 1
+                // A tile that is on (shown on the main page) in the toned-down accent: still marked,
+                // not as bright as an open section
+                stroke: rootElement.isOpen ? Qt.rgba(window.ui.accent.r, window.ui.accent.g, window.ui.accent.b, 0.4)
+                                           : window.ui.outline
+            }
+        }
     }
 }
