@@ -107,9 +107,9 @@ ColumnLayout {
                 id: settingsCard
                 readonly property bool selected: ListView.isCurrentItem
                 width: ListView.view.width
-                // Material 3 list item: one line 56, the icon and the button 16 from the edges,
-                // the text 16 after the icon
-                height: 56
+                // Material 3 list item: one line at least 56, the icon and the button 16 from the
+                // edges, the text 16 after the icon; a bigger text grows it, 8 above and below
+                height: Math.max(56, Math.max(40, settingsName.implicitHeight) + 16)
                 radius: 16
                 fill: selected ? window.ui.alpha(window.ui.accent, 0.14)
                                : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)

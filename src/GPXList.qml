@@ -190,9 +190,9 @@ ColumnLayout {
                 readonly property bool selected: ListView.isCurrentItem
                 readonly property bool folder: folderModel.isFolder(index)
                 width: ListView.view.width
-                // Material 3 list item: one line 56, the icon and the button 16 from the edges,
-                // the text 16 after the icon
-                height: 56
+                // Material 3 list item: one line at least 56, the icon and the button 16 from the
+                // edges, the text 16 after the icon; a bigger text grows it, 8 above and below
+                height: Math.max(56, Math.max(40, gpxName.implicitHeight) + 16)
                 radius: 16
                 fill: selected && !folder ? window.ui.alpha(window.ui.accent, 0.14)
                                           : (cardArea.pressed ? window.ui.surfaceHigh : window.ui.surface)

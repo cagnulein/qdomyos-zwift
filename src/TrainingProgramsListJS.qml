@@ -282,7 +282,7 @@ ColumnLayout {
                         id: workoutDelegate
                         width: ListView.view.width
                         // a bigger text: the row grows with the name and the path of a search result
-                        height: window.ui.modern ? (itemRelativePath !== "" ? 72 : 56) : (window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50)
+                        height: window.ui.modern ? Math.max(itemRelativePath !== "" ? 72 : 56, implicitContentHeight + topPadding + bottomPadding) : (window.textScale !== 1 ? Math.max(50, implicitContentHeight + topPadding + bottomPadding) : 50)
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -307,8 +307,8 @@ ColumnLayout {
                                          : (ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor)
                         }
 
-                        // Modern look (Material 3 list item: one line 56, a search result with its folder
-                        // two lines 72): the icon 16 from the card edge and 16 from the text, as on the
+                        // Modern look (Material 3 list item: one line at least 56, a search result with its
+                        // folder two lines at least 72, a bigger text grows it): the icon 16 from the card edge and 16 from the text, as on the
                         // GPX, settings file and profile cards; the classic row as before
                         leftPadding: window.ui.modern ? 16 : horizontalPadding
 
