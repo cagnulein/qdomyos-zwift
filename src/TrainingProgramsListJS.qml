@@ -57,7 +57,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
-        rootItem.trainingProgramsPageOpened()
+        rootItem.folderPageOpened()
     }
 
     // Model for search results
@@ -147,10 +147,10 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 5
 
-                // programs of a previous install were copied back into the training folder
+                // files of a previous install were copied back into the QZ folder
                 Connections {
                     target: rootItem
-                    function onTrainingProgramsRestored() {
+                    function onFolderFilesRestored() {
                         var currentFolder = folderModel.folder
                         folderModel.folder = ""
                         folderModel.folder = currentFolder
@@ -240,7 +240,7 @@ ColumnLayout {
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
-                        // || "": while the folder is set again (onTrainingProgramsRestored) the model
+                        // || "": while the folder is set again (onFolderFilesRestored) the model
                         // is empty for a moment and get() gives undefined to the rows still shown
                         property string itemFileName: isSearching ? model.fileName : (folderModel.get(index, "fileName") || "")
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
@@ -331,14 +331,15 @@ ColumnLayout {
                         }
                     }
 
-                    // programs of a previous install that no bundled program points to are
-                    // found only on request
+                    // files of a previous install that no bundled file points to are found
+                    // only on request; with a saved grant on the QZ folder the page restores
+                    // them by itself
                     Button {
                         Layout.fillWidth: true
                         height: 50
-                        visible: Qt.platform.os === "android"
-                        text: qsTr("Restore programs")
-                        onClicked: rootItem.offerTrainingRestore()
+                        visible: Qt.platform.os === "android" && !rootItem.qzFolderGrantSaved
+                        text: qsTr("Restore files")
+                        onClicked: rootItem.offerFolderRestore()
                     }
                 }
             }

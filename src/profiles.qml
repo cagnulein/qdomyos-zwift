@@ -23,6 +23,8 @@ ColumnLayout {
         }
     }
 
+    Component.onCompleted: rootItem.folderPageOpened()
+
     Settings {
         id: settings
         property string profile_name: "default"
@@ -201,6 +203,16 @@ ColumnLayout {
                         folderModel.folder = "file://" + rootItem.getProfileDir();
                     }
                 }
+                // files of a previous install were copied back into the QZ folder; here, as
+                // the accordion loads this list as a component, out of reach of the page
+                Connections {
+                    target: rootItem
+                    function onFolderFilesRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
                 model: folderModel
                 delegate: Component {
                     Rectangle {
@@ -272,22 +284,33 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
-        height: 50
-        width: parent.width
-        text: qsTr("Other folders")
+    RowLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
-            }
-        }
         anchors {
             bottom: parent.bottom
+        }
+
+        Button {
+            id: searchButton
+            height: 50
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
+            }
+        }
+
+        // files of a previous install are found only on request; with a saved grant on the
+        // QZ folder the page restores them by itself
+        Button {
+            height: 50
+            visible: Qt.platform.os === "android" && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 }

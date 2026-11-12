@@ -22,7 +22,15 @@ ColumnLayout {
                 trainprogram_open_clicked(localUrl)
             }
         }
+        // files of a previous install were copied back into the QZ folder
+        function onFolderFilesRestored() {
+            var currentFolder = folderModel.folder
+            folderModel.folder = ""
+            folderModel.folder = currentFolder
+        }
     }
+
+    Component.onCompleted: rootItem.folderPageOpened()
 
     Loader {
         id: fileDialogLoader
@@ -279,18 +287,33 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
+    RowLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: 50
-        text: qsTr("Other folders")
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("gpx")
-            } else {
-                fileDialogLoader.active = true
+
+        Button {
+            id: searchButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: 50
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("gpx")
+                } else {
+                    fileDialogLoader.active = true
+                }
             }
+        }
+
+        // files of a previous install that no bundled file points to are found only on
+        // request; with a saved grant on the QZ folder the page restores them by itself
+        Button {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 50
+            visible: Qt.platform.os === "android" && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 }

@@ -940,8 +940,8 @@ ApplicationWindow {
         function onHistoryRecoveryOfferRequested() {
             popupHistoryRecovery.visible = true
         }
-        function onTrainingRestoreOfferRequested() {
-            popupTrainingRestore.visible = true
+        function onFolderRestoreOfferRequested() {
+            popupFolderRestore.visible = true
         }
         function onChangeOfdevice() {
             window.equipmentConnected = window.ui.modern && rootItem.supportDeviceConnected()
@@ -953,14 +953,14 @@ ApplicationWindow {
     // Bluetooth icon of the home page, and one more binding reading it would stop the blinking
     property bool equipmentConnected: false
 
-    // after a reinstall the training programs of the previous install are hidden in the
-    // training folder: with access to the QZ folder QZ copies them back as its own
+    // after a reinstall the training programs, GPX routes, settings files and profiles of the
+    // previous install are hidden in the QZ folder: with access to it QZ copies them back as its own
     UiMessageDialog {
-        id: popupTrainingRestore
-        text: qsTr("Training Programs")
-        informativeText: qsTr("Training programs of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        id: popupFolderRestore
+        text: qsTr("Restore files")
+        informativeText: qsTr("Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: rootItem.restoreTrainingPrograms()
+        onYesClicked: rootItem.restoreFolderFiles()
         onNoClicked: this.visible = false
         visible: false
     }

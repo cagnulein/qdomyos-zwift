@@ -23,7 +23,7 @@ ColumnLayout {
             }
         }
         // programs of a previous install were copied back into the training folder
-        function onTrainingProgramsRestored() {
+        function onFolderFilesRestored() {
             var currentFolder = folderModel.folder
             folderModel.folder = ""
             folderModel.folder = currentFolder
@@ -48,7 +48,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
-        rootItem.trainingProgramsPageOpened()
+        rootItem.folderPageOpened()
     }
 
     MessageDialog {

@@ -43,7 +43,7 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
     private static final int DOCUMENT_PICKER_FIT_REQUEST_CODE = 4105;
     private static final int DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE = 4106;
-    private static final int DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE = 4107;
+    private static final int DOCUMENT_PICKER_RESTORE_FOLDER_REQUEST_CODE = 4107;
     private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
@@ -692,7 +692,7 @@ public class CustomQtActivity extends QtActivity {
             || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE
-            || requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE;
+            || requestCode == DOCUMENT_PICKER_RESTORE_FOLDER_REQUEST_CODE;
     }
 
     // Folder of the QZ files on Android 14+ (Documents/QZ) as a document of the external storage
@@ -818,17 +818,22 @@ public class CustomQtActivity extends QtActivity {
         }, "FitFolderImport").start();
     }
 
-    // Training programs left in Documents/QZ/training by a previous install: this install does
-    // not see them in the folder and cannot replace them, so the list of programs is empty and
-    // the bundled ones are not copied again. Through a grant on the QZ folder each such file is
-    // copied as this install's own one under the same name, and the old file is removed.
-    // allowPicker false: use a saved grant only, never open the picker; returns false when there
-    // is no saved grant with write access. allowPicker true (the user agreed): always open the
-    // picker, a saved grant may be the one that restored nothing.
-    public boolean openTrainingFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
+    // Subfolders of the QZ folder whose files the app lists (training programs, GPX routes,
+    // settings files, profiles) and so restores after a reinstall.
+    private static final String[] RESTORE_FOLDERS = {"training", "gpx", "settings", "profiles"};
+
+    // Files left in these subfolders of Documents/QZ by a previous install: this install does
+    // not see them in the folder and cannot replace them, so the lists are empty and the
+    // bundled programs and routes are not copied again. Through a grant on the QZ folder each
+    // such file is copied as this install's own one under the same name, and the old file is
+    // removed. destinationDir: the QZ folder. allowPicker false: use a saved grant only, never
+    // open the picker; returns false when there is no saved grant with write access. allowPicker
+    // true (the user agreed): always open the picker, a saved grant may be the one that restored
+    // nothing.
+    public boolean openRestoreFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
         // one pass at a time: two passes over the same files share the temporary copies
-        if (trainingRestoreRunning) {
-            Log.d(TAG, "openTrainingFolderPicker: a restore is running");
+        if (folderRestoreRunning) {
+            Log.d(TAG, "openRestoreFolderPicker: a restore is running");
             return false;
         }
         pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
@@ -836,6 +841,20 @@ public class CustomQtActivity extends QtActivity {
             launchFitFolderPicker(requestCode);
             return true;
         }
+        Uri treeUri = savedQzFolderGrant();
+        if (treeUri != null) {
+            Intent data = new Intent();
+            data.setData(treeUri);
+            handleRestoreFolderResult(requestCode, RESULT_OK, data);
+            return true;
+        }
+        pendingImportDirectories.remove(requestCode);
+        return false;
+    }
+
+    // A saved grant on the whole QZ folder with read and write access, the one a restore pass
+    // needs; null when there is none (never asked, or a subfolder or another folder was picked).
+    private Uri savedQzFolderGrant() {
         for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
             String treeId = "";
             try {
@@ -845,19 +864,22 @@ public class CustomQtActivity extends QtActivity {
             }
             if (permission.isReadPermission() && permission.isWritePermission()
                 && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
-                Intent data = new Intent();
-                data.setData(permission.getUri());
-                handleTrainingFolderResult(requestCode, RESULT_OK, data);
-                return true;
+                return permission.getUri();
             }
         }
-        pendingImportDirectories.remove(requestCode);
-        return false;
+        return null;
+    }
+
+    // true: the lists restore files of a previous install by themselves on the first visit of
+    // each run, so they do not need a button for it.
+    public boolean hasQzFolderGrant() {
+        return savedQzFolderGrant() != null;
     }
 
     // Passes the restored files, one path per line, to the native side; an empty string when
-    // nothing was restored (another folder picked, or no file of a previous install).
-    private void handleTrainingFolderResult(final int requestCode, final int resultCode, Intent data) {
+    // nothing was restored (another folder picked, or no file of a previous install). The QZ
+    // folder restores all RESTORE_FOLDERS; one of them picked alone restores only itself.
+    private void handleRestoreFolderResult(final int requestCode, final int resultCode, Intent data) {
         final String destinationDir = pendingImportDirectories.get(requestCode, "");
         pendingImportDirectories.remove(requestCode);
         if (resultCode != RESULT_OK || data == null || data.getData() == null) {
@@ -871,30 +893,32 @@ public class CustomQtActivity extends QtActivity {
         } catch (Exception e) {
             Log.d(TAG, "takePersistableUriPermission failed " + e);
         }
-        trainingRestoreRunning = true;
+        folderRestoreRunning = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 StringBuilder restored = new StringBuilder();
                 try {
                     String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
-                    String trainingId = null;
-                    if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
-                        trainingId = findChildDocument(treeUri, rootId, "training");
-                    } else if ((QZ_DOCUMENTS_TREE_ID + "/training").equals(rootId)) {
-                        trainingId = rootId;
+                    for (String folder : RESTORE_FOLDERS) {
+                        String folderId = null;
+                        if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                            folderId = findChildDocument(treeUri, rootId, folder);
+                        } else if ((QZ_DOCUMENTS_TREE_ID + "/" + folder).equals(rootId)) {
+                            folderId = rootId;
+                        }
+                        if (folderId != null && !destinationDir.isEmpty()) {
+                            restoreFolderFiles(treeUri, folderId, new java.io.File(destinationDir, folder), restored);
+                        }
+                        Log.d(TAG, "handleRestoreFolderResult root=" + rootId + " " + folder + "=" + folderId);
                     }
-                    if (trainingId != null && !destinationDir.isEmpty()) {
-                        restoreTrainingFiles(treeUri, trainingId, new java.io.File(destinationDir), restored);
-                    }
-                    Log.d(TAG, "handleTrainingFolderResult root=" + rootId + " training=" + trainingId);
                 } catch (Exception e) {
-                    Log.d(TAG, "handleTrainingFolderResult failed " + e);
+                    Log.d(TAG, "handleRestoreFolderResult failed " + e);
                 }
-                trainingRestoreRunning = false;
+                folderRestoreRunning = false;
                 nativeOnDocumentPicked(requestCode, RESULT_OK, restored.toString());
             }
-        }, "TrainingFolderRestore").start();
+        }, "QzFolderRestore").start();
     }
 
     private String findChildDocument(Uri treeUri, String parentId, String childName) {
@@ -925,7 +949,7 @@ public class CustomQtActivity extends QtActivity {
     // real name. A failure before the removal leaves the old file in place; a copy left under
     // the temporary name after it is finished by recoverRestoreCopies() on the next pass or
     // the next visit of the list.
-    private void restoreTrainingFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+    private void restoreFolderFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
         recoverRestoreCopies(localDir, false, restored);
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         android.database.Cursor cursor = null;
@@ -944,14 +968,14 @@ public class CustomQtActivity extends QtActivity {
                 }
                 java.io.File local = new java.io.File(localDir, name);
                 if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
-                    restoreTrainingFiles(treeUri, documentId, local, restored);
+                    restoreFolderFiles(treeUri, documentId, local, restored);
                     continue;
                 }
                 if (local.exists() && ContentHelper.isReadable(local)) {
                     continue;
                 }
                 if (!localDir.exists() && !localDir.mkdirs()) {
-                    Log.d(TAG, "restoreTrainingFiles could not create " + localDir);
+                    Log.d(TAG, "restoreFolderFiles could not create " + localDir);
                     return;
                 }
                 java.io.File temporary = new java.io.File(localDir, RESTORE_PREFIX + name);
@@ -962,7 +986,7 @@ public class CustomQtActivity extends QtActivity {
                 }
                 // the old file goes only once its copy is known to be whole
                 if (!ContentHelper.sameContent(this, documentUri, temporary)) {
-                    Log.d(TAG, "restoreTrainingFiles copy of " + name + " differs from the original, kept the original");
+                    Log.d(TAG, "restoreFolderFiles copy of " + name + " differs from the original, kept the original");
                     temporary.delete();
                     continue;
                 }
@@ -973,7 +997,7 @@ public class CustomQtActivity extends QtActivity {
                 if (!moveRestoreCopy(temporary, local)) {
                     // the old file is already gone: the copy stays under the temporary name, and
                     // recoverRestoreCopies() gives it the real name later
-                    Log.d(TAG, "restoreTrainingFiles kept " + temporary + ", could not rename it");
+                    Log.d(TAG, "restoreFolderFiles kept " + temporary + ", could not rename it");
                     continue;
                 }
                 if (restored.length() > 0) {
@@ -982,7 +1006,7 @@ public class CustomQtActivity extends QtActivity {
                 restored.append(local.getAbsolutePath());
             }
         } catch (Exception e) {
-            Log.d(TAG, "restoreTrainingFiles failed " + e);
+            Log.d(TAG, "restoreFolderFiles failed " + e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -992,16 +1016,18 @@ public class CustomQtActivity extends QtActivity {
 
     private static final String RESTORE_PREFIX = ".restore_";
     // a folder pass is running: its temporary copies are not left over yet
-    private volatile boolean trainingRestoreRunning = false;
+    private volatile boolean folderRestoreRunning = false;
 
-    // Copies a restore left under the temporary name in directory and its subfolders (the old
-    // file was already removed when the rename failed or the app stopped) take their real name.
-    // They are this install's own files, so no folder grant is needed. Returns their paths, one
-    // per line; empty while a folder pass is running.
-    public String recoverTrainingRestoreCopies(String directory) {
+    // Copies a restore left under the temporary name in RESTORE_FOLDERS of qzDirectory and their
+    // subfolders (the old file was already removed when the rename failed or the app stopped)
+    // take their real name. They are this install's own files, so no folder grant is needed.
+    // Returns their paths, one per line; empty while a folder pass is running.
+    public String recoverFolderRestoreCopies(String qzDirectory) {
         StringBuilder recovered = new StringBuilder();
-        if (directory != null && !directory.isEmpty() && !trainingRestoreRunning) {
-            recoverRestoreCopies(new java.io.File(directory), true, recovered);
+        if (qzDirectory != null && !qzDirectory.isEmpty() && !folderRestoreRunning) {
+            for (String folder : RESTORE_FOLDERS) {
+                recoverRestoreCopies(new java.io.File(qzDirectory, folder), true, recovered);
+            }
         }
         return recovered.toString();
     }
@@ -1214,8 +1240,8 @@ public class CustomQtActivity extends QtActivity {
             handleFitFolderResult(requestCode, resultCode, data, false);
             return;
         }
-        if (requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE) {
-            handleTrainingFolderResult(requestCode, resultCode, data);
+        if (requestCode == DOCUMENT_PICKER_RESTORE_FOLDER_REQUEST_CODE) {
+            handleRestoreFolderResult(requestCode, resultCode, data);
             return;
         }
         String destinationDir = pendingImportDirectories.get(requestCode, "");
