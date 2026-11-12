@@ -350,6 +350,11 @@ ColumnLayout {
 
                                 Text {
                                     id: fileName
+                                    // modern look: the card is read through the delegate; a touch of
+                                    // the screen reader goes to the deepest accessible item under the
+                                    // finger, and the texts would take it from the card. The classic
+                                    // row as before
+                                    Accessible.ignored: window.ui.modern
                                     Layout.fillWidth: true
                                     text: !isItemFolder ?
                                           itemFileName.substring(0, itemFileName.lastIndexOf(".")) :
@@ -363,6 +368,7 @@ ColumnLayout {
                                 }
 
                                 Text {
+                                    Accessible.ignored: window.ui.modern
                                     Layout.fillWidth: true
                                     text: itemRelativePath
                                     color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey)

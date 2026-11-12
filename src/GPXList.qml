@@ -234,6 +234,10 @@ ColumnLayout {
 
                 Label {
                     id: gpxName
+                    // the card is read through cardArea: a touch of the screen reader goes to the
+                    // deepest accessible item under the finger, and this label, drawn above
+                    // cardArea, would take it from the card (the focus went to the whole window)
+                    Accessible.ignored: true
                     anchors.left: gpxAvatar.right
                     anchors.leftMargin: 12
                     anchors.right: openButton.visible ? openButton.left : parent.right

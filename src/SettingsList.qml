@@ -151,6 +151,10 @@ ColumnLayout {
 
                 Label {
                     id: settingsName
+                    // the card is read through its MouseArea: a touch of the screen reader goes to
+                    // the deepest accessible item under the finger, and this label, drawn above it,
+                    // would take it from the card (the focus went to the whole window)
+                    Accessible.ignored: true
                     anchors.left: settingsAvatar.right
                     anchors.leftMargin: 12
                     anchors.right: loadButton.visible ? loadButton.left : parent.right
