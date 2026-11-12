@@ -470,60 +470,71 @@ ColumnLayout {
                 // height on the right, as the GPX page; upright one under another
                 readonly property bool sideBySide: width > height
 
-                // Header con pulsanti
-                RowLayout {
-                    id: detailHeader
-                    Layout.fillWidth: true
-                    Layout.margins: 5
-                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
-                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
-                    spacing: window.ui.modern ? 8 : 10
-
-                    UiButton {
-                        text: qsTr("← Back")
-                        // Modern look: the toolbar arrow goes back to the list (main.qml)
-                        visible: !window.ui.modern
-                        onClicked: stackView.pop()
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    UiButton {
-                        text: qsTr("Delete")
-                        visible: pendingWorkoutUrl.toString() !== ""
-                        danger: true
-                        Material.background: Material.Red
-                        onClicked: {
-                            deleteDialog.fileUrl = pendingWorkoutUrl
-                            deleteDialog.visible = true
-                        }
-                    }
-
-                    UiButton {
-                        text: qsTr("Start Workout")
-                        highlighted: true
-                        Material.background: Material.Green
-                        onClicked: {
-                            trainprogram_open_clicked(pendingWorkoutUrl)
-                            trainprogram_autostart_requested()
-                            stackView.pop()
-                        }
-                    }
-
-                }
-
                 GridLayout {
                     id: detailBody
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // the cells are placed in order, the text first: an explicit Layout.column 1 was
-                    // warned about for a moment on turning upright, the columns already 1
-                    columns: detailColumn.sideBySide ? 2 : 1
+                    // Two columns in both orientations, the cells set explicitly: upright every cell spans
+                    // both, one under another; side by side the text takes the left column from the top
+                    // of the page, the buttons and the chart under them the right one (the buttons are
+                    // right-aligned, the left of their row was empty). Not columns 1 upright: an explicit
+                    // Layout.column 1 was warned about for a moment on turning upright, the columns already 1
+                    readonly property bool split: detailColumn.sideBySide && textColumn.visible
+                    columns: 2
                     columnSpacing: 6
                     rowSpacing: detailColumn.spacing
 
+                    // Header con pulsanti
+                    RowLayout {
+                        id: detailHeader
+                        Layout.row: 0
+                        Layout.column: detailBody.split ? 1 : 0
+                        Layout.columnSpan: detailBody.split ? 1 : 2
+                        Layout.fillWidth: true
+                        Layout.margins: 5
+                        Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
+                        Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                        spacing: window.ui.modern ? 8 : 10
+
+                        UiButton {
+                            text: qsTr("← Back")
+                            // Modern look: the toolbar arrow goes back to the list (main.qml)
+                            visible: !window.ui.modern
+                            onClicked: stackView.pop()
+                        }
+
+                        Item { Layout.fillWidth: true }
+
+                        UiButton {
+                            text: qsTr("Delete")
+                            visible: pendingWorkoutUrl.toString() !== ""
+                            danger: true
+                            Material.background: Material.Red
+                            onClicked: {
+                                deleteDialog.fileUrl = pendingWorkoutUrl
+                                deleteDialog.visible = true
+                            }
+                        }
+
+                        UiButton {
+                            text: qsTr("Start Workout")
+                            highlighted: true
+                            Material.background: Material.Green
+                            onClicked: {
+                                trainprogram_open_clicked(pendingWorkoutUrl)
+                                trainprogram_autostart_requested()
+                                stackView.pop()
+                            }
+                        }
+
+                    }
+
                     ColumnLayout {
                         id: textColumn
+                        Layout.row: detailBody.split ? 0 : 1
+                        Layout.column: 0
+                        Layout.rowSpan: detailBody.split ? 2 : 1
+                        Layout.columnSpan: detailBody.split ? 1 : 2
                         Layout.fillWidth: true
                         Layout.fillHeight: detailColumn.sideBySide
                         // the two columns share the width equally
@@ -544,13 +555,12 @@ ColumnLayout {
                         ColumnLayout {
                             id: descriptionBlock
                             property bool expanded: false
-                            // side by side: the page below the buttons less the margins of the buttons
-                            // row (10), the spacing under it, the own margins (20), the tags and the
-                            // spacing before the filler under them. Not from textColumn.height: the
-                            // column grows to its content, and the text pushed the tags and the chart
-                            // past the bottom of the page
+                            // side by side: the whole page height (the buttons are over the chart) less the
+                            // own margins (20), the tags and the spacing before the filler under them.
+                            // Not from textColumn.height: the column grows to its content, and the text
+                            // pushed the tags and the chart past the bottom of the page
                             readonly property real sideRoom: Math.max(descriptionMetrics.lineSpacing,
-                                pageBelowButtons - 10 - detailColumn.spacing - 20
+                                detailColumn.height - 20
                                 - (tagsText.visible ? tagsText.height + textColumn.spacing : 0) - textColumn.spacing)
                             readonly property real pageBelowButtons: Math.max(0, detailColumn.height - detailHeader.height)
                             // the page below the buttons less all but the text: the margins of the buttons row (10),
@@ -720,6 +730,11 @@ ColumnLayout {
                     // WebView con grafico
                     // Preview data is now loaded via WebSocket, no runJavaScript needed
                     Item {
+                        // upright under the text, or right under the buttons without it (no empty row
+                        // and its spacing)
+                        Layout.row: detailBody.split || !textColumn.visible ? 1 : 2
+                        Layout.column: detailBody.split ? 1 : 0
+                        Layout.columnSpan: detailBody.split ? 1 : 2
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.preferredWidth: 1
