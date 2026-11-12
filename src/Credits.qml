@@ -71,13 +71,14 @@ ScrollView {
                     model: creditsPage.developers
                     Item {
                         width: developerList.width
-                        height: 56
+                        // Material 3 list item: one line at least 56, the initial 16 from the card
+                        // edge (with the 8 of the list) and the name 16 after it; a bigger text
+                        // grows the row, 8 above and below
+                        height: Math.max(56, Math.max(40, developerName.implicitHeight) + 16)
                         Rectangle {
                             id: developerAvatar
                             anchors.left: parent.left
-                            // 12 from the card edge with the margin of the list, and 12 to the
-                            // name, as on the list cards of the other pages
-                            anchors.leftMargin: 4
+                            anchors.leftMargin: 8
                             anchors.verticalCenter: parent.verticalCenter
                             width: 40
                             height: 40
@@ -92,9 +93,11 @@ ScrollView {
                             }
                         }
                         Label {
+                            id: developerName
                             anchors.left: developerAvatar.right
-                            anchors.leftMargin: 12
+                            anchors.leftMargin: 16
                             anchors.right: parent.right
+                            anchors.rightMargin: 8
                             anchors.verticalCenter: parent.verticalCenter
                             text: modelData
                             color: window.ui.textMain

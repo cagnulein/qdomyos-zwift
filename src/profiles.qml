@@ -212,8 +212,9 @@ ColumnLayout {
         // on the page margin, as the card above and the headers of the other list pages
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        // a new section: 24 below the name card
-        Layout.topMargin: 24
+        // a new section: 24 below the name card (19 and the 5 of the page spacing, the
+        // ColumnLayout default)
+        Layout.topMargin: 19
         text: qsTr("Saved profiles")
         color: window.ui.textMain
         font.pixelSize: window.ui.fontBody
@@ -238,8 +239,8 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
-        // 12 from the hint, as on the settings file page
-        Layout.topMargin: 12
+        // 12 from the hint, as on the settings file page (7 and the 5 of the page spacing)
+        Layout.topMargin: 7
         clip: true
         spacing: 8
         currentIndex: -1
