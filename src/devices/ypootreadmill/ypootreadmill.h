@@ -10,6 +10,8 @@
 #include <QtBluetooth/QLowEnergyService>
 
 // YPTM-U0 and YP-M1552 share the unlock/control protocol but use different incline units.
+// The M3 MAX (MegaGym Everest 49) inclines up to 42 % and is named "YPTM-U" + the last three bytes
+// of its Bluetooth address, so every YPTM-U name that is not YPTM-U0 is taken as an M3 MAX.
 class ypootreadmill : public treadmill {
     Q_OBJECT
   public:
@@ -45,6 +47,7 @@ class ypootreadmill : public treadmill {
     QLowEnergyCharacteristic gattWriteCharUnlock;
     bool noHeartService;
     bool YP_M1552 = false;
+    bool YP_M3_MAX = false;
     bool initDone = false;
     bool initRequest = false;
     unsigned notificationSubscribed = 0;
