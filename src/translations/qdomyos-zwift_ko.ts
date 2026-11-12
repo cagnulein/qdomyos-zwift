@@ -61,6 +61,26 @@
         <translation>필터</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>열기</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>GPX 파일이 없습니다</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>거리: %1 km, 상승 고도: %2 m</translation>
     </message>
@@ -1191,6 +1211,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>파일을 선택하세요</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>파일을 눌러 선택한 다음 [불러오기]를 누르세요.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>저장된 설정이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
@@ -1402,6 +1434,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>검색(하위 폴더 포함)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>운동을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>운동이 없습니다</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4680,6 +4724,10 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
         <translation>이 프로필을 삭제하시겠습니까?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>프로필 저장됨</translation>
     </message>
@@ -4710,6 +4758,26 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Profile name</source>
         <translation>프로필 이름</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>새 프로필</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>저장된 프로필</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>프로필을 눌러 선택한 다음 [불러오기]를 누르세요. 길게 누르면 삭제됩니다.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>사용 중</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8907,6 +8975,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>화면에 큰 기어 버튼 2개를 표시합니다</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>타일 옵션</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

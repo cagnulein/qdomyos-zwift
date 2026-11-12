@@ -61,6 +61,26 @@
         <translation>Filtro</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Carpeta superior</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>No hay archivos GPX aquí</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distancia %1 km Desnivel positivo: %2 metros</translation>
     </message>
@@ -1191,6 +1211,18 @@ Do you want to update QZ settings?</source>
         <translation>Carpeta de configuración</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Toca un archivo para seleccionarlo y luego Cargar.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Cargar</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>No hay configuraciones guardadas</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Otras carpetas</translation>
     </message>
@@ -1402,6 +1434,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Search (recursive)...</source>
         <translation>Buscar (recursivo)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Carpeta superior</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>No se encontraron entrenamientos</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>No hay entrenamientos aquí</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4688,6 +4732,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>¿Quieres eliminar este perfil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Perfil guardado</translation>
     </message>
@@ -4720,8 +4768,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Nombre de perfil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Nuevo perfil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Perfiles guardados</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Toca un perfil para seleccionarlo y luego Cargar. Mantén pulsado para eliminarlo.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Activo</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Cargar</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8699,6 +8767,10 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.</source>
         <translation>Cadencia de pedaleo de bicicleta en revoluciones por minuto (RPM) o cadencia de cinta de correr si se utiliza un sensor de cadencia montado en zapatos o la aplicación QZ para Apple Watch.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opciones de mosaicos</translation>
     </message>
     <message>
         <source>Elevation Gain</source>

@@ -114,7 +114,7 @@ ColumnLayout {
                 Text
                 {
                     text:qsTr("Filter")
-                    color: "white"
+                    color: window.ui.ink("white")
                     verticalAlignment: Text.AlignVCenter
                 }
                 TextField
@@ -244,7 +244,7 @@ ColumnLayout {
                         selectedWorkoutUrl = fileUrl
                         // no current row for a moment while a restore renames files under the open page
                         if (list.currentItem)
-                            list.currentItem.textColor = Material.color(Material.Yellow)
+                            list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
                         powerSeries.clear();
@@ -292,7 +292,7 @@ ColumnLayout {
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
                     font.pixelSize: window.fontPx(14)
-                    color: "white"
+                    color: window.ui.ink("white")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -306,7 +306,7 @@ ColumnLayout {
                     text: rootItem.previewWorkoutTags
                     font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
-                    color: "white"
+                    color: window.ui.modern ? window.ui.textMuted : "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.horizontalCenter: parent.horizontalCenter

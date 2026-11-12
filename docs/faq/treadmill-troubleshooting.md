@@ -1,5 +1,13 @@
 # Treadmill troubleshooting
 
+## Domyos Run 500: QZ remains paused after starting or resuming on the treadmill console
+
+On a Domyos Run 500, QZ may continue to display live speed and incline while its workout session remains **paused** after Start or Resume is pressed on the treadmill console. Live readings alone do not mean that QZ is recording: elapsed workout data, distance, averages and maxima may not advance during the paused interval.
+
+For reliable recording, **press Play/Start in QZ as well** whenever you start or resume the workout from the treadmill console. Alternatively, start the session from QZ. A user confirmed that enabling **Horizon 7.8 start issue** helped with this setup, but console-driven resume still required manually starting QZ's session. Check that the QZ workout timer is advancing before relying on the recording. This is distinct from the treadmill belt's own Start/Pause controls.
+
+Short Android tests on this setup also confirmed live speed and incline controls and recording with the phone screen locked; longer background sessions were not established by those tests.
+
 ## QZ is connected to my treadmill, but the session or distance is not updating. What should I check?
 
 First check whether the QZ workout session itself is paused. If the **Play** button at the top of QZ is flashing, press it to resume/start the QZ session.

@@ -61,6 +61,26 @@
         <translation>Szűrő</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Megnyitás</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Itt nincsenek GPX-fájlok</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Távolság: %1 km, szintemelkedés: %2 méter</translation>
     </message>
@@ -1175,6 +1195,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Válasszon fájlt</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Koppintson egy fájlra a kiválasztásához, majd a Betöltés gombra.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nincs mentett beállítás</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
@@ -1386,6 +1418,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Keresés (almappákkal)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nem található edzés</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Itt nincs edzés</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -4664,6 +4708,10 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Szeretné törölni ezt a profilt?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Törlés</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil mentve</translation>
     </message>
@@ -4694,6 +4742,26 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Profile name</source>
         <translation>Profilnév</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Új profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Mentett profilok</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Koppintson egy profilra a kiválasztásához, majd a Betöltés gombra. A törléshez tartsa lenyomva.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktív</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8883,6 +8951,10 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>2 nagy fokozatgombot jelenít meg a felületen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Csempék beállításai</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>
