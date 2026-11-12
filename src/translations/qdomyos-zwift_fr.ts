@@ -61,6 +61,26 @@
         <translation>Filtre</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Aucun fichier GPX ici</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance %1 km Dénivelé positif : %2 mètres</translation>
     </message>
@@ -1187,6 +1207,18 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>Dossier des paramètres</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Touchez un fichier pour le sélectionner, puis Charger.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Charger</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Aucun paramètre enregistré</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
     </message>
@@ -1394,6 +1426,18 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Rechercher (récursif)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Aucun entraînement trouvé</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Aucun entraînement ici</translation>
     </message>
     <message>
         <source>Other folders</source>

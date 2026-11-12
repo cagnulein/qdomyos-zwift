@@ -61,6 +61,26 @@
         <translation>Filtro</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Cartella superiore</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Apri</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Nessun file GPX qui</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distanza %1 km Dislivello positivo: %2 metri</translation>
     </message>
@@ -1187,6 +1207,18 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <translation>Cartella impostazioni</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tocca un file per selezionarlo, poi Carica.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carica</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nessuna impostazione salvata</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Altre cartelle</translation>
     </message>
@@ -1394,6 +1426,18 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>Cerca (anche nelle sottocartelle)...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Cartella superiore</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nessun allenamento trovato</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Nessun allenamento qui</translation>
     </message>
     <message>
         <source>Other folders</source>

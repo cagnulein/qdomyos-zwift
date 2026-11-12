@@ -61,6 +61,26 @@
         <translation>筛选</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上级文件夹</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>打开</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>此处没有 GPX 文件</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 公里</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 米</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>距离 %1 km，累计爬升：%2 米</translation>
     </message>
@@ -1187,6 +1207,18 @@ Do you want to update QZ settings?</source>
         <translation>设置文件夹</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>点击文件将其选中，然后点击“加载”。</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>加载</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>没有已保存的设置</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
@@ -1394,6 +1426,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Search (recursive)...</source>
         <translation>搜索（含子文件夹）...</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>上级文件夹</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>未找到训练</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>此处没有训练</translation>
     </message>
     <message>
         <source>Other folders</source>

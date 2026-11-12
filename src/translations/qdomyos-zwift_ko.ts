@@ -61,6 +61,26 @@
         <translation>필터</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>열기</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>GPX 파일이 없습니다</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>거리: %1 km, 상승 고도: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>파일을 선택하세요</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>파일을 눌러 선택한 다음 [불러오기]를 누르세요.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>불러오기</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>저장된 설정이 없습니다</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
@@ -1394,6 +1426,18 @@ QZ 설정을 업데이트하시겠습니까?</translation>
     <message>
         <source>Search (recursive)...</source>
         <translation>검색(하위 폴더 포함)…</translation>
+    </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>상위 폴더</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>운동을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>운동이 없습니다</translation>
     </message>
     <message>
         <source>Other folders</source>
