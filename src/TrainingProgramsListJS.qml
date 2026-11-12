@@ -292,14 +292,14 @@ ColumnLayout {
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL') || "")
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                        // Modern look: the card is read and opened by the screen reader (contentItem
-                        // replaces the label, so the delegate text is empty; a double tap of Qt 5.15
-                        // sends no clicked() to a delegate). The classic row as before
-                        Accessible.name: window.ui.modern ? fileName.text : text
-                        Accessible.onPressAction: {
-                            if (window.ui.modern)
-                                workoutDelegate.clicked()
-                        }
+                        // Modern look: the card is read under its name, with the folder of a search
+                        // result (contentItem replaces the label, so the delegate text is empty).
+                        // Both looks: a connected press action makes the row clickable for the screen
+                        // reader, and Qt 5.15 then only emits it, so it opens the row as a tap does
+                        Accessible.name: window.ui.modern
+                                         ? (itemRelativePath !== "" ? fileName.text + ", " + itemRelativePath : fileName.text)
+                                         : text
+                        Accessible.onPressAction: workoutDelegate.clicked()
 
                         background: Rectangle {
                             radius: window.ui.modern ? 16 : 0
