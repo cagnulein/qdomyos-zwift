@@ -313,7 +313,7 @@ ColumnLayout {
         Button {
             Layout.fillWidth: true
             Layout.preferredHeight: 50
-            visible: Qt.platform.os === "android" && !rootItem.qzFolderGrantSaved
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

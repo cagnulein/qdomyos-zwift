@@ -157,7 +157,7 @@ ColumnLayout {
         // QZ folder the page restores them by itself
         Button {
             height: 50
-            visible: Qt.platform.os === "android" && !rootItem.qzFolderGrantSaved
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

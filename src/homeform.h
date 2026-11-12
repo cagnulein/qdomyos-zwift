@@ -199,6 +199,9 @@ class homeform : public QObject {
     // Android: a saved grant on the QZ folder; the lists then restore files of a previous
     // install by themselves and hide their restore button
     Q_PROPERTY(bool qzFolderGrantSaved READ qzFolderGrantSaved NOTIFY qzFolderGrantSavedChanged)
+    // Android 11+ with the QZ folder in Documents: only there files of a previous install stay
+    // in the folder and cannot be read; elsewhere there is nothing to restore
+    Q_PROPERTY(bool qzFolderRestorable READ qzFolderRestorable NOTIFY qzFolderGrantSavedChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -794,6 +797,7 @@ public:
     // the user agreed: the folder picker opens, even with a saved grant
     Q_INVOKABLE void restoreFolderFiles();
     bool qzFolderGrantSaved() const { return m_qzFolderGrantSaved; }
+    bool qzFolderRestorable() const { return m_qzFolderRestorable; }
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
@@ -1202,6 +1206,7 @@ public:
     // and no question on request meanwhile
     bool m_folderRestoreQuiet = false;
     bool m_qzFolderGrantSaved = false;
+    bool m_qzFolderRestorable = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;

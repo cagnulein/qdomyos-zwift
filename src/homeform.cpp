@@ -9847,8 +9847,16 @@ void homeform::updateQzFolderGrantSaved() {
     if (clearAndroidJniException("CustomQtActivity.hasQzFolderGrant")) {
         return;
     }
-    if (m_qzFolderGrantSaved != static_cast<bool>(saved)) {
+    // the same choice of folder as getWritableAppDir(); before Android 11 the files of a
+    // previous install stay readable, and the folder in Android/data goes away with the app
+    QSettings settings;
+    const bool documentsFolder =
+        settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool() ||
+        QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    const bool restorable = documentsFolder && QtAndroid::androidSdkVersion() >= 30;
+    if (m_qzFolderGrantSaved != static_cast<bool>(saved) || m_qzFolderRestorable != restorable) {
         m_qzFolderGrantSaved = saved;
+        m_qzFolderRestorable = restorable;
         emit qzFolderGrantSavedChanged();
     }
 #endif
@@ -9891,9 +9899,16 @@ void homeform::recoverFolderRestoreCopies() {
 
 void homeform::folderPageOpened() {
     // the grant may have come or gone elsewhere (history import, system settings)
+    const bool hadGrant = m_qzFolderGrantSaved;
     updateQzFolderGrantSaved();
     recoverFolderRestoreCopies();
-    if (m_folderRestoreTried) {
+    if (!m_qzFolderRestorable) {
+        return;
+    }
+    // a grant given elsewhere since the last visit hides the restore button, so the folders
+    // are checked once more, quietly; a grant from this restore is already known here
+    const bool grantNew = m_qzFolderGrantSaved && !hadGrant;
+    if (m_folderRestoreTried && !grantNew) {
         return;
     }
     m_folderRestoreTried = true;
