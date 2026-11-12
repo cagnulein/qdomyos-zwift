@@ -274,7 +274,9 @@ ColumnLayout {
                 onClicked: profileCard.activate()
                 onPressAndHold: askDeleteProfileAt(index)
                 Accessible.role: Accessible.Button
-                Accessible.name: profileCard.profileName
+                // the labels of the card are ignored (below), so "Active" is read with the name
+                Accessible.name: profileCard.active ? profileCard.profileName + ", " + qsTr("Active")
+                                                    : profileCard.profileName
                 Accessible.onPressAction: profileCard.activate()
             }
 
@@ -303,7 +305,11 @@ ColumnLayout {
                 anchors.rightMargin: 12
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 2
+                // the card is read through cardArea: a touch of the screen reader goes to the deepest
+                // accessible item under the finger, and these labels, drawn above cardArea, would take
+                // it from the card (the focus went to the whole window)
                 Label {
+                    Accessible.ignored: true
                     width: parent.width
                     text: profileCard.profileName
                     color: profileCard.selected ? window.ui.accent : window.ui.textMain
@@ -312,6 +318,7 @@ ColumnLayout {
                     elide: Text.ElideRight
                 }
                 Label {
+                    Accessible.ignored: true
                     visible: profileCard.active
                     text: qsTr("Active")
                     color: window.ui.textMuted
