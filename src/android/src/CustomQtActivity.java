@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -37,6 +38,23 @@ import java.util.WeakHashMap;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
+
+    // Use Android's view feedback API to honor the system's haptic preference.
+    // Invoked from QZ's QML/Qt thread, so the action is posted to Android's UI thread.
+    public void playControlHaptic() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View root = getWindow().getDecorView();
+                if (root != null) {
+                    int kind = Build.VERSION.SDK_INT >= 30
+                            ? HapticFeedbackConstants.CONFIRM
+                            : HapticFeedbackConstants.VIRTUAL_KEY;
+                    root.performHapticFeedback(kind);
+                }
+            }
+        });
+    }
     private static final int DOCUMENT_PICKER_PROFILE_REQUEST_CODE = 4101;
     private static final int DOCUMENT_PICKER_TRAINING_REQUEST_CODE = 4102;
     private static final int DOCUMENT_PICKER_GPX_REQUEST_CODE = 4103;

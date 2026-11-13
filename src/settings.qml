@@ -2503,6 +2503,7 @@ import AndroidStatusBar 1.0
             property string ui_accent: "violet"
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
+            property bool haptic_feedback_enabled: false
 
         }
 
@@ -2518,6 +2519,7 @@ import AndroidStatusBar 1.0
             function onTheme_tile_shadow_colorChanged() { window.tileSettingChanged("theme_tile_shadow_color", settings.theme_tile_shadow_color) }
             function onTheme_tile_secondline_textsizeChanged() { window.tileSettingChanged("theme_tile_secondline_textsize", settings.theme_tile_secondline_textsize) }
             function onTrainprogram_sound_on_segmentChanged() { window.tileSettingChanged("trainprogram_sound_on_segment", settings.trainprogram_sound_on_segment) }
+            function onHaptic_feedback_enabledChanged() { window.tileSettingChanged("haptic_feedback_enabled", settings.haptic_feedback_enabled) }
         }
 
         // The heart rate sensor bar (HeartRateSuggestion.qml) saves its answer from C++, and this copy does not
@@ -2862,6 +2864,36 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    // Native feedback for QZ controls; off by default.
+                    IndicatorOnlySwitch {
+                        id: hapticFeedbackSwitch
+                        text: qsTr("Vibration feedback on controls")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.haptic_feedback_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.haptic_feedback_enabled = checked }
+                    }
+                    Label {
+                        text: qsTr("Vibrate when activating QZ workout controls, including Start/Pause, Stop, Lap and adjustable tiles. Android and iOS only. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
