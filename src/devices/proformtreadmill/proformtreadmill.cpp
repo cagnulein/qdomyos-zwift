@@ -4472,8 +4472,17 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             tseries8WorkoutStarted = true;
         }
         if (nordictrack_tseries8_treadmill && !initialStateReported && homeform::singleton()) {
-            initialStateReported = true;
-            homeform::singleton()->syncTreadmillStateFromDevice(Speed.value() > 0);
+            // The first telemetry notification can still report zero speed while a
+            // Start command is in flight. Do not turn the UI back to Paused: the
+            // belt may already be starting and the speed controls would be blocked.
+            // Keep the normal stopped-state sync when no Start was requested.
+            const bool startPendingOrSent = requestStart != -1 || tseries8WorkoutStarted;
+            if (Speed.value() > 0 || !startPendingOrSent) {
+                initialStateReported = true;
+                homeform::singleton()->syncTreadmillStateFromDevice(Speed.value() > 0);
+            } else {
+                emit debug(QStringLiteral("T Series 8: ignoring zero-speed initial telemetry during Start"));
+            }
         }
         if (watts(weight))
             KCal +=
