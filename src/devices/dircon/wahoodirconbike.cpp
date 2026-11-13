@@ -188,6 +188,8 @@ void wahoodirconbike::sendSubscribeCharacteristic(quint16 uuid) {
     packet.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
     packet.uuid = uuid;
     packet.isRequest = true;
+    // DirCon requires a one-byte enable flag (0x01) for notification subscriptions.
+    packet.additional_data.append(char(0x01));
 
     QByteArray data = packet.encode(sequenceNumber - 2);
     tcpSocket->write(data);
