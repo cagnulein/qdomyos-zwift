@@ -117,8 +117,8 @@ class KettlerUSB : public QThread {
     // device port
     QString deviceFilename;
 #ifdef WIN32
-    HANDLE devicePort;
-    DCB deviceSettings;
+    HANDLE devicePort = INVALID_HANDLE_VALUE;
+    DCB deviceSettings = {};
 #else
     int devicePort;
     struct termios deviceSettings;

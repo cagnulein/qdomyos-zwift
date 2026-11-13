@@ -16,6 +16,8 @@
 
 #include "KettlerUSB.h"
 
+#include <string>
+
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -204,7 +206,11 @@ void KettlerUSB::run() {
     pvars.unlock();
 
     // Open the device
-    if (openPort()) {
+    if (const int openError = openPort()) {
+        qWarning() << "Kettler serial port open failed:" << deviceFilename << "error:" << openError;
+        pvars.lock();
+        deviceStatus = 0;
+        pvars.unlock();
         quit(2);
         return;
     } else {
@@ -311,7 +317,11 @@ QString KettlerUSB::readResponse() {
 
 int KettlerUSB::closePort() {
 #ifdef WIN32
-    return (int)!CloseHandle(devicePort);
+    if (devicePort == INVALID_HANDLE_VALUE)
+        return 0;
+    const BOOL closed = CloseHandle(devicePort);
+    devicePort = INVALID_HANDLE_VALUE;
+    return closed ? 0 : -1;
 #else
     tcflush(devicePort, TCIOFLUSH);
     return close(devicePort);
@@ -377,54 +387,79 @@ int KettlerUSB::openPort() {
 
     tcflush(devicePort, TCIOFLUSH);
 #else
-    // WINDOWS IMPLEMENTATION
-    COMMTIMEOUTS timeouts;
-    QString portSpec;
-    int portnum = deviceFilename.midRef(3).toString().toInt();
-    if (portnum < 10)
-        portSpec = deviceFilename;
-    else
-        portSpec = "\\\\.\\" + deviceFilename;
-
-    wchar_t deviceFilenameW[32];
-    MultiByteToWideChar(CP_ACP, 0, portSpec.toLatin1(), -1, (LPWSTR)deviceFilenameW, sizeof(deviceFilenameW));
-
-    devicePort = CreateFile(deviceFilenameW, GENERIC_READ | GENERIC_WRITE,
-                            FILE_SHARE_DELETE | FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-
-    if (devicePort == INVALID_HANDLE_VALUE)
+    // Use the native Win32 serial API on both MSVC and MinGW builds.
+    QString portSpec = deviceFilename.trimmed();
+    if (portSpec.isEmpty()) {
+        qWarning() << "Kettler serial port is not configured";
         return -1;
+    }
+    if (portSpec.startsWith(QStringLiteral("COM"), Qt::CaseInsensitive)) {
+        bool validPortNumber = false;
+        const int portNumber = portSpec.mid(3).toInt(&validPortNumber);
+        if (!validPortNumber || portNumber < 1) {
+            qWarning() << "Invalid Kettler COM port:" << portSpec;
+            return -1;
+        }
+        if (portNumber >= 10)
+            portSpec.prepend(QStringLiteral("\\\\.\\"));
+    }
 
-    if (GetCommState(devicePort, &deviceSettings) == false)
+    // CreateFileW expects a wide-character count/path, not a byte buffer.
+    const std::wstring widePortSpec = portSpec.toStdWString();
+    devicePort = CreateFileW(widePortSpec.c_str(), GENERIC_READ | GENERIC_WRITE,
+                             0, nullptr, OPEN_EXISTING, 0, nullptr);
+    if (devicePort == INVALID_HANDLE_VALUE) {
+        qWarning() << "Kettler CreateFileW failed for" << portSpec << "Win32 error" << GetLastError();
         return -1;
+    }
 
-    // Convert int baudrate to Windows CBR constant
+    if (!GetCommState(devicePort, &deviceSettings)) {
+        qWarning() << "Kettler GetCommState failed:" << GetLastError();
+        closePort();
+        return -1;
+    }
+
+    // Preserve the configurable 9600/57600 baud modes; use 8N1 without flow control.
     switch (baudrate) {
         case 57600: deviceSettings.BaudRate = CBR_57600; break;
         case 9600:
         default: deviceSettings.BaudRate = CBR_9600; break;
     }
-    deviceSettings.fParity = NOPARITY;
+    deviceSettings.Parity = NOPARITY;
+    deviceSettings.fParity = FALSE;
     deviceSettings.ByteSize = 8;
     deviceSettings.StopBits = ONESTOPBIT;
-    deviceSettings.fBinary = true;
-    deviceSettings.fOutX = 0;
-    deviceSettings.fInX = 0;
+    deviceSettings.fBinary = TRUE;
+    deviceSettings.fOutX = FALSE;
+    deviceSettings.fInX = FALSE;
+    deviceSettings.fOutxCtsFlow = FALSE;
+    deviceSettings.fOutxDsrFlow = FALSE;
+    deviceSettings.fDsrSensitivity = FALSE;
     deviceSettings.fRtsControl = RTS_CONTROL_ENABLE;
     deviceSettings.fDtrControl = DTR_CONTROL_ENABLE;
-    deviceSettings.fOutxCtsFlow = FALSE;
 
-    if (SetCommState(devicePort, &deviceSettings) == false) {
-        CloseHandle(devicePort);
+    if (!SetCommState(devicePort, &deviceSettings)) {
+        qWarning() << "Kettler SetCommState failed:" << GetLastError();
+        closePort();
         return -1;
     }
 
-    timeouts.ReadIntervalTimeout = 0;
-    timeouts.ReadTotalTimeoutConstant = 2000;
-    timeouts.ReadTotalTimeoutMultiplier = 50;
+    // rawRead() already has a 500 ms line-assembly loop. ReadFile must
+    // return available bytes immediately instead of waiting for a 256-byte
+    // buffer (the old 2000 + 50 * 256 ms timeout could stall each poll).
+    COMMTIMEOUTS timeouts = {};
+    timeouts.ReadIntervalTimeout = MAXDWORD;
+    timeouts.ReadTotalTimeoutConstant = 0;
+    timeouts.ReadTotalTimeoutMultiplier = 0;
     timeouts.WriteTotalTimeoutConstant = 2000;
     timeouts.WriteTotalTimeoutMultiplier = 0;
-    SetCommTimeouts(devicePort, &timeouts);
+    if (!SetCommTimeouts(devicePort, &timeouts)) {
+        qWarning() << "Kettler SetCommTimeouts failed:" << GetLastError();
+        closePort();
+        return -1;
+    }
+
+    qDebug() << "Kettler Windows serial opened:" << portSpec << "baud:" << baudrate;
 #endif
 
     return 0;
@@ -445,11 +480,16 @@ int KettlerUSB::rawWrite(const char *bytes, int size) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
     rc = size;
 #elif defined(WIN32)
-    DWORD cBytes;
-    rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
-    if (!rc)
+    DWORD cBytes = 0;
+    if (!WriteFile(devicePort, bytes, static_cast<DWORD>(size), &cBytes, nullptr)) {
+        qWarning() << "Kettler WriteFile failed:" << GetLastError();
         return -1;
-    return rc;
+    }
+    if (cBytes != static_cast<DWORD>(size)) {
+        qWarning() << "Kettler serial short write:" << cBytes << "of" << size;
+        return -1;
+    }
+    return static_cast<int>(cBytes);
 #else
     rc = write(devicePort, bytes, size);
     if (rc != -1)
@@ -496,8 +536,12 @@ QString KettlerUSB::rawRead() {
         char buffer[256];
 #if defined(WIN32)
         DWORD cBytes = 0;
-        if (ReadFile(devicePort, buffer, sizeof(buffer), &cBytes, NULL) && cBytes > 0)
-            rxBuffer.append(buffer, (int)cBytes);
+        if (!ReadFile(devicePort, buffer, sizeof(buffer), &cBytes, nullptr)) {
+            qWarning() << "Kettler ReadFile failed:" << GetLastError();
+            break;
+        }
+        if (cBytes > 0)
+            rxBuffer.append(buffer, static_cast<int>(cBytes));
 #else
         int rc = read(devicePort, buffer, sizeof(buffer));
         if (rc > 0)
