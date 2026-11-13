@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
+import QtGraphicalEffects 1.12
 
 // Only appears on the Home page if a device is missing or no activity metrics
 // have arrived. Never blocks or changes the training state.
@@ -14,6 +15,11 @@ Item {
     property int idleSeconds: 0
     property bool showHint: false
     property string reason: ""
+    // The button is on the screen: the modern home grid keeps room for it under the last row
+    readonly property bool shown: activeOnHome && showHint
+    // Modern look: the button, the window and its controls in the theme colours; the classic
+    // look stays the Material one of the upstream
+    readonly property bool modern: window.ui.modern
 
     onActiveOnHomeChanged: {
         if (!activeOnHome) {
@@ -50,7 +56,7 @@ Item {
     RoundButton {
         id: helpButton
         anchors.fill: parent
-        visible: support.activeOnHome && support.showHint
+        visible: !support.modern && support.shown
         text: "?"
         font.pixelSize: 24
         font.bold: true
@@ -58,6 +64,47 @@ Item {
         Accessible.role: Accessible.Button
         Accessible.name: qsTr("Contact QZ support")
         Accessible.description: qsTr("Prepare a support email with diagnostics")
+    }
+
+    // Modern look: the small floating action button of Material 3 - 40 dp, corners 12, an accent
+    // tinted container with the icon in the accent and a shadow, as it floats over the tiles -
+    // in the 56 dp the finger can hit
+    AbstractButton {
+        id: modernHelpButton
+        anchors.fill: parent
+        visible: support.modern && support.shown
+        onClicked: supportDialog.open()
+        background: Rectangle {
+            anchors.centerIn: parent
+            width: 40
+            height: 40
+            radius: 12
+            color: Qt.tint(window.ui.surface, window.ui.alpha(window.ui.accent,
+                                                             modernHelpButton.down ? 0.28 : 0.16))
+            layer.enabled: modernHelpButton.visible
+            layer.effect: DropShadow {
+                transparentBorder: true
+                horizontalOffset: 0
+                verticalOffset: 2
+                radius: 8
+                samples: 17
+                color: Qt.rgba(0, 0, 0, window.ui.dark ? 0.5 : 0.25)
+            }
+        }
+        contentItem: Item {
+            UiIcon {
+                anchors.centerIn: parent
+                width: 24
+                height: 24
+                name: "help"
+                color: window.ui.accent
+            }
+        }
+        Accessible.role: Accessible.Button
+        Accessible.name: qsTr("Contact QZ support")
+        Accessible.description: qsTr("Prepare a support email with diagnostics")
+        Accessible.focusable: true
+        Accessible.onPressAction: supportDialog.open()
     }
 
     Dialog {
@@ -93,12 +140,15 @@ Item {
         height: mobile ? visibleBottom : Math.min(parent.height - 24, 560)
 
         background: Rectangle {
-            color: Material.theme === Material.Dark ? "#303030" : "#fafafa"
+            color: support.modern ? window.ui.bg
+                                  : (Material.theme === Material.Dark ? "#303030" : "#fafafa")
         }
 
         header: Item {
             implicitHeight: 62 + window.getTopPadding()
+            // Modern look: no lines, the page colour runs from the title to the buttons
             Rectangle {
+                visible: !support.modern
                 height: 1
                 anchors.bottom: parent.bottom
                 width: parent.width
@@ -106,8 +156,9 @@ Item {
             }
             Label {
                 text: qsTr("QZ Support")
-                font.pixelSize: 20
-                font.bold: true
+                font.pixelSize: support.modern ? window.ui.fontHeadline : 20
+                font.weight: support.modern ? Font.DemiBold : Font.Bold
+                color: support.modern ? window.ui.textMain : Material.foreground
                 anchors.left: parent.left
                 anchors.leftMargin: 16 + window.getLeftPadding()
                 anchors.verticalCenter: parent.verticalCenter
@@ -130,7 +181,17 @@ Item {
             }
             ToolButton {
                 id: closeDialogButton
-                text: "\u2715"
+                // Modern look: the close icon of the icon font, as the other icons there; the system
+                // font of an older Android may have no U+2715 (the Android emulator of CI draws a box)
+                text: support.modern ? "" : "\u2715"
+                UiIcon {
+                    visible: support.modern
+                    anchors.centerIn: parent
+                    width: 24
+                    height: 24
+                    name: "close"
+                    color: window.ui.textMain
+                }
                 anchors.right: parent.right
                 anchors.rightMargin: 8 + window.getRightPadding()
                 anchors.verticalCenter: parent.verticalCenter
@@ -162,6 +223,7 @@ Item {
                 Label {
                     width: parent.width
                     wrapMode: Text.WordWrap
+                    color: support.modern ? window.ui.textMain : Material.foreground
                     text: qsTr("Tell us what is not working. QZ will add your device and app information.")
                 }
 
@@ -173,10 +235,42 @@ Item {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     Accessible.name: qsTr("Describe the problem")
+
+                    // Classic: the paddings, colours and underline of the Qt 5.15 Material
+                    // TextArea as is (qtquickcontrols2 5.15, material/TextArea.qml). Modern: a
+                    // filled field with rounded corners like UiTextField, the accent ring shows
+                    // the focus. leftPadding/rightPadding unset are the padding of the control
+                    topPadding: support.modern ? 12 : 8
+                    bottomPadding: support.modern ? 12 : 16
+                    leftPadding: support.modern ? 14 : padding
+                    rightPadding: support.modern ? 14 : padding
+                    color: support.modern ? window.ui.textMain
+                                          : (enabled ? Material.foreground : Material.hintTextColor)
+                    placeholderTextColor: support.modern ? window.ui.textMuted : Material.hintTextColor
+                    background: Item {
+                        implicitWidth: 120
+                        Rectangle {
+                            visible: !support.modern
+                            y: parent.height - height - issueDescription.bottomPadding / 2
+                            width: parent.width
+                            height: issueDescription.activeFocus ? 2 : 1
+                            color: issueDescription.activeFocus ? issueDescription.Material.accentColor
+                                                                : issueDescription.Material.hintTextColor
+                        }
+                        UiFrame {
+                            visible: support.modern
+                            anchors.fill: parent
+                            radius: 12
+                            fill: window.ui.surfaceHighest
+                            stroke: window.ui.accent
+                            strokeWidth: issueDescription.activeFocus ? 2 : 0
+                        }
+                    }
                 }
 
                 CheckBox {
                     id: includeDebugLog
+                    visible: !support.modern
                     width: parent.width
                     text: qsTr("Attach debug log if available")
                     // the debug log QZ writes by itself for a new user is there to be sent
@@ -184,11 +278,33 @@ Item {
                     Accessible.name: text
                 }
 
+                // Modern look: the switch of the settings pages instead of the square box; the
+                // title wraps on as many lines as it takes
+                IndicatorOnlySwitch {
+                    id: includeDebugLogSwitch
+                    visible: support.modern
+                    width: parent.width
+                    leftPadding: 0
+                    rightPadding: 0
+                    text: qsTr("Attach debug log if available")
+                    checked: window.rootReady && rootItem.firstSetupLogActive()
+                    Accessible.name: text
+                    // Qt 5.15: the double tap of the screen reader sends no clicked() to a SwitchDelegate
+                    Accessible.onPressAction: toggle()
+                    // The whole row toggles, as the check box of the classic look did with its text;
+                    // IndicatorOnlySwitch alone takes only a tap on the switch (settings pages)
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: includeDebugLogSwitch.toggle()
+                    }
+                }
+
                 Label {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    font.pixelSize: 12
-                    opacity: 0.8
+                    font.pixelSize: support.modern ? window.ui.fontCaption : 12
+                    opacity: support.modern ? 1 : 0.8
+                    color: support.modern ? window.ui.textMuted : Material.foreground
                     text: qsTr("You can review or edit the email before sending it. Nothing is sent automatically.")
                 }
             }
@@ -197,34 +313,48 @@ Item {
         // This is deliberately a real Dialog footer, not another child of the
         // Flickable: Cancel and Open email must remain visible while typing.
         footer: Item {
-            implicitHeight: 64 + (Qt.inputMethod.visible ? 0 : window.getBottomPadding())
+            // Modern look: taller with the buttons at a large text size, so they stay below the line
+            // of the form
+            implicitHeight: (support.modern ? Math.max(64, footerButtons.height + 16) : 64)
+                            + (Qt.inputMethod.visible ? 0 : window.getBottomPadding())
             Rectangle {
+                visible: !support.modern
                 width: parent.width
                 height: 1
                 anchors.top: parent.top
                 color: Material.theme === Material.Dark ? "#555555" : "#dddddd"
             }
             Row {
+                id: footerButtons
                 anchors.right: parent.right
                 anchors.rightMargin: 16 + window.getRightPadding()
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 8 + (Qt.inputMethod.visible ? 0 : window.getBottomPadding())
                 spacing: 8
-                Button {
+                // Modern look: the two buttons share the width, easy to reach with the thumb;
+                // classic: as wide as their labels, at the right
+                readonly property real halfWidth: (parent.width - 32 - window.getLeftPadding()
+                                                   - window.getRightPadding() - spacing) / 2
+                UiButton {
+                    width: support.modern ? footerButtons.halfWidth : implicitWidth
                     text: qsTr("Cancel")
                     onClicked: {
                         Qt.inputMethod.hide()
                         supportDialog.close()
                     }
                 }
-                Button {
+                UiButton {
+                    width: support.modern ? footerButtons.halfWidth : implicitWidth
+                    // Modern look: the action of the window, in the accent
+                    highlighted: support.modern
                     text: qsTr("Open email")
                     onClicked: {
                         // Close the software keyboard before opening the native
                         // iOS mail composer / Android share chooser.
                         Qt.inputMethod.hide()
+                        var attachLog = support.modern ? includeDebugLogSwitch.checked : includeDebugLog.checked
                         if (rootItem.composeSupportEmail(issueDescription.text, support.reason,
-                                                         includeDebugLog.checked)) {
+                                                         attachLog)) {
                             supportDialog.close()
                         }
                     }

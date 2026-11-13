@@ -147,6 +147,14 @@
         <translation>Möchten Sie das aktuelle Training wirklich beenden?</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>Ruhe</translation>
     </message>
@@ -338,6 +346,18 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Diese App sollte sich automatisch mit Ihrem Fahrrad/Laufband/Rudergerät verbinden. &lt;b&gt;Wenn das nicht der Fall ist, überprüfen Sie bitte Folgendes:&lt;/b&gt;&lt;br&gt;1) Ihre Echelon/Domyos-App MUSS geschlossen sein, während qdomyos-zwift läuft;&lt;br&gt;2) Bluetooth und die Bluetooth-Berechtigungen MÜSSEN aktiviert sein;&lt;br&gt;3) Ihr Fahrrad/Laufband/Rudergerät sollte eingeschaltet sein, BEVOR Sie diese App starten;&lt;br&gt;4) Versuchen Sie, Ihr Gerät neu zu starten&lt;br&gt;&lt;br&gt;Wenn Ihr Fahrrad/Laufband alle 30 Sekunden die Verbindung verliert, versuchen Sie, die Einstellung „virtuelles Gerät“ in der linken Leiste zu deaktivieren.&lt;br&gt;&lt;br&gt;Bei Problemen können Sie mich gerne unter roberto.viola83@gmail.com kontaktieren.&lt;br&gt;&lt;br&gt;&lt;b&gt;Gute Fahrt!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ schließt ausdrücklich die Haftung für&lt;br&gt;unmittelbare und mittelbare Schäden aus und übernimmt&lt;br&gt;keine Verantwortung für Verluste&lt;br&gt;oder Schäden, die einer Person durch&lt;br&gt;die Nutzung oder den Missbrauch der App entstehen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Suche nach Ihrem Gerät…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Schalten Sie Ihr Fahrrad, Laufband oder Rudergerät ein: QZ verbindet sich automatisch.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Keine Verbindung?</translation>
     </message>
 </context>
 <context>

@@ -209,6 +209,14 @@ Would you like to do that now?</source>
         <translation>휴식</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>매우 가벼움</translation>
     </message>
@@ -338,6 +346,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>이 앱은 자전거/트레드밀/로잉 머신에 자동으로 연결됩니다. &lt;b&gt;연결되지 않으면 다음을 확인하세요&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift가 실행되는 동안 Echelon/Domyos 앱은 반드시 닫혀 있어야 합니다.&lt;br&gt;2) Bluetooth와 Bluetooth 권한을 반드시 모두 켜야 합니다&lt;br&gt;3) 이 앱을 시작하기 전에 자전거/트레드밀/로잉 머신의 전원을 켜야 합니다&lt;br&gt;4) 기기를 다시 시작해 보세요&lt;br&gt;&lt;br&gt;자전거/트레드밀이 30초마다 연결이 끊기면 왼쪽 메뉴에서 [가상 기기 사용] 설정을 꺼 보세요.&lt;br&gt;&lt;br&gt;문제가 있으면 언제든지 roberto.viola83@gmail.com으로 연락하세요.&lt;br&gt;&lt;br&gt;&lt;b&gt;즐거운 라이드 되세요!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ는 앱의 사용 또는 오용으로 인해&lt;br&gt;발생한 부수적 또는 결과적 손해에 대한&lt;br&gt;책임을 명시적으로 부인하며, 누구에게 발생한&lt;br&gt;어떠한 손실이나 손해에 대해서도&lt;br&gt;책임을 지지 않습니다.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>운동 기구를 찾는 중…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>자전거, 트레드밀 또는 로잉 머신의 전원을 켜세요. QZ가 자동으로 연결합니다.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>연결되지 않나요?</translation>
     </message>
 </context>
 <context>

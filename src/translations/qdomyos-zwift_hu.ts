@@ -193,6 +193,14 @@ Szeretné most újraindítani?</translation>
         <translation>Pihenő</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Nagyon könnyű</translation>
     </message>
@@ -322,6 +330,18 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Az alkalmazásnak automatikusan csatlakoznia kell a kerékpárhoz, futópadhoz vagy evezőgéphez. &lt;b&gt;Ha ez nem történik meg, ellenőrizze a következőket&lt;/b&gt;:&lt;br&gt;1) az Echelon/Domyos alkalmazás legyen BEZÁRVA, amíg a qdomyos-zwift fut;&lt;br&gt;2) a Bluetooth és a Bluetooth-engedélyek legyenek BEKAPCSOLVA&lt;br&gt;3) a kerékpárt, futópadot vagy evezőgépet az alkalmazás indítása ELŐTT kapcsolja be&lt;br&gt;4) próbálja meg újraindítani az eszközét&lt;br&gt;&lt;br&gt;Ha a kerékpár vagy a futópad 30 másodpercenként leválik, próbálja meg kikapcsolni a bal oldali sávban a „virtuális eszköz” beállítást.&lt;br&gt;&lt;br&gt;Probléma esetén nyugodtan írjon nekem: roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Jó edzést!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;A QZ kifejezetten kizár minden felelősséget&lt;br&gt;a véletlen vagy következményes károkért, és nem vállal&lt;br&gt;felelősséget semmilyen veszteségért&lt;br&gt;vagy kárért, amely bárkit&lt;br&gt;az alkalmazás használata vagy helytelen használata miatt ér.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Edzőgép keresése…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Kapcsolja be a kerékpárt, a futópadot vagy az evezőgépet: a QZ automatikusan csatlakozik hozzá.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Nem sikerül csatlakozni?</translation>
     </message>
 </context>
 <context>

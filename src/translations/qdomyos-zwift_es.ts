@@ -147,6 +147,14 @@
         <translation>¿Realmente quieres detener el entrenamiento actual?</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Detener</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>Descanso</translation>
     </message>
@@ -338,6 +346,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Esta aplicación debería conectarse automáticamente a tu bicicleta/cinta de correr/máquina de remo. &lt;b&gt;Si no lo hace, comprueba lo siguiente&lt;/b&gt;:&lt;br&gt;1) Tu aplicación Echelon/Domyos DEBE estar cerrada mientras se ejecuta qdomyos-zwift;&lt;br&gt;2) Bluetooth y los permisos de Bluetooth DEBEN estar activados&lt;br&gt;3) Tu bicicleta/cinta de correr/máquina de remo debe estar encendida ANTES de iniciar esta aplicación&lt;br&gt;4) Intenta reiniciar el dispositivo&lt;br&gt;&lt;br&gt;Si tu bicicleta/cinta de correr se desconecta cada 30 segundos, prueba a desactivar el ajuste «dispositivo virtual» en la barra izquierda.&lt;br&gt;&lt;br&gt;Si tienes algún problema, puedes escribirme a roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;¡Que disfrutes del entrenamiento!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ declina expresamente toda responsabilidad por&lt;br&gt;daños incidentales o indirectos y no asume&lt;br&gt;ninguna responsabilidad por pérdidas&lt;br&gt;o daños sufridos por cualquier persona como consecuencia&lt;br&gt;del uso o mal uso de la aplicación.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Buscando tu equipo…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Enciende tu bicicleta, cinta de correr o remo: QZ se conecta automáticamente.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>¿No se conecta?</translation>
     </message>
 </context>
 <context>

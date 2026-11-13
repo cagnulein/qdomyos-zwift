@@ -147,6 +147,14 @@
         <translation>現在のワークアウトを本当に停止しますか？</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>ストップ</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>休息</translation>
     </message>
@@ -338,6 +346,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>このアプリはお使いのバイク/トレッドミル/ローイングマシンに自動的に接続されます。&lt;b&gt;接続されない場合は、次を確認してください&lt;/b&gt;：&lt;br&gt;1) qdomyos-zwiftの実行中は、Echelon/Domyosアプリを必ず閉じてください。&lt;br&gt;2) Bluetoothと、Bluetoothの権限の両方を必ず有効にしてください&lt;br&gt;3) このアプリを起動する前に、バイク/トレッドミル/ローイングマシンの電源を入れてください&lt;br&gt;4) デバイスを再起動してみてください&lt;br&gt;&lt;br&gt;バイク/トレッドミルが30秒ごとに切断される場合は、左側のバーにある「バーチャルデバイスを有効化」設定をオフにしてみてください。&lt;br&gt;&lt;br&gt;問題がある場合は、お気軽に roberto.viola83@gmail.com までご連絡ください。&lt;br&gt;&lt;br&gt;&lt;b&gt;良いライドを！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZは、本アプリの使用または誤用の結果として&lt;br&gt;生じた付随的損害または結果的損害について&lt;br&gt;一切の責任を明示的に否認し、いかなる人が被った&lt;br&gt;損失または損害についても&lt;br&gt;責任を負いません。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>機器を探しています…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>バイク、トレッドミル、またはローイングマシンの電源を入れてください。QZが自動的に接続します。</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>接続できませんか？</translation>
     </message>
 </context>
 <context>

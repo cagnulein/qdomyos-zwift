@@ -209,6 +209,14 @@ Wil je dat nu doen?</translation>
         <translation>Rust</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Zeer licht</translation>
     </message>
@@ -338,6 +346,18 @@ Wil je de vereiste voorzieningen inschakelen?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Deze app zou automatisch verbinding moeten maken met je fiets, loopband of roeitrainer. &lt;b&gt;Lukt dat niet, controleer dan het volgende&lt;/b&gt;:&lt;br&gt;1) je Echelon/Domyos-app MOET gesloten zijn zolang qdomyos-zwift draait;&lt;br&gt;2) Bluetooth en de Bluetooth-machtigingen MOETEN ingeschakeld zijn&lt;br&gt;3) je fiets, loopband of roeitrainer moet aanstaan VOORDAT je deze app start&lt;br&gt;4) probeer je apparaat opnieuw op te starten&lt;br&gt;&lt;br&gt;Verbreekt je fiets of loopband elke 30 seconden de verbinding, schakel dan de instelling ‘virtueel apparaat’ in de linkerbalk uit.&lt;br&gt;&lt;br&gt;Heb je problemen, neem dan gerust contact met me op via roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Veel trainingsplezier!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wijst uitdrukkelijk elke aansprakelijkheid af voor&lt;br&gt;incidentele schade of gevolgschade en aanvaardt&lt;br&gt;geen verantwoordelijkheid of aansprakelijkheid voor verlies&lt;br&gt;of schade die iemand lijdt als gevolg van&lt;br&gt;het gebruik of misbruik van de app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Je apparaat wordt gezocht…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Zet je fiets, loopband of roeitrainer aan: QZ maakt er automatisch verbinding mee.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Geen verbinding?</translation>
     </message>
 </context>
 <context>
