@@ -17,7 +17,9 @@
 #ifndef _KettlerUSB_h
 #define _KettlerUSB_h 1
 
+#include "kettler_power_filter.h"
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QMutex>
 #include <QString>
@@ -59,7 +61,7 @@
 #define KETTLER_PAUSED 0x02
 
 /* default operation mode */
-#define DEFAULT_POWER 100.00
+#define DEFAULT_POWER 25.00
 
 class KettlerUSB : public QThread {
 
@@ -98,9 +100,13 @@ class KettlerUSB : public QThread {
     QString readResponse();
     void parseStatusResponse(const QString &response);
     void initSequence(); // Send initialization commands
+    void sendPowerCommand(double power);
+    void pollNativeProtocol();
 
     // Mutex for controlling accessing private data
     QMutex pvars;
+    KettlerPowerFilter powerFilter;
+    QElapsedTimer powerFilterClock;
 
     // INBOUND TELEMETRY - all volatile since updated by run() thread
     volatile double devicePower;      // current output power in Watts
