@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1222,6 +1226,10 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <source>Other folders</source>
         <translation>다른 폴더</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,8 +1452,12 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>다른 폴더</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>프로그램 복원</translation>
+        <translation type="vanished">프로그램 복원</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3678,6 +3690,14 @@ This may take a few moments on first startup.</source>
         <translation>속도 변경 </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>복원된 파일: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>이전 설치의 파일을 찾지 못했습니다.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON 구문 분석 오류</translation>
     </message>
@@ -3707,11 +3727,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>복원된 훈련 프로그램: %1.</translation>
+        <translation type="vanished">복원된 훈련 프로그램: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
+        <translation type="vanished">이전 설치의 훈련 프로그램을 찾지 못했습니다.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4300,20 @@ Do you want to start it now?</source>
         <translation>저장했습니다! 앱의 개인 폴더를 확인하세요.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>이전 설치의 훈련 프로그램, GPX 경로, 설정 파일, 프로필이 QZ 폴더에 남아 있을 수 있습니다.
+찾아보시겠습니까?
+
+다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>이미 Peloton에 연결되어 있습니다. 로그아웃하시겠습니까?</translation>
     </message>
@@ -4501,14 +4535,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>훈련 프로그램</translation>
+        <translation type="vanished">훈련 프로그램</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
+        <translation type="vanished">이전 설치의 훈련 프로그램이 QZ 폴더에 남아 있을 수 있습니다.
 찾아보시겠습니까?
 
 다음 창에서 QZ 폴더 접근을 허용하세요.</translation>
@@ -4748,6 +4782,10 @@ QZ가 이 값을 변경하도록 허용하시겠습니까?
     <message>
         <source>Profiles</source>
         <translation>프로필</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>파일 복원</translation>
     </message>
     <message>
         <source>Save</source>

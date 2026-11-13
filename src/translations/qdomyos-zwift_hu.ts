@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1206,6 +1210,10 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1428,8 +1436,12 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Egyéb mappák</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programok visszaállítása</translation>
+        <translation type="vanished">Programok visszaállítása</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3662,6 +3674,14 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
         <translation>új sebesség: </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Visszaállított fájlok: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Nem található fájl egy korábbi telepítésből.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON-elemzési hiba</translation>
     </message>
@@ -3691,11 +3711,11 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Visszaállított edzésprogramok: %1.</translation>
+        <translation type="vanished">Visszaállított edzésprogramok: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Nem található edzésprogram egy korábbi telepítésből.</translation>
+        <translation type="vanished">Nem található edzésprogram egy korábbi telepítésből.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4264,6 +4284,20 @@ Szeretné most elindítani?</translation>
         <translation>Mentve. Az alkalmazás saját mappájában találja.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai, GPX-útvonalai, beállításfájljai és profiljai még a QZ-mappában vannak.
+Megkeresi őket?
+
+A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Már csatlakozott a Pelotonhoz. Szeretne kijelentkezni?</translation>
     </message>
@@ -4485,14 +4519,14 @@ A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translati
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Edzésprogramok</translation>
+        <translation type="vanished">Edzésprogramok</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
+        <translation type="vanished">Előfordulhat, hogy egy korábbi telepítés edzésprogramjai még a QZ-mappában vannak.
 Megkeresi őket?
 
 A következő ablakban engedélyezze a hozzáférést a QZ-mappához.</translation>
@@ -4732,6 +4766,10 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Profiles</source>
         <translation>Profilok</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Fájlok visszaállítása</translation>
     </message>
     <message>
         <source>Save</source>

@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
@@ -21,6 +22,8 @@ ColumnLayout {
             }
         }
     }
+
+    Component.onCompleted: rootItem.folderPageOpened()
 
     Loader {
         id: fileDialogLoader
@@ -210,11 +213,26 @@ ColumnLayout {
                     showDirs: true
                     sortReversed: true
                 }
+                // files of a previous install were copied back into the QZ folder; reload the
+                // models next to it - the classic one and the one of the modern look
+                Connections {
+                    target: rootItem
+                    function onFolderFilesRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                        currentFolder = modernFolderModel.folder
+                        modernFolderModel.folder = ""
+                        modernFolderModel.folder = currentFolder
+                    }
+                }
                 model: window.ui.modern ? null : folderModel
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
-                        width: parent.width
+                        // not parent.width: while the folder is set again (onFolderFilesRestored)
+                        // the rows go and have no parent for a moment
+                        width: ListView.view.width
                         height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
@@ -261,7 +279,9 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }
@@ -270,29 +290,55 @@ ColumnLayout {
     }
     spacing: 10
 
-    UiButton {
-        id: searchButton
-        height: window.ui.modern ? implicitHeight : 50
-        width: window.ui.modern ? parent.width - 2 * settingsListPage.modernMargin : parent.width
+    RowLayout {
         Layout.fillWidth: window.ui.modern
         Layout.leftMargin: window.ui.modern ? settingsListPage.modernMargin : 0
         Layout.rightMargin: window.ui.modern ? settingsListPage.modernMargin : 0
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: window.ui.modern ? 10 : 0
-        text: qsTr("Other folders")
+        // a layout in a layout fills the height by default, and the fillHeight of the pills lifts its
+        // maximum: the row would take the height of the page; the pills fill the height of the taller one
+        Layout.fillHeight: false
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("settings")
-            } else {
-                fileDialogLoader.active = true
-            }
-        }
         // Modern look: placed by the layout (the list above fills the height), so its bottom
         // margin takes effect - an anchor would override it
         anchors {
             bottom: window.ui.modern ? undefined : parent.bottom
+        }
+        // Classic look: the platform default spacing, as before (8 dp on Android and iOS, 5 px
+        // elsewhere) - a written value would replace it everywhere
+        Binding on spacing { when: window.ui.modern; value: 8; restoreMode: Binding.RestoreBindingOrValue }
+
+        UiButton {
+            id: searchButton
+            height: window.ui.modern ? implicitHeight : 50
+            Layout.fillWidth: window.ui.modern
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: window.ui.modern
+            // modern look: a long label wraps instead of eliding
+            wrapsText: true
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("settings")
+                } else {
+                    fileDialogLoader.active = true
+                }
+            }
+        }
+
+        // files of a previous install are found only on request; with a saved grant on the
+        // QZ folder the page restores them by itself
+        UiButton {
+            height: window.ui.modern ? implicitHeight : 50
+            Layout.fillWidth: window.ui.modern
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: window.ui.modern
+            wrapsText: true
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 }

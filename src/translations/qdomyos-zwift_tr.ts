@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1222,6 +1226,10 @@ QZ ayarları güncellensin mi?</translation>
         <source>Other folders</source>
         <translation>Diğer klasörler</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,8 +1452,12 @@ QZ ayarları güncellensin mi?</translation>
         <translation>Diğer klasörler</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Programları geri yükle</translation>
+        <translation type="vanished">Programları geri yükle</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3678,6 +3690,14 @@ This may take a few moments on first startup.</source>
         <translation>yeni hız </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Geri yüklenen dosya: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Önceki bir kurulumdan kalan dosya bulunamadı.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>JSON ayrıştırma hatası</translation>
     </message>
@@ -3707,11 +3727,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Geri yüklenen antrenman programı: %1.</translation>
+        <translation type="vanished">Geri yüklenen antrenman programı: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
+        <translation type="vanished">Önceki bir kurulumdan kalan antrenman programı bulunamadı.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4280,6 +4300,20 @@ Do you want to start it now?</source>
         <translation>Kaydedildi! Uygulamanın özel klasörüne bakın.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Önceki bir kurulumdan kalan antrenman programları, GPX rotaları, ayar dosyaları ve profiller QZ klasöründe olabilir.
+Bunlar aransın mı?
+
+Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Peloton&apos;a zaten bağlısınız. Çıkış yapılsın mı?</translation>
     </message>
@@ -4501,14 +4535,14 @@ Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Antrenman programları</translation>
+        <translation type="vanished">Antrenman programları</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
+        <translation type="vanished">Önceki bir kurulumdan kalan antrenman programları QZ klasöründe olabilir.
 Bunlar aransın mı?
 
 Sonraki pencerede QZ klasörüne erişime izin verin.</translation>
@@ -4748,6 +4782,10 @@ QZ&apos;nin bu değeri değiştirmesine izin verilsin mi?
     <message>
         <source>Profiles</source>
         <translation>Profiller</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Dosyaları geri yükle</translation>
     </message>
     <message>
         <source>Save</source>

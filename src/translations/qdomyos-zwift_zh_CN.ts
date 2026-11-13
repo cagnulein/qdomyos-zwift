@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1222,6 +1226,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,8 +1452,12 @@ Do you want to update QZ settings?</source>
         <translation>其他文件夹</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>恢复训练计划</translation>
+        <translation type="vanished">恢复训练计划</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3673,6 +3685,14 @@ This may take a few moments on first startup.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>已恢复文件：%1。</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>未找到以前安装的文件。</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>分享 FIT 文件</translation>
     </message>
@@ -3845,11 +3865,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>已恢复训练计划：%1。</translation>
+        <translation type="vanished">已恢复训练计划：%1。</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>未找到以前安装的训练计划。</translation>
+        <translation type="vanished">未找到以前安装的训练计划。</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4390,6 +4410,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>已保存！请在应用的私有文件夹中查看。</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练计划、GPX 路线、设置文件和配置文件可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>您已连接到 Peloton。是否要登出？</translation>
     </message>
@@ -4611,14 +4645,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>训练计划</translation>
+        <translation type="vanished">训练计划</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>以前安装的训练计划可能仍在 QZ 文件夹中。
+        <translation type="vanished">以前安装的训练计划可能仍在 QZ 文件夹中。
 要查找它们吗？
 
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
@@ -4772,6 +4806,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>恢复文件</translation>
     </message>
 </context>
 <context>

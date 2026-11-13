@@ -88,6 +88,10 @@
         <source>Other folders</source>
         <translation>Інші папки</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -1222,6 +1226,10 @@ Do you want to update QZ settings?</source>
         <source>Other folders</source>
         <translation>Інші папки</translation>
     </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
 </context>
 <context>
     <name>SettingsNumberField</name>
@@ -1444,8 +1452,12 @@ Do you want to update QZ settings?</source>
         <translation>Інші папки</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
+    <message>
         <source>Restore programs</source>
-        <translation>Відновити програми</translation>
+        <translation type="vanished">Відновити програми</translation>
     </message>
     <message>
         <source>← Back</source>
@@ -3784,6 +3796,14 @@ This may take a few moments on first startup.</source>
         <translation>швидкість змінено на </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Відновлено файлів: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Файлів попереднього встановлення не знайдено.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Помилка розбору JSON</translation>
     </message>
@@ -3829,11 +3849,11 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Training programs restored: %1.</source>
-        <translation>Відновлено програм тренувань: %1.</translation>
+        <translation type="vanished">Відновлено програм тренувань: %1.</translation>
     </message>
     <message>
         <source>No training programs of a previous installation were found.</source>
-        <translation>Програм тренувань попереднього встановлення не знайдено.</translation>
+        <translation type="vanished">Програм тренувань попереднього встановлення не знайдено.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -4386,6 +4406,20 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Збережено! Шукайте в особистій папці застосунку.</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Програми тренувань, маршрути GPX, файли налаштувань і профілі попереднього встановлення можуть залишатися в папці QZ.
+Знайти їх?
+
+У наступному вікні дозвольте доступ до папки QZ.</translation>
+    </message>
+    <message>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
@@ -4595,14 +4629,14 @@ In the next window, allow access to the QZ folder.</source>
     </message>
     <message>
         <source>Training Programs</source>
-        <translation>Програми тренувань</translation>
+        <translation type="vanished">Програми тренувань</translation>
     </message>
     <message>
         <source>Training programs of a previous installation may still be in the QZ folder.
 Do you want to look for them?
 
 In the next window, allow access to the QZ folder.</source>
-        <translation>Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
+        <translation type="vanished">Програми тренувань попереднього встановлення можуть залишатися в папці QZ.
 Знайти їх?
 
 У наступному вікні дозвольте доступ до папки QZ.</translation>
@@ -4756,6 +4790,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
     <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Відновити файли</translation>
     </message>
 </context>
 <context>

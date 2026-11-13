@@ -30,6 +30,8 @@ ColumnLayout {
         }
     }
 
+    Component.onCompleted: rootItem.folderPageOpened()
+
     Settings {
         id: settings
         property string profile_name: "default"
@@ -352,20 +354,43 @@ ColumnLayout {
         }
     }
 
-    UiButton {
+    // Other folders and, until QZ has a grant on the QZ folder, Restore files in one row
+    // (as on the training programs page); a long label wraps instead of eliding
+    RowLayout {
         visible: window.ui.modern
         Layout.fillWidth: true
         Layout.leftMargin: profilesPage.modernMargin
         Layout.rightMargin: profilesPage.modernMargin
         // 16 to the pill: UiButton has a 6 inset below it
         Layout.bottomMargin: 10
-        text: qsTr("Other folders")
-        onClicked: {
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
+        // a layout in a layout fills the height by default, and the fillHeight of the pills lifts its
+        // maximum: the row would take the height of the page; the pills fill the height of the taller one
+        Layout.fillHeight: false
+        spacing: 8
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            text: qsTr("Other folders")
+            onClicked: {
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
             }
+        }
+
+        UiButton {
+            Layout.fillWidth: true
+            // one height for both pills when only one label wraps
+            Layout.fillHeight: true
+            wrapsText: true
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 
@@ -447,11 +472,23 @@ ColumnLayout {
                         folderModel.folder = "file://" + rootItem.getProfileDir();
                     }
                 }
+                // files of a previous install were copied back into the QZ folder; reload the
+                // model next to it
+                Connections {
+                    target: rootItem
+                    function onFolderFilesRestored() {
+                        var currentFolder = folderModel.folder
+                        folderModel.folder = ""
+                        folderModel.folder = currentFolder
+                    }
+                }
                 model: folderModel
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
-                        width: parent.width
+                        // not parent.width: while the folder is set again (onFolderFilesRestored)
+                        // the rows go and have no parent for a moment
+                        width: ListView.view.width
                         height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                         color: Material.backgroundColor
                         z: 1
@@ -507,10 +544,14 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
+                        // rows not made yet, or no current row for a moment while a restore renames
+                        // files under the open page
                         for(var i=0; i<folderModel.count; i++) {
-                            list.itemAtIndex(i).textColor = Material.color(Material.Grey)
+                            if (list.itemAtIndex(i))
+                                list.itemAtIndex(i).textColor = Material.color(Material.Grey)
                         }
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }
@@ -518,23 +559,35 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
+    RowLayout {
+        // the classic look; the modern one has its own Other folders under its list
         visible: !window.ui.modern
-        height: 50
-        width: parent.width
-        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            if (Qt.platform.os === "android") {
-                rootItem.openAndroidDocumentPicker("profile")
-            } else {
-                fileDialogLoader.active = true
-            }
-        }
         anchors {
             bottom: parent.bottom
+        }
+
+        Button {
+            id: searchButton
+            height: 50
+            text: qsTr("Other folders")
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("profile")
+                } else {
+                    fileDialogLoader.active = true
+                }
+            }
+        }
+
+        // files of a previous install are found only on request; with a saved grant on the
+        // QZ folder the page restores them by itself
+        Button {
+            height: 50
+            visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            text: qsTr("Restore files")
+            onClicked: rootItem.offerFolderRestore()
         }
     }
 }

@@ -23,7 +23,7 @@ ColumnLayout {
             }
         }
         // programs of a previous install were copied back into the training folder
-        function onTrainingProgramsRestored() {
+        function onFolderFilesRestored() {
             var currentFolder = folderModel.folder
             folderModel.folder = ""
             folderModel.folder = currentFolder
@@ -48,7 +48,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
-        rootItem.trainingProgramsPageOpened()
+        rootItem.folderPageOpened()
     }
 
     MessageDialog {
@@ -242,7 +242,9 @@ ColumnLayout {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                         selectedWorkoutUrl = fileUrl
-                        list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
                         powerSeries.clear();
