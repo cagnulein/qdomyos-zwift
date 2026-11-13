@@ -259,6 +259,8 @@ class homeform : public QObject {
     Q_INVOKABLE QString bluetoothSearchStatus();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Optional touch confirmation, called only by user-activated QML controls.
+    Q_INVOKABLE void hapticFeedback();
     // Heart rate sensor chosen in the settings (name) or a tap on the heart rate tile or the Bluetooth icon (no
     // name, the saved one): connect it without a restart. With none chosen and the machine connected, the tap
     // searches for one to offer, also with heart_rate_belt_suggest off, and offers again the sensors hidden with Not

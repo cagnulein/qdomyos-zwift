@@ -27,7 +27,7 @@ qtHaveModule(httpserver) {
 
 # Native iOS mail composer (also compiled with IO_UNDER_QT).
 ios: {
-    OBJECTIVE_SOURCES += ios/support_email.mm
+    OBJECTIVE_SOURCES += ios/support_email.mm ios/haptic_feedback.mm
     LIBS += -framework MessageUI
 }
 

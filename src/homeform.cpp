@@ -51,6 +51,7 @@
 #include <QQmlFile>
 
 #include <QRandomGenerator>
+#include <QElapsedTimer>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QSysInfo>
@@ -73,9 +74,25 @@
 // Implemented by ios/support_email.mm; always built for Qt iOS including IO_UNDER_QT.
 extern "C" void qzComposeSupportEmail(const char *recipient, const char *subject,
                                        const char *body, const char *attachmentPath);
+extern "C" void qzHapticFeedback();
 #endif
 
 homeform *homeform::m_singleton = 0;
+
+// Prevent auto-repeat and duplicate accessibility events from flooding the haptic motor.
+void homeform::hapticFeedback() {
+    static QElapsedTimer sinceLastFeedback;
+    if (sinceLastFeedback.isValid() && sinceLastFeedback.elapsed() < 120)
+        return;
+    sinceLastFeedback.start();
+#ifdef Q_OS_ANDROID
+    const QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (activity.isValid())
+        activity.callMethod<void>("playControlHaptic", "()V");
+#elif defined(Q_OS_IOS)
+    qzHapticFeedback();
+#endif
+}
 using namespace std::chrono_literals;
 
 namespace {

@@ -58,6 +58,16 @@ HomeForm {
     signal minus_clicked(string name)
     signal largeButton_clicked(string name)
 
+    // Called by both pointer and screen-reader activation paths.
+    function confirmHaptic() {
+        if (settings.haptic_feedback_enabled &&
+                (Qt.platform.os === "android" || Qt.platform.os === "ios"))
+            rootItem.hapticFeedback()
+    }
+    function confirmPlus(name) { plus_clicked(name); confirmHaptic() }
+    function confirmMinus(name) { minus_clicked(name); confirmHaptic() }
+    function confirmLargeButton(name) { largeButton_clicked(name); confirmHaptic() }
+
     Settings {
         id: settings
         Component.onCompleted: window.retakeSettingsSnapshot(settings)
@@ -70,6 +80,7 @@ HomeForm {
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
         property bool trainprogram_sound_on_segment: false
+        property bool haptic_feedback_enabled: false
     }
 
     // The settings page writes through its own Settings copy, and a copy reads the stored values
@@ -340,15 +351,16 @@ HomeForm {
             stackView.push("ChartsEndWorkout.qml")
     }
 
-    start.onClicked: { start_clicked(); }
+    start.onClicked: { start_clicked(); confirmHaptic(); }
     stop.onClicked: {
+        confirmHaptic()
         if (rootItem.confirmStopEnabled()) {
             stopConfirmationDialog.open();
         } else {
             inner_stop();
         }
     }
-    lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
+    lap.onClicked: { lap_clicked(); confirmHaptic(); popupLap.open(); popupLapAutoClose.running = true; }
 
     Component.onCompleted: {
         console.log("home.qml completed");
@@ -705,7 +717,7 @@ HomeForm {
                     bottomInset: 0
                     leftInset: 0
                     rightInset: 0
-                    onClicked: minus_clicked(objectName)
+                    onClicked: confirmMinus(objectName)
                     background: Item {
                         Rectangle {
                             x: 14 * modernTile.zoom
@@ -729,7 +741,7 @@ HomeForm {
                     Accessible.name: qsTr("Decrease ") + name
                     Accessible.description: qsTr("Decrease the value of ") + name
                     Accessible.focusable: true
-                    Accessible.onPressAction: { minus_clicked(objectName) }
+                    Accessible.onPressAction: { confirmMinus(objectName) }
                 }
 
                 RoundButton {
@@ -748,7 +760,7 @@ HomeForm {
                     bottomInset: 0
                     leftInset: 0
                     rightInset: 0
-                    onClicked: plus_clicked(objectName)
+                    onClicked: confirmPlus(objectName)
                     background: Item {
                         Rectangle {
                             x: 18 * modernTile.zoom
@@ -772,7 +784,7 @@ HomeForm {
                     Accessible.name: qsTr("Increase ") + name
                     Accessible.description: qsTr("Increase the value of ") + name
                     Accessible.focusable: true
-                    Accessible.onPressAction: { plus_clicked(objectName) }
+                    Accessible.onPressAction: { confirmPlus(objectName) }
                 }
 
                 RoundButton {
@@ -782,7 +794,7 @@ HomeForm {
                     visible: largeButton
                     width: modernTile.width - 2 * modernTile.zoom
                     height: 123 * modernTile.zoom
-                    onClicked: largeButton_clicked(objectName)
+                    onClicked: confirmLargeButton(objectName)
                     background: Rectangle {
                         radius: 16 * modernTile.zoom
                         color: largeButtonColor
@@ -802,7 +814,7 @@ HomeForm {
                     Accessible.name: largeButtonLabel
                     Accessible.description: name + ": " + largeButtonLabel
                     Accessible.focusable: true
-                    Accessible.onPressAction: { largeButton_clicked(objectName) }
+                    Accessible.onPressAction: { confirmLargeButton(objectName) }
                 }
             }
             }
@@ -932,7 +944,7 @@ HomeForm {
                 text: "−"
                 // the sign is a share of the button, so it grows with Tile size
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: minus_clicked(objectName)
+                onClicked: confirmMinus(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.left: parent.left
@@ -945,14 +957,14 @@ HomeForm {
                 Accessible.name: qsTr("Decrease ") + name
                 Accessible.description: qsTr("Decrease the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { minus_clicked(objectName) }
+                Accessible.onPressAction: { confirmMinus(objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: plusName
                 text: "+"
                 font.pixelSize: Math.round(height * 0.45)
-                onClicked: plus_clicked(objectName)
+                onClicked: confirmPlus(objectName)
                 visible: writable && !largeButton
                 anchors.top: myValue.top
                 anchors.right: parent.right
@@ -965,13 +977,13 @@ HomeForm {
                 Accessible.name: qsTr("Increase ") + name
                 Accessible.description: qsTr("Increase the value of ") + name
                 Accessible.focusable: true
-                Accessible.onPressAction: { plus_clicked(objectName) }
+                Accessible.onPressAction: { confirmPlus(objectName) }
             }
             RoundButton {
                 autoRepeat: true
                 objectName: identificator
                 text: largeButtonLabel
-                onClicked: largeButton_clicked(objectName)
+                onClicked: confirmLargeButton(objectName)
                 visible: largeButton
                 anchors.fill: rect
                       background: Rectangle {
@@ -985,7 +997,7 @@ HomeForm {
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
                 Accessible.focusable: true
-                Accessible.onPressAction: { largeButton_clicked(objectName) }
+                Accessible.onPressAction: { confirmLargeButton(objectName) }
             }
             }
             }
