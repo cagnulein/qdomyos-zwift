@@ -759,7 +759,7 @@ void domyosbike::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
             qDebug() << "forcing FTMS bike since it has FTMS service but not the main domyos service";
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change"));
             delete ftmsService;
         }
         return;
@@ -941,6 +941,6 @@ void domyosbike::controllerStateChanged(QLowEnergyController::ControllerState st
         writeQueue.clear();
         isWriting = false;
         gattCommunicationChannelService = nullptr;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

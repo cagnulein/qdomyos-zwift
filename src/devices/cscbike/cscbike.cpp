@@ -44,9 +44,9 @@ void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
     if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
         homeform::singleton()->setToastRequested(
             jorotoBike
-                ? QStringLiteral(
+                ? QObject::tr(
                       "Manual resistance power adjustment enabled: power now scales with the Resistance tile value.")
-                : QStringLiteral(
+                : QObject::tr(
                       "Custom CSC power table enabled: power now follows the configured resistance/watt points."));
         manualResistancePowerAdjustmentToastShown = true;
     }
@@ -215,9 +215,11 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        bool cadence_sensor_as_bike =
-            settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-        update_metrics(false, watts(), !cadence_sensor_as_bike);
+        // Accessory CSC sensors must not update the main workout. Primary CSC bikes,
+        // including JOROTO-BK-* and BGYM*, must do so even if the user hasn't
+        // enabled "Cadence Sensor as a Bike". The constructor already identifies
+        // this role via noVirtualDevice (true only for accessory instances).
+        update_metrics(false, watts(), noVirtualDevice);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
@@ -287,7 +289,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         battery = newValue.at(0);
         if(battery != battery_level)
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+                homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
         battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
         return;
@@ -774,6 +776,6 @@ void cscbike::controllerStateChanged(QLowEnergyController::ControllerState state
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << "trying to connect back again...";
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

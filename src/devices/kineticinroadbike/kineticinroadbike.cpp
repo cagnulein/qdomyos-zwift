@@ -500,7 +500,7 @@ void kineticinroadbike::serviceScanDone(void) {
         gattCommunicationChannelService->discoverDetails();
     } else {
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+            homeform::singleton()->setToastRequested(QObject::tr("Bluetooth Service Error! Restart the bike!"));
         m_control->disconnectFromDevice();
     }
 }
@@ -575,6 +575,6 @@ void kineticinroadbike::controllerStateChanged(QLowEnergyController::ControllerS
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }

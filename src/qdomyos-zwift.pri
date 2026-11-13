@@ -2,6 +2,8 @@ include(../defaults.pri)
 QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private sql concurrent
+# Android: Qt's accessibility functions for Java run on the Qt thread (main.cpp, androidAccessibility)
+android: QT += gui-private
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -21,6 +23,12 @@ qtHaveModule(httpserver) {
 #	 win32: {
 #	     DEFINES += CHARTJS
 #		}
+}
+
+# Native iOS mail composer (also compiled with IO_UNDER_QT).
+ios: {
+    OBJECTIVE_SOURCES += ios/support_email.mm
+    LIBS += -framework MessageUI
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
@@ -163,7 +171,9 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/daumbike/DaumUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
+devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -174,9 +184,11 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/daumbike/daumbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
+devices/lifefitnesstreadmill/lifefitnessworkout.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
 devices/mepanelbike/mepanelbike.cpp \
 devices/nautilusbike/nautilusbike.cpp \
@@ -227,6 +239,7 @@ devices/dircon/wahoodircontreadmill.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
+devices/echelonconnectsport/echelonunlock.cpp \
 devices/echelonconnectsport/echelonconnectsport.cpp \
 devices/echelonrower/echelonrower.cpp \
 devices/echelonstride/echelonstride.cpp \
@@ -238,6 +251,7 @@ devices/fakebike/fakebike.cpp \
 filedownloader.cpp \
 devices/fitmetria_fanfit/fitmetria_fanfit.cpp \
 devices/fitplusbike/fitplusbike.cpp \
+devices/fitplusrower/fitplusrower.cpp \
 devices/fitshowtreadmill/fitshowtreadmill.cpp \
 fit-sdk/fit.cpp \
 fit-sdk/fit_accumulated_field.cpp \
@@ -274,7 +288,10 @@ mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
+devices/ypootreadmill/ypootreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
+devices/kettlerclassicbike/kettlerclassicbike.cpp \
+devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
 devices/keepbike/keepbike.cpp \
@@ -287,6 +304,7 @@ devices/nautiluselliptical/nautiluselliptical.cpp \
 devices/nautilustreadmill/nautilustreadmill.cpp \
 devices/npecablebike/npecablebike.cpp \
 devices/pafersbike/pafersbike.cpp \
+devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
@@ -345,6 +363,7 @@ devices/ultrasportbike/ultrasportbike.cpp \
 devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
+devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
@@ -354,6 +373,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -483,6 +503,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/daumbike/DaumUSB.h \
 devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
@@ -493,10 +514,13 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/daumbike/daumbike.h \
 devices/freebeatbike/freebeatbike.h \
+devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
+devices/lifefitnesstreadmill/lifefitnessworkout.h \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.h \
 devices/mepanelbike/mepanelbike.h \
 devices/nautilusbike/nautilusbike.h \
@@ -561,6 +585,7 @@ devices/dircon/wahoodircontreadmill.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
+devices/echelonconnectsport/echelonunlock.h \
 devices/echelonconnectsport/echelonconnectsport.h \
 devices/echelonrower/echelonrower.h \
 devices/echelonstride/echelonstride.h \
@@ -572,10 +597,13 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
+devices/kettlerclassicbike/kettlerclassicbike.h \
+devices/kettlerclassicbike/kettlerclassicprotocol.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \
 devices/kingsmithr2treadmill/kingsmithr2treadmill.h \
@@ -807,6 +835,9 @@ homeform.h \
 mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
+devices/ypootreadmill/ypootreadmill.h \
+devices/ypootreadmill/ypoom5control.h \
+devices/ypootreadmill/ypoom5distance.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
 keepawakehelper.h \
@@ -819,6 +850,7 @@ devices/nautiluselliptical/nautiluselliptical.h \
 devices/nautilustreadmill/nautilustreadmill.h \
 devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
+devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
 peloton.h \
 powerzonepack.h \
@@ -885,14 +917,17 @@ devices/ultrasportbike/ultrasportbike.h \
 devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
+virtualdevices/virtualrowercadence.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
+devices/wahookickruntreadmill/wahookickruntreadmill.h \
 wobjectdefs.h \
 wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 
@@ -948,6 +983,52 @@ RESOURCES += \
 	qml.qrc \
 	translations.qrc
 
+# The two largest settings pages (settings.qml about 1.1 MB, settings-tiles.qml about 285 KB)
+# are compiled at build time: otherwise their first open after an install or an update compiles
+# them right then and the app freezes (for seconds with settings.qml). The engine takes a unit
+# compiled ahead by its qrc path before the source (QQmlTypeLoader::getType, Qt 5.15).
+# Not CONFIG += qtquickcompiler: it removes every .qml and .js file from the resources, and the
+# settings search reads qrc:/settings.qml as text, the charts read the templates in
+# inner_templates/. So the pages stay in qml.qrc, at the same paths as in settings-qmlcache.qrc,
+# which only lists them for qmlcachegen: the qrc path of each page and the loader (not a resource).
+# The source in qml.qrc is also what the engine falls back to when the compiled unit does not
+# match the Qt version (no error then, the page is compiled at run time as before).
+# Adding a page: the same file in SETTINGS_QMLCACHE_FILES and in settings-qmlcache.qrc (missing
+# in the first, the link fails; missing in the second, qmlcachegen fails), and in qml.qrc.
+# iOS builds from the committed Xcode project, not from this file: the new qmlcache_<page>_qml.cpp
+# goes into its target next to settings_qmlcache_loader.cpp (missing there, the iOS link fails),
+# and a qmlcachegen line for it into build-qrc-qml.sh (the local iOS build).
+# Do not combine with CONFIG += qtquickcompiler: both would define the same compiled units.
+SETTINGS_QMLCACHE_QRC = $$PWD/settings-qmlcache.qrc
+SETTINGS_QMLCACHE_FILES = $$PWD/settings.qml $$PWD/settings-tiles.qml
+qtPrepareTool(SETTINGS_QMLCACHEGEN, qmlcachegen)
+
+settings_qmlcache.input = SETTINGS_QMLCACHE_FILES
+settings_qmlcache.output = qmlcache_${QMAKE_FILE_BASE}_qml$${first(QMAKE_EXT_CPP)}
+settings_qmlcache.commands = $$SETTINGS_QMLCACHEGEN --resource=$$shell_quote($$SETTINGS_QMLCACHE_QRC) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+settings_qmlcache.depends = $$SETTINGS_QMLCACHE_QRC
+settings_qmlcache.name = qmlcachegen ${QMAKE_FILE_IN}
+settings_qmlcache.variable_out = GENERATED_SOURCES
+settings_qmlcache.dependency_type = TYPE_C
+
+# registers the compiled pages with the engine at start-up; the output name has to end with
+# qmlcache_loader.cpp, that is how qmlcachegen knows it writes the loader
+settings_qmlcache_loader.input = SETTINGS_QMLCACHE_QRC
+settings_qmlcache_loader.output = settings_qmlcache_loader.cpp
+settings_qmlcache_loader.commands = $$SETTINGS_QMLCACHEGEN --resource-file-mapping=$$shell_quote($$SETTINGS_QMLCACHE_QRC) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+settings_qmlcache_loader.name = qmlcachegen loader ${QMAKE_FILE_IN}
+settings_qmlcache_loader.variable_out = SOURCES
+settings_qmlcache_loader.dependency_type = TYPE_C
+settings_qmlcache_loader.CONFIG = combine
+
+# rebuilt by a new qmlcachegen (another Qt), as qtquickcompiler.prf does
+unix {
+    settings_qmlcache.depends += $$SETTINGS_QMLCACHEGEN
+    settings_qmlcache_loader.depends += $$SETTINGS_QMLCACHEGEN
+}
+
+QMAKE_EXTRA_COMPILERS += settings_qmlcache settings_qmlcache_loader
+
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
@@ -985,6 +1066,13 @@ DISTFILES += \
 	android/gradlew.bat \
    android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
+	android/res/drawable/ic_launcher_background.xml \
+	android/res/drawable/ic_launcher_foreground.xml \
+	android/res/drawable/ic_launcher_monochrome.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher.xml \
+	android/res/mipmap-anydpi-v26/ic_launcher_round.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher.xml \
+	android/res/mipmap-anydpi-v33/ic_launcher_round.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
    android/src/FloatingHandler.java \
@@ -1038,9 +1126,13 @@ ios {
 }
 
 ios {
+    # AVFoundation is used by the background keep alive (silent audio session)
+    LIBS += -framework AVFoundation
+
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
+    ios/ios_background_keepalive.mm \
     ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -1054,7 +1146,8 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets

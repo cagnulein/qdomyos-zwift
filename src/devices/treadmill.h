@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
+#include "runnclosedloopcontroller.h"
 
 class treadmill : public bluetoothdevice {
     Q_OBJECT
@@ -22,7 +23,10 @@ class treadmill : public bluetoothdevice {
     metric lastRequestedPower();
     virtual double minStepInclination();
     virtual double minStepSpeed();
+    VirtualTreadmillControl virtualTreadmillControl() const override;
     virtual bool canStartStop() { return true; }
+    // Called when the UI ignores Stop because recording is already stopped or idle.
+    virtual void stopWhenIdle() {}
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
@@ -59,6 +63,7 @@ class treadmill : public bluetoothdevice {
     void changePower(int32_t power) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
     void onTrainingProgramTransition();
+    void stop(bool pause) override;
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
@@ -86,9 +91,17 @@ class treadmill : public bluetoothdevice {
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
     metric VerticalOscillationMM;    
+    // Drivers using delayed sensor feedback can opt out of the legacy one-shot correction.
+    // Shared closed-loop policy. Only activates when true independent machine
+    // telemetry is available via parseSpeed() and Runn is selected.
+    TreadmillRunnClosedLoopController m_runnController;
+    void updateRunnClosedLoop();
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+    // Time (ms) of the last cadence from an external sensor (cadenceSensor()), 0 included: while the sensor
+    // sends, the cadence estimated from speed must not overwrite it; once it goes silent the estimate comes back.
+    qint64 lastCadenceSensorMs = 0;
     treadmillErgTable _ergTable;
     
     // Power following logic

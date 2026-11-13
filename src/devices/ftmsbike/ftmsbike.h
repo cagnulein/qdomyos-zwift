@@ -73,7 +73,13 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
+    static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
+    static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                           qint64 msecsSinceInclinationCommand,
+                                           qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
+    static double applyFsIb50GearGain(resistance_t gearDelta, double gearsGain);
     bool connected() override;
+
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
@@ -81,6 +87,8 @@ class ftmsbike : public bike {
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
+    static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
 
     // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
     // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
@@ -170,6 +178,10 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     bool native_resistance_received = false;
     QDateTime calculatedResistanceFallbackSince;
+    resistance_t lastFsIb50Resistance = -1;
+    QDateTime lastFsIb50InclinationCommand;
+    bool fsIb50PhysicalGearChangePending = false;
+
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
@@ -188,6 +200,7 @@ class ftmsbike : public bike {
     bool VFSPINBIKE = false;
     bool SS2K = false;
     bool DIRETO_XR = false;
+    bool INCONDI_S150I = false;
     bool JFBK5_0 = false;
     bool BIKE_ = false;
     bool SMB1 = false;
@@ -209,17 +222,26 @@ class ftmsbike : public bike {
     bool MRK_S28 = false;
     bool MRK_S36C = false;
     bool HAMMER = false;
+    bool HS_5000L = false;
+    bool H9115 = false;
+    bool DRUMFIT = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool FS_IB50 = false;
+    bool FS_SB_RCR = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
     bool USDC_D700 = false;
+    bool WLT_BK = false;
     bool TOPUTURE_TEB5 = false;
     bool SMARTBIKE_3DIGIT = false;
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
+    bool TUNTURI_E50_168 = false;
+    bool SOLE_B94 = false;
+    bool VIFHTR = false;
 
     uint8_t secondsToResetTimer = 5;
 

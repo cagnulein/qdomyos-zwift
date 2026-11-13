@@ -1,17 +1,39 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseArray;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowInsets;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeProvider;
+import android.view.ViewTreeObserver;
+import android.webkit.WebView;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
@@ -19,14 +41,40 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_TRAINING_REQUEST_CODE = 4102;
     private static final int DOCUMENT_PICKER_GPX_REQUEST_CODE = 4103;
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
+    private static final int DOCUMENT_PICKER_FIT_REQUEST_CODE = 4105;
+    private static final int DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE = 4106;
+    private static final int DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE = 4107;
     private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right,
                                                int waterfallTop, int waterfallBottom,
                                                int waterfallLeft, int waterfallRight);
+    // Left and right system bar insets without the display cutout, so QML can let the
+    // content go under the cutout when the user turns the cutout margin off.
+    private static native void onSystemBarSideInsetsChanged(int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
+    // a workout import starts copying: the history page shows that it is running
+    private static native void nativeOnFitImportStarted();
+    // TalkBack put its focus on this accessible object: scroll it into view
+    private static native void nativeScrollToAccessibleObject(int id);
+    // TalkBack's double tap on this accessible object: true when QZ pressed it (a Qt button with
+    // the space key, anything else with its press or toggle action)
+    private static native boolean nativeAccessibleClick(int id);
+    // the configuration changed (night mode among others, uiMode is in configChanges): the modern
+    // look reads the system theme again
+    private static native void onSystemThemeChanged();
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        try {
+            onSystemThemeChanged();
+        } catch (UnsatisfiedLinkError ignored) {
+            // Qt not loaded yet: QML reads the theme when it starts
+        }
+    }
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -49,6 +97,398 @@ public class CustomQtActivity extends QtActivity {
         }
     }
 
+    private boolean injectingBackKey = false;
+    // A system KEYCODE_BACK ACTION_DOWN went to the Qt delegate and its ACTION_UP has not arrived yet
+    private boolean backDownSentToQt = false;
+    // The callback already released that ACTION_DOWN in Qt, so the system ACTION_UP is a duplicate
+    private boolean dropNextSystemBackUp = false;
+
+    // The manifest opts out of predictive back (enableOnBackInvokedCallback="false"), so Android
+    // keeps sending KEYCODE_BACK and Qt turns an unhandled one into a close event that
+    // main.qml handles in onClosing. While the opt-out is honored, the system refuses this
+    // callback (it only logs "OnBackInvokedCallback is not enabled") and nothing changes.
+    // When the system ignores the opt-out, back goes to the callback instead, and the callback
+    // feeds Qt the same back key, so main.qml sees no difference. In the API 33-35 emulators
+    // no KEYCODE_BACK reaches the activity then; in the API 36 emulator ACTION_DOWN still comes
+    // before the callback and a canceled ACTION_UP after it. The callback completes such an
+    // ACTION_DOWN, and dispatchKeyEvent() drops the system ACTION_UP that follows (canceled or
+    // not), so Qt sees exactly one press either way. A canceled ACTION_UP without the callback
+    // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                backDownSentToQt = true;
+                dropNextSystemBackUp = false;
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                boolean drop = dropNextSystemBackUp || event.isCanceled();
+                backDownSentToQt = false;
+                dropNextSystemBackUp = false;
+                if (drop) {
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void registerBackCallback() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+        getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                new OnBackInvokedCallback() {
+                    @Override
+                    public void onBackInvoked() {
+                        // A back key that Qt leaves unhandled can come back here through
+                        // Activity.onBackPressed(); stop instead of looping.
+                        if (injectingBackKey) {
+                            return;
+                        }
+                        Log.d(TAG, "onBackInvoked: sending KEYCODE_BACK to Qt, down already sent: " + backDownSentToQt);
+                        injectingBackKey = true;
+                        boolean downAlreadySent = backDownSentToQt;
+                        try {
+                            if (!downAlreadySent) {
+                                dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                            }
+                            dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+                        } finally {
+                            injectingBackKey = false;
+                            backDownSentToQt = false;
+                            dropNextSystemBackUp = downAlreadySent;
+                        }
+                    }
+                });
+    }
+
+    // Qt 5.15.0 sends a screen reader no accessibility events at all (on Android its
+    // notifyAccessibilityUpdate() is a FIXME until 5.15.3, scrolling is reported from 5.15.11),
+    // so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
+    // under it, and after a scroll it still has the rows that came into view where they were.
+    // Telling Android that the subtree of Qt's accessibility view changed drops that cache:
+    // main.cpp asks for it (accessibilityTreeChanged) when a page or a popup shows or hides and
+    // when a list stops scrolling.
+    private final Handler accessibilityHandler = new Handler(Looper.getMainLooper());
+    private View qtAccessibilityView = null;
+
+    private boolean accessibilityEnabled() {
+        AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled();
+    }
+
+    private void sendAccessibilityTreeChanged() {
+        if (!accessibilityEnabled()) {
+            return;
+        }
+        View view = qtAccessibilityView();
+        ViewParent parent = view != null ? view.getParent() : null;
+        if (parent == null) {
+            return;
+        }
+        AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+        event.setContentChangeTypes(AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE);
+        view.onInitializeAccessibilityEvent(event);
+        parent.requestSendAccessibilityEvent(view, event);
+    }
+
+    // Qt's accessibility view, with its node provider wrapped in ScrollToFocusProvider. Qt sets
+    // its own delegate again whenever accessibility is turned back on, so this is checked anew.
+    private View qtAccessibilityView() {
+        View view = qtAccessibilityView;
+        if (view == null || !view.isAttachedToWindow() || view.getAccessibilityNodeProvider() == null) {
+            view = findQtAccessibilityView(getWindow().getDecorView());
+            qtAccessibilityView = view;
+        }
+        if (view != null) {
+            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+            if (!(provider instanceof ScrollToFocusProvider)) {
+                final ScrollToFocusProvider wrapped = new ScrollToFocusProvider(provider, view);
+                view.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                    @Override
+                    public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
+                        return wrapped;
+                    }
+                });
+            }
+        }
+        return view;
+    }
+
+    // Android scrolls its own lists to the item TalkBack moves to, Qt 5.15 does not: TalkBack
+    // stops on an item below the screen, its frame is drawn off screen and a double tap misses it.
+    // On such a focus Qt is asked to scroll the item into view (nativeScrollToAccessibleObject),
+    // and once it did, accessibilityTreeChanged() lets TalkBack read the new positions.
+    // A double tap on a node is answered by nativeAccessibleClick, not by Qt: Qt 5.15.0 answers
+    // false after the press of an item that is not a button and does nothing for a button, and on
+    // false TalkBack taps the middle of the node too. When it pressed the node, TalkBack gets true,
+    // a clicked event (when the node is still there) and a tree refresh for what the press opened
+    // or added (TalkBack 17 does not say a new switch state from the event: it says the state when
+    // the switch is touched again);
+    // the event is sent later, as Qt reading the node for it right away would wait for the press,
+    // past the 5 s Android waits for the answer. When it did not, false is answered and TalkBack's
+    // tap is the press. Other actions go to Qt.
+    // A value control of Qt (a spin box, a slider: an item with scroll actions and no children)
+    // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
+    // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
+    // ends with the value, is announced, as Qt 5.15 sends nothing. The rest goes to Qt unchanged.
+    private static final class ScrollToFocusProvider extends AccessibilityNodeProvider {
+        private static final long VALUE_ANNOUNCE_DELAY_MS = 150;
+        private final AccessibilityNodeProvider qt;
+        private final View host;
+
+        ScrollToFocusProvider(AccessibilityNodeProvider qt, View host) {
+            this.qt = qt;
+            this.host = host;
+        }
+
+        @Override
+        public AccessibilityNodeInfo createAccessibilityNodeInfo(int virtualViewId) {
+            AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
+            if (node != null && virtualViewId != View.NO_ID && node.isScrollable() && node.getChildCount() == 0) {
+                node.setClassName("android.widget.SeekBar");
+            }
+            return node;
+        }
+
+        @Override
+        public List<AccessibilityNodeInfo> findAccessibilityNodeInfosByText(String text, int virtualViewId) {
+            return qt.findAccessibilityNodeInfosByText(text, virtualViewId);
+        }
+
+        @Override
+        public AccessibilityNodeInfo findFocus(int focus) {
+            return qt.findFocus(focus);
+        }
+
+        @Override
+        public boolean performAction(int virtualViewId, int action, Bundle arguments) {
+            if (action == AccessibilityNodeInfo.ACTION_CLICK && virtualViewId != View.NO_ID) {
+                boolean pressed;
+                try {
+                    pressed = nativeAccessibleClick(virtualViewId);
+                } catch (UnsatisfiedLinkError e) {
+                    // QZ's library not loaded yet: Qt answers as before
+                    return qt.performAction(virtualViewId, action, arguments);
+                }
+                if (pressed) {
+                    afterClick(virtualViewId);
+                }
+                return pressed;
+            }
+            boolean handled = qt.performAction(virtualViewId, action, arguments);
+            if (action == AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS && virtualViewId != View.NO_ID) {
+                try {
+                    nativeScrollToAccessibleObject(virtualViewId);
+                } catch (UnsatisfiedLinkError ignored) {
+                    // Qt not loaded yet: nothing on screen to scroll
+                }
+            }
+            if (handled && virtualViewId != View.NO_ID && (action == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD
+                    || action == AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD)) {
+                announceValue(virtualViewId);
+            }
+            return handled;
+        }
+
+        // Qt's node for the id, asked after a delay, or null when accessibility was turned off in the
+        // meantime (TalkBack switched off right after a double tap or a swipe on a value): Qt 5.15.0
+        // then removes this view from its layout and drops its reference to it, and any node asked for
+        // afterwards throws a NullPointerException (QtAccessibilityDelegate.getNodeForVirtualViewId;
+        // Qt 6 returns an empty node there, qtbase af73c7a99e). Only delayed calls can come after that:
+        // Android asks the provider itself on the main thread, where Qt removes the view, and only while
+        // it is attached.
+        private AccessibilityNodeInfo delayedNode(int virtualViewId) {
+            if (host.getParent() == null) {
+                return null;
+            }
+            return qt.createAccessibilityNodeInfo(virtualViewId);
+        }
+
+        private void afterClick(final int virtualViewId) {
+            host.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ViewParent parent = host.getParent();
+                    AccessibilityNodeInfo node = delayedNode(virtualViewId);
+                    // a press that closed the page leaves Qt an empty node for the id
+                    if (node != null && parent != null && (node.isClickable() || node.isCheckable())) {
+                        AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_CLICKED);
+                        event.setSource(host, virtualViewId);
+                        event.setPackageName(host.getContext().getPackageName());
+                        event.setClassName(node.getClassName());
+                        event.setContentDescription(node.getContentDescription());
+                        event.setChecked(node.isChecked());
+                        event.setEnabled(node.isEnabled());
+                        parent.requestSendAccessibilityEvent(host, event);
+                    }
+                    if (node != null) {
+                        node.recycle();
+                    }
+                    accessibilityTreeChanged();
+                }
+            }, VALUE_ANNOUNCE_DELAY_MS);
+        }
+
+        private void announceValue(final int virtualViewId) {
+            host.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    AccessibilityNodeInfo node = delayedNode(virtualViewId);
+                    if (node == null) {
+                        return;
+                    }
+                    CharSequence name = node.getContentDescription();
+                    if (name == null || name.length() == 0) {
+                        name = node.getText();
+                    }
+                    node.recycle();
+                    if (name != null && name.length() > 0) {
+                        host.announceForAccessibility(name);
+                    }
+                }
+            }, VALUE_ANNOUNCE_DELAY_MS);
+        }
+    }
+
+    private static volatile CustomQtActivity accessibilityActivity = null;
+
+    // Called by Qt from its own thread after it scrolled to the focused item, after a press, when a
+    // page or a popup shows or hides and when a list stops scrolling
+    public static void accessibilityTreeChanged() {
+        final CustomQtActivity activity = accessibilityActivity;
+        if (activity == null) {
+            return;
+        }
+        activity.accessibilityHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                activity.sendAccessibilityTreeChanged();
+            }
+        });
+    }
+
+    // The plain View that Qt adds over its surface while accessibility is on: the one whose node
+    // provider is Qt's. Only plain Views are asked, so a WebView does not start its own provider.
+    private static View findQtAccessibilityView(View view) {
+        if (view.getClass() == View.class) {
+            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+            if (provider instanceof ScrollToFocusProvider
+                    || (provider != null && provider.getClass().getName().startsWith("org.qtproject."))) {
+                return view;
+            }
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View found = findQtAccessibilityView(group.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    // Traverse the view hierarchy to find Qt's rendering surface (SurfaceView or TextureView)
+    // and return its Y position in pixels within the window.
+    // Qt 5.15 on some emulator configurations internally shifts its viewport by the top inset
+    // in landscape, even after setDecorFitsSystemWindows(false). Detecting this offset lets us
+    // avoid double-counting the top inset in QML.
+    private int findQtSurfaceYOffset(View view) {
+        if (view instanceof SurfaceView || view instanceof TextureView) {
+            int[] loc = new int[2];
+            view.getLocationInWindow(loc);
+            return loc[1];
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                int result = findQtSurfaceYOffset(group.getChildAt(i));
+                if (result > 0) return result;
+            }
+        }
+        return 0;
+    }
+
+    // WORKAROUND: back from the background a page with a web view (the workout editor) can stay
+    // empty until the page is touched (OnePlus 12, Android 16): the
+    // WebView is in place and visible, but Chromium makes no new frame. On return Qt 5.15 takes the
+    // native WebView of Qt WebView off its layout and adds it back
+    // (QAndroidPlatformForeignWindow::applicationStateChanged -> destroySurface / insertNativeView),
+    // and resumes it with WebView.onResume() (QAndroidWebViewPrivate::onApplicationStateChanged).
+    // Both go to the UI thread from Qt's thread; most likely, when onResume() comes before the
+    // WebView is attached again, the page stays empty. Qt 6.8 still does both the same way.
+    // So each WebView Qt adds is paused with the activity and resumed after the activity resumes;
+    // a WebView attached to the window again is paused and resumed once more, because onResume()
+    // does nothing on a WebView that Qt has already resumed. No reload: the page keeps its state
+    // and scroll position. Redrawing the view from outside (invalidate, clip, layout) did not
+    // reliably make Chromium draw; onPause() + onResume() did.
+    private final Set<WebView> watchedWebViews = Collections.newSetFromMap(new WeakHashMap<WebView, Boolean>());
+    private boolean activityResumed = false;
+
+    private void watchWebViews(View view) {
+        if (view instanceof WebView) {
+            final WebView webView = (WebView) view;
+            if (watchedWebViews.add(webView)) {
+                webView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View v) {
+                        if (activityResumed) {
+                            Log.d(TAG, "WebView attached again: onPause + onResume");
+                            webView.onPause();
+                            webView.onResume();
+                        }
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View v) {
+                    }
+                });
+            }
+            return;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                watchWebViews(group.getChildAt(i));
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        activityResumed = false;
+        for (WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            webView.onPause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        activityResumed = true;
+        for (final WebView webView : watchedWebViews.toArray(new WebView[0])) {
+            // posted: from API 24 a view Qt has taken off the window runs it when it is attached
+            // again, before that on the next traversal; the attach listener covers both
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (activityResumed) {
+                        webView.onResume();
+                    }
+                }
+            });
+        }
+    }
+
+    // Called by Qt from its own thread at start: whether Android has accessibility on (main.cpp
+    // turns Qt's accessibility on again when Qt lost that report)
+    public static boolean accessibilityOn(Context context) {
+        AccessibilityManager manager = (AccessibilityManager) context.getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +496,35 @@ public class CustomQtActivity extends QtActivity {
         dispatchOAuthCallback(getIntent());
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
+        registerBackCallback();
 
-        // This tells the OS that we want to handle the display cutout area ourselves
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // Wrap Qt's accessibility view as soon as Qt adds it, before TalkBack moves over it, and
+        // watch each WebView Qt adds (paused and resumed with the activity)
+        accessibilityActivity = this;
+        getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if (accessibilityEnabled()) {
+                            qtAccessibilityView();
+                        }
+                        watchWebViews(getWindow().getDecorView());
+                    }
+                });
+
+        // Make the window truly edge-to-edge so the app renders into ALL screen areas
+        // including the display cutout (punch-hole/notch) on all 4 rotation variants.
+        // setDecorFitsSystemWindows(false) prevents the system from shrinking
+        // the content area around insets — we handle insets ourselves via onApplyWindowInsets.
+        // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS extends into the cutout on every edge.
+        // Dark window background ensures no white strip is visible in areas Qt may not render.
+        // API 31+ only, like the QML paddings (main.qml getTopPadding() and the others):
+        // below 31 they are 0, so on Android 11 (API 30) the system bars covered the app (#5484).
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        if (Build.VERSION.SDK_INT >= 31) {
+            getWindow().setDecorFitsSystemWindows(false);
+            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
@@ -77,6 +543,8 @@ public class CustomQtActivity extends QtActivity {
                 int waterfallBottom = 0;
                 int waterfallLeft = 0;
                 int waterfallRight = 0;
+                int systemBarLeft = 0;
+                int systemBarRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -84,6 +552,16 @@ public class CustomQtActivity extends QtActivity {
                     bottom = Math.round(insets.getSystemWindowInsetBottom() / density);
                     left = Math.round(insets.getSystemWindowInsetLeft() / density);
                     right = Math.round(insets.getSystemWindowInsetRight() / density);
+                    // On API 30+ getSystemWindowInsets() also includes the display cutout,
+                    // so ask for the system bars alone.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                        systemBarLeft = Math.round(bars.left / density);
+                        systemBarRight = Math.round(bars.right / density);
+                    } else {
+                        systemBarLeft = left;
+                        systemBarRight = right;
+                    }
 
                     // For API 28+, also check display cutout for additional padding
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -108,20 +586,20 @@ public class CustomQtActivity extends QtActivity {
                 }
 
                 Log.d(TAG, "onApplyWindowInsets - Top:" + top + " Bottom:" + bottom + " Left:" + left + " Right:" + right);
-                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() + 
-                          " SystemBottom:" + insets.getSystemWindowInsetBottom() + 
-                          " SystemLeft:" + insets.getSystemWindowInsetLeft() + 
+                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() +
+                          " SystemBottom:" + insets.getSystemWindowInsetBottom() +
+                          " SystemLeft:" + insets.getSystemWindowInsetLeft() +
                           " SystemRight:" + insets.getSystemWindowInsetRight());
-                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() + 
-                          " StableBottom:" + insets.getStableInsetBottom() + 
-                          " StableLeft:" + insets.getStableInsetLeft() + 
+                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() +
+                          " StableBottom:" + insets.getStableInsetBottom() +
+                          " StableLeft:" + insets.getStableInsetLeft() +
                           " StableRight:" + insets.getStableInsetRight());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     DisplayCutout cutout = insets.getDisplayCutout();
                     if (cutout != null) {
-                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() + 
-                              " Bottom:" + cutout.getSafeInsetBottom() + 
-                              " Left:" + cutout.getSafeInsetLeft() + 
+                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() +
+                              " Bottom:" + cutout.getSafeInsetBottom() +
+                              " Left:" + cutout.getSafeInsetLeft() +
                               " Right:" + cutout.getSafeInsetRight());
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             Insets waterfallInsets = cutout.getWaterfallInsets();
@@ -133,16 +611,38 @@ public class CustomQtActivity extends QtActivity {
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer.
-                // Guard against the race where Qt's native library hasn't finished
-                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
-                // forces edge-to-edge, triggering this before QtActivity finishes
-                // loading libqdomyos-zwift in its background thread).
+                // Push the new, correct inset values to the C++ layer immediately for
+                // responsiveness. Guard against the race where Qt's native library hasn't
+                // finished loading yet when Android fires onApplyWindowInsets early.
                 try {
                     onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                    onSystemBarSideInsetsChanged(systemBarLeft, systemBarRight);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }
+
+                // Deferred correction: Qt 5.15 on some emulator configurations internally
+                // shifts its rendering viewport by the top inset in landscape mode even
+                // after setDecorFitsSystemWindows(false). On real devices this does not
+                // happen. We detect the offset by measuring the Qt surface view position
+                // after the layout pass completes, then send corrected values so QML
+                // topPadding is not double-counted.
+                final int fTop = top, fBottom = bottom, fLeft = left, fRight = right;
+                final int fWT = waterfallTop, fWB = waterfallBottom, fWL = waterfallLeft, fWR = waterfallRight;
+                final float fDensity = density;
+                v.post(() -> {
+                    int surfaceYPx = findQtSurfaceYOffset(v);
+                    Log.d(TAG, "deferred surfaceYPx=" + surfaceYPx + " fTop=" + fTop);
+                    if (surfaceYPx > 0 && fDensity > 0) {
+                        int adjustedTop = Math.max(0, fTop - Math.round(surfaceYPx / fDensity));
+                        Log.d(TAG, "adjustedTop=" + adjustedTop);
+                        if (adjustedTop != fTop) {
+                            try {
+                                onInsetsChanged(adjustedTop, fBottom, fLeft, fRight, fWT, fWB, fWL, fWR);
+                            } catch (UnsatisfiedLinkError ignored) {}
+                        }
+                    }
+                });
 
                 return v.onApplyWindowInsets(insets);
             }
@@ -189,10 +689,535 @@ public class CustomQtActivity extends QtActivity {
         return requestCode == DOCUMENT_PICKER_PROFILE_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_TRAINING_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE
-            || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE;
+            || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE;
+    }
+
+    // Folder of the QZ files on Android 14+ (Documents/QZ) as a document of the external storage
+    // provider, so the folder picker opens there.
+    private static final String QZ_DOCUMENTS_TREE_ID = "primary:Documents/QZ";
+
+    // Opens the system folder picker to import every .fit file of a folder. After the app is
+    // reinstalled, the workouts left in Documents/QZ by the previous install are hidden from the
+    // file API (scoped storage); a folder granted through the picker can still be read. The grant
+    // is kept, so later imports of the same folder skip the picker.
+    // removeOldDatabase: also delete ddb.sqlite of the previous install from the folder (the app
+    // can remove it only through the grant), with the spare ddb-N.sqlite left by earlier installs;
+    // keepDatabase names the spare in use (empty when the database is elsewhere). allowPicker
+    // false (automatic import at start): use a saved grant only, never open the picker; returns
+    // false when there is no saved grant.
+    public boolean openFitFolderPicker(int requestCode, String destinationDir, boolean removeOldDatabase,
+                                       String keepDatabase, boolean allowPicker) {
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        fitFolderRemoveOldDatabase = removeOldDatabase;
+        fitFolderKeepDatabase = keepDatabase == null ? "" : keepDatabase;
+        fitFolderAllowPicker = allowPicker;
+        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+            Uri treeUri = permission.getUri();
+            String treeId = "";
+            try {
+                treeId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+            } catch (Exception ignored) {
+                // a granted single document, not a folder
+            }
+            // removing the old database needs a grant with write access
+            if (permission.isReadPermission() && QZ_DOCUMENTS_TREE_ID.equals(treeId)
+                && (!removeOldDatabase || permission.isWritePermission())) {
+                Intent data = new Intent();
+                data.setData(treeUri);
+                handleFitFolderResult(requestCode, RESULT_OK, data, true);
+                return true;
+            }
+        }
+        if (!allowPicker) {
+            pendingImportDirectories.remove(requestCode);
+            return false;
+        }
+        launchFitFolderPicker(requestCode);
+        return true;
+    }
+
+    private boolean fitFolderRemoveOldDatabase = false;
+    private String fitFolderKeepDatabase = "";
+    private boolean fitFolderAllowPicker = true;
+
+    private void launchFitFolderPicker(int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,
+                android.provider.DocumentsContract.buildDocumentUri("com.android.externalstorage.documents",
+                                                                    QZ_DOCUMENTS_TREE_ID));
+        }
+        startActivityForResult(intent, requestCode);
+    }
+
+    // Copies the .fit files of the picked folder and of its "fit" subfolder into destinationDir
+    // and passes their local paths, one per line, to the native side. An empty string still goes
+    // through, so the app can say that no workout was found. The copy runs off the UI thread:
+    // a folder can hold hundreds of workouts.
+    // A saved grant that finds nothing may be stale (folder removed or renamed): it is dropped
+    // and the picker opens, so the user can always choose the folder again.
+    private void handleFitFolderResult(final int requestCode, final int resultCode, Intent data,
+                                       final boolean fromSavedGrant) {
+        final String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            nativeOnDocumentPicked(requestCode, resultCode, "");
+            return;
+        }
+        final Uri treeUri = data.getData();
+        final boolean removeOldDatabase = fitFolderRemoveOldDatabase;
+        final String keepDatabase = fitFolderKeepDatabase;
+        final boolean allowPicker = fitFolderAllowPicker;
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            try {
+                getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e2) {
+                Log.d(TAG, "takePersistableUriPermission failed " + e2);
+            }
+        }
+        nativeOnFitImportStarted();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder localPaths = new StringBuilder();
+                try {
+                    String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
+                    // only in the QZ folder itself, never in another folder the user picked
+                    if (removeOldDatabase && localPaths.length() > 0 && QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                        deleteOldHistoryDatabase(treeUri, rootId, keepDatabase);
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, "handleFitFolderResult failed " + e);
+                }
+                Log.d(TAG, "handleFitFolderResult requestCode=" + requestCode + " savedGrant=" + fromSavedGrant
+                    + " files=" + (localPaths.length() == 0 ? 0 : localPaths.toString().split("\n").length));
+                if (fromSavedGrant && localPaths.length() == 0) {
+                    releaseFolderGrant(treeUri);
+                    if (allowPicker) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pendingImportDirectories.put(requestCode, destinationDir);
+                                launchFitFolderPicker(requestCode);
+                            }
+                        });
+                        return;
+                    }
+                }
+                nativeOnDocumentPicked(requestCode, RESULT_OK, localPaths.toString());
+            }
+        }, "FitFolderImport").start();
+    }
+
+    // Training programs left in Documents/QZ/training by a previous install: this install does
+    // not see them in the folder and cannot replace them, so the list of programs is empty and
+    // the bundled ones are not copied again. Through a grant on the QZ folder each such file is
+    // copied as this install's own one under the same name, and the old file is removed.
+    // allowPicker false: use a saved grant only, never open the picker; returns false when there
+    // is no saved grant with write access. allowPicker true (the user agreed): always open the
+    // picker, a saved grant may be the one that restored nothing.
+    public boolean openTrainingFolderPicker(int requestCode, String destinationDir, boolean allowPicker) {
+        // one pass at a time: two passes over the same files share the temporary copies
+        if (trainingRestoreRunning) {
+            Log.d(TAG, "openTrainingFolderPicker: a restore is running");
+            return false;
+        }
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        if (allowPicker) {
+            launchFitFolderPicker(requestCode);
+            return true;
+        }
+        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+            String treeId = "";
+            try {
+                treeId = android.provider.DocumentsContract.getTreeDocumentId(permission.getUri());
+            } catch (Exception ignored) {
+                // a granted single document, not a folder
+            }
+            if (permission.isReadPermission() && permission.isWritePermission()
+                && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
+                Intent data = new Intent();
+                data.setData(permission.getUri());
+                handleTrainingFolderResult(requestCode, RESULT_OK, data);
+                return true;
+            }
+        }
+        pendingImportDirectories.remove(requestCode);
+        return false;
+    }
+
+    // Passes the restored files, one path per line, to the native side; an empty string when
+    // nothing was restored (another folder picked, or no file of a previous install).
+    private void handleTrainingFolderResult(final int requestCode, final int resultCode, Intent data) {
+        final String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            nativeOnDocumentPicked(requestCode, resultCode, "");
+            return;
+        }
+        final Uri treeUri = data.getData();
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            Log.d(TAG, "takePersistableUriPermission failed " + e);
+        }
+        trainingRestoreRunning = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder restored = new StringBuilder();
+                try {
+                    String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+                    String trainingId = null;
+                    if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                        trainingId = findChildDocument(treeUri, rootId, "training");
+                    } else if ((QZ_DOCUMENTS_TREE_ID + "/training").equals(rootId)) {
+                        trainingId = rootId;
+                    }
+                    if (trainingId != null && !destinationDir.isEmpty()) {
+                        restoreTrainingFiles(treeUri, trainingId, new java.io.File(destinationDir), restored);
+                    }
+                    Log.d(TAG, "handleTrainingFolderResult root=" + rootId + " training=" + trainingId);
+                } catch (Exception e) {
+                    Log.d(TAG, "handleTrainingFolderResult failed " + e);
+                }
+                trainingRestoreRunning = false;
+                nativeOnDocumentPicked(requestCode, RESULT_OK, restored.toString());
+            }
+        }, "TrainingFolderRestore").start();
+    }
+
+    private String findChildDocument(Uri treeUri, String parentId, String childName) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                if (childName.equals(cursor.getString(1))) {
+                    return cursor.getString(0);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "findChildDocument failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    // Walks the folder and its subfolders; a file the app can already read is its own and stays.
+    // The copy is written first under a hidden temporary name (.restore_<name>) and compared
+    // with the old file byte for byte; only then is the old file removed and the copy takes the
+    // real name. A failure before the removal leaves the old file in place; a copy left under
+    // the temporary name after it is finished by recoverRestoreCopies() on the next pass or
+    // the next visit of the list.
+    private void restoreTrainingFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+        recoverRestoreCopies(localDir, false, restored);
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                // a .restore_<name> of this install is readable and skipped below; one of a previous
+                // install is restored like any file and finished by recoverRestoreCopies()
+                if (documentId == null || name == null || name.isEmpty()) {
+                    continue;
+                }
+                java.io.File local = new java.io.File(localDir, name);
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    restoreTrainingFiles(treeUri, documentId, local, restored);
+                    continue;
+                }
+                if (local.exists() && ContentHelper.isReadable(local)) {
+                    continue;
+                }
+                if (!localDir.exists() && !localDir.mkdirs()) {
+                    Log.d(TAG, "restoreTrainingFiles could not create " + localDir);
+                    return;
+                }
+                java.io.File temporary = new java.io.File(localDir, RESTORE_PREFIX + name);
+                Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+                if (!ContentHelper.copyContentToFile(this, documentUri, temporary.getAbsolutePath())) {
+                    temporary.delete();
+                    continue;
+                }
+                // the old file goes only once its copy is known to be whole
+                if (!ContentHelper.sameContent(this, documentUri, temporary)) {
+                    Log.d(TAG, "restoreTrainingFiles copy of " + name + " differs from the original, kept the original");
+                    temporary.delete();
+                    continue;
+                }
+                if (local.exists() && !deleteTreeDocument(treeUri, documentId)) {
+                    temporary.delete();
+                    continue;
+                }
+                if (!moveRestoreCopy(temporary, local)) {
+                    // the old file is already gone: the copy stays under the temporary name, and
+                    // recoverRestoreCopies() gives it the real name later
+                    Log.d(TAG, "restoreTrainingFiles kept " + temporary + ", could not rename it");
+                    continue;
+                }
+                if (restored.length() > 0) {
+                    restored.append('\n');
+                }
+                restored.append(local.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "restoreTrainingFiles failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private static final String RESTORE_PREFIX = ".restore_";
+    // a folder pass is running: its temporary copies are not left over yet
+    private volatile boolean trainingRestoreRunning = false;
+
+    // Copies a restore left under the temporary name in directory and its subfolders (the old
+    // file was already removed when the rename failed or the app stopped) take their real name.
+    // They are this install's own files, so no folder grant is needed. Returns their paths, one
+    // per line; empty while a folder pass is running.
+    public String recoverTrainingRestoreCopies(String directory) {
+        StringBuilder recovered = new StringBuilder();
+        if (directory != null && !directory.isEmpty() && !trainingRestoreRunning) {
+            recoverRestoreCopies(new java.io.File(directory), true, recovered);
+        }
+        return recovered.toString();
+    }
+
+    // For each .restore_<name> in dir: the real name is free – the copy takes it; taken by a
+    // readable file with the same bytes – the copy is dropped; with other bytes – the copy goes
+    // under a free <name>_N, so neither is lost; taken by a file of a previous install – the copy
+    // stays, and the folder pass copies that file again.
+    private void recoverRestoreCopies(java.io.File dir, boolean recursive, StringBuilder recovered) {
+        java.io.File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (java.io.File file : files) {
+            String name = file.getName();
+            if (file.isDirectory()) {
+                if (recursive) {
+                    recoverRestoreCopies(file, true, recovered);
+                }
+                continue;
+            }
+            if (!name.startsWith(RESTORE_PREFIX) || name.length() == RESTORE_PREFIX.length()) {
+                continue;
+            }
+            java.io.File target = new java.io.File(dir, name.substring(RESTORE_PREFIX.length()));
+            java.io.File result = null;
+            if (!target.exists()) {
+                result = moveRestoreCopy(file, target) ? target : null;
+            } else if (!ContentHelper.isReadable(target)) {
+                continue;
+            } else if (ContentHelper.sameContent(file, target)) {
+                file.delete();
+                continue;
+            } else {
+                result = moveRestoreCopyToFreeName(file, target);
+            }
+            Log.d(TAG, "recoverRestoreCopies " + file + " -> " + result);
+            if (result != null) {
+                if (recovered.length() > 0) {
+                    recovered.append('\n');
+                }
+                recovered.append(result.getAbsolutePath());
+            }
+        }
+    }
+
+    // Renames copy to target; when the rename fails, copies the bytes and keeps copy unless
+    // target holds the same bytes. false: copy is still in place and target does not exist.
+    private boolean moveRestoreCopy(java.io.File copy, java.io.File target) {
+        if (copy.renameTo(target)) {
+            return true;
+        }
+        // target is removed below only when this call has just written it
+        if (!copy.isFile()) {
+            return false;
+        }
+        if (ContentHelper.copyContentToFile(this, Uri.fromFile(copy), target.getAbsolutePath())
+            && ContentHelper.sameContent(copy, target)) {
+            copy.delete();
+            return true;
+        }
+        target.delete();
+        return false;
+    }
+
+    // Puts copy under the first free <name>_N next to target, as a picked file with a taken name
+    // gets; null when no name could be used (copy kept).
+    private java.io.File moveRestoreCopyToFreeName(java.io.File copy, java.io.File target) {
+        String fileName = target.getName();
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        for (int attempt = 1; attempt < 100; attempt++) {
+            java.io.File candidate = new java.io.File(target.getParentFile(), base + "_" + attempt + extension);
+            if (!candidate.exists()) {
+                return moveRestoreCopy(copy, candidate) ? candidate : null;
+            }
+        }
+        return null;
+    }
+
+    private void releaseFolderGrant(Uri treeUri) {
+        try {
+            getContentResolver().releasePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            try {
+                getContentResolver().releasePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e2) {
+                Log.d(TAG, "releasePersistableUriPermission failed " + e2);
+            }
+        }
+    }
+
+    // The history database of a previous install cannot be opened, so the app runs on a spare
+    // one; once its workouts are copied, the old file (and its journal) is removed through the
+    // grant, and the next start goes back to ddb.sqlite. Spares of earlier installs are locked
+    // the same way and go too, all but keepDatabase, the one this install is running on.
+    private void deleteOldHistoryDatabase(Uri treeUri, String rootId, String keepDatabase) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootId);
+        android.database.Cursor cursor = null;
+        String databaseId = null;
+        String journalId = null;
+        java.util.ArrayList<String> spareIds = new java.util.ArrayList<String>();
+        java.util.ArrayList<String> spareJournalIds = new java.util.ArrayList<String>();
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String name = cursor.getString(1);
+                if ("ddb.sqlite".equals(name)) {
+                    databaseId = cursor.getString(0);
+                } else if ("ddb.sqlite-journal".equals(name)) {
+                    journalId = cursor.getString(0);
+                } else if (name != null && name.matches("ddb-\\d+\\.sqlite")
+                           && !name.equals(keepDatabase)) {
+                    spareIds.add(cursor.getString(0));
+                } else if (name != null && name.matches("ddb-\\d+\\.sqlite-journal")
+                           && !name.equals(keepDatabase + "-journal")) {
+                    spareJournalIds.add(cursor.getString(0));
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "deleteOldHistoryDatabase query failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        // the journal goes first: a foreign journal left next to a new ddb.sqlite would break it
+        if (journalId != null && !deleteTreeDocument(treeUri, journalId)) {
+            return;
+        }
+        if (databaseId != null) {
+            deleteTreeDocument(treeUri, databaseId);
+        }
+        for (String id : spareJournalIds) {
+            deleteTreeDocument(treeUri, id);
+        }
+        for (String id : spareIds) {
+            deleteTreeDocument(treeUri, id);
+        }
+    }
+
+    private boolean deleteTreeDocument(Uri treeUri, String documentId) {
+        try {
+            boolean deleted = android.provider.DocumentsContract.deleteDocument(getContentResolver(),
+                android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+            Log.d(TAG, "deleteTreeDocument " + documentId + " deleted=" + deleted);
+            return deleted;
+        } catch (Exception e) {
+            Log.d(TAG, "deleteTreeDocument " + documentId + " failed " + e);
+            return false;
+        }
+    }
+
+    private void importFitFilesFromTree(Uri treeUri, String parentId, String destinationDir,
+                                        StringBuilder localPaths, boolean descendIntoFit) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        String[] projection = new String[] {
+            android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE,
+            android.provider.DocumentsContract.Document.COLUMN_SIZE};
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, projection, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                String mimeType = cursor.getString(2);
+                long size = cursor.isNull(3) ? -1 : cursor.getLong(3);
+                if (name == null || documentId == null) {
+                    continue;
+                }
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                    if (descendIntoFit && name.equalsIgnoreCase("fit")) {
+                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false);
+                    }
+                    continue;
+                }
+                String lowerName = name.toLowerCase(java.util.Locale.ROOT);
+                // QZ-backup-*.fit are partial copies written during a workout, skipped at start
+                // as well; importing them would show the workout twice
+                if (!lowerName.endsWith(".fit") || lowerName.contains("backup")) {
+                    continue;
+                }
+                Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+                String localPath = ContentHelper.importContentToAppDirKeepExisting(this, documentUri, name, size,
+                                                                                   destinationDir);
+                if (!localPath.isEmpty()) {
+                    if (localPaths.length() > 0) {
+                        localPaths.append('\n');
+                    }
+                    localPaths.append(localPath);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "importFitFilesFromTree failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE) {
+            handleFitFolderResult(requestCode, resultCode, data, false);
+            return;
+        }
+        if (requestCode == DOCUMENT_PICKER_TRAINING_FOLDER_REQUEST_CODE) {
+            handleTrainingFolderResult(requestCode, resultCode, data);
+            return;
+        }
         String destinationDir = pendingImportDirectories.get(requestCode, "");
         pendingImportDirectories.remove(requestCode);
 
@@ -211,7 +1236,13 @@ public class CustomQtActivity extends QtActivity {
             if (data.getData() != null) {
                 Uri uri = data.getData();
                 uriString = uri.toString();
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK && requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE) {
+                    nativeOnFitImportStarted();
+                    // a workout must not replace another one that has the same file name
+                    localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "",
+                                                                                ContentHelper.getFileSize(this, uri),
+                                                                                destinationDir);
+                } else if (resultCode == RESULT_OK) {
                     localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
                 }
             }

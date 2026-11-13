@@ -92,6 +92,10 @@ viewer.trackedEntity = bike;
     let lastBikeHeight = 0
     let firstTime = 0
 
+    function t(key, fallback) {
+        return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+    }
+
     function a() {
     onWorkout = false;
     let el = new MainWSQueueElement({
@@ -153,7 +157,7 @@ viewer.trackedEntity = bike;
 																}
 				}
 
-            $('#metricsText').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+            $('#metricsText').html("🏃" + t('metric.speedTitle', 'Speed') + ": " + speed.toFixed(2) + "<br>🚴" + t('metric.cadenceTitle', 'Cadence') + ":" + cadence.toFixed(0) + "<br>💓" + t('metric.heart', 'Heart') + ":"+ hr.toFixed(0) + "<br>🔥" + t('metric.caloriesTitle', 'Calories') + ":"+ calories.toFixed(1) + "<br>📏" + t('metric.odometer', 'Odometer') + ":"+ odometer.toFixed(2) + "<br>⚡" + t('metric.watt', 'Watt') + ":"+ watt.toFixed(0) + "<br>⏲️" + t('metric.elapsed', 'Elapsed') + ":"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐" + t('metric.inclinationTitle', 'Inclination') + ":"+ inclination.toFixed(1) + "<br>🧲" + t('metric.resistanceTitle', 'Resistance') + ":"+ resistance.toFixed(0) + "<br>✈️" + t('metric.altitude', 'Altitude') + ":"+ altitude.toFixed(1) + "<br>⛰️" + t('metric.elevationTitle', 'Elevation') + ":"+ elevation.toFixed(2));
 		  }
 		  return null;
 		}, 15000, 3);
