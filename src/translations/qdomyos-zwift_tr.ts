@@ -209,6 +209,14 @@ Would you like to do that now?</source>
         <translation>Dinlenme</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Durdur</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Çok hafif</translation>
     </message>
@@ -338,6 +346,18 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Bu uygulama bisikletinize/koşu bandınıza/kürek makinenize otomatik olarak bağlanmalıdır. &lt;b&gt;Bağlanmazsa şunları kontrol edin&lt;/b&gt;:&lt;br&gt;1) qdomyos-zwift çalışırken Echelon/Domyos uygulamanız MUTLAKA kapalı olmalıdır;&lt;br&gt;2) Bluetooth ve Bluetooth izinleri MUTLAKA açık olmalıdır&lt;br&gt;3) bisikletiniz/koşu bandınız/kürek makineniz bu uygulamayı başlatmadan ÖNCE açılmış olmalıdır&lt;br&gt;4) cihazınızı yeniden başlatmayı deneyin&lt;br&gt;&lt;br&gt;Bisikletinizin/koşu bandınızın bağlantısı her 30 saniyede bir kopuyorsa sol çubuktaki &quot;Sanal cihazı etkinleştir&quot; ayarını kapatmayı deneyin.&lt;br&gt;&lt;br&gt;Sorun yaşarsanız roberto.viola83@gmail.com adresinden bana çekinmeden ulaşabilirsiniz.&lt;br&gt;&lt;br&gt;&lt;b&gt;İyi sürüşler!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ, arızi veya dolaylı zararlara ilişkin&lt;br&gt;sorumluluğu açıkça reddeder ve uygulamanın&lt;br&gt;kullanımı veya kötüye kullanımı sonucunda&lt;br&gt;herhangi bir kişinin uğradığı kayıp&lt;br&gt;veya zarardan hiçbir sorumluluk kabul etmez.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Cihazınız aranıyor…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Bisikletinizi, koşu bandınızı veya kürek makinenizi açın: QZ ona otomatik olarak bağlanır.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Bağlanmıyor mu?</translation>
     </message>
 </context>
 <context>

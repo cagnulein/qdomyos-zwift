@@ -9,11 +9,34 @@ import QtMultimedia 5.15
 
 HomeForm {
     objectName: "home"
+    // Modern look: rootItem comes from C++ only after main.qml is loaded (main.cpp). Until
+    // then every binding on it fails and leaves its default, visible, so the first frames
+    // drew the classic help text and the unstyled buttons over the searching state. The
+    // content waits for it, the background is drawn at once
+    contentItem.visible: !window.ui.modern || typeof rootItem !== "undefined"
+    // Modern look: the line under Start/Stop only while it names a loaded workout or the search.
+    // "<device> found" (homeform.cpp) is in the drawer header already; the signal bars go with
+    // the line
+    modernInfoShown: {
+        // The search for the equipment ("Next search in 12 s") is not in the drawer
+        if (searchStatus !== "")
+            return true
+        if (typeof rootItem === "undefined" || !rootItem || !rootItem.info)
+            return false
+        // "Connecting..." is the start value of homeform::m_info, kept by equipment that does not
+        // write its own status (the fake devices): connected, the drawer header says "Device
+        // connected", and the line would read "Searching for the device..." beside the green card
+        if (rootItem.info === "Connecting..." && window.equipmentConnected)
+            return false
+        // homeform writes "<device> found" into info once the device is found (name + " found");
+        // a loaded workout puts its name there
+        return !String(rootItem.info).endsWith(" found")
+    }
     background: Rectangle {
         anchors.fill: parent
         width: parent.fill
         height: parent.fill
-        color: settings.theme_background_color
+        color: window.ui.modern ? window.ui.bg : settings.theme_background_color
 
         // VoiceOver accessibility - ignore decorative background
         Accessible.role: Accessible.Pane
@@ -80,7 +103,7 @@ HomeForm {
         onTrainingProgramIntervalSoundRequested: trainingProgramSegmentSound.play()
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: messagePelotonAskStart
         text: qsTr("Peloton Workout in progress")
         informativeText: qsTr("Do you want to follow the resistance? ") + rootItem.pelotonProvider
@@ -90,40 +113,19 @@ HomeForm {
         visible: rootItem.pelotonAskStart
     }
 
-    Popup {
+    UiNotice {
         id: popupLap
-         parent: Overlay.overlay
-
-         x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("New lap started!")
-            }
-        }
+        text: qsTr("New lap started!")
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: stopConfirmationDialog
         text: qsTr("Stop Workout")
         informativeText: qsTr("Do you really want to stop the current workout?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
+        yesText: qsTr("Stop")
+        noText: qsTr("Cancel")
+        destructive: true
         onYesClicked: {
             close();
             inner_stop();
@@ -134,15 +136,19 @@ HomeForm {
     // Optional post-workout popup (settings.rpe_feel_popup_enabled) asking for perceived exertion
     // and how the user felt. Saving the FIT file (rootItem.finalizeFitSave) is suspended until this
     // popup is answered, so the values can be embedded in the FIT file before it's written/uploaded.
-    Popup {
+    UiPopup {
         id: rpeFeelPopup
         parent: Overlay.overlay
 
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
-        // with a bigger text: as wide as the screen allows, as tall as the content (Skip/Save fell out)
-        width: window.textScale !== 1 ? Math.min(420, parent.width - 32) : 420
-        height: window.textScale !== 1
+        // Modern: a card that fits a phone in portrait (420 is wider than most of them) and as
+        // tall as its content; classic: the fixed size as before, and with a bigger text as wide
+        // as the screen allows, as tall as the content (Skip/Save fell out)
+        width: modern ? Math.min(parent.width - 48, 440)
+            : window.textScale !== 1 ? Math.min(420, parent.width - 32) : 420
+        height: modern ? rpeColumn.implicitHeight + 2 * 16 + topPadding + bottomPadding
+            : window.textScale !== 1
             ? Math.min(parent.height - 40, Math.max(340, rpeColumn.implicitHeight + 32 + topPadding + bottomPadding))
             : 340
         modal: true
@@ -166,8 +172,10 @@ HomeForm {
 
             Label {
                 text: qsTr("How was this workout?")
-                font.bold: true
-                font.pixelSize: window.fontPx(18)
+                // Modern: the title of UiMessageDialog
+                font.weight: rpeFeelPopup.modern ? Font.DemiBold : Font.Bold
+                font.pixelSize: rpeFeelPopup.modern ? window.ui.fontTitle : window.fontPx(18)
+                color: window.ui.ink(Material.foreground)
                 width: parent.width
                 wrapMode: Text.WordWrap
             }
@@ -176,6 +184,7 @@ HomeForm {
                 text: qsTr("Perceived Exertion (RPE): ") + rpeFeelPopup.selectedRpe + " - " + rpeFeelPopup.rpeLabels[rpeFeelPopup.selectedRpe]
                 width: parent.width
                 wrapMode: Text.WordWrap
+                color: window.ui.ink(Material.foreground)
             }
 
             Slider {
@@ -192,6 +201,7 @@ HomeForm {
                 text: qsTr("How did you feel?")
                 width: parent.width
                 wrapMode: Text.WordWrap
+                color: window.ui.ink(Material.foreground)
             }
 
             UiComboBox {
@@ -206,8 +216,9 @@ HomeForm {
                 spacing: 12
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                Button {
+                UiButton {
                     text: qsTr("Skip")
+                    cardSurface: true
                     onClicked: {
                         rpeFeelPopup.close();
                         rootItem.finalizeFitSave(-1, -1);
@@ -215,7 +226,7 @@ HomeForm {
                     }
                 }
 
-                Button {
+                UiButton {
                     text: qsTr("Save")
                     highlighted: true
                     onClicked: {
@@ -264,7 +275,7 @@ HomeForm {
         onTriggered: locationServicesOn = rootItem.refreshLocationServices()
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: locationServicesDialog
         text: qsTr("Permissions Required")
         informativeText: qsTr("QZ needs Bluetooth enabled to discover fitness equipment. On Android 11 and earlier, Android also requires Location permission and Location Services for Bluetooth discovery. QZ does not use your location data. On Android 12 and later, Nearby devices permission allows Bluetooth discovery without Location.\n\nWould you like to enable the required services?")
@@ -280,7 +291,7 @@ HomeForm {
         visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
 
-    MessageDialog {
+    UiMessageDialog {
         id: remindLocationServicesDialog
         text: qsTr("Reminder Preference")
         informativeText: qsTr("Would you like to be reminded about enabling Bluetooth or Location Services next time?")
@@ -290,7 +301,7 @@ HomeForm {
         visible: false
     }
 
-    MessageDialog {
+    UiMessageDialog {
         text: qsTr("Restart the app")
         informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
@@ -357,7 +368,7 @@ HomeForm {
         Rectangle {
             width: parent.width
             height: gridView.barRoom
-            color: settings.theme_background_color
+            color: window.ui.modern ? window.ui.bg : settings.theme_background_color
         }
     }
 
@@ -373,13 +384,18 @@ HomeForm {
         // by leftMargin: Qt 5.15 does not recount the columns when leftMargin changes, so
         // after a resize a row could come out one column short
         readonly property real tileBaseWidth: 175 * settings.ui_zoom / 100
-        readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
-        cellWidth: Math.floor(Math.min(parent.width / tileColumns, tileBaseWidth * 1.25))
-        width: tileColumns * cellWidth
         // Every tile is narrower than its cell by tileGap and sits at the cell's left edge, so the
         // last column ends with the gap: the grid is shifted by half the gap, so the outer margins
-        // are equal
+        // are equal. The modern look also adds the page side margin of its other screens (the
+        // "Not connecting?" card, the header): the outer tile edges line up with the card
         readonly property real tileGap: 5 * settings.ui_zoom / 100
+        readonly property real tileSideMargin: window.ui.modern ? window.contentSideMargin : 0
+        readonly property real tileRowWidth: parent.width - (window.ui.modern ? 2 * tileSideMargin - tileGap : 0)
+        // Columns counted on the whole page, as before the margins: on a 360 dp phone the margins
+        // would leave one column instead of two. The tiles get narrower there instead (165 dp)
+        readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
+        cellWidth: Math.floor(Math.min(tileRowWidth / tileColumns, tileBaseWidth * 1.25))
+        width: tileColumns * cellWidth
         anchors.horizontalCenterOffset: tileGap / 2
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
@@ -387,11 +403,22 @@ HomeForm {
         // While the tiles are being moved the gap above the first row is part of the content,
         // so it scrolls away with the tiles instead of staying as an empty band
         topMargin: window.lockTiles ? 30 : 0
+        // Modern look: while the support button "?" is in the corner the list goes on under the
+        // last row by the button and its 16 dp margin (main.qml), so at the end it covers no tile
+        bottomMargin: window.ui.modern && window.supportHelpShown ? 56 + 16 : 0
+        // Eased: when the button goes with the list at its end, the tiles glide down by the room
+        // instead of jumping (Flickable fixes contentY at once on a smaller margin)
+        Behavior on bottomMargin { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
         // The room for the toolbar above the Start/Stop row, so at the top it covers nothing, then
         // the row and the gap under it, part of the content; none while the tiles are being moved
-        // (the row is hidden then and the grid starts below the toolbar)
+        // (the row is hidden then and the grid starts below the toolbar).
+        // Modern look: the status line is part of the row, the first row starts under it
+        // (HomeForm modernTilesTop); with the top bar off a smaller gap when the status line is
+        // not shown
         readonly property real barRoom: window.lockTiles ? 0 : headerToolbar.contentHeight
-        readonly property real rowsRoom: window.lockTiles ? 0 : barRoom + rootItem.topBarHeight + 30
+        readonly property real rowsRoom: window.lockTiles ? 0
+                                         : barRoom + (modernControlsShown ? modernTilesTop
+                                                      : rootItem.topBarHeight + (window.ui.modern && !modernInfoShown ? 12 : 30))
         header: Item {
             width: gridView.width
             height: gridView.rowsRoom
@@ -406,8 +433,21 @@ HomeForm {
                 contentY = -topMargin - rowsRoom
         }
         onTopMarginChanged: keepAtTop()
-        onRowsRoomChanged: keepAtTop()
-        interactive: !window.lockTiles
+        // Modern look: the status line comes and goes with a loaded workout, and the room above
+        // the first row with it. Only a list at the top goes to the new top; a scrolled one keeps
+        // its tiles where they are (the first row at the edge of the shown area has contentY <= 0
+        // as well)
+        property real lastRowsRoom: 0
+        onRowsRoomChanged: {
+            if (!window.ui.modern)
+                keepAtTop()
+            else if (contentY <= -topMargin - lastRowsRoom + 1)
+                contentY = -topMargin - rowsRoom
+            lastRowsRoom = rowsRoom
+        }
+        // Modern look before connection: the grid is still empty and the "searching" state
+        // (HomeForm modernEmpty) is in its header: the grid does not scroll then, the state does
+        interactive: !window.lockTiles && !(window.ui.modern && rootItem.labelHelp)
         id: gridView
         objectName: "gridview"
 
@@ -419,7 +459,7 @@ HomeForm {
         readonly property real scrolledNow: contentY - originY
         property real lastBarScroll: 0
         onScrolledNowChanged: {
-            var s = Math.min(Math.max(scrolledNow, 0), Math.max(contentHeight - height, 0))
+            var s = Math.min(Math.max(scrolledNow, 0), Math.max(contentHeight + bottomMargin - height, 0))
             var d = s - lastBarScroll
             lastBarScroll = s
             if (window.lockTiles || barSnap.running)
@@ -444,12 +484,15 @@ HomeForm {
             if (window.lockTiles)
                 return
             var b = headerToolbar.barShift, h = headerToolbar.contentHeight
-            var s = Math.min(Math.max(scrolledNow, 0), Math.max(contentHeight - height, 0))
+            // the end of the list: with the room under the last row (bottomMargin) while the
+            // support button is shown, or the toolbar snap pulled that row back under the button
+            var maxS = Math.max(contentHeight + bottomMargin - height, 0)
+            var s = Math.min(Math.max(scrolledNow, 0), maxS)
             if (s > 0 && s < h) {
                 // The toolbar follows the list back to the top by itself (barShift <= s). A list
                 // longer than the page by less than the toolbar ends first: then the toolbar goes
                 // only as far as the list, so the last row stays in view
-                var end = Math.min(h, contentHeight - height)
+                var end = Math.min(h, maxS)
                 var hide = b >= end / 2
                 listSnap.to = originY + (hide ? end : 0)
                 listSnap.start()
@@ -508,6 +551,268 @@ HomeForm {
 
             transitions: Transition { NumberAnimation { property: "opacity"; duration: 200} }
 
+            // Only the tile of the current look is created: hidden, the other one still kept
+            // its elements and bindings, and its texts took every new value. Switching the
+            // look with the page open replaces the tile
+            Loader {
+                anchors.fill: parent
+                sourceComponent: window.ui.modern ? modernTileComponent : classicTileComponent
+            }
+
+            // The heart rate tile: a tap does what a tap on the Bluetooth icon does – with no machine yet it searches
+            // for it (bluetoothSearchNow(), nothing with one connected), and it looks for the heart rate sensor
+            // (homeform::reconnectHeartRateBelt()): the chosen one again or, with none chosen, one nearby to offer.
+            // Not while the tiles are being moved (loc takes the presses then). Here and not in a tile component:
+            // the same in both looks, over the card of either (rect, modernCard: this size).
+            // For TalkBack and VoiceOver a button after the tile, named by the tile only: its value changes on its own,
+            // and on the other tiles there is no such node
+            MouseArea {
+                id: heartTap
+                width: id1.width - 2 * settings.ui_zoom / 100
+                height: 123 * settings.ui_zoom / 100
+                enabled: identificator === "heart" && !window.lockTiles
+                onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
+                Accessible.role: Accessible.Button
+                Accessible.name: name
+                Accessible.focusable: true
+                Accessible.ignored: !enabled
+                Accessible.onPressAction: { if (enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
+            }
+
+            // Modern tile: a card with the label and a small icon on top, the value in the
+            // middle, the zone colour as a bar on the left edge and as the value colour
+            Component {
+                id: modernTileComponent
+            Item {
+                id: modernTile
+                anchors.fill: parent
+                readonly property real zoom: settings.ui_zoom / 100
+                readonly property bool zoned: !largeButton && valueFontColor !== "white"
+
+                // UiFrame, not Rectangle.border: a thin border breaks up on Android
+                UiFrame {
+                    id: modernCard
+                    width: modernTile.width - 2 * modernTile.zoom
+                    height: 123 * modernTile.zoom
+                    radius: 16 * modernTile.zoom
+                    fill: window.ui.surface
+                    stroke: window.ui.alpha(window.ui.textMain, 0.06)
+                    strokeWidth: 1
+                    visible: !largeButton
+                    Accessible.ignored: true
+                }
+
+                Rectangle {
+                    visible: modernTile.zoned
+                    x: 5 * modernTile.zoom
+                    width: 4 * modernTile.zoom
+                    height: modernCard.height - 36 * modernTile.zoom
+                    anchors.verticalCenter: modernCard.verticalCenter
+                    radius: width / 2
+                    color: valueFontColor
+                    Accessible.ignored: true
+                }
+
+                Image {
+                    id: modernIcon
+                    x: 12 * modernTile.zoom
+                    y: 10 * modernTile.zoom
+                    width: 20 * modernTile.zoom
+                    height: 20 * modernTile.zoom
+                    source: icon
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: settings.theme_tile_icon_enabled && !largeButton
+                    Accessible.ignored: true
+                    // Some tile icons are plain black and some plain white, so either kind
+                    // gets lost on one of the themes: paint those in the text colour.
+                    // Coloured icons (heart, watt, kcal, resistance) stay as they are.
+                    readonly property var monoIcons: ["cadence", "clock", "elevationgain", "fan", "inclination",
+                                                      "joul", "odometer", "pace", "speed"]
+                    // the file name of the icon without the folder and ".png"
+                    readonly property string iconName: {
+                        var s = String(source)
+                        var name = s.substring(s.lastIndexOf("/") + 1)
+                        return name.endsWith(".png") ? name.substring(0, name.length - 4) : ""
+                    }
+                    readonly property bool mono: monoIcons.indexOf(iconName) >= 0
+                    layer.enabled: mono
+                    layer.effect: ColorOverlay { color: window.ui.textMuted }
+                }
+
+                Text {
+                    anchors.left: modernIcon.visible ? modernIcon.right : modernCard.left
+                    anchors.leftMargin: (modernIcon.visible ? 6 : 12) * modernTile.zoom
+                    anchors.right: modernCard.right
+                    anchors.rightMargin: 10 * modernTile.zoom
+                    anchors.verticalCenter: modernIcon.verticalCenter
+                    text: name
+                    color: window.ui.textMuted
+                    font.pixelSize: 13 * modernTile.zoom
+                    font.weight: Font.Medium
+                    elide: Text.ElideRight
+                    visible: !largeButton
+                    Accessible.ignored: true
+                }
+
+                Text {
+                    id: modernValue
+                    anchors.horizontalCenter: modernCard.horizontalCenter
+                    y: 34 * modernTile.zoom
+                    width: Math.max(40, modernCard.width - (writable ? 100 : 20) * modernTile.zoom)
+                    height: 50 * modernTile.zoom
+                    text: value
+                    color: modernTile.zoned ? window.ui.zoneInk(valueFontColor) : window.ui.textMain
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.pointSize: valueFontSize * modernTile.zoom
+                    fontSizeMode: Text.Fit
+                    minimumPointSize: 10
+                    font.bold: true
+                    visible: !largeButton
+                    Accessible.ignored: true
+                }
+
+                Text {
+                    anchors.top: modernValue.bottom
+                    anchors.horizontalCenter: modernCard.horizontalCenter
+                    width: modernCard.width - 16 * modernTile.zoom
+                    height: 26 * modernTile.zoom
+                    text: secondLine
+                    color: window.ui.textMuted
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.pointSize: settings.theme_tile_secondline_textsize * modernTile.zoom
+                    fontSizeMode: Text.Fit
+                    minimumPointSize: 7
+                    visible: !largeButton
+                    Accessible.ignored: true
+                }
+
+                RoundButton {
+                    id: modernMinus
+                    objectName: minusName
+                    autoRepeat: true
+                    visible: writable && !largeButton
+                    // A touch area of 64 x 80, easier to hit while riding, around the circle as it
+                    // always looked: 32 (a 44 button less the 6 insets of Material), 12 from the
+                    // edge, on the value's centre
+                    x: (6 - 8) * modernTile.zoom
+                    y: modernValue.y + modernValue.height / 2 + 3 * modernTile.zoom - height / 2
+                    width: 64 * modernTile.zoom
+                    height: 80 * modernTile.zoom
+                    topInset: 0
+                    bottomInset: 0
+                    leftInset: 0
+                    rightInset: 0
+                    onClicked: minus_clicked(objectName)
+                    background: Item {
+                        Rectangle {
+                            x: 14 * modernTile.zoom
+                            y: parent.height / 2 - 19 * modernTile.zoom
+                            width: 32 * modernTile.zoom
+                            height: 32 * modernTile.zoom
+                            radius: width / 2
+                            color: modernMinus.down ? window.ui.alpha(window.ui.accent, 0.35) : window.ui.surfaceHighest
+                            UiIcon {
+                                anchors.centerIn: parent
+                                width: 22 * modernTile.zoom
+                                height: 22 * modernTile.zoom
+                                name: "remove"
+                                color: window.ui.textMain
+                            }
+                        }
+                    }
+                    contentItem: Item {}
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Decrease ") + name
+                    Accessible.description: qsTr("Decrease the value of ") + name
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { minus_clicked(objectName) }
+                }
+
+                RoundButton {
+                    id: modernPlus
+                    objectName: plusName
+                    autoRepeat: true
+                    visible: writable && !largeButton
+                    // A touch area of 64 x 80, easier to hit while riding, around the circle as it
+                    // always looked: 32 (a 44 button less the 6 insets of Material), 12 from the
+                    // edge, on the value's centre
+                    x: modernCard.width - width + (8 - 6) * modernTile.zoom
+                    y: modernValue.y + modernValue.height / 2 + 3 * modernTile.zoom - height / 2
+                    width: 64 * modernTile.zoom
+                    height: 80 * modernTile.zoom
+                    topInset: 0
+                    bottomInset: 0
+                    leftInset: 0
+                    rightInset: 0
+                    onClicked: plus_clicked(objectName)
+                    background: Item {
+                        Rectangle {
+                            x: 18 * modernTile.zoom
+                            y: parent.height / 2 - 19 * modernTile.zoom
+                            width: 32 * modernTile.zoom
+                            height: 32 * modernTile.zoom
+                            radius: width / 2
+                            color: modernPlus.down ? window.ui.alpha(window.ui.accent, 0.35) : window.ui.surfaceHighest
+                            UiIcon {
+                                anchors.centerIn: parent
+                                width: 22 * modernTile.zoom
+                                height: 22 * modernTile.zoom
+                                name: "add"
+                                color: window.ui.textMain
+                            }
+                        }
+                    }
+                    contentItem: Item {}
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Increase ") + name
+                    Accessible.description: qsTr("Increase the value of ") + name
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { plus_clicked(objectName) }
+                }
+
+                RoundButton {
+                    id: modernLargeButton
+                    objectName: identificator
+                    autoRepeat: true
+                    visible: largeButton
+                    width: modernTile.width - 2 * modernTile.zoom
+                    height: 123 * modernTile.zoom
+                    onClicked: largeButton_clicked(objectName)
+                    background: Rectangle {
+                        radius: 16 * modernTile.zoom
+                        color: largeButtonColor
+                        opacity: modernLargeButton.down ? 0.75 : 1
+                    }
+                    contentItem: Text {
+                        text: largeButtonLabel
+                        color: "white"
+                        font.pixelSize: 20 * modernTile.zoom
+                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: largeButtonLabel
+                    Accessible.description: name + ": " + largeButtonLabel
+                    Accessible.focusable: true
+                    Accessible.onPressAction: { largeButton_clicked(objectName) }
+                }
+            }
+            }
+
+            // Classic tile
+            Component {
+                id: classicTileComponent
+            Item {
+                anchors.fill: parent
+
             Rectangle {
                 width: id1.width - 2 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
@@ -533,24 +838,6 @@ HomeForm {
                 source: rect
             }
 
-            // The heart rate tile: a tap does what a tap on the Bluetooth icon does – with no machine yet it searches
-            // for it (bluetoothSearchNow(), nothing with one connected), and it looks for the heart rate sensor
-            // (homeform::reconnectHeartRateBelt()): the chosen one again or, with none chosen, one nearby to offer.
-            // Not while the tiles are being moved (loc takes the presses then).
-            // For TalkBack and VoiceOver a button after the tile, named by the tile only: its value changes on its own,
-            // and on the other tiles there is no such node
-            MouseArea {
-                id: heartTap
-                anchors.fill: rect
-                enabled: identificator === "heart" && !window.lockTiles
-                onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
-                Accessible.role: Accessible.Button
-                Accessible.name: name
-                Accessible.focusable: true
-                Accessible.ignored: !enabled
-                Accessible.onPressAction: { if (enabled) { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); } }
-            }
-
             Timer {
                 id: toggleIconTimer
                 interval: 500; running: true; repeat: true
@@ -561,7 +848,8 @@ HomeForm {
                 id: myIcon
                 x: 5
                 anchors {
-                         bottom: id1.bottom
+                         // parent, not id1: the classic tile sits in a wrapper filling id1
+                         bottom: parent.bottom
                 }
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
@@ -699,6 +987,8 @@ HomeForm {
                 Accessible.focusable: true
                 Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
+            }
+            }
         }
     }
 
@@ -710,19 +1000,54 @@ HomeForm {
         property real minHeight: parent.height / 4
         property real maxHeight: parent.height * 3 / 4
         anchors.bottom: parent.bottom
-        clip: true
+        // Modern look: the shadow of the strip falls above the footer, so the chart and the
+        // video clip themselves instead
+        clip: !window.ui.modern
         visible: rootItem.chartFooterVisible || rootItem.videoVisible
 
+        // Modern look: the strip is the top of a bottom sheet holding the chart (T-441) –
+        // surfaceHigh with rounded top corners and a soft shadow above, a pill in the middle;
+        // the whole strip is the touch area. Classic: the purple bar with three lines, as in master
         Rectangle {
             id: dragHandle
-            width: parent.width / 5
-            height: 10
-            color: "#9C27B0"
+            width: window.ui.modern ? parent.width : parent.width / 5
+            height: window.ui.modern ? 16 : 10
+            color: window.ui.modern ? "transparent" : "#9C27B0"
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             visible: rootItem.chartFooterVisible || rootItem.videoVisible
 
+            // Rounded at the top only: the lower corners reach under the chart, which covers them
+            Rectangle {
+                visible: window.ui.modern
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: parent.height + radius
+                radius: 16
+                color: window.ui.surfaceHigh
+                layer.enabled: visible
+                layer.effect: DropShadow {
+                    transparentBorder: true
+                    horizontalOffset: 0
+                    verticalOffset: -1
+                    radius: 6
+                    samples: 13
+                    color: Qt.rgba(0, 0, 0, window.ui.dark ? 0.45 : 0.10)
+                }
+            }
+
+            Rectangle {
+                visible: window.ui.modern
+                width: 48
+                height: 5
+                radius: height / 2
+                anchors.centerIn: parent
+                color: Qt.rgba(window.ui.textMuted.r, window.ui.textMuted.g, window.ui.textMuted.b, 0.55)
+            }
+
             Canvas {
+                visible: !window.ui.modern
                 anchors.fill: parent
                 onPaint: {
                     var ctx = getContext("2d");
@@ -763,6 +1088,7 @@ HomeForm {
         Rectangle {
             id: chartFooterRectangle
             visible: rootItem.chartFooterVisible
+            clip: window.ui.modern
             anchors.top: dragHandle.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -776,6 +1102,7 @@ HomeForm {
         Rectangle {
             objectName: "footerrectangle"
             visible: rootItem.videoVisible
+            clip: window.ui.modern
             anchors.top: dragHandle.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -824,17 +1151,18 @@ HomeForm {
         height: 63 * settings.ui_zoom / 100
         z: 200
 
-        Rectangle {
+        // UiFrame: in the modern look a thin border breaks up on Android
+        UiFrame {
             anchors.fill: parent
-            radius: 3
-            color: settings.theme_tile_background_color
+            radius: window.ui.modern ? 12 : 3
+            fill: window.ui.modern ? window.ui.surfaceHighest : settings.theme_tile_background_color
             opacity: 0.9
-            border.width: 2
-            border.color: settings.theme_tile_shadow_color
+            strokeWidth: 2
+            stroke: window.ui.modern ? window.ui.accent : settings.theme_tile_shadow_color
 
             Text {
                 anchors.centerIn: parent
-                color: "white"
+                color: window.ui.ink("white")
                 text: loc.tileName
                 font.pointSize: 10 * settings.ui_zoom / 100
                 font.bold: true

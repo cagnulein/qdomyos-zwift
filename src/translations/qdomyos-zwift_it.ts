@@ -147,6 +147,14 @@
         <translation>Vuoi davvero interrompere l&apos;allenamento corrente?</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>Riposo</translation>
     </message>
@@ -338,6 +346,18 @@ Vuoi attivare i servizi necessari?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Questa app dovrebbe connettersi automaticamente alla tua bici/tapis roulant/vogatore. &lt;b&gt;Se non lo fa, controlla&lt;/b&gt;:&lt;br&gt;1) la tua App Echelon/Domyos DEVE essere chiusa mentre qdomyos-zwift è in esecuzione;&lt;br&gt;2) sia Bluetooth che le autorizzazioni Bluetooth DEVONO essere attivate&lt;br&gt;3) la tua bici/tapis roulant/vogatore dovrebbe essere acceso PRIMA di avviare questa app&lt;br&gt;4) prova a riavviare il tuo dispositivo&lt;br&gt;&lt;br&gt;Se la tua bici/tapis roulant si disconnette ogni 30 secondi, prova a disattivare l&apos;impostazione &apos;dispositivo virtuale&apos; sulla barra di sinistra.&lt;br&gt;&lt;br&gt;In caso di problemi, non esitare a contattarmi a roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Buona pedalata!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ rinuncia specificamente a qualsiasi responsabilità per&lt;br&gt;danni incidentali o consequenziali e non si assume&lt;br&gt;alcuna responsabilità o obbligo per qualsiasi perdita&lt;br&gt;o danno subito da qualsiasi persona a seguito di&lt;br&gt;uso o uso improprio dell&apos;app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Ricerca del tuo attrezzo…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Accendi la bici, il tapis roulant o il vogatore: QZ si collega automaticamente.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Non si collega?</translation>
     </message>
 </context>
 <context>

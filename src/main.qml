@@ -156,6 +156,8 @@ ApplicationWindow {
     signal strava_upload_file_prepare();
 
     property bool lockTiles: false
+    // The support button "?" (SupportHelpButton) is in the bottom right corner of the home page
+    readonly property bool supportHelpShown: supportHelpButton.shown
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
 
@@ -368,6 +370,8 @@ ApplicationWindow {
         // Text that the classic look paints in a fixed colour (mostly white) on the page
         // background: the theme text colour in the modern look, the old colour otherwise
         function ink(classic) { return modern ? textMain : classic }
+        // Zone colours of the tiles are made for a dark page: darker ones on a light page
+        function zoneInk(c) { return dark ? c : Qt.darker(c, 1.7) }
     }
 
     // Classic look: undefined resets them to the style (qtquickcontrols2.conf), as without these lines
@@ -2126,7 +2130,10 @@ ApplicationWindow {
                             color: window.equipmentConnected ? window.ui.ok : window.ui.textMuted
                         }
                         Label {
-                            width: parent.width - 14
+                            // the dot and its gap; with the bars also their 13 and the gap before them.
+                            // Their own condition, not drawerSignal.visible: that one is false while the
+                            // drawer is closed, and Row places what is not hidden by itself (explicitVisible)
+                            width: parent.width - 14 - (window.equipmentConnected ? 13 + 6 : 0)
                             // "Connecting..." - the untranslated start value of homeform::m_info, kept until the
                             // equipment writes its own status: shown as the search, or as connected next to the green dot
                             text: (typeof rootItem !== "undefined" && rootItem) ? (rootItem.info !== "Connecting..." ? rootItem.info
@@ -2135,6 +2142,23 @@ ApplicationWindow {
                             font.pixelSize: window.ui.fontCaption
                             color: window.ui.textMuted
                             elide: Text.ElideRight
+                        }
+                        // The signal of the connected equipment at the end of the line, as a trailing icon:
+                        // the home page shows it only with its status line, which is hidden while connected.
+                        // The bars of the home status line (signal-1..3, the RSSI of the search)
+                        Image {
+                            id: drawerSignal
+                            visible: window.equipmentConnected
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 13
+                            height: 13
+                            fillMode: Image.PreserveAspectFit
+                            source: visible ? rootItem.signal : ""
+                            smooth: true
+                            Accessible.ignored: true
+                            // The bars are white: on a light page paint them in the text colour
+                            layer.enabled: !window.ui.dark
+                            layer.effect: ColorOverlay { color: window.ui.textMuted }
                         }
                     }
 
@@ -2395,6 +2419,7 @@ ApplicationWindow {
         }
 
         SupportHelpButton {
+            id: supportHelpButton
             activeOnHome: window.rootReady && stackView.depth === 1 && !window.lockTiles
             anchors.right: parent.right
             anchors.bottom: parent.bottom
