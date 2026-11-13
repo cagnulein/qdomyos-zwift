@@ -531,9 +531,10 @@ ColumnLayout {
                     id: detailBody
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // side by side only with a text column: without it the chart takes the page under the
-                    // buttons, as upright
-                    readonly property bool split: detailColumn.sideBySide && textColumn.visible
+                    // side by side only with a text to show: without it the chart takes the page under the
+                    // buttons, as upright (the classic look keeps its empty lines above it, as on master)
+                    readonly property bool split: detailColumn.sideBySide
+                        && (rootItem.previewWorkoutDescription !== "" || rootItem.previewWorkoutTags !== "")
                     // the cells are placed in order, the text first: an explicit Layout.column 1 was
                     // warned about for a moment on turning upright, the columns already 1
                     columns: split ? 2 : 1
@@ -543,7 +544,7 @@ ColumnLayout {
                     ColumnLayout {
                         id: textColumn
                         Layout.fillWidth: true
-                        Layout.fillHeight: detailColumn.sideBySide
+                        Layout.fillHeight: detailBody.split
                         // the two columns share the width equally
                         Layout.preferredWidth: 1
                         spacing: detailColumn.spacing
@@ -589,6 +590,9 @@ ColumnLayout {
                             }
                             Layout.fillWidth: true
                             Layout.margins: 10
+                            // side by side the scroll bar ends the column: no margin after it, the column
+                            // spacing and the frame of the chart are the gap to the chart (16 with the modern frame)
+                            Layout.rightMargin: detailBody.split ? 0 : 10
                             spacing: 0
                             // Modern look: an empty line kept its height and margins, a gap above the chart
                             visible: !window.ui.modern || rootItem.previewWorkoutDescription !== ""
@@ -611,6 +615,7 @@ ColumnLayout {
                                 // it moves (an active binding is overwritten after every move), the Material
                                 // ScrollBar keeps showing for AlwaysOn
                                 ScrollBar.vertical: ScrollBar {
+                                    id: descriptionBar
                                     z: 1
                                     interactive: false
                                     policy: descriptionFlick.interactive ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
@@ -636,6 +641,11 @@ ColumnLayout {
                                 Text {
                                     id: descriptionText
                                     width: descriptionFlick.width
+                                    // where the text may scroll (side by side, unfolded), room for the bar on
+                                    // its right: the lines ran under it. Not by interactive: that follows the
+                                    // height of the text, and the height this width
+                                    rightPadding: detailColumn.sideBySide || descriptionBlock.expanded
+                                        ? descriptionBar.width + 6 : 0
                                     text: rootItem.previewWorkoutDescription
                                     font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(14)
                                     font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
@@ -730,7 +740,7 @@ ColumnLayout {
                         // side by side: the rest of the column, so the tags stay under the text
                         Item {
                             Layout.fillHeight: true
-                            visible: detailColumn.sideBySide
+                            visible: detailBody.split
                         }
                     }
 
@@ -769,7 +779,10 @@ ColumnLayout {
                                 id: previewWebView
                                 anchors.fill: parent
                                 visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
+                                // modern look: the page colour for the frame around the chart, so it merges
+                                // with the page; the classic look keeps the dark frame of the page
                                 url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                                    + (window.ui.modern ? "?bg=" + encodeURIComponent(String(window.ui.bg)) : "")
                                 property bool pageLoaded: false
                                 // a failed load is shown too: the page tells why, not an endless spinner
                                 onLoadingChanged: {
