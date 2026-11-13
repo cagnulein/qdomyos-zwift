@@ -34,6 +34,8 @@ void configureDirconSettings(TestSettings &testSettings, int serverBasePort, int
     testSettings.qsettings.setValue(QZSettings::virtual_device_enabled, false);
     testSettings.qsettings.setValue(QZSettings::zwift_play_emulator, false);
     testSettings.qsettings.setValue(QZSettings::rouvy_compatibility, false);
+    // Exercise the real subscription handshake instead of permissive unsolicited broadcasts.
+    testSettings.qsettings.setValue(QZSettings::wahoo_rgt_dircon, true);
 }
 
 DirconDeviceInfo makeDirconDeviceInfo(const QString &name, quint16 port, bool isTreadmill) {
