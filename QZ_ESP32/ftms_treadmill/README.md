@@ -11,8 +11,12 @@ This Arduino project turns an ESP32 into a Bluetooth bridge:
 
 ## Cadence calculation
 
-Most FTMS treadmills expose speed but not running cadence. The sketch therefore
-uses the same calculation as QZ:
+Most FTMS treadmills expose speed but not running cadence. The bridge currently
+publishes a fixed cadence of 60 steps/min while the treadmill is moving. This
+is useful when Garmin needs a stable cadence value from the virtual sensor.
+
+Set `FIXED_CADENCE_SPM` near the top of `ftms_treadmill.ino` to `-1` to use the
+same speed-based calculation as QZ instead:
 
 ```text
 cadence (steps/min) = speed (m/s) / stride length (m) * 60
@@ -20,8 +24,10 @@ stride length = height (m) * 0.415 for male users
 stride length = height (m) * 0.413 for female users
 ```
 
-Change `USER_HEIGHT_CM` and `USER_IS_MALE` near the top of
-`ftms_treadmill.ino` before uploading. The defaults are 170 cm and male.
+When using the calculated mode, change `USER_HEIGHT_CM` and `USER_IS_MALE` near
+the top of `ftms_treadmill.ino` before uploading. The defaults are 170 cm and
+male. Cadence is 0 whenever the treadmill is stopped or its speed data times
+out.
 
 ## Arduino IDE
 
@@ -31,7 +37,7 @@ Change `USER_HEIGHT_CM` and `USER_IS_MALE` near the top of
   NimBLE-Arduino 2.x.
 - Upload at 115200 baud and open the serial monitor.
 - Start the treadmill. The serial log should show the detected FTMS device,
-  its speed, and the calculated cadence.
+  its speed, and the cadence sent to Garmin.
 - On the Garmin, add a new Running Dynamics / running cadence sensor and select
   `QZ FTMS RSC`.
 

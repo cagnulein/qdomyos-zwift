@@ -16,4 +16,15 @@ int main() {
     assert(f.apply(10, 60, 5300) == 90);
     f.reset();
     assert(f.apply(10, 60, 5400) == 10);
+    assert(f.apply(100, 60, 6000) == 100);
+    assert(f.apply(5, 60, 6100) == 100);
+    assert(f.apply(10, 60, 8000) == 100);
+    assert(f.apply(2, 60, 10099) == 100);
+    assert(f.apply(5, 60, 10100) == 5);
+    assert(f.apply(100, 60, 11000) == 100);
+    assert(f.apply(1, 60, 11100) == 1);
+    assert(f.apply(100, 60, 12000) == 100);
+    assert(f.apply(0, 60, 12100) == 0);
+    assert(f.apply(100, 60, 13000) == 100);
+    assert(f.apply(5, 0, 13100) == 5);
 }

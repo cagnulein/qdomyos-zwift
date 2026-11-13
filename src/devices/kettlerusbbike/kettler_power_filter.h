@@ -1,10 +1,10 @@
 #pragma once
 
-// Suppress brief 10 W dropouts without masking sustained low power.
+// Suppress brief low-power dropouts without masking sustained low power.
 class KettlerPowerFilter {
 public:
     double apply(double raw, double cadence, long long nowMs) {
-        if (raw == 10.0 && cadence > 0 && lastPower >= 30.0) {
+        if (raw > 1.0 && raw <= 10.0 && cadence > 0 && lastPower >= 30.0) {
             if (dropoutStart < 0)
                 dropoutStart = nowMs;
             if (nowMs - dropoutStart < 4000)

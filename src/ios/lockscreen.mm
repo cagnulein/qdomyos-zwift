@@ -140,7 +140,35 @@ bool lockscreen::appleWatchAppInstalled() {
 }
 
 void lockscreen::setTimerDisabled() {
-     [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+
+    // Qt's UIScene lifecycle can activate a window without calling the
+    // UIApplicationDelegate activation callback. Reassert the awake setting
+    // for both application and scene activation, including after unlock.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        void (^restoreIdleTimer)(NSNotification *) = ^(NSNotification *notification) {
+            UIApplication *application = [UIApplication sharedApplication];
+            const bool wasDisabled = application.idleTimerDisabled;
+            application.idleTimerDisabled = YES;
+            qDebug() << "QZ iOS idle timer on activation:"
+                     << QString::fromUtf8(notification.name.UTF8String)
+                     << "wasDisabled:" << wasDisabled
+                     << "nowDisabled:" << static_cast<bool>(application.idleTimerDisabled);
+        };
+        // These observers intentionally live until the process exits.
+        [center addObserverForName:UIApplicationDidBecomeActiveNotification
+                           object:nil
+                            queue:[NSOperationQueue mainQueue]
+                       usingBlock:restoreIdleTimer];
+        if (@available(iOS 13.0, *)) {
+            [center addObserverForName:UISceneDidActivateNotification
+                               object:nil
+                                queue:[NSOperationQueue mainQueue]
+                           usingBlock:restoreIdleTimer];
+        }
+    });
 }
 
 void lockscreen::request()
@@ -435,9 +463,9 @@ void lockscreen::virtualrower_setPM5Mode(bool enabled)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor, bool disable_hr)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor disable_hr:disable_hr];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -489,6 +517,22 @@ uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
         return [_virtualtreadmill_zwift lastChangeRequestedSpeed];
     }
     return 0;
+}
+
+void lockscreen::virtualtreadmill_enableControlPointForwarding(const QByteArray &speedRange,
+                                                             const QByteArray &inclineRange) {
+    [_virtualtreadmill_zwift
+        enableControlPointForwardingWithSpeedRange:[NSData dataWithBytes:speedRange.constData() length:speedRange.size()]
+        inclineRange:[NSData dataWithBytes:inclineRange.constData() length:inclineRange.size()]];
+}
+
+QByteArray lockscreen::virtualtreadmill_takeControlPointWrite() {
+    NSData *data = [_virtualtreadmill_zwift takeControlPointWrite];
+    return data ? QByteArray(static_cast<const char *>(data.bytes), static_cast<int>(data.length)) : QByteArray();
+}
+
+void lockscreen::virtualtreadmill_clearControlPointWrites() {
+    [_virtualtreadmill_zwift clearControlPointWrites];
 }
 
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
@@ -818,5 +862,64 @@ void lockscreen::clearWebViewCache() {
     for (NSHTTPCookie *cookie in cookieStorage.cookies) {
         [cookieStorage deleteCookie:cookie];
     }
+}
+
+double lockscreen::systemFontScale() {
+    // Body text is 17 pt at the default Dynamic Type size. The size category is passed in:
+    // outside a UIKit call the current trait collection may still hold the old one
+    const CGFloat body = 17.0;
+    UITraitCollection *traits = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:
+                                     UIApplication.sharedApplication.preferredContentSizeCategory];
+    const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
+                                                compatibleWithTraitCollection:traits];
+    return scaled > 0 ? scaled / body : 1.0;
+}
+
+bool lockscreen::systemDarkMode() {
+    // The screen carries the appearance of the system, not an override of a window
+    if (@available(iOS 13.0, *)) {
+        return UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+    }
+    return true;
+}
+
+void lockscreen::shareFile(const char* path) {
+    NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *window = nil;
+        if (@available(iOS 13.0, *)) {
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (scene.activationState == UISceneActivationStateForegroundActive &&
+                    [scene isKindOfClass:[UIWindowScene class]]) {
+                    for (UIWindow *w in ((UIWindowScene *)scene).windows) {
+                        if (w.isKeyWindow) {
+                            window = w;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!window) {
+            window = UIApplication.sharedApplication.windows.firstObject;
+        }
+        UIViewController *root = window.rootViewController;
+        if (!root) {
+            NSLog(@"shareFile: no view controller");
+            return;
+        }
+        // over whatever is shown already
+        while (root.presentedViewController) {
+            root = root.presentedViewController;
+        }
+        UIActivityViewController *sheet = [[UIActivityViewController alloc] initWithActivityItems:@[url]
+                                                                            applicationActivities:nil];
+        // on iPad the sheet is a popover: from the middle of the screen, without an arrow
+        sheet.popoverPresentationController.sourceView = root.view;
+        sheet.popoverPresentationController.sourceRect =
+            CGRectMake(CGRectGetMidX(root.view.bounds), CGRectGetMidY(root.view.bounds), 0, 0);
+        sheet.popoverPresentationController.permittedArrowDirections = 0;
+        [root presentViewController:sheet animated:YES completion:nil];
+    });
 }
 #endif

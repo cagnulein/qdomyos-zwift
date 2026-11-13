@@ -272,7 +272,9 @@ void fitshowtreadmill::update() {
         if (requestStop != -1) {
             if (paused) {
                 lastStop = QDateTime::currentMSecsSinceEpoch();
-                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_PAUSE}; // to verify
+                // Merach uses its PAUSED status value as the pause command.
+                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL,
+                                       (uint8_t)(merach_t12_connected ? FITSHOW_STATUS_PAUSED : FITSHOW_CONTROL_PAUSE)};
                 emit debug(QStringLiteral("pausing..."));
                 scheduleWrite(pauseTape, sizeof(pauseTape), QStringLiteral("pause tape"));
             } else {
@@ -324,7 +326,7 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
-    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected) {
+    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected && !merach_t12_connected) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
@@ -376,6 +378,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             evaluateStepCount();
             parseCadence((uint8_t)value.at(3));
             cadenceAvailable = true;
+            if ((uint8_t)value.at(3) > 0)
+                lastRscCadenceMs = QDateTime::currentMSecsSinceEpoch();
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
         } else {
             emit debug(QStringLiteral("Current cadence from treadmill ignored due to settings/external source"));
@@ -701,17 +705,19 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (!cadenceFromAppleWatch() && !cadenceAvailable && Speed.value() > 0) {
+    // The RSC and the external sensor cadence come in separate packets: a value received in the last 3 seconds
+    // is still current.
+    qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    bool rscCadenceRecent = lastRscCadenceMs > 0 && nowMs - lastRscCadenceMs < 3000;
+    bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
+    if (!cadenceFromAppleWatch() && !cadenceAvailable && !rscCadenceRecent && !sensorCadenceRecent &&
+        Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                   .toString()
                                   .startsWith(QStringLiteral("Disabled"));
-        bool hasCadenceSensor =
-            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                 .toString()
-                 .startsWith(QStringLiteral("Disabled"));
-        if (!hasPowerSensor && !hasCadenceSensor && !garminCompanion) {
+        if (!hasPowerSensor && !garminCompanion) {
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 if (!stepCountAvailable)
@@ -725,6 +731,24 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void fitshowtreadmill::btinit(bool startTape) {
+    if (merach_t12_connected) {
+        // Replay the official Merach app initialization before using FitShow control.
+        if (!gattMerachUnlockService || !gattMerachUnlockCharacteristic.isValid()) {
+            emit debug(QStringLiteral("Merach T12 unlock characteristic missing"));
+            return;
+        }
+        const QByteArray unlock = QByteArray::fromHex("aa01000155");
+        gattMerachUnlockService->writeCharacteristic(gattMerachUnlockCharacteristic, unlock);
+        emit debug(QStringLiteral(" >> ") + unlock.toHex(' ') + QStringLiteral(" // Merach unlock"));
+        const uint8_t model[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_MODEL};
+        const uint8_t incline[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_INCLINE};
+        const uint8_t prepare[] = {FITSHOW_SYS_CONTROL, 0x09};
+        scheduleWrite(model, sizeof(model), QStringLiteral("Merach model"));
+        scheduleWrite(incline, sizeof(incline), QStringLiteral("Merach incline limits"));
+        scheduleWrite(prepare, sizeof(prepare), QStringLiteral("Merach prepare"));
+        initDone = true;
+        return;
+    }
     uint8_t initInfos[] = {FITSHOW_INFO_SPEED, FITSHOW_INFO_INCLINE, FITSHOW_INFO_TOTAL, FITSHOW_INFO_DATE};
     uint8_t initDataStart1[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_UNKNOWN};
 
@@ -794,6 +818,14 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered)) {
         qDebug() << QStringLiteral("not all services discovered");
         return;        
+    }
+
+    if (merach_t12_connected) {
+        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
+            !gattMerachUnlockService || gattMerachUnlockService->state() != QLowEnergyService::ServiceDiscovered)
+            return;
+        gattMerachUnlockCharacteristic = gattMerachUnlockService->characteristic(
+            QBluetoothUuid(QStringLiteral("59554c55-0000-6666-8888-4d4552414348")));
     }
 
     if (state == QLowEnergyService::ServiceDiscovered) {
@@ -900,6 +932,18 @@ void fitshowtreadmill::serviceScanDone(void) {
     gattCommunicationChannelService->discoverDetails();
 #endif
 
+    if (merach_t12_connected) {
+        gattMerachUnlockService = m_control->createServiceObject(
+            QBluetoothUuid(QStringLiteral("59554c55-8000-6666-8888-4d4552414348")));
+        if (!gattMerachUnlockService) {
+            emit debug(QStringLiteral("Merach T12 unlock service missing"));
+            return;
+        }
+        connect(gattMerachUnlockService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);
+        gattMerachUnlockService->discoverDetails();
+        return;
+    }
+
     // useful for the cadence
     gattCommunicationRSCService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1814));
     if (!gattCommunicationRSCService) {
@@ -930,7 +974,9 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+    if (device.name().toUpper().startsWith(QStringLiteral("MRK-T12-"))) {
+        merach_t12_connected = true;
+    } else if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
         device.name().toUpper().startsWith(QStringLiteral("TR510-T"))) {
         qDebug() << "FS FIX!";
         fs_connected = true;
@@ -995,7 +1041,7 @@ void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
         cancelPendingStartTarget(QStringLiteral("connection lost"));
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        m_control->connectToDevice();
+        connectBackLater();
     }
 }
 
