@@ -20,6 +20,7 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
@@ -30,6 +31,122 @@
 
 #include "treadmill.h"
 
+// Gate motion commands on fresh vendor telemetry, not just ATT acknowledgements.
+class SoleF63TelemetryGuard {
+  public:
+    bool recordVendorPacket(const QByteArray &packet, qint64 nowMs) {
+        if (packet.size() != 18 || packet.at(0) != char(0x5b) || packet.at(1) != char(0x0f) ||
+            packet.at(2) != char(0x06) || packet.at(17) != char(0x5d))
+            return false;
+        lastTelemetryMs = nowMs;
+        return true;
+    }
+    bool isFresh(qint64 nowMs) const {
+        return lastTelemetryMs >= 0 && nowMs >= lastTelemetryMs && nowMs - lastTelemetryMs <= 5000;
+    }
+    void reset() { lastTelemetryMs = -1; }
+
+  private:
+    qint64 lastTelemetryMs = -1;
+};
+
+class SoleF63InitRetryState {
+  public:
+    void begin() {
+        waitingForResponse = true;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    bool beginAfterNotifyCccdWrite(bool f63Model, bool currentNotifyCccd, bool notificationsEnabled) {
+        if (!f63Model || !currentNotifyCccd || !notificationsEnabled)
+            return false;
+
+        begin();
+        return true;
+    }
+
+    bool shouldRetry() const { return waitingForResponse && attempts < 3; }
+
+    void recordAttempt() {
+        if (shouldRetry())
+            ++attempts;
+    }
+
+    bool receiveNotification(const QByteArray &packet) {
+        // Only the BM70 F0 reply can complete the initial handshake.
+        if (!waitingForResponse || attempts == 0 || packet != QByteArray::fromHex("5b08f0900000b40a0f125d"))
+            return false;
+
+        waitingForResponse = false;
+        responseReady = true;
+        return true;
+    }
+
+    bool takeResponse() {
+        const bool ready = responseReady;
+        responseReady = false;
+        return ready;
+    }
+
+    void cancel() {
+        waitingForResponse = false;
+        responseReady = false;
+        attempts = 0;
+    }
+
+    quint64 attemptCount() const { return attempts; }
+
+  private:
+    bool waitingForResponse = false;
+    bool responseReady = false;
+    quint64 attempts = 0;
+};
+
+// Mirrors the proven passive F63 bridge: respond only to incoming vendor frames.
+// No unsolicited mode/Start/Stop/motion commands are ever generated here.
+class SoleF63PassiveReplies {
+  public:
+    void observe(const QByteArray &frame, qint64 nowMs) {
+        if (frame.size() < 5 || quint8(frame.at(0)) != 0x5b ||
+            frame.size() != quint8(frame.at(1)) + 3 || quint8(frame.at(frame.size() - 1)) != 0x5d)
+            return;
+        const quint8 type = quint8(frame.at(2));
+        if (type == 0x03 && frame.size() == 5) {
+            // A later mode supersedes the previous state echo.
+            pending.remove(type);
+            const quint8 mode = quint8(frame.at(3));
+            if (mode == 1 || mode == 3 || mode == 4 || mode == 6 || mode == 7 || mode == 0x80)
+                pending.insert(type, Pending{frame, nowMs});
+        } else if ((type == 0x06 && frame.size() == 18) ||
+                   (type == 0x09 && frame.size() == 6) ||
+                   (type == 0x10 && frame.size() == 5) ||
+                   (type == 0x32 && frame.size() == 13) ||
+                   (type == 0x40 && frame.size() == 22)) {
+            QByteArray ack = QByteArray::fromHex("5b0400004f4b5d");
+            ack[3] = char(type);
+            pending.insert(type, Pending{ack, nowMs}); // coalesce duplicate type
+        }
+        // Never acknowledge acknowledgements, F0 identity or unknown frames.
+    }
+    QByteArray nextReply(qint64 nowMs) {
+        while (!pending.isEmpty()) {
+            auto it = pending.begin();
+            const Pending reply = it.value();
+            pending.erase(it);
+            if (nowMs >= reply.timestamp && nowMs - reply.timestamp <= 900)
+                return reply.frame;
+        }
+        return QByteArray();
+    }
+    int pendingCount() const { return pending.size(); }
+    void reset() { pending.clear(); }
+
+  private:
+    struct Pending { QByteArray frame; qint64 timestamp; };
+    QMap<quint8, Pending> pending;
+};
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -39,6 +156,7 @@ class solef80treadmill : public treadmill {
   public:
     solef80treadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    void stopWhenIdle() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
@@ -49,14 +167,28 @@ class solef80treadmill : public treadmill {
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void writeF63Frame(const QByteArray &frame, const QString &label);
+    void f63PollTick();
+    void resetF63Session();
 
     QTimer *refresh;
+    QTimer f63InitRetryTimer;
+    SoleF63InitRetryState f63InitRetryState;
+    SoleF63TelemetryGuard f63TelemetryGuard;
+    enum class F63Phase { Handshake, Ready, Running };
+    F63Phase f63Phase = F63Phase::Handshake;
+    QTimer f63PollTimer;
+    SoleF63PassiveReplies f63Replies;
+    qint64 f63LastWriteMs = -1;
+    bool f63RxSeen = false;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyDescriptor f63NotifyCccdDescriptor;
+    bool f63NotifyCccdWritePending = false;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -109,6 +241,7 @@ class solef80treadmill : public treadmill {
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
+    void retryF63InitHandshake();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };

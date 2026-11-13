@@ -38,6 +38,10 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
+    f63InitRetryTimer.setInterval(1000ms);
+    connect(&f63InitRetryTimer, &QTimer::timeout, this, &solef80treadmill::retryF63InitHandshake);
+    f63PollTimer.setInterval(50ms);
+    connect(&f63PollTimer, &QTimer::timeout, this, &solef80treadmill::f63PollTick);
     refresh->start(300ms);
 }
 
@@ -49,6 +53,11 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     bool inclination =
         settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
+    if (treadmill_type == F63 &&
+        settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: legacy BLE write blocked"));
+        return;
+    }
     if (!inclination) {
         qDebug() << "inclination support disabled";
         return;
@@ -92,22 +101,19 @@ void solef80treadmill::btinit() {
     bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
     bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
     bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
+    bool f63Model = f63 && treadmill_type == F63;
+    // F63 uses the asynchronous, capture-based state machine in update().
+    // Never replay a workout/start sequence as a side effect of BLE discovery.
+    if (f63Model)
+        return;
 
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03_f63[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03b_f63[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03c_f63[] = {0x5b, 0x02, 0x03, 0x00, 0x5d};
-    uint8_t initData03d_f63[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
-    uint8_t initData03e_f63[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
-    uint8_t initData03f_f63[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03_tt8[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData04_f63[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x84, 0x40, 0x5d};
     uint8_t initData04_tt8[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
     uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
-    uint8_t initData05_f63[] = {0x5b, 0x03, 0x08, 0x30, 0x07, 0x5d};
     uint8_t initData05_tt8[] = {0x5b, 0x03, 0x08, 0x20, 0x02, 0x5d};
     uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
     uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
@@ -115,18 +121,13 @@ void solef80treadmill::btinit() {
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
-    uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    uint8_t initData07_f63[] = {0x5b, 0x16, 0x24, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData07b_f63[] = {0x00, 0x00, 0x00, 0x00, 0x5d};
-    // uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         waitForAPacket();
 
-        if (f65) {
+        if (f65 && !f63Model) {
             waitForAPacket();
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
         }
@@ -159,75 +160,6 @@ void solef80treadmill::btinit() {
 
             writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
 
-        } else if (f63) {
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03b_f63, sizeof(initData03b_f63), QStringLiteral("init3b_f63"), false, true);
-
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, false);
-
-            writeCharacteristic(initData03d_f63, sizeof(initData03d_f63), QStringLiteral("init3d_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03e_f63, sizeof(initData03e_f63), QStringLiteral("init3e_f63"), false, false);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
-            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData04_f63, sizeof(initData04_f63), QStringLiteral("init4_f63"), false, true);
-
-            writeCharacteristic(initData05_f63, sizeof(initData05_f63), QStringLiteral("init5_f63"), false, true);
-
-            writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init6"), false, true);
-
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, false);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
-            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
-
-            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, false);
-            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
-
-            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
-
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
-
-            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
-
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-
         } else if (f65) {
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
             writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
@@ -248,10 +180,6 @@ void solef80treadmill::btinit() {
             writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
         }
 
-        // start workout
-        /*writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);*/
     }
 
     initDone = true;
@@ -271,10 +199,28 @@ void solef80treadmill::update() {
     bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
     bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
     bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
+    bool f63Model = f63 && treadmill_type == F63;
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
+        return;
+    }
+
+    if (f63Model) {
+        // Passive telemetry only: Olivier's bridge validates physical START
+        // before connecting BLE; any remote command may seize console controls.
+        if (requestStart != -1 || requestStop != -1 ||
+            requestSpeed != -1 || requestInclination != -100)
+            emit debug(QStringLiteral("F63 passive mode: remote Start/Stop/speed/incline disabled; use physical controls"));
+        requestStart = -1;
+        requestStop = -1;
+        requestSpeed = -1;
+        requestInclination = -100;
+        requestSpeedState = IDLE;
+        requestInclinationState = IDLE;
+        if (initDone)
+            update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
         return;
     }
 
@@ -373,19 +319,7 @@ void solef80treadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if(treadmill_type == F63) {
-                uint8_t stop[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
-                uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
-
-                if (gattCustomService) {
-                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                }
-            } else {
+            {
                 uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
                 uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
                 uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
@@ -417,9 +351,58 @@ void solef80treadmill::update() {
     }
 }
 
+void solef80treadmill::writeF63Frame(const QByteArray &frame, const QString &label) {
+    if (!gattCustomService || !gattWriteCharCustomService.isValid() || !m_control ||
+        m_control->state() != QLowEnergyController::DiscoveredState)
+        return;
+    // Never enter the legacy nested QEventLoop on BM70. WriteWithoutResponse does
+    // not emit characteristicWritten and previously caused repeated 2s stalls.
+    if (gattWriteCharCustomService.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame,
+                                               QLowEnergyService::WriteWithoutResponse);
+    else
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame);
+    f63LastWriteMs = QDateTime::currentMSecsSinceEpoch();
+    emit debug(QStringLiteral("F63 >> ") + frame.toHex(' ') + QStringLiteral(" // ") + label);
+}
+
+void solef80treadmill::f63PollTick() {
+    if (!initDone || f63Replies.pendingCount() == 0)
+        return;
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    // The proven bridge serializes responses; never invent periodic status polls.
+    if (f63LastWriteMs >= 0 && nowMs - f63LastWriteMs < 300)
+        return;
+    const QByteArray reply = f63Replies.nextReply(nowMs);
+    if (!reply.isEmpty())
+        writeF63Frame(reply, QStringLiteral("solicited F63 response"));
+}
+
+void solef80treadmill::resetF63Session() {
+    f63InitRetryTimer.stop();
+    f63PollTimer.stop();
+    f63InitRetryState.cancel();
+    f63TelemetryGuard.reset();
+    f63Replies.reset();
+    f63LastWriteMs = -1;
+    f63RxSeen = false;
+    f63Phase = F63Phase::Handshake;
+    initRequest = false;
+    initDone = false;
+    requestStart = -1;
+    requestSpeed = -1;
+    requestInclination = -100;
+}
+
 double solef80treadmill::minStepInclination() { return 1.0; }
 
 void solef80treadmill::forceSpeed(double requestSpeed) {
+    QSettings passiveSettings;
+    if (treadmill_type == F63 &&
+        passiveSettings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: direct motion command rejected"));
+        return;
+    }
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
@@ -451,6 +434,12 @@ void solef80treadmill::forceSpeed(double requestSpeed) {
 }
 
 void solef80treadmill::forceIncline(double requestIncline) {
+    QSettings passiveSettings;
+    if (treadmill_type == F63 &&
+        passiveSettings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool()) {
+        emit debug(QStringLiteral("F63 passive mode: direct motion command rejected"));
+        return;
+    }
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
@@ -503,6 +492,33 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == _gattNotifyCharId) {
+        if (f63 && treadmill_type == F63) {
+            f63RxSeen = true;
+            f63InitRetryTimer.stop(); // never resend F0 after ANY notification
+            f63InitRetryState.cancel();
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            f63Replies.observe(newValue, nowMs);
+            if (newValue.size() == 5 && quint8(newValue.at(0)) == 0x5b &&
+                quint8(newValue.at(1)) == 0x02 && quint8(newValue.at(2)) == 0x03 &&
+                quint8(newValue.at(4)) == 0x5d) {
+                const quint8 mode = quint8(newValue.at(3));
+                if (mode == 3 || mode == 4) {
+                    if (f63Phase != F63Phase::Running)
+                        emit tapeStarted();
+                    f63Phase = F63Phase::Running;
+                } else {
+                    f63Phase = F63Phase::Ready;
+                    Speed = 0; // invalidate stale data on pause / stop / end
+                    f63TelemetryGuard.reset();
+                }
+            }
+            if (f63TelemetryGuard.recordVendorPacket(newValue, nowMs) &&
+                quint8(newValue.at(10)) > 0) {
+                if (f63Phase != F63Phase::Running)
+                    emit tapeStarted();
+                f63Phase = F63Phase::Running;
+            }
+        }
         emit packetReceived();
         // when treadmill is in the inclination mode and it's in pause it doesn't send at all frames
         // so when you resume it, there is a huge time difference and a weird odometer will result
@@ -513,8 +529,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
-
+    if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18 &&
+        (!f63 || (quint8(newValue.at(0)) == 0x5b && quint8(newValue.at(1)) == 0x0f &&
+                  quint8(newValue.at(2)) == 0x06 && quint8(newValue.at(17)) == 0x5d))) {
         // the treadmill send the speed in miles always
         double miles = 1;
         if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
@@ -721,6 +738,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QSettings settings;
+    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
     bool inclination =
         settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
@@ -765,7 +783,13 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        const QLowEnergyDescriptor cccd =
+                            c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                        if (treadmill_type == F63 && f63 && inclination && c.uuid() == _gattNotifyCharId) {
+                            f63NotifyCccdDescriptor = cccd;
+                            f63NotifyCccdWritePending = true;
+                        }
+                        s->writeDescriptor(cccd, descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
@@ -837,8 +861,75 @@ void solef80treadmill::changeInclinationRequested(double grade, double percentag
 void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
+    QSettings settings;
+    const bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
+    const bool inclination =
+        settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
+    const bool f63Model = treadmill_type == F63 && f63 && inclination;
+    const bool currentF63NotifyCccd = f63Model && sender() == gattCustomService && f63NotifyCccdWritePending &&
+                                      descriptor == f63NotifyCccdDescriptor;
+
+    if (f63Model) {
+        if (!currentF63NotifyCccd)
+            return;
+
+        f63NotifyCccdWritePending = false;
+        if (!f63InitRetryState.beginAfterNotifyCccdWrite(f63Model, currentF63NotifyCccd,
+                                                         newValue == QByteArray::fromHex("0100"))) {
+            emit debug(QStringLiteral("F63 BM70 notification subscription unsuccessful"));
+            return;
+        }
+        // Start receiving even if F0 identity never arrives: proven bridge does so.
+        initDone = true;
+        initRequest = false;
+        f63Phase = F63Phase::Ready;
+        f63PollTimer.start();  // replies ONLY, never autonomous polling
+        f63InitRetryTimer.start();
+        retryF63InitHandshake(); // first F0 only after CCCD success
+        emit debug(QStringLiteral("F63 passive mode ready; physical START BEFORE BLE connection required"));
+    } else {
+        initRequest = true;
+    }
+
     emit connectedAndDiscovered();
+}
+
+void solef80treadmill::retryF63InitHandshake() {
+    if (!f63InitRetryState.shouldRetry() || f63RxSeen || f63InitRetryState.attemptCount() >= 3) {
+        f63InitRetryTimer.stop();
+        return;
+    }
+    // A bounded diagnostic F0 probe, never a 300 ms infinite retry loop.
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (f63LastWriteMs >= 0 && nowMs - f63LastWriteMs < 1000)
+        return;
+
+    if (!m_control || m_control->state() != QLowEnergyController::DiscoveredState || !gattCustomService ||
+        !gattWriteCharCustomService.isValid()) {
+        f63InitRetryTimer.stop();
+        f63InitRetryState.cancel();
+        initRequest = false;
+        emit debug(QStringLiteral("F63 BM70 init1 retry stopped: BLE connection or custom write "
+                                 "characteristic unavailable"));
+        return;
+    }
+
+    uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
+    const QByteArray frame(reinterpret_cast<const char *>(initData01), sizeof(initData01));
+    f63InitRetryState.recordAttempt();
+
+    if (gattWriteCharCustomService.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame,
+                                               QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharCustomService, frame);
+    }
+
+    f63LastWriteMs = nowMs;
+    emit debug(QStringLiteral("F63 BM70 bounded identity attempt ") + QString::number(f63InitRetryState.attemptCount()) +
+               QStringLiteral(" >> ") + frame.toHex(' '));
+    if (f63InitRetryState.attemptCount() >= 3)
+        f63InitRetryTimer.stop();
 }
 
 void solef80treadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -857,6 +948,22 @@ void solef80treadmill::characteristicRead(const QLowEnergyCharacteristic &charac
 
 void solef80treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
+
+    resetF63Session();
+    f63NotifyCccdDescriptor = QLowEnergyDescriptor();
+    f63NotifyCccdWritePending = false;
+    gattCustomService = nullptr;
+    gattFTMSService = nullptr;
+    gattWriteCharCustomService = QLowEnergyCharacteristic();
+    gattWriteCharControlPointId = QLowEnergyCharacteristic();
+
+    for (QLowEnergyService *service : qAsConst(gattCommunicationChannelService)) {
+        if (service) {
+            disconnect(service, nullptr, this, nullptr);
+            service->deleteLater();
+        }
+    }
+    gattCommunicationChannelService.clear();
 
     initRequest = false;
     firstStateChanged = 0;
@@ -931,6 +1038,11 @@ void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
+void solef80treadmill::stopWhenIdle() {
+    // F63 passive receiver must never generate an automatic motor Stop.
+    // The physical console and safety key remain authoritative.
+}
+
 bool solef80treadmill::connected() {
     if (!m_control) {
 
@@ -942,9 +1054,13 @@ bool solef80treadmill::connected() {
 void solef80treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        resetF63Session();
+        f63NotifyCccdDescriptor = QLowEnergyDescriptor();
+        f63NotifyCccdWritePending = false;
+        initRequest = false;
+        initDone = false;
         qDebug() << QStringLiteral("trying to connect back again...");
 
-        initDone = false;
         connectBackLater();
     }
 }
