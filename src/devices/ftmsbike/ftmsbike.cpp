@@ -70,6 +70,15 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
         qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        if (uses16BitResistanceForDevice(bluetoothDevice.name()) &&
+            currentWriteWaitingForResponse && writeBuffer && !writeBuffer->isEmpty() &&
+            (uint8_t)writeBuffer->at(0) == FTMS_REQUEST_CONTROL) {
+            matrixControlRequestPending = false;
+            matrixControlGranted = false;
+            initDone = false;
+            matrixNextControlAttempt = QDateTime::currentDateTime().addMSecs(1500);
+            qDebug() << "Matrix R30 XR: Request Control timed out, scheduling retry";
+        }
         completeCurrentWrite();
     });
 
@@ -208,7 +217,9 @@ void ftmsbike::processWriteQueue() {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + request.info);
     }
 
-    writeTimeoutTimer->start(300);
+    // The Matrix XR sometimes responds after the generic 300 ms timeout.
+    // Preserve the existing timeout for every other FTMS device.
+    writeTimeoutTimer->start(uses16BitResistanceForDevice(bluetoothDevice.name()) ? 2000 : 300);
 }
 
 void ftmsbike::completeCurrentWrite() {
@@ -220,6 +231,22 @@ void ftmsbike::completeCurrentWrite() {
 }
 
 void ftmsbike::init() {
+    if (uses16BitResistanceForDevice(bluetoothDevice.name())) {
+        if (matrixControlGranted || matrixControlRequestPending || !matrixControlPointIndicationsReady ||
+            (matrixNextControlAttempt.isValid() && QDateTime::currentDateTime() < matrixNextControlAttempt)) {
+            return;
+        }
+
+        // The XR accepts resistance commands only after a successful Request Control
+        // indication. START_RESUME (0x07) is not required: it returned 0x04
+        // even in the successful 2026-11-13 customer trace.
+        uint8_t request[] = {FTMS_REQUEST_CONTROL};
+        if (writeCharacteristic(request, sizeof(request), "Matrix XR requestControl", false, true)) {
+            matrixControlRequestPending = true;
+        }
+        return;
+    }
+
     if (initDone)
         return;
 
@@ -385,6 +412,13 @@ bool ftmsbike::uses16BitResistanceForDevice(const QString &deviceName) {
            deviceName.endsWith(QStringLiteral("4D41"), Qt::CaseInsensitive);
 }
 
+bool ftmsbike::isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
+                                              const QByteArray &response, uint8_t requestedOpcode) {
+    return characteristicUuid == QBluetoothUuid((quint16)0x2AD9) && response.size() >= 3 &&
+           (uint8_t)response.at(0) == FTMS_RESPONSE_CODE &&
+           (uint8_t)response.at(1) == requestedOpcode;
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
     if (DOMYOS) {
         lastDomyosResistanceCommand = QDateTime::currentDateTime();
@@ -463,6 +497,8 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 || VIFHTR ||
            INCONDI_S150I || FS_SB_RCR || HS_5000L || DRUMFIT ||
            uses16BitResistanceForDevice(bluetoothDevice.name())) {
+            if (uses16BitResistanceForDevice(bluetoothDevice.name()))
+                matrixLastResistanceCommand = requestResistance;
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -582,7 +618,11 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         const bool gearChanged = lastGearValue != gears();
-        if (requestResistance != -1 || (gearChanged && (!FS_IB50 || !fsIb50PhysicalGearChangePending))) {
+        // A new Matrix XR connection must not turn the initial gear change
+        // (-1 -> 0) into an unsolicited resistance command before 2AD9 is ready.
+        if (requestResistance != -1 ||
+            (gearChanged && (!FS_IB50 || !fsIb50PhysicalGearChangePending) &&
+             !uses16BitResistanceForDevice(bluetoothDevice.name()))) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -624,12 +664,14 @@ void ftmsbike::update() {
                         }
                     }                    
 
-                    if (deferResistanceRequest) {
+                    if (uses16BitResistanceForDevice(bluetoothDevice.name()) && !matrixControlGranted) {
+                        init();
+                        deferResistanceRequest = true;
+                    } else if (deferResistanceRequest) {
                         requestResistance = rR;
                     } else {
-                    init();
-
-                    forceResistance(rR);
+                        init();
+                        forceResistance(rR);
                     }
                 }
             }
@@ -819,7 +861,14 @@ bool ftmsbike::shouldUseCalculatedResistanceFallback(const QDateTime &now) {
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     if (isWriting && currentWriteWaitingForResponse && sender() == currentWriteService) {
-        completeCurrentWrite();
+        // Only an ACK for the queued opcode can advance the Matrix control-point
+        // queue. Unrelated notifications, or late ACKs, must not release it.
+        if (!uses16BitResistanceForDevice(bluetoothDevice.name()) ||
+            (writeBuffer && !writeBuffer->isEmpty() &&
+             isMatchingFtmsControlResponse(characteristic.uuid(), newValue,
+                                           (uint8_t)writeBuffer->at(0)))) {
+            completeCurrentWrite();
+        }
     }
 
     QDateTime now = QDateTime::currentDateTime();
@@ -907,6 +956,30 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         const uint8_t responseCode = (uint8_t)newValue.at(0);
         const uint8_t requestCode = (uint8_t)newValue.at(1);
         const uint8_t resultCode = (uint8_t)newValue.at(2);
+
+        if (uses16BitResistanceForDevice(bluetoothDevice.name()) && responseCode == FTMS_RESPONSE_CODE) {
+            if (requestCode == FTMS_REQUEST_CONTROL) {
+                matrixControlRequestPending = false;
+                matrixControlGranted = (resultCode == FTMS_SUCCESS);
+                initDone = matrixControlGranted;
+                if (!matrixControlGranted)
+                    matrixNextControlAttempt = now.addMSecs(1500);
+                else
+                    matrixNextControlAttempt = QDateTime();
+                qDebug() << "Matrix R30 XR Request Control result:" << resultCode
+                         << "granted:" << matrixControlGranted;
+            } else if (requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL &&
+                       resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+                matrixControlGranted = false;
+                matrixControlRequestPending = false;
+                initDone = false;
+                matrixNextControlAttempt = now.addMSecs(1500);
+                // Retry the last requested target only after control is regained.
+                if (matrixLastResistanceCommand >= 1)
+                    requestResistance = matrixLastResistanceCommand;
+                qDebug() << "Matrix R30 XR resistance rejected: reacquiring control";
+            }
+        }
 
         if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
             if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
@@ -2148,6 +2221,16 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+
+    if (uses16BitResistanceForDevice(bluetoothDevice.name()) &&
+        gattWriteCharControlPointId.isValid() &&
+        descriptor.handle() == gattWriteCharControlPointId
+                                   .descriptor(QBluetoothUuid::ClientCharacteristicConfiguration)
+                                   .handle() &&
+        newValue == QByteArray::fromHex("0200")) {
+        matrixControlPointIndicationsReady = true;
+        qDebug() << "Matrix R30 XR FTMS 2AD9 indications enabled";
+    }
 
     initRequest = true;
     if(!connectedAndDiscoveredOk) {
