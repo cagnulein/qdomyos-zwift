@@ -474,111 +474,343 @@ ColumnLayout {
             id: detailView
 
             ColumnLayout {
+                id: detailColumn
                 spacing: 10
+                // Landscape: the description with the tags on the left, the chart over the whole
+                // height on the right, as the GPX page; upright one under another
+                readonly property bool sideBySide: width > height
 
                 // Header con pulsanti
-                RowLayout {
+                // The buttons row: here over the page upright, over the chart in the right column side by
+                // side, where the description takes the left column from the top of the page (the buttons
+                // are right-aligned, the left of their row was empty). One component in two places, not
+                // explicit grid cells that change on turning: with those (row, column and span set by
+                // sideBySide) Qt 5.15 on Android left the native chart view over the whole width under the
+                // buttons, covering the text, while Qt 6 laid the same grid out right
+                Component {
+                    id: detailButtons
+
+                    RowLayout {
+                        spacing: window.ui.modern ? 8 : 10
+
+                        UiButton {
+                            text: qsTr("← Back")
+                            // Modern look: the toolbar arrow goes back to the list (main.qml)
+                            visible: !window.ui.modern
+                            onClicked: stackView.pop()
+                        }
+
+                        Item { Layout.fillWidth: true }
+
+                        UiButton {
+                            text: qsTr("Delete")
+                            visible: pendingWorkoutUrl.toString() !== ""
+                            danger: true
+                            Material.background: Material.Red
+                            onClicked: {
+                                deleteDialog.fileUrl = pendingWorkoutUrl
+                                deleteDialog.visible = true
+                            }
+                        }
+
+                        UiButton {
+                            text: qsTr("Start Workout")
+                            highlighted: true
+                            Material.background: Material.Green
+                            onClicked: {
+                                trainprogram_open_clicked(pendingWorkoutUrl)
+                                trainprogram_autostart_requested()
+                                stackView.pop()
+                            }
+                        }
+                    }
+                }
+
+                Loader {
+                    id: detailHeader
+                    active: !detailBody.split
+                    visible: active
                     Layout.fillWidth: true
                     Layout.margins: 5
                     Layout.leftMargin: window.ui.modern ? programsPage.modernMargin - 8 : 5
                     Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
-                    spacing: window.ui.modern ? 8 : 10
-
-                    UiButton {
-                        text: qsTr("← Back")
-                        // Modern look: the toolbar arrow goes back to the list (main.qml)
-                        visible: !window.ui.modern
-                        onClicked: stackView.pop()
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    UiButton {
-                        text: qsTr("Delete")
-                        visible: pendingWorkoutUrl.toString() !== ""
-                        danger: true
-                        Material.background: Material.Red
-                        onClicked: {
-                            deleteDialog.fileUrl = pendingWorkoutUrl
-                            deleteDialog.visible = true
-                        }
-                    }
-
-                    UiButton {
-                        text: qsTr("Start Workout")
-                        highlighted: true
-                        Material.background: Material.Green
-                        onClicked: {
-                            trainprogram_open_clicked(pendingWorkoutUrl)
-                            trainprogram_autostart_requested()
-                            stackView.pop()
-                        }
-                    }
-
+                    sourceComponent: detailButtons
                 }
 
-                // Descrizione workout
-                Text {
-                    Layout.fillWidth: true
-                    Layout.margins: 10
-                    text: rootItem.previewWorkoutDescription
-                    // Modern look: an empty line kept its height and margins, a gap above the chart
-                    visible: !window.ui.modern || text !== ""
-                    font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(14)
-                    font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
-                    color: window.ui.ink("white")
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 10
-                    Layout.rightMargin: 10
-                    text: rootItem.previewWorkoutTags
-                    visible: !window.ui.modern || text !== ""
-                    font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
-                    wrapMode: Text.WordWrap
-                    color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey, Material.Shade400)
-                    horizontalAlignment: Text.AlignHCenter
-                }
-
-                // WebView con grafico
-                // Preview data is now loaded via WebSocket, no runJavaScript needed
-                Item {
+                GridLayout {
+                    id: detailBody
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // side by side only with a text to show: without it the chart takes the page under the
+                    // buttons, as upright (the classic look keeps its empty lines above it, as on master)
+                    readonly property bool split: detailColumn.sideBySide
+                        && (rootItem.previewWorkoutDescription !== "" || rootItem.previewWorkoutTags !== "")
+                    // the cells are placed in order, the text first: an explicit Layout.column 1 was
+                    // warned about for a moment on turning upright, the columns already 1
+                    columns: split ? 2 : 1
+                    columnSpacing: 6
+                    rowSpacing: detailColumn.spacing
 
-                    // Modern look: the native view is white until the page is loaded, so it is
-                    // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
-                    // QML item, so it hides while the card-styled delete question is open
-                    BusyIndicator {
-                        anchors.centerIn: parent
-                        visible: window.ui.modern && !previewWebView.pageLoaded
-                        running: visible
-                    }
+                    ColumnLayout {
+                        id: textColumn
+                        Layout.fillWidth: true
+                        Layout.fillHeight: detailBody.split
+                        // the two columns share the width equally
+                        Layout.preferredWidth: 1
+                        spacing: detailColumn.spacing
+                        // from the data, not from the children: their visibility follows this one
+                        visible: !window.ui.modern || rootItem.previewWorkoutDescription !== ""
+                            || rootItem.previewWorkoutTags !== ""
 
-                    WebView {
-                        id: previewWebView
-                        anchors.fill: parent
-                        visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
-                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-                        property bool pageLoaded: false
-                        // a failed load is shown too: the page tells why, not an endless spinner
-                        onLoadingChanged: {
-                            if (loadRequest.status === WebView.LoadSucceededStatus
-                                    || loadRequest.status === WebView.LoadFailedStatus)
-                                pageLoaded = true
+                        // Descrizione workout
+                        // Upright: folded to at most 8 lines, and to no more than 30 % of the page below the
+                        // buttons, with "Show more" under its right end: the chart below is a native view
+                        // that takes only the height left, and a long description (the bundled programs cite
+                        // their sources) left it little. Unfolded, the text scrolls in at most half of the
+                        // page below the buttons. Either way it keeps to textRoom: on a low page the button
+                        // and the tags stay on the page and the chart keeps 80. Side by side: the whole text,
+                        // no fold, scrolled in its column above the tags
+                        ColumnLayout {
+                            id: descriptionBlock
+                            property bool expanded: false
+                            // side by side: the whole page height (the buttons are over the chart) less the
+                            // own margins (20), the tags and the spacing before the filler under them.
+                            // Not from textColumn.height: the column grows to its content, and the text
+                            // pushed the tags and the chart past the bottom of the page
+                            readonly property real sideRoom: Math.max(descriptionMetrics.lineSpacing,
+                                detailColumn.height - 20
+                                - (tagsText.visible ? tagsText.height + textColumn.spacing : 0) - textColumn.spacing)
+                            readonly property real pageBelowButtons: Math.max(0, detailColumn.height - detailHeader.height)
+                            // the page below the buttons less all but the text: the margins of the buttons row (10),
+                            // the spacing of the page, the own margins (20), the button (48), the tags, the chart
+                            readonly property real textRoom: Math.max(descriptionMetrics.lineSpacing,
+                                pageBelowButtons - 10 - 3 * detailColumn.spacing - 20 - 48
+                                - (tagsText.visible ? tagsText.height : 0) - 80)
+                            readonly property int foldedLines: Math.max(1, Math.min(8,
+                                Math.floor(Math.min(pageBelowButtons * 0.3, textRoom) / Math.max(1, descriptionMetrics.lineSpacing))))
+                            // the height of the whole lines that fit in h: the line pitch as the text
+                            // lays it out (lineSpacing is a little off, and over ten lines the top of
+                            // the next one showed under the last)
+                            function wholeLines(h) {
+                                var line = descriptionText.lineCount > 0
+                                    ? descriptionText.contentHeight / descriptionText.lineCount
+                                    : descriptionMetrics.lineSpacing
+                                line = Math.max(1, line)
+                                return Math.max(1, Math.floor(h / line)) * line
+                            }
+                            Layout.fillWidth: true
+                            Layout.margins: 10
+                            // side by side the scroll bar ends the column: no margin after it, the column
+                            // spacing and the frame of the chart are the gap to the chart (16 with the modern frame)
+                            Layout.rightMargin: detailBody.split ? 0 : 10
+                            spacing: 0
+                            // Modern look: an empty line kept its height and margins, a gap above the chart
+                            visible: !window.ui.modern || rootItem.previewWorkoutDescription !== ""
+
+                            Flickable {
+                                id: descriptionFlick
+                                Layout.fillWidth: true
+                                // whole lines, so the last one shown is not cut in half
+                                Layout.preferredHeight: detailColumn.sideBySide
+                                    ? Math.min(contentHeight, descriptionBlock.wholeLines(descriptionBlock.sideRoom))
+                                    : descriptionBlock.expanded
+                                    ? Math.min(contentHeight, descriptionBlock.wholeLines(
+                                        Math.min(descriptionBlock.pageBelowButtons / 2, descriptionBlock.textRoom)))
+                                    : contentHeight
+                                contentHeight: descriptionText.height
+                                interactive: contentHeight > height
+                                clip: true
+                                boundsBehavior: Flickable.StopAtBounds
+                                // When the text scrolls, a bar that stays: a ScrollIndicator shows only while
+                                // it moves (an active binding is overwritten after every move), the Material
+                                // ScrollBar keeps showing for AlwaysOn
+                                ScrollBar.vertical: ScrollBar {
+                                    id: descriptionBar
+                                    z: 1
+                                    interactive: false
+                                    policy: descriptionFlick.interactive ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+                                }
+
+                                // and the last line shown fades into the page until the end of the text is reached
+                                Rectangle {
+                                    id: descriptionFade
+                                    readonly property color page: window.ui.modern ? window.ui.bg : Material.backgroundColor
+                                    // over the Flickable, not in its scrolled content
+                                    parent: descriptionFlick
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    height: Math.min(descriptionFlick.height / 2, descriptionBlock.wholeLines(1))
+                                    visible: descriptionFlick.interactive && !descriptionFlick.atYEnd
+                                    gradient: Gradient {
+                                        GradientStop { position: 0; color: window.ui.alpha(descriptionFade.page, 0) }
+                                        GradientStop { position: 1; color: descriptionFade.page }
+                                    }
+                                }
+
+                                Text {
+                                    id: descriptionText
+                                    width: descriptionFlick.width
+                                    // where the text may scroll (side by side, unfolded), room for the bar on
+                                    // its right: the lines ran under it. Not by interactive: that follows the
+                                    // height of the text, and the height this width
+                                    rightPadding: detailColumn.sideBySide || descriptionBlock.expanded
+                                        ? descriptionBar.width + 6 : 0
+                                    text: rootItem.previewWorkoutDescription
+                                    font.pixelSize: window.ui.modern ? window.ui.fontBody : window.fontPx(14)
+                                    font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
+                                    color: window.ui.ink("white")
+                                    // Wrap, not WordWrap: a word wider than the column (a link) is broken, not
+                                    // cut on one line - that cut set truncated, and "Show more" unfolded nothing
+                                    wrapMode: Text.Wrap
+                                    maximumLineCount: detailColumn.sideBySide || descriptionBlock.expanded
+                                        ? 100000 : descriptionBlock.foldedLines
+                                    elide: Text.ElideRight
+                                    horizontalAlignment: Text.AlignLeft
+                                }
+
+                                FontMetrics {
+                                    id: descriptionMetrics
+                                    font: descriptionText.font
+                                }
+                            }
+
+                            // Shown only when the folded text is really cut. Modern look: a tonal pill (the
+                            // accent at 16 %, 28 % pressed, as the profile chip of the drawer) ending at the
+                            // right edge of the text; classic: the bare label, its touch area past the text
+                            AbstractButton {
+                                id: moreButton
+                                Layout.alignment: Qt.AlignRight
+                                Layout.rightMargin: window.ui.modern ? 0 : -8
+                                visible: !detailColumn.sideBySide && (descriptionBlock.expanded || descriptionText.truncated)
+                                implicitHeight: 48
+                                leftPadding: window.ui.modern ? 12 : 8
+                                rightPadding: 8
+                                implicitWidth: moreRow.implicitWidth + leftPadding + rightPadding
+                                text: descriptionBlock.expanded ? qsTr("Show less") : qsTr("Show more")
+                                onClicked: {
+                                    descriptionBlock.expanded = !descriptionBlock.expanded
+                                    if (!descriptionBlock.expanded)
+                                        descriptionFlick.contentY = 0
+                                }
+
+                                background: Item {
+                                    Rectangle {
+                                        visible: window.ui.modern
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: parent.width
+                                        height: 32
+                                        radius: height / 2
+                                        color: window.ui.alpha(window.ui.accent, moreButton.pressed ? 0.28 : 0.16)
+                                    }
+                                }
+
+                                contentItem: Row {
+                                    id: moreRow
+                                    spacing: 4
+                                    opacity: !window.ui.modern && moreButton.pressed ? 0.6 : 1
+
+                                    Label {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        // the button carries the name; the label is no second node for TalkBack
+                                        Accessible.ignored: true
+                                        text: moreButton.text
+                                        font.pixelSize: window.ui.modern ? window.ui.fontLabel : window.fontPx(14)
+                                        font.weight: Font.Medium
+                                        color: window.ui.modern ? window.ui.accent : Material.accent
+                                    }
+
+                                    // turned over when unfolded, as the chevron of a settings section
+                                    UiIcon {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: 20
+                                        height: 20
+                                        name: "expand_more"
+                                        color: window.ui.modern ? window.ui.accent : Material.accent
+                                        rotation: descriptionBlock.expanded ? 180 : 0
+                                        Behavior on rotation { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                                    }
+                                }
+                            }
                         }
 
-                        // a new app language: the page takes its texts when loaded and asks the server
-                        // for the program itself, so a reload loses nothing
-                        Connections {
-                            target: rootItem
-                            function onAppLanguageChanged() {
-                                // hidden again until loaded, as at the first load
-                                previewWebView.pageLoaded = false
-                                previewWebView.reload()
+                        Text {
+                            id: tagsText
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            text: rootItem.previewWorkoutTags
+                            visible: !window.ui.modern || text !== ""
+                            font.pixelSize: window.ui.modern ? window.ui.fontCaption : window.fontPx(12)
+                            wrapMode: Text.WordWrap
+                            color: window.ui.modern ? window.ui.textMuted : Material.color(Material.Grey, Material.Shade400)
+                            horizontalAlignment: Text.AlignLeft
+                        }
+
+                        // side by side: the rest of the column, so the tags stay under the text
+                        Item {
+                            Layout.fillHeight: true
+                            visible: detailBody.split
+                        }
+                    }
+
+                    // WebView con grafico
+                    // Preview data is now loaded via WebSocket, no runJavaScript needed
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.preferredWidth: 1
+                        spacing: detailColumn.spacing
+
+                        Loader {
+                            active: detailBody.split
+                            visible: active
+                            Layout.fillWidth: true
+                            Layout.margins: 5
+                            Layout.leftMargin: 5
+                            Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 5
+                            sourceComponent: detailButtons
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            // Modern look: the native view is white until the page is loaded, so it is
+                            // kept hidden till then, as in WorkoutEditor.qml. It is also drawn above every
+                            // QML item, so it hides while the card-styled delete question is open
+                            BusyIndicator {
+                                anchors.centerIn: parent
+                                visible: window.ui.modern && !previewWebView.pageLoaded
+                                running: visible
+                            }
+
+                            WebView {
+                                id: previewWebView
+                                anchors.fill: parent
+                                visible: !window.ui.modern || (pageLoaded && !deleteDialog.visible)
+                                // modern look: the page colour for the frame around the chart, so it merges
+                                // with the page; the classic look keeps the dark frame of the page
+                                url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                                    + (window.ui.modern ? "?bg=" + encodeURIComponent(String(window.ui.bg)) : "")
+                                property bool pageLoaded: false
+                                // a failed load is shown too: the page tells why, not an endless spinner
+                                onLoadingChanged: {
+                                    if (loadRequest.status === WebView.LoadSucceededStatus
+                                            || loadRequest.status === WebView.LoadFailedStatus)
+                                        pageLoaded = true
+                                }
+
+                                // a new app language: the page takes its texts when loaded and asks the server
+                                // for the program itself, so a reload loses nothing
+                                Connections {
+                                    target: rootItem
+                                    function onAppLanguageChanged() {
+                                        // hidden again until loaded, as at the first load
+                                        previewWebView.pageLoaded = false
+                                        previewWebView.reload()
+                                    }
+                                }
                             }
                         }
                     }

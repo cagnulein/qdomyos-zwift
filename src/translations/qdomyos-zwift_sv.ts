@@ -1448,6 +1448,14 @@ Vill du uppdatera QZ-inställningarna?</translation>
         <translation>← Tillbaka</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Visa mindre</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Visa mer</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>

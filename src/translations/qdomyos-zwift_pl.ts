@@ -1464,6 +1464,14 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>← Wstecz</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Pokaż mniej</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Pokaż więcej</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Usuń</translation>
     </message>

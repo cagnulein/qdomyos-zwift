@@ -1464,6 +1464,14 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>← Terug</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Minder tonen</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Meer tonen</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Verwijderen</translation>
     </message>

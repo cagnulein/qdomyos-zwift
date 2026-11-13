@@ -1464,6 +1464,14 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <translation>← Retour</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>Afficher moins</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Afficher plus</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>

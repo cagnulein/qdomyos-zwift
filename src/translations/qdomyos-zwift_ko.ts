@@ -1464,6 +1464,14 @@ QZ 설정을 업데이트하시겠습니까?</translation>
         <translation>← 뒤로</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>접기</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>더보기</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>삭제</translation>
     </message>

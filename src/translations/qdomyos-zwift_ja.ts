@@ -1464,6 +1464,14 @@ QZの設定を更新しますか?</translation>
         <translation>← 戻る</translation>
     </message>
     <message>
+        <source>Show less</source>
+        <translation>折りたたむ</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>もっと見る</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
