@@ -580,6 +580,13 @@ void ftmsbike::update() {
     QSettings settings;
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
+        if (uses16BitResistanceForDevice(bluetoothDevice.name())) {
+            matrixControlPointIndicationsReady = false;
+            matrixControlGranted = false;
+            matrixControlRequestPending = false;
+            matrixNextControlAttempt = QDateTime();
+            initDone = false;
+        }
         emit disconnected();
         return;
     }
