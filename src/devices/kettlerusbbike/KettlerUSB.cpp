@@ -71,6 +71,8 @@ void KettlerUSB::getTelemetry(double &power, double &heartrate, double &cadence,
  * ---------------------------------------------------------------------- */
 
 void KettlerUSB::initSequence() {
+    powerFilter.reset();
+    powerFilterClock.start();
     // Match the sequence captured from the native Ergo Konzept application:
     // RS, wait for its response, wait about 3 seconds, then CM. The native
     // application does not send SP or BR in this startup sequence.
@@ -164,8 +166,12 @@ void KettlerUSB::parseStatusResponse(const QString &response) {
             deviceCadence = fields[1].toDouble();
             deviceSpeed = fields[2].toDouble() * 0.1; // Speed is in 0.1 km/h
             deviceDistance = fields[3].toDouble() * 100; // Distance is in 100m units
-            devicePower = fields[7].toDouble(); // CurrentPower (last field)
+            const double rawPower = fields[7].toDouble(); // CurrentPower (last field)
+            devicePower = powerFilter.apply(rawPower, deviceCadence, powerFilterClock.elapsed());
+            const double publishedPower = devicePower;
             pvars.unlock();
+            qDebug() << "Kettler power filter: raw=" << rawPower
+                     << " published=" << publishedPower << " RPM=" << deviceCadence;
 
             qDebug() << "Kettler Status: HR=" << deviceHeartRate
                      << " RPM=" << deviceCadence

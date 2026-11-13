@@ -17,6 +17,7 @@
 #ifndef _KettlerUSB_h
 #define _KettlerUSB_h 1
 
+#include "kettler_power_filter.h"
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QFile>
@@ -104,6 +105,8 @@ class KettlerUSB : public QThread {
 
     // Mutex for controlling accessing private data
     QMutex pvars;
+    KettlerPowerFilter powerFilter;
+    QElapsedTimer powerFilterClock;
 
     // INBOUND TELEMETRY - all volatile since updated by run() thread
     volatile double devicePower;      // current output power in Watts
