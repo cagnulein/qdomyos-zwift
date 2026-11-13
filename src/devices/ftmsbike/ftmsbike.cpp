@@ -407,9 +407,9 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 bool ftmsbike::uses16BitResistanceForDevice(const QString &deviceName) {
-    // Trial for the Matrix R30 XR identified in the debug log. Do not affect other MX-RB bikes.
-    return deviceName.startsWith(QStringLiteral("MX-RB "), Qt::CaseInsensitive) &&
-           deviceName.endsWith(QStringLiteral("4D41"), Qt::CaseInsensitive);
+    // Apply the Matrix R30 XR FTMS control and 16-bit resistance workaround
+    // to all MX-RB devices, regardless of their Bluetooth name suffix.
+    return deviceName.startsWith(QStringLiteral("MX-RB "), Qt::CaseInsensitive);
 }
 
 bool ftmsbike::isMatchingFtmsControlResponse(const QBluetoothUuid &characteristicUuid,
