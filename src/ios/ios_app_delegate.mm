@@ -8,6 +8,9 @@
 #include "homeform.h"
 #include "lockscreen.h"
 #include "authutils.h"
+#include "ios/ios_background_keepalive.h"
+#include "qzsettings.h"
+#include <QSettings>
 
 // Qt defines QIOSApplicationDelegate internally as a UIResponder-backed
 // UIApplicationDelegate.  Keep the local declaration aligned with that shape
@@ -93,11 +96,30 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     Q_UNUSED(application)
     qDebug() << "QZ iOS lifecycle: applicationDidBecomeActive";
+
+    // Start while fully in the foreground, before a first-time Zwift pairing.
+    // Previously Keep Alive started only on Start_inner(), after a workout began.
+    // This allows the Wi-Fi/DIRCON mDNS responder to keep processing queries if
+    // the user backgrounds QZ before Zwift has discovered its virtual trainer.
+    QSettings settings;
+    if (settings.value(QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive).toBool()) {
+        iosBackgroundKeepAlive::start();
+        qDebug() << "QZ iOS lifecycle: background keepalive for discovery"
+                 << iosBackgroundKeepAlive::isRunning();
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     Q_UNUSED(application)
     qDebug() << "QZ iOS lifecycle: applicationWillResignActive";
+
+    // The setting can be turned on while QZ is already open. Arm the audio
+    // session before iOS suspends the app, even if Start was not pressed yet.
+    // This does not override iOS restrictions on BLE background advertising.
+    QSettings settings;
+    if (settings.value(QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive).toBool()) {
+        iosBackgroundKeepAlive::start();
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

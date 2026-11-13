@@ -61,6 +61,26 @@
         <translation>Filtr</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Folder nadrzędny</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Otwórz</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Brak plików GPX</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Dystans: %1 km, suma podejść: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>Wybierz plik</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Dotknij pliku, aby go wybrać, a potem „Wczytaj”.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Wczytaj</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Brak zapisanych ustawień</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Inne foldery</translation>
     </message>
@@ -1396,6 +1428,18 @@ Zaktualizować ustawienia QZ?</translation>
         <translation>Szukaj (z podfolderami)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Folder nadrzędny</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nie znaleziono treningów</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Brak treningów</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Inne foldery</translation>
     </message>
@@ -1414,6 +1458,51 @@ Zaktualizować ustawienia QZ?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Rozpocznij trening</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Tak</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nie</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Rozwinięte</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Zwinięte</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>godziny</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minuty</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekundy</translation>
     </message>
 </context>
 <context>
@@ -1634,6 +1723,16 @@ Zaktualizować ustawienia QZ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Wymuś prędkość</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Utrzymywanie tętna zmienia</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Z ustawień</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4173,6 +4272,14 @@ Rozpocząć go teraz?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Zapisano! Szukaj w aplikacji Pliki.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Zapisano! Szukaj w prywatnym folderze aplikacji.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Jesteś już połączony z serwisem Peloton. Wylogować się?</translation>
     </message>
@@ -4185,6 +4292,18 @@ Rozpocząć go teraz?</translation>
         <translation>Jesteś już połączony z serwisem Intervals.icu. Wylogować się?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Wstecz</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu główne</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Okno pływające</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Możesz przesuwać kafelki!</translation>
     </message>
@@ -4193,12 +4312,48 @@ Rozpocząć go teraz?</translation>
         <translation>Kafelki są teraz zablokowane</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Wczytaj ustawienia</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Szukaj w ustawieniach</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Zapisz ustawienia</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Mapa</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Wideo</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Wykres</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Udostępnij plik FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Odblokuj kafelki</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Zablokuj kafelki</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Wyłącz automatyczny opór</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Włącz automatyczny opór</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4259,6 +4414,46 @@ Rozpocząć go teraz?</translation>
     <message>
         <source>Quit</source>
         <translation>Zakończ</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Rozłącz z serwisem Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Połącz z serwisem Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Rozłącz z serwisem Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Połącz z serwisem Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Ustawienia Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Rozłącz z serwisem Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Połącz z serwisem Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Trening</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Aplikacja</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Usługi</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4495,6 +4690,10 @@ Zezwolić QZ na zmianę tej wartości?
         <translation>Usunąć ten profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil został zapisany</translation>
     </message>
@@ -4525,6 +4724,26 @@ Zezwolić QZ na zmianę tej wartości?
     <message>
         <source>Profile name</source>
         <translation>Nazwa profilu</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nowy profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Zapisane profile</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Dotknij profilu, aby go wybrać, a potem „Wczytaj”. Przytrzymaj, aby go usunąć.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktywny</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Wczytaj</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8718,6 +8937,10 @@ Domyślnie: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>W interfejsie użytkownika wyświetlane są 2 duże przyciski biegów</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opcje kafelków</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

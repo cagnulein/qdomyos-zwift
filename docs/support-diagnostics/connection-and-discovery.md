@@ -72,6 +72,26 @@
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
 - A confirmed Android FTMS bike case recovered its metrics after disabling ANT Bike Garmin; collecting that option value helps distinguish a settings interaction from a missing Bluetooth advertisement.
 
+## BLE device advertises FTMS but QZ connects without usable metrics
+
+### Provide first
+
+- Exact machine model, **advertised Bluetooth name**, QZ platform/build, and which live metrics remain at zero while the machine is actively used.
+- A screenshot of the **nRF Connect scan advertisement** showing the device name and advertised service UUIDs, plus a **separate screenshot after connecting** showing the services actually discovered.
+- State whether another app is connected to the machine and whether QZ's FTMS or model-specific option was selected.
+
+### If still unclear
+
+- Disconnect nRF Connect completely, close other fitness apps, power-cycle the machine, and retest QZ alone while pedaling or running. Record whether the metrics change before opening MyWhoosh, Zwift, or another receiving app.
+- If the scan advertises Fitness Machine service `0x1826` but the connected GATT service list does not contain `0x1826`, capture the full connected-service list and characteristic UUIDs (including proprietary services such as `FFF0`). Do not infer FTMS telemetry support from the advertisement alone.
+- Provide a short QZ debug log covering connection and about ten seconds of active movement. If the discovered services suggest a proprietary protocol, compare the exact Bluetooth name with the current model-specific handler before considering a new parser.
+
+### Why it matters
+
+- BLE **advertising service UUIDs** and the **services discovered after a GATT connection** are different observations. The advertisement can mention FTMS even when the connected session does not expose usable FTMS characteristics.
+- The exact Bluetooth name can determine whether QZ chooses a model-specific handler or a generic FTMS path; a similar commercial model name is not sufficient evidence of protocol compatibility.
+- Separating a working BLE connection from live telemetry, and testing QZ before a receiving app, avoids investigating virtual pairing when the upstream data is missing.
+
 ## Bike reports metrics but remote resistance support is uncertain
 
 ### Provide first

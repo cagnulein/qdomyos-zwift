@@ -99,6 +99,12 @@ If the controllers appear connected but gear changes do not work in Kinomap, che
 
 If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
 
+## ROUVY sees QZ's Wahoo KICKR virtual trainer but never finishes connecting. What should I check?
+
+If ROUVY on a computer detects **Wahoo KICKR 0000** from QZ but remains on the connecting spinner, check whether a **VPN is enabled on the phone running QZ**. Temporarily disable the VPN and retry the connection, keeping QZ and ROUVY on the same local network. A VPN can interfere with local-network discovery or communication even when the virtual trainer is listed.
+
+This fixed a reported iPhone-to-Mac ROUVY connection: the same setup connected normally on a second iPhone, and disabling the VPN on the original iPhone restored its connection too. You do not need to change your virtual gear settings just to test this network issue.
+
 ## Can I use QZ virtual gears with Rouvy?
 
 Yes. QZ can manage virtual gear changes while ROUVY controls the bike or trainer through QZ. ROUVY continues sending terrain/grade changes, while QZ applies the current virtual gear on top of the resistance requested for the route.
@@ -238,3 +244,22 @@ If QZ displays the correct running cadence during a treadmill workout, but **Gar
 Despite its name, this option also affects cadence written into the exported FIT activity used by Garmin Connect, not just Strava. It does **not** halve the live cadence shown on the QZ dashboard. A treadmill user explicitly confirmed that enabling it fixed doubled cadence in **both Garmin Connect and Strava**, while the live QZ reading had already been correct.
 
 Use this only when the exported cadence is actually doubled; do not enable it to correct an inaccurate live cadence reading or a separately recorded activity from a watch.
+
+## Sole+ connects to QZ but shows no workout data when I select an elliptical. What should I choose?
+
+In **Sole+**, remove the unsuccessful elliptical pairing and pair QZ as a **bike** instead, even when the physical machine connected to QZ is an elliptical. Keep QZ running on one device and Sole+ on another, and check that the live metrics are updating in QZ before pairing.
+
+QZ's existing virtual-device path can expose elliptical metrics using a virtual bike profile rather than a native virtual elliptical profile. Selecting **elliptical** in Sole+ can therefore connect to the wrong profile and show no data. In a confirmed iPhone-to-iPad test, selecting QZ as a bike restored data in Sole+ for **both** a physical exercise bike and an elliptical; selecting it as an elliptical returned no data for either.
+
+This is a **pairing/profile workaround**, not a claim that Sole+ receives every elliptical-specific metric. A native virtual elliptical profile is a separate feature and is not required for this workaround.
+
+## How can I avoid duplicate workouts in Intervals.icu when using Garmin Connect?
+
+If QZ uploads a completed workout directly to **Intervals.icu** and also uploads it to **Garmin Connect**, while Garmin Connect is configured to forward activities to Intervals.icu, the same workout can reach Intervals.icu by two different routes and may appear twice.
+
+Choose **one upload route** for each workout:
+
+1. **Via Garmin Connect:** Keep the QZ → Garmin Connect upload and Garmin Connect → Intervals.icu synchronization enabled, but disconnect or disable QZ's direct Intervals.icu upload.
+2. **Direct to Intervals.icu:** Keep QZ's direct Intervals.icu upload and disable the Garmin Connect → Intervals.icu activity sync for that workout source.
+
+QZ supports direct Intervals.icu uploads after a workout is stopped, as well as Garmin Connect integration. These are separate destinations; connecting both does not automatically deduplicate activities arriving through an external Garmin-to-Intervals synchronization. Check with a short test activity after changing the connections.

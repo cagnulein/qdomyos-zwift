@@ -61,6 +61,26 @@
         <translation>筛选</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上级文件夹</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>打开</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>此处没有 GPX 文件</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 公里</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 米</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>距离 %1 km，累计爬升：%2 米</translation>
     </message>
@@ -1187,6 +1207,18 @@ Do you want to update QZ settings?</source>
         <translation>设置文件夹</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>点击文件将其选中，然后点击“加载”。</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>加载</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>没有已保存的设置</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
@@ -1396,6 +1428,18 @@ Do you want to update QZ settings?</source>
         <translation>搜索（含子文件夹）...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上级文件夹</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>未找到训练</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>此处没有训练</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>其他文件夹</translation>
     </message>
@@ -1414,6 +1458,51 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Start Workout</source>
         <translation>开始训练</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>否</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>已展开</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>已折叠</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>小时</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>分钟</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>秒</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1731,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Force Speed</source>
         <translation>强制速度</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>保持心率区间调节项</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>按设置</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4283,6 +4382,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>已保存！请在“文件”应用中查看。</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>已保存！请在应用的私有文件夹中查看。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>您已连接到 Peloton。是否要登出？</translation>
     </message>
@@ -4293,6 +4400,18 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>您已连接到 Intervals.icu。是否要登出？</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>返回</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>主菜单</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>浮动窗口</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4311,12 +4430,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>卡片已锁定</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>加载设置</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>搜索设置</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>保存设置</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>地图</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>视频</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>图表</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>分享 FIT 文件</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>解锁卡片</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>锁定卡片</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>禁用自动阻力</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>启用自动阻力</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4381,6 +4536,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>断开与 Strava 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>连接到 Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>断开与 Peloton 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>连接到 Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect 设置</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>断开与 Intervals.icu 的连接</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>连接到 Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>训练</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>应用</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>服务</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4511,6 +4706,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>您确定要删除此配置文件吗？</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>配置文件已保存</translation>
     </message>
@@ -4543,8 +4742,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>配置文件名称</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>新建配置文件</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>已保存的配置文件</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>点击配置文件将其选中，然后点击“加载”。长按可删除。</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>当前</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>加载</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8614,6 +8833,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.</source>
         <translation>显示当前努力产生的瓦数。瓦数也称为输出（例如，在 Peloton 中）。如果您的设备无法传输瓦数，QZ 将使用阻力和踏频计算瓦数。</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>卡片选项</translation>
     </message>
     <message>
         <source>Weight loss</source>

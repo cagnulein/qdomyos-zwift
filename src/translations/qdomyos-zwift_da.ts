@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Åbn</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Ingen GPX-filer her</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distance: %1 km, højdemeter: %2</translation>
     </message>
@@ -1171,6 +1191,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Vælg en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på "Indlæs".</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ingen gemte indstillinger</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
@@ -1380,6 +1412,18 @@ Vil du opdatere QZ-indstillingerne?</translation>
         <translation>Søg (inkl. undermapper)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Ingen træningspas fundet</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Ingen træningspas her</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
@@ -1398,6 +1442,51 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Start træning</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuller</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Udvidet</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Skjult</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>timer</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutter</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekunder</translation>
     </message>
 </context>
 <context>
@@ -1618,6 +1707,16 @@ Vil du opdatere QZ-indstillingerne?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Angiv hastighed</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Hold puls (PID) ændrer</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Som indstillet</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4157,6 +4256,14 @@ Vil du starte det nu?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Gemt! Se i appen Filer.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Gemt! Se i appens private mappe.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du er allerede tilsluttet Peloton. Vil du logge ud?</translation>
     </message>
@@ -4169,6 +4276,18 @@ Vil du starte det nu?</translation>
         <translation>Du er allerede tilsluttet Intervals.icu. Vil du logge ud?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Tilbage</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hovedmenu</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Flydende vindue</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Du kan flytte felterne!</translation>
     </message>
@@ -4177,12 +4296,48 @@ Vil du starte det nu?</translation>
         <translation>Felterne er nu låst</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Indlæs indstillinger</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Søg i indstillinger</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Gem indstillinger</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kort</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Graf</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Lås felterne op</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lås felterne</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Deaktiver automatisk modstand</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Aktivér automatisk modstand</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4243,6 +4398,46 @@ Vil du starte det nu?</translation>
     <message>
         <source>Quit</source>
         <translation>Afslut</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Afbryd forbindelsen til Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Opret forbindelse til Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Afbryd forbindelsen til Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Opret forbindelse til Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Indstillinger for Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Afbryd forbindelsen til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Opret forbindelse til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Træning</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Tjenester</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4479,6 +4674,10 @@ Må QZ ændre værdien?
         <translation>Er du sikker på, at du vil slette denne profil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Slet</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen er gemt</translation>
     </message>
@@ -4509,6 +4708,26 @@ Må QZ ændre værdien?
     <message>
         <source>Profile name</source>
         <translation>Profilnavn</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Gemte profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på "Indlæs". Hold nede for at slette den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Indlæs</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8694,6 +8913,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Viser 2 store gearknapper i brugerfladen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Indstillinger for felter</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

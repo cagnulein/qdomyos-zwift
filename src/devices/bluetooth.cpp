@@ -1946,7 +1946,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("3G PRO ")) ||
                         (b.name().toUpper().startsWith("3G ELITE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
+                        b.name().toUpper().startsWith(QStringLiteral("TF04-S001-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
                          b.name().length() > QStringLiteral("TRUE TREADMILL ").length() &&
                          QRegularExpression(QStringLiteral("TRUE TREADMILL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE TREADMILL followed by digits
@@ -2269,6 +2269,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DMASUN-") && b.name().toUpper().endsWith("-BIKE")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("JOROTO-JH30PRO"))) || // Joroto JH30 PRO FTMS, with optional serial suffix
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("RIVO COG")) ||
@@ -2293,6 +2294,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("NERO")) || (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         (b.name().toUpper().startsWith("USDC-D700-")) ||
+						(b.name().toUpper().startsWith(QStringLiteral("TF04-S201-"))) ||                           // Salter S30
                         (b.name().toUpper().startsWith("VIFHTR2.1") && !toorx_bike) ||
 						(b.name().toUpper().startsWith("RCR-")) || // Van Rysel RCR (Decathlon)
 						(b.name().toUpper().startsWith(QStringLiteral("S-30"))) || // Salter S-30

@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Übergeordneter Ordner</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öffnen</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Keine GPX-Dateien vorhanden</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distanz %1 km, Höhengewinn: %2 Meter</translation>
     </message>
@@ -1187,6 +1207,18 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Einstellungsordner</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tippen Sie auf eine Datei, um sie auszuwählen, dann auf Laden.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Keine gespeicherten Einstellungen</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andere Ordner</translation>
     </message>
@@ -1396,6 +1428,18 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Suchen (rekursiv)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Übergeordneter Ordner</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Keine Trainings gefunden</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Keine Trainings vorhanden</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andere Ordner</translation>
     </message>
@@ -1414,6 +1458,51 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Training starten</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nein</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Ausgeklappt</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Eingeklappt</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>Stunden</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>Minuten</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>Sekunden</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1731,16 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Kraftgeschwindigkeit</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>PID Herzfrequenz – Stellgröße</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Wie eingestellt</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4275,6 +4374,14 @@ Möchten Sie für diese Sitzung zur klassischen Bluetooth-Brücke wechseln?</tra
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Gespeichert! Siehe App „Dateien“.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Gespeichert! Siehe privaten Ordner der App.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Sie sind bereits mit Peloton verbunden. Möchten Sie sich abmelden?</translation>
     </message>
@@ -4285,6 +4392,18 @@ Möchten Sie für diese Sitzung zur klassischen Bluetooth-Brücke wechseln?</tra
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Sie sind bereits mit Intervals.icu verbunden. Möchten Sie sich abmelden?</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Zurück</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hauptmenü</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Schwebendes Fenster</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4303,12 +4422,48 @@ Möchten Sie für diese Sitzung zur klassischen Bluetooth-Brücke wechseln?</tra
         <translation>Die Kacheln sind jetzt gesperrt</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Einstellungen laden</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Einstellungen suchen</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Einstellungen speichern</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Karte</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagramm</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT-Datei teilen</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Kacheln entsperren</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Kacheln sperren</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Auto-Widerstand deaktivieren</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Auto-Widerstand aktivieren</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4373,6 +4528,46 @@ Möchten Sie für diese Sitzung zur klassischen Bluetooth-Brücke wechseln?</tra
     <message>
         <source>Please choose a file</source>
         <translation>Bitte wählen Sie eine Datei</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Von Strava trennen</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Mit Strava verbinden</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Von Peloton trennen</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Mit Peloton verbinden</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Von Intervals.icu trennen</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Mit Intervals.icu verbinden</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Training</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Dienste</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4503,6 +4698,10 @@ Darf QZ diesen Wert ändern?
         <translation>Möchten Sie dieses Profil löschen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil gespeichert</translation>
     </message>
@@ -4535,8 +4734,28 @@ Darf QZ diesen Wert ändern?
         <translation>Profilname</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Neues Profil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Speichern</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Gespeicherte Profile</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tippen Sie auf ein Profil, um es auszuwählen, dann auf Laden. Lange drücken zum Löschen.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8574,6 +8793,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.</source>
         <translation>Zeigt die erzeugten Watt durch Ihre aktuelle Anstrengung. Watt wird auch als Leistung bezeichnet (zum Beispiel bei Peloton). Wenn Ihre Ausrüstung keine Watt übermittelt, berechnet QZ die Watt mithilfe von Widerstand und Trittfrequenz.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Kacheloptionen</translation>
     </message>
     <message>
         <source>Weight loss</source>

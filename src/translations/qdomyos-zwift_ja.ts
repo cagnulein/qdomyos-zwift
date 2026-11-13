@@ -61,6 +61,26 @@
         <translation>フィルター</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上のフォルダー</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>開く</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>ここにGPXファイルはありません</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>距離 %1 km 獲得標高: %2 m</translation>
     </message>
@@ -1187,6 +1207,18 @@ QZの設定を更新しますか?</translation>
         <translation>設定フォルダ</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>ファイルをタップして選択し、「読み込み」をタップしてください。</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>読み込み</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>保存された設定はありません</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
@@ -1396,6 +1428,18 @@ QZの設定を更新しますか?</translation>
         <translation>検索（サブフォルダーを含む）...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>上のフォルダー</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>ワークアウトが見つかりません</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>ここにワークアウトはありません</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
     </message>
@@ -1414,6 +1458,51 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Start Workout</source>
         <translation>ワークアウトを開始</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>はい</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>いいえ</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>展開</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>折りたたみ</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>時間</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>分</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>秒</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1731,16 @@ QZの設定を更新しますか?</translation>
     <message>
         <source>Force Speed</source>
         <translation>強制速度</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>心拍数の維持で調整する項目</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>設定に従う</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4279,6 +4378,14 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>保存しました！「ファイル」アプリで確認してください。</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>保存しました！アプリのプライベートフォルダーで確認してください。</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Pelotonにすでに接続されています。ログアウトしますか？</translation>
     </message>
@@ -4289,6 +4396,18 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Intervals.icuにすでに接続されています。ログアウトしますか？</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>戻る</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>メインメニュー</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>フローティングウィンドウ</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4307,12 +4426,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>タイルはロックされています</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>設定を読み込む</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>設定を検索</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>設定を保存</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>地図</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>動画</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>グラフ</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FITファイルを共有</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>タイルのロックを解除</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>タイルをロック</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>自動負荷調整を無効にする</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>自動負荷調整を有効にする</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4377,6 +4532,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>ファイルを選択してください</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Stravaとの接続を解除</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Stravaに接続</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Pelotonとの接続を解除</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Pelotonに接続</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connectの設定</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icuとの接続を解除</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icuに接続</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>ワークアウト</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>アプリ</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>サービス</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4507,6 +4702,10 @@ QZ がこの値を変更することを許可しますか？
         <translation>このプロファイルを削除しますか？</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>プロファイルを保存しました</translation>
     </message>
@@ -4539,8 +4738,28 @@ QZ がこの値を変更することを許可しますか？
         <translation>プロファイル名</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>新しいプロファイル</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>保存されたプロファイル</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>プロファイルをタップして選択し、「読み込み」をタップしてください。長押しで削除します。</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>使用中</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>読み込み</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8618,6 +8837,10 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.</source>
         <translation>現在の運動で発生しているワット数を表示します。ワットは出力とも呼ばれます（Pelotonなど）。機器がワット数を送信しない場合、QZが負荷とケイデンスからワット数を計算します。</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>画面タイル表示設定</translation>
     </message>
     <message>
         <source>Weight loss</source>

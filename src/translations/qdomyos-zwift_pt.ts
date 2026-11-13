@@ -61,6 +61,26 @@
         <translation>Filtro</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Não há arquivos GPX aqui</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distância %1 km Ganho de elevação: %2 metros</translation>
     </message>
@@ -1187,6 +1207,18 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Pasta de configurações</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Toque em um arquivo para selecioná-lo e depois em Carregar.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nenhuma configuração salva</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
@@ -1396,6 +1428,18 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Pesquisar (recursivo)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Pasta acima</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nenhum treino encontrado</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Não há treinos aqui</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
     </message>
@@ -1414,6 +1458,51 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Iniciar treino</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Sim</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Não</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Expandido</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Recolhido</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>horas</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutos</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>segundos</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1731,16 @@ Deseja atualizar as configurações do QZ?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Forçar velocidade</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Manter FC por meio de</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Como definido</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4275,6 +4374,14 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Salvo! Veja no app Arquivos.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Salvo! Veja na pasta privada do app.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Você já está conectado ao Peloton. Deseja sair?</translation>
     </message>
@@ -4285,6 +4392,18 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
     <message>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Você já está conectado ao Intervals.icu. Deseja sair?</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Voltar</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Menu principal</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Janela flutuante</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4303,12 +4422,48 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
         <translation>Os blocos estão bloqueados agora</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Carregar configurações</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Buscar configurações</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Salvar configurações</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Mapa</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Vídeo</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Gráfico</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Compartilhar arquivo FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Desbloquear blocos</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Bloquear blocos</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Desativar resistência automática</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Ativar resistência automática</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4373,6 +4528,46 @@ Deseja mudar para a conexão Bluetooth clássica nesta sessão?</translation>
     <message>
         <source>Please choose a file</source>
         <translation>Por favor, escolha um arquivo</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Desconectar do Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Conectar ao Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Desconectar do Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Conectar ao Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Configurações do Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Desconectar do Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Conectar ao Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Treino</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Serviços</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4503,6 +4698,10 @@ Permitir que o QZ altere esse valor?
         <translation>Deseja excluir este perfil?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Perfil Salvo</translation>
     </message>
@@ -4535,8 +4734,28 @@ Permitir que o QZ altere esse valor?
         <translation>Nome do perfil</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Novo perfil</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salvar</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Perfis salvos</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Toque em um perfil para selecioná-lo e depois em Carregar. Toque longo para excluí-lo.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Ativo</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8506,6 +8725,10 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.</source>
         <translation>Cadência do pedal da bicicleta em rotações por minuto (RPM) ou da esteira, se você usar um sensor no calçado ou o app QZ no Apple Watch.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Opções de Blocos</translation>
     </message>
     <message>
         <source>Elevation Gain</source>

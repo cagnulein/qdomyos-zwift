@@ -135,6 +135,7 @@ class proformtreadmill : public treadmill {
     bool proform_carbon_tlx_v84_314_treadmill = false;
     bool proform_carbon_tl_PFTL59723_6 = false;
     bool proform_treadmill_cst_505_pftl59420_0 = false;
+    bool proform_treadmill_cst_505_pftl59420_2026 = false;
     bool proform_treadmill_105_cst = false;
     bool proform_treadmill_305_cst = false;
 

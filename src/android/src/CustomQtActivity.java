@@ -292,12 +292,26 @@ public class CustomQtActivity extends QtActivity {
             return handled;
         }
 
+        // Qt's node for the id, asked after a delay, or null when accessibility was turned off in the
+        // meantime (TalkBack switched off right after a double tap or a swipe on a value): Qt 5.15.0
+        // then removes this view from its layout and drops its reference to it, and any node asked for
+        // afterwards throws a NullPointerException (QtAccessibilityDelegate.getNodeForVirtualViewId;
+        // Qt 6 returns an empty node there, qtbase af73c7a99e). Only delayed calls can come after that:
+        // Android asks the provider itself on the main thread, where Qt removes the view, and only while
+        // it is attached.
+        private AccessibilityNodeInfo delayedNode(int virtualViewId) {
+            if (host.getParent() == null) {
+                return null;
+            }
+            return qt.createAccessibilityNodeInfo(virtualViewId);
+        }
+
         private void afterClick(final int virtualViewId) {
             host.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     ViewParent parent = host.getParent();
-                    AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
+                    AccessibilityNodeInfo node = delayedNode(virtualViewId);
                     // a press that closed the page leaves Qt an empty node for the id
                     if (node != null && parent != null && (node.isClickable() || node.isCheckable())) {
                         AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_CLICKED);
@@ -321,7 +335,7 @@ public class CustomQtActivity extends QtActivity {
             host.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
+                    AccessibilityNodeInfo node = delayedNode(virtualViewId);
                     if (node == null) {
                         return;
                     }

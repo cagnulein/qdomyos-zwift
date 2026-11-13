@@ -61,6 +61,26 @@
         <translation>Фільтр</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Тека вище</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Відкрити</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Тут немає GPX-файлів</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 км</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 м</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Дистанція: %1 км, набір висоти: %2 м</translation>
     </message>
@@ -1187,6 +1207,18 @@ Do you want to update QZ settings?</source>
         <translation>Папка налаштувань</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Натисніть на файл, щоб вибрати його, потім «Завантажити».</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Немає збережених налаштувань</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
     </message>
@@ -1396,6 +1428,18 @@ Do you want to update QZ settings?</source>
         <translation>Пошук (включно з підпапками)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Тека вище</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Тренувань не знайдено</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Тут немає тренувань</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Інші папки</translation>
     </message>
@@ -1414,6 +1458,51 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Start Workout</source>
         <translation>Почати тренування</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Так</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ні</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Скасувати</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Розгорнуто</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Згорнуто</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>години</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>хвилини</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>секунди</translation>
     </message>
 </context>
 <context>
@@ -1642,6 +1731,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Force Speed</source>
         <translation>Задати швидкість</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Утримання пульсу змінює</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>З налаштувань</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4279,6 +4378,26 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Не забудьте зберегти профіль «%1», якщо хочете залишити в ньому ці зміни.</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Збережено! Шукайте в застосунку «Файли».</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Збережено! Шукайте в особистій папці застосунку.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Головне меню</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Плаваюче вікно</translation>
+    </message>
+    <message>
         <source>Auto Resistance enabled</source>
         <translation>Автоопір увімкнено</translation>
     </message>
@@ -4295,12 +4414,48 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation>Плитки закріплено</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Завантажити налаштування</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Пошук налаштувань</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Зберегти налаштування</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Відео</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Графік</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>Поділитися файлом FIT</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Відкріпити плитки</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Закріпити плитки</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Вимкнути автоопір</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Увімкнути автоопір</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4365,6 +4520,46 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation>Виберіть файл</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Від’єднати Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Під’єднати Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Від’єднати Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Під’єднати Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Налаштування Garmin Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Від’єднати Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Під’єднати Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Тренування</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Застосунок</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Сервіси</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4495,6 +4690,10 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Видалити цей профіль?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Видалити</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Профіль збережено</translation>
     </message>
@@ -4527,8 +4726,28 @@ No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt;
         <translation>Назва профілю</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Новий профіль</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Зберегти</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Збережені профілі</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Натисніть на профіль, щоб вибрати його, потім «Завантажити». Довге натискання – видалити.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Активний</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Завантажити</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8780,6 +8999,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class&apos;s resistance target up or down for the rest of the ride.</source>
         <translation>Показує цільовий опір у шкалі опору вашого велотренажера. Наприклад, на занятті Peloton або у Zwift потрібно, щоб значення на цій плитці збігалося з плиткою «Опір». На занятті Peloton (лише велотренажер) кнопки +/- зсувають цільовий опір заняття вгору або вниз до кінця тренування.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Параметри плиток</translation>
     </message>
     <message>
         <source>Stroke Length</source>

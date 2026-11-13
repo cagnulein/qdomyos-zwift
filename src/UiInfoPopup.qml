@@ -177,7 +177,8 @@ UiPopup {
                 anchors.right: parent.right
                 // the OK of the settings pages, already translated
                 text: qsTranslate("settings", "OK")
-                flat: true
+                // the only button: a grey pill, as the negative ones of the question cards
+                cardSurface: true
                 onClicked: control.close()
             }
         }

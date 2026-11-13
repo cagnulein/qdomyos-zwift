@@ -61,38 +61,56 @@ Rectangle {
     state: "NORMAL"
 
     visible: product.status == Product.Registered
-    radius: 10
-    color: "white"
+    // Modern look: a filled card of the theme with room around the text
+    readonly property int pad: window.ui.modern ? 16 : 0
+    radius: window.ui.modern ? 16 : 10
+    color: window.ui.modern ? window.ui.surface : "white"
 
-    height: titleText.contentHeight + descriptionText.contentHeight +  2
+    height: titleText.contentHeight + descriptionText.contentHeight +  2 + 2 * pad
     // ![0]
     Text {
-        // a plain Text does not inherit the window font: the text size while it is not 100 %
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        // a plain Text does not inherit the window font: the text size while it is not 100 %.
+        // Modern look: the sizes of the type scale, as the profile cards (the platform default
+        // of a plain Text is smaller than the page text on Android and larger on iOS)
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: titleText
         text: product.title
-        font.bold: true
+        font.weight: window.ui.modern ? Font.DemiBold : Font.Bold
         anchors.right: priceText.left
         anchors.top: parent.top
         anchors.left: parent.left
+        anchors.topMargin: storeItem.pad
+        anchors.leftMargin: storeItem.pad
+        anchors.rightMargin: storeItem.pad
+        color: window.ui.ink("black")
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontCaption; restoreMode: Binding.RestoreBindingOrValue }
         id: descriptionText
         text: product.description
         anchors.right: priceText.left
         anchors.left: parent.left
         anchors.top: titleText.bottom
+        anchors.leftMargin: storeItem.pad
+        anchors.rightMargin: storeItem.pad
+        anchors.topMargin: window.ui.modern ? 4 : 0
         wrapMode: Text.WordWrap
+        color: window.ui.modern ? window.ui.textMuted : "black"
     }
 
     Text {
-        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: !window.ui.modern && window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
+        Binding on font.pixelSize { when: window.ui.modern; value: window.ui.fontBody; restoreMode: Binding.RestoreBindingOrValue }
         id: priceText
         text: product.price
         anchors.right: parent.right
+        anchors.rightMargin: storeItem.pad
         anchors.verticalCenter: parent.verticalCenter
+        color: window.ui.modern ? window.ui.accent : "black"
+        font.weight: window.ui.modern ? Font.DemiBold : Font.Normal
     }
 
     MouseArea {
@@ -117,7 +135,7 @@ Rectangle {
         id: pendingRect
         anchors.fill: parent
         opacity: 0.0
-        color: "white"
+        color: window.ui.modern ? window.ui.surfaceHigh : "white"
         radius: parent.radius
         Text {
             Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.plainFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -126,7 +144,9 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: spinBox.left
+            anchors.leftMargin: storeItem.pad
             verticalAlignment: Text.AlignVCenter
+            color: window.ui.ink("black")
         }
         BusyIndicator {
             id: spinBox
@@ -156,7 +176,7 @@ Rectangle {
             name: "NORMAL"
             PropertyChanges {
                 target: storeItem
-                color: "white"
+                color: window.ui.modern ? window.ui.surface : "white"
                 border.color: "transparent"
             }
             PropertyChanges {
@@ -168,8 +188,8 @@ Rectangle {
             name: "PRESSED"
             PropertyChanges {
                 target: storeItem
-                color: "transparent"
-                border.color: "white"
+                color: window.ui.modern ? window.ui.surfaceHigh : "transparent"
+                border.color: window.ui.modern ? "transparent" : window.ui.ink("white")
             }
         },
         State {

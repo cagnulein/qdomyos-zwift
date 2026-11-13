@@ -61,6 +61,26 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Bovenliggende map</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Openen</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Geen GPX-bestanden hier</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Afstand %1 km, hoogtemeters: %2 meter</translation>
     </message>
@@ -1187,6 +1207,18 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Kies een bestand</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Tik op een bestand om het te selecteren en daarna op Laden.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Geen opgeslagen instellingen</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
@@ -1396,6 +1428,18 @@ Wil je de QZ-instellingen bijwerken?</translation>
         <translation>Zoeken (inclusief submappen)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Bovenliggende map</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Geen trainingen gevonden</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Geen trainingen hier</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andere mappen</translation>
     </message>
@@ -1414,6 +1458,51 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Training starten</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nee</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Uitgevouwen</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Samengevouwen</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>uren</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minuten</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>seconden</translation>
     </message>
 </context>
 <context>
@@ -1634,6 +1723,16 @@ Wil je de QZ-instellingen bijwerken?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Snelheid forceren</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Hartslag vasthouden via</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Zoals ingesteld</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4173,6 +4272,14 @@ Wil je die nu starten?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Opgeslagen! Kijk in de app Bestanden.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Opgeslagen! Kijk in de privémap van de app.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Je bent al verbonden met Peloton. Wil je uitloggen?</translation>
     </message>
@@ -4185,6 +4292,18 @@ Wil je die nu starten?</translation>
         <translation>Je bent al verbonden met Intervals.icu. Wil je uitloggen?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Terug</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hoofdmenu</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Zwevend venster</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Je kunt de tegels verplaatsen!</translation>
     </message>
@@ -4193,12 +4312,48 @@ Wil je die nu starten?</translation>
         <translation>De tegels zijn nu vergrendeld</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Instellingen laden</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Instellingen zoeken</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Instellingen opslaan</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kaart</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Grafiek</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT-bestand delen</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Tegels ontgrendelen</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Tegels vergrendelen</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Automatische weerstand uitschakelen</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Automatische weerstand inschakelen</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4259,6 +4414,46 @@ Wil je die nu starten?</translation>
     <message>
         <source>Quit</source>
         <translation>Afsluiten</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Verbinding met Strava verbreken</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Verbinden met Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Verbinding met Peloton verbreken</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Verbinden met Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-instellingen</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Verbinding met Intervals.icu verbreken</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Verbinden met Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Training</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Diensten</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4495,6 +4690,10 @@ Mag QZ deze waarde wijzigen?
         <translation>Dit profiel verwijderen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profiel opgeslagen</translation>
     </message>
@@ -4525,6 +4724,26 @@ Mag QZ deze waarde wijzigen?
     <message>
         <source>Profile name</source>
         <translation>Profielnaam</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Nieuw profiel</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Opgeslagen profielen</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Tik op een profiel om het te selecteren en daarna op Laden. Lang indrukken om het te verwijderen.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Actief</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Laden</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8718,6 +8937,10 @@ Standaard: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>Toont 2 grote versnellingsknoppen in de interface</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Tegelopties</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>

@@ -61,6 +61,26 @@
         <translation>Szűrő</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Megnyitás</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Itt nincsenek GPX-fájlok</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Távolság: %1 km, szintemelkedés: %2 méter</translation>
     </message>
@@ -1171,6 +1191,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Válasszon fájlt</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Koppintson egy fájlra a kiválasztásához, majd a Betöltés gombra.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Nincs mentett beállítás</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
@@ -1380,6 +1412,18 @@ Szeretné frissíteni a QZ beállításait?</translation>
         <translation>Keresés (almappákkal)...</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Szülőmappa</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Nem található edzés</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Itt nincs edzés</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Egyéb mappák</translation>
     </message>
@@ -1398,6 +1442,51 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Edzés indítása</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Igen</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nem</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégse</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Kibontva</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Összecsukva</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>óra</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>perc</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>másodperc</translation>
     </message>
 </context>
 <context>
@@ -1618,6 +1707,16 @@ Szeretné frissíteni a QZ beállításait?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Sebesség beállítása</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>PID-pulzusszabályozás módja</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Beállítás szerint</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -4157,6 +4256,14 @@ Szeretné most elindítani?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Mentve. A Fájlok alkalmazásban találja.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Mentve. Az alkalmazás saját mappájában találja.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Már csatlakozott a Pelotonhoz. Szeretne kijelentkezni?</translation>
     </message>
@@ -4169,6 +4276,18 @@ Szeretné most elindítani?</translation>
         <translation>Már csatlakozott az Intervals.icu szolgáltatáshoz. Szeretne kijelentkezni?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Vissza</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Főmenü</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Lebegő ablak</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>A csempék mozgathatók.</translation>
     </message>
@@ -4177,12 +4296,48 @@ Szeretné most elindítani?</translation>
         <translation>A csempék rögzítve vannak.</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Beállítások betöltése</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Keresés a beállításokban</translation>
     </message>
     <message>
+        <source>Save settings</source>
+        <translation>Beállítások mentése</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Térkép</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Videó</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagram</translation>
+    </message>
+    <message>
         <source>Share FIT file</source>
         <translation>FIT-fájl megosztása</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Csempék feloldása</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Csempék rögzítése</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Automatikus ellenállás kikapcsolása</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Automatikus ellenállás bekapcsolása</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -4243,6 +4398,46 @@ Szeretné most elindítani?</translation>
     <message>
         <source>Quit</source>
         <translation>Kilépés</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Csatlakozás a Stravához</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Csatlakozás a Pelotonhoz</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-beállítások</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu leválasztása</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Csatlakozás az Intervals.icu szolgáltatáshoz</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Edzés</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Alkalmazás</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Szolgáltatások</translation>
     </message>
     <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
@@ -4479,6 +4674,10 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
         <translation>Szeretné törölni ezt a profilt?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Törlés</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profil mentve</translation>
     </message>
@@ -4509,6 +4708,26 @@ Engedélyezi, hogy a QZ módosítsa ezt az értéket?
     <message>
         <source>Profile name</source>
         <translation>Profilnév</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Új profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Mentett profilok</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Koppintson egy profilra a kiválasztásához, majd a Betöltés gombra. A törléshez tartsa lenyomva.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktív</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Betöltés</translation>
     </message>
     <message>
         <source>Profiles</source>
@@ -8694,6 +8913,10 @@ Alapértelmezett: A = -0.96, B = 1.33</translation>
     <message>
         <source>It shows 2 big gear buttons on the UI</source>
         <translation>2 nagy fokozatgombot jelenít meg a felületen.</translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Csempék beállításai</translation>
     </message>
     <message>
         <source>Remaining Time/Row</source>
