@@ -2296,8 +2296,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("BIKE- found");
             BIKE_ = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("SMB1"))) {
-            qDebug() << QStringLiteral("SMB1 found");
+            qDebug() << QStringLiteral("SMB1 found - using software ERG via learned resistance table");
             SMB1 = true;
+            // The SMB1 V3 does not officially support native FTMS ERG. Use the
+            // existing cadence/power/resistance table to emulate target power.
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
         } else if ((bluetoothDevice.name().toUpper().startsWith("SPAX-BK-"))) {
             qDebug() << QStringLiteral("SPAX-BK found");
             resistance_lvl_mode = true;
