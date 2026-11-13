@@ -166,7 +166,7 @@ class ftmsbike : public bike {
     bool initDone = false;
     bool initRequest = false;
 
-    // Matrix R30 XR (MX-RB *4D41): do not send target resistance until 2AD9 indications
+    // Matrix R30 XR (MX-RB prefix): do not send target resistance until 2AD9 indications
     // are enabled and Request Control has been acknowledged by the bike.
     bool matrixControlPointIndicationsReady = false;
     bool matrixControlGranted = false;
