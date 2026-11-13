@@ -841,6 +841,27 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Kettler RUN BLE: five-character RUN## code, with an optional separator
+    // after RUN as found in a real customer log ("RUN 71").
+#ifndef Q_OS_IOS
+    RegisterNewDeviceTestData(DeviceIndex::KettlerRun7Treadmill)
+        ->expectDevice<kettlerrun7treadmill>()
+        ->acceptDeviceName("RUN71", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN 71", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN09", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN 09", DeviceNameComparison::IgnoreCase)
+        ->acceptDeviceName("RUN00", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN7", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN 7", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN  71", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN123", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN 711", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN7A", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUN A1", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("RUNAA", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XRUN71", DeviceNameComparison::IgnoreCase);
+#endif
+
     // Kettler Classic / MyHomeFIT RFCOMM
     RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
         ->expectDevice<kettlerclassicbike>()
