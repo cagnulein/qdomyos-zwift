@@ -557,8 +557,8 @@ ColumnLayout {
             }
         }
 
-        // Other folders and, while files of a previous install are found, Restore files in one
-        // row (as on the training programs page); a long label wraps instead of eliding
+        // Other folders and, until QZ has a grant on the QZ folder, Restore files in one row
+        // (as on the training programs page); a long label wraps instead of eliding
         RowLayout {
             visible: window.ui.modern
             Layout.row: gpxPage.sideBySide ? 2 : 3

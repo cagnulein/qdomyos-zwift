@@ -432,10 +432,16 @@ ColumnLayout {
                     // Classic look: the platform default spacing, as before (8 dp on Android and
                     // iOS, 5 px elsewhere) - a written value would replace it everywhere
                     Binding on spacing { when: window.ui.modern; value: 8; restoreMode: Binding.RestoreBindingOrValue }
+                    // a layout in a layout fills the height by default, and the fillHeight of the pills
+                    // lifts its maximum: the row would take the height of the page
+                    Layout.fillHeight: false
 
                     UiButton {
                         Layout.fillWidth: true
                         height: 50
+                        // modern look: one height for both pills, a long label wraps instead of eliding
+                        Layout.fillHeight: window.ui.modern
+                        wrapsText: true
                         text: qsTr("Other folders")
                         onClicked: {
                             if (Qt.platform.os === "android") {
@@ -452,6 +458,9 @@ ColumnLayout {
                     UiButton {
                         Layout.fillWidth: true
                         height: 50
+                        // modern look: one height for both pills, a long label wraps instead of eliding
+                        Layout.fillHeight: window.ui.modern
+                        wrapsText: true
                         visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
                         text: qsTr("Restore files")
                         onClicked: rootItem.offerFolderRestore()
