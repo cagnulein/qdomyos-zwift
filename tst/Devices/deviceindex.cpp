@@ -96,6 +96,8 @@ DEFINE_DEVICE(HorizonTreadmill_Bodytone, "Horizon Treadmill (Bodytone)");
 DEFINE_DEVICE(HorizonTreadmill_DomyosTC, "Horizon Treadmill (Domyos TC)");
 DEFINE_DEVICE(HorizonTreadmill_Toorx, "Horizon Treadmill (Toorx)");
 DEFINE_DEVICE(HorizonTreadmill, "Horizon Treadmill");
+DEFINE_DEVICE(UrevoTreadmill, "UREVO URTM Treadmill");
+DEFINE_DEVICE(HorizonTreadmill_UrevoFTMS, "Horizon Treadmill (UREVO URTM FTMS fallback)");
 DEFINE_DEVICE(InspireBike, "Inspire Bike");
 DEFINE_DEVICE(KeepBike, "Keep Bike");
 DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");

@@ -1901,6 +1901,25 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(ypooTreadmill);
+            } else if (b.name().startsWith(QStringLiteral("URTM"), Qt::CaseInsensitive) &&
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) != 0 &&
+                       !urevoTreadmill && !horizonTreadmill && filter) {
+                // An explicitly selected FTMS Treadmill bypasses native URTM and uses Horizon below.
+                // Otherwise all URTM devices route here before the generic Horizon matcher.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                urevoTreadmill = new urevotreadmill(noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(urevoTreadmill, &bluetoothdevice::connectedAndDiscovered,
+                        this, &bluetooth::connectedAndDiscovered);
+                connect(urevoTreadmill, &urevotreadmill::debug, this, &bluetooth::debug);
+                urevoTreadmill->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(urevoTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPTM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
@@ -1956,7 +1975,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")) ||
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
-                        (b.name().toUpper().startsWith("URTM")) ||  // Urevo Spacewalk 3S Model URTM024
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL
                         (b.name().toUpper().startsWith("SF-T")) || // Sunny Fitness Treadmill
@@ -2001,7 +2019,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
-                       !horizonTreadmill && !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
+                       !horizonTreadmill && !urevoTreadmill &&
+                       !b.name().toUpper().startsWith(QStringLiteral("MRK-T12-")) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
@@ -4548,6 +4567,10 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (urevoTreadmill) {
+        delete urevoTreadmill;
+        urevoTreadmill = nullptr;
+    }
     if (wahooKickRunTreadmill) {
 
         delete wahooKickRunTreadmill;
@@ -5310,6 +5333,8 @@ bluetoothdevice *bluetooth::device() {
         return ypooTreadmill;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (urevoTreadmill) {
+        return urevoTreadmill;
     } else if (wahooKickRunTreadmill) {
         return wahooKickRunTreadmill;
     } else if (lifefitnessTreadmill) {
