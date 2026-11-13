@@ -252,3 +252,14 @@ In **Sole+**, remove the unsuccessful elliptical pairing and pair QZ as a **bike
 QZ's existing virtual-device path can expose elliptical metrics using a virtual bike profile rather than a native virtual elliptical profile. Selecting **elliptical** in Sole+ can therefore connect to the wrong profile and show no data. In a confirmed iPhone-to-iPad test, selecting QZ as a bike restored data in Sole+ for **both** a physical exercise bike and an elliptical; selecting it as an elliptical returned no data for either.
 
 This is a **pairing/profile workaround**, not a claim that Sole+ receives every elliptical-specific metric. A native virtual elliptical profile is a separate feature and is not required for this workaround.
+
+## How can I avoid duplicate workouts in Intervals.icu when using Garmin Connect?
+
+If QZ uploads a completed workout directly to **Intervals.icu** and also uploads it to **Garmin Connect**, while Garmin Connect is configured to forward activities to Intervals.icu, the same workout can reach Intervals.icu by two different routes and may appear twice.
+
+Choose **one upload route** for each workout:
+
+1. **Via Garmin Connect:** Keep the QZ → Garmin Connect upload and Garmin Connect → Intervals.icu synchronization enabled, but disconnect or disable QZ's direct Intervals.icu upload.
+2. **Direct to Intervals.icu:** Keep QZ's direct Intervals.icu upload and disable the Garmin Connect → Intervals.icu activity sync for that workout source.
+
+QZ supports direct Intervals.icu uploads after a workout is stopped, as well as Garmin Connect integration. These are separate destinations; connecting both does not automatically deduplicate activities arriving through an external Garmin-to-Intervals synchronization. Check with a short test activity after changing the connections.
