@@ -379,6 +379,12 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+bool ftmsbike::uses16BitResistanceForDevice(const QString &deviceName) {
+    // Trial for the Matrix R30 XR identified in the debug log. Do not affect other MX-RB bikes.
+    return deviceName.startsWith(QStringLiteral("MX-RB "), Qt::CaseInsensitive) &&
+           deviceName.endsWith(QStringLiteral("4D41"), Qt::CaseInsensitive);
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
     if (DOMYOS) {
         lastDomyosResistanceCommand = QDateTime::currentDateTime();
