@@ -171,4 +171,19 @@
     }
 }
 
+// Recovery for a controller which did not complete its reboot automatically.
+// didDisconnectPeripheral handles reconnect and fresh service discovery.
+- (void)forceReconnect {
+    CBPeripheral *peripheral = self.connectedPeripheral;
+    if (!peripheral || self.centralManager.state != CBManagerStatePoweredOn)
+        return;
+
+    qDebug() << "Right Click V2 forcing BLE reconnect";
+    if (peripheral.state == CBPeripheralStateConnected) {
+        [self.centralManager cancelPeripheralConnection:peripheral];
+    } else if (peripheral.state == CBPeripheralStateDisconnected) {
+        [self.centralManager connectPeripheral:peripheral options:nil];
+    }
+}
+
 @end

@@ -107,6 +107,7 @@ class lockscreen {
     // Zwift Click Remote
     void zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass);
     void zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass);
+    void zwiftClickRemote_ForceReconnect(void* deviceClass);
     
     // Zwift API
     void zwift_api_decodemessage_player(const char* data, int len);

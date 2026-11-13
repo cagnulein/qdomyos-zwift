@@ -1,5 +1,19 @@
 # Zwift and virtual gearing
 
+## Can I shift up and down with only one Zwift Click V2 right controller?
+
+Yes. When QZ connects directly to a **right Zwift Click V2** controller, its **Shift Up** button follows the existing **Right Shift Up** gear mapping, and its **B** button follows the existing **Right Shift Down** gear mapping. You do not need a second controller.
+
+1. Enable **Zwift Click** in QZ Accessories and connect the right Click V2 directly to QZ.
+2. In QZ's **Zwift Play / Click** gear-button mappings, set **Right Shift Up** to **Gear Up** and **Right Shift Down** to **Gear Down**.
+3. Press **Shift Up** to increase the virtual gear and **B** to decrease it. Confirm the change on QZ's Gears tile.
+4. You can select **Disabled**, **Gear Up**, or **Gear Down** independently for either mapping. The existing **Swap** setting reverses the directions.
+
+**Right Shift Down** is the existing setting reused for Click V2's **B** button; this change does not add a new setting. It applies to the right Click V2 identified by its manufacturer data, not every Zwift Play/Ride controller. If **Get Gears from Zwift** is enabled, pair Click with Zwift instead of QZ; see the separate guidance below.
+
+When QZ connects directly to the **right Click V2**, it can reboot the controller proactively with a single reset command after about 55 seconds without an incoming controller notification. QZ then reconnects and restores the BLE subscriptions and handshake. This is a workaround for the controller's idle timeout, **not** a continuously maintained connection: a gear change during the short reboot may be missed. No extra setting is needed. The behavior is awaiting hardware validation; if it fails, send a debug log covering at least two minutes idle and the reconnect.
+
+
 ## Zwift Click v2 disconnects or freezes about one minute after QZ connects on iOS. What should I try?
 
 When using the Zwift Click v2 handshake workaround on iOS, do not leave the official Zwift app as soon as the controllers first appear connected.

@@ -819,6 +819,15 @@ void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsi
     }
 }
 
+void lockscreen::zwiftClickRemote_ForceReconnect(void* deviceClass) {
+    if (!ios_zwiftClickRemotes)
+        return;
+    NSValue *key = [NSValue valueWithPointer:deviceClass];
+    ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
+    if (remote)
+        [remote forceReconnect];
+}
+
 bool lockscreen::isInMultiWindowMode() {
     // Check if we're on iPad and in multi-window mode (Stage Manager, Split View, Slide Over)
     if (UIDevice.currentDevice.userInterfaceIdiom != UIUserInterfaceIdiomPad) {

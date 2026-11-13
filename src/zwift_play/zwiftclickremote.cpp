@@ -38,15 +38,56 @@ void zwiftclickremote::update() {
         initRequest = false;
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
-        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                            reinterpret_cast<uint8_t *>(s.data()), static_cast<uint8_t>(s.size()), "handshakeStart");
         initDone = true;
-    } else if(initDone) {
+        if (playDevice->singleRightClickV2) {
+            clickV2ActivityTimer.start();
+            clickV2ResetTimer.invalidate();
+            clickV2ResetSent = false;
+        }
+    } else if (initDone) {
+        if (playDevice->singleRightClickV2) {
+            // The right Click V2 can go to sleep about a minute after its last
+            // own transmission. SyncTx replies to RideOn are not activity.
+            // Reset it once before that idle deadline, then let BLE reconnect.
+            if (!clickV2ResetSent && clickV2ActivityTimer.isValid() &&
+                clickV2ActivityTimer.elapsed() >= 55000) {
+                QByteArray reset(1, char(0x18));
+                qDebug() << "Right Click V2 idle for" << clickV2ActivityTimer.elapsed() << "ms; resetting";
+                clickV2ResetSent = true;
+                clickV2ResetTimer.start();
+                writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                    reinterpret_cast<uint8_t *>(reset.data()), static_cast<uint8_t>(reset.size()),
+                                    "clickV2IdleReset");
+            } else if (clickV2ResetSent && clickV2ResetTimer.isValid() &&
+                       clickV2ResetTimer.elapsed() >= 15000) {
+                // If the pod did not disconnect/recover after RESET, recycle
+                // the GATT session so notification subscriptions are restored.
+                qDebug() << "Right Click V2 reset timeout; reconnecting";
+                clickV2ResetTimer.invalidate();  // only one forced reconnect
+                reconnectAfterClickV2Reset();
+            }
+        }
+
         countRxTimeout++;
-        if(countRxTimeout == 10) {
-            if(homeform::singleton())
+        if (countRxTimeout == 10 && !playDevice->singleRightClickV2) {
+            if (homeform::singleton())
                 homeform::singleton()->setToastRequested(QObject::tr("Zwift device: UPGRADE THE FIRMWARE!"));
         }
     }
+}
+
+void zwiftclickremote::reconnectAfterClickV2Reset() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (iOS_zwiftClickRemote)
+        iOS_zwiftClickRemote->zwiftClickRemote_ForceReconnect(this);
+    return;
+#endif
+#endif
+    if (m_control)
+        m_control->disconnectFromDevice();
 }
 
 void zwiftclickremote::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -73,6 +114,19 @@ void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uu
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << uuid.toString() << typeZap;
 
     if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
+        if (playDevice->singleRightClickV2 && initDone && !newValue.isEmpty()) {
+            // Only an inbound Async notification proves the pod is awake.
+            // Ignore SyncTx handshake echoes when measuring idle time.
+            if (clickV2ActivityTimer.isValid())
+                clickV2ActivityTimer.restart();
+            else
+                clickV2ActivityTimer.start();
+            if (clickV2ResetSent) {
+                qDebug() << "Right Click V2 reported activity after reset";
+                clickV2ResetSent = false;
+                clickV2ResetTimer.invalidate();
+            }
+        }
         playDevice->processCharacteristic("Async", newValue, typeZap);
     } else if(uuid == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("SyncTx", newValue, typeZap);
@@ -346,6 +400,10 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
+        clickV2ActivityTimer.invalidate();
+        clickV2ResetTimer.invalidate();
+        clickV2ResetSent = false;
+        countRxTimeout = 0;
 
         if(m_control)
             connectBackLater();

@@ -19,6 +19,7 @@
 - (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice;
 - (instancetype)initWithNameAndUUID:(NSString *)deviceName uuid:(NSString *)uuid qtDevice:(void*)qtDevice;
 - (void)writeCharacteristic:(uint8_t *)data length:(NSUInteger)length;
+- (void)forceReconnect;
 
 @end
 #endif // IOSZWIFTCLICKREMOTE_H
