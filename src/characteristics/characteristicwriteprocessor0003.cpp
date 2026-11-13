@@ -39,22 +39,68 @@ double CharacteristicWriteProcessor0003::currentGear() {
         return ((bike*)Bike)->gears();
 }
 
-qint32 CharacteristicWriteProcessor0003::decodeSInt(const QByteArray& bytes) {
-    if (static_cast<quint8>(bytes.at(0)) != 0x22) {
-        qFatal("Invalid field header");
+bool CharacteristicWriteProcessor0003::decodeSInt(const QByteArray &bytes, qint32 &decoded) {
+    // Rouvy/Zwift may send field 1 before the signed slope in protobuf field 2.
+    auto invalid = [&bytes](const char *why) -> bool {
+        qWarning() << "Zwift Play: invalid slope protobuf:" << why << bytes.toHex(' ');
+        return false;
+    };
+    auto readVarint = [&bytes](int &offset, int limit, quint64 &value) -> bool {
+        value = 0;
+        for (int i = 0; i < 10 && offset < limit; ++i) {
+            const quint8 octet = static_cast<quint8>(bytes.at(offset++));
+            if (i == 9 && (octet & 0xFE) != 0)
+                return false;
+            value |= static_cast<quint64>(octet & 0x7F) << (i * 7);
+            if (!(octet & 0x80))
+                return true;
+        }
+        return false;
+    };
+
+    int pos = 0;
+    quint64 tag = 0;
+    if (!readVarint(pos, bytes.size(), tag) || tag != 0x22)
+        return invalid("outer field (expected 0x22)");
+    quint64 length = 0;
+    if (!readVarint(pos, bytes.size(), length) || length > static_cast<quint64>(bytes.size() - pos))
+        return invalid("outer length");
+    const int end = pos + static_cast<int>(length);
+
+    while (pos < end) {
+        if (!readVarint(pos, end, tag) || (tag >> 3) == 0)
+            return invalid("inner field tag");
+        const quint64 fieldNumber = tag >> 3;
+        const quint64 wireType = tag & 7;
+        if (wireType == 0) {
+            quint64 raw = 0;
+            if (!readVarint(pos, end, raw))
+                return invalid("inner varint");
+            if (fieldNumber == 2) {
+                if (raw > std::numeric_limits<quint32>::max())
+                    return invalid("signed slope out of range");
+                const quint32 zigzag = static_cast<quint32>(raw);
+                decoded = static_cast<qint32>((zigzag >> 1) ^ (0U - (zigzag & 1U)));
+                return true;
+            }
+        } else if (wireType == 1) {
+            if (end - pos < 8)
+                return invalid("truncated fixed64");
+            pos += 8;
+        } else if (wireType == 2) {
+            quint64 fieldLength = 0;
+            if (!readVarint(pos, end, fieldLength) || fieldLength > static_cast<quint64>(end - pos))
+                return invalid("truncated length-delimited field");
+            pos += static_cast<int>(fieldLength);
+        } else if (wireType == 5) {
+            if (end - pos < 4)
+                return invalid("truncated fixed32");
+            pos += 4;
+        } else {
+            return invalid("unsupported protobuf wire type");
+        }
     }
-
-    int length = static_cast<quint8>(bytes.at(1));
-
-    if (static_cast<quint8>(bytes.at(2)) != 0x10) {
-        qFatal("Invalid inner header");
-    }
-
-    VarintResult varint = decodeVarint(bytes, 3);
-
-    qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
-
-    return decoded;
+    return invalid("missing signed slope in field 2");
 }
 
 void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) {
@@ -242,7 +288,10 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     }
     else if (receivedData.startsWith(expectedHexArray5)) {
         qDebug() << "Zwift Play Processor: Slope change request";
-        double slopefloat = decodeSInt(receivedData.mid(1));
+        qint32 slopeValue = 0;
+        if (!decodeSInt(receivedData.mid(1), slopeValue))
+            return -1; // Do not abort the process on malformed DIRCON payloads.
+        double slopefloat = slopeValue;
         QByteArray slope(2, 0);
         slope[0] = quint8(qint16(slopefloat) & 0xFF);
         slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);

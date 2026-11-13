@@ -847,30 +847,6 @@ virtualbike::VarintResult virtualbike::decodeVarint(const QByteArray& bytes, int
    return {result, bytesRead};
 }
 
-// Decode a protobuf sint value from a byte array
-// Expects a field header (0x22), length byte, inner header (0x10) and varint value
-qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
-   // Check field header (0x22 = field number 4, wire type 2)
-   if (static_cast<quint8>(bytes.at(0)) != 0x22) {
-       qFatal("Invalid field header");
-   }
-   
-   // Get content length
-   int length = static_cast<quint8>(bytes.at(1));
-   
-   // Check inner header (0x10 = field number 2, wire type 0)
-   if (static_cast<quint8>(bytes.at(2)) != 0x10) {
-       qFatal("Invalid inner header");
-   }
-   
-   // Decode the varint value
-   VarintResult varint = decodeVarint(bytes, 3);
-   
-   // Apply ZigZag decoding to get the original signed value
-   qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
-   
-   return decoded;
-}
 
 quint8 virtualbike::tacxAntChecksum(const QByteArray &payload) {
     quint8 checksum = 0;
@@ -1513,7 +1489,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray5)) {
             qDebug() << "Zwift Play Ask 5";
 
-            double slopefloat = decodeSInt(receivedData.mid(1));
+            qint32 slopeValue = 0;
+            if (!CharacteristicWriteProcessor0003::decodeSInt(receivedData.mid(1), slopeValue))
+                return; // Ignore invalid slope; do not apply a bogus zero grade.
+            double slopefloat = slopeValue;
             QByteArray slope(2, 0);
             slope[0] = quint8(qint16(slopefloat) & 0xFF);
             slope[1] = quint8((qint16(slopefloat) >> 8) & 0x00FF);

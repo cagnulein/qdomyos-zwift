@@ -24,6 +24,8 @@ public:
                                     uint32_t unknown1,
                                     uint32_t unknown2);
     static uint32_t calculateUnknown1(uint16_t power);
+    // Shared parser for Zwift/Rouvy slope data over Bluetooth and DIRCON.
+    static bool decodeSInt(const QByteArray &bytes, qint32 &decoded);
     void handleZwiftGear(const QByteArray &array);
     double currentGear();
     qint64 hubRidingDataIdleMs() const;
@@ -37,7 +39,6 @@ private:
     };
 
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
-    qint32 decodeSInt(const QByteArray& bytes);    
     int currentZwiftGear = 8;
     bool zwiftGearReceived = false;
     QElapsedTimer lastHubRidingDataTimer;

@@ -130,7 +130,6 @@ class virtualbike : public virtualdevice {
        int bytesRead;
     };
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
-    qint32 decodeSInt(const QByteArray& bytes);
     
   signals:
     void changeInclination(double grade, double percentage);
