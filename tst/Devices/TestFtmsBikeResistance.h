@@ -5,6 +5,16 @@
 
 #include "devices/ftmsbike/ftmsbike.h"
 
+TEST(FtmsBikeResistanceTest, MatrixR30Xr4D41Uses16BitResistanceOnlyForMatchingName) {
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D41")));
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("mx-rb 4d41")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D42")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D4")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-TM 4D41")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("Other 4D41")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D41 extra")));
+}
+
 TEST(FtmsBikeResistanceTest, NormalizesOnlyExactZBike20Name) {
     EXPECT_EQ(ftmsbike::normalizedResistanceForDevice(QStringLiteral("ZBike2.0"), 50), 0);
     EXPECT_EQ(ftmsbike::normalizedResistanceForDevice(QStringLiteral("ZBike2.0"), 60), 1);
