@@ -18,7 +18,6 @@ import AndroidStatusBar 1.0
         // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
         contentHeight: column1.implicitHeight
         focus: true
-        anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
         anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                             AndroidStatusBar.waterfallLeftInset : 0

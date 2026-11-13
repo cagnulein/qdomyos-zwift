@@ -17,7 +17,6 @@ ColumnLayout {
     // written on top of it would differ by platform; the classic look keeps it, as before
     Binding on spacing { when: window.ui.modern; value: 0; restoreMode: Binding.RestoreBindingOrValue }
 
-    anchors.top: parent.top
     anchors.fill: parent
 
     signal profile_open_clicked(url name)
