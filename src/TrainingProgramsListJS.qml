@@ -610,6 +610,13 @@ ColumnLayout {
                             Flickable {
                                 id: descriptionFlick
                                 Layout.fillWidth: true
+                                // never 0 high: Qt 5.15 lays out no children of a layout with a zero
+                                // width or height (QTBUG-112740, fixed in 6.5.2). Opened right in landscape
+                                // the text had no height yet, the block was 0 high and left this view at
+                                // width 0, so the text never got a width and a height - the description
+                                // was not shown. Not by the width of the text from the block: that made a
+                                // binding loop on turning
+                                Layout.minimumHeight: 1
                                 // whole lines, so the last one shown is not cut in half
                                 Layout.preferredHeight: detailColumn.sideBySide
                                     ? Math.min(contentHeight, descriptionBlock.wholeLines(descriptionBlock.sideRoom))
