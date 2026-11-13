@@ -271,6 +271,8 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 }
             }
         }
+        if (!tour600CscInitialized)
+            lastRefreshCharacteristicChanged = now;
         tour600CscInitialized = true;
         oldCrankRevs = revs;
         oldLastCrankEventTime = eventTime;
