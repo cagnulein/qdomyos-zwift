@@ -9898,7 +9898,8 @@ void homeform::recoverFolderRestoreCopies() {
 }
 
 void homeform::folderPageOpened() {
-    // the grant may have come or gone elsewhere (history import, system settings)
+    // the grant may have come or gone with the workout history recovery: it takes the same grant,
+    // and gives it back when an import through it finds no workout in the QZ folder
     const bool hadGrant = m_qzFolderGrantSaved;
     updateQzFolderGrantSaved();
     recoverFolderRestoreCopies();
