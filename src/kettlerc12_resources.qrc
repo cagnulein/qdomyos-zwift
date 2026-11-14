@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/kettlerc12">
+        <file alias="SecureData.txt">devices/kettlerc12bike/SecureData.txt</file>
+    </qresource>
+</RCC>
