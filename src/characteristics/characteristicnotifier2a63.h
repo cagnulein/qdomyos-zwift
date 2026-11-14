@@ -6,9 +6,11 @@
 
 class CharacteristicNotifier2A63 : public CharacteristicNotifier {
     bluetoothdevice *Bike;
+    bool garminBluetoothCompatibility;
 
   public:
-    explicit CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent = nullptr);
+    explicit CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent = nullptr,
+                                        bool garminBluetoothCompatibility = false);
     int notify(QByteArray &out) override;
 };
 
