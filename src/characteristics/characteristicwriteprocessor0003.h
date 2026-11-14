@@ -28,6 +28,7 @@ public:
     static bool decodeSInt(const QByteArray &bytes, qint32 &decoded);
     void handleZwiftGear(const QByteArray &array);
     double currentGear();
+    QByteArray gearStatusResponse() const;
     qint64 hubRidingDataIdleMs() const;
     QByteArray buildCurrentHubRidingData();
 
@@ -41,6 +42,7 @@ private:
     VarintResult decodeVarint(const QByteArray& bytes, int startIndex);
     int currentZwiftGear = 8;
     bool zwiftGearReceived = false;
+    QByteArray lastGearRatio = QByteArray::fromHex("c0bb01");
     QElapsedTimer lastHubRidingDataTimer;
 
 signals:
