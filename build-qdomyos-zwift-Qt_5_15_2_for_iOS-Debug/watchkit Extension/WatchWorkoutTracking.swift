@@ -252,7 +252,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
     }
     
-    func stopWorkOut(saveToHealth: Bool = true) {
+    // Preserve the protocol's no-argument entry point for existing callers.
+    func stopWorkOut() {
+        stopWorkOut(saveToHealth: true)
+    }
+
+    func stopWorkOut(saveToHealth: Bool) {
         guard let workoutSession = workoutSession, let workoutBuilder = workoutBuilder else {
             print("Cannot stop workout: no active HealthKit session")
             return
