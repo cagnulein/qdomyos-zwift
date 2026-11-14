@@ -219,6 +219,49 @@ public class BleAdvertiser {
         }
     }
 
+    // A compact cycling-power-only ADV packet makes Garmin's sensor scan
+    // see 0x1818 before connecting. The tablet's Bluetooth name is kept
+    // unchanged; changing the system adapter name would affect other clients.
+    public static void startAdvertisingGarminCyclingPower(Context context) {
+        try {
+            if (context == null) {
+                QLog.e("BleAdvertiser", "Null context for Garmin advertising");
+                return;
+            }
+            BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (manager == null || manager.getAdapter() == null) {
+                QLog.e("BleAdvertiser", "No Bluetooth adapter for Garmin advertising");
+                return;
+            }
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser =
+                    manager.getAdapter().getBluetoothLeAdvertiser();
+            if (advertiser == null) {
+                QLog.e("BleAdvertiser", "No BLE advertiser for Garmin");
+                return;
+            }
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .addServiceUuid(new ParcelUuid(TACX_CYCLING_POWER_UUID))
+                    .build();
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .build();
+
+            // Reconnects can restart advertising with the same callback.
+            advertiser.stopAdvertising(advertiseCallback);
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+            QLog.d("BleAdvertiser", "Starting Garmin Cycling Power advertising (0x1818)");
+        } catch (SecurityException | IllegalStateException e) {
+            QLog.e("BleAdvertiser", "Garmin advertising failed: " + e.getMessage());
+        }
+    }
+
     public static void startAdvertisingTacxNeo2T(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {

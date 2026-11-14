@@ -2058,9 +2058,10 @@ jobs:
         if: ${{ ! matrix.config.python }}
 
   nordictrack-build:
-    # The type of runner that the job will run on
+    # Build the pinned gRPC branch nightly, and also validate PRs against that
+    # branch using the PR's own source (not the old pinned PR checkout).
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || (github.event_name == 'pull_request' && github.base_ref == 'nordictrack-build-grpc' && github.event.pull_request.head.repo.full_name == github.repository)
     
     strategy:
       matrix:
@@ -2082,7 +2083,7 @@ jobs:
       - name: Checkout PR code
         uses: actions/checkout@v3
         with:
-          ref: refs/pull/3478/head
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'refs/pull/3478/head' }}
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
         

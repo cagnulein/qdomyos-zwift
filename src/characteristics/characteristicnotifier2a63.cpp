@@ -1,7 +1,8 @@
 #include "characteristicnotifier2a63.h"
 
-CharacteristicNotifier2A63::CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2a63, parent), Bike(Bike) {}
+CharacteristicNotifier2A63::CharacteristicNotifier2A63(bluetoothdevice *Bike, QObject *parent,
+                                                       bool garminBluetoothCompatibility)
+    : CharacteristicNotifier(0x2a63, parent), Bike(Bike), garminBluetoothCompatibility(garminBluetoothCompatibility) {}
 
 int CharacteristicNotifier2A63::notify(QByteArray &value) {
     double normalizeWattage = Bike->wattsMetricforUI();
@@ -9,6 +10,22 @@ int CharacteristicNotifier2A63::notify(QByteArray &value) {
         normalizeWattage = 0;
     
     if (Bike->deviceType() == BIKE) {
+        if (garminBluetoothCompatibility) {
+            // Match the iOS Garmin Bluetooth Sensor mode: crank data only,
+            // with Cycling Power Measurement flags 0x0020 (8 bytes total).
+            const uint16_t watts = static_cast<uint16_t>(normalizeWattage);
+            const uint16_t crankRevolutions = static_cast<uint16_t>(Bike->currentCrankRevolutions());
+            const uint16_t lastCrankEventTime = static_cast<uint16_t>(Bike->lastCrankEventTime());
+            value.append(char(0x20));
+            value.append(char(0x00));
+            value.append(char(watts & 0xFF));
+            value.append(char((watts >> 8) & 0xFF));
+            value.append(char(crankRevolutions & 0xFF));
+            value.append(char((crankRevolutions >> 8) & 0xFF));
+            value.append(char(lastCrankEventTime & 0xFF));
+            value.append(char((lastCrankEventTime >> 8) & 0xFF));
+            return CN_OK;
+        }
         /*
          // set measurement
          measurement[2] = power & 0xFF;
