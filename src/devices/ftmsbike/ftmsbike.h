@@ -74,6 +74,8 @@ class ftmsbike : public bike {
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
     static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
+    // CYCPLUS T2/R200 vendor notification, signed 16-bit gear at offsets 54-55.
+    static bool parseCycplusNativeGear(const QByteArray &packet, qint16 *gear);
     static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
                                            qint64 msecsSinceInclinationCommand,
                                            qint64 msecsSinceInclinationMetricChange, resistance_t *delta);
@@ -210,6 +212,8 @@ class ftmsbike : public bike {
     bool REEBOK = false;
     bool TITAN_7000 = false;
     bool T2 = false;
+    bool CYCPLUS_R200 = false;
+    bool R200_nativeGearObserved = false;
     bool FIT_BK = false;
     bool YS_G1MPLUS = false;
     bool EXPERT_SX9 = false;
