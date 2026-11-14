@@ -13,6 +13,7 @@
 #include "devices/fakebike/fakebike.h"
 #include "devices/faketreadmill/faketreadmill.h"
 #include "qzsettings.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 namespace {
 
@@ -104,6 +105,8 @@ void DirconLoopbackTestSuite::test_faketreadmill_dircon_server_accepts_wahoodirc
 
     const bool connected = waitForCondition([&clientTreadmill]() { return clientTreadmill.connected(); }, 5000);
     EXPECT_TRUE(connected) << "DirCon treadmill client failed to complete handshake against local fake treadmill";
+    EXPECT_FALSE(clientTreadmill.hasVirtualDevice())
+        << "Virtual treadmill must remain disabled when the virtual-device setting is off";
 
     serverTreadmill.changeSpeed(8.5);
     serverTreadmill.changeInclination(4.0, 4.0);
@@ -116,6 +119,44 @@ void DirconLoopbackTestSuite::test_faketreadmill_dircon_server_accepts_wahoodirc
         8000);
     EXPECT_TRUE(receivedTelemetry)
         << "DirCon treadmill client connected but did not receive expected speed/inclination telemetry";
+
+    testSettings.deactivate();
+}
+
+void DirconLoopbackTestSuite::test_wahoodircontreadmill_creates_virtual_treadmill_when_enabled() {
+    TestSettings testSettings(QStringLiteral("qz-test-org"), QStringLiteral("qz-test-dircon-virtual-treadmill"));
+    testSettings.activate();
+
+    constexpr int kServerBasePort = 46300;
+    constexpr quint16 kTreadmillPortOffset = 3;
+    configureDirconSettings(testSettings, kServerBasePort, 17);
+
+    faketreadmill serverTreadmill(true, true, true);
+    DirconManager dirconServer(&serverTreadmill, 4, 1.0);
+
+    // Emulate phone settings without a BLE adapter or a second DirCon server:
+    // construct and register the virtual device, but don't start BLE advertising.
+    testSettings.qsettings.setValue(QZSettings::dircon_yes, false);
+    testSettings.qsettings.setValue(QZSettings::virtual_device_enabled, true);
+    testSettings.qsettings.setValue(QZSettings::virtual_device_bluetooth, false);
+    testSettings.qsettings.setValue(QZSettings::virtual_device_force_bike, false);
+
+    const DirconDeviceInfo deviceInfo =
+        makeDirconDeviceInfo(QStringLiteral("Wahoo TREAD 0017"),
+                             static_cast<quint16>(kServerBasePort + kTreadmillPortOffset), true);
+    wahoodircontreadmill clientTreadmill(deviceInfo, true, true);
+
+    EXPECT_TRUE(waitForCondition([&clientTreadmill]() { return clientTreadmill.connected(); }, 5000))
+        << "DirCon treadmill client failed to initialize";
+    auto *virtualTreadmill = qobject_cast<virtualtreadmill *>(clientTreadmill.VirtualDevice());
+    EXPECT_NE(virtualTreadmill, nullptr)
+        << "The DirCon client should register QZ's FTMS virtual treadmill once its handshake completes";
+
+    serverTreadmill.changeSpeed(7.0);
+    EXPECT_TRUE(waitForCondition([&clientTreadmill]() { return clientTreadmill.currentSpeed().value() > 0; }, 8000))
+        << "The DirCon client must continue receiving telemetry with the virtual treadmill enabled";
+    EXPECT_EQ(clientTreadmill.VirtualDevice(), virtualTreadmill)
+        << "Repeated telemetry must not replace the already-created virtual treadmill";
 
     testSettings.deactivate();
 }

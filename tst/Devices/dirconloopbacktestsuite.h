@@ -7,6 +7,7 @@ class DirconLoopbackTestSuite : public testing::Test {
 public:
     void test_fakebike_dircon_server_accepts_wahoodirconbike_client();
     void test_faketreadmill_dircon_server_accepts_wahoodircontreadmill_client();
+    void test_wahoodircontreadmill_creates_virtual_treadmill_when_enabled();
     void test_two_fakebike_dircon_servers_accept_two_wahoodirconbike_clients();
 };
 
@@ -16,6 +17,10 @@ TEST_F(DirconLoopbackTestSuite, FakeBikeDirconServerAcceptsWahooDirconBikeClient
 
 TEST_F(DirconLoopbackTestSuite, FakeTreadmillDirconServerAcceptsWahooDirconTreadmillClient) {
     this->test_faketreadmill_dircon_server_accepts_wahoodircontreadmill_client();
+}
+
+TEST_F(DirconLoopbackTestSuite, DirconTreadmillCreatesVirtualTreadmillWhenEnabled) {
+    this->test_wahoodircontreadmill_creates_virtual_treadmill_when_enabled();
 }
 
 TEST_F(DirconLoopbackTestSuite, TwoFakeBikeDirconServersAcceptTwoWahooDirconBikeClients) {

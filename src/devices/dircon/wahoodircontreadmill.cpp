@@ -1,5 +1,7 @@
 #include "wahoodircontreadmill.h"
 #include "qzsettings.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QSettings>
 #include <QHostAddress>
 
@@ -316,6 +318,32 @@ void wahoodircontreadmill::handleDiscoverCharacteristicsResponse(const DirconPac
 
     initDone = true;
     qDebug() << "WahooDirconTreadmill: initialization complete";
+
+    // The DirCon connection is the physical treadmill source. Once its FTMS
+    // service is ready, expose the usual QZ virtual device to third-party apps.
+    // The virtual treadmill handles BLE FTMS metrics and routes speed/incline
+    // targets through the shared FTMS control-point processor.
+    QSettings settings;
+    if (!hasVirtualDevice() &&
+        settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
+        if (!settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                 .toBool()) {
+            emit debug(QStringLiteral("creating virtual treadmill interface for DirCon..."));
+            auto *device = new virtualtreadmill(this, noHeartService);
+            connect(device, &virtualtreadmill::debug, this, &wahoodircontreadmill::debug);
+            connect(device, &virtualtreadmill::changeInclination, this,
+                    &wahoodircontreadmill::changeInclination);
+            setVirtualDevice(device, VIRTUAL_DEVICE_MODE::PRIMARY);
+        } else {
+            emit debug(QStringLiteral("creating virtual bike interface for DirCon..."));
+            auto *device = new virtualbike(this);
+            connect(device, &virtualbike::changeInclination, this,
+                    &wahoodircontreadmill::changeInclination);
+            setVirtualDevice(device, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+        }
+    }
+
+    emit connectedAndDiscovered();
 }
 
 void wahoodircontreadmill::handleReadCharacteristicResponse(const DirconPacket &packet) {
