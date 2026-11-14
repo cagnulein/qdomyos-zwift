@@ -120,6 +120,22 @@
         <translation>Bir daha sorma</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Güçlü sinyal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>İyi sinyal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Orta sinyal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Zayıf sinyal</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Bir nabız sensörü seçin</translation>
     </message>

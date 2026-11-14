@@ -120,6 +120,22 @@
         <translation>Ne kérdezze újra</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Erős jel</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Jó jel</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Közepes jel</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Gyenge jel</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Válasszon pulzusmérőt</translation>
     </message>

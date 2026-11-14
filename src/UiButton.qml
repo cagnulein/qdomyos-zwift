@@ -92,11 +92,32 @@ T.Button {
     // Classic look: wraps as well while the text size is not 100 % (a button of a settings
     // section: one line at 170 % made the whole section wider than the screen)
     property bool wrapsScaled: false
+    // Modern look: a button on an inverse surface - the textMain fill of UiNotice and of the heart
+    // rate sensor bar (HeartRateSuggestion). The accent of the page reads poorly there (violet
+    // #B69DF8 on #E4E6EB is about 1.8 : 1), so it takes the accent of the opposite theme, which
+    // is made to read on that kind of surface; the tonal pill is the page colour at 12 %.
+    // The classic look ignores it
+    property bool inverse: false
+    readonly property bool modernInverse: modern && inverse
     // Modern look: a tonal pill on a card or a question (surfaceHigh). The surfaceHighest of the pill
     // is about 1.1 : 1 there and the pill is not seen, so it takes textMain at 10 % (12 % in the
     // dark), like the danger pill takes the danger colour at 16 %. The classic look ignores it
     property bool cardSurface: false
-    readonly property color labelColor: control.modern
+    // the accent of the same name in the opposite theme
+    readonly property color inverseAccent: {
+        const u = window.ui
+        if (!modernInverse)
+            return u.accent
+        const set = u.dark ? u.lightAccents : u.accents
+        return set[u.accentName] || set["violet"]
+    }
+    // the accentInk of the opposite theme
+    readonly property color inverseAccentInk: window.ui.dark ? "#FFFFFF" : "#12101A"
+    readonly property color labelColor: control.modernInverse
+               ? (!control.enabled ? window.ui.alpha(window.ui.bg, 0.5)
+                  : control.highlighted && !control.flat ? control.inverseAccentInk
+                  : control.flat ? control.inverseAccent : window.ui.bg)
+               : control.modern
                ? (!control.enabled ? (control.gated ? window.ui.alpha(window.ui.textMuted, 0.55)
                                                          : window.ui.textMuted)
                   : control.savePending ? window.ui.accentInk
@@ -143,7 +164,11 @@ T.Button {
         implicitHeight: control.Material.buttonHeight
 
         radius: control.modern ? height / 2 : 2
-        color: control.modern
+        color: control.modernInverse
+               ? (control.flat ? "transparent"
+                  : !control.enabled ? window.ui.alpha(window.ui.bg, 0.08)
+                  : control.highlighted ? control.inverseAccent : window.ui.alpha(window.ui.bg, 0.12))
+               : control.modern
                ? (control.flat ? "transparent"
                   : !control.enabled ? window.ui.alpha(window.ui.textMain, 0.08)
                   : control.savePending ? window.ui.accent

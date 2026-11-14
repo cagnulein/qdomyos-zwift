@@ -120,6 +120,22 @@
         <translation>Nie pytaj ponownie</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Silny sygnał</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Dobry sygnał</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Średni sygnał</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Słaby sygnał</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Wybierz pulsometr</translation>
     </message>

@@ -120,6 +120,22 @@
         <translation>다시 묻지 않음</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>강한 신호</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>양호한 신호</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>보통 신호</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>약한 신호</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>심박 센서 선택</translation>
     </message>

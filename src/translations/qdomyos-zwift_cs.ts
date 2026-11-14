@@ -120,6 +120,22 @@
         <translation>Už se neptat</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Silný signál</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Dobrý signál</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Střední signál</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Slabý signál</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Vyberte snímač tepu</translation>
     </message>

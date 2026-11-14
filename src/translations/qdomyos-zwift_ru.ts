@@ -120,6 +120,22 @@
         <translation>Больше не спрашивать</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Сильный сигнал</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Хороший сигнал</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Средний сигнал</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Слабый сигнал</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Выберите пульсометр</translation>
     </message>

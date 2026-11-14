@@ -120,6 +120,22 @@
         <translation>Niet meer vragen</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Sterk signaal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Goed signaal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Redelijk signaal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Zwak signaal</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Kies een hartslagsensor</translation>
     </message>

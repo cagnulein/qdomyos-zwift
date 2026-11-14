@@ -120,6 +120,22 @@
         <translation>不再询问</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>信号强</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>信号良好</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>信号一般</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>信号弱</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>选择心率传感器</translation>
     </message>

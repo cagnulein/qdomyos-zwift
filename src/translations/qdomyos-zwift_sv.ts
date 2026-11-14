@@ -120,6 +120,22 @@
         <translation>Fråga inte igen</translation>
     </message>
     <message>
+        <source>Strong signal</source>
+        <translation>Starkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Bra signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Medelstarkt signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svag signal</translation>
+    </message>
+    <message>
         <source>Choose a heart rate sensor</source>
         <translation>Välj en pulsmätare</translation>
     </message>
