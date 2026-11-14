@@ -241,7 +241,7 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr int AndroidDocumentPickerFitRequestCode = 4105;
 constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
-constexpr int AndroidDocumentPickerTrainingFolderRequestCode = 4107;
+constexpr int AndroidDocumentPickerRestoreFolderRequestCode = 4107;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -6784,6 +6784,34 @@ QString homeform::signal() {
     return QStringLiteral("icons/icons/signal-1.png");
 }
 
+// A Wahoo trainer gets its wheel circumference written at connection: at the first connection the
+// driver holds its init until the user says whether QZ may do it. bluetooth.cpp marks as answered those
+// whose last device already was that trainer (they connected it before the question existed). The flag
+// lives only in QSettings, not in a QML Settings: writing a property of a Qt.labs.settings copy saves
+// all the properties of that copy, which would bring back the values it read at startup
+bool homeform::wahooWheelQuestionPending() {
+    QSettings settings;
+    if (settings.value(QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered)
+            .toBool())
+        return false;
+    if (!m_wahooWheelQuestionShown) {
+        m_wahooWheelQuestionShown = true;
+        emit wahooWheelQuestionRequested();
+    }
+    return true;
+}
+
+void homeform::wahooWheelAnswer(bool writeWheelCircumference) {
+    QSettings settings;
+    if (!writeWheelCircumference)
+        settings.setValue(QZSettings::wahoo_without_wheel_diameter, true);
+    settings.setValue(QZSettings::wahoo_wheel_question_answered, true);
+    qDebug() << QStringLiteral("Wahoo wheel circumference question answered, write:") << writeWheelCircumference;
+    emit wahooWheelAnswered(settings.value(QZSettings::wahoo_without_wheel_diameter,
+                                           QZSettings::default_wahoo_without_wheel_diameter)
+                                .toBool());
+}
+
 void homeform::handleRestoreDefaultWheelDiameter() {
     if (bluetoothManager && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == BIKE) {
@@ -9626,23 +9654,25 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         return;
     }
-    if (requestCode == AndroidDocumentPickerTrainingFolderRequestCode) {
-        const int restored = restoredTrainingProgramCount(localPath);
-        qDebug() << "training programs restored:" << restored;
-        const bool quiet = m_trainingRestoreQuiet;
-        m_trainingRestoreQuiet = false;
+    if (requestCode == AndroidDocumentPickerRestoreFolderRequestCode) {
+        const int restored = restoredFileCount(localPath);
+        qDebug() << "files of a previous install restored:" << restored;
+        const bool quiet = m_folderRestoreQuiet;
+        m_folderRestoreQuiet = false;
+        // the picker may have saved a grant on the QZ folder: the restore buttons go
+        updateQzFolderGrantSaved();
         if (restored > 0) {
-            setToastRequested(tr("Training programs restored: %1.").arg(restored));
+            setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
         } else if (!quiet) {
             // nothing or only deletion markers (.deleted_) restored: the user asked, so say so
-            setToastRequested(tr("No training programs of a previous installation were found."));
-        } else if (quiet && trainingFolderHasLockedFiles()) {
+            setToastRequested(tr("No files of a previous installation were found."));
+        } else if (quiet && qzFolderHasLockedFiles()) {
             // the saved grant restored nothing (folder moved or renamed): the user picks it again
-            emit trainingRestoreOfferRequested();
+            emit folderRestoreOfferRequested();
         }
-        // nothing changed in the folder: the list keeps its place
+        // nothing changed in the folders: the lists keep their place
         if (!localPath.isEmpty()) {
-            emit trainingProgramsRestored();
+            emit folderFilesRestored();
         }
         return;
     }
@@ -9764,38 +9794,44 @@ QString homeform::historyDatabasePath() {
     return chosen;
 }
 
-// After a reinstall (Android 14+) the files a previous install left in the training folder
-// still answer to their names but cannot be opened, and the folder list leaves them out. The
-// bundled programs, always copied at the first start, show it: one of them (or its deletion
-// marker) that exists and does not open belongs to a previous install.
-bool homeform::trainingFolderHasLockedFiles() {
+// After a reinstall (Android 14+) the files a previous install left in the QZ folder still
+// answer to their names but cannot be opened, and the folder lists leave them out. The bundled
+// programs and GPX routes, always copied at the first start, show it: one of them (or a
+// deletion marker of one) that exists and does not open belongs to a previous install.
+// Settings files and profiles have no bundled ones; the same restore pass takes them along.
+bool homeform::qzFolderHasLockedFiles() {
 #ifdef Q_OS_ANDROID
     const QString trainingDir = getWritableAppDir() + QStringLiteral("training/");
+    QStringList paths;
     QDirIterator itZwo(QStringLiteral(":/zwo/"));
     while (itZwo.hasNext()) {
         itZwo.next();
-        const QStringList paths = {trainingDir + itZwo.fileName(),
-                                   trainingDir + QStringLiteral(".deleted_") + itZwo.fileName()};
-        for (const QString &path : paths) {
-            QFile file(path);
-            if (file.exists() && !file.open(QIODevice::ReadOnly)) {
-                qDebug() << "training folder: file of a previous install" << path;
-                return true;
-            }
+        paths << trainingDir + itZwo.fileName() << trainingDir + QStringLiteral(".deleted_") + itZwo.fileName();
+    }
+    const QString gpxDir = getWritableAppDir() + QStringLiteral("gpx/");
+    QDirIterator itGpx(QStringLiteral(":/gpx/"));
+    while (itGpx.hasNext()) {
+        itGpx.next();
+        paths << gpxDir + itGpx.fileName() << gpxDir + QStringLiteral(".deleted_") + itGpx.fileName();
+    }
+    for (const QString &path : paths) {
+        QFile file(path);
+        if (file.exists() && !file.open(QIODevice::ReadOnly)) {
+            qDebug() << "QZ folder: file of a previous install" << path;
+            return true;
         }
     }
 #endif
     return false;
 }
 
-bool homeform::startTrainingFolderRestore(bool allowPicker) {
+bool homeform::startFolderRestore(bool allowPicker) {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDestinationDir =
-        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir());
     const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
-        "openTrainingFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerTrainingFolderRequestCode,
+        "openRestoreFolderPicker", "(ILjava/lang/String;Z)Z", AndroidDocumentPickerRestoreFolderRequestCode,
         javaDestinationDir.object<jstring>(), static_cast<jboolean>(allowPicker));
-    if (clearAndroidJniException("CustomQtActivity.openTrainingFolderPicker")) {
+    if (clearAndroidJniException("CustomQtActivity.openRestoreFolderPicker")) {
         return false;
     }
     return started;
@@ -9805,9 +9841,30 @@ bool homeform::startTrainingFolderRestore(bool allowPicker) {
 #endif
 }
 
-// restored programs among the paths, one per line, that the Java side passes; deletion
-// markers (.deleted_<name>) are restored too, but are not programs
-int homeform::restoredTrainingProgramCount(const QString &paths) {
+void homeform::updateQzFolderGrantSaved() {
+#ifdef Q_OS_ANDROID
+    const jboolean saved = QtAndroid::androidActivity().callMethod<jboolean>("hasQzFolderGrant", "()Z");
+    if (clearAndroidJniException("CustomQtActivity.hasQzFolderGrant")) {
+        return;
+    }
+    // the same choice of folder as getWritableAppDir(); before Android 11 the files of a
+    // previous install stay readable, and the folder in Android/data goes away with the app
+    QSettings settings;
+    const bool documentsFolder =
+        settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool() ||
+        QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    const bool restorable = documentsFolder && QtAndroid::androidSdkVersion() >= 30;
+    if (m_qzFolderGrantSaved != static_cast<bool>(saved) || m_qzFolderRestorable != restorable) {
+        m_qzFolderGrantSaved = saved;
+        m_qzFolderRestorable = restorable;
+        emit qzFolderGrantSavedChanged();
+    }
+#endif
+}
+
+// restored files among the paths, one per line, that the Java side passes; deletion markers
+// of programs (.deleted_<name>) are restored too, but are not files the user sees
+int homeform::restoredFileCount(const QString &paths) {
     int restored = 0;
     for (const QString &path : paths.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
         if (!QFileInfo(path).fileName().startsWith(QLatin1Char('.'))) {
@@ -9818,60 +9875,69 @@ int homeform::restoredTrainingProgramCount(const QString &paths) {
 }
 
 // A copy that an earlier restore left under its temporary name (the old file already removed)
-// takes its real name; this needs no folder grant, so it runs on every visit of the list.
-void homeform::recoverTrainingRestoreCopies() {
+// takes its real name; this needs no folder grant, so it runs on every visit of a list.
+void homeform::recoverFolderRestoreCopies() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject javaDirectory =
-        QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("training/"));
+    QAndroidJniObject javaDirectory = QAndroidJniObject::fromString(getWritableAppDir());
     const QAndroidJniObject recovered = QtAndroid::androidActivity().callObjectMethod(
-        "recoverTrainingRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
-    if (clearAndroidJniException("CustomQtActivity.recoverTrainingRestoreCopies") || !recovered.isValid()) {
+        "recoverFolderRestoreCopies", "(Ljava/lang/String;)Ljava/lang/String;", javaDirectory.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.recoverFolderRestoreCopies") || !recovered.isValid()) {
         return;
     }
     const QString paths = recovered.toString();
     if (paths.isEmpty()) {
         return;
     }
-    const int restored = restoredTrainingProgramCount(paths);
-    qDebug() << "training programs recovered from temporary copies:" << restored;
+    const int restored = restoredFileCount(paths);
+    qDebug() << "files of a previous install recovered from temporary copies:" << restored;
     if (restored > 0) {
-        setToastRequested(tr("Training programs restored: %1.").arg(restored));
+        setToastRequested(tr("Files of a previous installation restored: %1.").arg(restored));
     }
-    emit trainingProgramsRestored();
+    emit folderFilesRestored();
 #endif
 }
 
-void homeform::trainingProgramsPageOpened() {
-    recoverTrainingRestoreCopies();
-    if (m_trainingRestoreTried) {
+void homeform::folderPageOpened() {
+    // the grant may have come or gone with the workout history recovery: it takes the same grant,
+    // and gives it back when an import through it finds no workout in the QZ folder
+    const bool hadGrant = m_qzFolderGrantSaved;
+    updateQzFolderGrantSaved();
+    recoverFolderRestoreCopies();
+    if (!m_qzFolderRestorable) {
         return;
     }
-    m_trainingRestoreTried = true;
-    const bool lockedFiles = trainingFolderHasLockedFiles();
-    // with a saved grant the folder is checked even when no bundled program shows a previous
-    // install: programs of the user alone cannot be told from the file API
-    m_trainingRestoreQuiet = true;
-    if (startTrainingFolderRestore(false)) {
+    // a grant given elsewhere since the last visit hides the restore button, so the folders
+    // are checked once more, quietly; a grant from this restore is already known here
+    const bool grantNew = m_qzFolderGrantSaved && !hadGrant;
+    if (m_folderRestoreTried && !grantNew) {
         return;
     }
-    m_trainingRestoreQuiet = false;
+    m_folderRestoreTried = true;
+    const bool lockedFiles = qzFolderHasLockedFiles();
+    // with a saved grant the folders are checked even when no bundled file shows a previous
+    // install: files of the user alone cannot be told from the file API
+    m_folderRestoreQuiet = true;
+    if (startFolderRestore(false)) {
+        return;
+    }
+    m_folderRestoreQuiet = false;
     if (lockedFiles) {
-        emit trainingRestoreOfferRequested();
+        emit folderRestoreOfferRequested();
     }
 }
 
-void homeform::offerTrainingRestore() {
+void homeform::offerFolderRestore() {
     // the quiet restore of this visit is still running: it reports what it restored itself
-    if (m_trainingRestoreQuiet) {
-        qDebug() << "training programs: a restore is running, no question";
+    if (m_folderRestoreQuiet) {
+        qDebug() << "QZ folder: a restore is running, no question";
         return;
     }
-    emit trainingRestoreOfferRequested();
+    emit folderRestoreOfferRequested();
 }
 
-void homeform::restoreTrainingPrograms() {
-    m_trainingRestoreQuiet = false;
-    startTrainingFolderRestore(true);
+void homeform::restoreFolderFiles() {
+    m_folderRestoreQuiet = false;
+    startFolderRestore(true);
 }
 
 bool homeform::startFitFolderImport(bool allowPicker) {

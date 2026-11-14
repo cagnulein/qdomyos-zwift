@@ -1812,6 +1812,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                           2.0;
                 parseCadence(cadence);
                 cadenceAvailable = true;
+                if (cadence > 0)
+                    lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -2236,6 +2238,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                     (uint16_t)((uint8_t)newValue.at(index))));
                 parseCadence(cadence);
                 cadenceAvailable = true;
+                if (cadence > 0)
+                    lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -2370,6 +2374,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         parseCadence(cadence);
         cadenceAvailable = true;
+        if (cadence > 0)
+            lastDeviceCadenceMs = QDateTime::currentMSecsSinceEpoch();
         emit cadenceChanged(cadence);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
@@ -2386,8 +2392,12 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     cadenceFromAppleWatch();
 
-    // Calculate cadence from speed if not available from FTMS and no external power sensor
-    if (!cadenceAvailable && Speed.value() > 0) {
+    // Calculate cadence from speed if not available from FTMS/RSC or an external cadence sensor and no external
+    // power sensor. They come in separate packets: a cadence received in the last 3 seconds is still current.
+    qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    bool deviceCadenceRecent = lastDeviceCadenceMs > 0 && nowMs - lastDeviceCadenceMs < 3000;
+    bool sensorCadenceRecent = lastCadenceSensorMs > 0 && nowMs - lastCadenceSensorMs < 3000;
+    if (!cadenceAvailable && !deviceCadenceRecent && !sensorCadenceRecent && Speed.value() > 0) {
         bool garminCompanion =
             settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -2783,7 +2793,8 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
             schwinn_810_treadmill = true;
             qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("YS_W2"))) {
             yesoul_treadmill = true;
             qDebug() << QStringLiteral("YESOUL TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run

@@ -196,6 +196,12 @@ class homeform : public QObject {
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     // a workout import (file or folder) is copying or adding to the history
     Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
+    // Android: a saved grant on the QZ folder; the lists then restore files of a previous
+    // install by themselves and hide their restore button
+    Q_PROPERTY(bool qzFolderGrantSaved READ qzFolderGrantSaved NOTIFY qzFolderGrantSavedChanged)
+    // Android 11+ with the QZ folder in Documents: only there files of a previous install stay
+    // in the folder and cannot be read; elsewhere there is nothing to restore
+    Q_PROPERTY(bool qzFolderRestorable READ qzFolderRestorable NOTIFY qzFolderGrantSavedChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -639,6 +645,11 @@ class homeform : public QObject {
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
     void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
+    // Wahoo trainer at its first connection: true while QZ waits for the answer to the wheel circumference
+    // question (asks it once per session), false when it is answered or was never needed
+    bool wahooWheelQuestionPending();
+    // the answer from QML: false turns on Without Wheel Diameter Protocol
+    Q_INVOKABLE void wahooWheelAnswer(bool writeWheelCircumference);
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -775,16 +786,18 @@ public:
     // the workout history page was shown: a pending offer to recover the workouts of a
     // previous install is made there (historyRecoveryOfferRequested)
     Q_INVOKABLE void historyPageOpened();
-    // the list of training programs was shown: copies a restore left under a temporary name are
-    // finished; once per run, with a saved folder grant the folder is checked for programs of a
-    // previous install, and without one the user is asked if a bundled program shows them
-    // (trainingRestoreOfferRequested)
-    Q_INVOKABLE void trainingProgramsPageOpened();
-    // the user asked to look for programs of a previous install (a button of the list): the
-    // same question as the automatic one; none while the quiet restore runs
-    Q_INVOKABLE void offerTrainingRestore();
+    // a list of the QZ folder was shown (training programs, GPX routes, settings files,
+    // profiles): copies a restore left under a temporary name are finished; once per run, with
+    // a saved folder grant the folders are checked for files of a previous install, and without
+    // one the user is asked if a bundled program or route shows them (folderRestoreOfferRequested)
+    Q_INVOKABLE void folderPageOpened();
+    // the user asked to look for files of a previous install (a button of a list): the same
+    // question as the automatic one; none while the quiet restore runs
+    Q_INVOKABLE void offerFolderRestore();
     // the user agreed: the folder picker opens, even with a saved grant
-    Q_INVOKABLE void restoreTrainingPrograms();
+    Q_INVOKABLE void restoreFolderFiles();
+    bool qzFolderGrantSaved() const { return m_qzFolderGrantSaved; }
+    bool qzFolderRestorable() const { return m_qzFolderRestorable; }
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
@@ -1075,6 +1088,8 @@ public:
 
   private:
     static homeform *m_singleton;
+    // the wheel circumference question was shown in this session (it stays pending until answered)
+    bool m_wahooWheelQuestionShown = false;
     void setTileNames();
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
@@ -1171,10 +1186,11 @@ public:
     bool startFitFolderImport(bool allowPicker);
     void offerHistoryRecovery();
     void maybeOfferHistoryRecovery();
-    bool startTrainingFolderRestore(bool allowPicker);
-    static bool trainingFolderHasLockedFiles();
-    static int restoredTrainingProgramCount(const QString &paths);
-    void recoverTrainingRestoreCopies();
+    bool startFolderRestore(bool allowPicker);
+    static bool qzFolderHasLockedFiles();
+    static int restoredFileCount(const QString &paths);
+    void recoverFolderRestoreCopies();
+    void updateQzFolderGrantSaved();
     int historyWorkoutCount();
     QString m_historyDatabasePath;
     bool m_historyDatabaseIsNew = false;
@@ -1185,10 +1201,12 @@ public:
     bool m_fitImportQuiet = false;
     bool m_fitImportRunning = false;
     // one attempt per run: a restore that finds nothing must not repeat on every visit
-    bool m_trainingRestoreTried = false;
+    bool m_folderRestoreTried = false;
     // restore through a saved grant, true while it runs: no toast when nothing was restored,
     // and no question on request meanwhile
-    bool m_trainingRestoreQuiet = false;
+    bool m_folderRestoreQuiet = false;
+    bool m_qzFolderGrantSaved = false;
+    bool m_qzFolderRestorable = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1424,11 +1442,17 @@ public:
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();
-    // programs of a previous install are hidden in the training folder: QML asks whether to
-    // look for them (restoreTrainingPrograms())
-    void trainingRestoreOfferRequested();
-    void trainingProgramsRestored();
+    // files of a previous install are hidden in the QZ folder: QML asks whether to look for
+    // them (restoreFolderFiles())
+    void folderRestoreOfferRequested();
+    // a restore changed the folders: the lists read them again
+    void folderFilesRestored();
+    // wahooWheelQuestionPending(): QML asks whether QZ may write the wheel circumference of the trainer
+    void wahooWheelQuestionRequested();
+    // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
+    void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
+    void qzFolderGrantSavedChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);

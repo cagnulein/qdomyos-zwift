@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1048,
+  "settingCount": 1049,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -470,6 +470,10 @@
         {
           "label": "Proform Sport 6.0",
           "sets": "proform_treadmill_sport_6_0"
+        },
+        {
+          "label": "ProForm 505 CST PFTL59420 (iFIT 2026)",
+          "sets": "proform_treadmill_cst_505_pftl59420_2026"
         }
       ],
       "restartRequired": true
@@ -15045,7 +15049,7 @@
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -15779,7 +15783,7 @@
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
@@ -16562,6 +16566,21 @@
         ]
       },
       "restartRequired": false
+    },
+    {
+      "key": "proform_treadmill_cst_505_pftl59420_2026",
+      "name": "ProForm 505 CST PFTL59420 (iFIT 2026)",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
     },
     {
       "key": "proform_use_console_gears",
@@ -17537,6 +17556,7 @@
       "proform_treadmill_carbon_t7": "proformTreadmillAccordion",
       "proform_treadmill_carbon_tls": "proformTreadmillAccordion",
       "proform_treadmill_cst_505_pftl59420_0": "proformTreadmillAccordion",
+      "proform_treadmill_cst_505_pftl59420_2026": "proformTreadmillAccordion",
       "proform_treadmill_l6_0s": "proformTreadmillAccordion",
       "proform_treadmill_se": "proformTreadmillAccordion",
       "proform_treadmill_sport_3_0": "proformTreadmillAccordion",
@@ -18178,6 +18198,7 @@
       "proform_treadmill_carbon_t7": "settings.qml",
       "proform_treadmill_carbon_tls": "settings.qml",
       "proform_treadmill_cst_505_pftl59420_0": "settings.qml",
+      "proform_treadmill_cst_505_pftl59420_2026": "settings.qml",
       "proform_treadmill_l6_0s": "settings.qml",
       "proform_treadmill_se": "settings.qml",
       "proform_treadmill_sport_3_0": "settings.qml",
@@ -19169,6 +19190,7 @@
       "proform_treadmill_carbon_t7": 11242,
       "proform_treadmill_carbon_tls": 11262,
       "proform_treadmill_cst_505_pftl59420_0": 11271,
+      "proform_treadmill_cst_505_pftl59420_2026": 17403,
       "proform_treadmill_l6_0s": 11222,
       "proform_treadmill_se": 11230,
       "proform_treadmill_sport_3_0": 11266,

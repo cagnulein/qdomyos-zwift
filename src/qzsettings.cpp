@@ -1168,6 +1168,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral("proform_carbon_tlx_v84_314_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
+const QString QZSettings::proform_treadmill_cst_505_pftl59420_2026 = QStringLiteral("proform_treadmill_cst_505_pftl59420_2026");
 const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_treadmill_105_cst");
 const QString QZSettings::proform_treadmill_305_cst = QStringLiteral("proform_treadmill_305_cst");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
@@ -1365,7 +1366,9 @@ const QString QZSettings::default_ui_accent = QStringLiteral("violet");
 const QString QZSettings::ui_theme_mode = QStringLiteral("ui_theme_mode");
 const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
-const uint32_t allSettingsCount = 1054;
+const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
+
+const uint32_t allSettingsCount = 1056;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2397,6 +2400,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
+    {QZSettings::proform_treadmill_cst_505_pftl59420_2026, QZSettings::default_proform_treadmill_cst_505_pftl59420_2026},
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::proform_treadmill_305_cst, QZSettings::default_proform_treadmill_305_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
@@ -2445,6 +2449,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_theme, QZSettings::default_ui_theme},
     {QZSettings::ui_accent, QZSettings::default_ui_accent},
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
+    {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
 };
 
