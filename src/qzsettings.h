@@ -751,6 +751,10 @@ class QZSettings {
     static const QString proform_tdf_jonseed_watt;
     static constexpr bool default_proform_tdf_jonseed_watt = false;
 
+    // Opt-in support for physical front/rear gears on ProForm Wi-Fi consoles.
+    static const QString proform_use_console_gears;
+    static constexpr bool default_proform_use_console_gears = false;
+
     static const QString proform_studio;
     static constexpr bool default_proform_studio = false;
 
@@ -3357,6 +3361,8 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
     static const QString proform_treadmill_cst_505_pftl59420_0;
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_cst_505_pftl59420_2026;
+    static constexpr bool default_proform_treadmill_cst_505_pftl59420_2026 = false;
     static const QString proform_treadmill_105_cst;
     static constexpr bool default_proform_treadmill_105_cst = false;
     static const QString proform_treadmill_305_cst;
@@ -3484,6 +3490,12 @@ class QZSettings {
     // auto (follows the night mode of the phone), dark, light
     static const QString ui_theme_mode;
     static const QString default_ui_theme_mode;
+
+    // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
+    // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
+    // already was the last device, so it was connected before the question existed
+    static const QString wahoo_wheel_question_answered;
+    static constexpr bool default_wahoo_wheel_question_answered = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

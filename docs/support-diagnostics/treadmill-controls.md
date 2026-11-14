@@ -122,3 +122,24 @@
 - Advertising the FTMS control point and an inclination range does **not** guarantee that firmware grants external control. Successful telemetry can coexist with rejected commands.
 - An explicit **Control Not Permitted** response narrows the issue to device-side permission or initialization rather than a missing incline range or an unrelated receiving-app pairing problem.
 - A demonstrated manufacturer-app control path is stronger evidence for investigating a proprietary initialization sequence than a manufacturer's general claim of app connectivity. Without such evidence, do not assume a hidden unlock exists.
+
+## FTMS command succeeds but only speed or incline responds physically
+
+### Provide first
+
+- Exact treadmill model, **advertised Bluetooth name**, QZ version, and whether other nearby FTMS machines are powered on.
+- Confirm that speed, incline, and distance **read correctly in QZ** before testing controls. Report **start, speed, and incline separately**: for each, did QZ issue a command, did the treadmill beep or acknowledge it, and did the belt or deck actually move?
+- Screenshot the selected **FTMS Treadmill** value and **Advanced Settings > Manual Device**. Record whether the intended treadmill or a different nearby fitness device connects at startup.
+- Provide one safe, low-speed test of speed and one small incline adjustment from QZ alone, noting which works in the **same connection**, before involving Runna, Zwift, or Kinomap.
+
+### If still unclear
+
+- With other fitness devices powered off, compare **separate QZ restarts** using the explicitly selected FTMS treadmill profile and the supported model-specific profile (if available). Record which profile handles speed versus incline; do not assume they provide identical control capabilities.
+- If nRF Connect data is already available, include the advertised **Fitness Machine Service (0x1826)**, **Control Point (0x2AD9)** and supported speed/incline ranges. A control-point success indication such as **80 02 01** or **80 03 01** should be recorded alongside the **actual physical response**, not treated as proof of movement.
+- If the difference persists, provide **two short, separately labeled QZ debug logs** with the active profile, connection target, and approximate time of each safe command. Request a manufacturer-app Bluetooth trace only if these comparisons cannot identify the command path.
+
+### Why it matters
+
+- Some treadmills advertise standard FTMS alongside a manufacturer-specific control path. Reading metrics and receiving a successful FTMS response do not establish that **both** physical actuators can be controlled through the same selected protocol.
+- Recording speed and incline independently, along with the selected profile, distinguishes **driver/protocol selection** from command rejection, an unexpected physical response, and a third-party app pairing issue.
+- Nearby fitness machines can be discovered instead of the intended treadmill; the actual connected Bluetooth name must be confirmed before interpreting control results. See [connection and discovery](connection-and-discovery.md) for device selection intake.

@@ -23,7 +23,7 @@ ColumnLayout {
             }
         }
         // programs of a previous install were copied back into the training folder
-        function onTrainingProgramsRestored() {
+        function onFolderFilesRestored() {
             var currentFolder = folderModel.folder
             folderModel.folder = ""
             folderModel.folder = currentFolder
@@ -48,7 +48,7 @@ ColumnLayout {
         Qt.callLater(function() {
             openWorkoutPreview(initialWorkoutUrl)
         })
-        rootItem.trainingProgramsPageOpened()
+        rootItem.folderPageOpened()
     }
 
     MessageDialog {
@@ -114,7 +114,7 @@ ColumnLayout {
                 Text
                 {
                     text:qsTr("Filter")
-                    color: "white"
+                    color: window.ui.ink("white")
                     verticalAlignment: Text.AlignVCenter
                 }
                 TextField
@@ -183,7 +183,7 @@ ColumnLayout {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
                                 font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : (Qt.application.font.pixelSize > 0 ? window.fontPx(window.appFontPx * 1.6) : window.plainFontPx)
-                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.lastIndexOf(".")):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
@@ -242,7 +242,9 @@ ColumnLayout {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                         selectedWorkoutUrl = fileUrl
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        // no current row for a moment while a restore renames files under the open page
+                        if (list.currentItem)
+                            list.currentItem.textColor = window.ui.modern && !window.ui.dark ? window.ui.accent : Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
                         powerSeries.clear();
@@ -290,7 +292,7 @@ ColumnLayout {
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
                     font.pixelSize: window.fontPx(14)
-                    color: "white"
+                    color: window.ui.ink("white")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -304,7 +306,7 @@ ColumnLayout {
                     text: rootItem.previewWorkoutTags
                     font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
-                    color: "white"
+                    color: window.ui.modern ? window.ui.textMuted : "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.horizontalCenter: parent.horizontalCenter

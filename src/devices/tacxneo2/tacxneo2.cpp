@@ -65,19 +65,45 @@ void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void tacxneo2::changePower(int32_t power) {
+    // Preserve the target requested by the training app for the QZ UI.
     RequestedPower = power;
 
-    if (power < 0)
-        power = 0;
+    // m_watt already applies gain and offset in metric::setValue(). Invert that
+    // correction only for the physical ERG command, not for incoming telemetry.
+    // A zero target must still release ERG, regardless of configured offsets.
+    int32_t trainerPower = 0;
+    if (power > 0) {
+        QSettings settings;
+        const double configuredGain =
+            settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+        // metric::applySettings() ignores gains above 2 for bikes.
+        // Ignore invalid/non-positive gains here to avoid division by zero.
+        const double wattGain = (configuredGain > 0.0 && configuredGain <= 2.0) ? configuredGain : 1.0;
+        const double wattOffset =
+            settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+        const double bikePowerOffset =
+            settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toDouble();
+
+        // The telemetry formula is raw * gain + offset, so the inverse is
+        // (requested - offset) / gain. The bike offset is a physical-target adjustment.
+        const double adjustedPower = ((power - wattOffset) / wattGain) + bikePowerOffset;
+        // The Tacx protocol encodes the target in an unsigned 16-bit quarter-watt field.
+        trainerPower = qRound(qBound(0.0, adjustedPower, 16383.0));
+        if (trainerPower != power) {
+            emit debug(QStringLiteral("ERG target calibrated: ") + QString::number(power) +
+                       QStringLiteral(" W -> ") + QString::number(trainerPower) + QStringLiteral(" W"));
+        }
+    }
+
     uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x00};
-    p[10] = (uint8_t)((power * 4) & 0xFF);
-    p[11] = (uint8_t)((power * 4) >> 8);
+    p[10] = (uint8_t)((trainerPower * 4) & 0xFF);
+    p[11] = (uint8_t)((trainerPower * 4) >> 8);
     for (uint8_t i = 0; i < sizeof(p) - 1; i++) {
         p[12] ^= p[i]; // the last byte is a sort of a checksum
     }
 
     writeCharacteristic(p, sizeof(p), QStringLiteral("changePower"), false, false);
-    lastCommandErgMode = power > 0;
+    lastCommandErgMode = trainerPower > 0;
 }
 
 void tacxneo2::forceInclination(double inclination) {

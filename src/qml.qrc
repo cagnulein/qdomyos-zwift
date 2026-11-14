@@ -142,6 +142,26 @@
         <file>IndicatorOnlySwitch.qml</file>
         <file>ValueComboBox.qml</file>
         <file>UiComboBox.qml</file>
+        <file>UiDrawerItem.qml</file>
+        <file>UiSectionHeader.qml</file>
+        <file>UiSettingFrames.qml</file>
+        <file>UiStickyHeader.qml</file>
+        <file>UiButton.qml</file>
+        <file>UiFrame.qml</file>
+        <file>UiGroupBox.qml</file>
+        <file>UiIcon.qml</file>
+        <file>UiIcons.js</file>
+        <file>UiInfoPopup.qml</file>
+        <file>UiMessageDialog.qml</file>
+        <file>UiNotice.qml</file>
+        <file>UiPopup.qml</file>
+        <file>UiSpinBox.qml</file>
+        <file>UiSpinInput.qml</file>
+        <file>UiSwitch.qml</file>
+        <file>UiSwitchDelegate.qml</file>
+        <file>UiSwitchIndicator.qml</file>
+        <file>UiTextField.qml</file>
+        <file>fonts/MaterialSymbolsQZ.ttf</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>

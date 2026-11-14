@@ -109,6 +109,9 @@ class fitshowtreadmill : public treadmill {
     uint8_t firstInit = 0;
     double DistanceCalculated = 0;
     QByteArray lastPacket;
+    // Time (ms) of the last non-zero cadence from the RSC characteristic. It arrives in its own packet, so the cadence
+    // estimated from speed in the FitShow packet must not overwrite it while it is recent.
+    qint64 lastRscCadenceMs = 0;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
     int MAX_INCLINE = 30;

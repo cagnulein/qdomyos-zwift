@@ -140,6 +140,7 @@ jobs:
 
       - name: Run the Xcode Cloud setup scripts
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CI_PRIMARY_REPOSITORY_PATH: ${{ github.workspace }}
           STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
           PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}

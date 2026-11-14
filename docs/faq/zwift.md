@@ -12,6 +12,19 @@ In confirmed support cases, waiting about three minutes in Zwift before continui
 
 An active Zwift subscription is not required for this handshake procedure; a Zwift account that can reach the pairing flow is sufficient.
 
+## Why can't Zwift find QZ or Wahoo KICKR 0000 when QZ is in the background on iOS?
+
+On iPhone, **initial discovery** of QZ's virtual trainer can behave differently from keeping an **already-paired** connection alive. If Zwift's pairing screen does not list **QZ** (Bluetooth) or **Wahoo KICKR 0000** (Wahoo Direct Connect / Wi-Fi), try this confirmed workaround:
+
+1. Open QZ on the iPhone and make sure it has connected to the physical trainer. Enable the virtual-device transport you want to use.
+2. **Leave QZ in the foreground** while opening Zwift's pairing screen on the other device.
+3. When QZ / Wahoo KICKR 0000 appears, pair it to Zwift as the appropriate **Power Source** and **Controllable** device (and cadence if offered).
+4. Only after pairing succeeds, put QZ in the background. With **iOS Background Keep Alive** enabled under **Experimental Settings**, check that power, resistance control and any virtual shifting still work during a short test.
+
+**Why:** iOS does not advertise a Bluetooth peripheral's local name when its app is in the background, and background service UUID discovery is restricted. Wahoo Direct Connect uses **Bonjour/mDNS over Wi-Fi**, not BLE advertising, but its discovery responses also depend on QZ being allowed to execute and access the local network. **iOS Background Keep Alive may help keep an established session running; it is not a guarantee that Zwift can discover a new virtual trainer in the background.** In a confirmed support report, existing Zwift pairing worked with QZ backgrounded, but first-time discovery required returning QZ to the foreground, even with Keep Alive enabled.
+
+This concerns the **virtual trainer's discovery**, not the separate Zwift Click v2 controller keepalive/handshake.
+
 ## QZ and Zwift show different virtual gear numbers. How can I keep them aligned?
 
 When QZ is handling a custom virtual gear table and Zwift is also showing its virtual gear UI, enable QZ's **Align Gear** option so QZ can follow the gear number reported by the virtual bike connection instead of letting the two displays drift apart.
@@ -59,6 +72,21 @@ For a KICKR setup where the goal is to reproduce real chainring/cassette ratios,
 **Virtual Wheel Size** is the base circumference used in the calculation. Start by configuring the correct physical reference gear and virtual gear table first; use Virtual Wheel Size only if you intentionally want to scale the overall gearing feel.
 
 This physical reference does not need to change when switching between training apps such as Zwift and ROUVY, as long as the bike remains in the same mechanical gear.
+
+## My Wahoo KICKR gearing feels different in other apps after using QZ. How can I restore it?
+
+With **Without Wheel Diameter Protocol** disabled, QZ writes a calculated wheel circumference to a compatible Wahoo KICKR when connecting and can update it when virtual gears change. The trainer can retain that value after QZ closes, which may change the gearing feel in other apps.
+
+To stop QZ changing the stored circumference and reset it:
+
+1. In **QZ Settings > Bike Options > Wahoo Options**, enable **Without Wheel Diameter Protocol**. QZ then handles virtual shifting through grade-based control rather than wheel-circumference writes.
+2. **Connect the trainer to QZ** and confirm it is connected.
+3. In the Wahoo virtual-gearing settings, tap **Restore Default Setting to the Trainer**. This writes a fixed **2070 mm** circumference to the trainer; it **does not recover your previously stored value**.
+4. Check the gearing again in the other training app.
+
+**Important:** The restore button only sends a command while a compatible Wahoo trainer is connected to QZ. If it is disconnected, the button silently does nothing. If you want to set a particular circumference instead, some riders report adjusting wheel size in the **Wahoo app's trainer settings**.
+
+On newer QZ versions, the first connection can ask whether QZ may change the trainer's wheel circumference. Choosing **No** enables **Without Wheel Diameter Protocol**; choosing **Yes** allows the usual circumference-based virtual gears. Selecting No does *not* itself reset any value left on the trainer from an earlier session.
 
 ## Zwift Ride or Play shifts more than one virtual gear per press. What can I try?
 
