@@ -89,6 +89,7 @@ public:
     DEFINE_DEVICE(FitPlusVirtufitEtappeX100, "FitPlus VirtuFit Etappe 2.0i (X100)");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
+    DEFINE_DEVICE(FitShowFinnloANPLUS, "FitShow FINNLO ANPLUS-00541");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
     DEFINE_DEVICE(FitShowMerachT12, "FitShow Merach T12 Pro");
     DEFINE_DEVICE(FitShowSW, "FitShow SW");
@@ -101,6 +102,7 @@ public:
     DEFINE_DEVICE(HorizonTreadmill_DomyosTC, "Horizon Treadmill (Domyos TC)");
     DEFINE_DEVICE(HorizonTreadmill_Toorx, "Horizon Treadmill (Toorx)");
     DEFINE_DEVICE(HorizonTreadmill, "Horizon Treadmill");
+    DEFINE_DEVICE(HorizonTreadmill_FinnloANPLUSFTMS, "Horizon FINNLO ANPLUS-00541 (FTMS selected)");
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
     DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
