@@ -51,6 +51,16 @@ quint8 byteAt(const QByteArray &packet, int offset) {
 }
 }
 
+bool ftmsbike::parseCycplusNativeGear(const QByteArray &packet, qint16 *gear) {
+    if (!gear || packet.size() != 62) {
+        return false;
+    }
+    const quint16 rawGear = static_cast<quint16>(byteAt(packet, 54)) |
+                            (static_cast<quint16>(byteAt(packet, 55)) << 8);
+    *gear = static_cast<qint16>(rawGear);
+    return true;
+}
+
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     QSettings settings;
@@ -574,7 +584,7 @@ void ftmsbike::update() {
         auto virtualBike = this->VirtualBike();        
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-        const bool gearChanged = lastGearValue != gears();
+        const bool gearChanged = !R200_nativeGearObserved && lastGearValue != gears();
         if (requestResistance != -1 || (gearChanged && (!FS_IB50 || !fsIb50PhysicalGearChangePending))) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
@@ -588,7 +598,7 @@ void ftmsbike::update() {
             // bike::changeResistance() already includes gearsModifier() when
             // the custom resistance/watt table is enabled.
             // Do not apply it a second time in this FTMS path.
-            if (cscbike::useCustomResistancePowerTable())
+            if (R200_nativeGearObserved || cscbike::useCustomResistancePowerTable())
                 gearMultiplier = 0;
             else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
@@ -649,7 +659,7 @@ void ftmsbike::update() {
             }
         }
 
-        if (virtualBike && virtualBike->ftmsDeviceConnected() && !FS_IB50 &&
+        if (virtualBike && virtualBike->ftmsDeviceConnected() && !FS_IB50 && !R200_nativeGearObserved &&
             requestInclination == -100 && lastGearValue != gears() &&
             lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
@@ -937,24 +947,41 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
-    if(T2 && characteristic.uuid() == QBluetoothUuid(QStringLiteral("6e400003-b5a3-f393-e0a9-e50e24dcca9e")) && newValue.length() == 62) {
-        int16_t gears = ((int16_t)(((int16_t)((uint8_t)newValue.at(55)) << 8) |
-                          (int16_t)((uint8_t)newValue.at(54))));
-
-        qDebug() << QStringLiteral("T2 gears event, actual gear") << gears << QStringLiteral("previous value") << T2_lastGear;
-
-        if (gears < T2_lastGear) {
-            for (int i = 0; i < T2_lastGear - gears; ++i) {
-                gearDown();
+    // T2 and R200 use the same 62-byte CYCPLUS BC2 vendor notification.
+    // R200's BC2 changes the physical trainer gear itself: reflect it in the
+    // QZ tile, but do NOT generate additional virtual shifts/resistance writes.
+    if ((T2 || CYCPLUS_R200) &&
+        characteristic.uuid() == QBluetoothUuid(QStringLiteral("6e400003-b5a3-f393-e0a9-e50e24dcca9e"))) {
+        qint16 nativeGear = 0;
+        if (parseCycplusNativeGear(newValue, &nativeGear)) {
+            if (CYCPLUS_R200) {
+                R200_nativeGearObserved = true;
+                if (m_gears != nativeGear) {
+                    qDebug() << QStringLiteral("R200 native gear") << nativeGear << QStringLiteral("previous value") << m_gears;
+                    m_gears = nativeGear;
+                    if (homeform::singleton()) {
+                        homeform::singleton()->updateGearsValue();
+                    }
+                }
+                // Prevent the periodic update from interpreting a display-only
+                // notification as a QZ gear command to be sent back to the bike.
+                lastGearValue = gears();
+            } else {
+                qDebug() << QStringLiteral("T2 gears event, actual gear") << nativeGear
+                         << QStringLiteral("previous value") << T2_lastGear;
+                if (nativeGear < T2_lastGear) {
+                    for (int i = 0; i < T2_lastGear - nativeGear; ++i) {
+                        gearDown();
+                    }
+                } else if (nativeGear > T2_lastGear) {
+                    for (int i = 0; i < nativeGear - T2_lastGear; ++i) {
+                        gearUp();
+                    }
+                }
+                T2_lastGear = nativeGear;
             }
-        } else if (gears > T2_lastGear) {
-            for (int i = 0; i < gears - T2_lastGear; ++i) {
-                gearUp();
-            }
+            return;
         }
-
-        T2_lastGear = gears;
-        return;
     }
 
     // Wattbike Atom First Generation - Display Gears
@@ -2061,7 +2088,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
 
-            if (gears() != 0) {
+            if (gears() != 0 && !R200_nativeGearObserved) {
                 slope += (gearsModifier() * GEARS_SLOPE_MULTIPLIER);
             }
 
@@ -2329,6 +2356,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;
+        } else if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("R200 "))) {
+            qDebug() << QStringLiteral("CYCPLUS R200 found");
+            CYCPLUS_R200 = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("T2 "))) {
             qDebug() << QStringLiteral("T2 found");
             T2 = true;
@@ -2572,6 +2602,15 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         gearInclinationSent = false;
+        if (R200_nativeGearObserved) {
+            // The trainer can reset its native gear after reconnecting.
+            R200_nativeGearObserved = false;
+            m_gears = 0;
+            lastGearValue = 0;
+            if (homeform::singleton()) {
+                homeform::singleton()->updateGearsValue();
+            }
+        }
         connectBackLater();
     }
 }
