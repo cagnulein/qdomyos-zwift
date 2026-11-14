@@ -830,6 +830,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool sole_inclination =
         settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
     QString ftms_rower = settings.value(QZSettings::ftms_rower, QZSettings::default_ftms_rower).toString();
+    const bool fitPrefixRower = settings.value(QZSettings::fit_prefix_rower, QZSettings::default_fit_prefix_rower).toBool();
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
     QString ftms_elliptical = settings.value(QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical).toString();
@@ -1950,8 +1951,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
                          b.name().length() > QStringLiteral("TRUE TREADMILL ").length() &&
                          QRegularExpression(QStringLiteral("TRUE TREADMILL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE TREADMILL followed by digits
-                        (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
-                        b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) ||                             // FIT-TM- treadmill with real inclination
+                        (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-")) && !fitPrefixRower) ||                            // FIT-1596 and sports tech f37s treadmill #2412
+                        (b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) && !fitPrefixRower) ||        // FIT-TM- treadmill with real inclination
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")) ||
@@ -2512,6 +2513,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("S4 COMMS")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
+                        (fitPrefixRower && upperDeviceName.startsWith(QStringLiteral("FIT-")) && !upperDeviceName.startsWith(QStringLiteral("FIT-BK-"))) ||
                         b.name().toUpper().startsWith(QStringLiteral("FIT-RW-")) || // Sportstech PROwer (e.g. FIT-RW-5500)
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||

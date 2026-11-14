@@ -1368,7 +1368,10 @@ const QString QZSettings::default_ui_theme_mode = QStringLiteral("auto");
 
 const QString QZSettings::wahoo_wheel_question_answered = QStringLiteral("wahoo_wheel_question_answered");
 
-const uint32_t allSettingsCount = 1056;
+const QString QZSettings::fit_prefix_rower = QStringLiteral("fit_prefix_rower");
+const QString QZSettings::fit_prefix_rower_detection_done = QStringLiteral("fit_prefix_rower_detection_done");
+
+const uint32_t allSettingsCount = 1058;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2451,6 +2454,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ui_theme_mode, QZSettings::default_ui_theme_mode},
     {QZSettings::wahoo_wheel_question_answered, QZSettings::default_wahoo_wheel_question_answered},
     {QZSettings::proform_use_console_gears, QZSettings::default_proform_use_console_gears},
+    {QZSettings::fit_prefix_rower, QZSettings::default_fit_prefix_rower},
+    {QZSettings::fit_prefix_rower_detection_done, QZSettings::default_fit_prefix_rower_detection_done},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

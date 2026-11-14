@@ -3494,6 +3494,11 @@ class QZSettings {
     // The user answered whether QZ may write the wheel circumference of a Wahoo trainer (asked at the
     // first connection). Written at the first discovery of a Wahoo trainer: true when that trainer
     // already was the last device, so it was connected before the question existed
+    static const QString fit_prefix_rower;
+    static constexpr bool default_fit_prefix_rower = false;
+    static const QString fit_prefix_rower_detection_done;
+    static constexpr bool default_fit_prefix_rower_detection_done = false;
+
     static const QString wahoo_wheel_question_answered;
     static constexpr bool default_wahoo_wheel_question_answered = false;
 
