@@ -2391,7 +2391,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER C12")) ||
+                        // TOUR 600 exposes the same proprietary security/control service.
+                        // Let the C12 driver attempt its challenge/response handshake.
+                        b.name().toUpper().startsWith(QStringLiteral("TOUR 600"))) &&
                        !kettlerC12Bike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2432,7 +2435,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("MISURO B+")) ||
-                        (b.name().toUpper().startsWith("TOUR 600")) ||
                         (b.name().toUpper().startsWith("SMART+ #")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("RM")) && b.name().length() == 2) ||
