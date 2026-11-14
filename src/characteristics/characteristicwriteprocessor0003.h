@@ -26,6 +26,7 @@ public:
     static uint32_t calculateUnknown1(uint16_t power);
     void handleZwiftGear(const QByteArray &array);
     double currentGear();
+    QByteArray gearStatusResponse() const;
     qint64 hubRidingDataIdleMs() const;
     QByteArray buildCurrentHubRidingData();
 
@@ -40,6 +41,7 @@ private:
     qint32 decodeSInt(const QByteArray& bytes);    
     int currentZwiftGear = 8;
     bool zwiftGearReceived = false;
+    QByteArray lastGearRatio = QByteArray::fromHex("c0bb01");
     QElapsedTimer lastHubRidingDataTimer;
 
 signals:
