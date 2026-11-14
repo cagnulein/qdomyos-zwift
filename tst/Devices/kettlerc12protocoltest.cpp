@@ -21,7 +21,8 @@ int main() {
     check(100, 0x64, 0x00);
     check(105, 0x69, 0x00);
     check(250, 0xfa, 0x00);
-    check(300, 0xfa, 0x00); // existing driver limit
+    check(300, 0x2c, 0x01);
+    check(600, 0xf4, 0x01); // cap at 500 W
     check(0, 0x00, 0x00);
     check(-1, 0x00, 0x00);
 
@@ -62,6 +63,20 @@ int main() {
     const char invalidHex[] = "3E7C:4E0E079DE0E7BA9474AAAB503C5F4CCZ";
     assert(!KettlerC12Protocol::parseSecurityRow(invalidHex, sizeof(invalidHex) - 1,
                                                   0x3e7c, handshake));
+
+    // TOUR 600 challenges use the existing C12 table, not the distinct
+    // response bytes observed in the iPad capture.
+    const uint8_t tourChallenge1[] = {0xb0, 0x8c};
+    const uint8_t tourChallenge2[] = {0x21, 0x6a};
+    const char tourRow1[] = "B08C:A464BB328E3B16AA2146DA7DEFFEB464";
+    const char tourRow2[] = "216A:F6FC60B1C8DF712B33330D86A5F1A94C";
+    assert(KettlerC12Protocol::challengeIndex(tourChallenge1, 2, index) && index == 0xb08c);
+    assert(KettlerC12Protocol::parseSecurityRow(tourRow1, sizeof(tourRow1) - 1, index, handshake));
+    assert(handshake[0] == 0xa4 && handshake[15] == 0x64);
+    assert(KettlerC12Protocol::challengeIndex(tourChallenge2, 2, index) && index == 0x216a);
+    assert(KettlerC12Protocol::parseSecurityRow(tourRow2, sizeof(tourRow2) - 1, index, handshake));
+    assert(handshake[0] == 0xf6 && handshake[15] == 0x4c);
+    assert(KettlerC12Protocol::parseSecurityRow(correctRow, sizeof(correctRow) - 1, 0x3e7c, handshake));
 
     // Fixed-response replay must never be used in place of table lookup.
     assert(handshake[0] == 0x4e && handshake[15] == 0xc3);
