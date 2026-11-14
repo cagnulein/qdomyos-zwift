@@ -147,6 +147,14 @@
         <translation>Tem certeza de que deseja parar o treino atual?</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Parar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>Descanso</translation>
     </message>
@@ -338,6 +346,18 @@ Pretende ativar os serviços necessários?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Este aplicativo deve conectar-se automaticamente à sua bicicleta/esteira/remo. &lt;b&gt;Se não conectar, verifique&lt;/b&gt;:&lt;br&gt;1) Seu aplicativo Echelon/Domyos deve estar fechado enquanto qdomyos-zwift estiver em execução;&lt;br&gt;2) O Bluetooth e as permissões de Bluetooth devem estar ativados&lt;br&gt;3) Sua bicicleta/esteira/remo deve estar ligada antes de iniciar este aplicativo&lt;br&gt;4) Tente reiniciar seu dispositivo&lt;br&gt;&lt;br&gt;Se sua bicicleta/esteira desconectar a cada 30 segundos, tente desativar a configuração &apos;dispositivo virtual&apos; na barra lateral.&lt;br&gt;&lt;br&gt;Em caso de problemas, sinta-se à vontade para entrar em contato comigo em roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Tenha um ótimo treino!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;O QZ se isenta especificamente de responsabilidade por&lt;br&gt;danos incidentais ou consequentes e não assume&lt;br&gt;nenhuma responsabilidade por qualquer perda&lt;br&gt;ou dano sofrido por qualquer pessoa como resultado de&lt;br&gt;uso ou mau uso do aplicativo.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Procurando seu equipamento…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Ligue a bicicleta, a esteira ou o remo: o QZ se conecta automaticamente.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Não conecta?</translation>
     </message>
 </context>
 <context>

@@ -209,6 +209,14 @@ Restartovat nyní?</translation>
         <translation>Odpočinek</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Zrušit</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Velmi lehké</translation>
     </message>
@@ -338,6 +346,18 @@ Chcete zapnout požadované služby?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Aplikace by se měla automaticky připojit k vašemu kolu, běžeckému pásu nebo veslovacímu trenažéru. &lt;b&gt;Pokud se to nestane, zkontrolujte&lt;/b&gt;:&lt;br&gt;1) aplikace Echelon/Domyos MUSÍ být zavřená, dokud běží qdomyos-zwift;&lt;br&gt;2) Bluetooth i oprávnění pro Bluetooth MUSÍ být zapnuté&lt;br&gt;3) trenažér by měl být zapnutý PŘED spuštěním této aplikace&lt;br&gt;4) zkuste restartovat své zařízení&lt;br&gt;&lt;br&gt;Pokud se kolo nebo běžecký pás odpojuje každých 30 sekund, zkuste vypnout nastavení „Zapnout virtuální zařízení“ v levém panelu.&lt;br&gt;&lt;br&gt;V případě problémů mi neváhejte napsat na roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Příjemný trénink!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ výslovně odmítá odpovědnost za&lt;br&gt;nahodilé nebo následné škody a nenese&lt;br&gt;žádnou odpovědnost za jakoukoli ztrátu&lt;br&gt;nebo škodu, kterou kdokoli utrpí v důsledku&lt;br&gt;používání nebo nesprávného používání aplikace.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Hledání trenažéru…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Zapněte kolo, běžecký pás nebo veslovací trenažér: QZ se k němu připojí automaticky.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Nedaří se připojit?</translation>
     </message>
 </context>
 <context>

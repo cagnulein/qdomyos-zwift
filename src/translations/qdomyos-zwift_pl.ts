@@ -209,6 +209,14 @@ Uruchomić ją ponownie teraz?</translation>
         <translation>Odpoczynek</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Bardzo lekko</translation>
     </message>
@@ -338,6 +346,18 @@ Czy chcesz włączyć wymagane usługi?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Ta aplikacja powinna automatycznie połączyć się z rowerem, bieżnią lub ergometrem wioślarskim. &lt;b&gt;Jeśli tak się nie stanie, sprawdź&lt;/b&gt;:&lt;br&gt;1) aplikacja Echelon/Domyos MUSI być zamknięta podczas działania qdomyos-zwift;&lt;br&gt;2) Bluetooth i uprawnienia do Bluetooth MUSZĄ być włączone&lt;br&gt;3) urządzenie – rower, bieżnia lub ergometr wioślarski – musi być włączone PRZED uruchomieniem tej aplikacji&lt;br&gt;4) spróbuj ponownie uruchomić urządzenie&lt;br&gt;&lt;br&gt;Jeśli rower lub bieżnia rozłącza się co 30 sekund, spróbuj wyłączyć ustawienie „urządzenie wirtualne” na lewym pasku.&lt;br&gt;&lt;br&gt;W razie problemów napisz do mnie na adres roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Miłej jazdy!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ wyraźnie wyłącza odpowiedzialność za&lt;br&gt;szkody uboczne lub następcze i nie ponosi&lt;br&gt;odpowiedzialności za żadne straty&lt;br&gt;ani szkody poniesione przez jakąkolwiek osobę w wyniku&lt;br&gt;używania lub niewłaściwego używania aplikacji.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Szukanie sprzętu…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Włącz rower, bieżnię lub ergometr wioślarski – QZ połączy się z nim automatycznie.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Brak połączenia?</translation>
     </message>
 </context>
 <context>

@@ -147,6 +147,14 @@
         <translation>确定要停止当前训练吗？</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
         <source>Rest</source>
         <translation>休息</translation>
     </message>
@@ -338,6 +346,18 @@ Would you like to enable the required services?</source>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>此应用应自动连接到您的自行车/跑步机/划船机。&lt;b&gt;如果没有连接，请检查&lt;/b&gt;：&lt;br&gt;1) 运行 qdomyos-zwift 时，必须关闭您的 Echelon/Domyos App；&lt;br&gt;2) 必须同时开启蓝牙和蓝牙权限&lt;br&gt;3) 应在启动此应用之前打开您的自行车/跑步机/划船机&lt;br&gt;4) 尝试重启您的设备&lt;br&gt;&lt;br&gt;如果您的自行车/跑步机每隔 30 秒断开一次连接，请尝试在左侧栏中禁用“虚拟设备”设置。&lt;br&gt;&lt;br&gt;如遇问题，欢迎通过 roberto.viola83@gmail.com 联系我。&lt;br&gt;&lt;br&gt;&lt;b&gt;祝您骑行愉快！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ 明确声明不对&lt;br&gt;附带或间接损害承担责任，&lt;br&gt;也不对任何人因使用或误用本应用&lt;br&gt;而遭受的任何损失&lt;br&gt;或损害承担任何责任。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>正在查找您的设备…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>请打开您的单车、跑步机或划船机：QZ 会自动连接。</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>无法连接？</translation>
     </message>
 </context>
 <context>

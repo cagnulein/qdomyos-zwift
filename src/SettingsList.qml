@@ -54,12 +54,12 @@ ColumnLayout {
         visible: window.ui.modern
         Layout.fillWidth: true
         Layout.fillHeight: true
-        Layout.leftMargin: settingsListPage.modernMargin
-        Layout.rightMargin: settingsListPage.modernMargin
         spacing: 8
 
         Label {
             Layout.fillWidth: true
+            Layout.leftMargin: settingsListPage.modernMargin
+            Layout.rightMargin: settingsListPage.modernMargin
             text: qsTr("Settings folder")
             color: window.ui.textMain
             font.pixelSize: window.ui.fontHeadline
@@ -70,6 +70,8 @@ ColumnLayout {
 
         Label {
             Layout.fillWidth: true
+            Layout.leftMargin: settingsListPage.modernMargin
+            Layout.rightMargin: settingsListPage.modernMargin
             text: qsTr("Tap a file to select it, then Load.")
             color: window.ui.textMuted
             font.pixelSize: window.ui.fontCaption
@@ -80,6 +82,8 @@ ColumnLayout {
         UiProgress {
             id: modernRestoreProgress
             Layout.fillWidth: true
+            Layout.leftMargin: settingsListPage.modernMargin
+            Layout.rightMargin: settingsListPage.modernMargin
             Layout.topMargin: 4
             done: rootItem.folderRestoreDone
             total: rootItem.folderRestoreTotal
@@ -91,6 +95,10 @@ ColumnLayout {
             Layout.fillHeight: true
             // the gap above the list is in the progress while it shows (UiProgress)
             Layout.topMargin: modernRestoreProgress.visible ? -parent.spacing : 4
+            // To the screen edge on the right: the cards keep the page margin (their width), and
+            // the scroll indicator, placed by Qt at the right edge of the list, goes into it as on
+            // the settings page, not over the cards
+            Layout.leftMargin: settingsListPage.modernMargin
             clip: true
             spacing: 8
             currentIndex: -1
@@ -119,7 +127,7 @@ ColumnLayout {
             delegate: UiFrame {
                 id: settingsCard
                 readonly property bool selected: ListView.isCurrentItem
-                width: ListView.view.width
+                width: ListView.view.width - settingsListPage.modernMargin
                 // Material 3 list item: one line at least 56, the icon and the button 16 from the
                 // edges, the text 16 after the icon; a bigger text grows it, 8 above and below
                 height: Math.max(56, Math.max(40, settingsName.implicitHeight) + 16)
@@ -197,6 +205,7 @@ ColumnLayout {
             Label {
                 parent: modernList
                 anchors.centerIn: parent
+                anchors.horizontalCenterOffset: -settingsListPage.modernMargin / 2
                 // only once the folder is read: the model fills in asynchronously; not while a
                 // restore copies the files of a previous install into it
                 visible: modernList.count === 0 && modernFolderModel.status === FolderListModel.Ready

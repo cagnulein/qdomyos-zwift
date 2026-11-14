@@ -21,6 +21,9 @@ ColumnLayout {
     readonly property bool sideBySide: !window.ui.modern || width > height
     // Modern look: side margin of the filter row, the list and the button
     readonly property int modernMargin: Math.max(16, window.contentSideMargin)
+    // ...and on the right: side by side 8 to the map - the scroll indicator of the list is 8 wide
+    // with its 4 dp bar in the middle (padding 2), so the bar stays 2 off the cards and 4 off the map
+    readonly property int modernRightMargin: sideBySide ? 8 : modernMargin
 
     // Case-insensitive name filter shared by the classic and the modern filter field
     function applyFilter(text) {
@@ -123,7 +126,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: 100
             Layout.leftMargin: gpxPage.modernMargin
-            Layout.rightMargin: gpxPage.sideBySide ? 4 : gpxPage.modernMargin
+            Layout.rightMargin: gpxPage.modernRightMargin
             Layout.topMargin: 8
 
             UiTextField {
@@ -161,45 +164,56 @@ ColumnLayout {
             }
         }
 
-        // The restore of a previous install above the list, which moves down for that time: one
-        // cell of the grid with the list, not a row of its own. Side by side the map spans the
-        // rows on the right, and a row it spans is kept and given a share of its height even with
-        // nothing else in it (QGridLayoutEngine::fillRowData), so a hidden progress there left
-        // an empty gap above the list.
-        ColumnLayout {
+        // Modern look: cards like the profile list. A tap on a folder opens it; a tap on a
+        // route selects it and shows it on the map, a second tap or Open loads it.
+        // A box of the list cell without the side margins: the cards keep them and the scroll
+        // indicator goes into the right one, at the screen edge as on the settings page (beside the
+        // map when side by side), not over the right edge of the cards
+        Item {
+            id: modernListBox
             visible: window.ui.modern
             Layout.row: 1
             Layout.column: 0
             Layout.fillWidth: true
             Layout.fillHeight: gpxPage.sideBySide
             Layout.preferredWidth: 100
-            Layout.leftMargin: gpxPage.modernMargin
-            Layout.rightMargin: gpxPage.sideBySide ? 4 : gpxPage.modernMargin
-            // the gap under the progress is its own (UiProgress)
-            spacing: 0
+            Layout.preferredHeight: gpxPage.sideBySide ? -1 : gpxPage.height * 0.4
 
+            // The restore of a previous install above the list, which moves down for that time: in
+            // the cell of the list, not a row of its own. Side by side the map spans the rows on the
+            // right, and a row it spans is kept and given a share of its height even with nothing
+            // else in it (QGridLayoutEngine::fillRowData), so a hidden progress there would leave an
+            // empty gap above the list. In portrait the cell keeps its height, so the map does not move
             UiProgress {
                 id: modernProgress
                 shown: window.ui.modern
-                Layout.fillWidth: true
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: gpxPage.modernMargin
+                anchors.rightMargin: gpxPage.modernRightMargin
                 done: rootItem.folderRestoreDone
                 total: rootItem.folderRestoreTotal
             }
 
-            // Modern look: cards like the profile list. A tap on a folder opens it; a tap on a
-            // route selects it and shows it on the map, a second tap or Open loads it.
             ListView {
                 id: modernList
-                Layout.fillWidth: true
-                Layout.fillHeight: gpxPage.sideBySide
-                // the map below takes the rest of the page: while the progress shows, its height
-                // comes out of the list, so the map does not move
-                Layout.preferredHeight: gpxPage.sideBySide ? -1 : gpxPage.height * 0.4 - modernProgress.height
+                anchors.fill: parent
+                // the gap under the progress is its own (UiProgress)
+                anchors.topMargin: modernProgress.height
+                anchors.leftMargin: gpxPage.modernMargin
+                anchors.rightMargin: gpxPage.modernRightMargin
                 clip: true
                 spacing: 8
                 boundsBehavior: Flickable.StopAtBounds
                 model: window.ui.modern ? folderModel : null
-                ScrollIndicator.vertical: ScrollIndicator {}
+                // with another parent Qt does not place it (QQuickScrollIndicatorAttachedPrivate::layoutVertical)
+                ScrollIndicator.vertical: ScrollIndicator {
+                    parent: modernListBox
+                    x: mirrored ? 0 : modernListBox.width - width
+                    y: modernList.y
+                    height: modernList.height
+                }
 
                 // The item, not the index, as in the classic list: a folder change or a new filter
                 // rebuilds the rows and can leave the index number as it was over another file
@@ -601,7 +615,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: 100
             Layout.leftMargin: gpxPage.modernMargin
-            Layout.rightMargin: gpxPage.sideBySide ? 4 : gpxPage.modernMargin
+            Layout.rightMargin: gpxPage.modernRightMargin
             // 16 to the pill: UiButton has a 6 inset below it
             Layout.bottomMargin: 10
             // a layout in a layout fills the height by default, and the fillHeight of the pills lifts its

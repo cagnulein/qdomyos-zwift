@@ -193,6 +193,14 @@ Vil du gjøre det nå?</translation>
         <translation>Hvile</translation>
     </message>
     <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
         <source>Very Light</source>
         <translation>Svært lett</translation>
     </message>
@@ -322,6 +330,18 @@ Vil du slå på de nødvendige tjenestene?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Denne appen skal koble seg automatisk til sykkelen/tredemøllen/romaskinen din. &lt;b&gt;Hvis den ikke gjør det, sjekk&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen MÅ være lukket mens qdomyos-zwift kjører,&lt;br&gt;2) både Bluetooth og Bluetooth-tillatelsene MÅ være slått på&lt;br&gt;3) sykkelen/tredemøllen/romaskinen bør slås på FØR du starter denne appen&lt;br&gt;4) prøv å starte enheten på nytt&lt;br&gt;&lt;br&gt;Hvis sykkelen/tredemøllen kobles fra hvert 30. sekund, kan du prøve å slå av innstillingen «Slå på virtuell enhet» i sidefeltet til venstre.&lt;br&gt;&lt;br&gt;Hvis du får problemer, kan du gjerne kontakte meg på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver seg uttrykkelig ansvar for&lt;br&gt;tilfeldige skader og følgeskader og påtar seg&lt;br&gt;intet ansvar for tap&lt;br&gt;eller skade noen måtte lide som følge av&lt;br&gt;bruk eller misbruk av appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Søker etter treningsapparatet …</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Slå på sykkelen, tredemøllen eller romaskinen: QZ kobler til automatisk.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Får du ikke koblet til?</translation>
     </message>
 </context>
 <context>
