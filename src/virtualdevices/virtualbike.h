@@ -28,6 +28,8 @@
 #include "devices/dircon/dirconmanager.h"
 #include "virtualdevices/virtualdevice.h"
 
+class bike;
+
 class virtualbike : public virtualdevice {
 
     Q_OBJECT
@@ -47,6 +49,23 @@ class virtualbike : public virtualdevice {
             return lastDirconFTMSFrameReceived;
     }
     double currentGear();
+
+    // FTMS BLE, DIRCON and the iOS bridge: in ERG with no app frame for 2 s the bike's last target is re-sent
+    static bool resendLastTargetPower(qint64 lastFrame, qint64 now, bool ergMode);
+
+    // iOS BLE bridge: Swift keeps the app's latest grade and target power, and only the first unread frame
+    struct IosAppCommands {
+        double slope = 0;
+        double crr = 0;
+        double cw = 0;
+        double power = 0;
+    };
+    // Used by bikeProvider() on bikes that support the T.Power release (issue 5316). Each app command is applied
+    // once, as on FTMS BLE and DIRCON, instead of re-sending the latest one every tick by zwift_erg, which the
+    // T.Power +/- also sets: re-sending the app's power there reset the tile's target to 0.
+    static void applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, bike *device, IosAppCommands &applied,
+                                    const QByteArray &frame, double slope, double crr, double cw, double power,
+                                    qint64 lastFrame, qint64 now, bool ergMode);
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -123,7 +142,8 @@ class virtualbike : public virtualdevice {
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-    
+    IosAppCommands iosAppCommands;
+
     // Struct to hold varint decoding result
     struct VarintResult {
        qint64 value;

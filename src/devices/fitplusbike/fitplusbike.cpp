@@ -1189,3 +1189,10 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
 resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
+
+bool fitplusbike::targetPowerReleaseSupported() {
+    // issue 5316: the T.Power(W) tile and the app's grade fought over the level on the Virtufit Etappe
+    // layout (FS-495B40) until the console stopped the workout
+    QSettings settings;
+    return virtufitEtappe || settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+}

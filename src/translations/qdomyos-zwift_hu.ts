@@ -292,6 +292,14 @@ Szeretné bekapcsolni a szükséges szolgáltatásokat?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Szeretne a következő alkalommal emlékeztetőt kapni a Bluetooth vagy a helyszolgáltatások bekapcsolásáról?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vissza az alkalmazásnak</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Visszaadja a terhelés vezérlését az alkalmazásnak</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

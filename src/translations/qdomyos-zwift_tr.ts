@@ -308,6 +308,14 @@ Gerekli hizmetleri açmak ister misiniz?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Bir dahaki sefere Bluetooth&apos;u veya konum hizmetlerini açmanız hatırlatılsın mı?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Uygulamaya geri ver</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Yük kontrolünü uygulamaya geri verir</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

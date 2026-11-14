@@ -1927,6 +1927,38 @@ void virtualbike::reconnect() {
 #endif
 }
 
+bool virtualbike::resendLastTargetPower(qint64 lastFrame, qint64 now, bool ergMode) {
+    return lastFrame > 0 && now > lastFrame + 2000 && ergMode;
+}
+
+void virtualbike::applyIosAppCommands(CharacteristicWriteProcessor2AD9 *writeP, bike *device,
+                                      IosAppCommands &applied, const QByteArray &frame, double slope, double crr,
+                                      double cw, double power, qint64 lastFrame, qint64 now, bool ergMode) {
+    const int cmd = frame.isEmpty() ? -1 : (uint8_t)frame.at(0);
+    bool slopeCommand = cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS;
+    bool powerCommand = cmd == FTMS_SET_TARGET_POWER;
+    if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL && frame.size() > 1) {
+        writeP->changeResistanceLevel(frame.at(1));
+    } else if (!slopeCommand && !powerCommand) {
+        // a command that arrived behind an unread frame only shows up in Swift's latest values
+        powerCommand = power != applied.power;
+        slopeCommand = !powerCommand && (slope != applied.slope || crr != applied.crr || cw != applied.cw);
+    }
+    if (powerCommand) {
+        applied.power = power;
+        writeP->changePowerFromApp(power);
+    } else if (slopeCommand) {
+        applied.slope = slope;
+        applied.crr = crr;
+        applied.cw = cw;
+        writeP->changeSlope(slope, crr, cw);
+    }
+    if (resendLastTargetPower(lastFrame, now, ergMode)) {
+        qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
+        writeP->changePower(device->lastRequestedPower().value());
+    }
+}
+
 void virtualbike::bikeProvider() {
 
     QSettings settings;
@@ -1976,7 +2008,14 @@ void virtualbike::bikeProvider() {
                                                QByteArray::fromRawData((char *)ftms_message, ret));
             }
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
-            if (lastFTMSFrameReceived > 0) {
+            if (lastFTMSFrameReceived > 0 && Bike->deviceType() == BIKE &&
+                ((bike *)Bike)->targetPowerReleaseSupported()) {
+                applyIosAppCommands(writeP2AD9, (bike *)Bike, iosAppCommands,
+                                    ret > 0 ? QByteArray((const char *)ftms_message, ret) : QByteArray(),
+                                    h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
+                                    h->virtualbike_getCurrentCW(), h->virtualbike_getPowerRequested(),
+                                    lastFTMSFrameReceived, QDateTime::currentMSecsSinceEpoch(), erg_mode);
+            } else if (lastFTMSFrameReceived > 0) {
                 if (!erg_mode)
                     writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
                                             h->virtualbike_getCurrentCW());
@@ -1997,8 +2036,7 @@ void virtualbike::bikeProvider() {
              << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << erg_mode;
     // zwift with the last update, seems to sending power request only when it actually wants to change it
     // so i need to keep this on to the bike
-    if (whenLastFTMSFrameReceived() > 0 &&
-        (QDateTime::currentMSecsSinceEpoch() > (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000))) && erg_mode) {
+    if (resendLastTargetPower(whenLastFTMSFrameReceived(), QDateTime::currentMSecsSinceEpoch(), erg_mode)) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
     }

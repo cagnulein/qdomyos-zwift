@@ -308,6 +308,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Напомнить о включении Bluetooth или служб геолокации в следующий раз?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Вернуть приложению</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Возвращает управление нагрузкой приложению</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

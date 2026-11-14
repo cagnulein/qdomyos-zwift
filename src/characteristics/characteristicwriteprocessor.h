@@ -20,6 +20,8 @@ class CharacteristicWriteProcessor : public QObject {
                                           bluetoothdevice *bike, QObject *parent = nullptr);
     virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) = 0;
     virtual void changePower(uint16_t power);
+    // target power sent by the app; bikeProvider() re-sends the bike's own target through changePower()
+    void changePowerFromApp(uint16_t power);
     virtual void changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw);
   signals:
     void changeInclination(double grade, double percentage);
