@@ -322,11 +322,20 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     QBluetoothUuid nobleproconnect(QStringLiteral("0000ae00-0000-1000-8000-00805f9b34fb"));
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString() + QStringLiteral(" ") +
                QString::number(servRepr));
-    if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+    if (finnlo_anplus_fitshow) {
+        // FINNLO Performance ANPLUS-00541 exposes a proprietary writable/notifiable
+        // FFB1 characteristic under FFB0. Do not select unrelated FitShow services.
+        if (servRepr == 0xffb0) {
+            qDebug() << "using FINNLO FFB0 FitShow candidate service" << gatt.toString();
+            serviceId = gatt;
+        }
+    } else if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 ||
+               (servRepr == 0xffe0 && serviceId.isNull())) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
-    if(gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected && !merach_t12_connected) {
+    if (gatt == QBluetoothUuid((quint16)0x1826) && !fs_connected && !tunturi_t80_connected &&
+        !merach_t12_connected && !finnlo_anplus_fitshow) {
         QSettings settings;
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
@@ -838,7 +847,13 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                 qDebug() << QStringLiteral("d -> ") << d.uuid();
             }
-            if (id32 == 0xffe1 || id32 == 0xfff2 || id32 == 0xae01) {
+            if (finnlo_anplus_fitshow && id32 == 0xffb1) {
+                // FFB1 is both the write and notify characteristic for this model.
+                if (c.properties() & (QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse))
+                    gattWriteCharacteristic = c;
+                if (c.properties() & QLowEnergyCharacteristic::Notify)
+                    gattNotifyCharacteristic = c;
+            } else if (id32 == 0xffe1 || id32 == 0xfff2 || id32 == 0xae01) {
                 gattWriteCharacteristic = c;
             } else if (id32 == 0xffe4 || id32 == 0xfff1 || id32 == 0xae02) {
                 gattNotifyCharacteristic = c;
@@ -919,6 +934,11 @@ void fitshowtreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 void fitshowtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
+    if (finnlo_anplus_fitshow && serviceId.isNull()) {
+        emit debug(QStringLiteral("FINNLO ANPLUS-00541: FFB0 service not found; no proprietary FitShow connection"));
+        return;
+    }
+
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
     if (!gattCommunicationChannelService) {
         qDebug() << "service not valid";
@@ -974,6 +994,10 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+    if (!device.name().compare(QStringLiteral("ANPLUS-00541"), Qt::CaseInsensitive)) {
+        finnlo_anplus_fitshow = true;
+        emit debug(QStringLiteral("FINNLO ANPLUS-00541: experimental FitShow FFB0/FFB1 path selected"));
+    }
     if (device.name().toUpper().startsWith(QStringLiteral("MRK-T12-"))) {
         merach_t12_connected = true;
     } else if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
