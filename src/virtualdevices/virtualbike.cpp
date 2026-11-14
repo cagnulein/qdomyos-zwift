@@ -1471,7 +1471,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else if (receivedData.startsWith(expectedHexArray3)) {
             qDebug() << "Zwift Play Ask 3";
 
-            QByteArray response = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+            QByteArray response = writeP0003->gearStatusResponse();
             writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
         }
         else if (receivedData.startsWith(expectedHexArray4)) {
