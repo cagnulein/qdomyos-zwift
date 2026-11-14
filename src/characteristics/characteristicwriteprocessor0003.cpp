@@ -57,8 +57,44 @@ qint32 CharacteristicWriteProcessor0003::decodeSInt(const QByteArray& bytes) {
     return decoded;
 }
 
+QByteArray CharacteristicWriteProcessor0003::gearStatusResponse() const {
+    QByteArray response = QByteArray::fromHex("3c08880412");
+    response.append(char(lastGearRatio.size() + 3));
+    response.append(char(0x0a));
+    response.append(char(lastGearRatio.size() + 1));
+    response.append(char(0x40));
+    response.append(lastGearRatio);
+    return response;
+}
+
 void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) {
+    if (array.size() < 2)
+        return;
+    int length = 0;
+    for (; length < array.size() && length < 3; ++length) {
+        if ((static_cast<quint8>(array.at(length)) & 0x80) == 0) {
+            ++length;
+            break;
+        }
+    }
+    if (length < 2 || length > 3 || (static_cast<quint8>(array.at(length - 1)) & 0x80))
+        return;
+    lastGearRatio = array.left(length);
+
     uint8_t g = 0;
+    QSettings settings;
+    if (settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool()) {
+        static const int ratios[] = {7500, 8700, 9800, 11000, 12000, 13100, 14100, 15300,
+                                     16700, 18300, 20400, 22000, 23900, 26200, 27500, 30600,
+                                     32400, 34400, 36700, 39300, 42300, 45800, 50000, 55000};
+        const qint64 ratio = decodeVarint(lastGearRatio, 0).value;
+        for (int i = 0; i < 24; ++i) {
+            if (ratio == ratios[i]) {
+                g = i + 1;
+                break;
+            }
+        }
+    } else {
     if (array.size() >= 2) {
         if ((uint8_t)array[0] == (uint8_t)0xCC && (uint8_t)array[1] == (uint8_t)0x3A) g = 1;
         else if ((uint8_t)array[0] == (uint8_t)0xFC && (uint8_t)array[1] == (uint8_t)0x43) g = 2;
@@ -90,7 +126,9 @@ void CharacteristicWriteProcessor0003::handleZwiftGear(const QByteArray &array) 
         else { return; }
     }
 
-    QSettings settings;
+    }
+    if (!g || !Bike)
+        return;
     if(settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool()) {
         int actGear = ((bike*)Bike)->gears();
         if (g < actGear) {
@@ -225,7 +263,7 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
     }
     else if (receivedData.startsWith(expectedHexArray3)) {
         qDebug() << "Zwift Play Processor: Status request";
-        reply = QByteArray::fromHex("3c0888041206 0a0440c0bb01");
+        reply = gearStatusResponse();
         notifier0004->addAnswer(reply);
     }
     else if (receivedData.startsWith(expectedHexArray4) || receivedData.startsWith(expectedHexArray4b)) {
