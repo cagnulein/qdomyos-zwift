@@ -645,6 +645,7 @@ class homeform : public QObject {
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
     void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
+    void notifyFitPrefixRowerDetected() { emit fitPrefixRowerDetected(); }
     // Wahoo trainer at its first connection: true while QZ waits for the answer to the wheel circumference
     // question (asks it once per session), false when it is answered or was never needed
     bool wahooWheelQuestionPending();
@@ -1469,6 +1470,7 @@ public:
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
     void restartToApplyRequested(QString message);
+    void fitPrefixRowerDetected();
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
     void garminWorkoutPromptRequestedChanged(bool value);

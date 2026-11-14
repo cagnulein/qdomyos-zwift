@@ -2504,6 +2504,8 @@ import AndroidStatusBar 1.0
             property string ui_theme_mode: "auto"
             property bool proform_treadmill_cst_505_pftl59420_2026: false
             property bool proform_use_console_gears: false
+            property bool fit_prefix_rower: false
+            property bool fit_prefix_rower_detection_done: false
 
         }
 
@@ -2527,6 +2529,7 @@ import AndroidStatusBar 1.0
             target: rootItem
             function onHeartRateSensorChosenFromOffer(name) { settings.heart_rate_belt_name = name }
             function onHeartRateSensorOfferTurnedOff() { settings.heart_rate_belt_suggest = false }
+            function onFitPrefixRowerDetected() { settings.fit_prefix_rower = true; settings.fit_prefix_rower_detection_done = true }
         }
 
         // The same for the Wahoo wheel circumference question (main.qml): No turns on the option from C++
@@ -14251,6 +14254,25 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: fitPrefixRowerSwitch
+                        text: qsTr("FIT- FTMS Rower")
+                        checked: settings.fit_prefix_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: {
+                            settings.fit_prefix_rower_detection_done = true
+                            settings.fit_prefix_rower = checked
+                            window.settings_restart_to_apply = true
+                        }
+                    }
+                    Label {
+                        text: qsTr("Treat FIT- devices as FTMS rowers. Enable this only for a rower; restart QZ to apply.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        font.pixelSize: window.fontHint
                     }
 
                     CheckBox {

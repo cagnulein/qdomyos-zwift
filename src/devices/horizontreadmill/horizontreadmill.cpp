@@ -1612,10 +1612,22 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     bool distanceEval = false;
     bool cadenceAvailable = false;
     QSettings settings;
+    // Only react to actual FTMS rower notifications, not just a shared FIT- name.
+    if (bluetoothDevice.name().startsWith(QStringLiteral("FIT-"), Qt::CaseInsensitive) &&
+        characteristic.uuid() == QBluetoothUuid((quint16)0x2AD1) && newValue.size() >= 5 &&
+        !settings.value(QZSettings::fit_prefix_rower_detection_done, QZSettings::default_fit_prefix_rower_detection_done).toBool()) {
+        settings.setValue(QZSettings::fit_prefix_rower_detection_done, true);
+        settings.setValue(QZSettings::fit_prefix_rower, true);
+        settings.sync();
+        if (homeform::singleton()) {
+            homeform::singleton()->notifyFitPrefixRowerDetected();
+            homeform::singleton()->requestRestartToApply(QObject::tr("QZ detected rowing data and enabled FIT- FTMS Rower in Rower Options. Restart QZ to connect as a rower."));
+        }
+        return;
+    }
     // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
     // QZSettings::default_horizon_paragon_x).toBool();
     bool disable_hr_frommachinery =

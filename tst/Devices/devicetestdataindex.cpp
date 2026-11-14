@@ -733,6 +733,13 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceNames({"CR 00","KAYAKPRO","WHIPR", "KS-WLT", "I-ROWER", "S4 COMMS", "FIT-RW-"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"PM5ROW","PM5XROW","SF-RW"}, DeviceNameComparison::IgnoreCase);
 
+    // FIT- is shared by treadmills and rowers: the override must take priority
+    // over Horizon's name match only when explicitly enabled.
+    RegisterNewDeviceTestData(QStringLiteral("FIT prefix FTMS rower"))
+        ->expectDevice<ftmsrower>()
+        ->acceptDeviceName("FIT-D5B2", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::fit_prefix_rower);
+
     // Horizon GR7 Bike
     RegisterNewDeviceTestData(DeviceIndex::HorizonGR7Bike)
         ->expectDevice<horizongr7bike>()
