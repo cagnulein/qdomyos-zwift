@@ -79,11 +79,13 @@ class nordictrackifitadbelliptical : public elliptical {
     void stopFitProMetricsUpdates();
     double getFitProSpeed();
     double getFitProIncline();
+    double getFitProDistance();
     double getFitProWatts();
     double getFitProCadence();
     double getFitProResistance();
     double getFitProHeartRate();
     void setFitProResistance(double resistance);
+    void setFitProIncline(double incline);
     bool fitproInitialized = false;
     uint16_t watts() override;
     double getDouble(QString v);
