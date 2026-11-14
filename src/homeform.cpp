@@ -10696,6 +10696,12 @@ QStringList homeform::bluetoothDevices() {
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
 
+    // Include network-discovered DIRCON equipment alongside Bluetooth devices.
+    if (bluetoothManager) {
+        for (const DirconDeviceInfo &dev : bluetoothManager->dirconDevices())
+            r.append(dev.displayName);
+    }
+
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
