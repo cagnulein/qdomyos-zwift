@@ -5,6 +5,39 @@
 
 #include "devices/ftmsbike/ftmsbike.h"
 
+TEST(FtmsBikeResistanceTest, MatrixR30XrUses16BitResistanceForAnyMxRbSuffix) {
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D41")));
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("mx-rb 4d41")));
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D42")));
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D4")));
+    EXPECT_TRUE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RB 4D41 extra")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-TM 4D41")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("Other 4D41")));
+    EXPECT_FALSE(ftmsbike::uses16BitResistanceForDevice(QStringLiteral("MX-RBXR 4D41")));
+}
+
+TEST(FtmsBikeResistanceTest, MatrixR30XrOnlyAdvancesQueueForMatchingFtmsControlAck) {
+    const QBluetoothUuid controlPoint((quint16)0x2AD9);
+    const QBluetoothUuid indoorBikeData((quint16)0x2AD2);
+
+    // The request-control reply may arrive while other FTMS notifications are
+    // streaming. Only the matching control-point indication may unblock writes.
+    EXPECT_TRUE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("800001"), FTMS_REQUEST_CONTROL));
+    EXPECT_TRUE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("800401"), FTMS_SET_TARGET_RESISTANCE_LEVEL));
+    EXPECT_TRUE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("800405"), FTMS_SET_TARGET_RESISTANCE_LEVEL));
+    EXPECT_FALSE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("800701"), FTMS_REQUEST_CONTROL));
+    EXPECT_FALSE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("800401"), FTMS_REQUEST_CONTROL));
+    EXPECT_FALSE(ftmsbike::isMatchingFtmsControlResponse(
+        indoorBikeData, QByteArray::fromHex("800001"), FTMS_REQUEST_CONTROL));
+    EXPECT_FALSE(ftmsbike::isMatchingFtmsControlResponse(
+        controlPoint, QByteArray::fromHex("8000"), FTMS_REQUEST_CONTROL));
+}
+
 TEST(FtmsBikeResistanceTest, NormalizesOnlyExactZBike20Name) {
     EXPECT_EQ(ftmsbike::normalizedResistanceForDevice(QStringLiteral("ZBike2.0"), 50), 0);
     EXPECT_EQ(ftmsbike::normalizedResistanceForDevice(QStringLiteral("ZBike2.0"), 60), 1);
