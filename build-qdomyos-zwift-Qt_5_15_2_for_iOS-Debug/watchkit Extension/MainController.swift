@@ -7,6 +7,7 @@
 //
 
 import WatchKit
+import SwiftUI
 import HealthKit
 import CoreMotion
 
@@ -150,4 +151,13 @@ extension Locale
    {
       return (self as NSLocale).object(forKey: NSLocale.Key.measurementSystem) as? String
    }
+}
+
+// A dedicated, full-screen native music page. This controls whatever is
+// playing on the watch or its paired iPhone, without changing QZ's workout.
+// MusicKit's SystemMusicPlayer is not available on watchOS.
+final class NowPlayingController: WKHostingController<NowPlayingView> {
+    override var body: NowPlayingView {
+        NowPlayingView()
+    }
 }
