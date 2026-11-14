@@ -303,3 +303,36 @@ TEST_P(MerachT12PriorityTestSuite, FitShowTakesPriorityOverFitPlus) {
 
 INSTANTIATE_TEST_SUITE_P(MerachT12Priority, MerachT12PriorityTestSuite,
                          testing::Values(DeviceIndex::FitShowMerachT12));
+
+// The M3 MAX is named "YPTM-U" + the last three bytes of its Bluetooth address. The YPOO treadmill has
+// no enabling configuration, so the valid-name test above never tries its names: check the rule here.
+class YpooTreadmillNameTestSuite : public BluetoothDeviceTestSuite {};
+
+TEST_P(YpooTreadmillNameTestSuite, TwelveCharacterYptmUNameUsesTheYpooDriver) {
+    const auto *horizonData = DeviceTestDataIndex::GetTestData(DeviceIndex::HorizonTreadmill);
+    ASSERT_NE(nullptr, horizonData);
+
+    bluetooth bt(this->defaultDiscoveryOptions);
+
+    for (const QString &name : {QStringLiteral("YPTM-UA1B2C3"), QStringLiteral("yptm-ua1b2c3")}) {
+        auto configs = this->getConfigurations(this->testParam, name, true);
+        ASSERT_FALSE(configs.empty());
+        this->testSettings.loadFrom(configs[0]);
+        this->applyCiSafeRuntimeSettings();
+        this->testDeviceDetection(this->testParam, bt, *configs[0].DeviceInfo(), true, true,
+                                  QStringLiteral("A 12-character YPTM-U name should use the YPOO driver, got a {typeName}"));
+    }
+
+    // Other lengths keep the Horizon driver's YPTM- match.
+    for (const QString &name : {QStringLiteral("YPTM-UA1B2C"), QStringLiteral("YPTM-UA1B2C3D")}) {
+        auto configs = this->getConfigurations(horizonData, name, true);
+        ASSERT_FALSE(configs.empty());
+        this->testSettings.loadFrom(configs[0]);
+        this->applyCiSafeRuntimeSettings();
+        this->testDeviceDetection(horizonData, bt, *configs[0].DeviceInfo(), true, true,
+                                  QStringLiteral("Other YPTM-U names should stay with Horizon, got a {typeName}"));
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(YpooTreadmillName, YpooTreadmillNameTestSuite,
+                         testing::Values(DeviceIndex::YpooTreadmill));

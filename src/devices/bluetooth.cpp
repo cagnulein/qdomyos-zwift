@@ -1885,7 +1885,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("YPTM-U0"), Qt::CaseInsensitive) ||
-                        b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive)) &&
+                        b.name().startsWith(QStringLiteral("YP-M1552-"), Qt::CaseInsensitive) ||
+                        // M3 MAX: "YPTM-U" + the last three bytes of the Bluetooth address
+                        (b.name().startsWith(QStringLiteral("YPTM-U"), Qt::CaseInsensitive) &&
+                         b.name().length() == 12)) &&
                        !ypooTreadmill && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

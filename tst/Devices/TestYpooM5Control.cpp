@@ -395,6 +395,17 @@ TEST(YpooM5ControlTest, EnforcesAdvertisedRangesAndResolution) {
     EXPECT_DOUBLE_EQ(control.next(600).value, -6);
 }
 
+TEST(YpooM5ControlTest, M3MaxInclineCeilingSurvivesAReconnection) {
+    YpooM5Control control;
+    control.setMaxIncline(42);
+    control.reset();
+    control.telemetry(1, 0, 0);
+    ASSERT_TRUE(control.requestIncline(42));
+    EXPECT_DOUBLE_EQ(control.next(0).value, 42);
+    EXPECT_FALSE(control.requestIncline(43));
+    EXPECT_FALSE(control.requestIncline(-7));
+}
+
 TEST(YpooM5ControlTest, HalfStepInclineRequestsMoveInBothDirectionsIncludingDecline) {
     struct Example {
         double actual;

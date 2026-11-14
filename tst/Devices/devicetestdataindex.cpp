@@ -745,6 +745,8 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::YpooTreadmill)
         ->expectDevice<ypootreadmill>()
         ->acceptDeviceNames({"YPTM-U0", "YP-M1552-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        // M3 MAX: "YPTM-U" + the last three bytes of the Bluetooth address, 12 characters
+        ->acceptDeviceName("YPTM-U", DeviceNameComparison::StartsWithIgnoreCase, 12)
         ->excluding<horizontreadmill>();
 
     // Horizon Treadmill
