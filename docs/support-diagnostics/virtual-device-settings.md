@@ -126,3 +126,25 @@
 - In a reproduced comparison, the physical treadmill link was stable without virtual advertising and also stayed connected when its accessory connections were already occupied. This is useful evidence of an advertising/connection interaction, **not proof** that the treadmill connected to QZ's virtual heart-rate service.
 - Some compatibility settings alter the **advertised virtual services**, not merely the physical link. A test that stabilizes the physical treadmill but removes virtual FTMS may prevent the receiving app from controlling it; evaluate those outcomes separately.
 - Paired A/B logs and a single changed option distinguish a repeatable interaction from unrelated backgrounding, startup timing, or app pairing differences.
+
+## Garmin watch sees QZ's virtual running sensor but pairing times out
+
+### Provide first
+
+- Garmin watch model, firmware version if known, QZ iPhone/iPad model and iOS version, and the installed QZ build.
+- Confirm that treadmill speed updates **inside QZ** before attempting watch pairing. Identify the treadmill model and whether the watch is recording a **Treadmill** activity rather than using QZ's completed-workout upload.
+- Screenshot QZ's **Virtual Device**, **Virtual Device Bluetooth**, and **Garmin Options > Garmin Bluetooth Sensor** selections. State whether QZ was fully restarted after changing them.
+- Describe the watch's **Sensors & Accessories** search result: is the QZ running sensor absent, visible but timing out, paired but not supplying speed, or dropping later? Include the exact error or a screenshot.
+- State whether the Garmin watch's **Phone Connection** to the same iPhone was enabled during the attempt. Record the result of one comparison with only that watch-phone connection temporarily disabled; keep the iPhone's Bluetooth enabled.
+
+### If still unclear
+
+- Record the exact pairing order: QZ startup, treadmill connection, watch sensor search, and start of the watch's Treadmill activity. Note any previously saved failed QZ sensor entry and whether it was removed before retrying.
+- Check whether the watch actually receives running speed/distance during a short treadmill activity, not merely whether sensor pairing reports success. Restore the watch's phone connection after the test.
+- If it still fails, provide a short QZ debug log spanning virtual-sensor startup and the pairing attempt, plus the watch's sensor screen. Change no other virtual profiles during the comparison.
+
+### Why it matters
+
+- Live treadmill telemetry, QZ's Bluetooth RSC advertisement, Garmin sensor pairing, and activity recording are separate stages. The first failed stage determines which evidence is useful next.
+- A confirmed watch-pairing timeout was resolved by temporarily disconnecting the watch's phone link while leaving the iPhone's Bluetooth on. This comparison helps distinguish competing phone connectivity from a missing virtual RSC advertisement, without assuming the same cause for every Garmin model.
+- Garmin's Bluetooth running sensor is different from its cycling power sensor and from uploading a completed FIT activity. See the [Garmin integration FAQ](../faq/integrations.md) for supported setup guidance.
