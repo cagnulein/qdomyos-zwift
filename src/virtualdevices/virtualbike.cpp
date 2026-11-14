@@ -44,6 +44,20 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
 
+    bool garminAndroidPowerSensor = false;
+#ifdef Q_OS_ANDROID
+    // Keep the ordinary Android virtual bike unchanged unless the Garmin option is enabled.
+    // Garmin expects the Cycling Power profile, not an FTMS/CSC/HR combination.
+    garminAndroidPowerSensor =
+        garmin_bluetooth_compatibility && !virtual_device_tacx && !echelon && !ifit && !heart_only;
+    if (garminAndroidPowerSensor) {
+        power = true;
+        cadence = false;
+        battery = false;
+        service_changed = false;
+    }
+#endif
+
     if(virtual_device_tacx)
         power = true;
 
@@ -63,7 +77,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         notif2ACD = new CharacteristicNotifier2ACD(Bike, this);
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
-    notif2A63 = new CharacteristicNotifier2A63(Bike, this);
+    notif2A63 = new CharacteristicNotifier2A63(Bike, this, garminAndroidPowerSensor);
     notif2A37 = new CharacteristicNotifier2A37(Bike, this);
     notif2A5B = new CharacteristicNotifier2A5B(Bike, this);
     notif0002 = new CharacteristicNotifier0002(Bike, this);
@@ -90,7 +104,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-        advertisingData.setIncludePowerLevel(true);
+        advertisingData.setIncludePowerLevel(!garminAndroidPowerSensor);
 
         if(virtual_device_tacx) {
           advertisingData.setLocalName(QStringLiteral("QZ SMART TRAINER"));
@@ -272,7 +286,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
                 }
             }
-            if (!this->noHeartService || heart_only) {
+            if ((!this->noHeartService || heart_only) && !garminAndroidPowerSensor) {
                 services << QBluetoothUuid::HeartRate;
             }
         } else if (ifit) {
@@ -705,7 +719,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceBattery = leController->addService(serviceDataBattery);
         }
 
-        if (!this->noHeartService || heart_only) {
+        if ((!this->noHeartService || heart_only) && !garminAndroidPowerSensor) {
             serviceHR = leController->addService(serviceDataHR);
         }
 
@@ -744,7 +758,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         }
 
 #ifdef Q_OS_ANDROID
-        if (virtual_device_tacx) {
+        if (garminAndroidPowerSensor) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingGarminCyclingPower",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+        } else if (virtual_device_tacx) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingTacxNeo2T",
                                                       "(Landroid/content/Context;)V",
@@ -1857,6 +1876,19 @@ void virtualbike::reconnect() {
         useRealEchelonName ? Bike->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
+    bool garminAndroidPowerSensor = false;
+#ifdef Q_OS_ANDROID
+    garminAndroidPowerSensor =
+        settings.value(QZSettings::garmin_bluetooth_compatibility,
+                       QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
+        !virtual_device_tacx && !echelon && !ifit && !heart_only;
+    if (garminAndroidPowerSensor) {
+        power = true;
+        cadence = false;
+        battery = false;
+        service_changed = false;
+    }
+#endif
 
     if (virtual_device_tacx)
         power = true;
@@ -1911,14 +1943,19 @@ void virtualbike::reconnect() {
     if (battery)
         serviceBattery = leController->addService(serviceDataBattery);
 
-    if (!this->noHeartService || heart_only)
+    if ((!this->noHeartService || heart_only) && !garminAndroidPowerSensor)
         serviceHR = leController->addService(serviceDataHR);
 #endif
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    if (virtual_device_tacx) {
+    if (garminAndroidPowerSensor) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingGarminCyclingPower",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    } else if (virtual_device_tacx) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingTacxNeo2T",
                                                   "(Landroid/content/Context;)V",
@@ -1950,6 +1987,16 @@ void virtualbike::bikeProvider() {
     bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
+#ifdef Q_OS_ANDROID
+    const bool garminAndroidPowerSensor =
+        settings.value(QZSettings::garmin_bluetooth_compatibility,
+                       QZSettings::default_garmin_bluetooth_compatibility).toBool() &&
+        !virtual_device_tacx && !echelon && !ifit && !heart_only;
+    if (garminAndroidPowerSensor) {
+        power = true;
+        cadence = false;
+    }
+#endif
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     double normalizeWattage = Bike->wattsMetricforUI();
