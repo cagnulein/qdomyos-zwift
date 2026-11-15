@@ -277,49 +277,45 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t LastCrankEventTimeRead =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
-        // Keep CSC counters synchronized even while FTMS is preferred, so the
-        // first fallback packet does not include minutes of accumulated revolutions.
-        if (!externalCadenceDisabled || ftmsCadenceFresh) {
-            oldLastCrankEventTime = LastCrankEventTimeRead;
-            oldCrankRevs = CrankRevsRead;
+        if (!cscBaselineReceived) {
+            oldCscLastCrankEventTime = LastCrankEventTimeRead;
+            oldCscCrankRevs = CrankRevsRead;
+            cscBaselineReceived = true;
             lastRefreshCharacteristicChanged2A5B = now;
             return;
         }
 
-        int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
-        if (deltaT < 0) {
-            deltaT = LastCrankEventTimeRead + 65536 - oldLastCrankEventTime;
+        // Update CSC counters even if FTMS or an external sensor currently wins.
+        // Keep them distinct from the Cycling Power revolution counters.
+        const uint16_t deltaT = static_cast<uint16_t>(LastCrankEventTimeRead - oldCscLastCrankEventTime);
+        const uint16_t crankDelta = static_cast<uint16_t>(CrankRevsRead - oldCscCrankRevs);
+        oldCscLastCrankEventTime = LastCrankEventTimeRead;
+        oldCscCrankRevs = CrankRevsRead;
+        if (!externalCadenceDisabled || ftmsCadenceFresh) {
+            lastRefreshCharacteristicChanged2A5B = now;
+            return;
         }
 
         // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
         if(m_watt.value() == 0) {
             Cadence = 0;
-        } else if (CrankRevsRead != oldCrankRevs && deltaT) {
-            // Calculate crank revolution delta, handling potential rollover
-            int32_t crankDelta = (int32_t)CrankRevsRead - (int32_t)oldCrankRevs;
-
-            // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
-            if (crankDelta < 0 && crankDelta > -100) {
-                // Assume 16-bit rollover for crank revs
-                crankDelta += 65536;
-            } else if (crankDelta < -100) {
-                // Invalid data - large negative jump, skip this update
-                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
-                // Keep last good cadence, will timeout after 2s
-            } else if (crankDelta > 0 && deltaT > 0) {
-                // Valid positive change
-                double cadence = (crankDelta / (double)deltaT) * 1024.0 * 60.0;
-                if (cadence >= 0 && cadence < 255) {
+        } else if (crankDelta > 0 && deltaT > 0) {
+            if (crankDelta <= 32) {
+                const double cadence = (crankDelta / double(deltaT)) * 1024.0 * 60.0;
+                if (cadence > 0 && cadence < 255) {
                     Cadence = cadence;
+                    lastNativeCadence = cadence;
+                    lastValidNativeCadence = now;
+                    lastGoodCscCadence = now;
                 }
-                lastGoodCadence = now;
+            } else {
+                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
             }
-        } else if (lastGoodCadence.msecsTo(now) > 2000) {
-            Cadence = 0;
+        } else if (lastGoodCscCadence.msecsTo(now) > 2000) {
+            Cadence = (lastValidNativeCadence.isValid() &&
+                       lastValidNativeCadence.msecsTo(now) <= 2000)
+                          ? lastNativeCadence : 0;
         }
-
-        oldLastCrankEventTime = LastCrankEventTimeRead;
-        oldCrankRevs = CrankRevsRead;
 
         Speed = Cadence.value() *
                 settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
@@ -501,13 +497,18 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                 cadence =
                                     cadence /
                                     2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                            if (cadence >= 0 && cadence < 255) {
-                                Cadence = cadence;
+                            if (cadence > 0 && cadence < 255) {
+                                lastNativeCadence = cadence;
+                                lastValidNativeCadence = now;
+                                if (!ftmsCadenceFresh)
+                                    Cadence = cadence;
+                                lastGoodCadence = now;
                             }
-                            lastGoodCadence = now;
                         }
-                    } else if (lastGoodCadence.msecsTo(now) > 2000) {
-                        Cadence = 0;
+                    } else if (lastGoodCadence.msecsTo(now) > 2000 && !ftmsCadenceFresh) {
+                        Cadence = (lastValidNativeCadence.isValid() &&
+                                   lastValidNativeCadence.msecsTo(now) <= 2000)
+                                      ? lastNativeCadence : 0;
                     }
                 }
 
@@ -667,9 +668,11 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     Cadence = ftmsCadence;
                     lastValidFtmsCadence = now;
                 } else if (!ftmsCadenceFresh) {
-                    // FTMS no longer has usable cadence. CSC can replace this
-                    // value on its next notification; never latch onto FTMS forever.
-                    Cadence = 0;
+                    // Keep the most recent Cycling Power / CSC fallback when FTMS
+                    // returns zero, rather than alternating between zero and RPM.
+                    Cadence = (lastValidNativeCadence.isValid() &&
+                               lastValidNativeCadence.msecsTo(now) <= 2000)
+                                  ? lastNativeCadence : 0;
                 }
             }
             index += 2;
