@@ -33,7 +33,7 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 uint16_t watts;
                 watts = (uint16_t)((uint8_t)data.at(1)) + (((uint16_t)((uint8_t)data.at(2))) << 8);
                 qDebug() << "erg mode" << watts;
-                changePower(watts);
+                changePowerFromApp(watts);
             }
         } else if (dt == TREADMILL || dt == ELLIPTICAL) {
         }

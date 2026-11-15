@@ -62,6 +62,12 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.cadence", QT_TRANSLATE_NOOP("WebTranslations", "Cadence")},
     {"workoutEditor.power", QT_TRANSLATE_NOOP("WebTranslations", "Power")},
     {"workoutEditor.forceSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Force Speed")},
+    //: Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.
+    {"workoutEditor.pidHrMode", QT_TRANSLATE_NOOP("WebTranslations", "HR PID actuator")},
+    //: Workout editor, "HR PID actuator" option: use the global "PID HR actuator" setting.
+    {"workoutEditor.pidHrModeDefault", QT_TRANSLATE_NOOP("WebTranslations", "Default")},
+    {"workoutEditor.pidHrModeSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Speed")},
+    {"workoutEditor.pidHrModeInclination", QT_TRANSLATE_NOOP("WebTranslations", "Inclination")},
     {"workoutEditor.fan", QT_TRANSLATE_NOOP("WebTranslations", "Fan")},
     {"workoutEditor.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Res.")},
     //: Workout editor field: interval in seconds between heart-rate based adjustments of the machine (1-60 s). Avoid technical words like "loop".

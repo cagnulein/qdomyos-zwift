@@ -24,6 +24,17 @@ bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName
            static_cast<uint8_t>(newValue.at(2)) == 0x30;
 }
 
+// Some WLT8266BM bikes send 0x31 packets with a nonzero byte 3.
+// In the 2026-10-30 capture these packets produced impossible 302-394 RPM
+// spikes, while all normal cadence packets had byte 3 == 0.
+// Reject only the cadence value on the WLT8266BM model family; keep other
+// models and resistance data unaffected.
+bool apexbike::isWlt8266bmCadenceSpikePacket(const QString &deviceName, const QByteArray &newValue) {
+    return deviceName.startsWith(QStringLiteral("WLT8266BM"), Qt::CaseInsensitive) &&
+           newValue.length() == 10 && static_cast<uint8_t>(newValue.at(2)) == 0x31 &&
+           static_cast<uint8_t>(newValue.at(3)) != 0;
+}
+
 uint16_t apexbike::wlt8266bmDistanceCounterFromPacket(const QByteArray &newValue) {
     return (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(3))) << 8) |
            static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(4)));
@@ -192,7 +203,12 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = rawCadence * 2;
+                if (isWlt8266bmCadenceSpikePacket(bluetoothDevice.name(), newValue)) {
+                    qDebug() << QStringLiteral("Ignoring suspicious WLT8266BM cadence packet; keeping previous cadence")
+                             << Cadence.value();
+                } else {
+                    Cadence = rawCadence * 2;
+                }
             }
 
             qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value()) + QStringLiteral(", Raw cadence: ") + QString::number(rawCadence) + QStringLiteral(", Final cadence: ") + QString::number(Cadence.value());

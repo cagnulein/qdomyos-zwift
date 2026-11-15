@@ -6,6 +6,7 @@
 
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
 #include <QtAndroid>
 #include <QtEndian>
 #endif
@@ -222,4 +223,87 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     const QHostAddress fallback = bestLocalIPv4(interfaces);
     qDebug() << "getIP fallback" << fallback;
     return fallback;
+}
+
+#ifdef Q_OS_ANDROID
+namespace {
+
+// A Java call that threw (NetworkInterface.getNetworkInterfaces() and isUp() throw SocketException):
+// clear it, or the next JNI call aborts the app
+bool javaFailed(QAndroidJniEnvironment &env) {
+    if (!env->ExceptionCheck()) {
+        return false;
+    }
+    env->ExceptionClear();
+    return true;
+}
+
+// The IPv4 addresses of the interfaces that are up, Wi-Fi (wlan*) first.
+// Qt 5.15.0 reads the interfaces with the netlink request RTM_GETLINK, which Android 11+ refuses to apps
+// that target API 30+ (QTBUG-86394, fixed in Qt 5.15.2 by building QNetworkInterface without netlink on
+// Android), so QNetworkInterface::allAddresses() is empty there. java.net.NetworkInterface needs no
+// permission and still lists the interfaces that have an IP address (Android 11 hides their MAC address).
+QList<QHostAddress> javaIPv4() {
+    QList<QHostAddress> wifi;
+    QList<QHostAddress> other;
+    QAndroidJniEnvironment env;
+    QAndroidJniObject interfaces = QAndroidJniObject::callStaticObjectMethod(
+        "java/net/NetworkInterface", "getNetworkInterfaces", "()Ljava/util/Enumeration;");
+    if (javaFailed(env) || !interfaces.isValid()) {
+        return wifi;
+    }
+    while (interfaces.callMethod<jboolean>("hasMoreElements")) {
+        QAndroidJniObject networkInterface = interfaces.callObjectMethod("nextElement", "()Ljava/lang/Object;");
+        if (javaFailed(env) || !networkInterface.isValid()) {
+            break;
+        }
+        const bool up = networkInterface.callMethod<jboolean>("isUp");
+        if (javaFailed(env) || !up) {
+            continue;
+        }
+        const QString name = networkInterface.callObjectMethod("getName", "()Ljava/lang/String;").toString();
+        QAndroidJniObject addresses =
+            networkInterface.callObjectMethod("getInetAddresses", "()Ljava/util/Enumeration;");
+        if (javaFailed(env) || !addresses.isValid()) {
+            continue;
+        }
+        while (addresses.callMethod<jboolean>("hasMoreElements")) {
+            QAndroidJniObject inetAddress = addresses.callObjectMethod("nextElement", "()Ljava/lang/Object;");
+            if (javaFailed(env) || !inetAddress.isValid()) {
+                break;
+            }
+            const QString host = inetAddress.callObjectMethod("getHostAddress", "()Ljava/lang/String;").toString();
+            const QHostAddress address(host);
+            if (javaFailed(env) || address.protocol() != QAbstractSocket::IPv4Protocol || address.isLoopback()) {
+                continue;
+            }
+            if (name.startsWith(QStringLiteral("wlan"))) {
+                wifi.append(address);
+            } else {
+                other.append(address);
+            }
+        }
+    }
+    return wifi + other;
+}
+
+} // namespace
+#endif
+
+QList<QHostAddress> localipaddress::allIPv4() {
+#ifdef Q_OS_ANDROID
+    const QList<QHostAddress> fromJava = javaIPv4();
+    qDebug() << "allIPv4 from Java" << fromJava;
+    if (!fromJava.isEmpty()) {
+        return fromJava;
+    }
+#endif
+    QList<QHostAddress> addresses;
+    const QHostAddress localhost = QHostAddress(QHostAddress::LocalHost);
+    for (const QHostAddress &address : QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
+            addresses.append(address);
+        }
+    }
+    return addresses;
 }

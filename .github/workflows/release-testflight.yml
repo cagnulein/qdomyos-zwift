@@ -2,8 +2,8 @@ name: Release iOS to TestFlight
 
 on:
   pull_request:
-    branches:
-      - master
+    # Allow labeled same-repository stacked PRs that target non-master branches.
+    # The release-ios job below still refuses fork PRs with signing secrets.
     types:
       - labeled
   workflow_dispatch:
@@ -140,6 +140,7 @@ jobs:
 
       - name: Run the Xcode Cloud setup scripts
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CI_PRIMARY_REPOSITORY_PATH: ${{ github.workspace }}
           STRAVA_SECRET_KEY: ${{ secrets.strava_secret_key }}
           PELOTON_SECRET_KEY: ${{ secrets.peloton_secret_key }}

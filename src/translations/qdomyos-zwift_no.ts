@@ -61,12 +61,83 @@
         <translation>Filter</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Åpne</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Ingen GPX-filer her</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
         <source>Distance %1 km Elevation Gain: %2 meters</source>
         <translation>Distanse: %1 km, høydemeter: %2 m</translation>
     </message>
     <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gjenopprett filer</translation>
+    </message>
+</context>
+<context>
+    <name>HeartRateSuggestion</name>
+    <message>
+        <source>Heart rate sensor found: %1</source>
+        <translation>Pulsmåler funnet: %1</translation>
+    </message>
+    <message>
+        <source>Heart rate sensors found: %1</source>
+        <translation>Pulsmålere funnet: %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Koble til</translation>
+    </message>
+    <message>
+        <source>Choose</source>
+        <translation>Velg</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Ikke nå</translation>
+    </message>
+    <message>
+        <source>Don&apos;t ask again</source>
+        <translation>Ikke spør igjen</translation>
+    </message>
+    <message>
+        <source>Strong signal</source>
+        <translation>Sterkt signal</translation>
+    </message>
+    <message>
+        <source>Good signal</source>
+        <translation>Godt signal</translation>
+    </message>
+    <message>
+        <source>Fair signal</source>
+        <translation>Middels signal</translation>
+    </message>
+    <message>
+        <source>Weak signal</source>
+        <translation>Svakt signal</translation>
+    </message>
+    <message>
+        <source>Choose a heart rate sensor</source>
+        <translation>Velg en pulsmåler</translation>
     </message>
 </context>
 <context>
@@ -136,6 +207,14 @@ Vil du gjøre det nå?</translation>
     <message>
         <source>Rest</source>
         <translation>Hvile</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Very Light</source>
@@ -229,6 +308,14 @@ Vil du slå på de nødvendige tjenestene?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Vil du bli minnet på å slå på Bluetooth eller plasseringstjenester neste gang?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Tilbake til appen</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Gir kontrollen over belastningen tilbake til appen</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
@@ -267,6 +354,18 @@ Vil du slå på de nødvendige tjenestene?</translation>
     <message>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Denne appen skal koble seg automatisk til sykkelen/tredemøllen/romaskinen din. &lt;b&gt;Hvis den ikke gjør det, sjekk&lt;/b&gt;:&lt;br&gt;1) Echelon/Domyos-appen MÅ være lukket mens qdomyos-zwift kjører,&lt;br&gt;2) både Bluetooth og Bluetooth-tillatelsene MÅ være slått på&lt;br&gt;3) sykkelen/tredemøllen/romaskinen bør slås på FØR du starter denne appen&lt;br&gt;4) prøv å starte enheten på nytt&lt;br&gt;&lt;br&gt;Hvis sykkelen/tredemøllen kobles fra hvert 30. sekund, kan du prøve å slå av innstillingen «Slå på virtuell enhet» i sidefeltet til venstre.&lt;br&gt;&lt;br&gt;Hvis du får problemer, kan du gjerne kontakte meg på roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;God tur!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ fraskriver seg uttrykkelig ansvar for&lt;br&gt;tilfeldige skader og følgeskader og påtar seg&lt;br&gt;intet ansvar for tap&lt;br&gt;eller skade noen måtte lide som følge av&lt;br&gt;bruk eller misbruk av appen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+    </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Søker etter treningsapparatet …</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Slå på sykkelen, tredemøllen eller romaskinen: QZ kobler til automatisk.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Får du ikke koblet til?</translation>
     </message>
 </context>
 <context>
@@ -397,7 +496,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>50%</source>
-        <translation>50 %</translation>
+        <translation>50&#xa0;%</translation>
     </message>
     <message>
         <source>Player Weight (kg):</source>
@@ -535,6 +634,14 @@ Vil du slå på de nødvendige tjenestene?</translation>
         <translation>Zwift Play/Ride tilkoblet!</translation>
     </message>
     <message>
+        <source>Searching for heart rate sensors...</source>
+        <translation>Søker etter pulsmålere...</translation>
+    </message>
+    <message>
+        <source>No heart rate sensor found nearby. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Fant ingen pulsmåler i nærheten. Kontroller at den er slått på og sender puls.</translation>
+    </message>
+    <message>
         <source>%1 connected!</source>
         <translation>Tilkoblet: %1!</translation>
     </message>
@@ -604,7 +711,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>Treadmill initialization in progress...%1%</source>
-        <translation>Klargjør tredemøllen … %1 %</translation>
+        <translation>Klargjør tredemøllen … %1&#xa0;%</translation>
     </message>
     <message>
         <source>Enable the &apos;Force Using FTMS&apos; setting under the Settings-&gt;Treadmill Options-&gt;Horizon Treadmill options and restart the app</source>
@@ -628,7 +735,7 @@ Vil du slå på de nødvendige tjenestene?</translation>
     </message>
     <message>
         <source>Current SmO2: %1% Previous SmO2: %2% THb: %3 g/dL</source>
-        <translation>Nåværende SmO2: %1 %, forrige SmO2: %2 %, THb: %3 g/dL</translation>
+        <translation>Nåværende SmO2: %1&#xa0;%, forrige SmO2: %2&#xa0;%, THb: %3 g/dL</translation>
     </message>
     <message>
         <source>SE7i init completed!</source>
@@ -1010,6 +1117,18 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <source>YPOO M5 initialization failed; reconnect required</source>
         <translation>Kan ikke klargjøre YPOO M5, må kobles til på nytt</translation>
     </message>
+    <message>
+        <source>%1 (HR sensor): no heart rate. Make sure it is broadcasting heart rate.</source>
+        <translation>%1 (pulssensor): ingen pulsdata. Kontroller at sensoren sender pulsdata.</translation>
+    </message>
+    <message>
+        <source>Searching for %1 (HR sensor)...</source>
+        <translation>Søker etter %1 (pulssensor)...</translation>
+    </message>
+    <message>
+        <source>%1 (HR sensor) not found. Make sure it is on and broadcasting heart rate.</source>
+        <translation>Fant ikke %1 (pulssensor). Kontroller at den er på og sender pulsdata.</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1120,8 +1239,24 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Velg en fil</translation>
     </message>
     <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Trykk på en fil for å velge den, og deretter på Last inn.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Last inn</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ingen lagrede innstillinger</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gjenopprett filer</translation>
     </message>
 </context>
 <context>
@@ -1149,6 +1284,69 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>Maximum: %1</source>
         <translation>Maksimum: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SupportHelpButton</name>
+    <message>
+        <source>Contact QZ support</source>
+        <translation>Kontakt QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Prepare a support email with diagnostics</source>
+        <translation>Klargjør en e-post til kundestøtte med diagnosedata</translation>
+    </message>
+    <message>
+        <source>No device connected</source>
+        <translation>Ingen enhet tilkoblet</translation>
+    </message>
+    <message>
+        <source>Speed and power at zero</source>
+        <translation>Hastighet og effekt er null</translation>
+    </message>
+    <message>
+        <source>QZ Support</source>
+        <translation>QZ-kundestøtte</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Ferdig</translation>
+    </message>
+    <message>
+        <source>Hide keyboard</source>
+        <translation>Skjul tastatur</translation>
+    </message>
+    <message>
+        <source>Close support request</source>
+        <translation>Lukk støtteforespørselen</translation>
+    </message>
+    <message>
+        <source>Tell us what is not working. QZ will add your device and app information.</source>
+        <translation>Fortell oss hva som ikke fungerer. QZ legger til informasjon om enheten og appen din.</translation>
+    </message>
+    <message>
+        <source>Describe the problem...</source>
+        <translation>Beskriv problemet...</translation>
+    </message>
+    <message>
+        <source>Describe the problem</source>
+        <translation>Beskriv problemet</translation>
+    </message>
+    <message>
+        <source>Attach debug log if available</source>
+        <translation>Legg ved feilsøkingslogg hvis den er tilgjengelig</translation>
+    </message>
+    <message>
+        <source>You can review or edit the email before sending it. Nothing is sent automatically.</source>
+        <translation>Du kan se gjennom eller redigere e-posten før du sender den. Ingenting sendes automatisk.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Open email</source>
+        <translation>Åpne e-post</translation>
     </message>
 </context>
 <context>
@@ -1266,12 +1464,40 @@ Vil du oppdatere QZ-innstillingene?</translation>
         <translation>Søk (også i undermapper)…</translation>
     </message>
     <message>
+        <source>Parent folder</source>
+        <translation>Overordnet mappe</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Finner ingen treningsøkter</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Ingen treningsøkter her</translation>
+    </message>
+    <message>
         <source>Other folders</source>
         <translation>Andre mapper</translation>
     </message>
     <message>
+        <source>Restore files</source>
+        <translation>Gjenopprett filer</translation>
+    </message>
+    <message>
+        <source>Restore programs</source>
+        <translation type="vanished">Gjenopprett programmer</translation>
+    </message>
+    <message>
         <source>← Back</source>
         <translation>← Tilbake</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Vis mindre</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Vis mer</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -1280,6 +1506,62 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>Start Workout</source>
         <translation>Start treningsøkt</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nei</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+</context>
+<context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Gjenoppretter filer fra den tidligere installasjonen</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Gjenoppretter filer fra den tidligere installasjonen: %1 av %2</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Utvidet</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Skjult</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>timer</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>minutter</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>sekunder</translation>
     </message>
 </context>
 <context>
@@ -1500,6 +1782,16 @@ Vil du oppdatere QZ-innstillingene?</translation>
     <message>
         <source>Force Speed</source>
         <translation>Angi fart</translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Hold pulsen (PID) med</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Som innstilt</translation>
     </message>
     <message>
         <source>Fan</source>
@@ -2714,6 +3006,10 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>Alle filer (*)</translation>
     </message>
     <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
         <source>Upload to Strava</source>
         <translation>Last opp til Strava</translation>
     </message>
@@ -3441,6 +3737,14 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <translation>fart endret til </translation>
     </message>
     <message>
+        <source>Files of a previous installation restored: %1.</source>
+        <translation>Gjenopprettede filer: %1.</translation>
+    </message>
+    <message>
+        <source>No files of a previous installation were found.</source>
+        <translation>Fant ingen filer fra en tidligere installasjon.</translation>
+    </message>
+    <message>
         <source>JSON parser error</source>
         <translation>Feil ved lesing av JSON</translation>
     </message>
@@ -3463,6 +3767,18 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>Workouts imported: %1.</source>
         <translation>Treningsøkter importert: %1.</translation>
+    </message>
+    <message>
+        <source>The file could not be copied to the QZ folder.</source>
+        <translation>Filen kunne ikke kopieres til QZ-mappen.</translation>
+    </message>
+    <message>
+        <source>Training programs restored: %1.</source>
+        <translation type="vanished">Gjenopprettede treningsprogrammer: %1.</translation>
+    </message>
+    <message>
+        <source>No training programs of a previous installation were found.</source>
+        <translation type="vanished">Fant ingen treningsprogrammer fra en tidligere installasjon.</translation>
     </message>
     <message>
         <source>Already in the history: %1.</source>
@@ -3609,6 +3925,14 @@ Dette kan ta litt tid ved første oppstart.</translation>
     <message>
         <source>W </source>
         <translation>W </translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>The FIT file of this workout could not be shared</source>
+        <translation>FIT-filen for denne økten kunne ikke deles</translation>
     </message>
     <message>
         <source>meters</source>
@@ -3758,6 +4082,131 @@ Dette kan ta litt tid ved første oppstart.</translation>
         <source>Spotify songs:</source>
         <translation>Spotify-sanger:</translation>
     </message>
+    <message>
+        <source>Support request</source>
+        <translation>Kundestøtteforespørsel</translation>
+    </message>
+    <message>
+        <source>QZ issue | %1 | %2 | %3</source>
+        <translation>QZ-problem | %1 | %2 | %3</translation>
+    </message>
+    <message>
+        <source>Hi Roberto,</source>
+        <translation>Hei Roberto,</translation>
+    </message>
+    <message>
+        <source>I need help with QZ.</source>
+        <translation>Jeg trenger hjelp med QZ.</translation>
+    </message>
+    <message>
+        <source>Problem:</source>
+        <translation>Problem:</translation>
+    </message>
+    <message>
+        <source>[Please describe the issue]</source>
+        <translation>[Beskriv problemet]</translation>
+    </message>
+    <message>
+        <source>Expected behavior:</source>
+        <translation>Forventet atferd:</translation>
+    </message>
+    <message>
+        <source>[Please describe what should happen]</source>
+        <translation>[Beskriv hva som skulle ha skjedd]</translation>
+    </message>
+    <message>
+        <source>--- QZ diagnostics ---</source>
+        <translation>--- QZ-diagnostikk ---</translation>
+    </message>
+    <message>
+        <source>QZ version: %1</source>
+        <translation>QZ-versjon: %1</translation>
+    </message>
+    <message>
+        <source>Platform: %1 (%2)</source>
+        <translation>Plattform: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Profil: %1</translation>
+    </message>
+    <message>
+        <source>Device: %1</source>
+        <translation>Enhet: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Tilkoblet</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Ikke tilkoblet</translation>
+    </message>
+    <message>
+        <source>Connection: %1</source>
+        <translation>Tilkobling: %1</translation>
+    </message>
+    <message>
+        <source>Speed: %1 km/h</source>
+        <translation>Hastighet: %1 km/t</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>Ikke tilgjengelig</translation>
+    </message>
+    <message>
+        <source>Power: %1 W</source>
+        <translation>Effekt: %1 W</translation>
+    </message>
+    <message>
+        <source>Detected situation: %1</source>
+        <translation>Registrert situasjon: %1</translation>
+    </message>
+    <message>
+        <source>Debug log not requested.</source>
+        <translation>Feilsøkingslogg ble ikke valgt.</translation>
+    </message>
+    <message>
+        <source>Debug log disabled. Enable debug logging and restart QZ before reproducing.</source>
+        <translation>Feilsøkingslogg er deaktivert. Aktiver logging og start QZ på nytt før du gjenskaper problemet.</translation>
+    </message>
+    <message>
+        <source>Debug log not found.</source>
+        <translation>Fant ingen feilsøkingslogg.</translation>
+    </message>
+    <message>
+        <source>Debug log unavailable or too large to prepare.</source>
+        <translation>Feilsøkingsloggen er utilgjengelig eller for stor til å klargjøres.</translation>
+    </message>
+    <message>
+        <source>Debug log attached (gzip).</source>
+        <translation>Feilsøkingslogg vedlagt (gzip).</translation>
+    </message>
+    <message>
+        <source>Could not write debug log attachment.</source>
+        <translation>Kunne ikke skrive feilsøkingsloggen som vedlegg.</translation>
+    </message>
+    <message>
+        <source>Could not compress debug log or attachment exceeds 10 MB.</source>
+        <translation>Kunne ikke komprimere feilsøkingsloggen, eller vedlegget er over 10 MB.</translation>
+    </message>
+    <message>
+        <source>Please attach the generated debug log manually</source>
+        <translation>Legg ved den genererte feilsøkingsloggen manuelt</translation>
+    </message>
+    <message>
+        <source>No device detected</source>
+        <translation>Ingen enhet oppdaget</translation>
+    </message>
+    <message>
+        <source>Unable to open an email application</source>
+        <translation>Kan ikke åpne et e-postprogram</translation>
+    </message>
+    <message>
+        <source>QZ is running</source>
+        <extracomment>Android notification: title shown while QZ works in the background.</extracomment>
+        <translation>QZ kjører</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -3890,6 +4339,28 @@ Vil du starte den nå?</translation>
         <translation>Peloton</translation>
     </message>
     <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Lagret! Sjekk Filer-appen.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Lagret! Sjekk den private mappen til appen.</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gjenopprett filer</translation>
+    </message>
+    <message>
+        <source>Training programs, GPX routes, settings files and profiles of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Treningsprogrammer, GPX-ruter, innstillingsfiler og profiler fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
+Vil du se etter dem?
+
+Tillat tilgang til QZ-mappen i neste vindu.</translation>
+    </message>
+    <message>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Du er allerede koblet til Peloton. Vil du logge av?</translation>
     </message>
@@ -3902,6 +4373,18 @@ Vil du starte den nå?</translation>
         <translation>Du er allerede koblet til Intervals.icu. Vil du logge av?</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>Tilbake</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Hovedmeny</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Flytende vindu</translation>
+    </message>
+    <message>
         <source>You can move the tiles!</source>
         <translation>Du kan flytte flisene!</translation>
     </message>
@@ -3910,8 +4393,48 @@ Vil du starte den nå?</translation>
         <translation>Flisene er nå låst</translation>
     </message>
     <message>
+        <source>Load settings</source>
+        <translation>Last inn innstillinger</translation>
+    </message>
+    <message>
         <source>Search settings</source>
         <translation>Søk i innstillinger</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Lagre innstillinger</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kart</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Diagram</translation>
+    </message>
+    <message>
+        <source>Share FIT file</source>
+        <translation>Del FIT-fil</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Lås opp flisene</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lås flisene</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Slå av automatisk motstand</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Slå på automatisk motstand</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -3974,6 +4497,46 @@ Vil du starte den nå?</translation>
         <translation>Avslutt</translation>
     </message>
     <message>
+        <source>Disconnect from Strava</source>
+        <translation>Koble fra Strava</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Koble til Strava</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Koble fra Peloton</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Koble til Peloton</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect-innstillinger</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Koble fra Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Koble til Intervals.icu</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Trening</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Tjenester</translation>
+    </message>
+    <message>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – bro mellom treningsapparater og apper</translation>
     </message>
@@ -4014,6 +4577,20 @@ Do you want to look for them?
 In the next window, allow access to the QZ folder.</source>
         <translation>Treningsøkter fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
 Vil du lete etter dem?
+
+Tillat tilgang til QZ-mappen i neste vindu.</translation>
+    </message>
+    <message>
+        <source>Training Programs</source>
+        <translation type="vanished">Treningsprogrammer</translation>
+    </message>
+    <message>
+        <source>Training programs of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation type="vanished">Treningsprogrammer fra en tidligere installasjon kan fortsatt ligge i QZ-mappen.
+Vil du se etter dem?
 
 Tillat tilgang til QZ-mappen i neste vindu.</translation>
     </message>
@@ -4139,6 +4716,22 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <source>Please choose a file</source>
         <translation>Velg en fil</translation>
     </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Virtuelle gir på Wahoo</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>For å simulere virtuelle gir endrer QZ hjulomkretsen som er lagret i sykkelrullen. Verdien kan bli værende i sykkelrullen etter at du lukker QZ, og påvirke sykkelrullen i andre apper.
+
+Skal QZ få endre denne verdien?
+
+«Nei»: QZ slår på «Uten hjuldiameterprotokoll» (Innstillinger &gt; Sykkelalternativer &gt; Alternativer for Wahoo), og virtuelle gir virker via stigningen. Med «Ja» kan du angre dette senere samme sted: slå på dette alternativet og trykk på «Gjenopprett standardinnstilling på sykkelrullen» mens sykkelrullen er tilkoblet.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -4178,6 +4771,10 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <translation>Vil du slette profilen?</translation>
     </message>
     <message>
+        <source>Delete</source>
+        <translation>Slett</translation>
+    </message>
+    <message>
         <source>Profile Saved</source>
         <translation>Profilen er lagret</translation>
     </message>
@@ -4210,8 +4807,32 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <translation>Profilnavn</translation>
     </message>
     <message>
+        <source>New profile</source>
+        <translation>Ny profil</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Lagrede profiler</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Trykk på en profil for å velge den, og deretter på Last inn. Trykk og hold for å slette den.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Last inn</translation>
+    </message>
+    <message>
         <source>Profiles</source>
         <translation>Profiler</translation>
+    </message>
+    <message>
+        <source>Restore files</source>
+        <translation>Gjenopprett filer</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4390,7 +5011,7 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
     </message>
     <message>
         <source>Open</source>
-        <translation>Åpne</translation>
+        <translation type="vanished">Åpne</translation>
     </message>
     <message>
         <source>General Options</source>
@@ -4407,6 +5028,74 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
     <message>
         <source>App Language:</source>
         <translation>Appspråk:</translation>
+    </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Denne innstillingen ble ikke funnet på innstillingssidene</translation>
+    </message>
+    <message>
+        <source>Configure how virtual-app inclination maps to bike resistance.</source>
+        <translation>Angi hvordan stigningen fra den virtuelle appen gjøres om til motstand på sykkelen.</translation>
+    </message>
+    <message>
+        <source>Use a custom mapping when QZ converts virtual-app inclination into resistance.</source>
+        <translation>Bruk egen omregning når QZ gjør om stigningen fra den virtuelle appen til motstand.</translation>
+    </message>
+    <message>
+        <source>One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.</source>
+        <translation>Ett par stigning|motstand per linje. QZ beregner verdiene mellom punktene og bruker endepunktet utenfor det angitte området.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account username used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Brukernavn for Life Fitness-kontoen som brukes til å logge inn på tjenesten. Lagres bare lokalt og skrives aldri til feilsøkingslogger.</translation>
+    </message>
+    <message>
+        <source>Life Fitness account password used for the service sign-in. Stored locally and never written to debug logs.</source>
+        <translation>Passord for Life Fitness-kontoen som brukes til å logge inn på tjenesten. Lagres bare lokalt og skrives aldri til feilsøkingslogger.</translation>
+    </message>
+    <message>
+        <source>Camera Action</source>
+        <translation>Gjeldende kameravinkel</translation>
+    </message>
+    <message>
+        <source>Emote Action</source>
+        <translation>Gjeldende emote</translation>
+    </message>
+    <message>
+        <source>Wattbike Emulator</source>
+        <translation>Wattbike-emulator</translation>
+    </message>
+    <message>
+        <source>Power Chart Position</source>
+        <translation>Plassering av effektdiagram</translation>
+    </message>
+    <message>
+        <source>Heart Rate Chart Position</source>
+        <translation>Plassering av pulsdiagram</translation>
+    </message>
+    <message>
+        <source>Resistance vs Target Resistance Chart Position</source>
+        <translation>Plassering av diagram for motstand og målmotstand</translation>
+    </message>
+    <message>
+        <source>Peloton Resistance Chart Position</source>
+        <translation>Plassering av Peloton-motstandsdiagram</translation>
+    </message>
+    <message>
+        <source>Cadence Chart Position</source>
+        <translation>Plassering av kadensdiagram</translation>
+    </message>
+    <message>
+        <source>Power Distribution Chart Position</source>
+        <translation>Plassering av effektfordelingsdiagram</translation>
+    </message>
+    <message>
+        <source>Speed and Inclination Chart Position</source>
+        <translation>Plassering av diagram for fart og stigning</translation>
+    </message>
+    <message>
+        <source>Numeric position of this chart in Workout History. Reorder using the up and down buttons in General UI Options.</source>
+        <translation>Diagrammets plass i rekkefølgen i treningshistorikken. Rekkefølgen endres med opp- og ned-knappene i Generelle alternativer for brukergrensesnitt.</translation>
     </message>
     <message>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
@@ -4569,24 +5258,32 @@ Vil du bytte til den klassiske virtuelle Bluetooth-enheten for denne økten?</tr
         <translation>Oppdater enhetslisten</translation>
     </message>
     <message>
+        <source>Search for a Heart Rate Sensor at Start</source>
+        <translation>Søk etter en pulsmåler ved start</translation>
+    </message>
+    <message>
+        <source>During the first 5 minutes after the fitness machine connects, while no heart rate comes, QZ searches for a heart rate sensor once a minute: it connects the chosen heart belt as soon as it is found or, with none chosen, offers one found nearby. A tap on the heart rate tile or the Bluetooth icon on the home page searches at any time.</source>
+        <translation>De første 5 minuttene etter at treningsapparatet er tilkoblet, og så lenge ingen puls kommer inn, søker QZ etter en pulsmåler én gang i minuttet: den valgte pulsmåleren kobles til så snart den blir funnet, og er ingen valgt, foreslås en pulsmåler i nærheten. Et trykk på pulsflisen eller Bluetooth-ikonet på startsiden søker når som helst.</translation>
+    </message>
+    <message>
         <source>Heart Rate Zone Options</source>
         <translation>Pulssonealternativer</translation>
     </message>
     <message>
         <source>Zone 1 %:</source>
-        <translation>Sone 1 %:</translation>
+        <translation>Sone 1&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 2 %:</source>
-        <translation>Sone 2 %:</translation>
+        <translation>Sone 2&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 3 %:</source>
-        <translation>Sone 3 %:</translation>
+        <translation>Sone 3&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 4 %:</source>
-        <translation>Sone 4 %:</translation>
+        <translation>Sone 4&#xa0;%:</translation>
     </message>
     <message>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
@@ -5893,7 +6590,7 @@ Skriv den inn nedenfor:</translation>
     </message>
     <message>
         <source>Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.</source>
-        <translation>Flisene Målfart og Målstigning gjør det mulig å øke eller redusere gjeldende vanskelighetsgrad med pluss- og minusknappene. Som standard, med denne innstillingen av, endres fart og stigning med 3 % per trykk. Når innstillingen er på, legger QZ i stedet til en justering på 0.1 for fart eller 0.5 for stigning.</translation>
+        <translation>Flisene Målfart og Målstigning gjør det mulig å øke eller redusere gjeldende vanskelighetsgrad med pluss- og minusknappene. Som standard, med denne innstillingen av, endres fart og stigning med 3&#xa0;% per trykk. Når innstillingen er på, legger QZ i stedet til en justering på 0.1 for fart eller 0.5 for stigning.</translation>
     </message>
     <message>
         <source>Speed Step:</source>
@@ -6482,7 +7179,7 @@ VIKTIG:
     </message>
     <message>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
-        <translation>Stigningsjustering og stigningsfaktor brukes til å tilpasse stigningen som Zwift setter, i stedet for eller i tillegg til innstillingen Zwift-motstandsfaktor i QZ. Når Zwift for eksempel endrer stigningen til 1 %, kan tredemøllen gå til 2 %. Tallet du skriver inn som justering (offset), legges til stigningen som sendes fra Zwift eller en annen tredjepartsapp. Standard: 0.</translation>
+        <translation>Stigningsjustering og stigningsfaktor brukes til å tilpasse stigningen som Zwift setter, i stedet for eller i tillegg til innstillingen Zwift-motstandsfaktor i QZ. Når Zwift for eksempel endrer stigningen til 1&#xa0;%, kan tredemøllen gå til 2&#xa0;%. Tallet du skriver inn som justering (offset), legges til stigningen som sendes fra Zwift eller en annen tredjepartsapp. Standard: 0.</translation>
     </message>
     <message>
         <source>Zwift Inclination Gain:</source>
@@ -6705,8 +7402,8 @@ Default: A = -0.96, B = 1.33</source>
 For Stryd-sensorer: A = -0.96, B = 1.33
 
 Eksempler med disse verdiene:
-• 8 km/h, 10 % stigning: (-0.96 + 1.33×8) × 10 = 97 W lagt til
-• 11 km/h, 10 % stigning: (-0.96 + 1.33×11) × 10 = 137 W lagt til
+• 8 km/h, 10&#xa0;% stigning: (-0.96 + 1.33×8) × 10 = 97 W lagt til
+• 11 km/h, 10&#xa0;% stigning: (-0.96 + 1.33×11) × 10 = 137 W lagt til
 
 Hvis både A og B er 0, bruker QZ standardformelen: 9.8 × vekt × (stigning/100).
 
@@ -7226,7 +7923,15 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Hidden on its page right now: change it here</source>
-        <translation>Skjult på sin egen side akkurat nå: endre den her</translation>
+        <translation type="vanished">Skjult på sin egen side akkurat nå: endre den her</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
+    </message>
+    <message>
+        <source>Hidden on its page with the current settings</source>
+        <translation>Skjult på sin side med gjeldende innstillinger</translation>
     </message>
     <message>
         <source>Turn on “%1” to change this setting</source>
@@ -7602,7 +8307,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.</source>
-        <translation>Største tillatte forskjell mellom farten fra effektsensoren og farten på tredemøllen før QZ slutter å bruke den relative korrigeringen. Standard: 20 %.</translation>
+        <translation>Største tillatte forskjell mellom farten fra effektsensoren og farten på tredemøllen før QZ slutter å bruke den relative korrigeringen. Standard: 20&#xa0;%.</translation>
     </message>
     <message>
         <source>Heart</source>
@@ -7730,7 +8435,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.</source>
-        <translation>Endrer størrelsen på flisene som viser måleverdiene. Standard: 100 %. Velg en lavere prosent for å få plass til flere fliser på skjermen, og en prosent over 100 % for å gjøre dem større. Ikke skriv inn prosenttegnet. Het tidligere «UI Zoom».</translation>
+        <translation>Endrer størrelsen på flisene som viser måleverdiene. Standard: 100&#xa0;%. Velg en lavere prosent for å få plass til flere fliser på skjermen, og en prosent over 100&#xa0;% for å gjøre dem større. Ikke skriv inn prosenttegnet. Het tidligere «UI Zoom».</translation>
     </message>
     <message>
         <source>Use System Text Size</source>
@@ -7738,7 +8443,7 @@ Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
-        <translation>Teksten i appen følger tekststørrelsen i innstillingene på telefonen eller nettbrettet, opptil 150 %. Slå av for å velge størrelsen nedenfor, for eksempel for en skjerm du leser på avstand under treningsøkten. Standard: på.</translation>
+        <translation>Teksten i appen følger tekststørrelsen i innstillingene på telefonen eller nettbrettet, opptil 150&#xa0;%. Slå av for å velge størrelsen nedenfor, for eksempel for en skjerm du leser på avstand under treningsøkten. Standard: på.</translation>
     </message>
     <message>
         <source>Text size:</source>
@@ -7851,6 +8556,34 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don&apos;t freeze. It uses a silent audio track mixed with your music, so nothing you&apos;re listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.</source>
         <translation>Bare iOS. Holder QZ i gang når skjermen er av eller QZ kjører i bakgrunnen, slik at Bluetooth-tilkoblingene og tidtakerne for treningsøkten ikke stopper opp. Det brukes et lydløst lydspor som blandes med musikken din, så det du hører på, blir ikke avbrutt. Slå på hvis du må trene med låst skjerm eller med QZ i bakgrunnen. Standard: av.</translation>
+    </message>
+    <message>
+        <source>Daum Bike Options</source>
+        <translation>Alternativer for Daum-sykkel</translation>
+    </message>
+    <message>
+        <source>Serial port used by classic Daum ergometers such as the 8008 TRS 3. On Android with a USB-to-serial adapter use &apos;usb&apos;. COM1, COM2, etc. are accepted on Android as aliases for the USB-adapter scan, but they are not Android port names. On Windows use COM1 or COM3; on Linux/macOS use the serial device path, for example /dev/ttyUSB0.</source>
+        <translation>Serieport for klassiske Daum-ergometre som 8008 TRS 3. På Android med USB-til-seriell-adapter bruker du &apos;usb&apos;. COM1, COM2 osv. godtas på Android som aliaser for søk etter USB-adapteren, men er ikke Android-portnavn. På Windows brukes COM1 eller COM3; på Linux/macOS brukes banen til serieenheten, for eksempel /dev/ttyUSB0.</translation>
+    </message>
+    <message>
+        <source>Resistance Polling Delay:</source>
+        <translation>Forsinkelse mellom motstandsforespørsler:</translation>
+    </message>
+    <message>
+        <source>Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.</source>
+        <translation>Bruker innstillingen Forsinkelse for stigning til å begrense hvor ofte QZ sender oppdateringer om motstand og effekt til Daum. Standard: 0 sekunder.</translation>
+    </message>
+    <message>
+        <source>Inclination Filter (%):</source>
+        <translation>Stigningsfilter (%):</translation>
+    </message>
+    <message>
+        <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
+        <translation>Ved GPX-trening ignoreres endringer i stigning under denne verdien. En ny kommando sendes først når forskjellen fra sist sendte verdi når den angitte terskelen. Standard: 0 (deaktivert).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Bruk girene på konsollen</translation>
     </message>
 </context>
 <context>
@@ -8287,6 +9020,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Viser 2 store girknapper i brukergrensesnittet.</translation>
     </message>
     <message>
+        <source>Tiles Options</source>
+        <translation>Flisalternativer</translation>
+    </message>
+    <message>
         <source>Remaining Time/Row</source>
         <extracomment>Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.</extracomment>
         <translation>Gjenstående tid/rad</translation>
@@ -8691,157 +9428,157 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>Override 0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 0 %:</translation>
+        <translation>I stedet for 0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 0.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 0.5 %:</translation>
+        <translation>I stedet for 0.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 1.0 %:</translation>
+        <translation>I stedet for 1.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 1.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 1.5 %:</translation>
+        <translation>I stedet for 1.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 2.0 %:</translation>
+        <translation>I stedet for 2.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 2.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 2.5 %:</translation>
+        <translation>I stedet for 2.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 3.0 %:</translation>
+        <translation>I stedet for 3.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 3.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 3.5 %:</translation>
+        <translation>I stedet for 3.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 4.0 %:</translation>
+        <translation>I stedet for 4.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 4.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 4.5 %:</translation>
+        <translation>I stedet for 4.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 5.0 %:</translation>
+        <translation>I stedet for 5.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 5.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 5.5 %:</translation>
+        <translation>I stedet for 5.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 6.0 %:</translation>
+        <translation>I stedet for 6.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 6.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 6.5 %:</translation>
+        <translation>I stedet for 6.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 7.0 %:</translation>
+        <translation>I stedet for 7.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 7.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 7.5 %:</translation>
+        <translation>I stedet for 7.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 8.0 %:</translation>
+        <translation>I stedet for 8.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 8.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 8.5 %:</translation>
+        <translation>I stedet for 8.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 9.0 %:</translation>
+        <translation>I stedet for 9.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 9.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 9.5 %:</translation>
+        <translation>I stedet for 9.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 10.0 %:</translation>
+        <translation>I stedet for 10.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 10.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 10.5 %:</translation>
+        <translation>I stedet for 10.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 11.0 %:</translation>
+        <translation>I stedet for 11.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 11.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 11.5 %:</translation>
+        <translation>I stedet for 11.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 12.0 %:</translation>
+        <translation>I stedet for 12.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 12.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 12.5 %:</translation>
+        <translation>I stedet for 12.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 13.0 %:</translation>
+        <translation>I stedet for 13.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 13.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 13.5 %:</translation>
+        <translation>I stedet for 13.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 14.0 %:</translation>
+        <translation>I stedet for 14.0&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 14.5%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 14.5 %:</translation>
+        <translation>I stedet for 14.5&#xa0;%:</translation>
     </message>
     <message>
         <source>Override 15.0%:</source>
         <extracomment>Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.</extracomment>
-        <translation>I stedet for 15.0 %:</translation>
+        <translation>I stedet for 15.0&#xa0;%:</translation>
     </message>
 </context>
 <context>
