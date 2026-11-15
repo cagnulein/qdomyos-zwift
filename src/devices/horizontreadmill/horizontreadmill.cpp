@@ -346,7 +346,6 @@ void horizontreadmill::btinit() {
                     homeform::singleton()->setToastRequested(QObject::tr("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app"));
                 }
                 qDebug() << "init 1 not received";
-                waitForAPacket();
                 if (retryInitStage(1))
                     goto init1;
                 if (!initPacketRecv)
@@ -440,7 +439,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 2 not received";
-                waitForAPacket();
                 if (retryInitStage(2))
                     goto init2;
                 if (!initPacketRecv)
@@ -534,7 +532,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 3 not received";
-                waitForAPacket();
                 if (retryInitStage(3))
                     goto init3;
                 if (!initPacketRecv)
@@ -628,7 +625,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 4 not received";
-                waitForAPacket();
                 if (retryInitStage(4))
                     goto init4;
                 if (!initPacketRecv)
@@ -722,7 +718,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 5 not received";
-                waitForAPacket();
                 if (retryInitStage(5))
                     goto init5;
                 if (!initPacketRecv)
@@ -816,7 +811,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 6 not received";
-                waitForAPacket();
                 if (retryInitStage(6))
                     goto init6;
                 if (!initPacketRecv)
@@ -910,7 +904,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 7 not received";
-                waitForAPacket();
                 if (retryInitStage(7))
                     goto init7;
                 if (!initPacketRecv)
@@ -944,7 +937,6 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 qDebug() << "init 8 not received";
-                waitForAPacket();
                 if (retryInitStage(8))
                     goto init8;
                 if (!initPacketRecv)
