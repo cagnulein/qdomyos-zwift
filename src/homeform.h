@@ -202,6 +202,10 @@ class homeform : public QObject {
     // Android 11+ with the QZ folder in Documents: only there files of a previous install stay
     // in the folder and cannot be read; elsewhere there is nothing to restore
     Q_PROPERTY(bool qzFolderRestorable READ qzFolderRestorable NOTIFY qzFolderGrantSavedChanged)
+    // a restore of the QZ folder is copying file folderRestoreDone of folderRestoreTotal; both 0
+    // when no restore runs or it found nothing to copy
+    Q_PROPERTY(int folderRestoreDone READ folderRestoreDone NOTIFY folderRestoreProgressChanged)
+    Q_PROPERTY(int folderRestoreTotal READ folderRestoreTotal NOTIFY folderRestoreProgressChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -802,6 +806,16 @@ public:
     Q_INVOKABLE void restoreFolderFiles();
     bool qzFolderGrantSaved() const { return m_qzFolderGrantSaved; }
     bool qzFolderRestorable() const { return m_qzFolderRestorable; }
+    int folderRestoreDone() const { return m_folderRestoreDone; }
+    int folderRestoreTotal() const { return m_folderRestoreTotal; }
+    // from the restore thread of the Java side (queued); 0, 0 when the restore is over
+    Q_INVOKABLE void setFolderRestoreProgress(int done, int total) {
+        if (m_folderRestoreDone != done || m_folderRestoreTotal != total) {
+            m_folderRestoreDone = done;
+            m_folderRestoreTotal = total;
+            emit folderRestoreProgressChanged();
+        }
+    }
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
@@ -1209,6 +1223,8 @@ public:
     // restore through a saved grant, true while it runs: no toast when nothing was restored,
     // and no question on request meanwhile
     bool m_folderRestoreQuiet = false;
+    int m_folderRestoreDone = 0;
+    int m_folderRestoreTotal = 0;
     bool m_qzFolderGrantSaved = false;
     bool m_qzFolderRestorable = false;
     WorkoutModel *workoutModel = nullptr;
@@ -1461,6 +1477,7 @@ public:
     // wahooWheelAnswer(): the value of wahoo_without_wheel_diameter after the answer, for the QML Settings copies
     void wahooWheelAnswered(bool withoutWheelDiameter);
     void fitImportRunningChanged();
+    void folderRestoreProgressChanged();
     void qzFolderGrantSavedChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);

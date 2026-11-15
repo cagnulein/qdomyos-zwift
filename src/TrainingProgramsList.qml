@@ -146,6 +146,16 @@ ColumnLayout {
                         }
             }
 
+            // the restore of a previous install: above the list, which moves down for that time
+            UiProgress {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                topPadding: 8
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50

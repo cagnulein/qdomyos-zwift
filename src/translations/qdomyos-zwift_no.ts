@@ -1512,6 +1512,17 @@ Vil du oppdatere QZ-innstillingene?</translation>
     </message>
 </context>
 <context>
+    <name>UiProgress</name>
+    <message>
+        <source>Restoring files of the previous installation</source>
+        <translation>Gjenoppretter filer fra den tidligere installasjonen</translation>
+    </message>
+    <message>
+        <source>Restoring files of the previous installation: %1 of %2</source>
+        <translation>Gjenoppretter filer fra den tidligere installasjonen: %1 av %2</translation>
+    </message>
+</context>
+<context>
     <name>UiSectionHeader</name>
     <message>
         <source>Expanded</source>

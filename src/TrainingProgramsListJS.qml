@@ -256,6 +256,17 @@ ColumnLayout {
                     }
                 }
 
+                // the restore of a previous install: above the list, which moves down for that time
+                UiProgress {
+                    id: restoreProgress
+                    Layout.fillWidth: true
+                    Layout.leftMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    Layout.rightMargin: window.ui.modern ? programsPage.modernMargin : 16
+                    topPadding: window.ui.modern ? 0 : 8
+                    done: rootItem.folderRestoreDone
+                    total: rootItem.folderRestoreTotal
+                }
+
                 // The list in a box of the full page width: in the modern look the cards keep the page
                 // margin and the scroll bar goes into it, at the screen edge as on the settings page,
                 // not over the right edge of the cards
@@ -263,6 +274,8 @@ ColumnLayout {
                     id: listBox
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // the gap above the list is in the progress while it shows (UiProgress)
+                    Layout.topMargin: restoreProgress.visible ? -parent.spacing : 0
 
                     ListView {
                         anchors.fill: parent
@@ -432,9 +445,11 @@ ColumnLayout {
                         Label {
                             parent: list
                             anchors.centerIn: parent
-                            // only once the folder is read: the model fills in asynchronously
+                            // only once the folder is read: the model fills in asynchronously; not while
+                            // a restore copies the files of a previous install into it
                             visible: window.ui.modern && list.count === 0
                                      && (isSearching || folderModel.status === FolderListModel.Ready)
+                                     && rootItem.folderRestoreTotal === 0
                             text: isSearching ? qsTr("No workouts found") : qsTr("No workouts here")
                             color: window.ui.textMuted
                         }
@@ -480,6 +495,12 @@ ColumnLayout {
                         Layout.fillHeight: window.ui.modern
                         wrapsText: true
                         visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                        // greyed out while a restore runs: a second one is refused
+                        // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+                        enabled: rootItem.folderRestoreTotal === 0
+                        // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                        // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                        Accessible.ignored: !enabled
                         text: qsTr("Restore files")
                         onClicked: rootItem.offerFolderRestore()
                     }

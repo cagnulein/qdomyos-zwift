@@ -78,11 +78,23 @@ ColumnLayout {
             wrapMode: Text.WordWrap
         }
 
+        // the restore of a previous install: above the list, which moves down for that time
+        UiProgress {
+            id: modernRestoreProgress
+            Layout.fillWidth: true
+            Layout.leftMargin: settingsListPage.modernMargin
+            Layout.rightMargin: settingsListPage.modernMargin
+            Layout.topMargin: 4
+            done: rootItem.folderRestoreDone
+            total: rootItem.folderRestoreTotal
+        }
+
         ListView {
             id: modernList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.topMargin: 4
+            // the gap above the list is in the progress while it shows (UiProgress)
+            Layout.topMargin: modernRestoreProgress.visible ? -parent.spacing : 4
             // To the screen edge on the right: the cards keep the page margin (their width), and
             // the scroll indicator, placed by Qt at the right edge of the list, goes into it as on
             // the settings page, not over the cards
@@ -194,8 +206,10 @@ ColumnLayout {
                 parent: modernList
                 anchors.centerIn: parent
                 anchors.horizontalCenterOffset: -settingsListPage.modernMargin / 2
-                // only once the folder is read: the model fills in asynchronously
+                // only once the folder is read: the model fills in asynchronously; not while a
+                // restore copies the files of a previous install into it
                 visible: modernList.count === 0 && modernFolderModel.status === FolderListModel.Ready
+                         && rootItem.folderRestoreTotal === 0
                 text: qsTr("No saved settings")
                 color: window.ui.textMuted
             }
@@ -297,6 +311,17 @@ ColumnLayout {
     }
     spacing: 10
 
+    // Classic look: under the folder list, which takes the height it needs (the modern one has
+    // it above its list)
+    UiProgress {
+        shown: !window.ui.modern
+        Layout.fillWidth: true
+        Layout.leftMargin: 16
+        Layout.rightMargin: 16
+        done: rootItem.folderRestoreDone
+        total: rootItem.folderRestoreTotal
+    }
+
     RowLayout {
         Layout.fillWidth: window.ui.modern
         Layout.leftMargin: window.ui.modern ? settingsListPage.modernMargin : 0
@@ -344,6 +369,12 @@ ColumnLayout {
             Layout.fillHeight: window.ui.modern
             wrapsText: true
             visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            // greyed out while a restore runs: a second one is refused
+            // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+            enabled: rootItem.folderRestoreTotal === 0
+            // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+            // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+            Accessible.ignored: !enabled
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

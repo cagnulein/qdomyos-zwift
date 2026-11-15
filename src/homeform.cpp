@@ -1387,6 +1387,18 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     }
 }
 
+// a restore of the QZ folder is copying file done of total: the list pages show how far it is
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFolderRestoreProgress(JNIEnv *env, jclass clazz, jint done,
+                                                                              jint total) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFolderRestoreProgress", Qt::QueuedConnection,
+                                  Q_ARG(int, done), Q_ARG(int, total));
+    }
+}
+
 // a workout import was picked: the copy is about to start, show it is running
 JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportStarted(JNIEnv *env, jclass clazz) {
@@ -9689,6 +9701,8 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
         return;
     }
     if (requestCode == AndroidDocumentPickerRestoreFolderRequestCode) {
+        // the pass is over: the progress the Java side passed before this result goes away
+        setFolderRestoreProgress(0, 0);
         const int restored = restoredFileCount(localPath);
         qDebug() << "files of a previous install restored:" << restored;
         const bool quiet = m_folderRestoreQuiet;

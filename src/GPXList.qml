@@ -179,9 +179,28 @@ ColumnLayout {
             Layout.preferredWidth: 100
             Layout.preferredHeight: gpxPage.sideBySide ? -1 : gpxPage.height * 0.4
 
+            // The restore of a previous install above the list, which moves down for that time: in
+            // the cell of the list, not a row of its own. Side by side the map spans the rows on the
+            // right, and a row it spans is kept and given a share of its height even with nothing
+            // else in it (QGridLayoutEngine::fillRowData), so a hidden progress there would leave an
+            // empty gap above the list. In portrait the cell keeps its height, so the map does not move
+            UiProgress {
+                id: modernProgress
+                shown: window.ui.modern
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: gpxPage.modernMargin
+                anchors.rightMargin: gpxPage.modernRightMargin
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
+            }
+
             ListView {
                 id: modernList
                 anchors.fill: parent
+                // the gap under the progress is its own (UiProgress)
+                anchors.topMargin: modernProgress.height
                 anchors.leftMargin: gpxPage.modernMargin
                 anchors.rightMargin: gpxPage.modernRightMargin
                 clip: true
@@ -292,8 +311,10 @@ ColumnLayout {
                     // On the list itself: children of a ListView land in its content item, empty here
                     parent: modernList
                     anchors.centerIn: parent
-                    // only once the folder is read: the model fills in asynchronously
+                    // only once the folder is read: the model fills in asynchronously; not while a
+                    // restore copies the files of a previous install into it
                     visible: modernList.count === 0 && folderModel.status === FolderListModel.Ready
+                             && rootItem.folderRestoreTotal === 0
                     text: qsTr("No GPX files here")
                     color: window.ui.textMuted
                 }
@@ -332,6 +353,17 @@ ColumnLayout {
                      text: "←"
                      onClicked: folderModel.folder = folderModel.parentFolder
                 }
+            }
+
+            // the restore of a previous install: above the list, which moves down for that time
+            UiProgress {
+                shown: !window.ui.modern
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                topPadding: 8
+                done: rootItem.folderRestoreDone
+                total: rootItem.folderRestoreTotal
             }
 
             ListView {
@@ -646,6 +678,12 @@ ColumnLayout {
                 Layout.fillHeight: true
                 wrapsText: true
                 visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+                // greyed out while a restore runs: a second one is refused
+                // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+                enabled: rootItem.folderRestoreTotal === 0
+                // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+                // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+                Accessible.ignored: !enabled
                 text: qsTr("Restore files")
                 onClicked: rootItem.offerFolderRestore()
             }
@@ -671,6 +709,12 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 50
             visible: rootItem.qzFolderRestorable && !rootItem.qzFolderGrantSaved
+            // greyed out while a restore runs: a second one is refused
+            // (CustomQtActivity.openRestoreFolderPicker); hidden after it, with the grant
+            enabled: rootItem.folderRestoreTotal === 0
+            // Qt 5.15 does not report a disabled item to TalkBack (fixed in Qt 6 by
+            // qtdeclarative 20fd2902a6): left in, it would be read as a button that works
+            Accessible.ignored: !enabled
             text: qsTr("Restore files")
             onClicked: rootItem.offerFolderRestore()
         }

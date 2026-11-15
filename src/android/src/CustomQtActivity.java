@@ -59,6 +59,8 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
     // a workout import starts copying: the history page shows that it is running
     private static native void nativeOnFitImportStarted();
+    // a restore of the QZ folder copied done of total files: the list pages show how far it is
+    private static native void nativeOnFolderRestoreProgress(int done, int total);
     // TalkBack put its focus on this accessible object: scroll it into view
     private static native void nativeScrollToAccessibleObject(int id);
     // TalkBack's double tap on this accessible object: true when QZ pressed it (a Qt button with
@@ -1002,19 +1004,36 @@ public class CustomQtActivity extends QtActivity {
             @Override
             public void run() {
                 StringBuilder restored = new StringBuilder();
+                // files copied so far and files to copy: the pages show how far the restore is
+                int[] progress = {0, 0};
                 try {
                     String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
-                    for (String folder : RESTORE_FOLDERS) {
-                        String folderId = null;
+                    String[] folderIds = new String[RESTORE_FOLDERS.length];
+                    for (int i = 0; i < RESTORE_FOLDERS.length; i++) {
+                        String folder = RESTORE_FOLDERS[i];
                         if (QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
-                            folderId = findChildDocument(treeUri, rootId, folder);
+                            folderIds[i] = findChildDocument(treeUri, rootId, folder);
                         } else if ((QZ_DOCUMENTS_TREE_ID + "/" + folder).equals(rootId)) {
-                            folderId = rootId;
+                            folderIds[i] = rootId;
                         }
-                        if (folderId != null && !destinationDir.isEmpty()) {
-                            restoreFolderFiles(treeUri, folderId, new java.io.File(destinationDir, folder), restored);
+                        Log.d(TAG, "handleRestoreFolderResult root=" + rootId + " " + folder + "=" + folderIds[i]);
+                    }
+                    // counted before the first copy, so the count does not grow while it runs
+                    for (int i = 0; i < RESTORE_FOLDERS.length; i++) {
+                        if (folderIds[i] != null && !destinationDir.isEmpty()) {
+                            progress[1] += countRestoreFiles(treeUri, folderIds[i],
+                                                             new java.io.File(destinationDir, RESTORE_FOLDERS[i]), restored);
                         }
-                        Log.d(TAG, "handleRestoreFolderResult root=" + rootId + " " + folder + "=" + folderId);
+                    }
+                    Log.d(TAG, "handleRestoreFolderResult files to restore " + progress[1]);
+                    if (progress[1] > 0) {
+                        nativeOnFolderRestoreProgress(0, progress[1]);
+                    }
+                    for (int i = 0; i < RESTORE_FOLDERS.length; i++) {
+                        if (folderIds[i] != null && !destinationDir.isEmpty()) {
+                            restoreFolderFiles(treeUri, folderIds[i], new java.io.File(destinationDir, RESTORE_FOLDERS[i]),
+                                               restored, progress);
+                        }
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "handleRestoreFolderResult failed " + e);
@@ -1026,6 +1045,13 @@ public class CustomQtActivity extends QtActivity {
     }
 
     private String findChildDocument(Uri treeUri, String parentId, String childName) {
+        // The external storage provider names a document by its path under the parent, so the
+        // child is looked up first as one document: listing the parent costs seconds when the QZ
+        // folder holds a thousand charts and logs. The listing stays for other providers.
+        String directId = findDocumentByPath(treeUri, parentId + "/" + childName, childName);
+        if (directId != null) {
+            return directId;
+        }
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         android.database.Cursor cursor = null;
         try {
@@ -1047,13 +1073,36 @@ public class CustomQtActivity extends QtActivity {
         return null;
     }
 
+    // documentId when the tree has a document with this id and this name, otherwise null
+    private String findDocumentByPath(Uri treeUri, String documentId, String name) {
+        android.database.Cursor cursor = null;
+        try {
+            Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+            cursor = getContentResolver().query(documentUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            if (cursor != null && cursor.moveToFirst() && name.equals(cursor.getString(0))) {
+                return documentId;
+            }
+        } catch (Exception e) {
+            // no such document, or a provider with other ids: the caller lists the parent
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
     // Walks the folder and its subfolders; a file the app can already read is its own and stays.
     // The copy is written first under a hidden temporary name (.restore_<name>) and compared
     // with the old file byte for byte; only then is the old file removed and the copy takes the
     // real name. A failure before the removal leaves the old file in place; a copy left under
     // the temporary name after it is finished by recoverRestoreCopies() on the next pass or
     // the next visit of the list.
-    private void restoreFolderFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+    // progress: the file under way and the files to copy (countRestoreFiles()); each file of a
+    // previous install, copied or not, moves it on by one and is passed to the native side.
+    private void restoreFolderFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored,
+                                    int[] progress) {
         recoverRestoreCopies(localDir, false, restored);
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         android.database.Cursor cursor = null;
@@ -1072,12 +1121,15 @@ public class CustomQtActivity extends QtActivity {
                 }
                 java.io.File local = new java.io.File(localDir, name);
                 if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
-                    restoreFolderFiles(treeUri, documentId, local, restored);
+                    restoreFolderFiles(treeUri, documentId, local, restored, progress);
                     continue;
                 }
                 if (local.exists() && ContentHelper.isReadable(local)) {
                     continue;
                 }
+                // never past the count: a file may have come into the folder since it was counted
+                progress[0] = Math.min(progress[0] + 1, progress[1]);
+                nativeOnFolderRestoreProgress(progress[0], progress[1]);
                 if (!localDir.exists() && !localDir.mkdirs()) {
                     Log.d(TAG, "restoreFolderFiles could not create " + localDir);
                     return;
@@ -1116,6 +1168,43 @@ public class CustomQtActivity extends QtActivity {
                 cursor.close();
             }
         }
+    }
+
+    // The files restoreFolderFiles() would copy from the folder and its subfolders: the ones the
+    // app cannot read under the same name. Only the folder listing is read, no file content.
+    // Copies left under the temporary name are finished first (as restoreFolderFiles() does), so
+    // a file they bring back is not counted.
+    private int countRestoreFiles(Uri treeUri, String parentId, java.io.File localDir, StringBuilder restored) {
+        recoverRestoreCopies(localDir, false, restored);
+        int count = 0;
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                if (documentId == null || name == null || name.isEmpty()) {
+                    continue;
+                }
+                java.io.File local = new java.io.File(localDir, name);
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    count += countRestoreFiles(treeUri, documentId, local, restored);
+                } else if (!local.exists() || !ContentHelper.isReadable(local)) {
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "countRestoreFiles failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
     }
 
     private static final String RESTORE_PREFIX = ".restore_";
