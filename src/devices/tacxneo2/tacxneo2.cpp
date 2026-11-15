@@ -221,18 +221,32 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint8_t heart = 0;
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-    static bool validCadenceFrom2ad2 = false;
+    // FTMS has priority while it is delivering valid cadence; CSC is the fallback.
+    // Do not use a function-static flag: it persists across trainers and reconnects.
+    const bool externalCadenceDisabled =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString().startsWith(QStringLiteral("Disabled"));
+    const bool ftmsCadenceFresh = lastValidFtmsCadence.isValid() &&
+                                   lastValidFtmsCadence.msecsTo(now) <= 2000;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B) && !validCadenceFrom2ad2) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
 
+        if (newValue.isEmpty()) {
+            emit debug(QStringLiteral("Empty CSC notification"));
+            return;
+        }
         uint8_t index = 1;
 
-        if (newValue.at(0) == 0x02 && newValue.length() < 4) {
+        if (newValue.at(0) == 0x02 && newValue.length() < 5) {
             emit debug(QStringLiteral("Crank revolution data present with wrong bytes ") +
                        QString::number(newValue.length()));
             return;
-        } else if (newValue.at(0) == 0x01 && newValue.length() < 6) {
+        } else if (newValue.at(0) == 0x03 && newValue.length() < 11) {
+            emit debug(QStringLiteral("Wheel/crank CSC notification is truncated: ") +
+                       QString::number(newValue.length()));
+            return;
+        } else if (newValue.at(0) == 0x01 && newValue.length() < 7) {
             emit debug(QStringLiteral("Wheel revolution data present with wrong bytes ") +
                        QString::number(newValue.length()));
             return;
@@ -263,40 +277,45 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t LastCrankEventTimeRead =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
-        int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
-        if (deltaT < 0) {
-            deltaT = LastCrankEventTimeRead + 65536 - oldLastCrankEventTime;
+        if (!cscBaselineReceived) {
+            oldCscLastCrankEventTime = LastCrankEventTimeRead;
+            oldCscCrankRevs = CrankRevsRead;
+            cscBaselineReceived = true;
+            lastRefreshCharacteristicChanged2A5B = now;
+            return;
+        }
+
+        // Update CSC counters even if FTMS or an external sensor currently wins.
+        // Keep them distinct from the Cycling Power revolution counters.
+        const uint16_t deltaT = static_cast<uint16_t>(LastCrankEventTimeRead - oldCscLastCrankEventTime);
+        const uint16_t crankDelta = static_cast<uint16_t>(CrankRevsRead - oldCscCrankRevs);
+        oldCscLastCrankEventTime = LastCrankEventTimeRead;
+        oldCscCrankRevs = CrankRevsRead;
+        if (!externalCadenceDisabled || ftmsCadenceFresh) {
+            lastRefreshCharacteristicChanged2A5B = now;
+            return;
         }
 
         // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
         if(m_watt.value() == 0) {
             Cadence = 0;
-        } else if (CrankRevsRead != oldCrankRevs && deltaT) {
-            // Calculate crank revolution delta, handling potential rollover
-            int32_t crankDelta = (int32_t)CrankRevsRead - (int32_t)oldCrankRevs;
-
-            // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
-            if (crankDelta < 0 && crankDelta > -100) {
-                // Assume 16-bit rollover for crank revs
-                crankDelta += 65536;
-            } else if (crankDelta < -100) {
-                // Invalid data - large negative jump, skip this update
-                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
-                // Keep last good cadence, will timeout after 2s
-            } else if (crankDelta > 0 && deltaT > 0) {
-                // Valid positive change
-                double cadence = (crankDelta / (double)deltaT) * 1024.0 * 60.0;
-                if (cadence >= 0 && cadence < 255) {
+        } else if (crankDelta > 0 && deltaT > 0) {
+            if (crankDelta <= 32) {
+                const double cadence = (crankDelta / double(deltaT)) * 1024.0 * 60.0;
+                if (cadence > 0 && cadence < 255) {
                     Cadence = cadence;
+                    lastNativeCadence = cadence;
+                    lastValidNativeCadence = now;
+                    lastGoodCscCadence = now;
                 }
-                lastGoodCadence = now;
+            } else {
+                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
             }
-        } else if (lastGoodCadence.msecsTo(now) > 2000) {
-            Cadence = 0;
+        } else if (lastGoodCscCadence.msecsTo(now) > 2000) {
+            Cadence = (lastValidNativeCadence.isValid() &&
+                       lastValidNativeCadence.msecsTo(now) <= 2000)
+                          ? lastNativeCadence : 0;
         }
-
-        oldLastCrankEventTime = LastCrankEventTimeRead;
-        oldCrankRevs = CrankRevsRead;
 
         Speed = Cadence.value() *
                 settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
@@ -356,12 +375,29 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
+        if (newValue.size() < 4) {
+            emit debug(QStringLiteral("Truncated Cycling Power notification: ") +
+                       QString::number(newValue.size()));
+            return;
+        }
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
         bool crank_rev_present = false;
         uint16_t time_division = 1024;
         uint8_t index = 4;
+        if (THINK_X) {
+            // Power Balance, Torque, Wheel (6 bytes), and Crank (4 bytes).
+            const int expectedLength = 4 + ((flags & 0x01) ? 1 : 0) +
+                                       ((flags & 0x04) ? 2 : 0) +
+                                       ((flags & 0x10) ? 6 : 0) +
+                                       ((flags & 0x20) ? 4 : 0);
+            if (newValue.size() < expectedLength) {
+                emit debug(QStringLiteral("Truncated ThinkRider Cycling Power notification: ") +
+                           QString::number(newValue.size()));
+                return;
+            }
+        }
 
         if (newValue.length() > 3) {
             double tacx_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
@@ -433,41 +469,39 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     index += 2;
                 }
 
-                int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-                if (deltaT < 0) {
-                    // Handle rollover - use 65536 for proper wraparound calculation
-                    deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
-                }
+                // 16-bit event time wraps naturally. A signed int16_t overflows
+                // at rollover and can discard otherwise valid cadence events.
+                const uint16_t deltaT = static_cast<uint16_t>(LastCrankEventTime - oldLastCrankEventTime);
 
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    if (CrankRevs != oldCrankRevs && deltaT) {
-                        // Calculate crank revolution delta, handling potential rollover
-                        int32_t crankDelta = CrankRevs - oldCrankRevs;
-
-                        // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
-                        // or if deltaT is still unreasonably small after rollover correction
-                        if (crankDelta < 0 && crankDelta > -100) {
-                            // Assume 16-bit rollover for crank revs
-                            crankDelta += 65536;
-                        } else if (crankDelta < -100) {
-                            // Invalid data - large negative jump, skip this update
-                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta << "deltaT =" << deltaT;
-                        } else if (crankDelta > 0 && deltaT > 0) {
-                            // Valid positive change
-                            double cadence = (crankDelta / (double)deltaT) * time_division * 60;
+                    // Cycling Power uses 16-bit crank revolutions or 32-bit
+                    // wheel revolutions. Keep their rollover arithmetic separate.
+                    const uint32_t currentRevs = static_cast<uint32_t>(CrankRevs);
+                    const uint32_t crankDelta = crank_rev_present
+                        ? static_cast<uint16_t>(currentRevs - oldCrankRevs)
+                        : static_cast<uint32_t>(currentRevs - oldCrankRevs);
+                    if (crankDelta > 0 && deltaT > 0) {
+                        if (crankDelta <= 32) {
+                            double cadence = (crankDelta / double(deltaT)) * time_division * 60;
                             if (!crank_rev_present)
-                                cadence =
-                                    cadence /
-                                    2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                            if (cadence >= 0 && cadence < 255) {
-                                Cadence = cadence;
+                                cadence /= 2; // Existing ThinkRider wheel-derived cadence approximation.
+                            if (cadence > 0 && cadence < 255) {
+                                lastNativeCadence = cadence;
+                                lastValidNativeCadence = now;
+                                if (!ftmsCadenceFresh)
+                                    Cadence = cadence;
+                                lastGoodCadence = now;
                             }
-                            lastGoodCadence = now;
+                        } else {
+                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta
+                                     << "deltaT =" << deltaT;
                         }
-                    } else if (lastGoodCadence.msecsTo(now) > 2000) {
-                        Cadence = 0;
+                    } else if (lastGoodCadence.msecsTo(now) > 2000 && !ftmsCadenceFresh) {
+                        Cadence = (lastValidNativeCadence.isValid() &&
+                                   lastValidNativeCadence.msecsTo(now) <= 2000)
+                                      ? lastNativeCadence : 0;
                     }
                 }
 
@@ -568,10 +602,30 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint16_t word_flags;
         };
 
+        if (newValue.size() < 2) {
+            emit debug(QStringLiteral("Truncated FTMS Indoor Bike notification: ") +
+                       QString::number(newValue.size()));
+            return;
+        }
         flags Flags;
         int index = 0;
-        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        Flags.word_flags = (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(1))) << 8) |
+                           static_cast<uint8_t>(newValue.at(0));
         index += 2;
+
+        // Validate all optional fields before accessing QByteArray::at(). Invalid
+        // notifications must not reach Qt assertions (seen in issue #5531).
+        const int expectedLength = 2 + (!Flags.moreData ? 2 : 0) + (Flags.avgSpeed ? 2 : 0) +
+                                   (Flags.instantCadence ? 2 : 0) + (Flags.avgCadence ? 2 : 0) +
+                                   (Flags.totDistance ? 3 : 0) + (Flags.resistanceLvl ? 2 : 0) +
+                                   (Flags.instantPower ? 2 : 0) + (Flags.avgPower ? 2 : 0) +
+                                   (Flags.expEnergy ? 5 : 0) + (Flags.heartRate ? 1 : 0);
+        if (newValue.size() < expectedLength) {
+            emit debug(QStringLiteral("Truncated FTMS Indoor Bike notification: ") +
+                       QString::number(newValue.size()) + QStringLiteral(" expected ") +
+                       QString::number(expectedLength));
+            return;
+        }
 
         if (!Flags.moreData) {
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
@@ -600,11 +654,19 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index)))) /
-                          2.0;
-                if(Cadence.value() > 0)
-                    validCadenceFrom2ad2 = true;
+                const double ftmsCadence =
+                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) / 2.0;
+                if (ftmsCadence > 0 && ftmsCadence < 255) {
+                    Cadence = ftmsCadence;
+                    lastValidFtmsCadence = now;
+                } else if (!ftmsCadenceFresh) {
+                    // Keep the most recent Cycling Power / CSC fallback when FTMS
+                    // returns zero, rather than alternating between zero and RPM.
+                    Cadence = (lastValidNativeCadence.isValid() &&
+                               lastValidNativeCadence.msecsTo(now) <= 2000)
+                                  ? lastNativeCadence : 0;
+                }
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
