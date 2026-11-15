@@ -276,7 +276,8 @@ Page {
             Layout.rightMargin: window.contentSideMargin
             topPadding: 8
             done: rootItem ? rootItem.fitImportDone : 0
-            total: rootItem ? rootItem.fitImportTotal : 0
+            // one file (a picked workout) is over at once: the spinner, not a count flashing 1 / 1
+            total: rootItem && rootItem.fitImportTotal > 1 ? rootItem.fitImportTotal : 0
             text: rootItem && rootItem.fitImportAdding ? qsTr("Adding workouts to the history")
                                                        : qsTr("Copying workout files")
             accessibleText: rootItem && rootItem.fitImportAdding ? qsTr("Adding workouts to the history: %1 of %2")
