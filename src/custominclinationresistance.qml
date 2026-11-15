@@ -396,7 +396,11 @@ ScrollView {
                             text = adjustPoint(index, "inclination", delta)
                             Qt.callLater(sortPointsAndSave)
                         }
+                        // index -1: the row is going away - sortPointsAndSave rebuilds the model,
+                        // and the field that had the focus finishes its editing once more
                         onEdited: {
+                            if (index < 0)
+                                return
                             text = updatePoint(index, "inclination", value)
                             Qt.callLater(sortPointsAndSave)
                         }
@@ -409,7 +413,7 @@ ScrollView {
                         label: qsTr("Resistance")
                         text: formatNumber(resistance)
                         onStep: text = adjustPoint(index, "resistance", delta)
-                        onEdited: text = updatePoint(index, "resistance", value)
+                        onEdited: if (index >= 0) text = updatePoint(index, "resistance", value)
                     }
 
                     MouseArea {
