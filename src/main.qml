@@ -387,6 +387,24 @@ ApplicationWindow {
         function onSystemThemeChanged() { window.ui.refreshSystemTheme() }
     }
 
+    // Android: the theme Qt 5.15 sets paints the status bar black over the app. The modern look
+    // makes it transparent (the page and the drawer sheet reach the top of the screen) with icons in
+    // the contrast of the page; the classic look keeps the black bar, as before, unless the modern
+    // one was on
+    property bool systemBarsColored: false
+    function applySystemBars() {
+        if (Qt.platform.os !== "android" || (!ui.modern && !systemBarsColored))
+            return
+        AndroidStatusBar.setSystemBarsColor(ui.bg, ui.dark, ui.modern)
+        systemBarsColored = ui.modern
+    }
+    Connections {
+        target: window.ui
+        function onBgChanged() { window.applySystemBars() }
+        function onDarkChanged() { window.applySystemBars() }
+        function onModernChanged() { window.applySystemBars() }
+    }
+
     // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
     // system text size by default, capped so the fixed-height rows still fit; otherwise ui_text_scale.
     // Qt 5.15 applies neither by itself, and Qt.application.font is constant, so the size goes
@@ -453,6 +471,8 @@ ApplicationWindow {
             if (Qt.application.state === Qt.ApplicationActive) {
                 window.systemTextScale = AndroidStatusBar.systemFontScale()
                 window.ui.refreshSystemTheme()
+                // the first time at start-up, when the native window is there
+                window.applySystemBars()
             }
         }
     }
@@ -1326,10 +1346,12 @@ ApplicationWindow {
         topInset: -barHidden
         bottomInset: barHidden - contentHeight
         // The buttons fade out as the bar goes and are hidden once it is gone, from TalkBack as
-        // well; the background goes then too
+        // well; the background goes then too. Android, modern look: it stays – the status bar is
+        // transparent there (applySystemBars), and the tiles would slide under its icons
         contentItem.opacity: 1 - barHidden / contentHeight
         contentItem.visible: barHidden < contentHeight
         background.visible: barHidden < contentHeight
+                            || (window.ui.modern && Qt.platform.os === "android")
 
         // The bar takes the touches on it, as a toolbar the height of its content did: drawn
         // past the height of the header, it would let a tap on the title reach the tiles below
@@ -1860,7 +1882,9 @@ ApplicationWindow {
         background.visible: !window.ui.modern
 
         // Modern: a sheet with rounded outer corners, over the whole drawer (paddings too). It
-        // runs past the left edge, so only the right-hand corners show
+        // runs past the left edge, so only the right-hand corners show. 16: the corner of the
+        // Material 3 navigation drawer (shape Corner Large). On Android the top one shows through
+        // the transparent status bar (applySystemBars)
         Rectangle {
             visible: window.ui.modern
             anchors.fill: parent
@@ -1868,7 +1892,7 @@ ApplicationWindow {
             anchors.bottomMargin: -drawer.bottomPadding
             anchors.leftMargin: -drawer.leftPadding - radius
             anchors.rightMargin: -drawer.rightPadding
-            radius: 20
+            radius: 16
             color: window.ui.surface
         }
 

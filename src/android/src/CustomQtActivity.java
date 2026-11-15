@@ -27,6 +27,8 @@ import android.webkit.WebView;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
+import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
@@ -683,6 +685,108 @@ public class CustomQtActivity extends QtActivity {
     // This method is still needed for the QML check
     public static int getApiLevel() {
         return Build.VERSION.SDK_INT;
+    }
+
+    // Modern look: the status and navigation bars without a background of their own, as Qt 6 does for
+    // a window under them (QtDisplayManager.setSystemUiVisibility in 6.8: transparent bar colours).
+    // Qt 5.15 puts the activity in Theme_Holo_Light on API 21+ (QtActivity, QtActivityLoader.setTheme),
+    // whose window does not draw the system bar backgrounds, so the system paints a black bar under the
+    // status bar over the app - on Android 15+ as well, where the bars are otherwise transparent. From
+    // API 31 the window reaches under the bars (onCreate): they become transparent and the page shows
+    // through (the drawer sheet too, with its rounded top corner). API 23-30 keep the window below the
+    // bars, so they take the page colour (the navigation bar from API 26, the first with dark buttons).
+    // The icons follow the page: dark on a light one. API 21-22 have no dark icons: nothing changes.
+    // Classic look (modern false): the flags, colours and icons from before the first call come back.
+    // Called from QML (applySystemBars) at start-up, on every return to the foreground and when the
+    // look or its theme changes, so a reset by the system is put right on the next return.
+    private static boolean systemBarsSaved = false;
+    private static boolean savedDrawsBars;
+    private static int savedStatusBarColor;
+    private static int savedNavigationBarColor;
+    private static boolean savedLightStatus;
+    private static boolean savedLightNavigation;
+
+    public static void setSystemBars(final int color, final boolean modern, final boolean dark) {
+        final CustomQtActivity activity = accessibilityActivity;
+        if (activity == null || Build.VERSION.SDK_INT < 23)
+            return;
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Window window = activity.getWindow();
+                final int drawsBars = WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS;
+                // Android 15+ (the app targets 35+, edge to edge enforced): the system keeps the bars
+                // transparent and ignores their colours, the flag alone takes the black away; the colour
+                // calls are deprecated there and not made, as in Qt 6 (QtWindowInsetsController, 5472ad6adf)
+                final boolean colors = Build.VERSION.SDK_INT < 35;
+                if (!systemBarsSaved) {
+                    if (!modern)
+                        return;
+                    savedDrawsBars = (window.getAttributes().flags & drawsBars) != 0;
+                    if (colors) {
+                        savedStatusBarColor = window.getStatusBarColor();
+                        savedNavigationBarColor = window.getNavigationBarColor();
+                    }
+                    savedLightStatus = lightBar(window, true);
+                    savedLightNavigation = lightBar(window, false);
+                    systemBarsSaved = true;
+                }
+                if (modern) {
+                    int bars = Build.VERSION.SDK_INT >= 31 ? Color.TRANSPARENT : (color | 0xFF000000);
+                    window.addFlags(drawsBars);
+                    if (colors)
+                        window.setStatusBarColor(bars);
+                    setLightBar(window, true, !dark);
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        if (colors)
+                            window.setNavigationBarColor(bars);
+                        setLightBar(window, false, !dark);
+                    }
+                } else {
+                    if (!savedDrawsBars)
+                        window.clearFlags(drawsBars);
+                    if (colors) {
+                        window.setStatusBarColor(savedStatusBarColor);
+                        window.setNavigationBarColor(savedNavigationBarColor);
+                    }
+                    setLightBar(window, true, savedLightStatus);
+                    if (Build.VERSION.SDK_INT >= 26)
+                        setLightBar(window, false, savedLightNavigation);
+                }
+            }
+        });
+    }
+
+    // Dark icons on the status bar (status true) or dark buttons on the navigation bar
+    private static boolean lightBar(Window window, boolean status) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = window.getInsetsController();
+            int flag = status ? WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                              : WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            return controller != null && (controller.getSystemBarsAppearance() & flag) != 0;
+        }
+        int flag = status ? View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        return (window.getDecorView().getSystemUiVisibility() & flag) != 0;
+    }
+
+    // API 30-34 take both ways: on API 30 the appearance of the controller alone left the icons light
+    // on a light page (emulator, T-544), and androidx WindowInsetsControllerCompat sets the old flag
+    // there as well (b/180881870); API 35+ the controller alone, the old flags are deprecated
+    private static void setLightBar(Window window, boolean status, boolean light) {
+        if (Build.VERSION.SDK_INT < 35) {
+            View decor = window.getDecorView();
+            int flag = status ? View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            int visibility = decor.getSystemUiVisibility();
+            decor.setSystemUiVisibility(light ? (visibility | flag) : (visibility & ~flag));
+        }
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller == null)
+                return;
+            int flag = status ? WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                              : WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            controller.setSystemBarsAppearance(light ? flag : 0, flag);
+        }
     }
 
     private boolean isDocumentPickerRequest(int requestCode) {
