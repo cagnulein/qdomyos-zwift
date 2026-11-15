@@ -40,16 +40,16 @@ void zwiftclickremote::update() {
         QByteArray s = playDevice->buildHandshakeStart();
         // ZwiftBoard's verified Click V2 activation: RideOn 02 03,
         // then 00 08 00 and 00 08 10. Keep legacy Play/Ride intact.
-        if (automaticUnlock)
+        if (clickV2Left)
             s.append(QByteArray::fromHex("0203"));
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
-        if (automaticUnlock) {
+        if (clickV2Left) {
             // Space the WriteWithoutResponse frames like ZwiftBoard. In
             // particular CoreBluetooth must not be flooded before subscription.
             const quint64 generation = unlockGeneration;
             QTimer::singleShot(10, this, [this, generation]() {
-                if (!automaticUnlock || generation != unlockGeneration)
+                if (!clickV2Left || generation != unlockGeneration)
                     return;
                 QByteArray activate = QByteArray::fromHex("000800");
                 writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
@@ -57,7 +57,7 @@ void zwiftclickremote::update() {
                                     static_cast<uint8_t>(activate.size()), "Click V2 activate 1");
             });
             QTimer::singleShot(20, this, [this, generation]() {
-                if (!automaticUnlock || generation != unlockGeneration)
+                if (!clickV2Left || generation != unlockGeneration)
                     return;
                 QByteArray activate = QByteArray::fromHex("000810");
                 writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
@@ -101,10 +101,16 @@ void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uu
 
     // Only Click V2 LEFT pods use the signed unlock. Preserve all existing
     // controller notifications and button handling regardless of this setting.
-    if (automaticUnlock &&
-        uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1")) &&
-        !dLockChallengePayload(newValue).isEmpty()) {
-        handleDLockChallenge(newValue);
+    if (clickV2Left) {
+        // An echoed RideOn on SyncTX proves the controller's button engine is
+        // already active. It avoids prompting for a login on an unlocked pod.
+        if (uuid == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1")) &&
+            newValue.startsWith("RideOn"))
+            lastRideOnEchoMs = QDateTime::currentMSecsSinceEpoch();
+
+        if (uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1")) &&
+            !dLockChallengePayload(newValue).isEmpty())
+            handleDLockChallenge(newValue);
     }
 
     if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
@@ -313,12 +319,10 @@ void zwiftclickremote::error(QLowEnergyController::Error err) {
 }
 
 void zwiftclickremote::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    QSettings settings;
     resetDLockSession();
-    automaticUnlock = typeZap == AbstractZapDevice::LEFT &&
-                      device.name().toUpper().startsWith(QStringLiteral("ZWIFT CLICK")) &&
-                      settings.value(QZSettings::zwift_click_auto_unlock,
-                                     QZSettings::default_zwift_click_auto_unlock).toBool();
+    // The signed d-lock flow belongs to the LEFT Click V2 pod only.
+    clickV2Left = typeZap == AbstractZapDevice::LEFT &&
+                  device.name().toUpper().startsWith(QStringLiteral("ZWIFT CLICK"));
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     
@@ -414,6 +418,8 @@ void zwiftclickremote::vibrate(uint8_t pattern) {
 void zwiftclickremote::resetDLockSession() {
     ++unlockGeneration;
     pendingUnlockPayload.clear();
+    lastRideOnEchoMs = 0;
+    unlockDecisionPending = false;
     unlockRequestPending = false;
     unlockRetriedUnauthorized = false;
 }
@@ -439,15 +445,40 @@ void zwiftclickremote::handleDLockChallenge(const QByteArray &frame) {
     const QByteArray payload = dLockChallengePayload(frame);
     if (payload.isEmpty())
         return;
+
     if (pendingUnlockPayload != payload) {
         pendingUnlockPayload = payload;
         unlockRetriedUnauthorized = false;
+        unlockDecisionPending = false;
     }
-    startDLockRequest();
+    if (unlockDecisionPending || unlockRequestPending || unlockTokenPending)
+        return;
+
+    // A challenge on Async is not proof that a previous unlock expired.
+    // Give SyncTX a short window to echo RideOn before deciding that the
+    // server-signed reply (or a credentials prompt) is necessary.
+    unlockDecisionPending = true;
+    const quint64 generation = unlockGeneration;
+    const qint64 challengeAt = QDateTime::currentMSecsSinceEpoch();
+    QTimer::singleShot(600, this, [this, generation, payload, challengeAt]() {
+        if (generation != unlockGeneration || payload != pendingUnlockPayload)
+            return;
+        unlockDecisionPending = false;
+
+        // Echo received shortly before or after this challenge: the pod is
+        // already unlocked. A legacy ACK suffices and needs no Zwift account.
+        if (lastRideOnEchoMs > 0 && lastRideOnEchoMs >= challengeAt - 2000) {
+            emit debug(QStringLiteral("Zwift Click V2 already unlocked (RideOn echo)"));
+            sendDLockFrame(QByteArray());
+            pendingUnlockPayload.clear();
+            return;
+        }
+        startDLockRequest();
+    });
 }
 
 void zwiftclickremote::startDLockRequest() {
-    if (!automaticUnlock || pendingUnlockPayload.isEmpty() ||
+    if (!clickV2Left || pendingUnlockPayload.isEmpty() ||
         unlockTokenPending || unlockRequestPending)
         return;
 
@@ -457,8 +488,16 @@ void zwiftclickremote::startDLockRequest() {
                                                  QZSettings::default_zwift_username).toString();
         const QString password = settings.value(QZSettings::zwift_password,
                                                  QZSettings::default_zwift_password).toString();
-        if (username.isEmpty() || password.isEmpty()) {
-            emit debug(QStringLiteral("Zwift Click V2 auto-unlock needs Zwift credentials"));
+        if (username.trimmed().isEmpty() || password.isEmpty()) {
+            emit debug(QStringLiteral("Zwift Click V2 needs unlock: Zwift credentials not configured"));
+            if (!credentialsPromptShown && homeform::singleton()) {
+                credentialsPromptShown = true;
+                homeform::singleton()->setToastRequested(QObject::tr(
+                    "Zwift Click V2 needs unlocking. Enter your Zwift username and password in "
+                    "Settings > Zwift Options, then reconnect the controller."));
+            }
+            // Keep an already-authorized controller responsive even when
+            // credentials are not yet configured.
             sendDLockFrame(QByteArray());
             pendingUnlockPayload.clear();
             return;
