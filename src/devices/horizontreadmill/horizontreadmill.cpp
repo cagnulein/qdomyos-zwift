@@ -226,6 +226,10 @@ void horizontreadmill::btinit() {
         // A delayed matching reply can arrive while waiting; do not resend.
         if (initPacketRecv)
             return false;
+        // Only the opt-in strict profile path changes retry behaviour.
+        // Preserve the original unlimited retry on other Horizon variants.
+        if (!validateHorizonInitResponse)
+            return true;
         if (++initRetries[stage] < 3)
             return true;
         qWarning() << "Horizon initialization failed at stage" << stage
