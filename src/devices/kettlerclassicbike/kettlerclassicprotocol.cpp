@@ -1,5 +1,7 @@
 #include "kettlerclassicprotocol.h"
 
+#include <QCryptographicHash>
+
 namespace kettlerclassicprotocol {
 namespace {
 constexpr quint8 STX = 0x02;
@@ -42,6 +44,18 @@ int consumeEscapedByte(const QByteArray &buffer, qsizetype &position, quint8 &va
 }
 
 } // namespace
+
+QByteArray coachSHandshakeForSalt(const QByteArray &salt) {
+    if (salt.size() != 2) return {};
+    // Recovered from Kettler S-FIT 1.6; validated against six independent
+    // Coach S Kinomap handshake TX/RX payloads in three HCI captures.
+    const QByteArray secret = QByteArray::fromHex("35d834d59da00bbb43c91743accd5603");
+    return salt + QCryptographicHash::hash(salt + secret, QCryptographicHash::Md5);
+}
+
+bool isValidCoachSHandshake(const QByteArray &payload) {
+    return payload.size() == 18 && coachSHandshakeForSalt(payload.left(2)) == payload;
+}
 
 quint16 crc16(const QByteArray &data) {
     quint16 crc = 0;
