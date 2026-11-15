@@ -21,17 +21,15 @@ constexpr quint8 SUB_ANSWER = 0x03;
 constexpr int POLL_INTERVAL_MS = 500;
 constexpr int REQUEST_TIMEOUT_MS = 2000;
 
-// Experimental: three independent successful Kinomap captures each start with
-// a different 18-byte client challenge and no preceding application-level seed.
-// Test whether the Coach S accepts fresh random bytes rather than replayed
-// challenges. Do not assume the random-only construction is proven.
+// Kinomap / Kettler S-FIT authentication: the client supplies two random
+// salt bytes and an MD5 digest of salt || fixed protocol key. The rower
+// responds with another salt/digest pair, verified before starting telemetry.
 QByteArray freshCoachChallenge() {
-    QByteArray challenge(18, '\0');
-    auto *rng = QRandomGenerator::system();
-    for (int i = 0; i < challenge.size(); ++i) {
-        challenge[i] = static_cast<char>(rng->generate() & 0xff);
-    }
-    return challenge;
+    const quint32 randomValue = QRandomGenerator::system()->generate();
+    QByteArray salt;
+    salt.append(static_cast<char>(randomValue & 0xff));
+    salt.append(static_cast<char>((randomValue >> 8) & 0xff));
+    return kettlerclassicprotocol::coachSHandshakeForSalt(salt);
 }
 
 bool isSerialPortService(const QBluetoothServiceInfo &service) {
@@ -182,6 +180,10 @@ void kettlercoachrower::readSocket() {
 void kettlercoachrower::processFrame(const kettlerclassicprotocol::Frame &frame) {
     if (frame.subFunction != SUB_ANSWER) return;
     if (requestInFlight && frame.function == activeRequest.function) {
+        if (awaitingHandshake && !kettlerclassicprotocol::isValidCoachSHandshake(frame.payload)) {
+            disconnectAfterError(QStringLiteral("invalid Coach S handshake response digest"));
+            return;
+        }
         requestTimeoutTimer.stop();
         requestInFlight = false;
         if (awaitingHandshake) {
@@ -282,7 +284,7 @@ void kettlercoachrower::requestTimeout() {
                QString::number(activeRequest.function, 16));
     requestInFlight = false;
     if (awaitingHandshake) {
-        disconnectAfterError(QStringLiteral("handshake timed out (experimental random challenge)"));
+        disconnectAfterError(QStringLiteral("handshake timed out (Coach S MD5 salt challenge)"));
     } else {
         sendNextRequest();
     }
