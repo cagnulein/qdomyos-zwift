@@ -540,6 +540,22 @@ ColumnLayout {
                         line.width: window.ui.modern ? 4 : 3
                         line.color: window.ui.modern ? window.ui.accent : 'red'
                     }
+                    // Modern look: rounded corners, 16 like the cards. Qt Quick clips to rectangles
+                    // only, so a radius on a parent does not round the map; a frame in the page colour
+                    // over the map covers the corners instead (a layer mask would render the map into
+                    // a texture on every frame of a pan). The inner edge of the frame is the corner;
+                    // the outer part lies outside the map, which clips its children. The copyright notice
+                    // of the map stays on top: the map puts it above all its map items (z 1 over this z 0).
+                    Rectangle {
+                        visible: window.ui.modern
+                        anchors.fill: parent
+                        anchors.margins: -border.width
+                        // 8 is enough: the outer arc (radius 24) still covers the corner of the map
+                        border.width: 8
+                        border.color: window.ui.bg
+                        radius: 16 + border.width
+                        color: "transparent"
+                    }
                     Component.onCompleted: {
                         console.log("Dimensions: ", width, height)
                     }
