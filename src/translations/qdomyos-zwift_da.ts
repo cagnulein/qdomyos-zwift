@@ -1216,7 +1216,7 @@ Vil du opdatere QZ-indstillingerne?</translation>
     </message>
     <message>
         <source>Tap a file to select it, then Load.</source>
-        <translation>Tryk på en fil for at vælge den, og tryk derefter på "Indlæs".</translation>
+        <translation>Tryk på en fil for at vælge den, og tryk derefter på &quot;Indlæs&quot;.</translation>
     </message>
     <message>
         <source>Load</source>
@@ -4781,7 +4781,7 @@ Må QZ ændre værdien?
     </message>
     <message>
         <source>Tap a profile to select it, then Load. Long press to delete it.</source>
-        <translation>Tryk på en profil for at vælge den, og tryk derefter på "Indlæs". Hold nede for at slette den.</translation>
+        <translation>Tryk på en profil for at vælge den, og tryk derefter på &quot;Indlæs&quot;. Hold nede for at slette den.</translation>
     </message>
     <message>
         <source>Active</source>
@@ -8545,6 +8545,10 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Ved GPX-træning ignoreres ændringer i hældning under denne værdi, og en ny kommando sendes først, når forskellen fra den sidst sendte værdi når den angivne grænse. Standard: 0 (deaktiveret).</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Brug gear fra konsollen</translation>
     </message>
 </context>
 <context>

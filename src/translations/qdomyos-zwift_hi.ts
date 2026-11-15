@@ -72,6 +72,26 @@
         <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>मूल फ़ोल्डर</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>खोलें</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>यहाँ कोई GPX फ़ाइल नहीं है</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 किमी</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 मी</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -233,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>ठीक है</translation>
     </message>
     <message>
         <source>Good</source>
@@ -260,6 +280,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>रोकें</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
     </message>
 </context>
 <context>
@@ -300,6 +328,18 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>आपके उपकरण को खोजा जा रहा है…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>अपनी बाइक, ट्रेडमिल या रोइंग मशीन चालू करें: QZ उससे अपने आप कनेक्ट हो जाएगा।</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>कनेक्ट नहीं हो रहा?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -321,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>चार्ट</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -509,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>हाँ</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -517,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>नहीं</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1111,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">रद्द करें</translation>
+        <translation>रद्द करें</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1174,6 +1214,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Restore files</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>फ़ाइल चुनने के लिए उस पर टैप करें, फिर लोड करें दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>लोड करें</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>कोई सहेजी गई सेटिंग नहीं</translation>
     </message>
 </context>
 <context>
@@ -1343,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>हटाएँ</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1400,6 +1452,71 @@ Do you want to update QZ settings?</source>
         <source>Start Workout</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>मूल फ़ोल्डर</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>कोई वर्कआउट नहीं मिला</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>यहाँ कोई वर्कआउट नहीं है</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>कम दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>और दिखाएँ</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>हाँ</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>नहीं</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ठीक है</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>विस्तृत</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>संकुचित</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>घंटे</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>मिनट</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>सेकंड</translation>
+    </message>
 </context>
 <context>
     <name>WebIntervalsICUAuth</name>
@@ -1454,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>लोड करें</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1470,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>वापस</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2365,6 +2482,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>हृदय गति PID एक्चुएटर</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>डिफ़ॉल्ट</translation>
     </message>
 </context>
 <context>
@@ -4362,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>अभी नहीं</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>फिर न पूछें</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4379,6 +4506,118 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>सहेज लिया गया! Files ऐप में देखें।</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>सहेज लिया गया! ऐप के निजी फ़ोल्डर में देखें।</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoo वर्चुअल गियर</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>वर्चुअल गियर का अनुकरण करने के लिए QZ आपके ट्रेनर में सहेजी गई पहिये की परिधि बदलता है। QZ बंद करने के बाद भी यह मान ट्रेनर में रह सकता है और दूसरे ऐप में उसके व्यवहार को प्रभावित कर सकता है।
+
+क्या QZ को इसे बदलने की अनुमति दें?
+
+नहीं चुनने पर QZ, Without Wheel Diameter Protocol (सेटिंग &gt; बाइक विकल्प &gt; Wahoo विकल्प) चालू करता है और वर्चुअल गियर ढलान के ज़रिये काम करते हैं। हाँ चुनने पर आप इसे बाद में वापस कर सकते हैं: वह विकल्प चालू करें और ट्रेनर के कनेक्ट रहने पर Restore Default Setting to the Trainer दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>वापस</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>मुख्य मेनू</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>फ़्लोटिंग विंडो</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>सेटिंग लोड करें</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>सेटिंग सहेजें</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>मैप</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>वीडियो</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>चार्ट</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>टाइल लॉक करें</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>टाइल अनलॉक करें</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>ऑटो रेजिस्टेंस बंद करें</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>ऑटो रेजिस्टेंस चालू करें</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Strava से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Strava से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Peloton से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Peloton से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect सेटिंग</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Intervals.icu से डिस्कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Intervals.icu से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>वर्कआउट</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>ऐप</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>सेवाएँ</translation>
     </message>
 </context>
 <context>
@@ -4465,6 +4704,30 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>हटाएँ</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>नई प्रोफ़ाइल</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>सहेजी गई प्रोफ़ाइल</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>प्रोफ़ाइल चुनने के लिए उस पर टैप करें और फिर लोड करें दबाएँ। हटाने के लिए देर तक दबाएँ।</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>सक्रिय</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>लोड करें</translation>
     </message>
 </context>
 <context>
@@ -5466,7 +5729,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>टाइल विकल्प</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8174,6 +8437,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX वर्कआउट में इस मान से छोटे झुकाव बदलावों को अनदेखा करें। नया झुकाव आदेश तभी भेजें जब पिछली भेजी गई वैल्यू से अंतर निर्धारित सीमा तक पहुँच जाए। डिफ़ॉल्ट: 0 (बंद)।</translation>
     </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>यह सेटिंग सेटिंग पेजों पर नहीं मिली</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>कंसोल गियर का उपयोग करें</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8985,6 +9256,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>km/h</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>टाइल विकल्प</translation>
     </message>
 </context>
 <context>

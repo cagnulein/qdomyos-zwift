@@ -8574,6 +8574,10 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>В тренировках GPX изменения наклона меньше указанного значения игнорируются. Новая команда отправляется только тогда, когда разница с последним отправленным значением достигает заданного порога. По умолчанию: 0 (отключено).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Использовать передачи консоли</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

@@ -8570,6 +8570,10 @@ A와 B가 모두 0이면 QZ는 기본 공식 9.8 × 체중 × (경사도/100)을
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX 운동에서 이 값보다 작은 경사 변화는 무시하고, 마지막으로 전송한 값과의 차이가 설정된 임계값에 도달했을 때만 새 경사 명령을 보냅니다. 기본값: 0(비활성화).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>콘솔 기어 사용</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

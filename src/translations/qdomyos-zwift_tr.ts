@@ -8570,6 +8570,10 @@ Varsayılan: A = -0.96, B = 1.33</translation>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX antrenmanlarında bu değerden küçük eğim değişikliklerini yok sayar ve yalnızca son gönderilen değere göre fark ayarlanan eşiğe ulaştığında yeni eğim komutu gönderir. Varsayılan: 0 (devre dışı).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Konsol viteslerini kullan</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

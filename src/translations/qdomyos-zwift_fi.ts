@@ -72,6 +72,26 @@
         <source>Restore files</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Yläkansio</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Avaa</translation>
+    </message>
+    <message>
+        <source>No GPX files here</source>
+        <translation>Tässä ei ole GPX-tiedostoja</translation>
+    </message>
+    <message>
+        <source>%1 km</source>
+        <translation>%1 km</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
 </context>
 <context>
     <name>HeartRateSuggestion</name>
@@ -233,7 +253,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Good</source>
@@ -260,6 +280,14 @@ Would you like to enable the required services?</source>
     <message>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Pysäytä</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
     </message>
 </context>
 <context>
@@ -300,6 +328,18 @@ Would you like to enable the required services?</source>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Looking for your equipment…</source>
+        <translation>Etsitään laitettasi…</translation>
+    </message>
+    <message>
+        <source>Turn on your bike, treadmill or rower: QZ connects to it automatically.</source>
+        <translation>Käynnistä pyörä, juoksumatto tai soutulaite: QZ yhdistää siihen automaattisesti.</translation>
+    </message>
+    <message>
+        <source>Not connecting?</source>
+        <translation>Eikö yhteys muodostu?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -321,7 +361,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>Chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaavio</translation>
     </message>
     <message>
         <source>Treadmill Status</source>
@@ -509,7 +549,7 @@ Would you like to enable the required services?</source>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Kyllä</translation>
     </message>
     <message>
         <source>Yes to All</source>
@@ -517,7 +557,7 @@ Would you like to enable the required services?</source>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei</translation>
     </message>
     <message>
         <source>No to All</source>
@@ -1111,7 +1151,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Peruuta</translation>
+        <translation>Peruuta</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -1174,6 +1214,18 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Restore files</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap a file to select it, then Load.</source>
+        <translation>Valitse tiedosto napauttamalla sitä ja valitse sitten Lataa.</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Lataa</translation>
+    </message>
+    <message>
+        <source>No saved settings</source>
+        <translation>Ei tallennettuja asetuksia</translation>
     </message>
 </context>
 <context>
@@ -1343,7 +1395,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Poista</translation>
     </message>
     <message>
         <source>Other folders</source>
@@ -1400,6 +1452,71 @@ Do you want to update QZ settings?</source>
         <source>Start Workout</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Parent folder</source>
+        <translation>Yläkansio</translation>
+    </message>
+    <message>
+        <source>No workouts found</source>
+        <translation>Harjoituksia ei löytynyt</translation>
+    </message>
+    <message>
+        <source>No workouts here</source>
+        <translation>Tässä ei ole harjoituksia</translation>
+    </message>
+    <message>
+        <source>Show less</source>
+        <translation>Näytä vähemmän</translation>
+    </message>
+    <message>
+        <source>Show more</source>
+        <translation>Näytä lisää</translation>
+    </message>
+</context>
+<context>
+    <name>UiMessageDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Kyllä</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ei</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>UiSectionHeader</name>
+    <message>
+        <source>Expanded</source>
+        <translation>Laajennettu</translation>
+    </message>
+    <message>
+        <source>Collapsed</source>
+        <translation>Supistettu</translation>
+    </message>
+</context>
+<context>
+    <name>UiTextField</name>
+    <message>
+        <source>hours</source>
+        <translation>tuntia</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <translation>min</translation>
+    </message>
+    <message>
+        <source>sec</source>
+        <translation>s</translation>
+    </message>
 </context>
 <context>
     <name>WebIntervalsICUAuth</name>
@@ -1454,7 +1571,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Lataa</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -1470,7 +1587,7 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Takaisin</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2365,6 +2482,16 @@ Do you want to update QZ settings?</source>
     <message>
         <source>Interval {number}, {field}: {error}</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HR PID actuator</source>
+        <extracomment>Workout editor field (treadmill): what the machine changes to keep the heart rate in the target zone during this interval.</extracomment>
+        <translation>Sykkeen PID-ohjauksen toimilaite</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <extracomment>Workout editor, &quot;HR PID actuator&quot; option: use the global &quot;PID HR actuator&quot; setting.</extracomment>
+        <translation>Oletus</translation>
     </message>
 </context>
 <context>
@@ -4362,11 +4489,11 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Not now</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei nyt</translation>
     </message>
     <message>
         <source>Don&apos;t ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Älä kysy uudelleen</translation>
     </message>
     <message>
         <source>Auto Resistance enabled</source>
@@ -4379,6 +4506,118 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Please choose a file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved! Look in the Files app.</source>
+        <translation>Tallennettu! Katso Tiedostot-sovelluksesta.</translation>
+    </message>
+    <message>
+        <source>Saved! Look in the app&apos;s private folder.</source>
+        <translation>Tallennettu! Katso sovelluksen yksityisestä kansiosta.</translation>
+    </message>
+    <message>
+        <source>Wahoo Virtual Gears</source>
+        <translation>Wahoon virtuaalivaihteet</translation>
+    </message>
+    <message>
+        <source>To simulate virtual gears, QZ changes the wheel circumference stored in your trainer. This value may stay in the trainer after you close QZ and affect it in other apps.
+
+Allow QZ to change it?
+
+No: QZ turns on Without Wheel Diameter Protocol (Settings &gt; Bike Options &gt; Wahoo Options), and virtual gears work through the grade. With Yes you can undo it later there: turn on that option and, with the trainer connected, tap Restore Default Setting to the Trainer.</source>
+        <translation>Virtuaalivaihteiden simulointia varten QZ muuttaa harjoitusvastukseen tallennettua pyörän ympärysmittaa. Arvo voi jäädä laitteeseen QZ:n sulkemisen jälkeen ja vaikuttaa sen toimintaan muissa sovelluksissa.
+
+Saako QZ muuttaa arvoa?
+
+Jos valitset Ei, QZ ottaa käyttöön asetuksen Without Wheel Diameter Protocol (Asetukset &gt; Pyörän asetukset &gt; Wahoo-asetukset), ja virtuaalivaihteet toimivat kaltevuuden avulla. Jos valitset Kyllä, voit perua muutoksen myöhemmin: ota kyseinen asetus käyttöön ja valitse harjoitusvastuksen ollessa yhdistettynä Restore Default Setting to the Trainer.</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Takaisin</translation>
+    </message>
+    <message>
+        <source>Main menu</source>
+        <translation>Päävalikko</translation>
+    </message>
+    <message>
+        <source>Floating window</source>
+        <translation>Kelluva ikkuna</translation>
+    </message>
+    <message>
+        <source>Load settings</source>
+        <translation>Lataa asetukset</translation>
+    </message>
+    <message>
+        <source>Save settings</source>
+        <translation>Tallenna asetukset</translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Kartta</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Chart</source>
+        <translation>Kaavio</translation>
+    </message>
+    <message>
+        <source>Lock tiles</source>
+        <translation>Lukitse ruudut</translation>
+    </message>
+    <message>
+        <source>Unlock tiles</source>
+        <translation>Avaa ruutujen lukitus</translation>
+    </message>
+    <message>
+        <source>Disable auto resistance</source>
+        <translation>Poista automaattinen vastus käytöstä</translation>
+    </message>
+    <message>
+        <source>Enable auto resistance</source>
+        <translation>Ota automaattinen vastus käyttöön</translation>
+    </message>
+    <message>
+        <source>Disconnect from Strava</source>
+        <translation>Katkaise Strava-yhteys</translation>
+    </message>
+    <message>
+        <source>Connect with Strava</source>
+        <translation>Yhdistä Stravaan</translation>
+    </message>
+    <message>
+        <source>Disconnect from Peloton</source>
+        <translation>Katkaise Peloton-yhteys</translation>
+    </message>
+    <message>
+        <source>Connect with Peloton</source>
+        <translation>Yhdistä Pelotoniin</translation>
+    </message>
+    <message>
+        <source>Garmin Connect settings</source>
+        <translation>Garmin Connect -asetukset</translation>
+    </message>
+    <message>
+        <source>Disconnect from Intervals.icu</source>
+        <translation>Katkaise Intervals.icu-yhteys</translation>
+    </message>
+    <message>
+        <source>Connect with Intervals.icu</source>
+        <translation>Yhdistä Intervals.icu-palveluun</translation>
+    </message>
+    <message>
+        <source>Workout</source>
+        <translation>Harjoitus</translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation>Sovellus</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>Palvelut</translation>
     </message>
 </context>
 <context>
@@ -4465,6 +4704,30 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     <message>
         <source>Other folders</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation>Uusi profiili</translation>
+    </message>
+    <message>
+        <source>Saved profiles</source>
+        <translation>Tallennetut profiilit</translation>
+    </message>
+    <message>
+        <source>Tap a profile to select it, then Load. Long press to delete it.</source>
+        <translation>Valitse profiili napauttamalla sitä ja valitse sitten Lataa. Poista profiili painamalla sitä pitkään.</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiivinen</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Lataa</translation>
     </message>
 </context>
 <context>
@@ -5466,7 +5729,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
     </message>
     <message>
         <source>Tiles Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruutujen asetukset</translation>
     </message>
     <message>
         <source>General UI Options</source>
@@ -8174,6 +8437,14 @@ Default: A = -0.96, B = 1.33</source>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>GPX-harjoituksissa tätä arvoa pienemmät kaltevuuden muutokset ohitetaan. Uusi komento lähetetään vasta, kun ero viimeksi lähetettyyn arvoon saavuttaa määritetyn rajan. Oletus: 0 (pois käytöstä).</translation>
     </message>
+    <message>
+        <source>This setting was not found on the settings pages</source>
+        <translation>Tätä asetusta ei löytynyt asetussivuilta</translation>
+    </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Käytä konsolin vaihteita</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8985,6 +9256,10 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>km/h</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiles Options</source>
+        <translation>Ruutujen asetukset</translation>
     </message>
 </context>
 <context>

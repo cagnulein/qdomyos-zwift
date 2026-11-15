@@ -8590,6 +8590,10 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).</source>
         <translation>Bei GPX-Trainings werden Steigungsänderungen unter diesem Wert ignoriert. Ein neuer Steigungsbefehl wird erst gesendet, wenn die Abweichung vom zuletzt gesendeten Wert den festgelegten Schwellenwert erreicht. Standard: 0 (deaktiviert).</translation>
     </message>
+    <message>
+        <source>Use Console Gears</source>
+        <translation>Gänge der Konsole verwenden</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
