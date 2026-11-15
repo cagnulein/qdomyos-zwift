@@ -45,14 +45,25 @@ void zwiftclickremote::update() {
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
         if (automaticUnlock) {
-            QByteArray activate = QByteArray::fromHex("000800");
-            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
-                                reinterpret_cast<uint8_t *>(activate.data()),
-                                static_cast<uint8_t>(activate.size()), "Click V2 activate 1");
-            activate = QByteArray::fromHex("000810");
-            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
-                                reinterpret_cast<uint8_t *>(activate.data()),
-                                static_cast<uint8_t>(activate.size()), "Click V2 activate 2");
+            // Space the WriteWithoutResponse frames like ZwiftBoard. In
+            // particular CoreBluetooth must not be flooded before subscription.
+            const quint64 generation = unlockGeneration;
+            QTimer::singleShot(10, this, [this, generation]() {
+                if (!automaticUnlock || generation != unlockGeneration)
+                    return;
+                QByteArray activate = QByteArray::fromHex("000800");
+                writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                    reinterpret_cast<uint8_t *>(activate.data()),
+                                    static_cast<uint8_t>(activate.size()), "Click V2 activate 1");
+            });
+            QTimer::singleShot(20, this, [this, generation]() {
+                if (!automaticUnlock || generation != unlockGeneration)
+                    return;
+                QByteArray activate = QByteArray::fromHex("000810");
+                writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                    reinterpret_cast<uint8_t *>(activate.data()),
+                                    static_cast<uint8_t>(activate.size()), "Click V2 activate 2");
+            });
         }
         initDone = true;
     } else if(initDone) {
