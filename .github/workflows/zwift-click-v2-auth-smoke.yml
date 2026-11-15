@@ -3,6 +3,7 @@ name: Zwift Click V2 live authentication
 # Deliberately NOT a pull_request or pull_request_target workflow.
 # Secret-bearing checks must never run automatically for fork/third-party PRs.
 # This push trigger is limited to our trusted, internal Click V2 feature branch.
+# Push after provisioning ZWIFT_USER/ZWIFT_PASSWORD to run a fresh credentials-backed check.
 on:
   workflow_dispatch:
   push:
