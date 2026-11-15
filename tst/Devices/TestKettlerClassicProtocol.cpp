@@ -103,3 +103,27 @@ TEST(KettlerClassicProtocol, CoachSCapturedRowingTelemetryDecodesAcrossFragments
     EXPECT_EQ(frames.at(1).subFunction, 0x01);
     EXPECT_TRUE(stream.isEmpty());
 }
+
+TEST(KettlerClassicProtocol, CoachSThirdKinomapChallengeCountsEscapedWirePayloadBytes) {
+    // Third independent successful Kinomap HCI capture, 2026-11-15.
+    // The 18 decoded challenge bytes contain 0x10, 0x02 and 0x10, each escaped
+    // on the wire. Kinomap advertises 0x0015 (21) and CRC 0x602B, not 0x0012.
+    const QByteArray challenge = QByteArray::fromHex("927c6464e25210a2a48e02fa7e9006107599");
+    const QByteArray captured = QByteArray::fromHex(
+        "020001010015927c6464e2521030a2a48e1022fa7e90061030759903602b");
+    EXPECT_EQ(challenge.size(), 18);
+    EXPECT_EQ(kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(0x0001, 0x01, challenge),
+              captured);
+
+    // Coach S response still advertises decoded payload length (18); the
+    // escaped 0x03 in the CRC is handled by the standard response decoder.
+    QByteArray response = QByteArray::fromHex(
+        "02000110230012fbbe2e001bcda9e3a53b52c1847f276449bd0310236a");
+    const auto frames = kettlerclassicprotocol::consumeFrames(response);
+    ASSERT_EQ(frames.size(), 1);
+    EXPECT_EQ(frames.at(0).function, 0x0001);
+    EXPECT_EQ(frames.at(0).subFunction, 0x03);
+    EXPECT_EQ(frames.at(0).payload,
+              QByteArray::fromHex("fbbe2e001bcda9e3a53b52c1847f276449bd"));
+    EXPECT_TRUE(response.isEmpty());
+}
