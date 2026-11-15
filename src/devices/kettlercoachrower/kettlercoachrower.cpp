@@ -130,9 +130,8 @@ void kettlercoachrower::rfCommConnected() {
     lastDistanceMeters = 0;
     activeRequest = Request{HANDSHAKE, SUB_READ, QByteArray::fromHex(COACH_S_TEST_CHALLENGE)};
     requestInFlight = true;
-    const QByteArray bytes = kettlerclassicprotocol::encodeFrame(activeRequest.function,
-                                                                  activeRequest.operation,
-                                                                  activeRequest.payload);
+    const QByteArray bytes = kettlerclassicprotocol::encodeFrameWithEscapedPayloadLength(
+        activeRequest.function, activeRequest.operation, activeRequest.payload);
     emit debug(QStringLiteral("Coach S >> handshake ") + bytes.toHex(' '));
     socket->write(bytes);
     requestTimeoutTimer.start(REQUEST_TIMEOUT_MS);
