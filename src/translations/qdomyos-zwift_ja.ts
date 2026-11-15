@@ -308,6 +308,14 @@ Would you like to enable the required services?</source>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>次回、Bluetoothまたは位置情報サービスを有効にするよう通知しますか？</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>アプリに戻す</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>負荷の制御をアプリに戻します</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

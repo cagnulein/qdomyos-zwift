@@ -219,6 +219,7 @@ class homeform : public QObject {
     Q_PROPERTY(QVariantList heartRateSensorSuggestions READ heartRateSensorSuggestions NOTIFY
                    heartRateSensorSuggestionsChanged)
     Q_PROPERTY(bool heartRateSensorOfferOnTap READ heartRateSensorOfferOnTap NOTIFY heartRateSensorSuggestionsChanged)
+    Q_PROPERTY(bool targetPowerReleaseVisible READ targetPowerReleaseVisible NOTIFY targetPowerReleaseVisibleChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -710,6 +711,9 @@ class homeform : public QObject {
         m_androidNotificationPromptRequested = value;
         emit androidNotificationPromptRequestedChanged(value);
     }
+    // "Return to app" on the T.Power(W) tile
+    bool targetPowerReleaseVisible() const { return m_targetPowerReleaseVisible; }
+    Q_INVOKABLE void releaseTargetPower();
     // A virtual device lost its client because Android cut QZ's network in the background
     // (DirCon NetworkError while QZ is not active): offer the Android notification on resume
     void backgroundNetworkLost();
@@ -1238,6 +1242,11 @@ public:
     bool m_startRequested = false;
     bool m_overridePower = false;
     bool m_overridePowerWarned = false;
+    bool m_targetPowerReleaseVisible = false;
+    void setTargetPowerReleaseVisible(bool value);
+    // sets the bike's override state from the T.Power(W) loop condition; true while the loop runs
+    bool updateTargetPowerOverride(bike *device);
+    void clearTargetPowerOverride();
     bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
@@ -1487,6 +1496,7 @@ public:
     // Settings copy of these keys, which does not read QSettings again, so it takes the new value from these
     void heartRateSensorChosenFromOffer(const QString &name);
     void heartRateSensorOfferTurnedOff();
+    void targetPowerReleaseVisibleChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

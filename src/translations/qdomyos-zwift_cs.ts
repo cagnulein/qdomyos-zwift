@@ -308,6 +308,14 @@ Chcete zapnout požadované služby?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Chcete příště připomenout zapnutí Bluetooth nebo služeb určování polohy?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Vrátit aplikaci</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Vrátí řízení zátěže aplikaci</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>

@@ -308,6 +308,14 @@ Möchten Sie die erforderlichen Dienste aktivieren?</translation>
         <source>Would you like to be reminded about enabling Bluetooth or Location Services next time?</source>
         <translation>Möchten Sie beim nächsten Mal daran erinnert werden, Bluetooth oder die Standortdienste zu aktivieren?</translation>
     </message>
+    <message>
+        <source>Return to app</source>
+        <translation>Zurück an die App</translation>
+    </message>
+    <message>
+        <source>Give load control back to the app</source>
+        <translation>Gibt die Laststeuerung an die App zurück</translation>
+    </message>
 </context>
 <context>
     <name>HomeForm.ui</name>
