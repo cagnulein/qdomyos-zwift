@@ -38,8 +38,22 @@ void zwiftclickremote::update() {
     if (initRequest && !initDone) {
         initRequest = false;
         QByteArray s = playDevice->buildHandshakeStart();
+        // ZwiftBoard's verified Click V2 activation: RideOn 02 03,
+        // then 00 08 00 and 00 08 10. Keep legacy Play/Ride intact.
+        if (automaticUnlock)
+            s.append(QByteArray::fromHex("0203"));
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        if (automaticUnlock) {
+            QByteArray activate = QByteArray::fromHex("000800");
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                reinterpret_cast<uint8_t *>(activate.data()),
+                                static_cast<uint8_t>(activate.size()), "Click V2 activate 1");
+            activate = QByteArray::fromHex("000810");
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                                reinterpret_cast<uint8_t *>(activate.data()),
+                                static_cast<uint8_t>(activate.size()), "Click V2 activate 2");
+        }
         initDone = true;
     } else if(initDone) {
         countRxTimeout++;
