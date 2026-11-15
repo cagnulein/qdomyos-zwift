@@ -59,6 +59,9 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
     // a workout import starts copying: the history page shows that it is running
     private static native void nativeOnFitImportStarted();
+    // a workout import copied done of total files out of the picked folder; 0, 0 when the copy is
+    // over: the history page shows how far it is
+    private static native void nativeOnFitImportProgress(int done, int total);
     // a restore of the QZ folder copied done of total files: the list pages show how far it is
     private static native void nativeOnFolderRestoreProgress(int done, int total);
     // TalkBack put its focus on this accessible object: scroll it into view
@@ -894,15 +897,25 @@ public class CustomQtActivity extends QtActivity {
             @Override
             public void run() {
                 StringBuilder localPaths = new StringBuilder();
+                // the file under way and the files to copy, counted before the first copy
+                int[] progress = new int[] {0, 0};
                 try {
                     String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
-                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
+                    progress[1] = countFitFilesInTree(treeUri, rootId, true);
+                    if (progress[1] > 0) {
+                        nativeOnFitImportProgress(0, progress[1]);
+                    }
+                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true, progress);
                     // only in the QZ folder itself, never in another folder the user picked
                     if (removeOldDatabase && localPaths.length() > 0 && QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
                         deleteOldHistoryDatabase(treeUri, rootId, keepDatabase);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "handleFitFolderResult failed " + e);
+                }
+                // the copy is over; queued before the result, so the history page goes on with adding
+                if (progress[1] > 0) {
+                    nativeOnFitImportProgress(0, 0);
                 }
                 Log.d(TAG, "handleFitFolderResult requestCode=" + requestCode + " savedGrant=" + fromSavedGrant
                     + " files=" + (localPaths.length() == 0 ? 0 : localPaths.toString().split("\n").length));
@@ -1378,8 +1391,48 @@ public class CustomQtActivity extends QtActivity {
         }
     }
 
+    // the workout files importFitFilesFromTree() copies: the same walk and the same filter, no copy
+    private int countFitFilesInTree(Uri treeUri, String parentId, boolean descendIntoFit) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        String[] projection = new String[] {
+            android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE};
+        int count = 0;
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, projection, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                if (name == null || documentId == null) {
+                    continue;
+                }
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
+                    if (descendIntoFit && name.equalsIgnoreCase("fit")) {
+                        count += countFitFilesInTree(treeUri, documentId, false);
+                    }
+                    continue;
+                }
+                String lowerName = name.toLowerCase(java.util.Locale.ROOT);
+                if (lowerName.endsWith(".fit") && !lowerName.contains("backup")) {
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "countFitFilesInTree failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
+    }
+
+    // progress: the file under way and the files to copy (countFitFilesInTree()); each workout file
+    // moves it on by one and is passed to the native side
     private void importFitFilesFromTree(Uri treeUri, String parentId, String destinationDir,
-                                        StringBuilder localPaths, boolean descendIntoFit) {
+                                        StringBuilder localPaths, boolean descendIntoFit, int[] progress) {
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
         String[] projection = new String[] {
             android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -1399,7 +1452,7 @@ public class CustomQtActivity extends QtActivity {
                 }
                 if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
                     if (descendIntoFit && name.equalsIgnoreCase("fit")) {
-                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false);
+                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false, progress);
                     }
                     continue;
                 }
@@ -1408,6 +1461,11 @@ public class CustomQtActivity extends QtActivity {
                 // as well; importing them would show the workout twice
                 if (!lowerName.endsWith(".fit") || lowerName.contains("backup")) {
                     continue;
+                }
+                // never past the count: a file may have come into the folder since it was counted
+                if (progress[1] > 0) {
+                    progress[0] = Math.min(progress[0] + 1, progress[1]);
+                    nativeOnFitImportProgress(progress[0], progress[1]);
                 }
                 Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
                 String localPath = ContentHelper.importContentToAppDirKeepExisting(this, documentUri, name, size,

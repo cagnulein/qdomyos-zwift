@@ -2957,12 +2957,12 @@ Následující otázky přizpůsobí QZ vašemu trenažéru a cílům.</translat
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importování tréninků…</translation>
+        <translation type="vanished">Importování tréninků…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Zpracování souborů tréninků…
+        <translation type="vanished">Zpracování souborů tréninků…
 Při prvním spuštění to může chvíli trvat.</translation>
     </message>
     <message>
@@ -3088,6 +3088,22 @@ Při prvním spuštění to může chvíli trvat.</translation>
     <message>
         <source>Import workouts</source>
         <translation>Importovat tréninky</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Přidávání tréninků do historie</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Kopírování souborů tréninků</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Přidávání tréninků do historie: %1 z %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Kopírování souborů tréninků: %1 z %2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

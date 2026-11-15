@@ -22,6 +22,8 @@ Item {
     property int topPadding: 0
     property int bottomPadding: 12
     property string text: qsTr("Restoring files of the previous installation")
+    // the name for the screen reader: the same words as text, %1 the count, %2 the total
+    property string accessibleText: qsTr("Restoring files of the previous installation: %1 of %2")
 
     // the count on the screen: the last one of the running pass, kept while the block closes
     property int shownDone: 0
@@ -67,7 +69,7 @@ Item {
     clip: true
 
     Accessible.role: Accessible.ProgressBar
-    Accessible.name: qsTr("Restoring files of the previous installation: %1 of %2").arg(shownDone).arg(shownTotal)
+    Accessible.name: accessibleText.arg(shownDone).arg(shownTotal)
 
     ColumnLayout {
         id: content

@@ -2957,12 +2957,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>운동을 가져오는 중…</translation>
+        <translation type="vanished">운동을 가져오는 중…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>운동 파일을 처리하는 중…
+        <translation type="vanished">운동 파일을 처리하는 중…
 처음 실행할 때는 시간이 조금 걸릴 수 있습니다.</translation>
     </message>
     <message>
@@ -3088,6 +3088,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Import workouts</source>
         <translation>운동 가져오기</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>운동을 기록에 추가하는 중</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>운동 파일 복사 중</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>운동을 기록에 추가하는 중: %1/%2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>운동 파일 복사 중: %1/%2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

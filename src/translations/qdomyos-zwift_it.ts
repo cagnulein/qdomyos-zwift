@@ -2958,7 +2958,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Elaborazione dei file di allenamento...
+        <translation type="vanished">Elaborazione dei file di allenamento...
 Al primo avvio potrebbe richiedere qualche istante.</translation>
     </message>
     <message>
@@ -3091,7 +3091,7 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Importazione degli allenamenti...</translation>
+        <translation type="vanished">Importazione degli allenamenti...</translation>
     </message>
     <message>
         <source>Filter by date</source>
@@ -3108,6 +3108,22 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     <message>
         <source>Open on Peloton</source>
         <translation>Apri in Peloton</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Aggiunta degli allenamenti alla cronologia</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Copia dei file di allenamento</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Aggiunta degli allenamenti alla cronologia: %1 di %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Copia dei file di allenamento: %1 di %2</translation>
     </message>
     <message>
         <source>Previous month</source>

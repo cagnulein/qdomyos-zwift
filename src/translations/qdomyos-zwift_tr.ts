@@ -2957,12 +2957,12 @@ Aşağıdaki sorular QZ&apos;yi ekipmanınıza ve hedeflerinize göre özelleşt
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Antrenmanlar içe aktarılıyor…</translation>
+        <translation type="vanished">Antrenmanlar içe aktarılıyor…</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Antrenman dosyaları işleniyor…
+        <translation type="vanished">Antrenman dosyaları işleniyor…
 İlk açılışta bu biraz zaman alabilir.</translation>
     </message>
     <message>
@@ -3088,6 +3088,22 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Import workouts</source>
         <translation>Antrenmanları içe aktar</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Antrenmanlar geçmişe ekleniyor</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Antrenman dosyaları kopyalanıyor</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Antrenmanlar geçmişe ekleniyor: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Antrenman dosyaları kopyalanıyor: %1 / %2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>

@@ -2958,7 +2958,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Обробка файлів тренувань...
+        <translation type="vanished">Обробка файлів тренувань...
 Під час першого запуску це може тривати деякий час.</translation>
     </message>
     <message>
@@ -3074,6 +3074,22 @@ This may take a few moments on first startup.</source>
         <translation>Імпортувати файл FIT...</translation>
     </message>
     <message>
+        <source>Adding workouts to the history</source>
+        <translation>Додавання тренувань до історії</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Копіювання файлів тренувань</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Додавання тренувань до історії: %1 з %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Копіювання файлів тренувань: %1 з %2</translation>
+    </message>
+    <message>
         <source>Import from QZ Folder...</source>
         <translation>Імпортувати з папки QZ...</translation>
     </message>
@@ -3091,7 +3107,7 @@ This may take a few moments on first startup.</source>
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Імпорт тренувань...</translation>
+        <translation type="vanished">Імпорт тренувань...</translation>
     </message>
     <message>
         <source>Filter by date</source>

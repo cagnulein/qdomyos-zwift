@@ -2941,12 +2941,12 @@ A következő kérdésekkel a QZ-t az edzőgépéhez és a céljaihoz szabhatja.
     </message>
     <message>
         <source>Importing workouts...</source>
-        <translation>Edzések importálása...</translation>
+        <translation type="vanished">Edzések importálása...</translation>
     </message>
     <message>
         <source>Processing workout files...
 This may take a few moments on first startup.</source>
-        <translation>Edzésfájlok feldolgozása...
+        <translation type="vanished">Edzésfájlok feldolgozása...
 Az első indításkor ez eltarthat néhány pillanatig.</translation>
     </message>
     <message>
@@ -3072,6 +3072,22 @@ Az első indításkor ez eltarthat néhány pillanatig.</translation>
     <message>
         <source>Import workouts</source>
         <translation>Edzések importálása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history</source>
+        <translation>Edzések hozzáadása az előzményekhez</translation>
+    </message>
+    <message>
+        <source>Copying workout files</source>
+        <translation>Edzésfájlok másolása</translation>
+    </message>
+    <message>
+        <source>Adding workouts to the history: %1 of %2</source>
+        <translation>Edzések hozzáadása az előzményekhez: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Copying workout files: %1 of %2</source>
+        <translation>Edzésfájlok másolása: %1 / %2</translation>
     </message>
     <message>
         <source>Open on Peloton</source>
