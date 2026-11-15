@@ -51,6 +51,7 @@ class horizontreadmill : public treadmill {
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
+    static bool isExpectedInitPacket(const QByteArray &packet, uint8_t stage);
     void startDiscover();
     void btinit();
     void setDirectDistance(double treadmillDistance, bool increment);
@@ -91,6 +92,9 @@ class horizontreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
     bool initPacketRecv = false;
+    // Strict acknowledgement checks are limited to the opt-in proprietary Horizon 7.8 start workaround.
+    bool validateHorizonInitResponse = false;
+    uint8_t expectedHorizonInitStage = 0;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
